@@ -600,6 +600,23 @@ pub async fn settings_set_resource_mode(
     Ok(state.apply_limits())
 }
 
+#[cfg(desktop)]
+async fn pick_folder(app: AppHandle) -> CmdResult<Option<tauri_plugin_dialog::FilePath>> {
+    tauri::async_runtime::spawn_blocking(move || app.dialog().file().blocking_pick_folder())
+        .await
+        .map_err(|e| CommandError::new("dialog_failed", e.to_string()))
+}
+
+/// Android storage goes through the platform adapter (scoped storage,
+/// Phase 4); the desktop folder picker does not exist there.
+#[cfg(mobile)]
+async fn pick_folder(_app: AppHandle) -> CmdResult<Option<tauri_plugin_dialog::FilePath>> {
+    Err(CommandError::new(
+        "unsupported_platform",
+        "Choosing a folder is not available on this platform yet",
+    ))
+}
+
 /// Opens the native folder picker and stores the chosen destination after
 /// checking that it is writable. Returns `None` if the user cancels.
 #[tauri::command]
@@ -607,11 +624,7 @@ pub async fn settings_pick_download_dir(
     app: AppHandle,
     state: State<'_, AppState>,
 ) -> CmdResult<Option<SettingsDto>> {
-    let dialog = app.clone();
-    let picked =
-        tauri::async_runtime::spawn_blocking(move || dialog.dialog().file().blocking_pick_folder())
-            .await
-            .map_err(|e| CommandError::new("dialog_failed", e.to_string()))?;
+    let picked = pick_folder(app.clone()).await?;
     let Some(picked) = picked else {
         return Ok(None);
     };

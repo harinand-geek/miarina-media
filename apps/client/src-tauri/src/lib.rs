@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+mod android_tls;
 mod browser;
 mod commands;
 mod state;
@@ -47,6 +49,8 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
+            #[cfg(target_os = "android")]
+            android_tls::init()?;
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
             let storage = Arc::new(Mutex::new(Storage::open(&data_dir.join("miarina.db"))?));

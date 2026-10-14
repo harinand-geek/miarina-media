@@ -36,3 +36,10 @@ tokio-util = { version = "0.7.19", default-features = false }
 # tree through wry; pinned to the same versions.
 webview2-com = "=0.39.1"
 windows = { version = "=0.62.2", features = ["Win32_UI_Input_KeyboardAndMouse"] }
+
+[target.'cfg(target_os = "android")'.dependencies]
+# TLS on Android uses the system trust store (rustls-platform-verifier needs
+# the JVM handles). Same versions as already resolved through reqwest/tao.
+jni = "=0.22.4"
+ndk-context = "=0.1.1"
+rustls-platform-verifier = "=0.7.1"
