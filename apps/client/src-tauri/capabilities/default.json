@@ -45,6 +45,7 @@
     "allow-storage-clear-thumbnails",
     "allow-storage-clean-temp",
     "allow-library-open-external",
-    "allow-downloads-open-folder"
+    "allow-downloads-open-folder",
+    "allow-browser-open"
   ]
 }

@@ -23,9 +23,16 @@ resource-manager = { path = "../../../crates/resource-manager" }
 serde.workspace = true
 serde_json.workspace = true
 storage = { path = "../../../crates/storage" }
-tauri = { version = "2.12.3", features = ["protocol-asset"] }
+# `unstable`: several webviews in one window (built-in browser, decision 0001).
+tauri = { version = "2.12.3", features = ["protocol-asset", "unstable"] }
 # Called from Rust only; no plugin permission is granted to the frontend.
 tauri-plugin-dialog = "=2.8.1"
 tauri-plugin-opener = "=2.7.0"
-tokio = { version = "1.53.2", features = ["sync"] }
+tokio = { version = "1.53.2", features = ["sync", "time"] }
 tokio-util = { version = "0.7.19", default-features = false }
+
+[target.'cfg(windows)'.dependencies]
+# Browser media detection through native WebView2 events. Already in the
+# tree through wry; pinned to the same versions.
+webview2-com = "=0.39.1"
+windows = { version = "=0.62.2", features = ["Win32_UI_Input_KeyboardAndMouse"] }

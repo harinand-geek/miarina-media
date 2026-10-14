@@ -25,6 +25,16 @@ Mesures **réellement relevées**, avec leur environnement. Aucun objectif chiff
 | WebView2, bibliothèque au repos (10 s après avoir quitté le lecteur) | ~407 Mo working set, ~190 Mo privés | idem |
 | Recherche FTS sur 5 000 entrées (base en mémoire) | sous le seuil de 500 ms du test (build debug) ; temps exact non relevé | test `storage::media::a_large_library_stays_fast` |
 
+## Phase 4, tranche 1 (navigateur) — 2026-10-14
+
+Même machine, build release. Fenêtre principale + fenêtre navigateur ouvertes, après visite de YouTube puis Wikimedia Commons.
+
+| Mesure | Résultat | Méthode |
+|---|---|---|
+| Processus principal (Rust) | ~6,4 Mo privés | `Get-Process` |
+| WebView2 (11 processus, les deux fenêtres) | ~558 Mo privés : navigateur 65, GPU 97, renderers 156 (page) + 59 + 55 + 51 + 31, utilitaires ~41 | somme des `msedgewebview2.exe` de l'app |
+| Coût propre au navigateur | environ +370 Mo privés par rapport à la fenêtre principale seule (~190 Mo en Phase 3), page visitée comprise | différence ; sites lourds (YouTube) inclus |
+
 ## Non mesuré à ce stade
 
 - CPU et RAM pendant un téléchargement actif et pendant une conversion FFmpeg.

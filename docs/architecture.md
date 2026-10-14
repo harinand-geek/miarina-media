@@ -235,3 +235,11 @@ Non retenus : Electron, Next.js dans l'app, backend distant, `tauri-plugin-shell
 - **Position de reprise** : `localStorage` (`mm:position:<id>`), simple confort.
 - **Événements** : `library://changed` (sans charge utile) ; le store front relit la page courante avec un anti-rebond de 300 ms et ignore les réponses périmées.
 - **WebView2** : `additionalBrowserArgs` ajoute `--autoplay-policy=no-user-gesture-required` (lecture démarrée par un clic dans l'app, mais `play()` est appelé depuis un gestionnaire d'événement média).
+
+## 14. Navigateur intégré (Phase 4, tranche 1 — Windows)
+
+- **Fenêtre dédiée** `browser`, trois webviews enfants (Tauri `unstable`) : `browser-ui` (barre, `browser.html`), `browser-page` (site visité), `browser-overlay` (bouton flottant / feuille, `browser-overlay.html`, transparente). Pages Vite séparées : l'overlay ne charge pas l'application entière.
+- **Sécurité** : la capability `browser.json` ne vise que `browser-ui` et `browser-overlay` ; la page ne correspond à aucune capability (vérifié : commandes de l'app et du cœur Tauri refusées). Navigation limitée à http(s) ; popups rouverts dans l'onglet ; téléchargements natifs refusés ; adresses validées en Rust (`parse_address`).
+- **Détection** : `crates/media-core/src/detect.rs` (pur, testé) ; Rust alimente la liste depuis les événements WebView2 (`WebResourceResponseReceived`, `NavigationStarting/Completed`, `SourceChanged`, `DocumentTitleChanged`) et un script de relevé exécuté par Rust. La page ne peut que fausser la liste de ses propres médias ; toute URL repasse par l'analyse et la validation existantes avant téléchargement.
+- **État** : `BrowserState` (Rust) publié par l'événement `browser://state` ; raccourcis interceptés `browser://shortcut` ; `app://navigate` demande à la fenêtre principale d'afficher un écran.
+- **WebView2** : plus de `--autoplay-policy=no-user-gesture-required` (les webviews d'une même fenêtre partagent l'environnement et les arguments ; les sites ne doivent pas lancer de son sans geste).

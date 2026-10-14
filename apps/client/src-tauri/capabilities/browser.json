@@ -1,0 +1,29 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "browser",
+  "description": "Built-in browser: only the app's own toolbar and overlay webviews. The visited page (browser-page) matches no capability and can call nothing.",
+  "webviews": ["browser-ui", "browser-overlay"],
+  "permissions": [
+    "core:event:default",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-is-maximized",
+    "core:window:allow-close",
+    "core:window:allow-start-dragging",
+    "allow-browser-navigate",
+    "allow-browser-nav",
+    "allow-browser-state",
+    "allow-browser-sheet",
+    "allow-browser-fab-size",
+    "allow-browser-show-in-app",
+    "allow-validate-media-url",
+    "allow-analyze-link",
+    "allow-components-status",
+    "allow-components-install",
+    "allow-downloads-list",
+    "allow-history-list",
+    "allow-downloads-start",
+    "allow-settings-get",
+    "allow-settings-pick-download-dir"
+  ]
+}

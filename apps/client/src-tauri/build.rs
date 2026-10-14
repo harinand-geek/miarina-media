@@ -35,6 +35,13 @@ const COMMANDS: &[&str] = &[
     "storage_usage",
     "storage_clear_thumbnails",
     "storage_clean_temp",
+    "browser_open",
+    "browser_navigate",
+    "browser_nav",
+    "browser_state",
+    "browser_sheet",
+    "browser_fab_size",
+    "browser_show_in_app",
 ];
 
 fn main() {

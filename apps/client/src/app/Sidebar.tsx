@@ -5,6 +5,7 @@ import { ProgressBar } from '../components/ProgressBar';
 import { SECTION_ORDER } from '../hooks/useGlobalShortcuts';
 import { summarize, useDownloads } from '../stores/downloads';
 import { useUi, type Screen } from '../stores/ui';
+import { openSection } from './navigation';
 
 const NAV: Record<string, { label: string; icon: string }> = {
   home: { label: 'Home', icon: 'home' },
@@ -34,17 +35,12 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       {SECTION_ORDER.map((id, i) => {
         const item = NAV[id]!;
         const on = isCurrent(id);
-        const badge =
-          id === 'downloads' && summary.openCount
-            ? String(summary.openCount)
-            : id === 'browser'
-              ? 'Later'
-              : '';
+        const badge = id === 'downloads' && summary.openCount ? String(summary.openCount) : '';
         return (
           <button
             key={id}
             type="button"
-            onClick={() => go(id)}
+            onClick={() => openSection(id)}
             title={`${item.label} (Ctrl+${i + 1})`}
             aria-current={on ? 'page' : undefined}
             className={`flex h-10 items-center gap-3 overflow-hidden whitespace-nowrap rounded-sm px-[13px] text-left text-[13.5px] font-semibold transition-colors duration-[80ms] hover:text-fg ${
@@ -56,13 +52,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
               <>
                 <span className="flex-1">{item.label}</span>
                 {badge && (
-                  <span
-                    className={`rounded-xs px-1.5 py-0.5 font-mono text-[11px] font-semibold ${
-                      id === 'browser'
-                        ? 'bg-line-strong text-muted'
-                        : 'bg-accent-subtle text-chip-text'
-                    }`}
-                  >
+                  <span className="rounded-xs bg-accent-subtle px-1.5 py-0.5 font-mono text-[11px] font-semibold text-chip-text">
                     {badge}
                   </span>
                 )}

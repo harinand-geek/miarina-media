@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { isRunning, useDownloads } from '../stores/downloads';
+import { openSection } from '../app/navigation';
 import { useUi, type Screen } from '../stores/ui';
 
 /** Order of the sidebar, used by Ctrl+1…7 (design system §10). */
@@ -31,7 +32,7 @@ export function useGlobalShortcuts() {
 
       if (/^[1-7]$/.test(key)) {
         e.preventDefault();
-        useUi.getState().go(SECTION_ORDER[Number(key) - 1]!);
+        openSection(SECTION_ORDER[Number(key) - 1]!);
       } else if (key === 'b') {
         e.preventDefault();
         useUi.getState().toggleSidebar();

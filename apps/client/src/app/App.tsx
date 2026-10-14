@@ -1,9 +1,11 @@
 import { useEffect } from 'react';
 import { useAppearance } from '../hooks/useAppearance';
+import { backend } from '../services/backend';
 import { detectPlatform } from '../services/platform';
 import { useDownloads } from '../stores/downloads';
 import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
+import { useUi } from '../stores/ui';
 import { DesktopShell } from './DesktopShell';
 import { MobileShell } from './MobileShell';
 
@@ -16,9 +18,12 @@ export function App() {
     void useSettings.getState().load();
     const stopDownloads = useDownloads.getState().init();
     const stopLibrary = useLibrary.getState().init();
+    // The browser window asks to show Downloads or the Library.
+    const stopNavigate = backend.onAppNavigate((screen) => useUi.getState().go(screen));
     return () => {
       stopDownloads();
       stopLibrary();
+      stopNavigate();
     };
   }, []);
 

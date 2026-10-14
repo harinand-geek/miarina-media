@@ -35,7 +35,8 @@ describe('Windows shell', () => {
     expect(await screen.findByRole('heading', { name: 'History' })).toBeInTheDocument();
 
     await user.keyboard('{Control>}6{/Control}');
-    expect(await screen.findByText(/built-in browser is a concept/)).toBeInTheDocument();
+    // No second window in the preview: the screen explains where the browser lives.
+    expect(await screen.findByText('The browser opens in its own window')).toBeInTheDocument();
   });
 
   it('toggles the sidebar with Ctrl+B', async () => {

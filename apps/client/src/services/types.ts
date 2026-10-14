@@ -263,3 +263,35 @@ export interface StorageUsage {
   orphanTempBytes: number;
   orphanTempCount: number;
 }
+
+// Built-in browser (decision 0001). Detected items are untrusted page data,
+// already filtered in Rust (media_core::detect).
+export type DetectedKind = 'video' | 'audio' | 'hls' | 'dash';
+
+export interface DetectedMedia {
+  kind: DetectedKind;
+  url: string;
+  host: string;
+  /** Last path segment, for display. */
+  name: string;
+  sizeBytes: number | null;
+  via: 'network' | 'page';
+}
+
+export interface BrowserSnapshot {
+  url: string;
+  title: string;
+  loading: boolean;
+  canGoBack: boolean;
+  canGoForward: boolean;
+  /** No page yet: the start page fills the window. */
+  startPage: boolean;
+  /** The format sheet is open (the overlay covers the page). */
+  sheet: boolean;
+  media: DetectedMedia[];
+  /** The page streams through MSE: only the page URL can be analyzed. */
+  streamPlayer: boolean;
+}
+
+export type BrowserAction = 'back' | 'forward' | 'reload' | 'stop' | 'home';
+export type AppScreenRequest = 'downloads' | 'library' | 'player';

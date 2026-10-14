@@ -3,6 +3,7 @@
 //! This crate performs no I/O: it holds the task state machine and the
 //! validation rules applied to untrusted input (URLs, file names, paths).
 
+pub mod detect;
 pub mod filename;
 pub mod path;
 pub mod task;

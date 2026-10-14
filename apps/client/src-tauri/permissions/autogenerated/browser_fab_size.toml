@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-browser-fab-size"
+description = "Enables the browser_fab_size command without any pre-configured scope."
+commands.allow = ["browser_fab_size"]
+
+[[permission]]
+identifier = "deny-browser-fab-size"
+description = "Denies the browser_fab_size command without any pre-configured scope."
+commands.deny = ["browser_fab_size"]

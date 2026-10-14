@@ -11,6 +11,9 @@ import type {
   AnalyzeResult,
   BackendEvent,
   BackendSettings,
+  AppScreenRequest,
+  BrowserAction,
+  BrowserSnapshot,
   CommandError,
   ComponentStatus,
   InstallProgress,
@@ -73,6 +76,24 @@ export interface Backend {
   storageUsage(): Promise<StorageUsage>;
   clearThumbnails(): Promise<number>;
   cleanTemp(): Promise<number>;
+
+  // Built-in browser (desktop window, decision 0001)
+  /** Opens or focuses the browser window; `false` when unavailable (browser preview). */
+  openBrowser(url?: string): Promise<boolean>;
+  /** Navigates the page; resolves with the normalized URL. */
+  browserNavigate(address: string): Promise<string>;
+  browserNav(action: BrowserAction): Promise<void>;
+  browserState(): Promise<BrowserSnapshot>;
+  browserSheet(open: boolean): Promise<void>;
+  /** Size of the floating button, so the transparent overlay covers nothing else. */
+  browserFabSize(width: number, height: number): Promise<void>;
+  /** Brings the main window forward on a screen. */
+  browserShowInApp(screen: AppScreenRequest): Promise<void>;
+  onBrowserState(listener: (state: BrowserSnapshot) => void): () => void;
+  /** Shortcuts pressed while the web page had keyboard focus. */
+  onBrowserShortcut(listener: (name: string) => void): () => void;
+  /** Main window: another window asks to show a screen. */
+  onAppNavigate(listener: (screen: AppScreenRequest) => void): () => void;
 }
 
 /** Subscribes to a Tauri event; returns a synchronous unsubscribe. */
@@ -190,6 +211,24 @@ class TauriBackend implements Backend {
   storageUsage = () => call<StorageUsage>('storage_usage');
   clearThumbnails = () => call<number>('storage_clear_thumbnails');
   cleanTemp = () => call<number>('storage_clean_temp');
+
+  openBrowser = async (url?: string) => {
+    await call<void>('browser_open', { url: url ?? null });
+    return true;
+  };
+  browserNavigate = (address: string) => call<string>('browser_navigate', { address });
+  browserNav = (action: BrowserAction) => call<void>('browser_nav', { action });
+  browserState = () => call<BrowserSnapshot>('browser_state');
+  browserSheet = (open: boolean) => call<void>('browser_sheet', { open });
+  browserFabSize = (width: number, height: number) =>
+    call<void>('browser_fab_size', { width, height });
+  browserShowInApp = (screen: AppScreenRequest) => call<void>('browser_show_in_app', { screen });
+  onBrowserState = (listener: (state: BrowserSnapshot) => void) =>
+    onEvent<BrowserSnapshot>('browser://state', listener);
+  onBrowserShortcut = (listener: (name: string) => void) =>
+    onEvent<string>('browser://shortcut', listener);
+  onAppNavigate = (listener: (screen: AppScreenRequest) => void) =>
+    onEvent<AppScreenRequest>('app://navigate', listener);
 }
 
 // `let` + live ES module binding: importers always see the current backend.

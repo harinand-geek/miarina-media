@@ -2337,6 +2337,8 @@ dependencies = [
  "tauri-plugin-opener",
  "tokio",
  "tokio-util",
+ "webview2-com",
+ "windows",
 ]
 
 [[package]]

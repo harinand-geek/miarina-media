@@ -4,6 +4,9 @@
 
 import { checkLink } from '../services/link';
 import type {
+  AppScreenRequest,
+  BrowserAction,
+  BrowserSnapshot,
   AnalyzeResult,
   BackendEvent,
   BackendSettings,
@@ -131,6 +134,8 @@ export class MockBackend {
   private timer: ReturnType<typeof setInterval> | undefined;
   private lastTick = 0;
   private toolsInstalled = false;
+  private browser: BrowserSnapshot = { ...BROWSER_START };
+  private browserListeners = new Set<(state: BrowserSnapshot) => void>();
 
   constructor() {
     const now = Date.now();
@@ -464,6 +469,67 @@ export class MockBackend {
     return 1.2 * 1024 * MB;
   }
 
+  // Built-in browser: the preview has no second window. The state below
+  // drives the browser UI and overlay pages in tests and the dev preview.
+
+  async openBrowser() {
+    return false;
+  }
+
+  async browserNavigate(address: string) {
+    // Same rule as `parse_address` in Rust: a bare host gets https://.
+    const text = address.trim();
+    const bare =
+      !text.includes('://') &&
+      !/\s/.test(text) &&
+      (text.includes('.') || text.startsWith('localhost'));
+    const link = await checkLink(bare ? `https://${text}` : text.includes('://') ? text : '');
+    if (!link.ok) throw new Error('Enter a web address, like example.org');
+    this.setBrowser({ ...BROWSER_DEMO, url: link.url });
+    return link.url;
+  }
+
+  async browserNav(action: BrowserAction) {
+    if (action === 'home') this.setBrowser({ ...BROWSER_START });
+  }
+
+  async browserState() {
+    return this.browser;
+  }
+
+  async browserSheet(open: boolean) {
+    this.setBrowser({ ...this.browser, sheet: open && !this.browser.startPage });
+  }
+
+  async browserFabSize() {}
+
+  async browserShowInApp(screen: AppScreenRequest) {
+    void screen;
+  }
+
+  onBrowserState(listener: (state: BrowserSnapshot) => void) {
+    this.browserListeners.add(listener);
+    return () => this.browserListeners.delete(listener);
+  }
+
+  onBrowserShortcut() {
+    return () => {};
+  }
+
+  onAppNavigate() {
+    return () => {};
+  }
+
+  /** Test helper: puts the browser on the demo page. */
+  showBrowserDemo(patch: Partial<BrowserSnapshot> = {}) {
+    this.setBrowser({ ...BROWSER_DEMO, ...patch });
+  }
+
+  private setBrowser(next: BrowserSnapshot) {
+    this.browser = next;
+    for (const listener of this.browserListeners) listener(next);
+  }
+
   private libraryChanged() {
     for (const listener of this.libraryListeners) listener();
   }
@@ -625,6 +691,47 @@ export class MockBackend {
     for (const listener of this.listeners) listener(event);
   }
 }
+
+const BROWSER_START: BrowserSnapshot = {
+  url: '',
+  title: '',
+  loading: false,
+  canGoBack: false,
+  canGoForward: false,
+  startPage: true,
+  sheet: false,
+  media: [],
+  streamPlayer: false,
+};
+
+const BROWSER_DEMO: BrowserSnapshot = {
+  url: 'https://studio.blender.org/films/sprite-fright/',
+  title: 'Sprite Fright — Blender Studio',
+  loading: false,
+  canGoBack: true,
+  canGoForward: false,
+  startPage: false,
+  sheet: false,
+  media: [
+    {
+      kind: 'video',
+      url: 'https://video.blender.org/sprite-fright.mp4',
+      host: 'video.blender.org',
+      name: 'sprite-fright.mp4',
+      sizeBytes: 372 * MB,
+      via: 'page',
+    },
+    {
+      kind: 'video',
+      url: 'https://video.blender.org/sprite-fright-trailer.mp4',
+      host: 'video.blender.org',
+      name: 'sprite-fright-trailer.mp4',
+      sizeBytes: null,
+      via: 'network',
+    },
+  ],
+  streamPlayer: false,
+};
 
 function strip(task: MockTask): TaskRecord {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

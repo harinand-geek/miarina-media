@@ -1,3 +1,4 @@
+mod browser;
 mod commands;
 mod state;
 
@@ -94,6 +95,7 @@ pub fn run() {
             // Apply the persisted settings before anything is scheduled.
             let settings = state.apply_limits();
             app.manage(state);
+            app.manage(browser::BrowserState::default());
 
             // Media playback and thumbnails go through the asset protocol.
             let download_dir = PathBuf::from(&settings.download_dir);
@@ -174,6 +176,13 @@ pub fn run() {
             commands::storage_usage,
             commands::storage_clear_thumbnails,
             commands::storage_clean_temp,
+            browser::browser_open,
+            browser::browser_navigate,
+            browser::browser_nav,
+            browser::browser_state,
+            browser::browser_sheet,
+            browser::browser_fab_size,
+            browser::browser_show_in_app,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");
