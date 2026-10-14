@@ -211,3 +211,29 @@ Le handoff fournit un `tailwind.config.ts` (syntaxe Tailwind v3) fondé sur des 
 9. **Échelles de police** hors tokens (26, 22, 13.5, 14.5 px) utilisées dans les prototypes : à confirmer ou à aligner sur les tokens.
 10. **Miniatures** : uniquement des placeholders hachurés dans le design ; le rendu réel des miniatures (ratio, recadrage, fallback audio « cover art ») est à préciser.
 11. **Fenêtre Windows sans décoration native** (barre de titre custom avec min/max/close) : implique `decorations: false` + zones de drag + gestion du snap Windows 11 (Snap Layouts sur le bouton maximiser) — à confirmer.
+
+## 14. Navigateur intégré (handoff `design/Miarina Media - Browser.dc.html`, reçu le 2026-10-14)
+
+Aucun nouveau token : toutes les couleurs des maquettes existent déjà (`#F4F4F1` n'est que le fond de la page web fictive).
+
+| Élément | Windows (D1–D3, 1280 × 760) | Android (M1–M5, 412 dp) |
+|---|---|---|
+| Fenêtre / cadre | Fenêtre propre au navigateur : barre de titre `sidebar` 40 px = logo + onglets + min/max/close ; **pas de sidebar de l'app** | Mode plein écran : barre d'adresse en haut, barre de navigation navigateur en bas (back, forward, home, history, `apps` = retour à l'app) |
+| Onglets | Bande style Chromium, 220 px (min 120), onglet actif `surface` relié à la barre d'outils, badge teal = médias détectés, bouton `add` | Compteur carré (ouvre M2) ; M2 = grille 2 colonnes de cartes 3:4, bordure teal sur l'onglet actif, chip « N media » |
+| Barre d'outils | 48 px `surface` : back, forward, reload, home ; pill d'adresse 34 px (`bg`, bordure `line-strong`, mono 12.5 : hôte en `fg`, chemin en `muted`, cadenas teal) ; chip « 3 media » dans la barre (ouvre D2) ; étoile favori (ambre remplie si enregistré) ; favoris, historique, téléchargements (badge), menu | Pill 44 dp `surface`, hôte mono 14, chip compteur ; ligne de progression de chargement 3 dp teal |
+| Barre de favoris | 34 px sous la barre d'outils, optionnelle (Settings → Browser → Show favorites bar) | — (favoris en tête de M4, servent de raccourcis du nouvel onglet) |
+| Bouton flottant | Bas-droite du viewport web, retrait 24 px, h 52, radius 26, `accent` ; partie gauche = télécharger le format par défaut de tous les médias détectés, chevron = ouvrir D2 | Centré, 16 dp au-dessus de la barre du bas ; tap = M3 (1er média), appui long = téléchargement immédiat au format par défaut |
+| États du bouton | Detecting (après 600 ms, `surface-2`, non cliquable) · 1 média (« Download ») · plusieurs (« Download · 3 ») · Downloading (fond `bg`, barre 3 px, « 62% · 6.4 MB/s », tap → Downloads) · Done (`#1F3A3C`/`#5FE0D5`, « Saved · Play », 4 s) ; masqué si rien n'est détecté ; entrée fondu 200 ms + montée 12 px ; réduit à un cercle 52 px au défilement vers le bas | idem |
+| Feuille de formats | D2 : panneau 440 px ancré au-dessus du bouton (pas centré), radius 14, `surface-2`, scrim 62 % ; liste des médias à cases à cocher, onglets Video / Audio only / Subtitles, formats radio (tag « Recommended »), dossier + Change, « Add to queue » / « Download 2 · 728 MB » ; Esc ou scrim ferme | M3 : bottom sheet radius 24, chips pour passer d'un média à l'autre, segmented Video / Audio only, formats 60 dp, « Save to », bouton pill « Download · 372 MB » (réutilise la feuille d'analyse) |
+| Historique & favoris | D3 : page interne `miarina://history` dans un onglet (icône `shield_with_heart`) ; nav 220 px Favorites / History / Downloaded from / Recently closed (compteurs) ; grille de favoris 6 colonnes ; historique groupé par jour (heure, initiale, titre, URL, chip « N media », étoile) ; « Clear browsing data » | M4 : via ⋮ → History ; onglets History / Favorites · N ; favoris 4 colonnes ; lignes 64 dp |
+| Settings Android | — | M5 : la barre du bas devient Home · Browser · Downloads · Library ; Settings = engrenage dans la barre du haut de Home (et ⋮ du navigateur), plein écran avec flèche retour |
+
+Raccourcis Windows : Ctrl+T nouvel onglet · Ctrl+W fermer · Ctrl+L adresse · Ctrl+H historique · Ctrl+D favori · Ctrl+Shift+S feuille de formats · Alt+←/→ · F5.
+
+Icônes ajoutées : `progress_activity downloading bookmarks star shield_with_heart delete_sweep tab add apps expand_less travel_explore public`.
+
+**Points d'interprétation / à confirmer**
+1. D1 montre une fenêtre dédiée (pas de sidebar) : l'entrée « Browser » de la sidebar ouvrira ou focalisera cette fenêtre.
+2. Le bouton flottant, la chip et la feuille D2 (avec scrim) **recouvrent la page web**. Techniquement, la page est une webview native distincte : l'UI de l'app ne peut pas dessiner par-dessus sans une couche dédiée → question centrale du spike (`docs/decisions/0001`). L'injection du bouton dans le DOM de la page est exclue (la page pourrait le masquer, l'imiter ou le déclencher).
+3. Raccourcis : quand la page a le focus, c'est elle qui reçoit le clavier ; ils devront être interceptés au niveau de la webview (à valider dans le spike).
+4. L'onglet « Subtitles » de D2 dépend de la prise en charge des sous-titres (🟡, cf. analyse).
