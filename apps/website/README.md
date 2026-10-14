@@ -32,6 +32,7 @@ VPS `169.58.142.102` (aaPanel, nginx 1.30), même serveur que `cv.harinjaka.org`
 ### Mettre à jour le site ou publier une version
 
 1. Mettre à jour `index.html` : version, tailles, **empreintes SHA-256**, tableau des plateformes, journal des versions.
+   **Cloudflare met en cache par URL** : à chaque fichier modifié, changer son `?v=` dans les pages (`site.css?v=`, `site.js?v=`, liens de téléchargement `?v=<8 premiers caractères de l’empreinte>`). Sinon les visiteurs reçoivent l’ancienne version.
 2. Envoyer :
 
 ```bash

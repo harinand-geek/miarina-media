@@ -14,8 +14,8 @@
 <meta property="og:type" content="website">
 <link rel="icon" href="/assets/img/logo.svg" type="image/svg+xml">
 <link rel="preload" href="/assets/fonts/manrope.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/assets/site.css">
-<script src="/assets/site.js" defer></script>
+<link rel="stylesheet" href="/assets/site.css?v=2">
+<script src="/assets/site.js?v=2" defer></script>
 </head>
 <body>
 <nav class="topbar" aria-label="Principale">
@@ -41,23 +41,23 @@
   <p class="lead">Collez un lien, choisissez le format, gardez le fichier. Miarina Media télécharge vidéos et audio, puis les range dans une bibliothèque sur votre appareil.</p>
   <div id="telecharger" class="downloads">
     <div class="download-buttons">
-      <a class="btn-download primary" data-platform="windows" href="/downloads/MiarinaMedia-0.1.0-x64-setup.exe" download>
+      <a class="btn-download primary" data-platform="windows" href="/downloads/MiarinaMedia-0.1.0-x64-setup.exe?v=1dcc1109" download>
         <span class="icon" aria-hidden="true">desktop_windows</span>
         <span class="btn-text"><span class="btn-label">Télécharger pour Windows</span><span class="btn-meta">Windows 10 / 11 · 64 bits · 8,2 Mo</span></span>
       </a>
-      <a class="btn-download secondary" data-platform="android" href="/downloads/MiarinaMedia-0.1.0.apk" download>
+      <a class="btn-download secondary" data-platform="android" href="/downloads/MiarinaMedia-0.1.0.apk?v=147ccf72" download>
         <span class="icon" aria-hidden="true">android</span>
         <span class="btn-text"><span class="btn-label">Télécharger pour Android</span><span class="btn-meta">Android 7.0+ · APK · 31 Mo</span></span>
       </a>
     </div>
-    <span class="note" id="detect-note">Gratuit · sans compte · sans publicité</span>
+    <span class="note">Gratuit · sans compte · sans publicité</span>
     <details class="checksums">
       <summary>Vérifier les fichiers (SHA-256)</summary>
       <dl>
         <dt>MiarinaMedia-0.1.0-x64-setup.exe</dt>
-        <dd>9c77a882282aaaa573907eab6c73a151304677113eee82bf6c4969289c9e53a6</dd>
+        <dd>1dcc1109d4ff4c4c70ce2ea7fb3dcad95c9c92bd7742321b91a26402095dbe74</dd>
         <dt>MiarinaMedia-0.1.0.apk</dt>
-        <dd>d535a051eb88e6719d0b3f73030618c54074da488aa38cd25f35e3bdd9df79c7</dd>
+        <dd>147ccf72d45435aa3e62d4f54753e4e2834182d4521dc4bf5bb48f07b2fc2a11</dd>
       </dl>
     </details>
   </div>
@@ -77,11 +77,11 @@
     <h2>Du lien au fichier, en trois gestes.</h2>
   </div>
   <div class="cards">
-    <div class="card"><span class="card-icon icon" aria-hidden="true">link</span><span class="card-title">Collez un lien</span><span class="card-text">Miarina Media analyse l’adresse et liste les médias réellement disponibles : lien direct vers un fichier, ou page d’un site pris en charge (Windows).</span></div>
+    <div class="card"><span class="card-icon icon" aria-hidden="true">link</span><span class="card-title">Collez un lien</span><span class="card-text">Miarina Media lit l’adresse et vous montre ce qui peut être téléchargé.</span></div>
     <div class="card"><span class="card-icon icon" aria-hidden="true">tune</span><span class="card-title">Choisissez le format</span><span class="card-text">Qualité vidéo ou audio seul, avec la taille du fichier affichée avant de lancer.</span></div>
-    <div class="card"><span class="card-icon icon" aria-hidden="true">download</span><span class="card-title">File de téléchargements</span><span class="card-text">Pause, reprise, nouvelles tentatives automatiques, et reprise après un redémarrage quand la source le permet.</span></div>
-    <div class="card"><span class="card-icon icon" aria-hidden="true">speed</span><span class="card-title">Éco, Équilibré, Performance</span><span class="card-text">Le mode choisi change vraiment le nombre de téléchargements et de conversions simultanés.</span></div>
-    <div class="card"><span class="card-icon icon" aria-hidden="true">video_library</span><span class="card-title">Bibliothèque</span><span class="card-text">Vos fichiers triés par vidéo et audio, avec recherche. Sous Windows : miniatures, durée et qualité.</span></div>
+    <div class="card"><span class="card-icon icon" aria-hidden="true">download</span><span class="card-title">File de téléchargements</span><span class="card-text">Mettez en pause, reprenez plus tard. Si la connexion coupe, le téléchargement repart tout seul.</span></div>
+    <div class="card"><span class="card-icon icon" aria-hidden="true">speed</span><span class="card-title">Éco, Équilibré, Performance</span><span class="card-text">Réglez combien de téléchargements tournent en même temps, selon votre machine.</span></div>
+    <div class="card"><span class="card-icon icon" aria-hidden="true">video_library</span><span class="card-title">Bibliothèque</span><span class="card-text">Vos fichiers rangés par vidéo et audio, avec une recherche. Sous Windows, avec miniatures et durée.</span></div>
     <div class="card"><span class="card-icon icon" aria-hidden="true">contrast</span><span class="card-title">Clair ou sombre</span><span class="card-text">Thème sombre par défaut, thème clair et mode système.</span></div>
   </div>
 </section>
@@ -90,7 +90,7 @@
   <div class="stack">
     <div class="eyebrow-row"><span class="eyebrow">02 · NAVIGATEUR INTÉGRÉ</span><span class="badge-soon">ANDROID BIENTÔT</span></div>
     <h2>Naviguez. Le bouton apparaît quand il y a quelque chose à garder.</h2>
-    <p class="body">Sous Windows, Miarina Media ouvre les pages dans sa propre fenêtre. Il repère les vidéos et pistes audio de la page et affiche un bouton de téléchargement flottant. Pour les lecteurs en streaming, c’est la page elle-même qui est analysée.</p>
+    <p class="body">Sous Windows, ouvrez une page dans Miarina Media : dès qu’il y a une vidéo ou un son, un bouton de téléchargement apparaît dans le coin.</p>
     <ul class="checks">
       <li><span class="icon" aria-hidden="true">check</span>Détection des médias de la page</li>
       <li><span class="icon" aria-hidden="true">check</span>Bouton de téléchargement flottant</li>
@@ -119,8 +119,8 @@
     </div>
     <div class="table-card">
       <div class="table-head"><span class="icon" aria-hidden="true">music_note</span>Audio</div>
-      <div class="row"><span>MP3</span><span class="mono">conversion · Windows</span></div>
-      <div class="row"><span>M4A · Opus</span><span class="mono">selon la source</span></div>
+      <div class="row"><span>MP3 · M4A · FLAC · Opus</span><span class="mono">conversion · Windows</span></div>
+      <div class="row"><span>Piste audio d’origine</span><span class="mono">selon la source</span></div>
       <div class="row"><span>Fichier original</span><span class="mono">lien direct</span></div>
     </div>
     <div class="table-card">
@@ -151,8 +151,8 @@
     <ul class="privacy-list">
       <li><span class="icon" aria-hidden="true">block</span><div><strong>Aucune publicité</strong><span>Ni dans l’application, ni dans l’installateur.</span></div></li>
       <li><span class="icon" aria-hidden="true">person_off</span><div><strong>Aucun compte</strong><span>Rien à créer pour utiliser l’application.</span></div></li>
-      <li><span class="icon" aria-hidden="true">visibility_off</span><div><strong>Aucun pistage</strong><span>Ni télémétrie, ni traceurs, y compris sur ce site.</span></div></li>
-      <li><span class="icon" aria-hidden="true">hard_drive</span><div><strong>Vos fichiers restent chez vous</strong><span>Tout est enregistré sur votre appareil ; l’historique et la bibliothèque ne quittent pas l’appareil.</span></div></li>
+      <li><span class="icon" aria-hidden="true">visibility_off</span><div><strong>Aucun pistage</strong><span>Ni télémétrie, ni traceurs, y compris sur ce site (<a href="/confidentialite.html">détails</a>).</span></div></li>
+      <li><span class="icon" aria-hidden="true">hard_drive</span><div><strong>Vos fichiers restent chez vous</strong><span>Fichiers, historique et bibliothèque restent sur votre appareil.</span></div></li>
     </ul>
   </div>
 </section>
@@ -161,7 +161,7 @@
   <div class="section-head">
     <span class="eyebrow">06 · PLATEFORMES</span>
     <h2>Windows et Android.</h2>
-    <p class="body">Ce que fait la version 0.1.0 sur chaque plateforme.</p>
+    <p class="body">Ce que la version 0.1.0 sait faire aujourd’hui.</p>
   </div>
   <div class="compare-wrap">
     <table class="compare">
@@ -195,7 +195,7 @@
     <details><summary><span>Où sont enregistrés les fichiers ?</span><span class="icon" aria-hidden="true">add</span></summary><p>Sous Windows, dans le dossier choisi dans les réglages (par défaut Vidéos\Miarina). Sous Android, pour l’instant dans l’espace de l’application (Android/data/org.miarina.media) ; l’enregistrement dans Films et Téléchargements, visible dans la galerie, arrive dans une prochaine version.</p></details>
     <details><summary><span>Faut-il une connexion pour lire mes fichiers ?</span><span class="icon" aria-hidden="true">add</span></summary><p>Non. La bibliothèque et le lecteur Windows fonctionnent hors ligne.</p></details>
     <details><summary><span>Pourquoi Windows affiche-t-il un avertissement ?</span><span class="icon" aria-hidden="true">add</span></summary><p>Cette préversion n’est pas encore signée numériquement, donc Windows SmartScreen peut afficher « Windows a protégé votre ordinateur ». Comparez l’empreinte SHA-256 du fichier avec celle indiquée sur cette page, puis choisissez « Informations complémentaires » et « Exécuter quand même ».</p></details>
-    <details><summary><span>Comment installer l’APK sur Android ?</span><span class="icon" aria-hidden="true">add</span></summary><p>Ouvrez le fichier téléchargé : Android vous demandera d’autoriser l’installation depuis votre navigateur la première fois. Cette préversion est signée avec une clé de test : si une version future change de clé, il faudra désinstaller l’ancienne.</p></details>
+    <details><summary><span>Comment installer l’APK sur Android ?</span><span class="icon" aria-hidden="true">add</span></summary><p>Ouvrez le fichier téléchargé : Android vous demandera d’autoriser l’installation depuis votre navigateur la première fois. Les versions publiées ici sont toutes signées avec la même clé : les mises à jour s’installent par-dessus la version précédente. Si vous aviez installé l’APK du tout premier test (avant le 15 octobre 2026), désinstallez-le une fois avant d’installer celui-ci.</p></details>
   </div>
 </section>
 
@@ -227,6 +227,7 @@
       <div class="footer-cols">
         <div><span class="footer-head">Produit</span><a href="#telecharger">Télécharger</a><a href="#fonctions">Fonctionnalités</a><a href="#plateformes">Plateformes</a></div>
         <div><span class="footer-head">Aide</span><a href="#faq">FAQ</a></div>
+        <div><span class="footer-head">Légal</span><a href="/confidentialite.html">Confidentialité</a><a href="/licences.html">Licences</a></div>
       </div>
     </div>
     <div class="footer-bottom"><span>© 2026 MIARINA · media.miarina.org</span><span class="mono">v0.1.0</span></div>

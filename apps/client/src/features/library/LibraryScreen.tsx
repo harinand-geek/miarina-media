@@ -39,11 +39,16 @@ export default function LibraryScreen() {
     if (focusRequest > 0) searchRef.current?.focus();
   }, [focusRequest]);
 
-  const counts: Record<string, number | undefined> = {
-    All: overview?.stats.count,
-    Video: overview?.stats.videoCount,
-    Audio: overview?.stats.audioCount,
-  };
+  // Library-wide counts: hidden while searching, where they would not match
+  // the results shown.
+  const searching = search.trim() !== '';
+  const counts: Record<string, number | undefined> = searching
+    ? {}
+    : {
+        All: overview?.stats.count,
+        Video: overview?.stats.videoCount,
+        Audio: overview?.stats.audioCount,
+      };
 
   /** Right click, ⇧F10 / context-menu key, plus the design's shortcuts. */
   const itemHandlers = (m: MediaRecord) => ({
