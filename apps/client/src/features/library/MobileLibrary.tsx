@@ -93,7 +93,9 @@ export function MobileLibrary() {
             className="flex w-full flex-col gap-2 text-left"
           >
             <MediaThumb media={m} className="aspect-[16/10] w-full rounded-[10px]">
-              <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+              {m.durationSecs != null && (
+                <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+              )}
             </MediaThumb>
             <span className="flex w-full flex-col gap-px">
               <span className="truncate text-[13.5px] font-semibold">{m.title}</span>

@@ -162,6 +162,26 @@ describe('Android shell', () => {
     expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
   });
 
+  it('follows the M5 navigation: Browser tab, Settings from Home', async () => {
+    const user = userEvent.setup();
+    render(<MobileShell />);
+    const nav = screen.getByRole('navigation', { name: 'Main' });
+    expect(
+      within(nav)
+        .getAllByRole('button')
+        // Labels only: the Downloads badge adds a count.
+        .map((b) => b.textContent?.replace(/\d+/g, '')),
+    ).toEqual(['homeHome', 'travel_exploreBrowser', 'downloadDownloads', 'video_libraryLibrary']);
+    await user.click(within(nav).getByRole('button', { name: /Browser/ }));
+    expect(screen.getByRole('heading', { name: 'Browser' })).toBeInTheDocument();
+
+    await user.click(within(nav).getByRole('button', { name: /Home/ }));
+    await user.click(screen.getByRole('button', { name: 'Settings' }));
+    expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument();
+  });
+
   it('opens the analysis as a bottom sheet', async () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });

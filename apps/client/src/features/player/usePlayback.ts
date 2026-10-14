@@ -76,7 +76,9 @@ export function usePlayback(media: MediaRecord): Playback {
           time: el.currentTime,
           duration: Number.isFinite(el.duration) ? el.duration : s.duration,
           buffered: el.buffered.length ? el.buffered.end(el.buffered.length - 1) : 0,
-          playing: !el.paused && !el.ended,
+          // A failed element can report "not paused": the error wins.
+          playing: !el.paused && !el.ended && !el.error,
+          error: s.error || !!el.error,
           volume: el.volume,
           rate: el.playbackRate,
         }));

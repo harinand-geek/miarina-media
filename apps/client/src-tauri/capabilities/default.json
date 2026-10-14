@@ -46,6 +46,8 @@
     "allow-storage-clean-temp",
     "allow-library-open-external",
     "allow-downloads-open-folder",
-    "allow-browser-open"
+    "allow-browser-open",
+    "core:app:allow-register-listener",
+    "core:app:allow-remove-listener"
   ]
 }

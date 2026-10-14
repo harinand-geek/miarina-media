@@ -64,6 +64,44 @@ impl From<UrlError> for CommandError {
 
 type CmdResult<T> = Result<T, CommandError>;
 
+// --------------------------------------------------------- system opener
+
+/// Android opens files through content URIs (FileProvider), which arrive
+/// with the native media adapter (Phase 4); the desktop opener takes paths.
+#[cfg(mobile)]
+fn not_on_mobile() -> CommandError {
+    CommandError::new(
+        "unsupported_platform",
+        "Opening files in another app is not available on Android yet.",
+    )
+}
+
+/// Opens a file or folder with the system's default application.
+fn open_local(app: &AppHandle, path: &str) -> CmdResult<()> {
+    #[cfg(mobile)]
+    {
+        let _ = (app, path);
+        Err(not_on_mobile())
+    }
+    #[cfg(desktop)]
+    app.opener()
+        .open_path(path, None::<&str>)
+        .map_err(|e| CommandError::new("open_failed", e.to_string()))
+}
+
+/// Shows a file selected in the file manager.
+fn reveal_local(app: &AppHandle, path: &Path) -> CmdResult<()> {
+    #[cfg(mobile)]
+    {
+        let _ = (app, path);
+        Err(not_on_mobile())
+    }
+    #[cfg(desktop)]
+    app.opener()
+        .reveal_item_in_dir(path)
+        .map_err(|e| CommandError::new("reveal_failed", e.to_string()))
+}
+
 // ------------------------------------------------------------------- links
 
 #[derive(Debug, Serialize)]
@@ -553,9 +591,7 @@ fn reveal(app: &AppHandle, path: Option<String>) -> CmdResult<()> {
         .map(PathBuf::from)
         .filter(|p| p.is_file())
         .ok_or_else(|| CommandError::new("file_missing", "The file is no longer on disk."))?;
-    app.opener()
-        .reveal_item_in_dir(path)
-        .map_err(|e| CommandError::new("reveal_failed", e.to_string()))
+    reveal_local(app, &path)
 }
 
 // ----------------------------------------------------------------- history
@@ -723,9 +759,7 @@ pub async fn downloads_open_folder(app: AppHandle, state: State<'_, AppState>) -
     let dir = PathBuf::from(state.settings().download_dir);
     std::fs::create_dir_all(&dir)
         .map_err(|e| CommandError::new("folder_not_writable", e.to_string()))?;
-    app.opener()
-        .open_path(dir.to_string_lossy(), None::<&str>)
-        .map_err(|e| CommandError::new("open_failed", e.to_string()))
+    open_local(&app, &dir.to_string_lossy())
 }
 
 /// Opens a library file with the system's default player (for formats the
@@ -743,9 +777,7 @@ pub async fn library_open_external(
             "The file is no longer on disk.",
         ));
     }
-    app.opener()
-        .open_path(&record.path, None::<&str>)
-        .map_err(|e| CommandError::new("open_failed", e.to_string()))
+    open_local(&app, &record.path)
 }
 
 #[tauri::command]

@@ -1,4 +1,8 @@
+import { detectPlatform } from '../../services/platform';
 import type { MediaRecord, MediaSort } from '../../services/types';
+
+/** Android has no ffprobe: metadata never arrives, so nothing is "pending". */
+const PROBES = detectPlatform() !== 'android';
 
 export const SORT_LABELS: Record<MediaSort, string> = {
   added: 'Date added',
@@ -30,7 +34,7 @@ const AUDIO_CODECS: Record<string, string> = {
 export function qualityLabel(m: MediaRecord) {
   if (m.kind === 'video') {
     const h = m.height;
-    if (!h) return m.probed ? 'Video' : '…';
+    if (!h) return m.probed || !PROBES ? 'Video' : '…';
     return h >= 2160 ? '4K' : `${h}p`;
   }
   return (m.audioCodec && AUDIO_CODECS[m.audioCodec]) ?? m.audioCodec?.toUpperCase() ?? 'Audio';

@@ -4,13 +4,12 @@ import { RadioDot, Segmented } from '../../components/Controls';
 import { DelayedSkeletons, Skeleton, Thumbnail } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { BottomSheet } from '../../components/Overlay';
-import { ANDROID_STORES } from '../../dev/fixtures';
 import type { MediaInfo } from '../../services/types';
-import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
 import { ComponentsPrompt } from './ComponentsPrompt';
 import { NoMediaFound } from './NoMediaFound';
 import { defaultFormat, useAnalysis, useStartActions } from './useAnalysis';
+import { useAndroidStorage } from '../settings/useAndroidStorage';
 
 interface AnalysisSheetProps {
   onOpenStorage: () => void;
@@ -69,8 +68,7 @@ function SheetContent({
   const initialTab = useUi((s) => (s.analysisTab === 'audio' ? 'audio' : 'video'));
   const [tab, setTab] = useState<'video' | 'audio'>(initialTab);
   const [selected, setSelected] = useState<Partial<Record<'video' | 'audio', string>>>({});
-  const storeId = useSettings((s) => s.androidStore);
-  const store = ANDROID_STORES.find((s) => s.id === storeId)!;
+  const storage = useAndroidStorage();
   const { download } = useStartActions();
 
   const formats = info.formats[tab];
@@ -127,17 +125,18 @@ function SheetContent({
       </div>
       <button
         type="button"
-        onClick={onOpenStorage}
+        onClick={storage.canChange ? onOpenStorage : undefined}
+        disabled={!storage.canChange}
         className="flex min-h-14 items-center gap-3 px-1 text-left"
       >
-        <Icon name={store.icon} size={24} className="text-muted" />
+        <Icon name={storage.icon} size={24} className="text-muted" />
         <span className="flex flex-1 flex-col">
           <span className="text-[12px] text-muted">Save to</span>
-          <span className="text-[14px] font-semibold">
-            {store.label} · {store.path}
-          </span>
+          <span className="text-[14px] font-semibold">{storage.label}</span>
         </span>
-        <span className="text-[13px] font-bold text-accent-strong">Change</span>
+        {storage.canChange && (
+          <span className="text-[13px] font-bold text-accent-strong">Change</span>
+        )}
       </button>
       <Button
         variant="primary"

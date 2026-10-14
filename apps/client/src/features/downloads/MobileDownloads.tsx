@@ -110,6 +110,7 @@ export function MobileDownloads() {
   const queue = useMemo(() => all.filter(isQueued), [all]);
   const done = useMemo(() => history.filter((h) => h.status === 'completed'), [history]);
   const anyRunning = active.some(isRunning);
+  const anyPaused = active.some((t) => t.state === 'paused');
 
   const empty =
     (tab === 'active' && !active.length) ||
@@ -120,13 +121,15 @@ export function MobileDownloads() {
     <div className="flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-5 pt-2">
       <header className="flex h-12 items-center">
         <h1 className="m-0 flex-1 text-[22px] font-bold tracking-[-0.02em]">Downloads</h1>
-        <button
-          type="button"
-          onClick={anyRunning ? pauseAll : resumeAll}
-          className="h-10 rounded-[20px] border border-line-strong px-3.5 text-[13px] font-semibold"
-        >
-          {anyRunning ? 'Pause all' : 'Resume all'}
-        </button>
+        {(anyRunning || anyPaused) && (
+          <button
+            type="button"
+            onClick={anyRunning ? pauseAll : resumeAll}
+            className="h-10 rounded-[20px] border border-line-strong px-3.5 text-[13px] font-semibold"
+          >
+            {anyRunning ? 'Pause all' : 'Resume all'}
+          </button>
+        )}
       </header>
       <Segmented<Tab>
         label="Download lists"

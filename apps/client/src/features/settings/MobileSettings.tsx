@@ -1,13 +1,15 @@
 import type { ReactNode } from 'react';
 import { Segmented, Toggle } from '../../components/Controls';
 import { Icon } from '../../components/Icon';
-import { ANDROID_STORES } from '../../dev/fixtures';
+import { PlannedBadge } from '../../components/Feedback';
+import { backend } from '../../services/backend';
 import {
   effectiveConcurrency,
   useSettings,
   type ResourceMode,
   type ThemePref,
 } from '../../stores/settings';
+import { useAndroidStorage } from './useAndroidStorage';
 
 interface RowProps {
   icon: string;
@@ -50,21 +52,39 @@ function Group({ title, children }: { title: string; children: ReactNode }) {
 const THEMES: ThemePref[] = ['dark', 'light', 'system'];
 const THEME_LABELS: Record<ThemePref, string> = { dark: 'Dark', light: 'Light', system: 'System' };
 
-export function MobileSettings({ onOpenStorage }: { onOpenStorage: () => void }) {
+export function MobileSettings({
+  onOpenStorage,
+  onBack,
+}: {
+  onOpenStorage: () => void;
+  /** Settings opens as a full page from Home (design M5). */
+  onBack: () => void;
+}) {
   const s = useSettings();
-  const store = ANDROID_STORES.find((x) => x.id === s.androidStore)!;
+  const storage = useAndroidStorage();
+  // Wi-Fi rules and notifications need the Android download service (Phase 4):
+  // the app says so instead of showing switches that do nothing.
+  const planned = backend.kind === 'tauri';
 
   return (
     <div className="flex flex-1 flex-col overflow-auto pb-5 pt-2">
-      <h1 className="m-0 flex h-14 items-center px-4 text-[22px] font-bold tracking-[-0.02em]">
-        Settings
-      </h1>
+      <div className="flex h-14 items-center gap-1 px-1">
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={onBack}
+          className="grid h-12 w-12 place-items-center rounded-full"
+        >
+          <Icon name="arrow_back" size={24} />
+        </button>
+        <h1 className="m-0 text-[22px] font-bold tracking-[-0.02em]">Settings</h1>
+      </div>
       <Group title="Downloads">
         <Row
           icon="folder"
           label="Storage location"
-          value={`${store.label} · ${store.path}`}
-          onTap={onOpenStorage}
+          value={storage.label}
+          onTap={storage.canChange ? onOpenStorage : undefined}
         />
         <Row
           icon="high_quality"
@@ -76,12 +96,16 @@ export function MobileSettings({ onOpenStorage }: { onOpenStorage: () => void })
           label="Wi-Fi only for large files"
           value="Ask before using mobile data over 100 MB"
           control={
-            <Toggle
-              size="mobile"
-              label="Wi-Fi only for large files"
-              checked={s.toggles.wifiOnlyLargeFiles}
-              onChange={() => s.toggle('wifiOnlyLargeFiles')}
-            />
+            planned ? (
+              <PlannedBadge label="SOON" />
+            ) : (
+              <Toggle
+                size="mobile"
+                label="Wi-Fi only for large files"
+                checked={s.toggles.wifiOnlyLargeFiles}
+                onChange={() => s.toggle('wifiOnlyLargeFiles')}
+              />
+            )
           }
         />
         <Row icon="stacks" label="Simultaneous downloads" value={String(effectiveConcurrency(s))} />
@@ -92,12 +116,16 @@ export function MobileSettings({ onOpenStorage }: { onOpenStorage: () => void })
           label="Progress notifications"
           value="Show speed and time left"
           control={
-            <Toggle
-              size="mobile"
-              label="Progress notifications"
-              checked={s.toggles.progressNotifications}
-              onChange={() => s.toggle('progressNotifications')}
-            />
+            planned ? (
+              <PlannedBadge label="SOON" />
+            ) : (
+              <Toggle
+                size="mobile"
+                label="Progress notifications"
+                checked={s.toggles.progressNotifications}
+                onChange={() => s.toggle('progressNotifications')}
+              />
+            )
           }
         />
         {/* Q1: Eco / Balanced / Performance replaces the "Low-resource mode" toggle. */}

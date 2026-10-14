@@ -12,7 +12,13 @@ import { useUi } from '../../stores/ui';
 import type { MobileTab } from '../../app/MobileShell';
 import { useLinkInput } from './useLinkInput';
 
-export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => void }) {
+export function MobileHome({
+  onNavigate,
+  onOpenSettings,
+}: {
+  onNavigate: (tab: MobileTab) => void;
+  onOpenSettings: () => void;
+}) {
   const { url, error, inputRef, change, submit, paste } = useLinkInput();
   const tasks = useDownloads((s) => s.tasks);
   const summary = useMemo(() => summarize(tasks), [tasks]);
@@ -40,6 +46,15 @@ export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => voi
           tone="default"
           className="rounded-full"
           onClick={() => onNavigate('library')}
+        />
+        <IconButton
+          icon="settings"
+          label="Settings"
+          size={44}
+          iconSize={24}
+          tone="default"
+          className="rounded-full"
+          onClick={onOpenSettings}
         />
       </header>
 
@@ -160,7 +175,9 @@ export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => voi
               className="flex min-w-0 flex-1 items-center gap-3 text-left"
             >
               <MediaThumb media={item} className="h-[45px] w-20 rounded-md">
-                <ThumbBadge position="br">{durationLabel(item.durationSecs)}</ThumbBadge>
+                {item.durationSecs != null && (
+                  <ThumbBadge position="br">{durationLabel(item.durationSecs)}</ThumbBadge>
+                )}
               </MediaThumb>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate text-[14px] font-semibold">{item.title}</span>

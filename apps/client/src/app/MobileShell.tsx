@@ -6,40 +6,62 @@ import { MobileHome } from '../features/home/MobileHome';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
 import { MobileLibrary } from '../features/library/MobileLibrary';
 import { MobileSettings } from '../features/settings/MobileSettings';
+import { MobileBrowser } from '../features/browser/MobileBrowser';
+import { useAndroidBack } from '../hooks/useAndroidBack';
 import { AnalysisSheet } from '../features/analysis/AnalysisSheet';
 import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
 import { summarize, useDownloads } from '../stores/downloads';
 import { useUi } from '../stores/ui';
 
-export type MobileTab = 'home' | 'downloads' | 'library' | 'settings';
+export type MobileTab = 'home' | 'browser' | 'downloads' | 'library';
 
 const TABS: { id: MobileTab; label: string; icon: string }[] = [
   { id: 'home', label: 'Home', icon: 'home' },
+  { id: 'browser', label: 'Browser', icon: 'travel_explore' },
   { id: 'downloads', label: 'Downloads', icon: 'download' },
   { id: 'library', label: 'Library', icon: 'video_library' },
-  { id: 'settings', label: 'Settings', icon: 'settings' },
 ];
 
 /**
- * Android shell: bottom navigation, bottom sheets for analysis and storage,
- * full-screen player (design "Miarina Media - Android").
+ * Android shell: bottom navigation (Home, Browser, Downloads, Library —
+ * design M5), Settings as a full page from Home, bottom sheets for analysis
+ * and storage, full-screen player (design "Miarina Media - Android").
  */
 export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('home');
   const [storageOpen, setStorageOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const nowPlaying = useUi((s) => s.nowPlaying);
+  const closePlayer = useUi((s) => s.play);
+
+  // Back closes the top panel, then returns Home; on Home it leaves the app.
+  useAndroidBack(!!nowPlaying || settingsOpen || tab !== 'home', () => {
+    if (nowPlaying) closePlayer(null);
+    else if (settingsOpen) setSettingsOpen(false);
+    else setTab('home');
+  });
   const tasks = useDownloads((s) => s.tasks);
   const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-bg">
       <div key={tab} className="flex min-h-0 flex-1 animate-screen-in flex-col">
-        {tab === 'home' && <MobileHome onNavigate={setTab} />}
+        {tab === 'home' && (
+          <MobileHome onNavigate={setTab} onOpenSettings={() => setSettingsOpen(true)} />
+        )}
+        {tab === 'browser' && <MobileBrowser onPasteLink={() => setTab('home')} />}
         {tab === 'downloads' && <MobileDownloads />}
         {tab === 'library' && <MobileLibrary />}
-        {tab === 'settings' && <MobileSettings onOpenStorage={() => setStorageOpen(true)} />}
       </div>
+      {settingsOpen && (
+        <div className="absolute inset-0 z-30 flex animate-screen-in flex-col bg-bg">
+          <MobileSettings
+            onBack={() => setSettingsOpen(false)}
+            onOpenStorage={() => setStorageOpen(true)}
+          />
+        </div>
+      )}
 
       <nav aria-label="Main" className="flex h-20 shrink-0 border-t border-divider bg-sidebar px-2">
         {TABS.map((t) => {

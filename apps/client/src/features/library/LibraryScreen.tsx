@@ -190,7 +190,9 @@ export default function LibraryScreen() {
                 media={m}
                 className="aspect-video w-full rounded-md text-[10px] group-hover:outline-2 group-hover:outline-offset-2 group-hover:outline-accent"
               >
-                <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+                {m.durationSecs != null && (
+                  <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+                )}
                 <ThumbBadge position="tl">{qualityLabel(m)}</ThumbBadge>
               </MediaThumb>
               <span className="flex w-full flex-col gap-0.5">
