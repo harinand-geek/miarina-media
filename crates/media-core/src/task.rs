@@ -34,6 +34,37 @@ pub struct TransitionError {
 }
 
 impl TaskState {
+    pub const ALL: [TaskState; 9] = [
+        Self::Queued,
+        Self::Analyzing,
+        Self::Waiting,
+        Self::Downloading,
+        Self::Paused,
+        Self::Processing,
+        Self::Completed,
+        Self::Failed,
+        Self::Canceled,
+    ];
+
+    /// Stable identifier used in storage and events (same as serde).
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Queued => "queued",
+            Self::Analyzing => "analyzing",
+            Self::Waiting => "waiting",
+            Self::Downloading => "downloading",
+            Self::Paused => "paused",
+            Self::Processing => "processing",
+            Self::Completed => "completed",
+            Self::Failed => "failed",
+            Self::Canceled => "canceled",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<TaskState> {
+        Self::ALL.into_iter().find(|s| s.as_str() == value)
+    }
+
     pub fn is_terminal(self) -> bool {
         matches!(self, Self::Completed | Self::Canceled)
     }
@@ -85,17 +116,19 @@ impl TaskState {
 mod tests {
     use super::TaskState::{self, *};
 
-    const ALL: [TaskState; 9] = [
-        Queued,
-        Analyzing,
-        Waiting,
-        Downloading,
-        Paused,
-        Processing,
-        Completed,
-        Failed,
-        Canceled,
-    ];
+    const ALL: [TaskState; 9] = TaskState::ALL;
+
+    #[test]
+    fn string_round_trip_matches_serde() {
+        for state in ALL {
+            assert_eq!(TaskState::parse(state.as_str()), Some(state));
+            assert_eq!(
+                serde_json::to_string(&state).unwrap(),
+                format!("\"{}\"", state.as_str())
+            );
+        }
+        assert_eq!(TaskState::parse("unknown"), None);
+    }
 
     #[test]
     fn happy_path_is_valid() {

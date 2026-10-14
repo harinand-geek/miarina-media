@@ -1,0 +1,19 @@
+[package]
+name = "storage"
+description = "SQLite persistence (tasks, history, settings) with versioned migrations for Miarina Media."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+media-core = { path = "../media-core" }
+rusqlite = { version = "0.40.2", features = ["bundled"] }
+rusqlite_migration = "2.6.0"
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile = "3.27.0"

@@ -1,0 +1,27 @@
+[package]
+name = "download-engine"
+description = "Download engines, bounded scheduler and retry policy for Miarina Media."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+futures-util = { version = "0.3.34", default-features = false, features = ["std"] }
+media-core = { path = "../media-core" }
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
+resource-manager = { path = "../resource-manager" }
+serde.workspace = true
+storage = { path = "../storage" }
+thiserror.workspace = true
+tokio = { version = "1.53.2", features = ["fs", "io-util", "macros", "rt", "sync", "time"] }
+tokio-util = { version = "0.7.19", default-features = false }
+url.workspace = true
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+tokio = { version = "1.53.2", features = ["full", "test-util"] }
