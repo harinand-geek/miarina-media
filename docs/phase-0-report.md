@@ -1,6 +1,6 @@
 # Miarina Media — Rapport Phase 0 (audit et planification)
 
-Date : 2026-10-13 · Statut : **en attente de validation de l'architecture** · Aucun code applicatif écrit.
+Date : 2026-10-13 · Statut : **architecture validée le 2026-10-13** (réponses par défaut en §5bis) · Aucun code applicatif écrit.
 
 Documents liés : [architecture.md](architecture.md) · [design-system.md](design-system.md) · [design-implementation-map.md](design-implementation-map.md) · [android-feasibility.md](android-feasibility.md)
 
@@ -113,6 +113,19 @@ Installeur Windows (NSIS/MSI) signé, APK/AAB signés, versionnage, mise à jour
 - **Q6 — Langues du MVP** : anglais seul avec infrastructure i18n, ou anglais + français (+ malgache) dès le MVP ? Qui fournit les traductions ?
 - **Q7 — ABI Android** : `arm64-v8a` seul, ou aussi `armeabi-v7a` pour les appareils d'entrée de gamme ?
 - **Q8 — Domaine** : confirmer `media.miarina.org`.
+
+## 5bis. Réponses retenues (défauts validés avec l'architecture, révisables)
+
+| Question | Décision retenue | Phase concernée |
+|---|---|---|
+| Q1 | Sélecteur segmenté **Eco / Balanced / Performance** dans Settings › Performance (Windows) et App (Android), remplaçant le toggle « Low-resource mode » ; style du composant Segmented du design | 1 |
+| Q2 | Playlist et Batch links **affichés avec badge PLANNED** (même traitement que Browser) | 1 |
+| Q3 | « Report link » **masqué au MVP** (aucune URL de contact existante) | 1 |
+| Q4 | Reporté à la fin du spike Android (Phase 4.0) | 4 |
+| Q5 | yt-dlp et FFmpeg **téléchargés au premier besoin** (consentement + SHA-256 épinglé) — D3 | 2 |
+| Q6 | **Anglais uniquement** au MVP, avec infrastructure i18n prête pour fr / mg / es / pt | 1 |
+| Q7 | Reporté au spike Android (mesure de taille par ABI) | 4 |
+| Q8 | Domaine **media.miarina.org** | 1 |
 
 ## 6. Prochaine étape
 

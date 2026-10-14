@@ -199,10 +199,10 @@ Les valeurs exactes sont des **hypothèses de départ** ; leurs effets (CPU, RAM
 | react | 19.3.0 | UI | |
 | vite | 8.3.4 | build front | |
 | tailwindcss | 4.3.3 | styles | config CSS-first : transcription des tokens du handoff |
-| typescript | 7.0.2 | typage | ❓ TS 7 (compilateur natif) : compatibilité outillage (typescript-eslint, plugins) à vérifier en Phase 1 ; repli sur la dernière 5.x/6.x si besoin |
+| typescript | **6.0.3 retenue** (7.0.2 disponible) | typage | typescript-eslint 8.71 exige TypeScript < 6.1 : TS 7 écarté en Phase 1 |
 | zustand | 5.0.15 | état UI | |
-| @tanstack/react-virtual | 3.14.19 | virtualisation | |
-| vitest / @testing-library/react | 5.0.4 / 16.3.3 | tests front | |
+| @tanstack/react-virtual | 3.14.13 (3.14.19 publiée la veille, écartée par la politique d'âge minimal de pnpm) | virtualisation | |
+| vitest / @testing-library/react / user-event | 5.0.4 / 16.3.3 / 14.6.7 | tests front | |
 | pnpm | 12.11.2 | workspaces | non installé ; via corepack |
 | tokio | 1.53.2 | async | |
 | reqwest | 0.13.5 | HTTP streaming | rustls |

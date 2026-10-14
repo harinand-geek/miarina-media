@@ -1,0 +1,23 @@
+[workspace]
+resolver = "3"
+members = ["crates/media-core", "apps/client/src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+license = "UNLICENSED"
+authors = ["MIARINA"]
+repository = "https://github.com/harinand-geek/miarina-media"
+
+[workspace.dependencies]
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+thiserror = "2.0.21"
+url = "2.5.8"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+panic = "abort"
+strip = true

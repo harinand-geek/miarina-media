@@ -8,8 +8,8 @@ dist-ssr/
 out/
 
 # Tauri / Rust
-src-tauri/target/
-src-tauri/gen/schemas/
+**/src-tauri/target/
+**/src-tauri/gen/schemas/
 target/
 
 # Env
