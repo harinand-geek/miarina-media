@@ -6,10 +6,14 @@ use std::path::{Path, PathBuf};
 use download_engine::components::{ComponentId, ComponentStatus};
 use download_engine::ytdlp::FormatSpec;
 use download_engine::{EngineError, ManagerError, media_extension};
+use library::ScanReport;
 use media_core::{UrlError, ValidatedUrl, sanitize_filename, validate_media_url as validate};
 use resource_manager::ResourceMode;
 use serde::{Deserialize, Serialize};
-use storage::{HistoryEntry, MediaKind, NewTask, StorageError, TaskRecord, now_ms};
+use storage::{
+    HistoryEntry, MediaKind, MediaPage, MediaQuery, MediaRecord, MediaStats, NewTask, StorageError,
+    TaskRecord, now_ms,
+};
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
@@ -603,8 +607,9 @@ pub async fn settings_pick_download_dir(
     app: AppHandle,
     state: State<'_, AppState>,
 ) -> CmdResult<Option<SettingsDto>> {
+    let dialog = app.clone();
     let picked =
-        tauri::async_runtime::spawn_blocking(move || app.dialog().file().blocking_pick_folder())
+        tauri::async_runtime::spawn_blocking(move || dialog.dialog().file().blocking_pick_folder())
             .await
             .map_err(|e| CommandError::new("dialog_failed", e.to_string()))?;
     let Some(picked) = picked else {
@@ -617,7 +622,223 @@ pub async fn settings_pick_download_dir(
     state
         .storage()
         .set_setting(KEY_DOWNLOAD_DIR, &dir.to_string_lossy().into_owned())?;
+    // The new folder becomes playable and is indexed.
+    crate::allow_media_dir(&app, &dir);
+    crate::scan_library(&state.library, dir);
     Ok(Some(state.settings()))
+}
+
+// ----------------------------------------------------------------- library
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DiskSpace {
+    pub free: u64,
+    pub total: u64,
+}
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct LibraryOverview {
+    pub stats: MediaStats,
+    pub disk: Option<DiskSpace>,
+    pub download_dir: String,
+}
+
+fn disk_of(dir: &Path) -> Option<DiskSpace> {
+    download_engine::fsops::disk_space(dir).map(|(free, total)| DiskSpace { free, total })
+}
+
+fn library_error(err: library::LibraryError) -> CommandError {
+    match err {
+        library::LibraryError::Storage(StorageError::NotFound(_)) => {
+            CommandError::new("not_found", "This item is no longer in the library.")
+        }
+        library::LibraryError::InvalidName => {
+            CommandError::new("invalid_name", "This name cannot be used.")
+        }
+        other => CommandError::new("library", other.to_string()),
+    }
+}
+
+#[tauri::command]
+pub async fn library_query(state: State<'_, AppState>, query: MediaQuery) -> CmdResult<MediaPage> {
+    Ok(state.storage().query_media(&query)?)
+}
+
+#[tauri::command]
+pub async fn library_overview(state: State<'_, AppState>) -> CmdResult<LibraryOverview> {
+    let download_dir = state.settings().download_dir;
+    Ok(LibraryOverview {
+        stats: state.storage().media_stats()?,
+        disk: disk_of(Path::new(&download_dir)),
+        download_dir,
+    })
+}
+
+/// One entry, after checking that its file still exists.
+#[tauri::command]
+pub async fn library_get(state: State<'_, AppState>, id: i64) -> CmdResult<MediaRecord> {
+    state.library.check(id).map_err(library_error)
+}
+
+#[tauri::command]
+pub async fn library_rename(
+    state: State<'_, AppState>,
+    id: i64,
+    title: String,
+) -> CmdResult<MediaRecord> {
+    let title: String = title.chars().take(200).collect();
+    state.library.rename(id, &title).map_err(library_error)
+}
+
+/// Deletes the file from disk (the UI asks for confirmation first).
+#[tauri::command]
+pub async fn library_delete(state: State<'_, AppState>, id: i64) -> CmdResult<()> {
+    state.library.delete(id).map_err(library_error)
+}
+
+#[tauri::command]
+pub async fn library_reveal(app: AppHandle, state: State<'_, AppState>, id: i64) -> CmdResult<()> {
+    let path = state.storage().media(id)?.path;
+    reveal(&app, Some(path))
+}
+
+/// Opens the download folder in the file manager (created if needed).
+#[tauri::command]
+pub async fn downloads_open_folder(app: AppHandle, state: State<'_, AppState>) -> CmdResult<()> {
+    let dir = PathBuf::from(state.settings().download_dir);
+    std::fs::create_dir_all(&dir)
+        .map_err(|e| CommandError::new("folder_not_writable", e.to_string()))?;
+    app.opener()
+        .open_path(dir.to_string_lossy(), None::<&str>)
+        .map_err(|e| CommandError::new("open_failed", e.to_string()))
+}
+
+/// Opens a library file with the system's default player (for formats the
+/// WebView cannot decode, e.g. HEVC or MKV).
+#[tauri::command]
+pub async fn library_open_external(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    id: i64,
+) -> CmdResult<()> {
+    let record = state.library.check(id).map_err(library_error)?;
+    if record.missing {
+        return Err(CommandError::new(
+            "file_missing",
+            "The file is no longer on disk.",
+        ));
+    }
+    app.opener()
+        .open_path(&record.path, None::<&str>)
+        .map_err(|e| CommandError::new("open_failed", e.to_string()))
+}
+
+#[tauri::command]
+pub async fn library_rescan(state: State<'_, AppState>) -> CmdResult<ScanReport> {
+    let dir = PathBuf::from(state.settings().download_dir);
+    let library = state.library.clone();
+    tauri::async_runtime::spawn_blocking(move || library.scan(&dir))
+        .await
+        .map_err(|e| CommandError::new("library", e.to_string()))?
+        .map_err(library_error)
+}
+
+// ----------------------------------------------------------------- storage
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct StorageUsage {
+    pub download_dir: String,
+    pub disk: Option<DiskSpace>,
+    pub library_bytes: u64,
+    pub thumbnail_bytes: u64,
+    /// Partial files no download refers to any more.
+    pub orphan_temp_bytes: u64,
+    pub orphan_temp_count: usize,
+}
+
+/// `.part` files and `.part.d` folders of the download folder that belong
+/// to no open task (leftovers of removed or crashed downloads).
+fn orphan_temp_files(state: &AppState, dir: &Path) -> Vec<(PathBuf, u64)> {
+    let in_use: Vec<PathBuf> = state
+        .storage()
+        .open_tasks()
+        .unwrap_or_default()
+        .into_iter()
+        .filter_map(|t| t.part_path)
+        .map(PathBuf::from)
+        .collect();
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Vec::new();
+    };
+    entries
+        .flatten()
+        .filter_map(|entry| {
+            let path = entry.path();
+            let name = entry.file_name().to_string_lossy().to_ascii_lowercase();
+            let owner = if name.ends_with(".part") {
+                path.clone()
+            } else if name.ends_with(".part.d") {
+                path.with_extension("")
+            } else {
+                return None;
+            };
+            if in_use.contains(&owner) {
+                return None;
+            }
+            Some((path.clone(), dir_size(&path)))
+        })
+        .collect()
+}
+
+fn dir_size(path: &Path) -> u64 {
+    match std::fs::metadata(path) {
+        Ok(m) if m.is_file() => m.len(),
+        Ok(_) => std::fs::read_dir(path)
+            .map(|entries| entries.flatten().map(|e| dir_size(&e.path())).sum())
+            .unwrap_or(0),
+        Err(_) => 0,
+    }
+}
+
+#[tauri::command]
+pub async fn storage_usage(state: State<'_, AppState>) -> CmdResult<StorageUsage> {
+    let download_dir = state.settings().download_dir;
+    let dir = PathBuf::from(&download_dir);
+    let orphans = orphan_temp_files(&state, &dir);
+    Ok(StorageUsage {
+        disk: disk_of(&dir),
+        library_bytes: state.storage().media_stats()?.total_bytes,
+        thumbnail_bytes: state.library.thumbnail_cache_bytes(),
+        orphan_temp_bytes: orphans.iter().map(|(_, size)| size).sum(),
+        orphan_temp_count: orphans.len(),
+        download_dir,
+    })
+}
+
+#[tauri::command]
+pub async fn storage_clear_thumbnails(state: State<'_, AppState>) -> CmdResult<u64> {
+    state.library.clear_thumbnails().map_err(library_error)
+}
+
+/// Deletes orphan partial files only; active and paused downloads keep theirs.
+#[tauri::command]
+pub async fn storage_clean_temp(state: State<'_, AppState>) -> CmdResult<u64> {
+    let dir = PathBuf::from(state.settings().download_dir);
+    let mut freed = 0;
+    for (path, size) in orphan_temp_files(&state, &dir) {
+        let removed = if path.is_dir() {
+            std::fs::remove_dir_all(&path)
+        } else {
+            std::fs::remove_file(&path)
+        };
+        if removed.is_ok() {
+            freed += size;
+        }
+    }
+    Ok(freed)
 }
 
 fn ensure_writable(dir: &Path) -> CmdResult<()> {

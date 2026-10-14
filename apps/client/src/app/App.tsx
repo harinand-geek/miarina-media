@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useAppearance } from '../hooks/useAppearance';
 import { detectPlatform } from '../services/platform';
 import { useDownloads } from '../stores/downloads';
+import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
 import { DesktopShell } from './DesktopShell';
 import { MobileShell } from './MobileShell';
@@ -13,7 +14,12 @@ export function App() {
 
   useEffect(() => {
     void useSettings.getState().load();
-    return useDownloads.getState().init();
+    const stopDownloads = useDownloads.getState().init();
+    const stopLibrary = useLibrary.getState().init();
+    return () => {
+      stopDownloads();
+      stopLibrary();
+    };
   }, []);
 
   return platform === 'android' ? <MobileShell /> : <DesktopShell />;

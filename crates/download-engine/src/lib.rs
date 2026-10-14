@@ -6,7 +6,7 @@ mod error;
 pub mod fsops;
 mod http;
 mod manager;
-mod process;
+pub mod process;
 mod progress;
 mod retry;
 pub mod ytdlp;

@@ -10,13 +10,52 @@ import type {
   ComponentStatus,
   InstallProgress,
   HistoryEntry,
+  LibraryOverview,
   Limits,
+  MediaPage,
+  MediaQuery,
+  MediaRecord,
   ResourceMode,
   StartRequest,
+  StorageUsage,
   TaskRecord,
   TaskState,
 } from '../services/types';
-import { ANALYZED, DOWNLOADS, HISTORY, NO_MEDIA_HOSTS } from './fixtures';
+import { ANALYZED, DOWNLOADS, HISTORY, LIBRARY, NO_MEDIA_HOSTS } from './fixtures';
+
+const sizeBytes = (size: string) =>
+  Math.round(
+    parseFloat(size) * (size.includes('GB') ? 1024 ** 3 : size.includes('KB') ? 1024 : 1024 ** 2),
+  );
+
+/** Library rows built from the design fixtures. */
+function seedLibrary(): MediaRecord[] {
+  const now = Date.now();
+  return LIBRARY.map((item, i) => {
+    const height = Number.parseInt(item.quality, 10) || (item.quality === '4K' ? 2160 : null);
+    return {
+      id: i + 1,
+      path: `C:\\Users\\Rina\\Videos\\Miarina\\${item.title}.${item.kind === 'video' ? 'mp4' : 'mp3'}`,
+      title: item.title,
+      kind: item.kind,
+      sourceHost: item.source,
+      sourceUrl: `https://example.org/${item.id}`,
+      taskId: null,
+      sizeBytes: sizeBytes(item.size),
+      durationSecs: item.durationSec,
+      width: height ? Math.round((height * 16) / 9) : null,
+      height: item.kind === 'video' ? height : null,
+      videoCodec: item.kind === 'video' ? 'h264' : null,
+      audioCodec: item.kind === 'video' ? 'aac' : item.quality.startsWith('FLAC') ? 'flac' : 'mp3',
+      container: item.kind === 'video' ? 'mov' : 'mp3',
+      thumbnail: null,
+      probed: true,
+      missing: false,
+      addedAt: now - i * 3_600_000,
+      modifiedAt: now - i * 3_600_000,
+    };
+  });
+}
 
 const MB = 1024 * 1024;
 const ANALYSIS_DELAY_MS = 900;
@@ -86,6 +125,8 @@ export class MockBackend {
   private tasks = new Map<string, MockTask>();
   private history: HistoryEntry[] = [...HISTORY];
   private settings: BackendSettings;
+  private library: MediaRecord[] = seedLibrary();
+  private libraryListeners = new Set<() => void>();
   private listeners = new Set<(e: BackendEvent) => void>();
   private timer: ReturnType<typeof setInterval> | undefined;
   private lastTick = 0;
@@ -298,6 +339,133 @@ export class MockBackend {
 
   async pickDownloadDir() {
     return null;
+  }
+
+  // ------------------------------------------------------------- library
+
+  async libraryQuery(query: MediaQuery): Promise<MediaPage> {
+    const words = query.search
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .split(/[^\p{L}\p{N}]+/u)
+      .filter(Boolean);
+    const text = (m: MediaRecord) =>
+      `${m.title} ${m.sourceHost ?? ''}`
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/\p{Diacritic}/gu, '');
+    const matches = this.library.filter(
+      (m) =>
+        !m.missing &&
+        (!query.kind || m.kind === query.kind) &&
+        words.every((w) =>
+          text(m)
+            .split(/[^\p{L}\p{N}]+/u)
+            .some((t) => t.startsWith(w)),
+        ),
+    );
+    const compare: Record<MediaQuery['sort'], (a: MediaRecord, b: MediaRecord) => number> = {
+      added: (a, b) => b.addedAt - a.addedAt,
+      title: (a, b) => a.title.localeCompare(b.title),
+      size: (a, b) => b.sizeBytes - a.sizeBytes,
+      duration: (a, b) => (b.durationSecs ?? -1) - (a.durationSecs ?? -1),
+    };
+    const sorted = [...matches].sort(compare[query.sort]);
+    const offset = query.offset ?? 0;
+    return { items: sorted.slice(offset, offset + (query.limit || 10_000)), total: matches.length };
+  }
+
+  async libraryOverview(): Promise<LibraryOverview> {
+    const present = this.library.filter((m) => !m.missing);
+    const sum = (list: MediaRecord[]) => list.reduce((acc, m) => acc + m.sizeBytes, 0);
+    const video = present.filter((m) => m.kind === 'video');
+    const audio = present.filter((m) => m.kind === 'audio');
+    return {
+      stats: {
+        count: present.length,
+        totalBytes: sum(present),
+        videoCount: video.length,
+        videoBytes: sum(video),
+        audioCount: audio.length,
+        audioBytes: sum(audio),
+      },
+      disk: { free: 140 * 1024 ** 3, total: 256 * 1024 ** 3 },
+      downloadDir: this.settings.downloadDir,
+    };
+  }
+
+  async libraryGet(id: number) {
+    const item = this.library.find((m) => m.id === id);
+    if (!item) throw new Error('This item is no longer in the library.');
+    return { ...item };
+  }
+
+  async libraryRename(id: number, title: string) {
+    const item = await this.libraryGet(id);
+    const clean = title.replace(/[<>:"/\\|?*]/g, '_').trim() || 'download';
+    const renamed = {
+      ...item,
+      title: clean,
+      path: item.path.replace(/[^\\]+(\.\w+)$/, `${clean}$1`),
+    };
+    this.library = this.library.map((m) => (m.id === id ? renamed : m));
+    this.libraryChanged();
+    return renamed;
+  }
+
+  async libraryDelete(id: number) {
+    await this.libraryGet(id);
+    this.library = this.library.filter((m) => m.id !== id);
+    this.libraryChanged();
+  }
+
+  async libraryReveal() {
+    throw new Error('Showing files is only available in the desktop app.');
+  }
+
+  async libraryOpenExternal() {
+    throw new Error('Opening files is only available in the desktop app.');
+  }
+
+  async libraryRescan() {}
+
+  async openDownloadFolder() {
+    throw new Error('Opening folders is only available in the desktop app.');
+  }
+
+  onLibraryChanged(listener: () => void) {
+    this.libraryListeners.add(listener);
+    return () => this.libraryListeners.delete(listener);
+  }
+
+  /** The mock has no files: the player shows its placeholder surface. */
+  mediaUrl() {
+    return '';
+  }
+
+  async storageUsage(): Promise<StorageUsage> {
+    const overview = await this.libraryOverview();
+    return {
+      downloadDir: this.settings.downloadDir,
+      disk: overview.disk,
+      libraryBytes: overview.stats.totalBytes,
+      thumbnailBytes: 412 * MB,
+      orphanTempBytes: 1.2 * 1024 * MB,
+      orphanTempCount: 2,
+    };
+  }
+
+  async clearThumbnails() {
+    return 412 * MB;
+  }
+
+  async cleanTemp() {
+    return 1.2 * 1024 * MB;
+  }
+
+  private libraryChanged() {
+    for (const listener of this.libraryListeners) listener();
   }
 
   async componentsStatus() {

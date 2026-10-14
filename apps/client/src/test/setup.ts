@@ -28,3 +28,13 @@ if (!globalThis.ResizeObserver) {
 afterEach(() => {
   cleanup();
 });
+
+// jsdom has no layout: give elements a size so virtualized lists render rows.
+for (const [prop, value] of [
+  ['offsetWidth', 1200],
+  ['offsetHeight', 800],
+  ['clientWidth', 1200],
+  ['clientHeight', 800],
+] as const) {
+  Object.defineProperty(HTMLElement.prototype, prop, { configurable: true, get: () => value });
+}

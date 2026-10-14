@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { LibraryItem } from '../services/types';
+import type { MediaRecord } from '../services/types';
 
 export type Screen =
   'home' | 'analysis' | 'downloads' | 'library' | 'player' | 'history' | 'browser' | 'settings';
@@ -29,13 +29,13 @@ interface UiState {
   /** URL waiting to be analyzed (Home → Analysis, Android sheet). */
   pendingUrl: string;
   analysisTab: 'video' | 'audio' | 'subtitles';
-  nowPlaying: LibraryItem | null;
+  nowPlaying: MediaRecord | null;
   librarySearchFocus: number;
   go: (screen: Screen) => void;
   toggleSidebar: () => void;
   analyze: (url: string, tab?: UiState['analysisTab']) => void;
   setAnalysisTab: (tab: UiState['analysisTab']) => void;
-  play: (item: LibraryItem | null) => void;
+  play: (item: MediaRecord | null) => void;
   focusLibrarySearch: () => void;
   pushToast: (toast: Omit<Toast, 'id'>) => void;
   dismissToast: (id: number) => void;

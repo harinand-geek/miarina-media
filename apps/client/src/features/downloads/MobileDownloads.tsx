@@ -3,7 +3,8 @@ import { Segmented } from '../../components/Controls';
 import { Thumbnail } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
-import { notAvailableYet } from '../../services/prototype';
+import { useLibrary } from '../../stores/library';
+import { useUi } from '../../stores/ui';
 import {
   formatBytes,
   isActiveRow,
@@ -92,6 +93,16 @@ export function MobileDownloads() {
   const [tab, setTab] = useState<Tab>('active');
   const tasks = useDownloads((s) => s.tasks);
   const history = useDownloads((s) => s.history);
+  const library = useLibrary((s) => s.items);
+  const play = useUi((s) => s.play);
+  const pushToast = useUi((s) => s.pushToast);
+
+  /** Plays the library entry created by a finished download. */
+  const playDone = (taskId: string, finalPath: string | null) => {
+    const media = library.find((m) => m.taskId === taskId || (finalPath && m.path === finalPath));
+    if (media) play(media);
+    else pushToast({ tone: 'error', message: 'This file is no longer in the library.' });
+  };
   const { pause, resume, retry, startNow, pauseAll, resumeAll } = useDownloads.getState();
 
   const all = useMemo(() => ordered(tasks), [tasks]);
@@ -185,7 +196,7 @@ export function MobileDownloads() {
             statusClass="text-accent-strong"
             icon="play_arrow"
             actionLabel={`Play ${h.title}`}
-            onAction={() => notAvailableYet('Playing downloaded files')}
+            onAction={() => playDone(h.taskId, h.finalPath)}
           />
         ))}
 

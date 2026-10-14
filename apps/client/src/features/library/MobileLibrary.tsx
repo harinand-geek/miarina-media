@@ -1,14 +1,25 @@
 import { useState } from 'react';
 import { Chip } from '../../components/Controls';
-import { Thumbnail, ThumbBadge } from '../../components/Feedback';
+import { ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
+import type { MediaKind, MediaSort } from '../../services/types';
+import { formatBytes } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
-import { SORT_LABELS, useLibraryFilter, type KindFilter, type SortKey } from './useLibraryFilter';
+import { SORT_LABELS, durationLabel, qualityLabel } from './format';
+import { MediaThumb } from './MediaThumb';
+
+const KINDS: { value: MediaKind | null; label: string }[] = [
+  { value: null, label: 'All' },
+  { value: 'video', label: 'Video' },
+  { value: 'audio', label: 'Audio' },
+];
 
 export function MobileLibrary() {
-  const { query, setQuery, kind, setKind, sort, setSort, items } = useLibraryFilter();
+  const { search, kind, sort, items, ready } = useLibrary();
+  const { setSearch, setKind, setSort } = useLibrary.getState();
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const play = useUi((s) => s.play);
 
@@ -21,8 +32,8 @@ export function MobileLibrary() {
         <Icon name="search" size={22} className="text-muted" />
         <input
           type="search"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           placeholder="Search library"
           aria-label="Search library"
           className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-fg outline-none focus-visible:outline-none"
@@ -42,7 +53,7 @@ export function MobileLibrary() {
               <Icon name="sort" size={22} />
             </button>
           )}
-          items={(Object.keys(SORT_LABELS) as SortKey[]).map((key) => ({
+          items={(Object.keys(SORT_LABELS) as MediaSort[]).map((key) => ({
             label: SORT_LABELS[key],
             selected: key === sort,
             onSelect: () => setSort(key),
@@ -50,15 +61,20 @@ export function MobileLibrary() {
         />
       </div>
       <div className="flex gap-2 overflow-x-auto">
-        {(['all', 'video', 'audio'] as KindFilter[]).map((k) => (
-          <Chip key={k} size="mobile" selected={kind === k} onClick={() => setKind(k)}>
-            {k === 'all' ? 'All' : k === 'video' ? 'Video' : 'Audio'}
+        {KINDS.map((k) => (
+          <Chip
+            key={k.label}
+            size="mobile"
+            selected={kind === k.value}
+            onClick={() => setKind(k.value)}
+          >
+            {k.label}
           </Chip>
         ))}
       </div>
-      {items.length === 0 && (
+      {ready && items.length === 0 && (
         <p className="py-10 text-center text-[13.5px] text-muted">
-          {query ? `No items match “${query}”.` : 'Your library is empty.'}
+          {search.trim() ? `No items match “${search.trim()}”.` : 'Your library is empty.'}
         </p>
       )}
       <VirtualGrid
@@ -69,27 +85,20 @@ export function MobileLibrary() {
         columnGap={10}
         rowGap={14}
         rowHeight={(w) => (w * 10) / 16 + 8 + 38}
-        getKey={(m) => m.id}
+        getKey={(m) => String(m.id)}
         renderItem={(m) => (
           <button
             type="button"
             onClick={() => play(m)}
             className="flex w-full flex-col gap-2 text-left"
           >
-            <Thumbnail className="aspect-[16/10] w-full rounded-[10px]">
-              <ThumbBadge position="br">{m.duration}</ThumbBadge>
-              {m.kind === 'audio' && (
-                <Icon
-                  name="music_note"
-                  size={16}
-                  className="absolute left-1.5 top-1.5 text-audio"
-                />
-              )}
-            </Thumbnail>
+            <MediaThumb media={m} className="aspect-[16/10] w-full rounded-[10px]">
+              <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+            </MediaThumb>
             <span className="flex w-full flex-col gap-px">
               <span className="truncate text-[13.5px] font-semibold">{m.title}</span>
               <span className="text-[12px] text-muted">
-                {m.quality} · {m.size}
+                {qualityLabel(m)} · {formatBytes(m.sizeBytes)}
               </span>
             </span>
           </button>

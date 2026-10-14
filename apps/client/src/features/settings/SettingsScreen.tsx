@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '../../components/Button';
 import { RadioDot, Segmented, Stepper, Toggle } from '../../components/Controls';
 import { PlannedBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
-import { STORAGE } from '../../dev/fixtures';
-import { notAvailableYet } from '../../services/prototype';
+import { backend } from '../../services/backend';
+import type { StorageUsage } from '../../services/types';
+import { formatBytes } from '../../stores/downloads';
 import {
   MAX_CONCURRENCY,
   MIN_CONCURRENCY,
@@ -194,48 +195,103 @@ function DownloadsTab() {
 
 function StorageTab() {
   const askConfirm = useUi((s) => s.askConfirm);
+  const pushToast = useUi((s) => s.pushToast);
+  const [usage, setUsage] = useState<StorageUsage | null>(null);
+  const [version, setVersion] = useState(0);
+
+  useEffect(() => {
+    backend
+      .storageUsage()
+      .then(setUsage)
+      .catch(() => setUsage(null));
+  }, [version]);
+
+  const run = (action: () => Promise<number>, done: (freed: number) => string) =>
+    action()
+      .then((freed) => {
+        pushToast({ tone: 'success', message: done(freed) });
+        setVersion((v) => v + 1);
+      })
+      .catch((e: unknown) =>
+        pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
+      );
+
+  const disk = usage?.disk;
+  const share = (bytes: number) => (disk?.total ? `${(bytes / disk.total) * 100}%` : '0%');
+  const other = disk ? Math.max(0, disk.total - disk.free - (usage?.libraryBytes ?? 0)) : 0;
+  const drive = /^([A-Za-z]):/.exec(usage?.downloadDir ?? '')?.[1];
+
   return (
     <>
-      <div className="mb-1.5 mt-3.5 flex flex-col gap-2.5 rounded-lg border border-surface2 bg-surface p-4">
-        <div className="flex justify-between text-[13px]">
-          <span className="font-semibold">{STORAGE.drive}</span>
-          <span className="text-muted">{STORAGE.used}</span>
+      {disk && (
+        <div className="mb-1.5 mt-3.5 flex flex-col gap-2.5 rounded-lg border border-surface2 bg-surface p-4">
+          <div className="flex justify-between text-[13px]">
+            <span className="font-semibold">
+              {drive ? `Drive ${drive.toUpperCase()}:` : 'Storage'}
+            </span>
+            <span className="text-muted">
+              {formatBytes(disk.total - disk.free)} used of {formatBytes(disk.total)}
+            </span>
+          </div>
+          <div className="flex h-2 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
+            <div className="bg-accent" style={{ width: share(usage.libraryBytes) }} />
+            <div className="bg-faint-icon" style={{ width: share(other) }} />
+          </div>
+          <div className="flex gap-[18px] text-[12px] text-muted">
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-[2px] bg-accent" />
+              Miarina library {formatBytes(usage.libraryBytes)}
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="h-2 w-2 rounded-[2px] bg-faint-icon" />
+              Other {formatBytes(other)}
+            </span>
+          </div>
         </div>
-        <div className="flex h-2 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
-          <div className="bg-accent" style={{ width: `${STORAGE.libraryShare}%` }} />
-          <div className="bg-faint-icon" style={{ width: `${STORAGE.otherShare}%` }} />
-        </div>
-        <div className="flex gap-[18px] text-[12px] text-muted">
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-[2px] bg-accent" />
-            {STORAGE.library}
-          </span>
-          <span className="flex items-center gap-1.5">
-            <span className="h-2 w-2 rounded-[2px] bg-faint-icon" />
-            {STORAGE.other}
-          </span>
-        </div>
-      </div>
+      )}
       <PathRow label="Library location" />
-      <SettingRow label="Thumbnail cache" description={STORAGE.thumbnailCache}>
+      <SettingRow
+        label="Thumbnail cache"
+        description={usage ? formatBytes(usage.thumbnailBytes) : undefined}
+      >
         <Button
           size="sm"
           className="text-[12.5px]"
-          onClick={() => notAvailableYet('Clearing the thumbnail cache')}
+          disabled={!usage?.thumbnailBytes}
+          onClick={() =>
+            void run(
+              () => backend.clearThumbnails(),
+              (freed) => `Thumbnail cache cleared · ${formatBytes(freed)} freed`,
+            )
+          }
         >
           Clear cache
         </Button>
       </SettingRow>
-      <SettingRow label="Temporary files" description={STORAGE.tempFiles}>
+      <SettingRow
+        label="Temporary files"
+        description={
+          usage
+            ? usage.orphanTempCount
+              ? `${formatBytes(usage.orphanTempBytes)} left by removed or interrupted downloads`
+              : 'No leftover partial files'
+            : undefined
+        }
+      >
         <Button
           size="sm"
           className="text-[12.5px]"
+          disabled={!usage?.orphanTempCount}
           onClick={() =>
             askConfirm({
               title: 'Delete temporary files?',
-              body: 'Partial files from 2 unfinished downloads (1.2 GB) will be removed. Those downloads will restart from zero.',
+              body: `Partial files left by ${usage?.orphanTempCount ?? 0} removed or interrupted downloads (${formatBytes(usage?.orphanTempBytes ?? 0)}) will be removed. Downloads in progress or paused keep theirs.`,
               confirmLabel: 'Delete files',
-              onConfirm: () => notAvailableYet('Deleting temporary files'),
+              onConfirm: () =>
+                void run(
+                  () => backend.cleanTemp(),
+                  (freed) => `Temporary files deleted · ${formatBytes(freed)} freed`,
+                ),
             })
           }
         >

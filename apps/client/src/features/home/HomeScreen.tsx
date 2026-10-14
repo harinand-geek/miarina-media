@@ -1,11 +1,26 @@
 import { useState } from 'react';
 import { Button, IconButton } from '../../components/Button';
-import { PlannedBadge, Thumbnail } from '../../components/Feedback';
+import { PlannedBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
-import { LIBRARY, LIBRARY_STATS } from '../../dev/fixtures';
-import { notAvailableYet } from '../../services/prototype';
+import { backend } from '../../services/backend';
+import { formatBytes } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
+import { addedLabel, qualityLabel } from '../library/format';
+import { MediaThumb } from '../library/MediaThumb';
 import { useLinkInput } from './useLinkInput';
+
+/** Long folder paths are shortened like the design ("C:\…\Videos\Miarina"). */
+function shortPath(path: string) {
+  const parts = path.split(/[\\/]/).filter(Boolean);
+  return parts.length > 3 ? [parts[0], '…', ...parts.slice(-2)].join('\\') : path;
+}
+
+/** "C:\Users\…" → "Drive C:" (Windows); empty elsewhere. */
+function driveName(path: string) {
+  const match = /^([A-Za-z]):/.exec(path);
+  return match ? `Drive ${match[1]!.toUpperCase()}:` : '';
+}
 
 interface QuickAction {
   icon: string;
@@ -20,6 +35,12 @@ export function HomeScreen() {
   const [dragging, setDragging] = useState(false);
   const go = useUi((s) => s.go);
   const play = useUi((s) => s.play);
+  const pushToast = useUi((s) => s.pushToast);
+  const recent = useLibrary((s) => s.recent);
+  const overview = useLibrary((s) => s.overview);
+  const stats = overview?.stats;
+  const disk = overview?.disk;
+  const share = (bytes: number) => (disk?.total ? `${(bytes / disk.total) * 100}%` : '0%');
 
   const quick: QuickAction[] = [
     {
@@ -43,8 +64,13 @@ export function HomeScreen() {
     {
       icon: 'folder_open',
       title: 'Open folder',
-      detail: 'C:\\…\\Videos\\Miarina',
-      run: () => notAvailableYet('Opening the download folder'),
+      detail: shortPath(overview?.downloadDir ?? ''),
+      run: () =>
+        void backend
+          .openDownloadFolder()
+          .catch((e: unknown) =>
+            pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
+          ),
     },
   ];
 
@@ -176,22 +202,26 @@ export function HomeScreen() {
               View history
             </button>
           </div>
-          {LIBRARY.slice(0, 4).map((item) => (
+          {recent.length === 0 && (
+            <p className="m-0 px-[18px] py-6 text-[13px] text-muted">
+              Nothing downloaded yet. Paste a link above to start.
+            </p>
+          )}
+          {recent.map((item) => (
             <div
               key={item.id}
               className="flex items-center gap-3.5 px-[18px] py-2.5 hover:bg-card-hover"
             >
-              <Thumbnail
-                className="h-10 w-[72px] rounded-[5px]"
-                label={item.kind === 'video' ? 'Video' : 'Audio'}
-              />
+              <MediaThumb media={item} className="h-10 w-[72px] rounded-[5px]" />
               <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
                 <span className="truncate text-[13.5px] font-semibold">{item.title}</span>
-                <span className="text-[12px] text-muted">
-                  {item.source} · {item.quality} · {item.size}
+                <span className="truncate text-[12px] text-muted">
+                  {[item.sourceHost, qualityLabel(item), formatBytes(item.sizeBytes)]
+                    .filter(Boolean)
+                    .join(' · ')}
                 </span>
               </div>
-              <span className="text-[12px] text-muted">{item.addedAgo}</span>
+              <span className="text-[12px] text-muted">{addedLabel(item.addedAt)}</span>
               <IconButton
                 icon="play_arrow"
                 label={`Play ${item.title}`}
@@ -213,33 +243,45 @@ export function HomeScreen() {
         >
           <h2 className="m-0 text-heading font-bold">Library</h2>
           <div className="flex items-baseline gap-2">
-            <span className="text-[34px] font-bold tracking-[-0.02em]">{LIBRARY_STATS.items}</span>
-            <span className="text-[13px] text-muted">items · {LIBRARY_STATS.totalSize}</span>
+            <span className="text-[34px] font-bold tracking-[-0.02em]">{stats?.count ?? 0}</span>
+            <span className="text-[13px] text-muted">
+              items · {formatBytes(stats?.totalBytes ?? 0)}
+            </span>
           </div>
           <div className="flex flex-col gap-2.5 text-[13px]">
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-[2px] bg-accent" />
               <span className="flex-1">Video</span>
               <span className="font-mono text-[12px] text-muted">
-                {LIBRARY_STATS.video.count} · {LIBRARY_STATS.video.size}
+                {stats?.videoCount ?? 0} · {formatBytes(stats?.videoBytes ?? 0)}
               </span>
             </div>
             <div className="flex items-center gap-2.5">
               <span className="h-2 w-2 rounded-[2px] bg-audio" />
               <span className="flex-1">Audio</span>
               <span className="font-mono text-[12px] text-muted">
-                {LIBRARY_STATS.audio.count} · {LIBRARY_STATS.audio.size}
+                {stats?.audioCount ?? 0} · {formatBytes(stats?.audioBytes ?? 0)}
               </span>
             </div>
           </div>
-          <div className="flex flex-col gap-1.5">
-            <div className="flex h-1.5 overflow-hidden rounded-[3px] bg-line" aria-hidden="true">
-              <div className="bg-accent" style={{ width: `${LIBRARY_STATS.video.share}%` }} />
-              <div className="bg-audio" style={{ width: `${LIBRARY_STATS.audio.share}%` }} />
-              <div className="bg-faint-icon" style={{ width: `${LIBRARY_STATS.otherShare}%` }} />
+          {disk && (
+            <div className="flex flex-col gap-1.5">
+              <div className="flex h-1.5 overflow-hidden rounded-[3px] bg-line" aria-hidden="true">
+                <div className="bg-accent" style={{ width: share(stats?.videoBytes ?? 0) }} />
+                <div className="bg-audio" style={{ width: share(stats?.audioBytes ?? 0) }} />
+                <div
+                  className="bg-faint-icon"
+                  style={{
+                    width: share(Math.max(0, disk.total - disk.free - (stats?.totalBytes ?? 0))),
+                  }}
+                />
+              </div>
+              <span className="text-[12px] text-muted">
+                {driveName(overview?.downloadDir ?? '')} {formatBytes(disk.free)} free of{' '}
+                {formatBytes(disk.total)}
+              </span>
             </div>
-            <span className="text-[12px] text-muted">{LIBRARY_STATS.drive}</span>
-          </div>
+          )}
           <Button size="sm" className="mt-auto h-9 text-[13px]" onClick={() => go('library')}>
             Open library
           </Button>

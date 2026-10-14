@@ -67,26 +67,33 @@ fn move_no_replace(from: &Path, to: &Path) -> io::Result<()> {
 /// Free bytes available to the user on the volume containing `dir`, when
 /// the platform exposes it.
 pub fn available_space(dir: &Path) -> Option<u64> {
+    disk_space(dir).map(|(free, _)| free)
+}
+
+/// (free for the user, total) bytes of the volume containing `dir`. The
+/// directory may not exist yet: its closest existing ancestor is used.
+pub fn disk_space(dir: &Path) -> Option<(u64, u64)> {
+    let existing = dir.ancestors().find(|p| p.exists())?;
     #[cfg(windows)]
     {
         use std::os::windows::ffi::OsStrExt;
         use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
 
-        let wide: Vec<u16> = dir.as_os_str().encode_wide().chain(Some(0)).collect();
-        let mut available = 0u64;
+        let wide: Vec<u16> = existing.as_os_str().encode_wide().chain(Some(0)).collect();
+        let (mut available, mut total) = (0u64, 0u64);
         let ok = unsafe {
             GetDiskFreeSpaceExW(
                 wide.as_ptr(),
                 &mut available,
-                std::ptr::null_mut(),
+                &mut total,
                 std::ptr::null_mut(),
             )
         };
-        (ok != 0).then_some(available)
+        (ok != 0).then_some((available, total))
     }
     #[cfg(not(windows))]
     {
-        let _ = dir;
+        let _ = existing;
         None
     }
 }

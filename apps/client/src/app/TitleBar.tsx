@@ -1,7 +1,7 @@
 import { Icon } from '../components/Icon';
 import { Kbd, PlannedBadge } from '../components/Feedback';
 import { Logo } from '../components/Logo';
-import { LIBRARY_USES_FIXTURES } from '../services/backend';
+import { backend } from '../services/backend';
 import { closeWindow, minimizeWindow, toggleMaximizeWindow } from '../services/window';
 import { useUi } from '../stores/ui';
 
@@ -37,13 +37,13 @@ export function TitleBar() {
         </button>
       </div>
       <div className="flex w-[232px] items-center justify-end">
-        {LIBRARY_USES_FIXTURES && (
+        {backend.kind === 'mock' && (
           <span
             data-tauri-drag-region
             className="mr-2"
-            title="Downloads and history are real. The library, its overview and the player still show sample data until Phase 3."
+            title="Browser preview: data comes from development fixtures, not from the desktop app."
           >
-            <PlannedBadge label="PROTOTYPE" />
+            <PlannedBadge label="PREVIEW" />
           </span>
         )}
         <button

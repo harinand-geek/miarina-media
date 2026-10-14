@@ -20,17 +20,24 @@
         "minHeight": 640,
         "center": true,
         "decorations": false,
-        "backgroundColor": "#101820"
+        "backgroundColor": "#101820",
+        "additionalBrowserArgs": "--disable-features=msWebOOUI,msPdfOOUI,msSmartScreenProtection --autoplay-policy=no-user-gesture-required"
       }
     ],
     "security": {
       "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: asset: http://asset.localhost; media-src 'self' asset: http://asset.localhost; connect-src ipc: http://ipc.localhost",
-      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: asset: http://asset.localhost; media-src 'self' asset: http://asset.localhost; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1420"
+      "devCsp": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self'; img-src 'self' data: asset: http://asset.localhost; media-src 'self' asset: http://asset.localhost; connect-src 'self' ipc: http://ipc.localhost ws://localhost:1420",
+      "assetProtocol": {
+        "enable": true,
+        "scope": []
+      }
     }
   },
   "bundle": {
     "active": true,
-    "targets": ["nsis"],
+    "targets": [
+      "nsis"
+    ],
     "publisher": "MIARINA",
     "homepage": "https://media.miarina.org",
     "category": "Video",

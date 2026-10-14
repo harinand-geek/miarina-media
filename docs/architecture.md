@@ -226,3 +226,12 @@ Non retenus : Electron, Next.js dans l'app, backend distant, `tauri-plugin-shell
 - **Composants** : `%APPDATA%\org.miarina.media\components\<outil>\<préfixe sha>\`, publiés atomiquement après vérification (voir `licenses.md`).
 - **Historique** : stocke l'URL source (copie du lien, nouvel essai d'un téléchargement annulé) ; elle n'est jamais journalisée.
 - **Événements** : un seul canal `downloads://event` ; le front considère les événements comme faisant foi (une réponse de commande ou un instantané ne remplace jamais un état plus récent).
+
+## 13. Ajustements réalisés en Phase 3
+
+- **Crate `library`** : indexation du dossier (profondeur 3, 50 000 fichiers max, fichiers `.part` / `.part.d` / `.ytdl` ignorés), métadonnées `ffprobe` et miniatures FFmpeg dans un worker en arrière-plan borné par `max_conversions` (sémaphore), renommage (assainissement + finalisation sans écrasement), suppression. Dépend de `storage` et `download-engine` (processus bornés, Job Object).
+- **Migration v2** : table `media` (chemin unique, métadonnées, miniature, indicateurs `probed` / `missing`) + index plein texte `media_fts` (FTS5, `unicode61 remove_diacritics 2`) maintenu par triggers. La recherche utilisateur est convertie en termes préfixes entre guillemets (8 max) : aucun opérateur FTS n'est interprété.
+- **Lecture** : `<video>` / `<audio>` HTML via le protocole d'asset Tauri (requêtes Range, rien en mémoire). Le *scope* statique est vide ; seuls le dossier de téléchargement, le cache de miniatures et les dossiers parents des médias connus sont autorisés à l'exécution (`allow_media_dir`). Repli « Open with system player » si WebView2 ne décode pas le fichier.
+- **Position de reprise** : `localStorage` (`mm:position:<id>`), simple confort.
+- **Événements** : `library://changed` (sans charge utile) ; le store front relit la page courante avec un anti-rebond de 300 ms et ignore les réponses périmées.
+- **WebView2** : `additionalBrowserArgs` ajoute `--autoplay-policy=no-user-gesture-required` (lecture démarrée par un clic dans l'app, mais `play()` est appelé depuis un gestionnaire d'événement média).

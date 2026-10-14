@@ -1,34 +1,76 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Chip } from '../../components/Controls';
 import { Button } from '../../components/Button';
-import { EmptyState, Thumbnail, ThumbBadge } from '../../components/Feedback';
+import { EmptyState, ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
-import { useVirtualizer } from '@tanstack/react-virtual';
-import type { LibraryItem } from '../../services/types';
+import type { MediaKind, MediaRecord, MediaSort } from '../../services/types';
+import { formatBytes } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
-import { SORT_LABELS, useLibraryFilter, type KindFilter, type SortKey } from './useLibraryFilter';
+import { SORT_LABELS, durationLabel, qualityLabel } from './format';
+import { MediaContextMenu, RenameDialog, type MenuTarget } from './MediaActions';
+import { useMediaActions } from './useMediaActions';
+import { MediaThumb } from './MediaThumb';
 
 const LIST_COLUMNS = 'grid-cols-[56px_minmax(0,1fr)_180px_80px_90px_90px]';
 
+const KINDS: { value: MediaKind | null; label: string }[] = [
+  { value: null, label: 'All' },
+  { value: 'video', label: 'Video' },
+  { value: 'audio', label: 'Audio' },
+];
+
 export default function LibraryScreen() {
-  const { query, setQuery, kind, setKind, sort, setSort, items, counts } = useLibraryFilter();
+  const { search, kind, sort, items, total, overview, ready } = useLibrary();
+  const { setSearch, setKind, setSort } = useLibrary.getState();
   const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [menu, setMenu] = useState<MenuTarget | null>(null);
+  const [renaming, setRenaming] = useState<MediaRecord | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
   const focusRequest = useUi((s) => s.librarySearchFocus);
-  const play = useUi((s) => s.play);
   const go = useUi((s) => s.go);
+  const actions = useMediaActions();
 
   useEffect(() => {
     if (focusRequest > 0) searchRef.current?.focus();
   }, [focusRequest]);
 
-  const open = (item: LibraryItem) => {
-    play(item);
-    go('player');
+  const counts: Record<string, number | undefined> = {
+    All: overview?.stats.count,
+    Video: overview?.stats.videoCount,
+    Audio: overview?.stats.audioCount,
   };
+
+  /** Right click, ⇧F10 / context-menu key, plus the design's shortcuts. */
+  const itemHandlers = (m: MediaRecord) => ({
+    onContextMenu: (e: MouseEvent) => {
+      e.preventDefault();
+      setMenu({ media: m, x: e.clientX, y: e.clientY });
+    },
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      if (e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10')) {
+        e.preventDefault();
+        setMenu({ media: m, x: rect.left + 16, y: rect.top + 16 });
+      } else if (e.key === 'F2') {
+        e.preventDefault();
+        setRenaming(m);
+      } else if (e.key === 'Delete') {
+        e.preventDefault();
+        actions.askDelete(m);
+      } else if (e.ctrlKey && e.key.toLowerCase() === 'e') {
+        e.preventDefault();
+        actions.reveal(m);
+      }
+    },
+  });
+
+  const empty = ready && items.length === 0;
+  const filtered = search.trim() !== '' || kind !== null;
 
   return (
     <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
@@ -39,8 +81,8 @@ export default function LibraryScreen() {
           <input
             ref={searchRef}
             type="search"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
             placeholder="Search titles"
             aria-label="Search titles"
             className="flex-1 bg-transparent text-[13px] font-medium text-fg outline-none focus-visible:outline-none"
@@ -62,7 +104,7 @@ export default function LibraryScreen() {
               <Icon name="expand_more" size={18} className="text-muted" />
             </button>
           )}
-          items={(Object.keys(SORT_LABELS) as SortKey[]).map((key) => ({
+          items={(Object.keys(SORT_LABELS) as MediaSort[]).map((key) => ({
             label: SORT_LABELS[key],
             selected: key === sort,
             onSelect: () => setSort(key),
@@ -91,17 +133,22 @@ export default function LibraryScreen() {
       </div>
 
       <div className="flex gap-2">
-        {(['all', 'video', 'audio'] as KindFilter[]).map((k) => (
-          <Chip key={k} selected={kind === k} onClick={() => setKind(k)} count={counts[k]}>
-            {k === 'all' ? 'All' : k === 'video' ? 'Video' : 'Audio'}
+        {KINDS.map((k) => (
+          <Chip
+            key={k.label}
+            selected={kind === k.value}
+            onClick={() => setKind(k.value)}
+            count={counts[k.label]}
+          >
+            {k.label}
           </Chip>
         ))}
       </div>
 
-      {items.length === 0 &&
-        (query || kind !== 'all' ? (
+      {empty &&
+        (filtered ? (
           <EmptyState>
-            {query ? `No items match “${query}”.` : 'No items in this category.'}
+            {search.trim() ? `No items match “${search.trim()}”.` : 'No items in this category.'}
           </EmptyState>
         ) : (
           <EmptyState
@@ -124,31 +171,33 @@ export default function LibraryScreen() {
 
       {items.length > 0 && view === 'grid' && (
         <VirtualGrid
-          label="Library items"
+          label={`Library items, ${total} results`}
           items={items}
           scrollRef={scrollRef}
           minColumnWidth={210}
           columnGap={16}
           rowGap={18}
           rowHeight={(w) => (w * 9) / 16 + 10 + 40}
-          getKey={(m) => m.id}
+          getKey={(m) => String(m.id)}
           renderItem={(m) => (
             <button
               type="button"
-              onClick={() => open(m)}
+              onClick={() => actions.open(m)}
+              {...itemHandlers(m)}
               className="group flex w-full flex-col gap-2.5 rounded-md text-left"
             >
-              <Thumbnail
+              <MediaThumb
+                media={m}
                 className="aspect-video w-full rounded-md text-[10px] group-hover:outline-2 group-hover:outline-offset-2 group-hover:outline-accent"
-                label={m.kind === 'video' ? 'Video' : 'Audio'}
               >
-                <ThumbBadge position="br">{m.duration}</ThumbBadge>
-                <ThumbBadge position="tl">{m.quality}</ThumbBadge>
-              </Thumbnail>
+                <ThumbBadge position="br">{durationLabel(m.durationSecs)}</ThumbBadge>
+                <ThumbBadge position="tl">{qualityLabel(m)}</ThumbBadge>
+              </MediaThumb>
               <span className="flex w-full flex-col gap-0.5">
                 <span className="truncate text-[13.5px] font-semibold">{m.title}</span>
-                <span className="text-[12px] text-muted">
-                  {m.source} · {m.size}
+                <span className="truncate text-[12px] text-muted">
+                  {m.sourceHost ? `${m.sourceHost} · ` : ''}
+                  {formatBytes(m.sizeBytes)}
                 </span>
               </span>
             </button>
@@ -157,8 +206,18 @@ export default function LibraryScreen() {
       )}
 
       {items.length > 0 && view === 'list' && (
-        <LibraryList items={items} scrollRef={scrollRef} onOpen={open} />
+        <LibraryList
+          items={items}
+          scrollRef={scrollRef}
+          onOpen={actions.open}
+          handlers={itemHandlers}
+        />
       )}
+
+      {menu && (
+        <MediaContextMenu target={menu} onClose={() => setMenu(null)} onRename={setRenaming} />
+      )}
+      {renaming && <RenameDialog media={renaming} onClose={() => setRenaming(null)} />}
     </div>
   );
 }
@@ -167,10 +226,15 @@ function LibraryList({
   items,
   scrollRef,
   onOpen,
+  handlers,
 }: {
-  items: LibraryItem[];
+  items: MediaRecord[];
   scrollRef: React.RefObject<HTMLDivElement | null>;
-  onOpen: (item: LibraryItem) => void;
+  onOpen: (item: MediaRecord) => void;
+  handlers: (m: MediaRecord) => {
+    onContextMenu: (e: MouseEvent) => void;
+    onKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
+  };
 }) {
   const [body, setBody] = useState<HTMLDivElement | null>(null);
   // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual is not memoizable; the React Compiler is not used here.
@@ -204,31 +268,36 @@ function LibraryList({
       <div ref={setBody} className="relative" style={{ height: virtualizer.getTotalSize() }}>
         {virtualizer.getVirtualItems().map((row) => {
           const m = items[row.index]!;
+          const { onContextMenu, onKeyDown } = handlers(m);
           return (
             <div
               key={m.id}
               role="row"
               tabIndex={0}
               onClick={() => onOpen(m)}
-              onKeyDown={(e) => e.key === 'Enter' && onOpen(m)}
+              onContextMenu={onContextMenu}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') onOpen(m);
+                else onKeyDown(e);
+              }}
               className={`absolute left-0 top-0 grid w-full ${LIST_COLUMNS} h-12 cursor-pointer items-center gap-4 border-t border-surface2 px-4 text-[13px] hover:bg-surface`}
               style={{ transform: `translateY(${row.start - virtualizer.options.scrollMargin}px)` }}
             >
-              <Thumbnail className="h-8 w-14 rounded-xs" />
+              <MediaThumb media={m} className="h-8 w-14 rounded-xs" />
               <span role="cell" className="truncate font-semibold">
                 {m.title}
               </span>
-              <span role="cell" className="text-muted">
-                {m.source}
+              <span role="cell" className="truncate text-muted">
+                {m.sourceHost ?? '—'}
               </span>
               <span role="cell" className="font-mono text-[12px] text-muted">
-                {m.duration}
+                {durationLabel(m.durationSecs)}
               </span>
               <span role="cell" className="text-muted">
-                {m.quality}
+                {qualityLabel(m)}
               </span>
               <span role="cell" className="text-right font-mono text-[12px] text-muted">
-                {m.size}
+                {formatBytes(m.sizeBytes)}
               </span>
             </div>
           );

@@ -2,7 +2,7 @@
 // a validated Rust command; in a plain browser (UI preview, tests) a mock
 // that honors the same contract and events is used instead.
 
-import { invoke } from '@tauri-apps/api/core';
+import { convertFileSrc, invoke } from '@tauri-apps/api/core';
 import { listen } from '@tauri-apps/api/event';
 import { MockBackend } from '../dev/mockBackend';
 import { checkLink } from './link';
@@ -15,9 +15,14 @@ import type {
   ComponentStatus,
   InstallProgress,
   HistoryEntry,
+  LibraryOverview,
   MediaInfo,
+  MediaPage,
+  MediaQuery,
+  MediaRecord,
   ResourceMode,
   StartRequest,
+  StorageUsage,
   TaskRecord,
 } from './types';
 
@@ -47,6 +52,41 @@ export interface Backend {
   /** Downloads the missing tools (explicit user consent, decision D3). */
   installComponents(onProgress: (p: InstallProgress) => void): Promise<ComponentStatus[]>;
   subscribe(listener: (event: BackendEvent) => void): () => void;
+
+  // Library (Phase 3)
+  libraryQuery(query: MediaQuery): Promise<MediaPage>;
+  libraryOverview(): Promise<LibraryOverview>;
+  /** One entry, after checking that its file still exists. */
+  libraryGet(id: number): Promise<MediaRecord>;
+  libraryRename(id: number, title: string): Promise<MediaRecord>;
+  /** Deletes the file from disk. */
+  libraryDelete(id: number): Promise<void>;
+  libraryReveal(id: number): Promise<void>;
+  /** Opens the file with the system player (formats the WebView cannot play). */
+  libraryOpenExternal(id: number): Promise<void>;
+  libraryRescan(): Promise<void>;
+  /** Opens the download folder in the file manager. */
+  openDownloadFolder(): Promise<void>;
+  onLibraryChanged(listener: () => void): () => void;
+  /** URL the WebView can stream (asset protocol, range requests). */
+  mediaUrl(path: string): string;
+  storageUsage(): Promise<StorageUsage>;
+  clearThumbnails(): Promise<number>;
+  cleanTemp(): Promise<number>;
+}
+
+/** Subscribes to a Tauri event; returns a synchronous unsubscribe. */
+function onEvent<T>(name: string, listener: (payload: T) => void) {
+  let unlisten: (() => void) | undefined;
+  let closed = false;
+  void listen<T>(name, (e) => listener(e.payload)).then((fn) => {
+    if (closed) fn();
+    else unlisten = fn;
+  });
+  return () => {
+    closed = true;
+    unlisten?.();
+  };
 }
 
 export class BackendError extends Error {
@@ -131,17 +171,25 @@ class TauriBackend implements Backend {
   }
 
   subscribe(listener: (event: BackendEvent) => void) {
-    let unlisten: (() => void) | undefined;
-    let closed = false;
-    void listen<BackendEvent>('downloads://event', (e) => listener(e.payload)).then((fn) => {
-      if (closed) fn();
-      else unlisten = fn;
-    });
-    return () => {
-      closed = true;
-      unlisten?.();
-    };
+    return onEvent<BackendEvent>('downloads://event', listener);
   }
+
+  libraryQuery = (query: MediaQuery) => call<MediaPage>('library_query', { query });
+  libraryOverview = () => call<LibraryOverview>('library_overview');
+  libraryGet = (id: number) => call<MediaRecord>('library_get', { id });
+  libraryRename = (id: number, title: string) => call<MediaRecord>('library_rename', { id, title });
+  libraryDelete = (id: number) => call<void>('library_delete', { id });
+  libraryReveal = (id: number) => call<void>('library_reveal', { id });
+  libraryOpenExternal = (id: number) => call<void>('library_open_external', { id });
+  openDownloadFolder = () => call<void>('downloads_open_folder');
+  libraryRescan = async () => {
+    await call('library_rescan');
+  };
+  onLibraryChanged = (listener: () => void) => onEvent<null>('library://changed', listener);
+  mediaUrl = (path: string) => convertFileSrc(path);
+  storageUsage = () => call<StorageUsage>('storage_usage');
+  clearThumbnails = () => call<number>('storage_clear_thumbnails');
+  cleanTemp = () => call<number>('storage_clean_temp');
 }
 
 // `let` + live ES module binding: importers always see the current backend.
@@ -152,9 +200,3 @@ export function resetMockBackend() {
   backend = new MockBackend();
   return backend;
 }
-
-/**
- * Screens still backed by development fixtures: the media library, its
- * overview cards and the player arrive in Phase 3.
- */
-export const LIBRARY_USES_FIXTURES = true;

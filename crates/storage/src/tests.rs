@@ -29,12 +29,12 @@ fn migrations_apply_and_are_idempotent() {
     let path = dir.path().join("miarina.db");
     {
         let storage = Storage::open(&path).unwrap();
-        assert_eq!(storage.schema_version().unwrap(), 1);
+        assert_eq!(storage.schema_version().unwrap(), 2);
         storage.insert_task(&new_task("a")).unwrap();
     }
     // Reopening runs migrations again without touching existing data.
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 1);
+    assert_eq!(storage.schema_version().unwrap(), 2);
     assert_eq!(storage.task("a").unwrap().title, "Title a");
 }
 
@@ -234,4 +234,23 @@ fn corrupted_rows_are_reported_not_panicked() {
         storage.task("a"),
         Err(StorageError::Corrupted("tasks.state"))
     ));
+}
+
+#[test]
+fn upgrading_a_v1_database_keeps_existing_data() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("v1.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 1).unwrap();
+        conn.execute(
+            "INSERT INTO settings (key, value) VALUES ('concurrency', '5')",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 2);
+    assert_eq!(storage.setting::<u32>("concurrency").unwrap(), Some(5));
+    assert_eq!(storage.media_stats().unwrap().count, 0);
 }

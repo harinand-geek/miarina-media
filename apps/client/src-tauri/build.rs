@@ -23,6 +23,18 @@ const COMMANDS: &[&str] = &[
     "settings_pick_download_dir",
     "components_status",
     "components_install",
+    "library_query",
+    "library_overview",
+    "library_get",
+    "library_rename",
+    "library_delete",
+    "library_reveal",
+    "library_rescan",
+    "library_open_external",
+    "downloads_open_folder",
+    "storage_usage",
+    "storage_clear_thumbnails",
+    "storage_clean_temp",
 ];
 
 fn main() {

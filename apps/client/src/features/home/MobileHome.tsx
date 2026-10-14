@@ -1,11 +1,13 @@
 import { useMemo } from 'react';
 import { Button, IconButton } from '../../components/Button';
-import { Thumbnail, ThumbBadge } from '../../components/Feedback';
+import { ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
 import { ProgressBar } from '../../components/ProgressBar';
-import { LIBRARY } from '../../dev/fixtures';
-import { percentOf, summarize, useDownloads } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
+import { durationLabel, qualityLabel } from '../library/format';
+import { MediaThumb } from '../library/MediaThumb';
+import { formatBytes, percentOf, summarize, useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 import type { MobileTab } from '../../app/MobileShell';
 import { useLinkInput } from './useLinkInput';
@@ -15,6 +17,7 @@ export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => voi
   const tasks = useDownloads((s) => s.tasks);
   const summary = useMemo(() => summarize(tasks), [tasks]);
   const play = useUi((s) => s.play);
+  const recent = useLibrary((s) => s.recent);
   const first = summary.active[0];
 
   const quick = [
@@ -146,20 +149,23 @@ export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => voi
             See all
           </button>
         </div>
-        {LIBRARY.slice(0, 4).map((item) => (
+        {recent.length === 0 && (
+          <p className="m-0 py-4 text-[13px] text-muted">Your downloads will appear here.</p>
+        )}
+        {recent.map((item) => (
           <div key={item.id} className="flex min-h-16 items-center gap-3">
             <button
               type="button"
               onClick={() => play(item)}
               className="flex min-w-0 flex-1 items-center gap-3 text-left"
             >
-              <Thumbnail className="h-[45px] w-20 rounded-md">
-                <ThumbBadge position="br">{item.duration}</ThumbBadge>
-              </Thumbnail>
+              <MediaThumb media={item} className="h-[45px] w-20 rounded-md">
+                <ThumbBadge position="br">{durationLabel(item.durationSecs)}</ThumbBadge>
+              </MediaThumb>
               <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                 <span className="truncate text-[14px] font-semibold">{item.title}</span>
                 <span className="text-[12px] text-muted">
-                  {item.quality} · {item.size}
+                  {qualityLabel(item)} · {formatBytes(item.sizeBytes)}
                 </span>
               </span>
             </button>

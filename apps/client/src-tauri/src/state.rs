@@ -5,6 +5,7 @@ use std::path::PathBuf;
 use std::sync::{Arc, Mutex, MutexGuard};
 
 use download_engine::{HttpEngine, Manager, YtDlpEngine};
+use library::{Library, WorkLimits};
 use resource_manager::{Limits, Platform, ResourceMode, limits};
 use serde::Serialize;
 use storage::Storage;
@@ -19,6 +20,7 @@ pub struct AppState {
     pub manager: Manager,
     pub http: HttpEngine,
     pub ytdlp: YtDlpEngine,
+    pub library: Library,
     pub default_download_dir: PathBuf,
     /// Serializes component installs (one download of each tool at a time).
     pub install_lock: tokio::sync::Mutex<()>,
@@ -81,6 +83,11 @@ impl AppState {
     pub fn apply_limits(&self) -> SettingsDto {
         let settings = self.settings();
         self.manager.set_limits(settings.limits);
+        self.library.set_limits(WorkLimits {
+            max_conversions: settings.limits.max_conversions,
+            thumbnail_px: settings.limits.thumbnail_px,
+            ffmpeg_threads: settings.limits.ffmpeg_threads,
+        });
         settings
     }
 }

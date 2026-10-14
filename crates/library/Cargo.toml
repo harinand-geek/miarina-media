@@ -1,0 +1,21 @@
+[package]
+name = "library"
+description = "Local media library: folder indexing, ffprobe metadata, thumbnails, rename and delete."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+download-engine = { path = "../download-engine" }
+media-core = { path = "../media-core" }
+serde.workspace = true
+serde_json.workspace = true
+storage = { path = "../storage" }
+thiserror.workspace = true
+tokio = { version = "1.53.2", features = ["fs", "macros", "process", "rt", "sync", "time"] }
+
+[dev-dependencies]
+tempfile = "3.27.0"
+tokio = { version = "1.53.2", features = ["full"] }

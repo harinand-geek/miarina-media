@@ -196,3 +196,70 @@ export interface CommandError {
   code: string;
   message: string;
 }
+
+/** `storage::MediaRecord`. */
+export interface MediaRecord {
+  id: number;
+  path: string;
+  title: string;
+  kind: MediaKind;
+  sourceHost: string | null;
+  sourceUrl: string | null;
+  taskId: string | null;
+  sizeBytes: number;
+  durationSecs: number | null;
+  width: number | null;
+  height: number | null;
+  videoCodec: string | null;
+  audioCodec: string | null;
+  container: string | null;
+  thumbnail: string | null;
+  probed: boolean;
+  missing: boolean;
+  addedAt: number;
+  modifiedAt: number;
+}
+
+export type MediaSort = 'added' | 'title' | 'size' | 'duration';
+
+export interface MediaQuery {
+  search: string;
+  kind: MediaKind | null;
+  sort: MediaSort;
+  offset?: number;
+  limit?: number;
+}
+
+export interface MediaPage {
+  items: MediaRecord[];
+  total: number;
+}
+
+export interface MediaStats {
+  count: number;
+  totalBytes: number;
+  videoCount: number;
+  videoBytes: number;
+  audioCount: number;
+  audioBytes: number;
+}
+
+export interface DiskSpace {
+  free: number;
+  total: number;
+}
+
+export interface LibraryOverview {
+  stats: MediaStats;
+  disk: DiskSpace | null;
+  downloadDir: string;
+}
+
+export interface StorageUsage {
+  downloadDir: string;
+  disk: DiskSpace | null;
+  libraryBytes: number;
+  thumbnailBytes: number;
+  orphanTempBytes: number;
+  orphanTempCount: number;
+}

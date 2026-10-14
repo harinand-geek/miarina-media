@@ -3,8 +3,10 @@
 use rusqlite_migration::{M, Migrations};
 
 pub fn migrations() -> Migrations<'static> {
-    Migrations::new(vec![M::up(
-        r#"
+    Migrations::new(vec![
+        // v1 — tasks, history, settings (Phase 2).
+        M::up(
+            r#"
         CREATE TABLE tasks (
             id               TEXT PRIMARY KEY,
             url              TEXT NOT NULL,
@@ -53,5 +55,54 @@ pub fn migrations() -> Migrations<'static> {
             value TEXT NOT NULL
         );
         "#,
-    )])
+        ),
+        // v2 — media library (Phase 3). Only metadata: files stay on disk.
+        M::up(
+            r#"
+        CREATE TABLE media (
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            path          TEXT NOT NULL UNIQUE,
+            title         TEXT NOT NULL,
+            kind          TEXT NOT NULL CHECK (kind IN ('video', 'audio')),
+            source_host   TEXT,
+            source_url    TEXT,
+            task_id       TEXT,
+            size_bytes    INTEGER NOT NULL DEFAULT 0,
+            duration_secs REAL,
+            width         INTEGER,
+            height        INTEGER,
+            video_codec   TEXT,
+            audio_codec   TEXT,
+            container     TEXT,
+            thumbnail     TEXT,
+            probed        INTEGER NOT NULL DEFAULT 0,
+            missing       INTEGER NOT NULL DEFAULT 0,
+            added_at      INTEGER NOT NULL,
+            modified_at   INTEGER NOT NULL
+        );
+        CREATE INDEX media_added ON media (added_at DESC);
+        CREATE INDEX media_probe ON media (probed, missing);
+
+        -- Full-text search on titles and sources, kept in sync by triggers.
+        CREATE VIRTUAL TABLE media_fts USING fts5(
+            title, source_host, content='media', content_rowid='id',
+            tokenize='unicode61 remove_diacritics 2'
+        );
+        CREATE TRIGGER media_ai AFTER INSERT ON media BEGIN
+            INSERT INTO media_fts(rowid, title, source_host)
+            VALUES (new.id, new.title, coalesce(new.source_host, ''));
+        END;
+        CREATE TRIGGER media_ad AFTER DELETE ON media BEGIN
+            INSERT INTO media_fts(media_fts, rowid, title, source_host)
+            VALUES ('delete', old.id, old.title, coalesce(old.source_host, ''));
+        END;
+        CREATE TRIGGER media_au AFTER UPDATE OF title, source_host ON media BEGIN
+            INSERT INTO media_fts(media_fts, rowid, title, source_host)
+            VALUES ('delete', old.id, old.title, coalesce(old.source_host, ''));
+            INSERT INTO media_fts(rowid, title, source_host)
+            VALUES (new.id, new.title, coalesce(new.source_host, ''));
+        END;
+        "#,
+        ),
+    ])
 }

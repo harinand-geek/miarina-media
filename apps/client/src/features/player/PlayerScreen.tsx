@@ -1,15 +1,20 @@
 import { useEffect, useState } from 'react';
 import { Button, IconButton } from '../../components/Button';
-import { EmptyState, Thumbnail } from '../../components/Feedback';
+import { EmptyState } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
-import { LIBRARY } from '../../dev/fixtures';
-import { formatClock, usePlaybackClock } from '../../hooks/usePlaybackClock';
+import { formatClock } from '../../hooks/usePlaybackClock';
 import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { backend } from '../../services/backend';
 import { setFullscreen } from '../../services/window';
-import type { LibraryItem } from '../../services/types';
+import type { MediaRecord } from '../../services/types';
+import { formatBytes } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
+import { durationLabel, folderOf, formatLabel, qualityLabel } from '../library/format';
+import { MediaThumb } from '../library/MediaThumb';
 import { SeekBar } from './SeekBar';
 import { formatRate, nextRate } from './playbackRate';
+import { usePlayback } from './usePlayback';
 
 export default function PlayerScreen() {
   const item = useUi((s) => s.nowPlaying);
@@ -39,42 +44,44 @@ export default function PlayerScreen() {
   return <Player key={item.id} item={item} />;
 }
 
-function Player({ item }: { item: LibraryItem }) {
-  const { time, playing, toggle, seek, skip } = usePlaybackClock(
-    item.durationSec,
-    Math.floor(item.durationSec * 0.34),
-  );
+function Player({ item }: { item: MediaRecord }) {
+  const { attachMedia, ...p } = usePlayback(item);
   const play = useUi((s) => s.play);
-  const [rate, setRate] = useState(1);
-  const [volume, setVolume] = useState(0.7);
+  const pushToast = useUi((s) => s.pushToast);
+  const items = useLibrary((s) => s.items);
   const [subtitles, setSubtitles] = useState(false);
   const [fullscreen, setFs] = useState(false);
   const wide = useMediaQuery('(min-width: 1280px)');
   const [panelOpen, setPanelOpen] = useState(false);
   const showPanel = !fullscreen && (wide || panelOpen);
+  const pipSupported = typeof document !== 'undefined' && document.pictureInPictureEnabled === true;
 
-  const upNext = LIBRARY.filter((m) => m.kind === 'video' && m.id !== item.id).slice(0, 5);
-  const index = LIBRARY.findIndex((m) => m.id === item.id);
+  const index = items.findIndex((m) => m.id === item.id);
+  const upNext = items.filter((m) => m.id !== item.id && m.kind === item.kind).slice(0, 5);
 
   const toggleFullscreen = (on = !fullscreen) => {
     setFs(on);
     void setFullscreen(on);
   };
 
+  const openExternal = () =>
+    backend
+      .libraryOpenExternal(item.id)
+      .catch((e: unknown) =>
+        pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
+      );
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement;
       if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || useUi.getState().confirm)
         return;
-      if (
-        e.key === ' ' &&
-        target.getAttribute('role') !== 'slider' &&
-        target.tagName !== 'BUTTON'
-      ) {
+      const slider = target.getAttribute('role') === 'slider';
+      if (e.key === ' ' && !slider && target.tagName !== 'BUTTON') {
         e.preventDefault();
-        toggle();
-      } else if (e.key === 'ArrowLeft' && target.getAttribute('role') !== 'slider') skip(-10);
-      else if (e.key === 'ArrowRight' && target.getAttribute('role') !== 'slider') skip(10);
+        p.toggle();
+      } else if (e.key === 'ArrowLeft' && !slider) p.skip(-10);
+      else if (e.key === 'ArrowRight' && !slider) p.skip(10);
       else if (e.key.toLowerCase() === 'f' && !e.ctrlKey) toggleFullscreen();
       else if (e.key === 'Escape' && fullscreen) toggleFullscreen(false);
     };
@@ -82,32 +89,58 @@ function Player({ item }: { item: LibraryItem }) {
     return () => window.removeEventListener('keydown', onKey);
   });
 
+  const isVideo = item.kind === 'video';
+
   return (
     <div className="flex min-h-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col bg-player text-[#F5F7FA]">
-        <div className="relative grid min-h-0 flex-1 place-items-center bg-[repeating-linear-gradient(135deg,#0E161D_0_10px,#0B1218_10px_20px)]">
-          <span className="font-mono text-[12px] font-medium text-[#64748B]">
-            video surface · 16:9
-          </span>
-          <div className="absolute left-5 top-4 flex flex-col gap-0.5">
+        <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-[repeating-linear-gradient(135deg,#0E161D_0_10px,#0B1218_10px_20px)]">
+          {p.src && isVideo && (
+            <video
+              ref={attachMedia}
+              src={p.src}
+              preload="metadata"
+              onClick={p.toggle}
+              onDoubleClick={() => toggleFullscreen()}
+              className="absolute inset-0 h-full w-full bg-black object-contain"
+            >
+              {subtitles && null}
+            </video>
+          )}
+          {p.src && !isVideo && <audio ref={attachMedia} src={p.src} preload="metadata" />}
+          {!isVideo && (
+            <div className="grid h-[min(55%,320px)] aspect-square place-items-center rounded-[20px] bg-[repeating-linear-gradient(135deg,#1C2C37_0_8px,#18262F_8px_16px)]">
+              <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
+            </div>
+          )}
+          {!p.src && isVideo && (
+            <span className="font-mono text-[12px] font-medium text-[#64748B]">
+              video surface · preview
+            </span>
+          )}
+          <div className="pointer-events-none absolute left-5 top-4 flex flex-col gap-0.5 drop-shadow">
             <span className="text-[15px] font-bold">{item.title}</span>
             <span className="text-[12px] text-[#94A3B8]">
-              {item.source} · {item.quality} · MP4
+              {[item.sourceHost, qualityLabel(item), item.path.split('.').pop()?.toUpperCase()]
+                .filter(Boolean)
+                .join(' · ')}
             </span>
           </div>
-          {subtitles && (
-            <span className="absolute bottom-6 rounded-xs bg-[rgb(0_0_0/0.6)] px-2 py-1 text-[15px]">
-              [Subtitles preview]
-            </span>
+          {p.error && (
+            <div
+              role="alert"
+              className="absolute inset-x-0 bottom-6 mx-auto flex w-fit max-w-[90%] items-center gap-3 rounded-lg border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[13px]"
+            >
+              <Icon name="error" fill className="text-[#F07070]" />
+              <span>This format cannot be played here ({formatLabel(item)}).</span>
+              <button type="button" onClick={openExternal} className="font-bold text-accent">
+                Open with system player
+              </button>
+            </div>
           )}
         </div>
         <div className="flex flex-col gap-2.5 border-t border-[#1B2935] bg-player-chrome px-5 pb-3.5 pt-3 [--mm-border:36_53_69] [--mm-faint-icon:58_77_94]">
-          <SeekBar
-            time={time}
-            duration={item.durationSec}
-            buffered={time + item.durationSec * 0.18}
-            onSeek={seek}
-          />
+          <SeekBar time={p.time} duration={p.duration} buffered={p.buffered} onSeek={p.seek} />
           <div className="flex items-center gap-1 [&_button]:text-[#F5F7FA] [&_button:hover]:bg-[#182530]">
             <IconButton
               icon="skip_previous"
@@ -115,55 +148,63 @@ function Player({ item }: { item: LibraryItem }) {
               fill
               iconSize={22}
               disabled={index <= 0}
-              onClick={() => play(LIBRARY[index - 1] ?? item)}
+              onClick={() => items[index - 1] && play(items[index - 1]!)}
             />
             <IconButton
               icon="replay_10"
               label="Back 10 seconds"
               iconSize={22}
-              onClick={() => skip(-10)}
+              onClick={() => p.skip(-10)}
             />
             <button
               type="button"
               title="Play/Pause (Space)"
-              aria-label={playing ? 'Pause' : 'Play'}
-              onClick={toggle}
+              aria-label={p.playing ? 'Pause' : 'Play'}
+              onClick={p.toggle}
               className="mx-1 grid h-11 w-11 place-items-center rounded-full bg-accent !text-accent-ink hover:!bg-accent-hover"
             >
-              <Icon name={playing ? 'pause' : 'play_arrow'} size={26} fill />
+              <Icon name={p.playing ? 'pause' : 'play_arrow'} size={26} fill />
             </button>
             <IconButton
               icon="forward_10"
               label="Forward 10 seconds"
               iconSize={22}
-              onClick={() => skip(10)}
+              onClick={() => p.skip(10)}
             />
             <IconButton
               icon="skip_next"
               label="Next"
               fill
               iconSize={22}
-              disabled={index >= LIBRARY.length - 1}
-              onClick={() => play(LIBRARY[index + 1] ?? item)}
+              disabled={index < 0 || index >= items.length - 1}
+              onClick={() => items[index + 1] && play(items[index + 1]!)}
             />
             <div className="ml-2.5 flex items-center gap-2">
-              <Icon name={volume === 0 ? 'volume_off' : 'volume_up'} className="text-[#94A3B8]" />
+              <button
+                type="button"
+                aria-label={p.volume === 0 ? 'Unmute' : 'Mute'}
+                onClick={() => p.setVolume(p.volume === 0 ? 0.8 : 0)}
+                className="grid place-items-center !bg-transparent"
+              >
+                <Icon
+                  name={p.volume === 0 ? 'volume_off' : 'volume_up'}
+                  className="text-[#94A3B8]"
+                />
+              </button>
               <div
                 role="slider"
                 tabIndex={0}
                 aria-label="Volume"
                 aria-valuemin={0}
                 aria-valuemax={100}
-                aria-valuenow={Math.round(volume * 100)}
+                aria-valuenow={Math.round(p.volume * 100)}
                 onClick={(e) => {
                   const r = e.currentTarget.getBoundingClientRect();
-                  setVolume(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)));
+                  p.setVolume((e.clientX - r.left) / r.width);
                 }}
                 onKeyDown={(e) => {
-                  if (e.key === 'ArrowUp' || e.key === 'ArrowRight')
-                    setVolume((v) => Math.min(1, v + 0.1));
-                  if (e.key === 'ArrowDown' || e.key === 'ArrowLeft')
-                    setVolume((v) => Math.max(0, v - 0.1));
+                  if (e.key === 'ArrowUp' || e.key === 'ArrowRight') p.setVolume(p.volume + 0.1);
+                  if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') p.setVolume(p.volume - 0.1);
                   e.stopPropagation();
                 }}
                 className="flex h-3.5 w-20 cursor-pointer items-center"
@@ -171,34 +212,43 @@ function Player({ item }: { item: LibraryItem }) {
                 <div className="h-1 w-full rounded-full bg-[#243545]">
                   <div
                     className="h-full rounded-full bg-[#F5F7FA]"
-                    style={{ width: `${volume * 100}%` }}
+                    style={{ width: `${p.volume * 100}%` }}
                   />
                 </div>
               </div>
             </div>
             <span className="ml-3.5 font-mono text-[12.5px] font-medium text-[#94A3B8] tabular">
-              <span className="text-[#F5F7FA]">{formatClock(time)}</span> / {item.duration}
+              <span className="text-[#F5F7FA]">{formatClock(p.time)}</span> /{' '}
+              {durationLabel(p.duration)}
             </span>
             <span className="flex-1" />
             <button
               type="button"
-              aria-label={`Playback speed ${rate}×`}
-              onClick={() => setRate(nextRate(rate))}
+              aria-label={`Playback speed ${p.rate}×`}
+              onClick={() => p.setRate(nextRate(p.rate))}
               className="h-[30px] rounded-sm border border-[#2A3D4E] px-2.5 font-mono text-[12px] font-semibold"
             >
-              {formatRate(rate)}
+              {formatRate(p.rate)}
             </button>
             <IconButton
               icon="closed_caption"
-              label="Subtitles"
+              label="Subtitles (no subtitle track in this file)"
               aria-pressed={subtitles}
-              fill={subtitles}
+              disabled
               onClick={() => setSubtitles((s) => !s)}
             />
             <IconButton
               icon="picture_in_picture_alt"
-              label="Picture in picture (not available yet)"
-              disabled
+              label={
+                pipSupported && isVideo
+                  ? 'Picture in picture'
+                  : 'Picture in picture (not available here)'
+              }
+              disabled={!pipSupported || !isVideo || !p.src}
+              onClick={() => {
+                const video = document.querySelector('video');
+                void video?.requestPictureInPicture?.().catch(() => {});
+              }}
             />
             {!wide && !fullscreen && (
               <IconButton
@@ -228,19 +278,30 @@ function Player({ item }: { item: LibraryItem }) {
             </span>
             <dl className="m-0 grid grid-cols-[90px_1fr] gap-y-2 text-[12.5px]">
               <dt className="text-muted">Format</dt>
-              <dd className="m-0">MP4 · H.264 · AAC</dd>
-              <dt className="text-muted">Resolution</dt>
-              <dd className="m-0">1920 × 800</dd>
+              <dd className="m-0">{formatLabel(item)}</dd>
+              {item.width && item.height && (
+                <>
+                  <dt className="text-muted">Resolution</dt>
+                  <dd className="m-0">
+                    {item.width} × {item.height}
+                  </dd>
+                </>
+              )}
               <dt className="text-muted">Size</dt>
-              <dd className="m-0">{item.size}</dd>
+              <dd className="m-0">{formatBytes(item.sizeBytes)}</dd>
               <dt className="text-muted">Location</dt>
-              <dd className="m-0 break-all font-mono text-[11.5px]">…\Videos\Miarina</dd>
+              <dd className="m-0 break-all font-mono text-[11.5px]" title={item.path}>
+                {folderOf(item.path)}
+              </dd>
             </dl>
           </div>
           <div className="flex flex-col gap-1 px-2.5 py-[18px]">
             <span className="px-2 pb-2 text-overline font-bold uppercase tracking-[0.06em] text-muted">
               Up next
             </span>
+            {upNext.length === 0 && (
+              <p className="m-0 px-2 text-[12.5px] text-muted">Nothing else yet.</p>
+            )}
             {upNext.map((u) => (
               <button
                 key={u.id}
@@ -248,11 +309,11 @@ function Player({ item }: { item: LibraryItem }) {
                 onClick={() => play(u)}
                 className="flex gap-2.5 rounded-sm p-2 text-left hover:bg-surface"
               >
-                <Thumbnail className="h-[45px] w-20 rounded-xs" />
+                <MediaThumb media={u} className="h-[45px] w-20 rounded-xs" />
                 <span className="flex min-w-0 flex-col gap-0.5">
                   <span className="truncate text-[12.5px] font-semibold">{u.title}</span>
                   <span className="text-[11.5px] text-muted">
-                    {u.duration} · {u.quality}
+                    {durationLabel(u.durationSecs)} · {qualityLabel(u)}
                   </span>
                 </span>
               </button>

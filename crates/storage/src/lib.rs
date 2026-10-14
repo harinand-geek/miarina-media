@@ -3,7 +3,12 @@
 //! Only metadata lives here: media bytes always stay on disk. Every state
 //! change is validated by [`media_core::TaskState`] before it is written.
 
+mod media;
 mod migrations;
+
+pub use media::{
+    MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats, NewMedia, fts_query,
+};
 
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -39,14 +44,14 @@ pub enum MediaKind {
 }
 
 impl MediaKind {
-    fn as_str(self) -> &'static str {
+    pub fn as_str(self) -> &'static str {
         match self {
             Self::Video => "video",
             Self::Audio => "audio",
         }
     }
 
-    fn parse(value: &str) -> Option<Self> {
+    pub fn parse(value: &str) -> Option<Self> {
         match value {
             "video" => Some(Self::Video),
             "audio" => Some(Self::Audio),
@@ -442,7 +447,7 @@ impl Storage {
     }
 }
 
-fn ensure_found(changed: usize, id: &str) -> Result<()> {
+pub(crate) fn ensure_found(changed: usize, id: &str) -> Result<()> {
     if changed == 0 {
         Err(StorageError::NotFound(id.to_owned()))
     } else {

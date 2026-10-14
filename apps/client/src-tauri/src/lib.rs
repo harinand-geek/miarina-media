@@ -1,20 +1,44 @@
 mod commands;
 mod state;
 
+use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
 
 use download_engine::components::Components;
 use download_engine::{HttpEngine, Manager, ManagerEvent, RetryPolicy, YtDlpEngine};
+use library::Library;
+use media_core::TaskState;
 use storage::Storage;
-use tauri::{Emitter, Manager as _, RunEvent};
+use tauri::{AppHandle, Emitter, Manager as _, RunEvent};
 use tokio::sync::mpsc;
 
 use state::AppState;
 
 /// Event carrying every download manager notification to the UI.
 pub const DOWNLOAD_EVENT: &str = "downloads://event";
+/// Emitted when library rows changed (added, probed, renamed, removed).
+pub const LIBRARY_EVENT: &str = "library://changed";
 /// Sized for bursts; progress is throttled upstream (≤ 1 Hz per task).
 const EVENT_BUFFER: usize = 1024;
+
+/// Lets the WebView stream files of `dir` through the asset protocol
+/// (HTTP range requests, nothing loaded in memory). Only library and
+/// thumbnail folders are ever allowed.
+pub fn allow_media_dir(app: &AppHandle, dir: &Path) {
+    if let Err(err) = app.asset_protocol_scope().allow_directory(dir, true) {
+        eprintln!("could not allow {}: {err}", dir.display());
+    }
+}
+
+/// Indexes the library folder without blocking the async runtime.
+pub fn scan_library(library: &Library, dir: PathBuf) {
+    let library = library.clone();
+    tauri::async_runtime::spawn_blocking(move || {
+        if let Err(err) = library.scan(&dir) {
+            eprintln!("library scan failed: {err}");
+        }
+    });
+}
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
@@ -33,7 +57,18 @@ pub fn run() {
 
             let http = HttpEngine::new()?;
             // yt-dlp and FFmpeg are downloaded on first use into app data.
-            let ytdlp = YtDlpEngine::new(Components::new(data_dir.join("components"))?);
+            let components = Components::new(data_dir.join("components"))?;
+            let ytdlp = YtDlpEngine::new(components.clone());
+            let handle = app.handle().clone();
+            let library = Library::new(
+                storage.clone(),
+                components,
+                data_dir.join("thumbnails"),
+                Arc::new(move || {
+                    let _ = handle.emit(LIBRARY_EVENT, ());
+                }),
+            );
+
             let (tx, mut rx) = mpsc::channel::<ManagerEvent>(EVENT_BUFFER);
             let manager = Manager::new(
                 storage.clone(),
@@ -48,20 +83,52 @@ pub fn run() {
                 tx,
             );
             let state = AppState {
-                storage,
+                storage: storage.clone(),
                 manager: manager.clone(),
                 http,
                 ytdlp,
+                library: library.clone(),
                 default_download_dir,
                 install_lock: tokio::sync::Mutex::new(()),
             };
             // Apply the persisted settings before anything is scheduled.
-            state.apply_limits();
+            let settings = state.apply_limits();
             app.manage(state);
 
+            // Media playback and thumbnails go through the asset protocol.
+            let download_dir = PathBuf::from(&settings.download_dir);
+            allow_media_dir(app.handle(), &download_dir);
+            allow_media_dir(app.handle(), library.thumbnails_dir());
+            let known_dirs: Vec<PathBuf> = storage
+                .lock()
+                .map(|s| s.media_paths().unwrap_or_default())
+                .unwrap_or_default()
+                .into_iter()
+                .filter_map(|(_, path, _)| Path::new(&path).parent().map(Path::to_path_buf))
+                .collect();
+            for dir in known_dirs {
+                allow_media_dir(app.handle(), &dir);
+            }
+
+            tauri::async_runtime::spawn(library.clone().run_worker());
+            scan_library(&library, download_dir);
+
             let handle = app.handle().clone();
+            let completed_library = library.clone();
             tauri::async_runtime::spawn(async move {
                 while let Some(event) = rx.recv().await {
+                    // A finished download joins the library right away.
+                    if let ManagerEvent::Task(task) = &event
+                        && task.state == TaskState::Completed
+                        && let Some(path) = &task.final_path
+                    {
+                        let _ = completed_library.add_download(
+                            Path::new(path),
+                            &task.source_host,
+                            &task.url,
+                            &task.id,
+                        );
+                    }
                     let _ = handle.emit(DOWNLOAD_EVENT, event);
                 }
             });
@@ -95,6 +162,18 @@ pub fn run() {
             commands::settings_pick_download_dir,
             commands::components_status,
             commands::components_install,
+            commands::library_query,
+            commands::library_overview,
+            commands::library_get,
+            commands::library_rename,
+            commands::library_delete,
+            commands::library_reveal,
+            commands::library_rescan,
+            commands::library_open_external,
+            commands::downloads_open_folder,
+            commands::storage_usage,
+            commands::storage_clear_thumbnails,
+            commands::storage_clean_temp,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");
