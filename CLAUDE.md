@@ -80,8 +80,14 @@ This is a target layout, not a requirement to create empty packages. Introduce m
 - Validate extractor packaging, APK/AAB size, media conversion, scoped storage, content URIs, permissions, notifications and background task behavior on physical devices.
 - Implement a native Android adapter with lifecycle-aware work; do not promise feature parity before validation.
 
+### Embedded browser (P0 on Android and Windows — decision 0001, 2026-10-14)
+- Built-in browser with tabs, history and bookmarks; automatic detection of media on visited pages; contextual (floating) download button opening format selection.
+- Android bottom navigation: Home / Browser / Downloads / Library; Settings moves out of the bottom bar (placement per approved mockup).
+- Gate: a feasibility spike (Windows Tauri child webview, Android native WebView via Kotlin plugin) precedes implementation; browser screens are implemented only from approved Claude Design mockups.
+- Detection never bypasses DRM, paywalls, authentication or site access controls; encrypted or protected streams are not offered.
+- Full requirements: `docs/requirements/android-mvp.md`.
+
 ### Later, not MVP
-- Embedded browser and media detection
 - Playlist/batch downloads
 - Optional synchronization or cloud services
 

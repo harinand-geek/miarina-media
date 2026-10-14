@@ -90,7 +90,9 @@ Use the approved Claude Design interface as the visual source of truth. Prioriti
 
 ---
 
-## Écarts avec le design approuvé et `CLAUDE.md` (à arbitrer)
+## Écarts avec le design approuvé et `CLAUDE.md`
+
+Arbitrés le 2026-10-14 : voir `docs/decisions/0001-embedded-browser-p0.md`.
 
 | Exigence | Design / CLAUDE.md | Décision nécessaire |
 |---|---|---|
