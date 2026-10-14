@@ -27,6 +27,7 @@ interface CardProps {
   icon: string;
   actionLabel: string;
   onAction: () => void;
+  actionDisabled?: boolean;
   progress?: {
     value: number | null;
     percent: number;
@@ -44,6 +45,7 @@ function Card({
   icon,
   actionLabel,
   onAction,
+  actionDisabled,
   progress,
 }: CardProps) {
   return (
@@ -61,8 +63,9 @@ function Card({
         <button
           type="button"
           aria-label={actionLabel}
+          disabled={actionDisabled}
           onClick={onAction}
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface2 text-fg"
+          className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface2 text-fg disabled:opacity-50"
         >
           <Icon name={icon} size={24} fill />
         </button>
@@ -143,6 +146,7 @@ export function MobileDownloads() {
                 failed ? `Retry ${t.title}` : paused ? `Resume ${t.title}` : `Pause ${t.title}`
               }
               onAction={() => (failed ? retry(t.id) : paused ? resume(t.id) : pause(t.id))}
+              actionDisabled={t.state === 'processing'}
               progress={{
                 value: barValue(t),
                 percent: percentOf(t),

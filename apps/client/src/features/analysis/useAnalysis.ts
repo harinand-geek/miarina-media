@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
 import { backend } from '../../services/backend';
-import type { MediaFormat, MediaInfo } from '../../services/types';
+import type { ComponentStatus, MediaFormat, MediaInfo } from '../../services/types';
 import { useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 
 export type AnalysisState =
   | { status: 'loading' }
   | { status: 'ready'; info: MediaInfo }
-  | { status: 'no_media'; message?: string };
+  | { status: 'no_media'; message?: string }
+  | { status: 'needs_components'; components: ComponentStatus[] };
 
 /** Runs the analysis for the pending URL; canceled when the view closes. */
 export function useAnalysis(url: string, enabled = true) {
@@ -23,7 +24,11 @@ export function useAnalysis(url: string, enabled = true) {
       .then((r) =>
         setResult({
           key,
-          state: r.ok ? { status: 'ready', info: r.info } : { status: 'no_media' },
+          state: r.ok
+            ? { status: 'ready', info: r.info }
+            : r.reason === 'needs_components'
+              ? { status: 'needs_components', components: r.components }
+              : { status: 'no_media', message: r.reason === 'no_media' ? r.message : undefined },
         }),
       )
       .catch((e: unknown) => {
@@ -88,4 +93,20 @@ export function useStartActions() {
   };
 
   return { download, addToQueue };
+}
+
+const heightOf = (f: MediaFormat) => Number.parseInt(f.quality, 10) || 0;
+
+/**
+ * Pre-selected format: the source's recommended one, else the best quality
+ * up to 1080p (sensible size), else the first offered.
+ */
+export function defaultFormat(formats: MediaFormat[]): MediaFormat | undefined {
+  return (
+    formats.find((f) => f.tag === 'Recommended') ??
+    formats
+      .filter((f) => heightOf(f) > 0 && heightOf(f) <= 1080)
+      .sort((a, b) => heightOf(b) - heightOf(a))[0] ??
+    formats[0]
+  );
 }

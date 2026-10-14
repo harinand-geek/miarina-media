@@ -92,6 +92,8 @@ const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) 
             run: () => resume(task.id),
           }
         : { icon: 'pause', label: 'Pause', run: () => pause(task.id) };
+  // Merging or converting cannot be suspended (it finishes or is cancelled).
+  const processing = task.state === 'processing';
 
   return (
     <div className="flex items-center gap-4 rounded-lg border border-surface2 bg-surface px-4 py-3.5">
@@ -123,8 +125,9 @@ const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) 
       <div className="flex gap-0.5">
         <IconButton
           icon={primary.icon}
-          label={primary.label}
+          label={processing ? 'Cannot pause while preparing the file' : primary.label}
           tone="default"
+          disabled={processing}
           onClick={primary.run}
         />
         <IconButton

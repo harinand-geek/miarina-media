@@ -13,6 +13,7 @@ import {
   type ThemePref,
 } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { MediaTools } from './MediaTools';
 import { Select, SettingRow } from './SettingRow';
 
 type Tab = 'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language';
@@ -186,6 +187,7 @@ function DownloadsTab() {
           onChange={() => toggle('subfolderPerSource')}
         />
       </SettingRow>
+      <MediaTools />
     </>
   );
 }

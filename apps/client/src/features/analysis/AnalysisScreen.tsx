@@ -7,20 +7,15 @@ import { ProgressBar } from '../../components/ProgressBar';
 import type { FormatGroup, MediaInfo } from '../../services/types';
 import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { ComponentsPrompt } from './ComponentsPrompt';
 import { NoMediaFound } from './NoMediaFound';
-import { downloadTitle, useAnalysis, useStartActions } from './useAnalysis';
+import { defaultFormat, downloadTitle, useAnalysis, useStartActions } from './useAnalysis';
 
 const GROUPS: FormatGroup[] = ['video', 'audio', 'subtitles'];
 const GROUP_NAMES: Record<FormatGroup, string> = {
   video: 'video',
   audio: 'audio-only',
   subtitles: 'subtitle',
-};
-
-const DEFAULT_SELECTION: Record<FormatGroup, string> = {
-  video: '1080',
-  audio: 'mp3',
-  subtitles: 'en',
 };
 
 export function AnalysisScreen() {
@@ -39,7 +34,14 @@ export function AnalysisScreen() {
         Home
       </button>
       {state.status === 'loading' && <AnalysisSkeleton />}
-      {state.status === 'no_media' && <NoMediaFound onRetry={retry} />}
+      {state.status === 'no_media' && <NoMediaFound onRetry={retry} reason={state.message} />}
+      {state.status === 'needs_components' && (
+        <ComponentsPrompt
+          components={state.components}
+          onInstalled={retry}
+          onDismiss={() => go('home')}
+        />
+      )}
       {state.status === 'ready' && <AnalysisResult info={state.info} />}
     </div>
   );
@@ -84,7 +86,7 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
   const go = useUi((s) => s.go);
   const downloadDir = useSettings((s) => s.downloadDir);
   const pickDownloadDir = useSettings((s) => s.pickDownloadDir);
-  const [selected, setSelected] = useState(DEFAULT_SELECTION);
+  const [selected, setSelected] = useState<Partial<Record<FormatGroup, string>>>({});
   const { download, addToQueue } = useStartActions();
 
   // A direct audio file only has an "Audio only" format: open that tab.
@@ -92,7 +94,7 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
     ? requestedTab
     : (GROUPS.find((g) => info.formats[g].length) ?? requestedTab);
   const formats = info.formats[tab];
-  const format = formats.find((f) => f.id === selected[tab]) ?? formats[0];
+  const format = formats.find((f) => f.id === selected[tab]) ?? defaultFormat(formats);
   const kind = tab === 'audio' ? 'audio' : 'video';
   // Subtitle files need the extractor engine (not part of this slice).
   const canDownload = !!format && tab !== 'subtitles';

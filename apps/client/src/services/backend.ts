@@ -12,6 +12,8 @@ import type {
   BackendEvent,
   BackendSettings,
   CommandError,
+  ComponentStatus,
+  InstallProgress,
   HistoryEntry,
   MediaInfo,
   ResourceMode,
@@ -41,6 +43,9 @@ export interface Backend {
   setResourceMode(mode: ResourceMode): Promise<BackendSettings>;
   /** Native folder picker; `null` when the user cancels. */
   pickDownloadDir(): Promise<BackendSettings | null>;
+  componentsStatus(): Promise<ComponentStatus[]>;
+  /** Downloads the missing tools (explicit user consent, decision D3). */
+  installComponents(onProgress: (p: InstallProgress) => void): Promise<ComponentStatus[]>;
   subscribe(listener: (event: BackendEvent) => void): () => void;
 }
 
@@ -63,7 +68,22 @@ async function call<T>(command: string, args?: Record<string, unknown>): Promise
   }
 }
 
-type AnalysisDto = { status: 'ready'; info: MediaInfo } | { status: 'no_media'; reason: string };
+export type AnalysisDto =
+  | { status: 'ready'; info: MediaInfo }
+  | { status: 'no_media'; reason: string }
+  | { status: 'needs_components'; components: ComponentStatus[] };
+
+/** Maps the `analyze_link` DTO to the UI result. */
+export function mapAnalysis(result: AnalysisDto): AnalyzeResult {
+  switch (result.status) {
+    case 'ready':
+      return { ok: true, info: result.info };
+    case 'needs_components':
+      return { ok: false, reason: 'needs_components', components: result.components };
+    case 'no_media':
+      return { ok: false, reason: 'no_media', message: result.reason };
+  }
+}
 
 class TauriBackend implements Backend {
   readonly kind = 'tauri' as const;
@@ -73,9 +93,7 @@ class TauriBackend implements Backend {
     if (!link.ok) return { ok: false, reason: 'invalid_link', code: link.code };
     const result = await call<AnalysisDto>('analyze_link', { url: link.url });
     if (signal?.aborted) throw new DOMException('Analysis canceled', 'AbortError');
-    return result.status === 'ready'
-      ? { ok: true, info: result.info }
-      : { ok: false, reason: 'no_media' };
+    return mapAnalysis(result);
   }
 
   listTasks = () => call<TaskRecord[]>('downloads_list');
@@ -99,6 +117,18 @@ class TauriBackend implements Backend {
   setResourceMode = (mode: ResourceMode) =>
     call<BackendSettings>('settings_set_resource_mode', { mode });
   pickDownloadDir = () => call<BackendSettings | null>('settings_pick_download_dir');
+  componentsStatus = () => call<ComponentStatus[]>('components_status');
+
+  async installComponents(onProgress: (p: InstallProgress) => void) {
+    const unlisten = await listen<InstallProgress>('components://progress', (e) =>
+      onProgress(e.payload),
+    );
+    try {
+      return await call<ComponentStatus[]>('components_install');
+    } finally {
+      unlisten();
+    }
+  }
 
   subscribe(listener: (event: BackendEvent) => void) {
     let unlisten: (() => void) | undefined;

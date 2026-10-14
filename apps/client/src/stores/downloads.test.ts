@@ -77,6 +77,29 @@ describe('backend events', () => {
     expect(state().tasks.a!.downloadedBytes).toBe(60 * MB);
   });
 
+  it('never lets a late command snapshot overwrite a newer event', async () => {
+    // Regression: the Download response ("waiting") arrived after the
+    // "downloading" event and kept the row in the queue for the whole transfer.
+    const { resetMockBackend } = await import('../services/backend');
+    const backend = resetMockBackend();
+    const stale = record('late', { state: 'waiting' });
+    backend.start = async () => {
+      state().apply({ type: 'task', payload: { ...stale, state: 'downloading' } });
+      return stale;
+    };
+    await state().start({
+      url: stale.url,
+      title: stale.title,
+      kind: 'video',
+      engine: 'http',
+      formatId: null,
+      formatLabel: 'MP4',
+      extension: 'mp4',
+      startNow: true,
+    });
+    expect(state().tasks.late!.state).toBe('downloading');
+  });
+
   it('drops canceled tasks and records history', () => {
     state().apply({ type: 'task', payload: record('a') });
     state().apply({ type: 'task', payload: record('a', { state: 'canceled' }) });

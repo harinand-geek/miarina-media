@@ -31,6 +31,8 @@
     "allow-settings-get",
     "allow-settings-set-concurrency",
     "allow-settings-set-resource-mode",
-    "allow-settings-pick-download-dir"
+    "allow-settings-pick-download-dir",
+    "allow-components-status",
+    "allow-components-install"
   ]
 }

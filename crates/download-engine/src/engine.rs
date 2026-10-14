@@ -20,6 +20,26 @@ pub struct DownloadJob {
     pub progress_interval: Duration,
     /// Engine-specific format selector (yt-dlp format id); ignored by HTTP.
     pub format_id: Option<String>,
+    /// Resource limits for engines that spawn processes.
+    pub process: ProcessLimits,
+}
+
+/// Subset of the resource-mode limits that applies to one transfer.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ProcessLimits {
+    pub concurrent_fragments: usize,
+    pub ffmpeg_threads: usize,
+    pub low_priority: bool,
+}
+
+impl Default for ProcessLimits {
+    fn default() -> Self {
+        Self {
+            concurrent_fragments: 1,
+            ffmpeg_threads: 1,
+            low_priority: false,
+        }
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

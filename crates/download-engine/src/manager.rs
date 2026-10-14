@@ -10,15 +10,15 @@ use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::{Duration, Instant};
 
 use media_core::{TaskState, ValidatedUrl, validate_media_url};
-use resource_manager::{Limits, MAX_QUEUE_LEN};
+use resource_manager::{Limits, MAX_QUEUE_LEN, ProcessPriority};
 use serde::Serialize;
 use storage::{HistoryEntry, HistoryStatus, NewTask, Storage, StorageError, TaskRecord};
 use thiserror::Error;
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
 
-use crate::engine::{DownloadJob, Engine};
-use crate::{EngineError, Progress, RetryPolicy};
+use crate::engine::{DownloadJob, Engine, ProcessLimits};
+use crate::{EngineError, Progress, RetryPolicy, Stage};
 
 /// Minimum delay between two progress checkpoints written to SQLite.
 const CHECKPOINT_EVERY: Duration = Duration::from_secs(2);
@@ -189,6 +189,11 @@ impl Manager {
     }
 
     pub fn pause(&self, id: &str) -> Result<(), ManagerError> {
+        // A merge or conversion cannot be suspended; it finishes or is cancelled.
+        let state = lock(&self.inner.storage).task(id)?.state;
+        if state == TaskState::Processing {
+            return Err(ManagerError::InvalidAction(state));
+        }
         if self.signal(id, Intent::Pause) {
             return Ok(());
         }
@@ -464,15 +469,22 @@ impl Manager {
         part: &Path,
         cancel: &CancellationToken,
     ) -> Result<crate::Outcome, EngineError> {
+        let limits = *lock(&self.inner.limits);
         let job = DownloadJob {
             url: url.clone(),
             part_path: part.to_path_buf(),
             dest_dir: dest_dir.to_path_buf(),
             file_name: task.file_name.clone(),
-            progress_interval: lock(&self.inner.limits).progress_interval,
+            progress_interval: limits.progress_interval,
             format_id: task.format_id.clone(),
+            process: ProcessLimits {
+                concurrent_fragments: limits.concurrent_fragments,
+                ffmpeg_threads: limits.ffmpeg_threads,
+                low_priority: limits.child_priority == ProcessPriority::BelowNormal,
+            },
         };
-        let checkpoint = Mutex::new((Instant::now(), None::<bool>));
+        // (last checkpoint, last resume flag, processing announced)
+        let checkpoint = Mutex::new((Instant::now(), None::<bool>, false));
         let on_progress = |p: Progress| {
             let mut cp = lock(&checkpoint);
             let resume_changed = cp.1 != Some(p.supports_resume);
@@ -482,9 +494,15 @@ impl Manager {
                 if resume_changed {
                     let _ = storage.set_resume_support(&task.id, p.supports_resume);
                 }
-                *cp = (Instant::now(), Some(p.supports_resume));
+                cp.0 = Instant::now();
+                cp.1 = Some(p.supports_resume);
             }
+            let enter_processing = p.stage == Stage::Processing && !cp.2;
+            cp.2 |= enter_processing;
             drop(cp);
+            if enter_processing {
+                let _ = self.transition(&task.id, TaskState::Processing);
+            }
             self.emit(ManagerEvent::Progress(ProgressEvent {
                 id: task.id.clone(),
                 progress: p,
@@ -571,9 +589,11 @@ impl Manager {
     }
 }
 
+/// Deletes the partial file and, for process engines, their work folder.
 fn remove_part(task: &TaskRecord) {
     if let Some(part) = &task.part_path {
         let _ = std::fs::remove_file(part);
+        let _ = std::fs::remove_dir_all(crate::ytdlp::work_dir(Path::new(part)));
     }
 }
 

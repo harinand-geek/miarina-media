@@ -21,6 +21,8 @@ const COMMANDS: &[&str] = &[
     "settings_set_concurrency",
     "settings_set_resource_mode",
     "settings_pick_download_dir",
+    "components_status",
+    "components_install",
 ];
 
 fn main() {

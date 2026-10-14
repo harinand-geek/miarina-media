@@ -13,14 +13,23 @@ media-core = { path = "../media-core" }
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
 resource-manager = { path = "../resource-manager" }
 serde.workspace = true
+serde_json.workspace = true
+sha2 = "=0.11.0"
 storage = { path = "../storage" }
 thiserror.workspace = true
-tokio = { version = "1.53.2", features = ["fs", "io-util", "macros", "rt", "sync", "time"] }
+tokio = { version = "1.53.2", features = ["fs", "io-util", "macros", "process", "rt", "sync", "time"] }
 tokio-util = { version = "0.7.19", default-features = false }
 url.workspace = true
+zip = { version = "=8.6.0", default-features = false, features = ["deflate-flate2-zlib-rs"] }
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+windows-sys = { version = "0.61.2", features = [
+    "Win32_Foundation",
+    "Win32_Security",
+    "Win32_Storage_FileSystem",
+    "Win32_System_JobObjects",
+    "Win32_System_Threading",
+] }
 
 [dev-dependencies]
 tempfile = "3.27.0"

@@ -16,6 +16,7 @@ fn job(url: &str, dir: &std::path::Path) -> DownloadJob {
         file_name: "movie.mp4".into(),
         progress_interval: Duration::from_millis(0),
         format_id: None,
+        process: Default::default(),
     }
 }
 

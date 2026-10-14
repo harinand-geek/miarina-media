@@ -8,8 +8,9 @@ import { ANDROID_STORES } from '../../dev/fixtures';
 import type { MediaInfo } from '../../services/types';
 import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { ComponentsPrompt } from './ComponentsPrompt';
 import { NoMediaFound } from './NoMediaFound';
-import { useAnalysis, useStartActions } from './useAnalysis';
+import { defaultFormat, useAnalysis, useStartActions } from './useAnalysis';
 
 interface AnalysisSheetProps {
   onOpenStorage: () => void;
@@ -34,7 +35,14 @@ export function AnalysisSheet({ onOpenStorage, onStarted }: AnalysisSheetProps) 
           <span className="text-[13px] text-muted">Reading available formats…</span>
         </div>
       )}
-      {state.status === 'no_media' && <NoMediaFound onRetry={retry} />}
+      {state.status === 'no_media' && <NoMediaFound onRetry={retry} reason={state.message} />}
+      {state.status === 'needs_components' && (
+        <ComponentsPrompt
+          components={state.components}
+          onInstalled={retry}
+          onDismiss={() => go('home')}
+        />
+      )}
       {state.status === 'ready' && (
         <SheetContent
           info={state.info}
@@ -60,13 +68,13 @@ function SheetContent({
 }) {
   const initialTab = useUi((s) => (s.analysisTab === 'audio' ? 'audio' : 'video'));
   const [tab, setTab] = useState<'video' | 'audio'>(initialTab);
-  const [selected, setSelected] = useState({ video: '1080', audio: 'mp3' });
+  const [selected, setSelected] = useState<Partial<Record<'video' | 'audio', string>>>({});
   const storeId = useSettings((s) => s.androidStore);
   const store = ANDROID_STORES.find((s) => s.id === storeId)!;
   const { download } = useStartActions();
 
   const formats = info.formats[tab];
-  const format = formats.find((f) => f.id === selected[tab]) ?? formats[0]!;
+  const format = formats.find((f) => f.id === selected[tab]) ?? defaultFormat(formats);
 
   return (
     <>
@@ -91,8 +99,13 @@ function SheetContent({
         ]}
       />
       <div role="radiogroup" aria-label="Quality" className="flex flex-col gap-1.5">
+        {formats.length === 0 && (
+          <p className="m-0 rounded-[12px] border border-dashed border-line-strong px-4 py-5 text-[13px] text-muted">
+            This source has no {tab === 'audio' ? 'audio-only' : 'video'} formats.
+          </p>
+        )}
         {formats.map((f) => {
-          const on = f.id === format.id;
+          const on = f.id === format?.id;
           return (
             <button
               key={f.id}
@@ -130,12 +143,12 @@ function SheetContent({
         variant="primary"
         pill
         className="h-[52px] text-[15px]"
-        onClick={() => {
-          download(info, format, tab);
-          onStarted();
+        disabled={!format}
+        onClick={async () => {
+          if (format && (await download(info, format, tab))) onStarted();
         }}
       >
-        Download · {format.size}
+        {format ? `Download · ${format.size}` : 'Download'}
       </Button>
     </>
   );

@@ -214,6 +214,7 @@ async fn stream_body(
             total,
             bytes_per_sec: rate,
             supports_resume,
+            stage: crate::Stage::Downloading,
         })
     };
     report(downloaded, 0.0);

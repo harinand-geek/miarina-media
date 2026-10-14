@@ -3,7 +3,8 @@ mod state;
 
 use std::sync::{Arc, Mutex};
 
-use download_engine::{HttpEngine, Manager, ManagerEvent, RetryPolicy};
+use download_engine::components::Components;
+use download_engine::{HttpEngine, Manager, ManagerEvent, RetryPolicy, YtDlpEngine};
 use storage::Storage;
 use tauri::{Emitter, Manager as _, RunEvent};
 use tokio::sync::mpsc;
@@ -31,10 +32,12 @@ pub fn run() {
                 .join("Miarina");
 
             let http = HttpEngine::new()?;
+            // yt-dlp and FFmpeg are downloaded on first use into app data.
+            let ytdlp = YtDlpEngine::new(Components::new(data_dir.join("components"))?);
             let (tx, mut rx) = mpsc::channel::<ManagerEvent>(EVENT_BUFFER);
             let manager = Manager::new(
                 storage.clone(),
-                vec![Arc::new(http.clone())],
+                vec![Arc::new(http.clone()), Arc::new(ytdlp.clone())],
                 resource_manager::limits(
                     Default::default(),
                     state::PLATFORM,
@@ -48,7 +51,9 @@ pub fn run() {
                 storage,
                 manager: manager.clone(),
                 http,
+                ytdlp,
                 default_download_dir,
+                install_lock: tokio::sync::Mutex::new(()),
             };
             // Apply the persisted settings before anything is scheduled.
             state.apply_limits();
@@ -88,6 +93,8 @@ pub fn run() {
             commands::settings_set_concurrency,
             commands::settings_set_resource_mode,
             commands::settings_pick_download_dir,
+            commands::components_status,
+            commands::components_install,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");

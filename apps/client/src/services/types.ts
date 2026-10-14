@@ -15,7 +15,7 @@ export interface MediaFormat {
   /** File extension the download will be saved with. */
   extension: string;
   sizeBytes?: number | null;
-  tag?: 'Best quality' | 'Recommended';
+  tag?: 'Best quality' | 'Recommended' | null;
 }
 
 export interface MediaInfo {
@@ -26,8 +26,10 @@ export interface MediaInfo {
   subtitle: string;
   publisher: string;
   duration?: string | null;
-  released?: string;
-  license?: string;
+  released?: string | null;
+  license?: string | null;
+  /** Advice shown under the formats (e.g. FFmpeg missing). */
+  notice?: string | null;
   formats: Record<FormatGroup, MediaFormat[]>;
 }
 
@@ -166,9 +168,28 @@ export type LinkErrorCode =
   | 'missing_host'
   | 'contains_credentials';
 
+/** `download_engine::components::ComponentStatus`. */
+export interface ComponentStatus {
+  id: 'yt_dlp' | 'ffmpeg';
+  name: string;
+  version: string;
+  license: string;
+  downloadBytes: number;
+  installed: boolean;
+}
+
+export interface InstallProgress {
+  id: ComponentStatus['id'];
+  name: string;
+  downloaded: number;
+  total: number;
+}
+
 export type AnalyzeResult =
   | { ok: true; info: MediaInfo }
-  | { ok: false; reason: 'no_media' | 'invalid_link'; code?: LinkErrorCode };
+  | { ok: false; reason: 'invalid_link'; code?: LinkErrorCode }
+  | { ok: false; reason: 'no_media'; message?: string }
+  | { ok: false; reason: 'needs_components'; components: ComponentStatus[] };
 
 /** Error shape returned by Tauri commands (`CommandError`). */
 export interface CommandError {

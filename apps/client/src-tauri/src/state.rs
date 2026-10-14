@@ -4,7 +4,7 @@
 use std::path::PathBuf;
 use std::sync::{Arc, Mutex, MutexGuard};
 
-use download_engine::{HttpEngine, Manager};
+use download_engine::{HttpEngine, Manager, YtDlpEngine};
 use resource_manager::{Limits, Platform, ResourceMode, limits};
 use serde::Serialize;
 use storage::Storage;
@@ -18,7 +18,10 @@ pub struct AppState {
     pub storage: Arc<Mutex<Storage>>,
     pub manager: Manager,
     pub http: HttpEngine,
+    pub ytdlp: YtDlpEngine,
     pub default_download_dir: PathBuf,
+    /// Serializes component installs (one download of each tool at a time).
+    pub install_lock: tokio::sync::Mutex<()>,
 }
 
 #[derive(Debug, Clone, Serialize)]

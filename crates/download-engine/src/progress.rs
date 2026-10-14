@@ -2,6 +2,16 @@ use std::time::{Duration, Instant};
 
 use serde::Serialize;
 
+/// Transfer phase reported by an engine.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Stage {
+    #[default]
+    Downloading,
+    /// Merging streams or converting (FFmpeg).
+    Processing,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Progress {
@@ -10,6 +20,7 @@ pub struct Progress {
     pub bytes_per_sec: f64,
     /// Whether the source accepted byte ranges for this transfer.
     pub supports_resume: bool,
+    pub stage: Stage,
 }
 
 impl Progress {
@@ -123,6 +134,7 @@ mod tests {
             total: Some(1500),
             bytes_per_sec: 100.0,
             supports_resume: false,
+            stage: Stage::Downloading,
         };
         assert_eq!(p.eta(), Some(Duration::from_secs(10)));
         assert_eq!(Progress { total: None, ..p }.eta(), None);

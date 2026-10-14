@@ -1,0 +1,368 @@
+//! External tools (yt-dlp, FFmpeg) downloaded on first use (decision D3).
+//!
+//! Versions and SHA-256 digests are pinned in the source: an archive whose
+//! size or digest differs is rejected. Nothing is executed before it has
+//! been verified. Updates ship with new application versions.
+
+use std::path::{Path, PathBuf};
+
+use reqwest::Client;
+use serde::Serialize;
+use sha2::{Digest, Sha256};
+use tokio::io::AsyncWriteExt;
+use tokio_util::sync::CancellationToken;
+
+use crate::EngineError;
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
+#[serde(rename_all = "snake_case")]
+pub enum ComponentId {
+    YtDlp,
+    Ffmpeg,
+}
+
+#[derive(Debug, Clone, Copy)]
+enum Archive {
+    /// The download is the executable itself.
+    Executable { file_name: &'static str },
+    /// A zip; files whose name matches are taken from its `bin/` folder.
+    Zip { wanted: fn(&str) -> bool },
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct ComponentSpec {
+    pub id: ComponentId,
+    pub name: &'static str,
+    pub version: &'static str,
+    pub license: &'static str,
+    url: &'static str,
+    sha256: &'static str,
+    pub download_bytes: u64,
+    archive: Archive,
+    /// Executable checked to decide whether the component is installed.
+    main_file: &'static str,
+}
+
+pub const YTDLP: ComponentSpec = ComponentSpec {
+    id: ComponentId::YtDlp,
+    name: "yt-dlp",
+    version: "2026.08.19",
+    license: "Unlicense (bundled Python runtime under its own licenses)",
+    url: "https://github.com/yt-dlp/yt-dlp/releases/download/2026.08.19/yt-dlp.exe",
+    sha256: "66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a",
+    download_bytes: 17_840_399,
+    archive: Archive::Executable {
+        file_name: "yt-dlp.exe",
+    },
+    main_file: "yt-dlp.exe",
+};
+
+pub const FFMPEG: ComponentSpec = ComponentSpec {
+    id: ComponentId::Ffmpeg,
+    name: "FFmpeg",
+    version: "n8.1.2-50-g1a748fe2cd (LGPL, shared)",
+    // The build is configured with --enable-version3 (no --enable-gpl).
+    license: "LGPL-3.0-or-later",
+    url: "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-08-31-13-27/ffmpeg-n8.1.2-50-g1a748fe2cd-win64-lgpl-shared-8.1.zip",
+    sha256: "e9712ffbdb03ef71bbab660c75b835bfe698ef6fad0247c76d8d394a39a3db63",
+    download_bytes: 70_835_150,
+    archive: Archive::Zip {
+        wanted: |name| {
+            let lower = name.to_ascii_lowercase();
+            lower == "ffmpeg.exe" || lower == "ffprobe.exe" || lower.ends_with(".dll")
+        },
+    },
+    main_file: "ffmpeg.exe",
+};
+
+pub const ALL: [ComponentSpec; 2] = [YTDLP, FFMPEG];
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ComponentStatus {
+    pub id: ComponentId,
+    pub name: &'static str,
+    pub version: &'static str,
+    pub license: &'static str,
+    pub download_bytes: u64,
+    pub installed: bool,
+}
+
+/// Where components live: `<root>/<id>/<pinned sha prefix>/…`.
+#[derive(Clone)]
+pub struct Components {
+    root: PathBuf,
+    client: Client,
+}
+
+impl Components {
+    pub fn new(root: PathBuf) -> Result<Self, EngineError> {
+        let client = Client::builder()
+            .user_agent(concat!("MiarinaMedia/", env!("CARGO_PKG_VERSION")))
+            .connect_timeout(std::time::Duration::from_secs(15))
+            .read_timeout(std::time::Duration::from_secs(60))
+            .build()
+            .map_err(EngineError::network)?;
+        Ok(Self { root, client })
+    }
+
+    fn dir(&self, spec: &ComponentSpec) -> PathBuf {
+        let id = match spec.id {
+            ComponentId::YtDlp => "yt-dlp",
+            ComponentId::Ffmpeg => "ffmpeg",
+        };
+        self.root.join(id).join(&spec.sha256[..16])
+    }
+
+    /// Path of the main executable if the pinned version is installed.
+    pub fn path(&self, spec: &ComponentSpec) -> Option<PathBuf> {
+        let path = self.dir(spec).join(spec.main_file);
+        path.is_file().then_some(path)
+    }
+
+    pub fn ytdlp(&self) -> Option<PathBuf> {
+        self.path(&YTDLP)
+    }
+
+    /// Directory to pass as `--ffmpeg-location`.
+    pub fn ffmpeg_dir(&self) -> Option<PathBuf> {
+        self.path(&FFMPEG)
+            .and_then(|p| p.parent().map(Path::to_path_buf))
+    }
+
+    /// yt-dlp cache (kept inside the app data directory).
+    pub fn cache_dir(&self) -> PathBuf {
+        self.root.join("cache")
+    }
+
+    pub fn status(&self) -> Vec<ComponentStatus> {
+        ALL.iter()
+            .map(|spec| ComponentStatus {
+                id: spec.id,
+                name: spec.name,
+                version: spec.version,
+                license: spec.license,
+                download_bytes: spec.download_bytes,
+                installed: self.path(spec).is_some(),
+            })
+            .collect()
+    }
+
+    /// Downloads, verifies and installs a component. `progress` receives
+    /// (downloaded, total) bytes.
+    pub async fn install(
+        &self,
+        spec: &ComponentSpec,
+        progress: &(dyn Fn(u64, u64) + Send + Sync),
+        cancel: &CancellationToken,
+    ) -> Result<PathBuf, EngineError> {
+        if let Some(path) = self.path(spec) {
+            return Ok(path);
+        }
+        let staging = self.root.join(".staging");
+        tokio::fs::create_dir_all(&staging)
+            .await
+            .map_err(EngineError::from_io)?;
+        let archive = staging.join(format!("{}.download", &spec.sha256[..16]));
+        let result = self.fetch_verified(spec, &archive, progress, cancel).await;
+        if let Err(err) = result {
+            let _ = tokio::fs::remove_file(&archive).await;
+            return Err(err);
+        }
+
+        let unpacked = staging.join(&spec.sha256[..16]);
+        let _ = tokio::fs::remove_dir_all(&unpacked).await;
+        tokio::fs::create_dir_all(&unpacked)
+            .await
+            .map_err(EngineError::from_io)?;
+        let spec_copy = *spec;
+        let (archive_c, unpacked_c) = (archive.clone(), unpacked.clone());
+        tokio::task::spawn_blocking(move || unpack(&spec_copy, &archive_c, &unpacked_c))
+            .await
+            .map_err(|e| EngineError::Io {
+                message: e.to_string(),
+            })??;
+        let _ = tokio::fs::remove_file(&archive).await;
+
+        // Atomic publish: the component appears complete or not at all.
+        let target = self.dir(spec);
+        if let Some(parent) = target.parent() {
+            tokio::fs::create_dir_all(parent)
+                .await
+                .map_err(EngineError::from_io)?;
+        }
+        let _ = tokio::fs::remove_dir_all(&target).await;
+        tokio::fs::rename(&unpacked, &target)
+            .await
+            .map_err(EngineError::from_io)?;
+        self.path(spec).ok_or_else(|| EngineError::Io {
+            message: format!("{} was not found in the archive", spec.main_file),
+        })
+    }
+
+    async fn fetch_verified(
+        &self,
+        spec: &ComponentSpec,
+        archive: &Path,
+        progress: &(dyn Fn(u64, u64) + Send + Sync),
+        cancel: &CancellationToken,
+    ) -> Result<(), EngineError> {
+        let mut response = self
+            .client
+            .get(spec.url)
+            .send()
+            .await
+            .map_err(EngineError::from_reqwest)?;
+        if !response.status().is_success() {
+            return Err(EngineError::Http {
+                status: response.status().as_u16(),
+            });
+        }
+        crate::fsops::ensure_space(&self.root, spec.download_bytes * 3)?;
+        let mut file = tokio::fs::File::create(archive)
+            .await
+            .map_err(EngineError::from_io)?;
+        let mut hasher = Sha256::new();
+        let mut downloaded = 0u64;
+        let mut last_report = std::time::Instant::now();
+        loop {
+            let chunk = tokio::select! {
+                _ = cancel.cancelled() => return Err(EngineError::Canceled),
+                c = response.chunk() => c.map_err(EngineError::from_reqwest)?,
+            };
+            let Some(chunk) = chunk else { break };
+            downloaded += chunk.len() as u64;
+            if downloaded > spec.download_bytes {
+                return Err(integrity_error(spec));
+            }
+            hasher.update(&chunk);
+            file.write_all(&chunk).await.map_err(EngineError::from_io)?;
+            if last_report.elapsed().as_millis() >= 500 {
+                progress(downloaded, spec.download_bytes);
+                last_report = std::time::Instant::now();
+            }
+        }
+        file.flush().await.map_err(EngineError::from_io)?;
+        file.sync_all().await.map_err(EngineError::from_io)?;
+        progress(downloaded, spec.download_bytes);
+        let digest = hex(&hasher.finalize());
+        if downloaded != spec.download_bytes || digest != spec.sha256 {
+            return Err(integrity_error(spec));
+        }
+        Ok(())
+    }
+}
+
+fn integrity_error(spec: &ComponentSpec) -> EngineError {
+    EngineError::Unsupported {
+        reason: format!("{} failed its integrity check and was discarded", spec.name),
+    }
+}
+
+pub(crate) fn hex(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+/// Extracts only the expected files, flattening paths: archive entry names
+/// never decide where a file is written (zip-slip safe).
+fn unpack(spec: &ComponentSpec, archive: &Path, dest: &Path) -> Result<(), EngineError> {
+    match spec.archive {
+        Archive::Executable { file_name } => {
+            std::fs::copy(archive, dest.join(file_name)).map_err(EngineError::from_io)?;
+            Ok(())
+        }
+        Archive::Zip { wanted } => {
+            let file = std::fs::File::open(archive).map_err(EngineError::from_io)?;
+            let mut zip = zip::ZipArchive::new(file).map_err(|e| EngineError::Io {
+                message: e.to_string(),
+            })?;
+            for i in 0..zip.len() {
+                let mut entry = zip.by_index(i).map_err(|e| EngineError::Io {
+                    message: e.to_string(),
+                })?;
+                if !entry.is_file() {
+                    continue;
+                }
+                let name = entry.name().replace('\\', "/");
+                let mut parts = name.rsplit('/');
+                let (Some(file_name), Some(parent)) = (parts.next(), parts.next()) else {
+                    continue;
+                };
+                if parent != "bin" || !wanted(file_name) || file_name.contains("..") {
+                    continue;
+                }
+                let mut out =
+                    std::fs::File::create(dest.join(file_name)).map_err(EngineError::from_io)?;
+                std::io::copy(&mut entry, &mut out).map_err(EngineError::from_io)?;
+            }
+            Ok(())
+        }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::io::Write;
+
+    #[test]
+    fn hex_encoding() {
+        assert_eq!(hex(&[0x00, 0xab, 0xff]), "00abff");
+    }
+
+    #[test]
+    fn pinned_digests_are_well_formed() {
+        for spec in ALL {
+            assert_eq!(spec.sha256.len(), 64);
+            assert!(
+                spec.sha256
+                    .chars()
+                    .all(|c| c.is_ascii_hexdigit() && !c.is_ascii_uppercase())
+            );
+            assert!(spec.url.starts_with("https://github.com/"));
+        }
+    }
+
+    #[test]
+    fn unpack_takes_only_bin_files_and_ignores_traversal() {
+        let dir = tempfile::tempdir().unwrap();
+        let archive = dir.path().join("a.zip");
+        {
+            let file = std::fs::File::create(&archive).unwrap();
+            let mut zip = zip::ZipWriter::new(file);
+            let opts = zip::write::SimpleFileOptions::default()
+                .compression_method(zip::CompressionMethod::Stored);
+            for (name, data) in [
+                ("ffmpeg-x/bin/ffmpeg.exe", "exe"),
+                ("ffmpeg-x/bin/avcodec-62.dll", "dll"),
+                ("ffmpeg-x/bin/ffplay.exe", "player"),
+                ("ffmpeg-x/doc/readme.txt", "doc"),
+                ("../../evil/bin/ffprobe.exe", "evil"),
+            ] {
+                zip.start_file(name, opts).unwrap();
+                zip.write_all(data.as_bytes()).unwrap();
+            }
+            zip.finish().unwrap();
+        }
+        let out = dir.path().join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        unpack(&FFMPEG, &archive, &out).unwrap();
+
+        let mut names: Vec<_> = std::fs::read_dir(&out)
+            .unwrap()
+            .map(|e| e.unwrap().file_name().into_string().unwrap())
+            .collect();
+        names.sort();
+        // The traversal entry is flattened into `out`, never written outside it.
+        assert_eq!(names, ["avcodec-62.dll", "ffmpeg.exe", "ffprobe.exe"]);
+        assert!(!dir.path().join("evil").exists());
+    }
+
+    #[test]
+    fn missing_components_are_reported() {
+        let dir = tempfile::tempdir().unwrap();
+        let components = Components::new(dir.path().to_path_buf()).unwrap();
+        assert!(components.ytdlp().is_none());
+        assert!(components.status().iter().all(|s| !s.installed));
+    }
+}

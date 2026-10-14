@@ -3,14 +3,17 @@
 
 use std::path::{Path, PathBuf};
 
+use download_engine::components::{ComponentId, ComponentStatus};
+use download_engine::ytdlp::FormatSpec;
 use download_engine::{EngineError, ManagerError, media_extension};
-use media_core::{UrlError, sanitize_filename, validate_media_url as validate};
+use media_core::{UrlError, ValidatedUrl, sanitize_filename, validate_media_url as validate};
 use resource_manager::ResourceMode;
 use serde::{Deserialize, Serialize};
 use storage::{HistoryEntry, MediaKind, NewTask, StorageError, TaskRecord, now_ms};
-use tauri::{AppHandle, State};
+use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_dialog::DialogExt;
 use tauri_plugin_opener::OpenerExt;
+use tokio_util::sync::CancellationToken;
 
 use crate::state::{AppState, KEY_CONCURRENCY, KEY_DOWNLOAD_DIR, KEY_RESOURCE_MODE, SettingsDto};
 
@@ -86,6 +89,7 @@ pub struct FormatDto {
     pub size: String,
     pub extension: String,
     pub size_bytes: Option<u64>,
+    pub tag: Option<&'static str>,
 }
 
 #[derive(Debug, Default, Serialize)]
@@ -105,35 +109,151 @@ pub struct MediaInfoDto {
     pub subtitle: String,
     pub publisher: String,
     pub duration: Option<String>,
+    pub released: Option<String>,
+    pub license: Option<String>,
+    /// Shown under the formats, e.g. when FFmpeg is missing.
+    pub notice: Option<String>,
     pub formats: FormatGroups,
 }
 
 #[derive(Debug, Serialize)]
 #[serde(tag = "status", rename_all = "snake_case")]
 pub enum AnalysisDto {
-    Ready { info: Box<MediaInfoDto> },
-    NoMedia { reason: String },
+    Ready {
+        info: Box<MediaInfoDto>,
+    },
+    NoMedia {
+        reason: String,
+    },
+    /// The page needs the extractor, which is not installed yet (D3).
+    NeedsComponents {
+        components: Vec<ComponentStatus>,
+    },
 }
 
-/// Reads what a link points to. Phase 2 handles direct media files; pages
-/// that need an extractor are reported as "no downloadable media" until the
-/// yt-dlp engine is enabled.
+/// Reads what a link points to: a direct media file is probed over HTTP,
+/// anything else (a web page) goes to the yt-dlp extractor.
 #[tauri::command]
 pub async fn analyze_link(state: State<'_, AppState>, url: String) -> CmdResult<AnalysisDto> {
     let url = validate(&url)?;
-    let media = match state.http.probe(&url).await {
-        Ok(media) => media,
-        Err(EngineError::NotMedia) => {
+    match state.http.probe(&url).await {
+        Ok(media) => Ok(direct_analysis(&url, media)),
+        Err(_) => extractor_analysis(&state, &url).await,
+    }
+}
+
+async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<AnalysisDto> {
+    let components = state.ytdlp.components();
+    if components.ytdlp().is_none() {
+        return Ok(AnalysisDto::NeedsComponents {
+            components: components.status(),
+        });
+    }
+    let analysis = match state.ytdlp.analyze(url, &CancellationToken::new()).await {
+        Ok(analysis) => analysis,
+        Err(EngineError::Unsupported { reason }) => return Ok(AnalysisDto::NoMedia { reason }),
+        // Technical details stay out of the UI (they may contain the URL).
+        Err(EngineError::Network { .. }) => {
             return Ok(AnalysisDto::NoMedia {
-                reason: "not_media".into(),
+                reason: "the website could not be reached — check the link and your connection"
+                    .into(),
+            });
+        }
+        Err(EngineError::Http { status }) => {
+            return Ok(AnalysisDto::NoMedia {
+                reason: format!("the website refused the request (HTTP {status})"),
             });
         }
         Err(err) => {
             return Ok(AnalysisDto::NoMedia {
-                reason: err.code().into(),
+                reason: err.to_string(),
             });
         }
     };
+    let info = &analysis.info;
+    let to_dto = |o: &download_engine::ytdlp::Offer| FormatDto {
+        id: o.spec.encode(),
+        quality: o.quality.clone(),
+        detail: o.detail.clone(),
+        size: o.size_bytes.map(human_size).unwrap_or_else(|| "—".into()),
+        extension: o.extension.clone(),
+        size_bytes: o.size_bytes,
+        tag: o.tag,
+    };
+    let formats = FormatGroups {
+        video: analysis.offers.video.iter().map(to_dto).collect(),
+        audio: analysis.offers.audio.iter().map(to_dto).collect(),
+        subtitles: Vec::new(),
+    };
+    let source = info
+        .extractor_key
+        .clone()
+        .unwrap_or_else(|| "Web page".into());
+    let notice = components.ffmpeg_dir().is_none().then(|| {
+        "Install FFmpeg to get more qualities (merged video + audio) and MP3 conversion.".to_owned()
+    });
+    Ok(AnalysisDto::Ready {
+        info: Box::new(MediaInfoDto {
+            url: url.as_str().to_owned(),
+            host: url.host().to_owned(),
+            engine: "ytdlp",
+            title: clean_text(info.title.as_deref()).unwrap_or_else(|| url.host().to_owned()),
+            subtitle: format!(
+                "{source} · {} video, {} audio formats offered",
+                formats.video.len(),
+                formats.audio.len()
+            ),
+            publisher: clean_text(info.uploader.as_deref().or(info.channel.as_deref()))
+                .unwrap_or_else(|| url.host().to_owned()),
+            duration: info.duration.map(format_duration),
+            released: info
+                .release_date
+                .as_deref()
+                .or(info.upload_date.as_deref())
+                .and_then(format_date),
+            license: clean_text(info.license.as_deref()),
+            notice,
+            formats,
+        }),
+    })
+}
+
+/// Untrusted metadata: single line, bounded length.
+fn clean_text(value: Option<&str>) -> Option<String> {
+    let text: String = value?
+        .chars()
+        .map(|c| if c.is_control() { ' ' } else { c })
+        .take(300)
+        .collect();
+    let text = text.trim().to_owned();
+    (!text.is_empty()).then_some(text)
+}
+
+pub fn format_duration(secs: f64) -> String {
+    let s = secs.max(0.0).round() as u64;
+    let (h, m, s) = (s / 3600, (s % 3600) / 60, s % 60);
+    if h > 0 {
+        format!("{h}:{m:02}:{s:02}")
+    } else {
+        format!("{m}:{s:02}")
+    }
+}
+
+/// `20120926` → `26 Sep 2012`.
+pub fn format_date(yyyymmdd: &str) -> Option<String> {
+    const MONTHS: [&str; 12] = [
+        "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+    ];
+    if yyyymmdd.len() != 8 || !yyyymmdd.chars().all(|c| c.is_ascii_digit()) {
+        return None;
+    }
+    let month: usize = yyyymmdd[4..6].parse().ok()?;
+    let day: u32 = yyyymmdd[6..8].parse().ok()?;
+    let name = MONTHS.get(month.checked_sub(1)?)?;
+    Some(format!("{day} {name} {}", &yyyymmdd[..4]))
+}
+
+fn direct_analysis(url: &ValidatedUrl, media: download_engine::DirectMedia) -> AnalysisDto {
     let extension =
         media_extension(&media).unwrap_or_else(|| guess_extension(media.content_type.as_deref()));
     let is_audio = media
@@ -160,9 +280,10 @@ pub async fn analyze_link(state: State<'_, AppState>, url: String) -> CmdResult<
         size: media
             .total_bytes
             .map(human_size)
-            .unwrap_or_else(|| "Unknown size".into()),
+            .unwrap_or_else(|| "—".into()),
         extension,
         size_bytes: media.total_bytes,
+        tag: None,
     };
     let mut formats = FormatGroups::default();
     if is_audio {
@@ -175,18 +296,74 @@ pub async fn analyze_link(state: State<'_, AppState>, url: String) -> CmdResult<
     } else {
         "cannot resume if interrupted"
     };
-    Ok(AnalysisDto::Ready {
+    AnalysisDto::Ready {
         info: Box::new(MediaInfoDto {
             url: url.as_str().to_owned(),
             host: url.host().to_owned(),
             engine: "http",
-            title,
+            title: clean_text(Some(&title)).unwrap_or_else(|| url.host().to_owned()),
             subtitle: format!("Direct file · {resume}"),
             publisher: url.host().to_owned(),
             duration: None,
+            released: None,
+            license: None,
+            notice: None,
             formats,
         }),
-    })
+    }
+}
+
+// -------------------------------------------------------------- components
+
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InstallProgress {
+    id: ComponentId,
+    name: &'static str,
+    downloaded: u64,
+    total: u64,
+}
+
+pub const COMPONENTS_EVENT: &str = "components://progress";
+
+#[tauri::command]
+pub async fn components_status(state: State<'_, AppState>) -> CmdResult<Vec<ComponentStatus>> {
+    Ok(state.ytdlp.components().status())
+}
+
+/// Downloads and installs the missing tools after the user agreed. Every
+/// archive is checked against its pinned SHA-256 before use.
+#[tauri::command]
+pub async fn components_install(
+    app: AppHandle,
+    state: State<'_, AppState>,
+) -> CmdResult<Vec<ComponentStatus>> {
+    let _guard = state.install_lock.lock().await;
+    let components = state.ytdlp.components();
+    for spec in download_engine::components::ALL {
+        if components.path(&spec).is_some() {
+            continue;
+        }
+        let handle = app.clone();
+        let report = move |downloaded: u64, total: u64| {
+            let _ = handle.emit(
+                COMPONENTS_EVENT,
+                InstallProgress {
+                    id: spec.id,
+                    name: spec.name,
+                    downloaded,
+                    total,
+                },
+            );
+        };
+        components
+            .install(&spec, &report, &CancellationToken::new())
+            .await
+            .map_err(|e| {
+                CommandError::new("component_install_failed", format!("{}: {e}", spec.name))
+            })?;
+    }
+    Ok(components.status())
 }
 
 fn guess_extension(content_type: Option<&str>) -> String {
@@ -261,6 +438,20 @@ pub async fn downloads_start(
         "video" => MediaKind::Video,
         _ => return Err(CommandError::new("invalid_request", "unknown media kind")),
     };
+    // The format comes back from the UI: only engine-validated specs pass.
+    match request.engine.as_str() {
+        "http" if request.format_id.is_none() => {}
+        "ytdlp" => {
+            FormatSpec::decode(request.format_id.as_deref().unwrap_or_default())
+                .map_err(|e| CommandError::new("invalid_request", e))?;
+        }
+        _ => {
+            return Err(CommandError::new(
+                "invalid_request",
+                "unknown engine or format",
+            ));
+        }
+    }
     let title: String = request.title.chars().take(300).collect();
     let file_name = sanitize_filename(&title, &request.extension)
         .map_err(|e| CommandError::new("invalid_request", e.to_string()))?;
@@ -459,6 +650,24 @@ mod tests {
         assert_eq!(guess_extension(Some("audio/mpeg")), "mp3");
         assert_eq!(guess_extension(Some("video/webm; codecs=vp9")), "webm");
         assert_eq!(guess_extension(None), "mp4");
+    }
+
+    #[test]
+    fn metadata_formatting() {
+        assert_eq!(format_date("20120926").as_deref(), Some("26 Sep 2012"));
+        assert_eq!(format_date("2012-09-26"), None);
+        assert_eq!(format_date("20121326"), None);
+        assert_eq!(format_duration(734.4), "12:14");
+        assert_eq!(format_duration(5744.0), "1:35:44");
+        assert_eq!(
+            clean_text(Some(
+                "  a
+b  "
+            ))
+            .as_deref(),
+            Some("a b")
+        );
+        assert_eq!(clean_text(Some("   ")), None);
     }
 
     #[test]

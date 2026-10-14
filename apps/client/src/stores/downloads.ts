@@ -65,7 +65,8 @@ export const useDownloads = create<DownloadsState>((set, get) => ({
       .then(([records, history]) => {
         set((s) => {
           const tasks = { ...s.tasks };
-          for (const r of records) tasks[r.id] = toTask(r, tasks[r.id]);
+          // Events received since subscribing are newer than this snapshot.
+          for (const r of records) tasks[r.id] ??= toTask(r);
           return { tasks, history, ready: true };
         });
       })
@@ -127,7 +128,9 @@ export const useDownloads = create<DownloadsState>((set, get) => ({
   start: async (request) => {
     try {
       const record = await backend.start(request);
-      set((s) => ({ tasks: { ...s.tasks, [record.id]: toTask(record, s.tasks[record.id]) } }));
+      // The response is a snapshot taken when the command returned; the
+      // worker may already have moved on and its events are authoritative.
+      set((s) => (s.tasks[record.id] ? s : { tasks: { ...s.tasks, [record.id]: toTask(record) } }));
       return record;
     } catch (e) {
       report(e);

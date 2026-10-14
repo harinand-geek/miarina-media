@@ -91,6 +91,24 @@ describe('Windows shell', () => {
     );
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(screen.getByText('No downloadable media found')).toBeInTheDocument();
+    expect(screen.getByText('live streams are not supported')).toBeInTheDocument();
+    vi.useRealTimers();
+  });
+
+  it('asks before downloading the media tools, then analyzes', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true });
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
+    render(<DesktopShell />);
+    await user.type(
+      screen.getByRole('textbox', { name: 'Media link' }),
+      'https://needs-tools.test/watch{Enter}',
+    );
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    expect(screen.getByText('This page needs the media tools')).toBeInTheDocument();
+    // Nothing is downloaded without an explicit click.
+    await user.click(screen.getByRole('button', { name: /Download tools/ }));
+    await act(() => vi.advanceTimersByTimeAsync(1000));
+    expect(await screen.findByRole('heading', { name: 'Tears of Steel' })).toBeInTheDocument();
     vi.useRealTimers();
   });
 

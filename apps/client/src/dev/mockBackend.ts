@@ -7,6 +7,8 @@ import type {
   AnalyzeResult,
   BackendEvent,
   BackendSettings,
+  ComponentStatus,
+  InstallProgress,
   HistoryEntry,
   Limits,
   ResourceMode,
@@ -19,6 +21,8 @@ import { ANALYZED, DOWNLOADS, HISTORY, NO_MEDIA_HOSTS } from './fixtures';
 const MB = 1024 * 1024;
 const ANALYSIS_DELAY_MS = 900;
 const MAX_USER_DOWNLOADS = 8;
+/** Links on this host need the (mock) media tools to be installed first. */
+export const NEEDS_TOOLS_HOST = 'needs-tools.test';
 
 /** Mirror of `resource_manager::limits` for Windows. */
 export function mockLimits(mode: ResourceMode, userDownloads: number): Limits {
@@ -85,6 +89,7 @@ export class MockBackend {
   private listeners = new Set<(e: BackendEvent) => void>();
   private timer: ReturnType<typeof setInterval> | undefined;
   private lastTick = 0;
+  private toolsInstalled = false;
 
   constructor() {
     const now = Date.now();
@@ -139,7 +144,10 @@ export class MockBackend {
     });
     const host = link.host.replace(/^www\./, '');
     if (NO_MEDIA_HOSTS.some((h) => host === h || host.endsWith(`.${h}`))) {
-      return { ok: false, reason: 'no_media' };
+      return { ok: false, reason: 'no_media', message: 'live streams are not supported' };
+    }
+    if (host === NEEDS_TOOLS_HOST && !this.toolsInstalled) {
+      return { ok: false, reason: 'needs_components', components: this.components() };
     }
     return { ok: true, info: { ...ANALYZED, url: link.url, host } };
   }
@@ -290,6 +298,40 @@ export class MockBackend {
 
   async pickDownloadDir() {
     return null;
+  }
+
+  async componentsStatus() {
+    return this.components();
+  }
+
+  async installComponents(onProgress: (p: InstallProgress) => void) {
+    for (const c of this.components()) {
+      onProgress({ id: c.id, name: c.name, downloaded: c.downloadBytes, total: c.downloadBytes });
+    }
+    this.toolsInstalled = true;
+    return this.components();
+  }
+
+  private components(): ComponentStatus[] {
+    const installed = this.toolsInstalled;
+    return [
+      {
+        id: 'yt_dlp',
+        name: 'yt-dlp',
+        version: '2026.08.19',
+        license: 'Unlicense',
+        downloadBytes: 17_840_399,
+        installed,
+      },
+      {
+        id: 'ffmpeg',
+        name: 'FFmpeg',
+        version: 'n8.1.2 (LGPL)',
+        license: 'LGPL-3.0-or-later',
+        downloadBytes: 70_835_150,
+        installed,
+      },
+    ];
   }
 
   subscribe(listener: (event: BackendEvent) => void) {

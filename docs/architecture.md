@@ -215,3 +215,14 @@ Les valeurs exactes sont des **hypothèses de départ** ; leurs effets (CPU, RAM
 | youtubedl-android | à évaluer | extracteur Android | **GPL-3.0** (vérifié sur GitHub) |
 
 Non retenus : Electron, Next.js dans l'app, backend distant, `tauri-plugin-shell` exposé au frontend, `tauri-specta` (encore en RC pour Tauri 2 à ma connaissance — à re-vérifier si on veut générer aussi les commandes).
+
+## 12. Ajustements réalisés en Phase 2
+
+- **Dépendances entre crates** : `download-engine` dépend de `storage` et `resource-manager` (le gestionnaire de file y vit et persiste chaque transition). `media-core` reste sans I/O.
+- **Commandes Tauri** : déclarées dans un *app manifest* (`build.rs`) ; chaque commande est accordée explicitement dans `capabilities/default.json`. Les plugins `dialog` et `opener` sont appelés depuis Rust uniquement.
+- **Moteurs** : `http` (liens directs) et `ytdlp` (pages). L'analyse sonde d'abord le lien en HTTP ; une page HTML part vers yt-dlp.
+- **Format choisi** : pour yt-dlp, l'identifiant de format est un `FormatSpec` opaque (sélecteur, fusion, extraction audio) **revalidé** côté Rust avant usage (liste blanche de caractères et de valeurs).
+- **Dossier de travail yt-dlp** : `<fichier>.<id>.part.d` à côté de la destination ; supprimé à l'annulation ou à la fin ; le fichier produit est finalisé par la même routine sans écrasement que le moteur HTTP.
+- **Composants** : `%APPDATA%\org.miarina.media\components\<outil>\<préfixe sha>\`, publiés atomiquement après vérification (voir `licenses.md`).
+- **Historique** : stocke l'URL source (copie du lien, nouvel essai d'un téléchargement annulé) ; elle n'est jamais journalisée.
+- **Événements** : un seul canal `downloads://event` ; le front considère les événements comme faisant foi (une réponse de commande ou un instantané ne remplace jamais un état plus récent).
