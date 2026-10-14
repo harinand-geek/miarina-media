@@ -36,3 +36,6 @@ coverage/
 
 # Spike build output
 spikes/*/gen/
+
+# Local test builds (installers, signed APKs)
+builds/

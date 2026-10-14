@@ -11,6 +11,7 @@ import { formatBytes, percentOf, summarize, useDownloads } from '../../stores/do
 import { useUi } from '../../stores/ui';
 import type { MobileTab } from '../../app/MobileShell';
 import { useLinkInput } from './useLinkInput';
+import { backend } from '../../services/backend';
 
 export function MobileHome({
   onNavigate,
@@ -99,9 +100,12 @@ export function MobileHome({
         <Button type="submit" variant="primary" pill className="h-[52px] text-[15px]">
           Analyze link
         </Button>
-        <span className="text-center text-[12px] text-muted">
-          Or share a link to Miarina Media from any app.
-        </span>
+        {/* Sharing from other apps needs the Android share intent (not built yet). */}
+        {backend.kind === 'mock' && (
+          <span className="text-center text-[12px] text-muted">
+            Or share a link to Miarina Media from any app.
+          </span>
+        )}
       </form>
 
       <div className="grid grid-cols-4 gap-2">
