@@ -1,7 +1,7 @@
 import { Icon } from '../components/Icon';
 import { Kbd, PlannedBadge } from '../components/Feedback';
 import { Logo } from '../components/Logo';
-import { USING_FIXTURES } from '../services/backend';
+import { LIBRARY_USES_FIXTURES } from '../services/backend';
 import { closeWindow, minimizeWindow, toggleMaximizeWindow } from '../services/window';
 import { useUi } from '../stores/ui';
 
@@ -37,11 +37,11 @@ export function TitleBar() {
         </button>
       </div>
       <div className="flex w-[232px] items-center justify-end">
-        {USING_FIXTURES && (
+        {LIBRARY_USES_FIXTURES && (
           <span
             data-tauri-drag-region
             className="mr-2"
-            title="Screens show development fixtures until the native backend lands."
+            title="Downloads and history are real. The library, its overview and the player still show sample data until Phase 3."
           >
             <PlannedBadge label="PROTOTYPE" />
           </span>

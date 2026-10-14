@@ -8,7 +8,6 @@ import { notAvailableYet } from '../../services/prototype';
 import {
   MAX_CONCURRENCY,
   MIN_CONCURRENCY,
-  RESOURCE_PROFILES,
   useSettings,
   type ResourceMode,
   type ThemePref,
@@ -111,15 +110,19 @@ function GeneralTab() {
   );
 }
 
+/** Destination folder, persisted by the backend after a writability check. */
 function PathRow({ label }: { label: string }) {
+  const downloadDir = useSettings((s) => s.downloadDir);
+  const pick = useSettings((s) => s.pickDownloadDir);
   return (
     <SettingRow label={label}>
-      <span className="font-mono text-[12.5px] text-muted">{STORAGE.libraryPath}</span>
-      <Button
-        size="sm"
-        className="text-[12.5px]"
-        onClick={() => notAvailableYet('Choosing a folder')}
+      <span
+        className="max-w-[320px] truncate font-mono text-[12.5px] text-muted"
+        title={downloadDir}
       >
+        {downloadDir}
+      </span>
+      <Button size="sm" className="text-[12.5px]" onClick={pick}>
         Change
       </Button>
     </SettingRow>
@@ -255,7 +258,7 @@ function PerformanceTab() {
   const reduceMotion = useSettings((s) => s.reduceMotion);
   const setReduceMotion = useSettings((s) => s.setReduceMotion);
   const [thumbs, setThumbs] = useState('Balanced');
-  const ecoForcesMotion = RESOURCE_PROFILES[mode].reducedMotion;
+  const ecoForcesMotion = useSettings((s) => s.limits.reducedMotion);
   return (
     <>
       {/* Q1: replaces the design's "Low-resource mode" toggle. */}

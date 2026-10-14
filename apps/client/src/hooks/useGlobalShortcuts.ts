@@ -41,7 +41,7 @@ export function useGlobalShortcuts() {
       } else if (key === 'p') {
         e.preventDefault();
         const downloads = useDownloads.getState();
-        if (downloads.tasks.some(isRunning)) downloads.pauseAll();
+        if (Object.values(downloads.tasks).some(isRunning)) downloads.pauseAll();
         else downloads.resumeAll();
       }
     };

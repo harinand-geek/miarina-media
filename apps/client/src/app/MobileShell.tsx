@@ -30,7 +30,7 @@ export function MobileShell() {
   const [storageOpen, setStorageOpen] = useState(false);
   const nowPlaying = useUi((s) => s.nowPlaying);
   const tasks = useDownloads((s) => s.tasks);
-  const activeCount = useMemo(() => summarize(tasks).active.length, [tasks]);
+  const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
 
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-bg">

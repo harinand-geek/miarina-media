@@ -3,10 +3,18 @@ import { Segmented } from '../../components/Controls';
 import { Thumbnail } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
-import { LIBRARY } from '../../dev/fixtures';
-import { formatMb, isActive, isRunning, useDownloads } from '../../stores/downloads';
-import { useUi } from '../../stores/ui';
-import { progressAriaLabel, statusLabel, statusTone } from './format';
+import { notAvailableYet } from '../../services/prototype';
+import {
+  formatBytes,
+  isActiveRow,
+  isOpen,
+  isQueued,
+  isRunning,
+  ordered,
+  percentOf,
+  useDownloads,
+} from '../../stores/downloads';
+import { barTone, barValue, progressAriaLabel, statusLabel, statusTone } from './format';
 
 type Tab = 'active' | 'queue' | 'done';
 
@@ -19,7 +27,12 @@ interface CardProps {
   icon: string;
   actionLabel: string;
   onAction: () => void;
-  progress?: { value: number; label: string; paused: boolean };
+  progress?: {
+    value: number | null;
+    percent: number;
+    label: string;
+    tone: ReturnType<typeof barTone>;
+  };
 }
 
 function Card({
@@ -42,7 +55,7 @@ function Card({
         />
         <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
           <span className="truncate text-[14.5px] font-bold">{title}</span>
-          <span className="text-[12.5px] text-muted">{detail}</span>
+          <span className="truncate text-[12.5px] text-muted">{detail}</span>
           <span className={`text-[12.5px] font-semibold ${statusClass}`}>{status}</span>
         </div>
         <button
@@ -59,12 +72,12 @@ function Card({
           <ProgressBar
             value={progress.value}
             height={6}
-            tone={progress.paused ? 'paused' : 'active'}
+            tone={progress.tone}
             label={progress.label}
             className="flex-1"
           />
           <span className="w-[76px] text-right font-mono text-[12px] font-medium text-muted tabular">
-            {Math.floor(progress.value)}%
+            {Math.floor(progress.percent)}%
           </span>
         </div>
       )}
@@ -75,17 +88,19 @@ function Card({
 export function MobileDownloads() {
   const [tab, setTab] = useState<Tab>('active');
   const tasks = useDownloads((s) => s.tasks);
-  const queue = useDownloads((s) => s.queue);
-  const { pause, resume, pauseAll, resumeAll, startNow } = useDownloads.getState();
-  const play = useUi((s) => s.play);
+  const history = useDownloads((s) => s.history);
+  const { pause, resume, retry, startNow, pauseAll, resumeAll } = useDownloads.getState();
 
-  const active = useMemo(() => tasks.filter(isActive), [tasks]);
-  const done = useMemo(() => tasks.filter((t) => t.status === 'completed'), [tasks]);
+  const all = useMemo(() => ordered(tasks), [tasks]);
+  const active = useMemo(() => all.filter((t) => isOpen(t) && isActiveRow(t)), [all]);
+  const queue = useMemo(() => all.filter(isQueued), [all]);
+  const done = useMemo(() => history.filter((h) => h.status === 'completed'), [history]);
   const anyRunning = active.some(isRunning);
 
-  // "Done" always lists saved library items, so only Active and Queue can be empty.
   const empty =
-    (tab === 'active' && active.length === 0) || (tab === 'queue' && queue.length === 0);
+    (tab === 'active' && !active.length) ||
+    (tab === 'queue' && !queue.length) ||
+    (tab === 'done' && !done.length);
 
   return (
     <div className="flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-5 pt-2">
@@ -113,19 +128,27 @@ export function MobileDownloads() {
 
       {tab === 'active' &&
         active.map((t) => {
-          const paused = !isRunning(t);
+          const failed = t.state === 'failed';
+          const paused = t.state === 'paused';
           return (
             <Card
               key={t.id}
               title={t.title}
               kind={t.kind}
-              detail={t.format}
+              detail={t.formatLabel}
               status={statusLabel(t)}
               statusClass={statusTone(t)}
-              icon={paused ? 'play_arrow' : 'pause'}
-              actionLabel={paused ? `Resume ${t.title}` : `Pause ${t.title}`}
-              onAction={() => (paused ? resume(t.id) : pause(t.id))}
-              progress={{ value: t.percent, label: progressAriaLabel(t), paused }}
+              icon={failed ? 'refresh' : paused ? 'play_arrow' : 'pause'}
+              actionLabel={
+                failed ? `Retry ${t.title}` : paused ? `Resume ${t.title}` : `Pause ${t.title}`
+              }
+              onAction={() => (failed ? retry(t.id) : paused ? resume(t.id) : pause(t.id))}
+              progress={{
+                value: barValue(t),
+                percent: percentOf(t),
+                label: progressAriaLabel(t),
+                tone: barTone(t),
+              }}
             />
           );
         })}
@@ -136,7 +159,9 @@ export function MobileDownloads() {
             key={q.id}
             title={q.title}
             kind={q.kind}
-            detail={`${q.format} · ${q.size}`}
+            detail={
+              q.totalBytes ? `${q.formatLabel} · ${formatBytes(q.totalBytes)}` : q.formatLabel
+            }
             status="Waiting for a free slot"
             statusClass="text-muted"
             icon="play_arrow"
@@ -145,36 +170,20 @@ export function MobileDownloads() {
           />
         ))}
 
-      {tab === 'done' && (
-        <>
-          {done.map((t) => (
-            <Card
-              key={t.id}
-              title={t.title}
-              kind={t.kind}
-              detail={`${t.format} · ${formatMb(t.totalMb)}`}
-              status="Saved to Internal storage"
-              statusClass="text-accent-strong"
-              icon="play_arrow"
-              actionLabel={`Play ${t.title}`}
-              onAction={() => play(LIBRARY[0]!)}
-            />
-          ))}
-          {LIBRARY.slice(0, 2).map((item) => (
-            <Card
-              key={item.id}
-              title={item.title}
-              kind={item.kind}
-              detail={`${item.quality} · ${item.size}`}
-              status="Saved to Internal storage"
-              statusClass="text-accent-strong"
-              icon="play_arrow"
-              actionLabel={`Play ${item.title}`}
-              onAction={() => play(item)}
-            />
-          ))}
-        </>
-      )}
+      {tab === 'done' &&
+        done.map((h) => (
+          <Card
+            key={h.id}
+            title={h.title}
+            kind="video"
+            detail={`${h.formatLabel} · ${formatBytes(h.doneBytes)}`}
+            status="Saved to Internal storage"
+            statusClass="text-accent-strong"
+            icon="play_arrow"
+            actionLabel={`Play ${h.title}`}
+            onAction={() => notAvailableYet('Playing downloaded files')}
+          />
+        ))}
 
       {empty && (
         <div className="flex flex-col items-center gap-1.5 px-6 py-12 text-center">

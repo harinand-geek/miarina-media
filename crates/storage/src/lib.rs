@@ -130,6 +130,7 @@ impl HistoryStatus {
 pub struct HistoryEntry {
     pub id: i64,
     pub task_id: String,
+    pub url: String,
     pub title: String,
     pub source_host: String,
     pub format_label: String,
@@ -378,8 +379,8 @@ impl Storage {
     ) -> Result<HistoryEntry> {
         self.conn.execute(
             "INSERT INTO history (task_id, title, source_host, format_label, total_bytes, \
-             done_bytes, status, reason, final_path, finished_at) \
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10)",
+             done_bytes, status, reason, final_path, finished_at, url) \
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11)",
             params![
                 task.id,
                 task.title,
@@ -391,12 +392,13 @@ impl Storage {
                 reason,
                 task.final_path,
                 now_ms(),
+                task.url,
             ],
         )?;
         let id = self.conn.last_insert_rowid();
         self.conn.query_row(
             "SELECT id, task_id, title, source_host, format_label, total_bytes, done_bytes, status, \
-             reason, final_path, finished_at FROM history WHERE id = ?1",
+             reason, final_path, finished_at, url FROM history WHERE id = ?1",
             [id],
             row_to_history,
         )?
@@ -406,7 +408,7 @@ impl Storage {
     pub fn history(&self, limit: u32) -> Result<Vec<HistoryEntry>> {
         let mut stmt = self.conn.prepare(
             "SELECT id, task_id, title, source_host, format_label, total_bytes, done_bytes, status, \
-             reason, final_path, finished_at FROM history ORDER BY finished_at DESC, id DESC LIMIT ?1",
+             reason, final_path, finished_at, url FROM history ORDER BY finished_at DESC, id DESC LIMIT ?1",
         )?;
         let rows = stmt.query_map([limit.min(HISTORY_PAGE_MAX)], row_to_history)?;
         rows.map(|r| r?).collect()
@@ -505,6 +507,7 @@ fn row_to_history(row: &Row<'_>) -> rusqlite::Result<Result<HistoryEntry>> {
         reason: row.get(8)?,
         final_path: row.get(9)?,
         finished_at: row.get(10)?,
+        url: row.get(11)?,
     }))
 }
 

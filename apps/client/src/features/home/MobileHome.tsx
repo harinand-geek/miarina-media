@@ -5,7 +5,7 @@ import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
 import { ProgressBar } from '../../components/ProgressBar';
 import { LIBRARY } from '../../dev/fixtures';
-import { summarize, useDownloads } from '../../stores/downloads';
+import { percentOf, summarize, useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 import type { MobileTab } from '../../app/MobileShell';
 import { useLinkInput } from './useLinkInput';
@@ -125,11 +125,11 @@ export function MobileHome({ onNavigate }: { onNavigate: (tab: MobileTab) => voi
           </span>
           <span className="flex w-full justify-between text-[13px] text-muted">
             <span className="truncate">{first.title}</span>
-            <span className="font-mono tabular">{Math.floor(first.percent)}%</span>
+            <span className="font-mono tabular">{Math.floor(percentOf(first))}%</span>
           </span>
           <ProgressBar
-            value={first.percent}
-            label={`${first.title}, ${Math.floor(first.percent)} percent`}
+            value={percentOf(first)}
+            label={`${first.title}, ${Math.floor(percentOf(first))} percent`}
             className="w-full"
           />
         </button>

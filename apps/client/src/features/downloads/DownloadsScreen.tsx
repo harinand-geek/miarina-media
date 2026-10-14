@@ -3,12 +3,21 @@ import { Button, IconButton } from '../../components/Button';
 import { EmptyState, Thumbnail } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
-import { notAvailableYet } from '../../services/prototype';
 import type { DownloadTask } from '../../services/types';
-import { summarize, useDownloads } from '../../stores/downloads';
+import {
+  formatBytes,
+  isActiveRow,
+  isOpen,
+  isQueued,
+  ordered,
+  percentOf,
+  summarize,
+  useDownloads,
+} from '../../stores/downloads';
 import { effectiveConcurrency, useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
-import { doneLabel, progressAriaLabel, statusLabel, statusTone } from './format';
+import { useNow } from './useNow';
+import { barTone, barValue, doneLabel, progressAriaLabel, statusLabel, statusTone } from './format';
 
 export function DownloadsScreen() {
   const tasks = useDownloads((s) => s.tasks);
@@ -16,7 +25,13 @@ export function DownloadsScreen() {
   const resumeAll = useDownloads((s) => s.resumeAll);
   const concurrency = useSettings(effectiveConcurrency);
   const summary = useMemo(() => summarize(tasks), [tasks]);
-  const taskIds = useMemo(() => tasks.map((t) => t.id), [tasks]);
+  // Row ids only change when tasks are added, removed or reordered, so a
+  // progress event re-renders a single row, not the list.
+  const activeKey = ordered(tasks)
+    .filter(isActiveRow)
+    .map((t) => t.id)
+    .join('|');
+  const activeIds = useMemo(() => (activeKey ? activeKey.split('|') : []), [activeKey]);
 
   return (
     <div className="flex flex-1 flex-col gap-6 overflow-auto px-10 py-7">
@@ -24,7 +39,9 @@ export function DownloadsScreen() {
         <div className="flex flex-1 flex-col gap-1">
           <h1 className="m-0 text-title-lg font-bold tracking-[-0.02em]">Downloads</h1>
           <span className="text-[13px] text-muted">
-            {summary.stateLabel} · {summary.speedLabel} total · up to {concurrency} at once
+            {summary.stateLabel}
+            {summary.running.length > 0 && ` · ${summary.speedLabel} total`} · up to {concurrency}{' '}
+            at once
           </span>
         </div>
         <Button size="sm" icon="pause" className="h-9 text-[13px]" onClick={pauseAll}>
@@ -36,10 +53,10 @@ export function DownloadsScreen() {
       </div>
 
       <section aria-label="Active downloads" className="flex flex-col gap-2">
-        {taskIds.length === 0 && (
+        {activeIds.length === 0 && (
           <EmptyState>Nothing downloading. Paste a link on Home to start.</EmptyState>
         )}
-        {taskIds.map((id) => (
+        {activeIds.map((id) => (
           <DownloadRowById key={id} id={id} />
         ))}
       </section>
@@ -49,25 +66,32 @@ export function DownloadsScreen() {
   );
 }
 
-/** Each row subscribes to its own task so one progress tick re-renders one row. */
 function DownloadRowById({ id }: { id: string }) {
-  const task = useDownloads((s) => s.tasks.find((t) => t.id === id));
+  const task = useDownloads((s) => s.tasks[id]);
   return task ? <DownloadRow task={task} /> : null;
 }
 
 const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) {
-  const pause = useDownloads((s) => s.pause);
-  const resume = useDownloads((s) => s.resume);
-  const cancel = useDownloads((s) => s.cancel);
+  const { pause, resume, cancel, retry, reveal } = useDownloads.getState();
   const askConfirm = useUi((s) => s.askConfirm);
-  const done = task.status === 'completed';
-  const paused = task.status === 'paused' || task.status === 'waiting_wifi';
+  // Re-render every second while a retry countdown is shown.
+  useNow(task.retry ? 1000 : null);
+  const done = task.state === 'completed';
+  const failed = task.state === 'failed';
+  const paused = task.state === 'paused';
+  const willRestart = paused && !task.supportsResume && task.downloadedBytes > 0;
 
-  const toggle = () => {
-    if (done) notAvailableYet('Showing the file in its folder');
-    else if (paused) resume(task.id);
-    else pause(task.id);
-  };
+  const primary = done
+    ? { icon: 'folder_open', label: 'Show in folder', run: () => reveal(task.id) }
+    : failed
+      ? { icon: 'refresh', label: 'Retry', run: () => retry(task.id) }
+      : paused
+        ? {
+            icon: 'play_arrow',
+            label: willRestart ? 'Restart from the beginning' : 'Resume',
+            run: () => resume(task.id),
+          }
+        : { icon: 'pause', label: 'Pause', run: () => pause(task.id) };
 
   return (
     <div className="flex items-center gap-4 rounded-lg border border-surface2 bg-surface px-4 py-3.5">
@@ -79,41 +103,44 @@ const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) 
         <div className="flex justify-between gap-3">
           <span className="truncate text-[14px] font-semibold">{task.title}</span>
           <span className="font-mono text-[13px] font-medium tabular">
-            {Math.floor(task.percent)}%
+            {Math.floor(percentOf(task))}%
           </span>
         </div>
-        <ProgressBar
-          value={task.percent}
-          tone={done ? 'complete' : paused ? 'paused' : 'active'}
-          label={progressAriaLabel(task)}
-        />
+        <ProgressBar value={barValue(task)} tone={barTone(task)} label={progressAriaLabel(task)} />
         <div className="flex gap-3.5 text-[12px] text-muted">
-          <span>{task.source}</span>
-          <span>{task.format}</span>
+          <span>{task.sourceHost}</span>
+          <span>{task.formatLabel}</span>
           <span className="font-mono tabular">{doneLabel(task)}</span>
           <span className="flex-1" />
-          <span className={`font-semibold tabular ${statusTone(task)}`}>{statusLabel(task)}</span>
+          <span
+            className={`font-semibold tabular ${statusTone(task)}`}
+            title={failed ? (task.errorMessage ?? undefined) : undefined}
+          >
+            {statusLabel(task)}
+          </span>
         </div>
       </div>
       <div className="flex gap-0.5">
         <IconButton
-          icon={done ? 'folder_open' : paused ? 'play_arrow' : 'pause'}
-          label={done ? 'Show in folder' : paused ? 'Resume' : 'Pause'}
+          icon={primary.icon}
+          label={primary.label}
           tone="default"
-          onClick={toggle}
+          onClick={primary.run}
         />
         <IconButton
           icon="close"
-          label="Cancel"
+          label={failed ? 'Remove' : 'Cancel'}
           tone="danger-hover"
           disabled={done}
           onClick={() =>
-            askConfirm({
-              title: 'Cancel this download?',
-              body: `“${task.title}” will stop and the partial file (${doneLabel(task).split(' of ')[0]}) will be deleted.`,
-              confirmLabel: 'Cancel download',
-              onConfirm: () => cancel(task.id),
-            })
+            failed
+              ? cancel(task.id)
+              : askConfirm({
+                  title: 'Cancel this download?',
+                  body: `“${task.title}” will stop and the partial file (${formatBytes(task.downloadedBytes)}) will be deleted.`,
+                  confirmLabel: 'Cancel download',
+                  onConfirm: () => cancel(task.id),
+                })
           }
         />
       </div>
@@ -122,11 +149,22 @@ const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) 
 });
 
 function QueueSection() {
-  const queue = useDownloads((s) => s.queue);
-  const startNow = useDownloads((s) => s.startNow);
-  const remove = useDownloads((s) => s.removeQueued);
-  const move = useDownloads((s) => s.moveQueued);
+  const tasks = useDownloads((s) => s.tasks);
+  const { startNow, cancel, move } = useDownloads.getState();
   const [dragFrom, setDragFrom] = useState<number | null>(null);
+  const open = useMemo(() => ordered(tasks).filter(isOpen), [tasks]);
+  const queue = useMemo(() => open.filter(isQueued), [open]);
+
+  /** Moves queue item `from` to the place of queue item `to`. */
+  const reorder = (from: number, to: number) => {
+    const item = queue[from];
+    const target = queue[to];
+    if (!item || !target || from === to) return;
+    move(
+      item.id,
+      open.findIndex((t) => t.id === target.id),
+    );
+  };
 
   return (
     <section aria-label="Queue" className="flex flex-col gap-2.5">
@@ -147,7 +185,7 @@ function QueueSection() {
               onDragStart={() => setDragFrom(index)}
               onDragOver={(e) => e.preventDefault()}
               onDrop={() => {
-                if (dragFrom !== null) move(dragFrom, index);
+                if (dragFrom !== null) reorder(dragFrom, index);
                 setDragFrom(null);
               }}
               className={`flex h-[52px] items-center gap-3.5 border-b border-surface2 bg-row pl-2 pr-3 last:border-b-0 hover:bg-surface ${
@@ -159,8 +197,8 @@ function QueueSection() {
                 aria-label={`Reorder ${item.title}. Use Alt and the arrow keys to move.`}
                 onKeyDown={(e) => {
                   if (!e.altKey) return;
-                  if (e.key === 'ArrowUp') move(index, index - 1);
-                  if (e.key === 'ArrowDown') move(index, index + 1);
+                  if (e.key === 'ArrowUp') reorder(index, index - 1);
+                  if (e.key === 'ArrowDown') reorder(index, index + 1);
                 }}
                 className="cursor-grab text-faint"
               >
@@ -169,10 +207,12 @@ function QueueSection() {
               <span className="w-[18px] font-mono text-[12px] font-medium text-muted">
                 {index + 1}
               </span>
-              <span className="flex-1 text-[13.5px] font-semibold">{item.title}</span>
-              <span className="w-[140px] text-[12.5px] text-muted">{item.format}</span>
+              <span className="flex-1 truncate text-[13.5px] font-semibold">{item.title}</span>
+              <span className="w-[140px] truncate text-[12.5px] text-muted">
+                {item.formatLabel}
+              </span>
               <span className="w-[70px] text-right font-mono text-[12.5px] font-medium text-muted">
-                {item.size}
+                {item.totalBytes ? formatBytes(item.totalBytes) : '—'}
               </span>
               <Button
                 variant="link"
@@ -187,7 +227,7 @@ function QueueSection() {
                 label={`Remove ${item.title}`}
                 size={30}
                 iconSize={18}
-                onClick={() => remove(item.id)}
+                onClick={() => cancel(item.id)}
               />
             </li>
           ))}

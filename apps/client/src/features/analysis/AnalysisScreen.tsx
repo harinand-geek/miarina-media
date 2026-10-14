@@ -4,12 +4,18 @@ import { Tabs, RadioDot } from '../../components/Controls';
 import { DelayedSkeletons, Skeleton, Thumbnail, ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
-import { STORAGE } from '../../dev/fixtures';
-import { notAvailableYet } from '../../services/prototype';
 import type { FormatGroup, MediaInfo } from '../../services/types';
+import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
 import { NoMediaFound } from './NoMediaFound';
-import { fileExtension, shortQuality, useAnalysis, useStartActions } from './useAnalysis';
+import { downloadTitle, useAnalysis, useStartActions } from './useAnalysis';
+
+const GROUPS: FormatGroup[] = ['video', 'audio', 'subtitles'];
+const GROUP_NAMES: Record<FormatGroup, string> = {
+  video: 'video',
+  audio: 'audio-only',
+  subtitles: 'subtitle',
+};
 
 const DEFAULT_SELECTION: Record<FormatGroup, string> = {
   video: '1080',
@@ -73,21 +79,29 @@ function AnalysisSkeleton() {
 }
 
 function AnalysisResult({ info }: { info: MediaInfo }) {
-  const tab = useUi((s) => s.analysisTab);
+  const requestedTab = useUi((s) => s.analysisTab);
   const setTab = useUi((s) => s.setAnalysisTab);
   const go = useUi((s) => s.go);
+  const downloadDir = useSettings((s) => s.downloadDir);
+  const pickDownloadDir = useSettings((s) => s.pickDownloadDir);
   const [selected, setSelected] = useState(DEFAULT_SELECTION);
   const { download, addToQueue } = useStartActions();
 
+  // A direct audio file only has an "Audio only" format: open that tab.
+  const tab = info.formats[requestedTab].length
+    ? requestedTab
+    : (GROUPS.find((g) => info.formats[g].length) ?? requestedTab);
   const formats = info.formats[tab];
-  const format = formats.find((f) => f.id === selected[tab]) ?? formats[0]!;
+  const format = formats.find((f) => f.id === selected[tab]) ?? formats[0];
   const kind = tab === 'audio' ? 'audio' : 'video';
+  // Subtitle files need the extractor engine (not part of this slice).
+  const canDownload = !!format && tab !== 'subtitles';
 
   return (
     <div className="grid grid-cols-[400px_minmax(0,1fr)] gap-8 pb-6 max-[1100px]:grid-cols-[320px_minmax(0,1fr)]">
       <div className="flex flex-col gap-[18px]">
         <Thumbnail className="aspect-video rounded-lg text-[11px]" label="source thumbnail">
-          <ThumbBadge position="br">{info.duration}</ThumbBadge>
+          {info.duration && <ThumbBadge position="br">{info.duration}</ThumbBadge>}
         </Thumbnail>
         <dl className="m-0 grid grid-cols-[100px_1fr] gap-y-2.5 text-[13px]">
           <dt className="text-muted">Source</dt>
@@ -95,7 +109,7 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
           <dt className="text-muted">Published by</dt>
           <dd className="m-0">{info.publisher}</dd>
           <dt className="text-muted">Duration</dt>
-          <dd className="m-0">{info.duration}</dd>
+          <dd className="m-0">{info.duration ?? '—'}</dd>
           {info.released && (
             <>
               <dt className="text-muted">Released</dt>
@@ -127,8 +141,13 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
           ]}
         />
         <div role="radiogroup" aria-label="Quality" className="flex flex-col gap-1.5">
+          {formats.length === 0 && (
+            <p className="m-0 rounded-md border border-dashed border-line-strong px-4 py-5 text-[13px] text-muted">
+              This source has no {GROUP_NAMES[tab]} formats.
+            </p>
+          )}
           {formats.map((f) => {
-            const on = f.id === format.id;
+            const on = f.id === format?.id;
             return (
               <button
                 key={f.id}
@@ -160,10 +179,12 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
             <span className="text-[12px] font-semibold text-muted">Save to</span>
             <div className="flex h-10 items-center gap-2 rounded-sm border border-line-strong bg-bg px-3 font-mono text-[12.5px]">
               <Icon name="folder" size={18} className="text-muted" />
-              <span className="flex-1 truncate">{STORAGE.libraryPath}</span>
+              <span className="flex-1 truncate" title={downloadDir}>
+                {downloadDir}
+              </span>
               <button
                 type="button"
-                onClick={() => notAvailableYet('Choosing a folder')}
+                onClick={pickDownloadDir}
                 className="font-sans text-[12.5px] font-semibold text-accent-strong"
               >
                 Change
@@ -172,26 +193,37 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
           </div>
           <div className="flex flex-col gap-1.5">
             <span className="text-[12px] font-semibold text-muted">File name</span>
-            <div className="flex h-10 items-center truncate rounded-sm border border-line-strong bg-bg px-3 font-mono text-[12.5px]">
-              {info.title} ({shortQuality(format)}).{fileExtension(format)}
+            <div
+              className="flex h-10 items-center truncate rounded-sm border border-line-strong bg-bg px-3 font-mono text-[12.5px]"
+              title="Unsafe characters are replaced and an existing file is never overwritten."
+            >
+              {format ? `${downloadTitle(info, format)}.${format.extension}` : '—'}
             </div>
           </div>
         </div>
         <div className="flex items-center gap-2.5 border-t border-surface2 pt-[18px]">
           <span className="flex-1 text-[13px] text-muted">
-            Selected:{' '}
-            <span className="font-semibold text-fg">
-              {format.quality} · {format.size}
-            </span>
+            {tab === 'subtitles' ? (
+              'Subtitle downloads arrive with the extractor engine.'
+            ) : format ? (
+              <>
+                Selected:{' '}
+                <span className="font-semibold text-fg">
+                  {format.quality} · {format.size}
+                </span>
+              </>
+            ) : null}
           </span>
-          <Button onClick={() => addToQueue(info, format, kind)}>Add to queue</Button>
+          <Button disabled={!canDownload} onClick={() => format && addToQueue(info, format, kind)}>
+            Add to queue
+          </Button>
           <Button
             variant="primary"
             icon="download"
             className="px-5"
-            onClick={() => {
-              download(info, format, kind);
-              go('downloads');
+            disabled={!canDownload}
+            onClick={async () => {
+              if (format && (await download(info, format, kind))) go('downloads');
             }}
           >
             Download

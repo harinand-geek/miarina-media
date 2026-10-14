@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Least-privilege permissions for the main window. No filesystem or shell access is exposed to the frontend.",
+  "description": "Least-privilege permissions for the main window. Only the application's own validated commands are allowed; no filesystem, shell, dialog or opener permission is exposed to the frontend.",
   "windows": ["main"],
   "permissions": [
     "core:event:default",
@@ -11,6 +11,26 @@
     "core:window:allow-close",
     "core:window:allow-start-dragging",
     "core:window:allow-set-fullscreen",
-    "core:window:allow-is-fullscreen"
+    "core:window:allow-is-fullscreen",
+    "allow-validate-media-url",
+    "allow-analyze-link",
+    "allow-downloads-list",
+    "allow-downloads-start",
+    "allow-downloads-pause",
+    "allow-downloads-resume",
+    "allow-downloads-cancel",
+    "allow-downloads-retry",
+    "allow-downloads-start-now",
+    "allow-downloads-move",
+    "allow-downloads-pause-all",
+    "allow-downloads-resume-all",
+    "allow-downloads-reveal",
+    "allow-history-list",
+    "allow-history-clear",
+    "allow-history-reveal",
+    "allow-settings-get",
+    "allow-settings-set-concurrency",
+    "allow-settings-set-resource-mode",
+    "allow-settings-pick-download-dir"
   ]
 }

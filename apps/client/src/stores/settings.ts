@@ -1,34 +1,25 @@
 import { create } from 'zustand';
+import { mockLimits } from '../dev/mockBackend';
+import { backend } from '../services/backend';
+import type { BackendSettings, Limits, ResourceMode } from '../services/types';
+import { useUi } from './ui';
 
+export type { ResourceMode } from '../services/types';
 export type ThemePref = 'dark' | 'light' | 'system';
 export type Density = 'comfortable' | 'compact';
-export type ResourceMode = 'eco' | 'balanced' | 'performance';
-
-export interface ResourceProfile {
-  /** Hard cap on simultaneous downloads; `null` means "user setting". */
-  maxDownloads: number | null;
-  /** Progress refresh interval, in ms. */
-  progressIntervalMs: number;
-  reducedMotion: boolean;
-}
-
-/**
- * Effects of each mode, mirrored from docs/architecture.md §8. In Phase 1
- * they drive the mock scheduler and the UI; Phase 2 moves them to the Rust
- * resource-manager crate.
- */
-export const RESOURCE_PROFILES: Record<ResourceMode, ResourceProfile> = {
-  eco: { maxDownloads: 1, progressIntervalMs: 2000, reducedMotion: true },
-  balanced: { maxDownloads: 3, progressIntervalMs: 1000, reducedMotion: false },
-  performance: { maxDownloads: null, progressIntervalMs: 1000, reducedMotion: false },
-};
 
 interface SettingsState {
+  // Persisted by the backend (SQLite) and applied by the Rust scheduler.
+  downloadDir: string;
+  resourceMode: ResourceMode;
+  concurrency: number;
+  /** Limits the backend actually applies for the current mode. */
+  limits: Limits;
+  loaded: boolean;
+  // UI preferences (not persisted yet).
   theme: ThemePref;
   density: Density;
   reduceMotion: boolean;
-  resourceMode: ResourceMode;
-  concurrency: number;
   /** Android destination: internal storage or SD card (SAF in Phase 4). */
   androidStore: 'int' | 'sd';
   toggles: {
@@ -40,11 +31,13 @@ interface SettingsState {
     wifiOnlyLargeFiles: boolean;
     progressNotifications: boolean;
   };
+  load: () => Promise<void>;
+  setResourceMode: (mode: ResourceMode) => void;
+  setConcurrency: (n: number) => void;
+  pickDownloadDir: () => void;
   setTheme: (theme: ThemePref) => void;
   setDensity: (density: Density) => void;
   setReduceMotion: (on: boolean) => void;
-  setResourceMode: (mode: ResourceMode) => void;
-  setConcurrency: (n: number) => void;
   setAndroidStore: (store: 'int' | 'sd') => void;
   toggle: (key: keyof SettingsState['toggles']) => void;
 }
@@ -52,12 +45,30 @@ interface SettingsState {
 export const MIN_CONCURRENCY = 1;
 export const MAX_CONCURRENCY = 8;
 
-export const useSettings = create<SettingsState>((set) => ({
+const fromBackend = (s: BackendSettings) => ({
+  downloadDir: s.downloadDir,
+  resourceMode: s.resourceMode,
+  concurrency: s.concurrency,
+  limits: s.limits,
+  loaded: true,
+});
+
+function report(error: unknown) {
+  useUi.getState().pushToast({
+    tone: 'error',
+    message: error instanceof Error ? error.message : String(error),
+  });
+}
+
+export const useSettings = create<SettingsState>((set, get) => ({
+  downloadDir: '',
+  resourceMode: 'balanced',
+  concurrency: 3,
+  limits: mockLimits('balanced', 3),
+  loaded: false,
   theme: 'dark',
   density: 'comfortable',
   reduceMotion: false,
-  resourceMode: 'balanced',
-  concurrency: 3,
   androidStore: 'int',
   toggles: {
     launchAtStartup: true,
@@ -68,18 +79,44 @@ export const useSettings = create<SettingsState>((set) => ({
     wifiOnlyLargeFiles: true,
     progressNotifications: true,
   },
+
+  load: async () => {
+    try {
+      set(fromBackend(await backend.getSettings()));
+    } catch (e) {
+      report(e);
+    }
+  },
+  setResourceMode: (mode) => {
+    // Optimistic: the backend answer replaces it with the applied limits.
+    set({ resourceMode: mode, limits: mockLimits(mode, get().concurrency) });
+    backend
+      .setResourceMode(mode)
+      .then((s) => set(fromBackend(s)))
+      .catch(report);
+  },
+  setConcurrency: (n) => {
+    const concurrency = Math.min(MAX_CONCURRENCY, Math.max(MIN_CONCURRENCY, n));
+    set({ concurrency, limits: mockLimits(get().resourceMode, concurrency) });
+    backend
+      .setConcurrency(concurrency)
+      .then((s) => set(fromBackend(s)))
+      .catch(report);
+  },
+  pickDownloadDir: () => {
+    backend
+      .pickDownloadDir()
+      .then((s) => {
+        if (s) set(fromBackend(s));
+      })
+      .catch(report);
+  },
   setTheme: (theme) => set({ theme }),
   setDensity: (density) => set({ density }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),
-  setResourceMode: (resourceMode) => set({ resourceMode }),
-  setConcurrency: (n) =>
-    set({ concurrency: Math.min(MAX_CONCURRENCY, Math.max(MIN_CONCURRENCY, n)) }),
   setAndroidStore: (androidStore) => set({ androidStore }),
   toggle: (key) => set((s) => ({ toggles: { ...s.toggles, [key]: !s.toggles[key] } })),
 }));
 
-/** Simultaneous downloads actually allowed: the user value bounded by the mode. */
-export function effectiveConcurrency(s: Pick<SettingsState, 'resourceMode' | 'concurrency'>) {
-  const cap = RESOURCE_PROFILES[s.resourceMode].maxDownloads;
-  return cap === null ? s.concurrency : Math.min(cap, s.concurrency);
-}
+/** Simultaneous downloads actually allowed by the backend. */
+export const effectiveConcurrency = (s: Pick<SettingsState, 'limits'>) => s.limits.maxDownloads;

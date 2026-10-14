@@ -43,7 +43,8 @@ pub fn migrations() -> Migrations<'static> {
             status       TEXT NOT NULL CHECK (status IN ('completed', 'failed', 'canceled')),
             reason       TEXT,
             final_path   TEXT,
-            finished_at  INTEGER NOT NULL
+            finished_at  INTEGER NOT NULL,
+            url          TEXT NOT NULL
         );
         CREATE INDEX history_finished_at ON history (finished_at DESC);
 

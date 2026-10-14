@@ -1,17 +1,26 @@
-import { act, render, screen, within } from '@testing-library/react';
+import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
 import { MobileShell } from '../app/MobileShell';
+import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { useSettings } from '../stores/settings';
 import { useUi } from '../stores/ui';
 
-beforeEach(() => {
+let stopEvents: () => void = () => {};
+
+beforeEach(async () => {
+  resetMockBackend();
   useUi.setState(useUi.getInitialState(), true);
   useDownloads.setState(useDownloads.getInitialState(), true);
   useSettings.setState(useSettings.getInitialState(), true);
+  await useSettings.getState().load();
+  stopEvents = useDownloads.getState().init();
+  await waitFor(() => expect(useDownloads.getState().ready).toBe(true));
 });
+
+afterEach(() => stopEvents());
 
 describe('Windows shell', () => {
   it('navigates with the sidebar and Ctrl+1…7 shortcuts', async () => {
@@ -67,8 +76,8 @@ describe('Windows shell', () => {
 
     await user.click(within(quality).getByRole('radio', { name: /720p/ }));
     await user.click(screen.getByRole('button', { name: 'Download' }));
-    expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
-    expect(screen.getByText('Tears of Steel (720p)')).toBeInTheDocument();
+    expect(await screen.findByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
+    expect(await screen.findByText('Tears of Steel (720p)')).toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -89,7 +98,8 @@ describe('Windows shell', () => {
     const user = userEvent.setup();
     useUi.setState({ screen: 'downloads' });
     render(<DesktopShell />);
-    const before = useDownloads.getState().tasks.length;
+    const count = () => Object.keys(useDownloads.getState().tasks).length;
+    const before = count();
 
     await user.click(screen.getAllByRole('button', { name: 'Cancel' })[0]!);
     const dialog = screen.getByRole('alertdialog', { name: 'Cancel this download?' });
@@ -97,11 +107,11 @@ describe('Windows shell', () => {
 
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
-    expect(useDownloads.getState().tasks).toHaveLength(before);
+    expect(count()).toBe(before);
 
     await user.click(screen.getAllByRole('button', { name: 'Cancel' })[0]!);
     await user.click(screen.getByRole('button', { name: 'Cancel download' }));
-    expect(useDownloads.getState().tasks).toHaveLength(before - 1);
+    await waitFor(() => expect(count()).toBe(before - 1));
   });
 
   it('exposes download progress to assistive technology', () => {

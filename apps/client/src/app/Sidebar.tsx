@@ -21,7 +21,6 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
   const go = useUi((s) => s.go);
   const toggle = useUi((s) => s.toggleSidebar);
   const tasks = useDownloads((s) => s.tasks);
-  const queueLength = useDownloads((s) => s.queue.length);
   const summary = useMemo(() => summarize(tasks), [tasks]);
 
   const isCurrent = (id: Screen) => screen === id || (id === 'home' && screen === 'analysis');
@@ -36,8 +35,8 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         const item = NAV[id]!;
         const on = isCurrent(id);
         const badge =
-          id === 'downloads' && summary.active.length
-            ? String(summary.active.length)
+          id === 'downloads' && summary.openCount
+            ? String(summary.openCount)
             : id === 'browser'
               ? 'Later'
               : '';
@@ -89,7 +88,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             label="Overall download progress"
             className="w-full"
           />
-          <span className="text-[11.5px] text-muted">{queueLength} waiting in queue</span>
+          <span className="text-[11.5px] text-muted">{summary.queued.length} waiting in queue</span>
         </button>
       )}
       <button

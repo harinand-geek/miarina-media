@@ -3,35 +3,42 @@ import { Button, IconButton } from '../../components/Button';
 import { Segmented } from '../../components/Controls';
 import { EmptyState } from '../../components/Feedback';
 import { Menu } from '../../components/Menu';
-import { notAvailableYet } from '../../services/prototype';
 import type { HistoryEntry, HistoryStatus } from '../../services/types';
-import { useDownloads } from '../../stores/downloads';
+import { formatBytes, useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
+import { groupByDay } from './grouping';
 
-type Filter = 'All' | 'Completed' | 'Failed';
+type Filter = 'all' | 'completed' | 'failed';
 
-const STATUS_COLOR: Record<HistoryStatus, string> = {
-  Completed: 'text-accent-strong',
-  Failed: 'text-danger',
-  Cancelled: 'text-muted',
+const STATUS: Record<HistoryStatus, { label: string; color: string }> = {
+  completed: { label: 'Completed', color: 'text-accent-strong' },
+  failed: { label: 'Failed', color: 'text-danger' },
+  canceled: { label: 'Cancelled', color: 'text-muted' },
 };
 
 const ROW_COLUMNS = 'grid-cols-[52px_minmax(0,1fr)_150px_80px_110px_72px]';
+
+function timeLabel(ts: number) {
+  const d = new Date(ts);
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+}
+
+function sizeLabel(entry: HistoryEntry) {
+  if (entry.status === 'completed') return formatBytes(entry.totalBytes ?? entry.doneBytes);
+  if (!entry.doneBytes) return '—';
+  return entry.totalBytes
+    ? `${formatBytes(entry.doneBytes)} of ${formatBytes(entry.totalBytes)}`
+    : formatBytes(entry.doneBytes);
+}
 
 export default function HistoryScreen() {
   const history = useDownloads((s) => s.history);
   const clear = useDownloads((s) => s.clearHistory);
   const askConfirm = useUi((s) => s.askConfirm);
-  const [filter, setFilter] = useState<Filter>('All');
+  const [filter, setFilter] = useState<Filter>('all');
 
   const groups = useMemo(
-    () =>
-      history
-        .map((g) => ({
-          ...g,
-          entries: g.entries.filter((e) => filter === 'All' || e.status === filter),
-        }))
-        .filter((g) => g.entries.length > 0),
+    () => groupByDay(history.filter((e) => filter === 'all' || e.status === filter)),
     [history, filter],
   );
 
@@ -39,15 +46,16 @@ export default function HistoryScreen() {
     <div className="flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
       <div className="flex items-center gap-3">
         <h1 className="m-0 flex-1 text-title-lg font-bold tracking-[-0.02em]">History</h1>
-        <Segmented
+        <Segmented<Filter>
           label="Filter history"
           value={filter}
           onChange={setFilter}
           className="!self-auto border-line bg-surface"
-          options={(['All', 'Completed', 'Failed'] as Filter[]).map((f) => ({
-            value: f,
-            label: f,
-          }))}
+          options={[
+            { value: 'all', label: 'All' },
+            { value: 'completed', label: 'Completed' },
+            { value: 'failed', label: 'Failed' },
+          ]}
         />
         <Button
           size="sm"
@@ -81,7 +89,7 @@ export default function HistoryScreen() {
         <EmptyState>
           {history.length === 0
             ? 'History is empty. Finished, failed and cancelled downloads appear here.'
-            : `No ${filter.toLowerCase()} downloads.`}
+            : `No ${filter} downloads.`}
         </EmptyState>
       )}
     </div>
@@ -89,44 +97,38 @@ export default function HistoryScreen() {
 }
 
 function HistoryRow({ entry }: { entry: HistoryEntry }) {
-  const start = useDownloads((s) => s.start);
+  const task = useDownloads((s) => s.tasks[entry.taskId]);
+  const { retry, revealHistory } = useDownloads.getState();
+  const analyze = useUi((s) => s.analyze);
   const pushToast = useUi((s) => s.pushToast);
-  const go = useUi((s) => s.go);
-  const completed = entry.status === 'Completed';
+  const completed = entry.status === 'completed';
+  const status = STATUS[entry.status];
 
-  const retry = () => {
-    start({
-      title: entry.title,
-      source: entry.source,
-      kind: 'video',
-      format: entry.format,
-      totalMb: 300,
-    });
-    pushToast({
-      tone: 'success',
-      message: `Retrying · ${entry.title}`,
-      action: { label: 'View', run: () => go('downloads') },
-    });
+  // A failed task still exists and keeps its format; a cancelled one is
+  // analyzed again from its source link.
+  const retryEntry = () => {
+    if (task?.state === 'failed') retry(task.id);
+    else analyze(entry.url);
   };
 
   return (
     <div
       className={`grid ${ROW_COLUMNS} h-[50px] items-center gap-4 border-b border-surface2 pl-4 pr-3 text-[13px] last:border-b-0 hover:bg-surface`}
     >
-      <span className="font-mono text-[12px] font-medium text-muted">{entry.time}</span>
+      <span className="font-mono text-[12px] font-medium text-muted">
+        {timeLabel(entry.finishedAt)}
+      </span>
       <div className="flex min-w-0 flex-col">
         <span className="truncate font-semibold">{entry.title}</span>
         <span className="truncate text-[11.5px] text-muted">
-          {entry.reason ? `${entry.source} · ${entry.reason}` : entry.source}
+          {entry.reason ? `${entry.sourceHost} · ${entry.reason}` : entry.sourceHost}
         </span>
       </div>
-      <span className="text-muted">{entry.format}</span>
-      <span className="font-mono text-[12px] font-medium text-muted">{entry.size}</span>
-      <span
-        className={`flex items-center gap-[7px] text-[12.5px] font-semibold ${STATUS_COLOR[entry.status]}`}
-      >
+      <span className="truncate text-muted">{entry.formatLabel}</span>
+      <span className="font-mono text-[12px] font-medium text-muted">{sizeLabel(entry)}</span>
+      <span className={`flex items-center gap-[7px] text-[12.5px] font-semibold ${status.color}`}>
         <span className="h-[7px] w-[7px] rounded-full bg-current" aria-hidden="true" />
-        {entry.status}
+        {status.label}
       </span>
       <div className="flex justify-end gap-0.5">
         <IconButton
@@ -134,7 +136,7 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
           label={completed ? 'Show in folder' : 'Retry'}
           size={30}
           iconSize={18}
-          onClick={completed ? () => notAvailableYet('Showing the file in its folder') : retry}
+          onClick={completed ? () => revealHistory(entry.id) : retryEntry}
         />
         <Menu
           label={`Actions for ${entry.title}`}
@@ -156,8 +158,10 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
               icon: 'content_copy',
               shortcut: 'Ctrl C',
               onSelect: () => {
-                void navigator.clipboard?.writeText(`https://${entry.source}`);
-                pushToast({ tone: 'success', message: 'Source link copied' });
+                navigator.clipboard
+                  ?.writeText(entry.url)
+                  .then(() => pushToast({ tone: 'success', message: 'Source link copied' }))
+                  .catch(() => pushToast({ tone: 'error', message: 'Could not copy the link.' }));
               },
             },
           ]}

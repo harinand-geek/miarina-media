@@ -1,14 +1,8 @@
-// Development fixtures copied from the Claude Design prototypes.
-// Phase 1 only: they back the mock backend and must not reach production
-// flows once the Rust backend lands (Phase 2).
+// Development fixtures copied from the Claude Design prototypes. They back
+// the mock backend (browser preview and tests) and the library screens until
+// the media library lands in Phase 3. Never used by the Tauri backend.
 
-import type {
-  DownloadTask,
-  HistoryGroup,
-  LibraryItem,
-  MediaInfo,
-  QueueItem,
-} from '../services/types';
+import type { HistoryEntry, LibraryItem, MediaInfo, MediaKind, TaskState } from '../services/types';
 
 const lib = (
   id: string,
@@ -75,6 +69,7 @@ export const LIBRARY_STATS = {
 };
 
 export const ANALYZED: Omit<MediaInfo, 'url' | 'host'> = {
+  engine: 'ytdlp',
   title: 'Tears of Steel',
   subtitle: 'Blender Open Movie · 5 video, 4 audio, 3 subtitle tracks found',
   publisher: 'Blender Foundation',
@@ -88,35 +83,74 @@ export const ANALYZED: Omit<MediaInfo, 'url' | 'host'> = {
         quality: '2160p · 4K',
         detail: 'WebM · VP9 · 24 fps',
         size: '1.12 GB',
+        extension: 'webm',
         tag: 'Best quality',
       },
-      { id: '1440', quality: '1440p', detail: 'WebM · VP9 · 24 fps', size: '684 MB' },
+      {
+        id: '1440',
+        quality: '1440p',
+        detail: 'WebM · VP9 · 24 fps',
+        size: '684 MB',
+        extension: 'webm',
+      },
       {
         id: '1080',
         quality: '1080p',
         detail: 'MP4 · H.264 · 24 fps',
         size: '372 MB',
+        extension: 'mp4',
         tag: 'Recommended',
       },
-      { id: '720', quality: '720p', detail: 'MP4 · H.264 · 24 fps', size: '198 MB' },
-      { id: '480', quality: '480p', detail: 'MP4 · H.264 · 24 fps', size: '96 MB' },
+      {
+        id: '720',
+        quality: '720p',
+        detail: 'MP4 · H.264 · 24 fps',
+        size: '198 MB',
+        extension: 'mp4',
+      },
+      {
+        id: '480',
+        quality: '480p',
+        detail: 'MP4 · H.264 · 24 fps',
+        size: '96 MB',
+        extension: 'mp4',
+      },
     ],
     audio: [
-      { id: 'flac', quality: 'FLAC', detail: 'Lossless · 48 kHz · stereo', size: '92 MB' },
+      {
+        id: 'flac',
+        quality: 'FLAC',
+        detail: 'Lossless · 48 kHz · stereo',
+        size: '92 MB',
+        extension: 'flac',
+      },
       {
         id: 'mp3',
         quality: 'MP3 · 320 kbps',
         detail: 'Converted · 44.1 kHz',
         size: '29 MB',
+        extension: 'mp3',
         tag: 'Recommended',
       },
-      { id: 'm4a', quality: 'M4A · 256 kbps', detail: 'AAC · original track', size: '23 MB' },
-      { id: 'opus', quality: 'Opus · 160 kbps', detail: 'Original track', size: '14 MB' },
+      {
+        id: 'm4a',
+        quality: 'M4A · 256 kbps',
+        detail: 'AAC · original track',
+        size: '23 MB',
+        extension: 'm4a',
+      },
+      {
+        id: 'opus',
+        quality: 'Opus · 160 kbps',
+        detail: 'Original track',
+        size: '14 MB',
+        extension: 'opus',
+      },
     ],
     subtitles: [
-      { id: 'en', quality: 'English', detail: 'SRT · original', size: '18 KB' },
-      { id: 'fr', quality: 'Français', detail: 'SRT · community', size: '19 KB' },
-      { id: 'es', quality: 'Español', detail: 'SRT · community', size: '19 KB' },
+      { id: 'en', quality: 'English', detail: 'SRT · original', size: '18 KB', extension: 'srt' },
+      { id: 'fr', quality: 'Français', detail: 'SRT · community', size: '19 KB', extension: 'srt' },
+      { id: 'es', quality: 'Español', detail: 'SRT · community', size: '19 KB', extension: 'srt' },
     ],
   },
 };
@@ -124,128 +158,187 @@ export const ANALYZED: Omit<MediaInfo, 'url' | 'host'> = {
 /** Hosts the mock backend reports as "No downloadable media found". */
 export const NO_MEDIA_HOSTS = ['nasa.gov'];
 
-export const DOWNLOADS: DownloadTask[] = [
+/** Compact seeds turned into TaskRecords by the mock backend. */
+export interface TaskSeed {
+  id: string;
+  title: string;
+  host: string;
+  kind: MediaKind;
+  format: string;
+  mb: number;
+  percent: number;
+  /** Simulated throughput in MB/s. */
+  speed: number;
+  state: TaskState;
+}
+
+export const DOWNLOADS: TaskSeed[] = [
   {
     id: 'd1',
     title: 'Tears of Steel',
-    source: 'mango.blender.org',
+    host: 'mango.blender.org',
     kind: 'video',
     format: 'MP4 · 2160p',
-    totalMb: 1150,
+    mb: 1150,
     percent: 62,
-    rate: 0.9,
-    status: 'downloading',
+    speed: 10.3,
+    state: 'downloading',
   },
   {
     id: 'd2',
     title: 'Charge',
-    source: 'studio.blender.org',
+    host: 'studio.blender.org',
     kind: 'video',
     format: 'MP4 · 1080p',
-    totalMb: 230,
+    mb: 230,
     percent: 28,
-    rate: 1.4,
-    status: 'downloading',
+    speed: 3.2,
+    state: 'downloading',
   },
   {
     id: 'd3',
     title: 'Apollo 11 Mission Audio — Day 1',
-    source: 'archive.org',
+    host: 'archive.org',
     kind: 'audio',
     format: 'MP3 · 320 kbps',
-    totalMb: 84,
+    mb: 84,
     percent: 41,
-    rate: 2,
-    status: 'paused',
+    speed: 1.7,
+    state: 'paused',
+  },
+  {
+    id: 'q1',
+    title: 'Spring',
+    host: 'studio.blender.org',
+    kind: 'video',
+    format: 'MP4 · 1440p',
+    mb: 402,
+    percent: 0,
+    speed: 6,
+    state: 'queued',
+  },
+  {
+    id: 'q2',
+    title: 'Elephants Dream',
+    host: 'orange.blender.org',
+    kind: 'video',
+    format: 'MP4 · 1080p',
+    mb: 318,
+    percent: 0,
+    speed: 5,
+    state: 'queued',
+  },
+  {
+    id: 'q3',
+    title: 'Clair de Lune — Debussy',
+    host: 'musopen.org',
+    kind: 'audio',
+    format: 'FLAC',
+    mb: 46,
+    percent: 0,
+    speed: 2,
+    state: 'queued',
   },
 ];
 
-export const QUEUE: QueueItem[] = [
-  { id: 'q1', title: 'Spring', kind: 'video', format: 'MP4 · 1440p', size: '402 MB' },
-  { id: 'q2', title: 'Elephants Dream', kind: 'video', format: 'MP4 · 1080p', size: '318 MB' },
-  { id: 'q3', title: 'Clair de Lune — Debussy', kind: 'audio', format: 'FLAC', size: '46 MB' },
-];
+const MIN = 60_000;
+const MB = 1024 * 1024;
 
-export const HISTORY: HistoryGroup[] = [
-  {
-    day: 'Today',
-    entries: [
-      {
-        id: 'h1',
-        time: '14:22',
-        title: 'Big Buck Bunny',
-        source: 'peach.blender.org',
-        format: 'MP4 · 1080p',
-        size: '356 MB',
-        status: 'Completed',
-      },
-      {
-        id: 'h2',
-        time: '13:05',
-        title: 'Live stream — Mission Control',
-        source: 'nasa.gov',
-        format: '—',
-        size: '—',
-        status: 'Failed',
-        reason: 'Live streams are not supported',
-      },
-      {
-        id: 'h3',
-        time: '09:41',
-        title: 'Gymnopédie No. 1 — Satie',
-        source: 'musopen.org',
-        format: 'FLAC',
-        size: '31 MB',
-        status: 'Completed',
-      },
-    ],
-  },
-  {
-    day: 'Yesterday',
-    entries: [
-      {
-        id: 'h4',
-        time: '21:10',
-        title: 'Sintel',
-        source: 'durian.blender.org',
-        format: 'MP4 · 1080p',
-        size: '612 MB',
-        status: 'Completed',
-      },
-      {
-        id: 'h5',
-        time: '20:52',
-        title: 'Elephants Dream (2160p)',
-        source: 'orange.blender.org',
-        format: 'WebM · 2160p',
-        size: '402 MB of 1.3 GB',
-        status: 'Cancelled',
-      },
-      {
-        id: 'h6',
-        time: '18:30',
-        title: 'Voyager Golden Record — Sounds of Earth',
-        source: 'archive.org',
-        format: 'MP3 · 320 kbps',
-        size: '28 MB',
-        status: 'Completed',
-      },
-    ],
-  },
-  {
-    day: 'Saturday, 10 October',
-    entries: [
-      {
-        id: 'h7',
-        time: '16:02',
-        title: 'Artemis I Launch Highlights',
-        source: 'nasa.gov',
-        format: 'MP4 · 1080p',
-        size: '188 MB',
-        status: 'Completed',
-      },
-    ],
-  },
+const at = (daysAgo: number, hh: number, mm: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - daysAgo);
+  d.setHours(hh, mm, 0, 0);
+  return d.getTime();
+};
+
+const entry = (
+  id: number,
+  finishedAt: number,
+  title: string,
+  sourceHost: string,
+  formatLabel: string,
+  totalMb: number | null,
+  doneMb: number,
+  status: HistoryEntry['status'],
+  reason: string | null = null,
+): HistoryEntry => ({
+  id,
+  taskId: `h${id}`,
+  url: `https://${sourceHost}/`,
+  title,
+  sourceHost,
+  formatLabel,
+  totalBytes: totalMb === null ? null : totalMb * MB,
+  doneBytes: doneMb * MB,
+  status,
+  reason,
+  finalPath: null,
+  finishedAt,
+});
+
+export const HISTORY: HistoryEntry[] = [
+  entry(
+    7,
+    Date.now() - 20 * MIN,
+    'Big Buck Bunny',
+    'peach.blender.org',
+    'MP4 · 1080p',
+    356,
+    356,
+    'completed',
+  ),
+  entry(
+    6,
+    Date.now() - 95 * MIN,
+    'Live stream — Mission Control',
+    'nasa.gov',
+    '—',
+    null,
+    0,
+    'failed',
+    'Live streams are not supported',
+  ),
+  entry(
+    5,
+    Date.now() - 300 * MIN,
+    'Gymnopédie No. 1 — Satie',
+    'musopen.org',
+    'FLAC',
+    31,
+    31,
+    'completed',
+  ),
+  entry(4, at(1, 21, 10), 'Sintel', 'durian.blender.org', 'MP4 · 1080p', 612, 612, 'completed'),
+  entry(
+    3,
+    at(1, 20, 52),
+    'Elephants Dream (2160p)',
+    'orange.blender.org',
+    'WebM · 2160p',
+    1331,
+    402,
+    'canceled',
+  ),
+  entry(
+    2,
+    at(1, 18, 30),
+    'Voyager Golden Record — Sounds of Earth',
+    'archive.org',
+    'MP3 · 320 kbps',
+    28,
+    28,
+    'completed',
+  ),
+  entry(
+    1,
+    at(3, 16, 2),
+    'Artemis I Launch Highlights',
+    'nasa.gov',
+    'MP4 · 1080p',
+    188,
+    188,
+    'completed',
+  ),
 ];
 
 export const STORAGE = {
