@@ -33,3 +33,6 @@ Thumbs.db
 # Misc
 *.local
 coverage/
+
+# Spike build output
+spikes/*/gen/

@@ -1,6 +1,8 @@
 [workspace]
 resolver = "3"
 members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "apps/client/src-tauri"]
+# Feasibility spikes build on their own (they may enable unstable features).
+exclude = ["spikes"]
 
 [workspace.package]
 version = "0.1.0"
