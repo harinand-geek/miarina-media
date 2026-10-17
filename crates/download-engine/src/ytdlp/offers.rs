@@ -18,10 +18,16 @@ pub struct FormatSpec {
     /// `--audio-format` for audio extraction/conversion.
     #[serde(rename = "x", default, skip_serializing_if = "Option::is_none")]
     pub extract_audio: Option<String>,
+    /// Constant bitrate of the conversion in kbps (`--audio-quality <n>K`);
+    /// `None` keeps yt-dlp's best VBR. Lossy formats only.
+    #[serde(rename = "b", default, skip_serializing_if = "Option::is_none")]
+    pub audio_kbps: Option<u32>,
 }
 
 const MERGE_FORMATS: [&str; 3] = ["mp4", "webm", "mkv"];
 const AUDIO_FORMATS: [&str; 4] = ["mp3", "m4a", "flac", "opus"];
+/// Bitrates offered for MP3 conversion, highest first.
+pub const AUDIO_BITRATES: [u32; 4] = [320, 256, 192, 128];
 const MAX_SELECTOR_LEN: usize = 200;
 
 impl FormatSpec {
@@ -47,7 +53,11 @@ impl FormatSpec {
             .extract_audio
             .as_deref()
             .is_none_or(|a| AUDIO_FORMATS.contains(&a));
-        if selector_ok && merge_ok && audio_ok {
+        let bitrate_ok = spec.audio_kbps.is_none_or(|kbps| {
+            AUDIO_BITRATES.contains(&kbps)
+                && spec.extract_audio.as_deref().is_some_and(|a| a != "flac")
+        });
+        if selector_ok && merge_ok && audio_ok && bitrate_ok {
             Ok(spec)
         } else {
             Err("invalid format".to_owned())
@@ -174,6 +184,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     selector: vid.to_owned(),
                     merge: None,
                     extract_audio: None,
+                    audio_kbps: None,
                 },
                 video.size(),
                 video.audio_codec().map(codec_name),
@@ -192,6 +203,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     selector: format!("{vid}+{}", audio.id().unwrap_or_default()),
                     merge: Some(merge),
                     extract_audio: None,
+                    audio_kbps: None,
                 },
                 sum(video.size(), audio.size()),
                 audio.audio_codec().map(codec_name),
@@ -235,6 +247,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                 selector: f.id().unwrap_or_default().to_owned(),
                 merge: None,
                 extract_audio: None,
+                audio_kbps: None,
             },
             quality: format!("{} · best available", ext_label(&ext)),
             detail: "Complete file provided by the source".into(),
@@ -276,30 +289,56 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     .total_cmp(&b.abr.or(b.tbr).unwrap_or(0.0))
             })
     };
-    // MP3 needs FFmpeg. Without a separate audio stream, the audio is
+    // Conversions need FFmpeg. Without a separate audio stream, the audio is
     // extracted from the smallest video that carries one.
-    let mp3_source = if !audio_only.is_empty() {
-        Some(("ba".to_owned(), "Converted with FFmpeg · VBR"))
+    let conversion_source = if !audio_only.is_empty() {
+        let kbps = best(&|_| true).and_then(|f| f.abr.or(f.tbr));
+        Some(("ba".to_owned(), "Converted", kbps))
     } else {
         formats
             .iter()
             .filter(|f| f.has_video() && f.audio_codec().is_some())
             .min_by_key(|f| f.size().unwrap_or(u64::MAX))
-            .and_then(|f| f.id())
-            .map(|id| (id.to_owned(), "Extracted from the video with FFmpeg · VBR"))
+            .and_then(|f| f.id().map(|id| (id, f.abr)))
+            .map(|(id, abr)| (id.to_owned(), "Extracted from the video", abr))
     };
-    if ffmpeg && let Some((selector, detail)) = mp3_source {
+    if ffmpeg && let Some((selector, how, source_kbps)) = conversion_source {
+        // Converting never adds quality: say what the source carries.
+        let source = source_kbps
+            .filter(|k| *k > 0.0)
+            .map(|k| format!(" · source ≈ {} kbps", k.round()))
+            .unwrap_or_default();
+        for kbps in AUDIO_BITRATES {
+            offers.audio.push(Offer {
+                spec: FormatSpec {
+                    selector: selector.clone(),
+                    merge: None,
+                    extract_audio: Some("mp3".into()),
+                    audio_kbps: Some(kbps),
+                },
+                quality: format!("MP3 · {kbps} kbps"),
+                detail: format!("{how} with FFmpeg{source}"),
+                // Constant bitrate: duration × bitrate is a close estimate.
+                size_bytes: info
+                    .duration
+                    .filter(|d| d.is_finite() && *d > 0.0)
+                    .map(|d| (d * f64::from(kbps) * 1000.0 / 8.0) as u64),
+                extension: "mp3".into(),
+                tag: (kbps == AUDIO_BITRATES[0]).then_some("Recommended"),
+            });
+        }
         offers.audio.push(Offer {
             spec: FormatSpec {
                 selector,
                 merge: None,
-                extract_audio: Some("mp3".into()),
+                extract_audio: Some("flac".into()),
+                audio_kbps: None,
             },
-            quality: "MP3 · high quality".into(),
-            detail: detail.into(),
+            quality: "FLAC · Lossless".into(),
+            detail: format!("{how} with FFmpeg{source} · large file"),
             size_bytes: None,
-            extension: "mp3".into(),
-            tag: Some("Recommended"),
+            extension: "flac".into(),
+            tag: None,
         });
     }
     let originals: [(&str, FormatFilter); 2] = [
@@ -319,6 +358,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     selector: f.id().unwrap_or_default().to_owned(),
                     merge: None,
                     extract_audio: None,
+                    audio_kbps: None,
                 },
                 quality: format!(
                     "{}{kbps}",
@@ -362,7 +402,8 @@ mod tests {
             height,
             filesize: Some(size),
             tbr: Some(size as f64 / 1000.0),
-            abr: (vcodec == "none").then_some(size as f64 / 100_000.0),
+            // Audio streams: 20 → 130 kbps, 18 → 117 kbps.
+            abr: (vcodec == "none").then_some(size as f64 * 6.5),
             ..Default::default()
         }
     }
@@ -414,7 +455,8 @@ mod tests {
             FormatSpec {
                 selector: "22".into(),
                 merge: None,
-                extract_audio: None
+                extract_audio: None,
+                audio_kbps: None
             }
         );
     }
@@ -430,13 +472,38 @@ mod tests {
 
     #[test]
     fn audio_offers_include_conversion_and_originals() {
-        let offers = build_offers(&dash(), true);
+        let offers = build_offers(
+            &RawInfo {
+                duration: Some(100.0),
+                ..dash()
+            },
+            true,
+        );
         let labels: Vec<_> = offers
             .audio
             .iter()
-            .map(|o| (o.extension.as_str(), o.spec.selector.as_str()))
+            .map(|o| (o.quality.as_str(), o.spec.selector.as_str()))
             .collect();
-        assert_eq!(labels, [("mp3", "ba"), ("m4a", "140"), ("webm", "251")]);
+        assert_eq!(
+            labels,
+            [
+                ("MP3 · 320 kbps", "ba"),
+                ("MP3 · 256 kbps", "ba"),
+                ("MP3 · 192 kbps", "ba"),
+                ("MP3 · 128 kbps", "ba"),
+                ("FLAC · Lossless", "ba"),
+                ("M4A · 130 kbps", "140"),
+                ("Opus · 117 kbps", "251"),
+            ]
+        );
+        let best = &offers.audio[0];
+        assert_eq!(best.tag, Some("Recommended"));
+        assert_eq!(best.spec.audio_kbps, Some(320));
+        // 100 s at 320 kbps.
+        assert_eq!(best.size_bytes, Some(4_000_000));
+        assert_eq!(best.detail, "Converted with FFmpeg · source ≈ 130 kbps");
+        assert_eq!(offers.audio[4].spec.audio_kbps, None);
+        assert_eq!(offers.audio[4].size_bytes, None);
     }
 
     #[test]
@@ -446,12 +513,13 @@ mod tests {
             fmt("0", "webm", "vp9", "opus", Some(240), 30),
         ]);
         let offers = build_offers(&progressive_only, true);
-        assert_eq!(offers.audio.len(), 1);
-        assert_eq!(
-            offers.audio[0].spec.selector, "0",
+        assert_eq!(offers.audio.len(), AUDIO_BITRATES.len() + 1);
+        assert!(
+            offers.audio.iter().all(|o| o.spec.selector == "0"),
             "smallest video with audio"
         );
         assert_eq!(offers.audio[0].spec.extract_audio.as_deref(), Some("mp3"));
+        assert_eq!(offers.audio[0].size_bytes, None, "unknown duration");
         assert!(build_offers(&progressive_only, false).audio.is_empty());
     }
 
@@ -473,9 +541,15 @@ mod tests {
             selector: "137+140".into(),
             merge: Some("mp4".into()),
             extract_audio: None,
+            audio_kbps: None,
         };
         assert_eq!(FormatSpec::decode(&spec.encode()).unwrap(), spec);
+        let mp3 = r#"{"s":"ba","x":"mp3","b":320}"#;
+        assert_eq!(FormatSpec::decode(mp3).unwrap().audio_kbps, Some(320));
         for bad in [
+            r#"{"s":"ba","x":"mp3","b":321}"#,
+            r#"{"s":"ba","x":"flac","b":320}"#,
+            r#"{"s":"ba","b":320}"#,
             r#"{"s":"--exec calc"}"#,
             r#"{"s":"137 --exec calc"}"#,
             r#"{"s":"137;rm"}"#,

@@ -186,7 +186,9 @@ impl YtDlpEngine {
                 "--audio-format".into(),
                 audio.clone(),
                 "--audio-quality".into(),
-                "0".into(),
+                // A fixed bitrate (e.g. "320K") or the best VBR.
+                spec.audio_kbps
+                    .map_or_else(|| "0".to_owned(), |kbps| format!("{kbps}K")),
             ]);
         }
         if let Some(ffmpeg) = self.components.ffmpeg_dir() {
