@@ -13,6 +13,9 @@ use tokio_util::sync::CancellationToken;
 
 /// Public CC BY 3.0 film on Wikimedia Commons (Blender Foundation).
 const PAGE: &str = "https://commons.wikimedia.org/wiki/File:Big_Buck_Bunny_4K.webm";
+/// Sintel (Blender Foundation, CC BY 3.0) on the Blender channel: Wikimedia
+/// publishes no thumbnail, YouTube does.
+const PAGE_WITH_THUMBNAIL: &str = "https://www.youtube.com/watch?v=eRsGyueVLvQ";
 
 fn components() -> Components {
     let dir = std::env::var("MIARINA_COMPONENTS_DIR")
@@ -91,4 +94,31 @@ async fn installs_verified_components_then_analyzes_and_downloads() {
 
 fn yt_work_dir_exists(job: &DownloadJob) -> bool {
     download_engine::ytdlp::work_dir(&job.part_path).exists()
+}
+
+#[tokio::test]
+#[ignore = "analyzes a real page and downloads its thumbnail"]
+async fn analysis_exposes_a_thumbnail_that_is_cached_locally() {
+    let engine = YtDlpEngine::new(components());
+    let cancel = CancellationToken::new();
+    let analysis = engine
+        .analyze(&validate_media_url(PAGE_WITH_THUMBNAIL).unwrap(), &cancel)
+        .await
+        .expect("analysis (needs installed components)");
+    let thumbnail = analysis
+        .info
+        .thumbnail
+        .expect("the page publishes a picture");
+    eprintln!("thumbnail URL: {thumbnail}");
+
+    let http = download_engine::HttpEngine::new().unwrap();
+    let dir = tempfile::tempdir().unwrap();
+    let url = validate_media_url(&thumbnail).unwrap();
+    let path = http.fetch_thumbnail(&url, dir.path()).await.expect("fetch");
+    let bytes = std::fs::read(&path).unwrap();
+    eprintln!("saved {} ({} bytes)", path.display(), bytes.len());
+    assert!(download_engine::image_extension(&bytes).is_some());
+    assert!(bytes.len() <= download_engine::MAX_THUMBNAIL_BYTES);
+    // Analyzing again reuses the cached file.
+    assert_eq!(http.fetch_thumbnail(&url, dir.path()).await.unwrap(), path);
 }

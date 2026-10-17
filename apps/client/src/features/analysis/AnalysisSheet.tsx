@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../../components/Button';
 import { RadioDot, Segmented } from '../../components/Controls';
-import { DelayedSkeletons, Skeleton, Thumbnail } from '../../components/Feedback';
+import { DelayedSkeletons, Skeleton } from '../../components/Feedback';
+import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
 import { BottomSheet } from '../../components/Overlay';
 import type { MediaInfo } from '../../services/types';
@@ -77,7 +78,12 @@ function SheetContent({
   return (
     <>
       <div className="flex gap-3">
-        <Thumbnail className="h-[68px] w-[120px] rounded-[10px]" />
+        <LocalThumb
+          path={info.thumbnail}
+          kind={tab === 'audio' ? 'audio' : 'video'}
+          className="h-[68px] w-[120px] rounded-[10px]"
+          label=""
+        />
         <div className="flex min-w-0 flex-col gap-[3px]">
           <span className="text-[16px] font-bold">{info.title}</span>
           <span className="text-[12.5px] text-muted">

@@ -104,5 +104,8 @@ pub fn migrations() -> Migrations<'static> {
         END;
         "#,
         ),
+        // v3 — picture shown while a task downloads: the source's thumbnail,
+        // cached locally at analysis time (path inside the thumbnail folder).
+        M::up("ALTER TABLE tasks ADD COLUMN thumbnail TEXT;"),
     ])
 }

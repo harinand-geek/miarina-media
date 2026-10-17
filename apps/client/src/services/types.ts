@@ -30,6 +30,8 @@ export interface MediaInfo {
   license?: string | null;
   /** Advice shown under the formats (e.g. FFmpeg missing). */
   notice?: string | null;
+  /** Local copy of the site's picture (asset protocol path). */
+  thumbnail?: string | null;
   formats: Record<FormatGroup, MediaFormat[]>;
 }
 
@@ -82,6 +84,8 @@ export interface TaskRecord {
   createdAt: number;
   updatedAt: number;
   completedAt: number | null;
+  /** Source thumbnail cached at analysis time. */
+  thumbnail: string | null;
 }
 
 /** A task plus live, non-persisted transfer figures. */
@@ -158,6 +162,7 @@ export interface StartRequest {
   formatLabel: string;
   extension: string;
   startNow: boolean;
+  thumbnail?: string | null;
 }
 
 export type LinkErrorCode =

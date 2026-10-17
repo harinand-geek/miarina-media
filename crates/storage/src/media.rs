@@ -289,6 +289,15 @@ impl Storage {
         crate::ensure_found(changed, &id.to_string())
     }
 
+    /// Sets the picture of an entry (e.g. the source thumbnail of a download).
+    pub fn set_media_thumbnail(&self, id: i64, thumbnail: &str) -> Result<()> {
+        let changed = self.conn.execute(
+            "UPDATE media SET thumbnail = ?2 WHERE id = ?1",
+            params![id, thumbnail],
+        )?;
+        crate::ensure_found(changed, &id.to_string())
+    }
+
     /// Marks a file as unreadable so it is not probed again on every start.
     pub fn mark_media_unprobeable(&self, id: i64) -> Result<()> {
         let changed = self
@@ -420,10 +429,10 @@ mod tests {
     }
 
     #[test]
-    fn schema_v2_is_applied() {
+    fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            2
+            3
         );
     }
 

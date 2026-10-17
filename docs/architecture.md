@@ -142,6 +142,7 @@ Transitions validées par `media-core` ; toute transition invalide est une erreu
 ## 6. Adaptateur Windows
 
 - **Moteurs** : `HttpEngine` (liens directs vers des fichiers média, `reqwest` en streaming, Range) et `YtDlpEngine` (pages de sites supportés).
+- **Miniatures source** (2026-10-17) : à l'analyse, l'URL `thumbnail` renvoyée par yt-dlp (non fiable) est validée comme un lien, téléchargée par Rust (≤ 2 Mo, 8 s max, JPEG/PNG/WebP reconnus par signature) dans `thumbnails/sources/<sha256(url)[..16]>.<ext>`, puis affichée via le protocole asset — la WebView ne charge jamais d'image distante. La tâche garde ce chemin (colonne `tasks.thumbnail`, migration v3, accepté seulement s'il est dans ce dossier) ; à la fin, la bibliothèque en copie l'image et ne génère pas de vignette FFmpeg. Conséquence réseau : l'app contacte aussi l'hôte de la miniature (ex. `i.ytimg.com`). Les sources sans miniature (Wikimedia, liens directs) gardent le placeholder jusqu'à la vignette FFmpeg de fin de téléchargement.
 - **yt-dlp** : exécutable autonome `yt-dlp.exe` lancé comme **sidecar Tauri** (`externalBin`) ou depuis un dossier de composants géré (cf. décision D3). Appels par `tokio::process::Command` avec **tableau d'arguments**, jamais de chaîne shell :
   - analyse : `--ignore-config --no-plugin-dirs ❓(selon version) --dump-single-json --no-playlist --skip-download -- <url>` ;
   - téléchargement : `--ignore-config --newline --progress-template <json> --no-exec ❓ -f <format_id> -P <dir_temp> -o <template sûr> --ffmpeg-location <ffmpeg> -- <url>` ;

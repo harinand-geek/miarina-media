@@ -165,6 +165,7 @@ export class MockBackend {
         createdAt: now,
         updatedAt: now,
         completedAt: null,
+        thumbnail: null,
         speedMb: seed.speed,
       });
     });
@@ -230,6 +231,7 @@ export class MockBackend {
       createdAt: now,
       updatedAt: now,
       completedAt: null,
+      thumbnail: request.thumbnail ?? null,
       speedMb: 8,
     };
     this.tasks.set(id, task);

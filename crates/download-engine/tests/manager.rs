@@ -60,6 +60,7 @@ fn task(id: &str, url: String, dest: &Path) -> NewTask {
         format_label: "MP4".into(),
         dest_dir: dest.to_string_lossy().into_owned(),
         file_name: format!("{id}.mp4"),
+        thumbnail: None,
     }
 }
 

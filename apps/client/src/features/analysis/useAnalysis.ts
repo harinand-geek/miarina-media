@@ -75,6 +75,7 @@ export function useStartActions() {
       formatLabel: format.quality,
       extension: format.extension,
       startNow,
+      thumbnail: info.thumbnail ?? null,
     });
 
   /** "Download": starts immediately, even above the concurrency limit. */

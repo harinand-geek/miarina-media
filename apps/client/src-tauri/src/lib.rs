@@ -139,6 +139,7 @@ pub fn run() {
                             &task.source_host,
                             &task.url,
                             &task.id,
+                            task.thumbnail.as_deref().map(Path::new),
                         );
                     }
                     let _ = handle.emit(DOWNLOAD_EVENT, event);

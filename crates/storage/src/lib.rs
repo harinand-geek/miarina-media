@@ -73,6 +73,8 @@ pub struct NewTask {
     pub format_label: String,
     pub dest_dir: String,
     pub file_name: String,
+    /// Cached source thumbnail (validated path inside the thumbnail folder).
+    pub thumbnail: Option<String>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -101,6 +103,7 @@ pub struct TaskRecord {
     pub created_at: i64,
     pub updated_at: i64,
     pub completed_at: Option<i64>,
+    pub thumbnail: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
@@ -163,7 +166,7 @@ pub fn now_ms() -> i64 {
 
 const TASK_COLUMNS: &str = "id, url, source_host, title, kind, engine, format_id, format_label, \
      state, position, dest_dir, file_name, part_path, final_path, total_bytes, downloaded_bytes, \
-     supports_resume, attempts, error_code, error_message, created_at, updated_at, completed_at";
+     supports_resume, attempts, error_code, error_message, created_at, updated_at, completed_at, thumbnail";
 
 impl Storage {
     pub fn open(path: &Path) -> Result<Self> {
@@ -203,8 +206,8 @@ impl Storage {
         )?;
         self.conn.execute(
             "INSERT INTO tasks (id, url, source_host, title, kind, engine, format_id, format_label, \
-             state, position, dest_dir, file_name, created_at, updated_at) \
-             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13)",
+             state, position, dest_dir, file_name, created_at, updated_at, thumbnail) \
+             VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?9, ?10, ?11, ?12, ?13, ?13, ?14)",
             params![
                 task.id,
                 task.url,
@@ -219,6 +222,7 @@ impl Storage {
                 task.dest_dir,
                 task.file_name,
                 now,
+                task.thumbnail,
             ],
         )?;
         self.task(&task.id)
@@ -492,6 +496,7 @@ fn row_to_task(row: &Row<'_>) -> rusqlite::Result<Result<TaskRecord>> {
         created_at: row.get(20)?,
         updated_at: row.get(21)?,
         completed_at: row.get(22)?,
+        thumbnail: row.get(23)?,
     }))
 }
 

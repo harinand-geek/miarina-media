@@ -104,6 +104,7 @@ fn downloads_are_added_with_their_source() {
             "download.blender.org",
             "https://download.blender.org/x.mov",
             "t1",
+            None,
         )
         .unwrap()
         .unwrap();
@@ -115,10 +116,75 @@ fn downloads_are_added_with_their_source() {
     std::fs::write(&txt, b"x").unwrap();
     assert!(
         h.library
-            .add_download(&txt, "a", "b", "t2")
+            .add_download(&txt, "a", "b", "t2", None)
             .unwrap()
             .is_none()
     );
+}
+
+#[test]
+fn source_thumbnails_are_adopted_and_others_refused() {
+    let h = harness();
+    let sources = h.library.source_thumbnails_dir();
+    std::fs::create_dir_all(&sources).unwrap();
+    let picture = sources.join("0123456789abcdef.jpg");
+    std::fs::write(&picture, [0xFF, 0xD8, 0xFF, 0xE0]).unwrap();
+    assert!(h.library.is_source_thumbnail(&picture));
+
+    let file = h.root.join("song.m4a");
+    std::fs::write(&file, b"audio").unwrap();
+    let record = h
+        .library
+        .add_download(
+            &file,
+            "example.org",
+            "https://example.org/a",
+            "t1",
+            Some(&picture),
+        )
+        .unwrap()
+        .unwrap();
+    let own = PathBuf::from(record.thumbnail.expect("picture adopted"));
+    assert_eq!(own.parent(), Some(h.library.thumbnails_dir()));
+    assert_ne!(
+        own, picture,
+        "copied, so deleting the entry keeps the source"
+    );
+    h.library.delete(record.id).unwrap();
+    assert!(picture.is_file());
+
+    // Anything outside the source folder (or not a picture) is refused.
+    let outside = h.root.join("evil.jpg");
+    std::fs::write(&outside, [0xFF, 0xD8, 0xFF]).unwrap();
+    let not_picture = sources.join("x.exe");
+    std::fs::write(&not_picture, b"MZ").unwrap();
+    let traversal = sources
+        .join("..")
+        .join("..")
+        .join("Videos")
+        .join("evil.jpg");
+    for path in [
+        &outside,
+        &not_picture,
+        &traversal,
+        &sources.join("gone.jpg"),
+    ] {
+        assert!(!h.library.is_source_thumbnail(path), "{}", path.display());
+    }
+    let file = h.root.join("other.m4a");
+    std::fs::write(&file, b"audio").unwrap();
+    let record = h
+        .library
+        .add_download(
+            &file,
+            "example.org",
+            "https://example.org/b",
+            "t2",
+            Some(&outside),
+        )
+        .unwrap()
+        .unwrap();
+    assert_eq!(record.thumbnail, None);
 }
 
 #[test]

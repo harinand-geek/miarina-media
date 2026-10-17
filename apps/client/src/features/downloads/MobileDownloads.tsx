@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Segmented } from '../../components/Controls';
-import { Thumbnail } from '../../components/Feedback';
+import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
 import { useLibrary } from '../../stores/library';
@@ -22,6 +22,7 @@ type Tab = 'active' | 'queue' | 'done';
 interface CardProps {
   title: string;
   kind: 'video' | 'audio';
+  thumbnail: string | null;
   detail: string;
   status: string;
   statusClass: string;
@@ -40,6 +41,7 @@ interface CardProps {
 function Card({
   title,
   kind,
+  thumbnail,
   detail,
   status,
   statusClass,
@@ -52,7 +54,9 @@ function Card({
   return (
     <div className="flex flex-col gap-3 rounded-[16px] bg-surface p-3.5">
       <div className="flex items-center gap-3">
-        <Thumbnail
+        <LocalThumb
+          path={thumbnail}
+          kind={kind}
           className="h-16 w-16 rounded-[10px]"
           label={kind === 'video' ? 'Video' : 'Audio'}
         />
@@ -97,9 +101,13 @@ export function MobileDownloads() {
   const play = useUi((s) => s.play);
   const pushToast = useUi((s) => s.pushToast);
 
+  /** Library entry created by a finished download. */
+  const mediaOf = (taskId: string, finalPath: string | null) =>
+    library.find((m) => m.taskId === taskId || (finalPath && m.path === finalPath));
+
   /** Plays the library entry created by a finished download. */
   const playDone = (taskId: string, finalPath: string | null) => {
-    const media = library.find((m) => m.taskId === taskId || (finalPath && m.path === finalPath));
+    const media = mediaOf(taskId, finalPath);
     if (media) play(media);
     else pushToast({ tone: 'error', message: 'This file is no longer in the library.' });
   };
@@ -152,6 +160,7 @@ export function MobileDownloads() {
               key={t.id}
               title={t.title}
               kind={t.kind}
+              thumbnail={t.thumbnail}
               detail={t.formatLabel}
               status={statusLabel(t)}
               statusClass={statusTone(t)}
@@ -177,6 +186,7 @@ export function MobileDownloads() {
             key={q.id}
             title={q.title}
             kind={q.kind}
+            thumbnail={q.thumbnail}
             detail={
               q.totalBytes ? `${q.formatLabel} · ${formatBytes(q.totalBytes)}` : q.formatLabel
             }
@@ -189,19 +199,23 @@ export function MobileDownloads() {
         ))}
 
       {tab === 'done' &&
-        done.map((h) => (
-          <Card
-            key={h.id}
-            title={h.title}
-            kind="video"
-            detail={`${h.formatLabel} · ${formatBytes(h.doneBytes)}`}
-            status="Saved to Internal storage"
-            statusClass="text-accent-strong"
-            icon="play_arrow"
-            actionLabel={`Play ${h.title}`}
-            onAction={() => playDone(h.taskId, h.finalPath)}
-          />
-        ))}
+        done.map((h) => {
+          const media = mediaOf(h.taskId, h.finalPath);
+          return (
+            <Card
+              key={h.id}
+              title={h.title}
+              kind={media?.kind ?? 'video'}
+              thumbnail={media?.thumbnail ?? null}
+              detail={`${h.formatLabel} · ${formatBytes(h.doneBytes)}`}
+              status="Saved to Internal storage"
+              statusClass="text-accent-strong"
+              icon="play_arrow"
+              actionLabel={`Play ${h.title}`}
+              onAction={() => playDone(h.taskId, h.finalPath)}
+            />
+          );
+        })}
 
       {empty && (
         <div className="flex flex-col items-center gap-1.5 px-6 py-12 text-center">

@@ -84,6 +84,9 @@ fn io(err: std::io::Error) -> LibraryError {
 
 /// Items read with ffprobe per worker round.
 const PROBE_BATCH: u32 = 32;
+/// Subfolder of the thumbnail folder holding source thumbnails.
+const SOURCES_DIR: &str = "sources";
+const PICTURE_EXTENSIONS: [&str; 3] = ["jpg", "png", "webp"];
 
 impl Library {
     pub fn new(
@@ -108,18 +111,47 @@ impl Library {
         &self.inner.thumbnails
     }
 
+    /// Source thumbnails cached at analysis time (see
+    /// `HttpEngine::fetch_thumbnail`), inside the thumbnail folder.
+    pub fn source_thumbnails_dir(&self) -> PathBuf {
+        self.inner.thumbnails.join(SOURCES_DIR)
+    }
+
+    /// `true` when `path` is a cached source thumbnail: the only pictures a
+    /// download task may reference.
+    pub fn is_source_thumbnail(&self, path: &Path) -> bool {
+        let picture = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .is_some_and(|e| PICTURE_EXTENSIONS.contains(&e));
+        let (Ok(file), Ok(dir)) = (
+            path.canonicalize(),
+            self.source_thumbnails_dir().canonicalize(),
+        ) else {
+            return false;
+        };
+        picture && file.is_file() && file.parent() == Some(dir.as_path())
+    }
+
+    /// Wakes the background worker, e.g. once FFmpeg has been installed.
+    pub fn refresh(&self) {
+        self.inner.wake.notify_one();
+    }
+
     pub fn set_limits(&self, limits: WorkLimits) {
         *lock(&self.inner.limits) = limits;
         self.inner.wake.notify_one();
     }
 
-    /// Adds a finished download and schedules its metadata.
+    /// Adds a finished download and schedules its metadata. The source
+    /// thumbnail of the task, if any, becomes the entry's picture at once.
     pub fn add_download(
         &self,
         path: &Path,
         source_host: &str,
         source_url: &str,
         task_id: &str,
+        thumbnail: Option<&Path>,
     ) -> Result<Option<MediaRecord>, LibraryError> {
         let Some(kind) = files::kind_for(path) else {
             return Ok(None);
@@ -134,9 +166,29 @@ impl Library {
             task_id: Some(task_id.to_owned()),
             size_bytes: size,
         })?;
+        let record = match thumbnail.filter(|t| self.is_source_thumbnail(t)) {
+            Some(source) => self.adopt_thumbnail(record, source),
+            None => record,
+        };
         (self.inner.on_change)();
         self.inner.wake.notify_one();
         Ok(Some(record))
+    }
+
+    /// Copies a source thumbnail as the entry's own picture, so deleting
+    /// the entry never removes a file another task may still show.
+    fn adopt_thumbnail(&self, record: MediaRecord, source: &Path) -> MediaRecord {
+        let ext = source.extension().and_then(|e| e.to_str()).unwrap_or("jpg");
+        let target = self.inner.thumbnails.join(format!("{}.{ext}", record.id));
+        if std::fs::copy(source, &target).is_err() {
+            return record;
+        }
+        let path = target.to_string_lossy();
+        let storage = lock(&self.inner.storage);
+        match storage.set_media_thumbnail(record.id, &path) {
+            Ok(()) => storage.media(record.id).unwrap_or(record),
+            Err(_) => record,
+        }
     }
 
     /// Indexes `root`: new files are added, vanished ones marked missing,
@@ -241,16 +293,19 @@ impl Library {
 
     /// Size of the thumbnail cache, in bytes.
     pub fn thumbnail_cache_bytes(&self) -> u64 {
-        std::fs::read_dir(&self.inner.thumbnails)
-            .map(|entries| {
-                entries
-                    .flatten()
-                    .filter_map(|e| e.metadata().ok())
-                    .filter(|m| m.is_file())
-                    .map(|m| m.len())
-                    .sum()
-            })
-            .unwrap_or(0)
+        let size = |dir: &Path| -> u64 {
+            std::fs::read_dir(dir)
+                .map(|entries| {
+                    entries
+                        .flatten()
+                        .filter_map(|e| e.metadata().ok())
+                        .filter(|m| m.is_file())
+                        .map(|m| m.len())
+                        .sum()
+                })
+                .unwrap_or(0)
+        };
+        size(&self.inner.thumbnails) + size(&self.source_thumbnails_dir())
     }
 
     /// Deletes every thumbnail; they are rebuilt in the background.
@@ -330,7 +385,13 @@ impl Library {
             return;
         };
         let mut thumbnail = None;
-        if meta.has_video && std::fs::create_dir_all(&self.inner.thumbnails).is_ok() {
+        // A source thumbnail (downloads) is kept: no frame is extracted.
+        let has_picture = record
+            .thumbnail
+            .as_deref()
+            .is_some_and(|t| Path::new(t).is_file());
+        if meta.has_video && !has_picture && std::fs::create_dir_all(&self.inner.thumbnails).is_ok()
+        {
             let out = self.inner.thumbnails.join(format!("{}.jpg", record.id));
             if probe::thumbnail(
                 ffmpeg,

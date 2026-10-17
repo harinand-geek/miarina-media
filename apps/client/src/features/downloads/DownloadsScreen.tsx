@@ -1,6 +1,7 @@
 import { memo, useMemo, useState } from 'react';
 import { Button, IconButton } from '../../components/Button';
-import { EmptyState, Thumbnail } from '../../components/Feedback';
+import { EmptyState } from '../../components/Feedback';
+import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
 import type { DownloadTask } from '../../services/types';
@@ -97,7 +98,9 @@ const DownloadRow = memo(function DownloadRow({ task }: { task: DownloadTask }) 
 
   return (
     <div className="flex items-center gap-4 rounded-lg border border-surface2 bg-surface px-4 py-3.5">
-      <Thumbnail
+      <LocalThumb
+        path={task.thumbnail}
+        kind={task.kind}
         className="h-[54px] w-24 rounded-sm"
         label={task.kind === 'video' ? 'Video' : 'Audio'}
       />

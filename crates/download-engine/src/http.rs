@@ -56,6 +56,10 @@ impl HttpEngine {
         Ok(Self { client })
     }
 
+    pub(crate) fn client(&self) -> &Client {
+        &self.client
+    }
+
     /// Checks that the link is a media file without downloading its body.
     pub async fn probe(&self, url: &ValidatedUrl) -> Result<DirectMedia, EngineError> {
         let response = self

@@ -12,6 +12,7 @@ fn new_task(id: &str) -> NewTask {
         format_label: "MP4".to_owned(),
         dest_dir: "C:/Videos/Miarina".to_owned(),
         file_name: format!("{id}.mp4"),
+        thumbnail: None,
     }
 }
 
@@ -29,12 +30,12 @@ fn migrations_apply_and_are_idempotent() {
     let path = dir.path().join("miarina.db");
     {
         let storage = Storage::open(&path).unwrap();
-        assert_eq!(storage.schema_version().unwrap(), 2);
+        assert_eq!(storage.schema_version().unwrap(), 3);
         storage.insert_task(&new_task("a")).unwrap();
     }
     // Reopening runs migrations again without touching existing data.
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 2);
+    assert_eq!(storage.schema_version().unwrap(), 3);
     assert_eq!(storage.task("a").unwrap().title, "Title a");
 }
 
@@ -250,7 +251,39 @@ fn upgrading_a_v1_database_keeps_existing_data() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 2);
+    assert_eq!(storage.schema_version().unwrap(), 3);
     assert_eq!(storage.setting::<u32>("concurrency").unwrap(), Some(5));
     assert_eq!(storage.media_stats().unwrap().count, 0);
+}
+
+#[test]
+fn v3_keeps_existing_tasks_and_stores_thumbnails() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 2).unwrap();
+        conn.execute(
+            "INSERT INTO tasks (id, url, source_host, title, kind, engine, format_label, state, \
+             position, dest_dir, file_name, created_at, updated_at) \
+             VALUES ('old', 'https://example.org/a.mp4', 'example.org', 'Old', 'video', 'http', \
+             'MP4', 'queued', 1, 'C:/V', 'a.mp4', 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 3);
+    assert_eq!(storage.task("old").unwrap().thumbnail, None);
+
+    let task = storage
+        .insert_task(&NewTask {
+            thumbnail: Some("C:/data/thumbnails/sources/ab.jpg".into()),
+            ..new_task("new")
+        })
+        .unwrap();
+    assert_eq!(
+        task.thumbnail.as_deref(),
+        Some("C:/data/thumbnails/sources/ab.jpg")
+    );
 }

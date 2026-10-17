@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { Button } from '../../components/Button';
 import { Tabs, RadioDot } from '../../components/Controls';
-import { DelayedSkeletons, Skeleton, Thumbnail, ThumbBadge } from '../../components/Feedback';
+import { DelayedSkeletons, Skeleton, ThumbBadge } from '../../components/Feedback';
+import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
 import type { FormatGroup, MediaInfo } from '../../services/types';
@@ -102,9 +103,14 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
   return (
     <div className="grid grid-cols-[400px_minmax(0,1fr)] gap-8 pb-6 max-[1100px]:grid-cols-[320px_minmax(0,1fr)]">
       <div className="flex flex-col gap-[18px]">
-        <Thumbnail className="aspect-video rounded-lg text-[11px]" label="source thumbnail">
+        <LocalThumb
+          path={info.thumbnail}
+          kind={kind}
+          className="aspect-video rounded-lg text-[11px]"
+          label="No preview from this source"
+        >
           {info.duration && <ThumbBadge position="br">{info.duration}</ThumbBadge>}
-        </Thumbnail>
+        </LocalThumb>
         <dl className="m-0 grid grid-cols-[100px_1fr] gap-y-2.5 text-[13px]">
           <dt className="text-muted">Source</dt>
           <dd className="m-0">{info.host}</dd>

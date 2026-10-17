@@ -30,6 +30,7 @@ function record(id: string, patch: Partial<TaskRecord> = {}): TaskRecord {
     createdAt: 0,
     updatedAt: 0,
     completedAt: null,
+    thumbnail: null,
     ...patch,
   };
 }

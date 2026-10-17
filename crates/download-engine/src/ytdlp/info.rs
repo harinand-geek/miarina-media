@@ -32,6 +32,8 @@ pub struct RawInfo {
     pub duration: Option<f64>,
     pub upload_date: Option<String>,
     pub release_date: Option<String>,
+    /// Picture published by the site (untrusted URL).
+    pub thumbnail: Option<String>,
     pub license: Option<String>,
     pub webpage_url: Option<String>,
     pub extractor_key: Option<String>,

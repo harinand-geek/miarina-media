@@ -155,6 +155,8 @@ pub struct MediaInfoDto {
     pub license: Option<String>,
     /// Shown under the formats, e.g. when FFmpeg is missing.
     pub notice: Option<String>,
+    /// Local copy of the picture published by the site (asset protocol).
+    pub thumbnail: Option<String>,
     pub formats: FormatGroups,
 }
 
@@ -231,6 +233,7 @@ async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<A
         .extractor_key
         .clone()
         .unwrap_or_else(|| "Web page".into());
+    let thumbnail = source_thumbnail(state, info.thumbnail.as_deref()).await;
     let notice = components.ffmpeg_dir().is_none().then(|| {
         "Install FFmpeg to get more qualities (merged video + audio) and MP3 conversion.".to_owned()
     });
@@ -255,9 +258,24 @@ async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<A
                 .and_then(format_date),
             license: clean_text(info.license.as_deref()),
             notice,
+            thumbnail,
             formats,
         }),
     })
+}
+
+/// Bound on fetching the source thumbnail: analysis never waits longer.
+const THUMBNAIL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(8);
+
+/// Caches the site's picture locally; any failure just means no picture.
+async fn source_thumbnail(state: &AppState, url: Option<&str>) -> Option<String> {
+    let url = validate(url?).ok()?;
+    let dir = state.library.source_thumbnails_dir();
+    let path = tokio::time::timeout(THUMBNAIL_TIMEOUT, state.http.fetch_thumbnail(&url, &dir))
+        .await
+        .ok()?
+        .ok()?;
+    Some(path.to_string_lossy().into_owned())
 }
 
 /// Untrusted metadata: single line, bounded length.
@@ -350,6 +368,7 @@ fn direct_analysis(url: &ValidatedUrl, media: download_engine::DirectMedia) -> A
             released: None,
             license: None,
             notice: None,
+            thumbnail: None,
             formats,
         }),
     }
@@ -405,6 +424,8 @@ pub async fn components_install(
                 CommandError::new("component_install_failed", format!("{}: {e}", spec.name))
             })?;
     }
+    // Entries waiting for FFmpeg get their metadata and pictures now.
+    state.library.refresh();
     Ok(components.status())
 }
 
@@ -457,6 +478,9 @@ pub struct StartRequest {
     pub extension: String,
     /// `true` = "Download" (start now), `false` = "Add to queue".
     pub start_now: bool,
+    /// Source thumbnail returned by the analysis (`MediaInfoDto::thumbnail`).
+    #[serde(default)]
+    pub thumbnail: Option<String>,
 }
 
 fn new_task_id() -> String {
@@ -508,6 +532,10 @@ pub async fn downloads_start(
         format_label: request.format_label.chars().take(80).collect(),
         dest_dir: state.settings().download_dir,
         file_name,
+        // Only a picture from the source thumbnail cache is accepted.
+        thumbnail: request
+            .thumbnail
+            .filter(|t| state.library.is_source_thumbnail(Path::new(t))),
     };
     let record = state.manager.enqueue(task)?;
     if request.start_now {
