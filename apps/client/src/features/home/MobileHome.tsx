@@ -10,7 +10,8 @@ import { MediaThumb } from '../library/MediaThumb';
 import { formatBytes, percentOf, summarize, useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 import type { MobileTab } from '../../app/MobileShell';
-import { useLinkInput } from './useLinkInput';
+import { LinkIssueNote } from './LinkIssueNote';
+import { linkFieldBorder, useLinkInput } from './useLinkInput';
 import { backend } from '../../services/backend';
 
 export function MobileHome({
@@ -20,7 +21,7 @@ export function MobileHome({
   onNavigate: (tab: MobileTab) => void;
   onOpenSettings: () => void;
 }) {
-  const { url, error, inputRef, change, submit, paste } = useLinkInput();
+  const { url, issue, inputRef, change, submit, paste, applyFix } = useLinkInput();
   const tasks = useDownloads((s) => s.tasks);
   const summary = useMemo(() => summarize(tasks), [tasks]);
   const play = useUi((s) => s.play);
@@ -70,7 +71,7 @@ export function MobileHome({
           Paste a link
         </label>
         <div
-          className={`flex h-[52px] items-center gap-2 rounded-[10px] border bg-bg pl-3.5 pr-1.5 ${error ? 'border-danger' : 'border-line-strong'}`}
+          className={`flex h-[52px] items-center gap-2 rounded-[10px] border bg-bg pl-3.5 pr-1.5 transition-colors duration-150 ${linkFieldBorder(issue)}`}
         >
           <input
             id="mobile-link"
@@ -80,7 +81,8 @@ export function MobileHome({
             placeholder="https://"
             inputMode="url"
             autoComplete="off"
-            aria-invalid={!!error}
+            aria-invalid={issue?.tone === 'warn'}
+            aria-describedby={issue ? 'mobile-link-issue' : undefined}
             className="h-full min-w-0 flex-1 bg-transparent font-mono text-[14px] text-fg outline-none focus-visible:outline-none"
           />
           <button
@@ -92,11 +94,7 @@ export function MobileHome({
             Paste
           </button>
         </div>
-        {error && (
-          <span role="alert" className="text-[12.5px] text-danger">
-            {error}
-          </span>
-        )}
+        {issue && <LinkIssueNote id="mobile-link-issue" issue={issue} onFix={applyFix} compact />}
         <Button type="submit" variant="primary" pill className="h-[52px] text-[15px]">
           Analyze link
         </Button>

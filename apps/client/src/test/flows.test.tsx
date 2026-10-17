@@ -47,17 +47,43 @@ describe('Windows shell', () => {
     expect(screen.getByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
   });
 
-  it('shows the design error for an incomplete link and stays on Home', async () => {
+  it('hints instead of warning when the link field is empty', async () => {
     const user = userEvent.setup();
     render(<DesktopShell />);
-    await user.type(screen.getByRole('textbox', { name: 'Media link' }), 'mango.blender');
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Paste a link to analyze.');
+    expect(screen.queryByRole('alert')).toBeNull();
+    expect(screen.getByRole('textbox', { name: 'Media link' })).toHaveAttribute(
+      'aria-invalid',
+      'false',
+    );
+    expect(useUi.getState().screen).toBe('home');
+  });
+
+  it('warns about an unusable link and stays on Home', async () => {
+    const user = userEvent.setup();
+    render(<DesktopShell />);
+    await user.type(screen.getByRole('textbox', { name: 'Media link' }), 'not a link');
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
     expect(screen.getByRole('alert')).toHaveTextContent('This doesn’t look like a complete link');
+    expect(screen.queryByRole('button', { name: /Add https/ })).toBeNull();
     expect(screen.getByRole('textbox', { name: 'Media link' })).toHaveAttribute(
       'aria-invalid',
       'true',
     );
     expect(useUi.getState().screen).toBe('home');
+  });
+
+  it('offers to add the missing https:// and analyzes the fixed link', async () => {
+    const user = userEvent.setup();
+    render(<DesktopShell />);
+    const field = screen.getByRole('textbox', { name: 'Media link' });
+    await user.type(field, 'mango.blender.org/download/');
+    await user.click(screen.getByRole('button', { name: 'Analyze' }));
+    expect(screen.getByRole('alert')).toHaveTextContent('This link is missing “https://”.');
+    await user.click(screen.getByRole('button', { name: /Add https/ }));
+    expect(field).toHaveValue('https://mango.blender.org/download/');
+    expect(useUi.getState().screen).toBe('analysis');
   });
 
   it('analyzes a link, lists formats and starts a download', async () => {

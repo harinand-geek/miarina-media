@@ -8,7 +8,8 @@ import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { addedLabel, qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
-import { useLinkInput } from './useLinkInput';
+import { LinkIssueNote } from './LinkIssueNote';
+import { linkFieldBorder, useLinkInput } from './useLinkInput';
 
 /** Long folder paths are shortened like the design ("C:\…\Videos\Miarina"). */
 function shortPath(path: string) {
@@ -31,7 +32,7 @@ interface QuickAction {
 }
 
 export function HomeScreen() {
-  const { url, error, inputRef, change, submit, paste } = useLinkInput();
+  const { url, issue, inputRef, change, submit, paste, applyFix } = useLinkInput();
   const [dragging, setDragging] = useState(false);
   const go = useUi((s) => s.go);
   const play = useUi((s) => s.play);
@@ -114,24 +115,17 @@ export function HomeScreen() {
         >
           <div className="flex flex-1 flex-col gap-1.5">
             <div
-              className={`flex h-12 items-center gap-2.5 rounded-sm border bg-bg px-3.5 transition-shadow ${
-                error
-                  ? 'border-danger'
-                  : 'border-line-strong focus-within:border-accent focus-within:shadow-[0_0_0_3px_rgba(53,201,189,.18)]'
-              }`}
+              className={`flex h-12 items-center gap-2.5 rounded-sm border bg-bg px-3.5 transition-[border-color,box-shadow] duration-150 focus-within:shadow-[0_0_0_3px_rgba(53,201,189,.18)] ${linkFieldBorder(issue)}`}
             >
-              <Icon
-                name={error ? 'error' : 'link'}
-                className={error ? 'text-danger' : 'text-muted'}
-              />
+              <Icon name="link" className={issue?.tone === 'warn' ? 'text-warn' : 'text-muted'} />
               <input
                 ref={inputRef}
                 value={url}
                 onChange={(e) => change(e.target.value)}
                 placeholder="https://"
                 aria-label="Media link"
-                aria-invalid={!!error}
-                aria-describedby={error ? 'link-error' : undefined}
+                aria-invalid={issue?.tone === 'warn'}
+                aria-describedby={issue ? 'link-error' : undefined}
                 spellCheck={false}
                 autoComplete="off"
                 className="h-full flex-1 bg-transparent font-mono text-[14px] text-fg outline-none focus-visible:outline-none"
@@ -145,11 +139,7 @@ export function HomeScreen() {
             Analyze
           </Button>
         </form>
-        {error && (
-          <span id="link-error" role="alert" className="-mt-2 text-[12px] text-danger">
-            {error}
-          </span>
-        )}
+        {issue && <LinkIssueNote id="link-error" issue={issue} onFix={applyFix} />}
         <div className="flex justify-between gap-4 text-[12.5px] text-muted">
           <span>
             {dragging

@@ -118,7 +118,7 @@ Note : les prototypes utilisent aussi 26 px (titre Home Windows), 13.5 px (label
 | **Ghost icon** | 36×36, radius 6, icône 20, `text-muted` ; hover `#243545` + `text` ; pressed `#2A3D4E` ; disabled `#3A4D5E` |
 | **Destructif** | `#E05A5A` / blanc 13.5/700 ; hover `#EA6B6B`, pressed `#C94B4B`, focus outline `#F07070` |
 | Boutons Android | 48 tonal / 52 pill primaire radius 26 ; icône 18 px, gap 8 |
-| **Input** | h 44, radius 6, fond `bg`, bordure `border-strong`, icône 18, texte mono 13 ; focus bordure teal + halo `0 0 0 3px rgba(53,201,189,.18)` ; erreur bordure `#F07070` + icône `error` + message 12 px danger ; disabled fond `#141F28` |
+| **Input** | h 44, radius 6, fond `bg`, bordure `border-strong`, icône 18, texte mono 13 ; focus bordure teal + halo `0 0 0 3px rgba(53,201,189,.18)` ; erreur bordure `#F07070` + icône `error` + message 12 px danger — **champ de lien (2026-10-17, demande du propriétaire)** : champ vide = indication neutre (bordure teal, icône `info` teal, texte muted, `role=status`) ; lien inutilisable = encadré `warning` (fond 10 %, bordure 30 %, icône `link_off`, texte `fg`) avec bouton « Add https:// » quand cette correction suffit ; disabled fond `#141F28` |
 | **Tabs** | 13.5/600, actif = soulignement 2 px teal, inactif `text-muted` |
 | **Segmented** | padding 3, radius 7, fond `bg`, segment actif `#2A3D4E` radius 5, 12.5/600 |
 | **Chips** | radius 15, 12.5/600 ; actif fond `#1F3A3C`, bordure `#2E6A68`, texte `#5FE0D5` |
