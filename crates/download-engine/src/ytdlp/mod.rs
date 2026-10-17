@@ -34,16 +34,25 @@ const PROGRESS_TAG: &str = "MMDL";
 const POSTPROCESS_TAG: &str = "MMPP";
 
 /// Options that keep yt-dlp self-contained and predictable.
-fn base_args(cache_dir: &Path) -> Vec<String> {
-    vec![
+fn base_args(components: &Components) -> Vec<String> {
+    let mut args: Vec<String> = vec![
         "--ignore-config".into(),
         "--no-plugin-dirs".into(),
         "--no-playlist".into(),
         "--no-color".into(),
         "--no-mtime".into(),
         "--cache-dir".into(),
-        cache_dir.to_string_lossy().into_owned(),
-    ]
+        components.cache_dir().to_string_lossy().into_owned(),
+    ];
+    // Without a JavaScript runtime YouTube throttles downloads (measured
+    // 2.4x slower) and may hide formats; see docs/decisions/0002.
+    if let Some(qjs) = components.quickjs() {
+        args.extend([
+            "--js-runtimes".into(),
+            format!("quickjs:{}", qjs.to_string_lossy()),
+        ]);
+    }
+    args
 }
 
 /// What analysis produced, before UI formatting.
@@ -83,7 +92,7 @@ impl YtDlpEngine {
         let exe = self.executable()?;
         let mut command = Command::new(exe);
         command
-            .args(base_args(&self.components.cache_dir()))
+            .args(base_args(&self.components))
             .args(["--dump-single-json", "--no-warnings", "--", url.as_str()])
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -156,7 +165,7 @@ impl YtDlpEngine {
             .await
             .map_err(EngineError::from_io)?;
 
-        let mut args = base_args(&self.components.cache_dir());
+        let mut args = base_args(&self.components);
         args.extend([
             "--newline".into(),
             "--progress".into(),
@@ -468,6 +477,24 @@ impl Tracker {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn javascript_runtime_is_passed_only_when_installed() {
+        let dir = tempfile::tempdir().unwrap();
+        let components = Components::new(dir.path().to_path_buf()).unwrap();
+        assert!(!base_args(&components).contains(&"--js-runtimes".to_owned()));
+
+        let bundled = dir.path().join("bundled");
+        let qjs_dir = bundled.join("quickjs").join("2aeabf0092c3262d");
+        std::fs::create_dir_all(&qjs_dir).unwrap();
+        std::fs::write(qjs_dir.join("qjs.exe"), b"exe").unwrap();
+        let args = base_args(&components.with_bundled(bundled));
+        let at = args.iter().position(|a| a == "--js-runtimes").unwrap();
+        assert_eq!(
+            args[at + 1],
+            format!("quickjs:{}", qjs_dir.join("qjs.exe").to_string_lossy())
+        );
+    }
 
     #[test]
     fn progress_lines_are_parsed_and_streams_add_up() {

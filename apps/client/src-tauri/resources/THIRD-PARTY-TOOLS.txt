@@ -25,6 +25,13 @@ FFmpeg n8.1.2-50-g1a748fe2cd, LGPL shared build  (tools/ffmpeg/)
   FFmpeg project: https://ffmpeg.org
   Archive SHA-256: e9712ffbdb03ef71bbab660c75b835bfe698ef6fad0247c76d8d394a39a3db63
 
+QuickJS-NG 0.17.0  (tools/quickjs/)
+  JavaScript engine yt-dlp uses to answer YouTube's challenges.
+  License: MIT (text and copyright notices in QuickJS-NG-LICENSE.txt).
+  Release: https://github.com/quickjs-ng/quickjs/releases/tag/v0.17.0
+  Source:  https://github.com/quickjs-ng/quickjs
+  File SHA-256: 2aeabf0092c3262d6b2609824418f7dd7ed1f1df939f73b2b15645230cac0d77
+
 You may replace the FFmpeg DLLs in tools/ffmpeg/ with your own compatible
 build of the same FFmpeg version, as the LGPL allows. Note that Miarina Media
 only uses the folder whose name matches the pinned digest.

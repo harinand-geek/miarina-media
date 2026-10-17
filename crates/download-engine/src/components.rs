@@ -21,6 +21,9 @@ use crate::EngineError;
 pub enum ComponentId {
     YtDlp,
     Ffmpeg,
+    /// JavaScript runtime yt-dlp needs for YouTube's challenges.
+    #[serde(rename = "quickjs")]
+    QuickJs,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -77,7 +80,21 @@ pub const FFMPEG: ComponentSpec = ComponentSpec {
     main_file: "ffmpeg.exe",
 };
 
-pub const ALL: [ComponentSpec; 2] = [YTDLP, FFMPEG];
+pub const QUICKJS: ComponentSpec = ComponentSpec {
+    id: ComponentId::QuickJs,
+    name: "QuickJS-NG",
+    version: "0.17.0",
+    license: "MIT",
+    url: "https://github.com/quickjs-ng/quickjs/releases/download/v0.17.0/qjs-windows-x86_64.exe",
+    sha256: "2aeabf0092c3262d6b2609824418f7dd7ed1f1df939f73b2b15645230cac0d77",
+    download_bytes: 2_151_363,
+    archive: Archive::Executable {
+        file_name: "qjs.exe",
+    },
+    main_file: "qjs.exe",
+};
+
+pub const ALL: [ComponentSpec; 3] = [YTDLP, FFMPEG, QUICKJS];
 
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -129,6 +146,7 @@ impl Components {
         let id = match spec.id {
             ComponentId::YtDlp => "yt-dlp",
             ComponentId::Ffmpeg => "ffmpeg",
+            ComponentId::QuickJs => "quickjs",
         };
         root.join(id).join(&spec.sha256[..16])
     }
@@ -149,6 +167,11 @@ impl Components {
 
     pub fn ytdlp(&self) -> Option<PathBuf> {
         self.path(&YTDLP)
+    }
+
+    /// JavaScript runtime for yt-dlp (`--js-runtimes quickjs:<path>`).
+    pub fn quickjs(&self) -> Option<PathBuf> {
+        self.path(&QUICKJS)
     }
 
     /// Directory to pass as `--ffmpeg-location`.

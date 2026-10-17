@@ -9,7 +9,7 @@ Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour
 | Windows 10/11 x64 | `MiarinaMedia-0.1.0-x64-setup.exe` | 8,2 Mo | Installateur NSIS, exécutable **non signé** (Windows SmartScreen affichera un avertissement) |
 | Android 7.0+ (arm64 téléphones, x86_64 émulateurs) | `MiarinaMedia-0.1.0.apk` | 31,3 Mo | Rust en release (≈ 14 Mo par architecture), signé avec la **clé de publication** (voir ci-dessous) |
 
-Depuis le 2026-10-17 (décision 0002), yt-dlp et FFmpeg sont **inclus dans l'installeur Windows** : 68,1 Mo au lieu de 8,2 Mo, plus aucun téléchargement d'outils au premier usage. Le build les prépare automatiquement (téléchargement vérifié par SHA-256, ~88 Mo la première fois).
+Depuis le 2026-10-17 (décision 0002), yt-dlp et FFmpeg sont **inclus dans l'installeur Windows** : 68,8 Mo au lieu de 8,2 Mo (avec QuickJS-NG pour YouTube), plus aucun téléchargement d'outils au premier usage. Le build les prépare automatiquement (téléchargement vérifié par SHA-256, ~88 Mo la première fois).
 
 ## Installer
 

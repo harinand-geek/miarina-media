@@ -175,7 +175,7 @@ export type LinkErrorCode =
 
 /** `download_engine::components::ComponentStatus`. */
 export interface ComponentStatus {
-  id: 'yt_dlp' | 'ffmpeg';
+  id: 'yt_dlp' | 'ffmpeg' | 'quickjs';
   name: string;
   version: string;
   license: string;

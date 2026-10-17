@@ -569,6 +569,15 @@ export class MockBackend {
         installed,
         bundled: false,
       },
+      {
+        id: 'quickjs',
+        name: 'QuickJS-NG',
+        version: '0.17.0',
+        license: 'MIT',
+        downloadBytes: 2_151_363,
+        installed,
+        bundled: false,
+      },
     ];
   }
 

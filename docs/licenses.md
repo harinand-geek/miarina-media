@@ -9,6 +9,7 @@ Ils sont **livrés dans l'installeur** (`<dossier d'installation>\tools\`), avec
 | Composant | Version épinglée | Source | SHA-256 de l'archive | Taille | Licence |
 |---|---|---|---|---|---|
 | yt-dlp | 2026.08.19 (`yt-dlp.exe`) | github.com/yt-dlp/yt-dlp (release officielle) | `66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a` (publié dans `SHA2-256SUMS`) | 17,8 Mo | Unlicense ; l'exécutable PyInstaller embarque un runtime Python et des bibliothèques sous leurs propres licences (PSF, MIT, BSD, MPL…) |
+| QuickJS-NG | 0.17.0 (`qjs.exe`, x86_64) | github.com/quickjs-ng/quickjs (release officielle) | `2aeabf0092c3262d6b2609824418f7dd7ed1f1df939f73b2b15645230cac0d77` (empreinte publiée par GitHub pour l'asset) | 2,1 Mo | MIT (texte livré : `tools\QuickJS-NG-LICENSE.txt`) |
 | FFmpeg | n8.1.2-50-g1a748fe2cd, build **LGPL « shared »** (`autobuild-2026-08-31-13-27`) | github.com/BtbN/FFmpeg-Builds | `e9712ffbdb03ef71bbab660c75b835bfe698ef6fad0247c76d8d394a39a3db63` (publié dans `checksums.sha256`) | 70,8 Mo (138 Mo installé) | **LGPL-3.0-or-later** (configuré avec `--enable-version3`, sans `--enable-gpl`) |
 
 Points de conformité :

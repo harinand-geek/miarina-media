@@ -122,3 +122,29 @@ async fn analysis_exposes_a_thumbnail_that_is_cached_locally() {
     // Analyzing again reuses the cached file.
     assert_eq!(http.fetch_thumbnail(&url, dir.path()).await.unwrap(), path);
 }
+
+#[tokio::test]
+#[ignore = "downloads ~14 MB of audio from YouTube"]
+async fn youtube_downloads_with_the_javascript_runtime() {
+    let components = components();
+    assert!(components.quickjs().is_some(), "QuickJS-NG installed");
+    let engine = YtDlpEngine::new(components);
+    let dir = tempfile::tempdir().unwrap();
+    let job = DownloadJob {
+        url: validate_media_url(PAGE_WITH_THUMBNAIL).unwrap(),
+        part_path: dir.path().join("sintel.webm.test.part"),
+        dest_dir: dir.path().to_path_buf(),
+        file_name: "Sintel.webm".into(),
+        progress_interval: Duration::from_millis(500),
+        format_id: Some(r#"{"s":"251"}"#.into()),
+        process: Default::default(),
+    };
+    let started = std::time::Instant::now();
+    let outcome = engine
+        .download(&job, &|_| {}, CancellationToken::new())
+        .await
+        .expect("download");
+    let size = std::fs::metadata(&outcome.final_path).unwrap().len();
+    eprintln!("{size} bytes in {:.1} s", started.elapsed().as_secs_f64());
+    assert!(size > 1_000_000);
+}
