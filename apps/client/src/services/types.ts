@@ -176,6 +176,8 @@ export interface ComponentStatus {
   license: string;
   downloadBytes: number;
   installed: boolean;
+  /** Shipped with the Windows installer rather than downloaded. */
+  bundled: boolean;
 }
 
 export interface InstallProgress {

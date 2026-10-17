@@ -556,6 +556,7 @@ export class MockBackend {
         license: 'Unlicense',
         downloadBytes: 17_840_399,
         installed,
+        bundled: false,
       },
       {
         id: 'ffmpeg',
@@ -564,6 +565,7 @@ export class MockBackend {
         license: 'LGPL-3.0-or-later',
         downloadBytes: 70_835_150,
         installed,
+        bundled: false,
       },
     ];
   }

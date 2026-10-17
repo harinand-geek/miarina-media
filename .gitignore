@@ -39,3 +39,6 @@ spikes/*/gen/
 
 # Local test builds (installers, signed APKs)
 builds/
+
+# yt-dlp / FFmpeg prepared for the Windows installer (fetch_tools example)
+apps/client/src-tauri/tools/

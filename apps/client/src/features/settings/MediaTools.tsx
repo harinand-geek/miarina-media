@@ -6,7 +6,8 @@ import { formatBytes } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 import { SettingRow } from './SettingRow';
 
-/** Status of yt-dlp and FFmpeg, downloaded on demand (decision D3). */
+/** Status of yt-dlp and FFmpeg: shipped with the Windows installer
+ * (decision 0002), downloaded on demand when missing (decision D3). */
 export function MediaTools() {
   const [components, setComponents] = useState<ComponentStatus[]>([]);
   const [installing, setInstalling] = useState(false);
@@ -40,11 +41,15 @@ export function MediaTools() {
         <SettingRow
           key={c.id}
           label={c.name}
-          description={`${c.version} · ${c.license} · ${formatBytes(c.downloadBytes)} download`}
+          description={
+            c.bundled
+              ? `${c.version} · ${c.license}`
+              : `${c.version} · ${c.license} · ${formatBytes(c.downloadBytes)} download`
+          }
         >
           {c.installed ? (
             <span className="text-[12.5px] font-semibold text-accent-strong">
-              Installed · verified
+              {c.bundled ? 'Included · verified' : 'Installed · verified'}
             </span>
           ) : (
             <Button size="sm" className="text-[12.5px]" disabled={installing} onClick={install}>

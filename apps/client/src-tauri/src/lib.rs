@@ -61,8 +61,14 @@ pub fn run() {
                 .join("Miarina");
 
             let http = HttpEngine::new()?;
-            // yt-dlp and FFmpeg are downloaded on first use into app data.
-            let components = Components::new(data_dir.join("components"))?;
+            // yt-dlp and FFmpeg ship with the Windows installer (`tools/`);
+            // if they are missing they are downloaded on first use into app data.
+            #[allow(unused_mut)]
+            let mut components = Components::new(data_dir.join("components"))?;
+            #[cfg(windows)]
+            if let Ok(resources) = app.path().resource_dir() {
+                components = components.with_bundled(resources.join("tools"));
+            }
             let ytdlp = YtDlpEngine::new(components.clone());
             let handle = app.handle().clone();
             let library = Library::new(

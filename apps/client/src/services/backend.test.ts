@@ -14,6 +14,7 @@ describe('analyze_link mapping', () => {
         license: 'Unlicense',
         downloadBytes: 1,
         installed: false,
+        bundled: false,
       },
     ];
     expect(mapAnalysis({ status: 'needs_components', components })).toEqual({

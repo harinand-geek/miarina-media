@@ -122,7 +122,7 @@ Installeur Windows (NSIS/MSI) signé, APK/AAB signés, versionnage, mise à jour
 | Q2 | Playlist et Batch links **affichés avec badge PLANNED** (même traitement que Browser) | 1 |
 | Q3 | « Report link » **masqué au MVP** (aucune URL de contact existante) | 1 |
 | Q4 | Reporté à la fin du spike Android (Phase 4.0) | 4 |
-| Q5 | yt-dlp et FFmpeg **téléchargés au premier besoin** (consentement + SHA-256 épinglé) — D3 | 2 |
+| Q5 | yt-dlp et FFmpeg **téléchargés au premier besoin** (consentement + SHA-256 épinglé) — D3. **Révisé le 2026-10-17 : inclus dans l'installeur Windows (décision 0002)** | 2 |
 | Q6 | **Anglais uniquement** au MVP, avec infrastructure i18n prête pour fr / mg / es / pt | 1 |
 | Q7 | Reporté au spike Android (mesure de taille par ABI) | 4 |
 | Q8 | Domaine **media.miarina.org** | 1 |

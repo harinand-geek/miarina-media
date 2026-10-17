@@ -2,9 +2,9 @@
 
 > État au 2026-10-14 (Phase 2). Revue complète des dépendances Rust/npm et notices de redistribution : Phase 6, avant toute release.
 
-## 1. Outils téléchargés au premier besoin (décision D3)
+## 1. Outils inclus dans l'installeur Windows (décision 0002, remplace D3)
 
-Ils ne sont **pas embarqués** dans l'installeur. L'utilisateur donne son accord explicite (écran « This page needs the media tools » ou Settings › Downloads › Media tools). Chaque archive est vérifiée contre une **empreinte SHA-256 épinglée dans le code** avant toute exécution ; une archive différente est rejetée.
+Ils sont **livrés dans l'installeur** (`<dossier d'installation>\tools\`), avec `THIRD-PARTY-TOOLS.txt`, `LGPL-3.0.txt` et `GPL-3.0.txt`. Au build, chaque archive est vérifiée contre une **empreinte SHA-256 épinglée dans le code** ; une archive différente fait échouer le build. S'ils manquent, l'application propose encore de les télécharger (même vérification, accord explicite de l'utilisateur).
 
 | Composant | Version épinglée | Source | SHA-256 de l'archive | Taille | Licence |
 |---|---|---|---|---|---|
@@ -13,7 +13,7 @@ Ils ne sont **pas embarqués** dans l'installeur. L'utilisateur donne son accord
 
 Points de conformité :
 - FFmpeg est utilisé **comme processus séparé** (pas de liaison avec Miarina Media) ; seuls `ffmpeg.exe`, `ffprobe.exe` et les DLL du dossier `bin/` sont extraits.
-- Les sources correspondantes de cette build sont publiées par BtbN/FFmpeg-Builds ; le lien et le texte de licence devront figurer dans l'écran « À propos / Licences » (Phase 6).
+- Les sources correspondantes de cette build sont publiées par BtbN/FFmpeg-Builds ; le lien et les textes de licence sont livrés dans `tools\` et devront aussi figurer dans l'écran « À propos / Licences » (Phase 6). Comme nous redistribuons FFmpeg, vérifier avant une version stable que ces sources restent disponibles (sinon les héberger nous-mêmes).
 - Encodeurs vérifiés présents dans la build : `libmp3lame` (LGPL), `aac`, `flac`, `libopus`.
 - Mise à jour : nouvelles empreintes livrées avec une nouvelle version de l'app ; aucune mise à jour automatique d'exécutables non vérifiés (`yt-dlp -U` n'est jamais appelé).
 

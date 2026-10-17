@@ -1,8 +1,10 @@
-//! External tools (yt-dlp, FFmpeg) downloaded on first use (decision D3).
+//! External tools (yt-dlp, FFmpeg): shipped with the Windows installer
+//! (decision 0002), downloaded on first use only when missing (decision D3).
 //!
 //! Versions and SHA-256 digests are pinned in the source: an archive whose
-//! size or digest differs is rejected. Nothing is executed before it has
-//! been verified. Updates ship with new application versions.
+//! size or digest differs is rejected, both when preparing the installer and
+//! when downloading. Nothing is executed before it has been verified.
+//! Updates ship with new application versions.
 
 use std::path::{Path, PathBuf};
 
@@ -86,12 +88,19 @@ pub struct ComponentStatus {
     pub license: &'static str,
     pub download_bytes: u64,
     pub installed: bool,
+    /// Shipped with the application rather than downloaded.
+    pub bundled: bool,
 }
 
 /// Where components live: `<root>/<id>/<pinned sha prefix>/…`.
+///
+/// The Windows installer ships them in a read-only `bundled` root with the
+/// same layout (see `examples/fetch_tools.rs`); it is checked first, and the
+/// writable `root` only receives downloads when they are missing.
 #[derive(Clone)]
 pub struct Components {
     root: PathBuf,
+    bundled: Option<PathBuf>,
     client: Client,
 }
 
@@ -103,21 +112,39 @@ impl Components {
             .read_timeout(std::time::Duration::from_secs(60))
             .build()
             .map_err(EngineError::network)?;
-        Ok(Self { root, client })
+        Ok(Self {
+            root,
+            bundled: None,
+            client,
+        })
     }
 
-    fn dir(&self, spec: &ComponentSpec) -> PathBuf {
+    /// Also looks for components shipped with the application.
+    pub fn with_bundled(mut self, bundled: PathBuf) -> Self {
+        self.bundled = Some(bundled);
+        self
+    }
+
+    fn dir_in(root: &Path, spec: &ComponentSpec) -> PathBuf {
         let id = match spec.id {
             ComponentId::YtDlp => "yt-dlp",
             ComponentId::Ffmpeg => "ffmpeg",
         };
-        self.root.join(id).join(&spec.sha256[..16])
+        root.join(id).join(&spec.sha256[..16])
     }
 
-    /// Path of the main executable if the pinned version is installed.
+    fn dir(&self, spec: &ComponentSpec) -> PathBuf {
+        Self::dir_in(&self.root, spec)
+    }
+
+    /// Path of the main executable if the pinned version is shipped with the
+    /// application or installed.
     pub fn path(&self, spec: &ComponentSpec) -> Option<PathBuf> {
-        let path = self.dir(spec).join(spec.main_file);
-        path.is_file().then_some(path)
+        self.bundled
+            .iter()
+            .chain(std::iter::once(&self.root))
+            .map(|root| Self::dir_in(root, spec).join(spec.main_file))
+            .find(|path| path.is_file())
     }
 
     pub fn ytdlp(&self) -> Option<PathBuf> {
@@ -137,13 +164,17 @@ impl Components {
 
     pub fn status(&self) -> Vec<ComponentStatus> {
         ALL.iter()
-            .map(|spec| ComponentStatus {
-                id: spec.id,
-                name: spec.name,
-                version: spec.version,
-                license: spec.license,
-                download_bytes: spec.download_bytes,
-                installed: self.path(spec).is_some(),
+            .map(|spec| {
+                let path = self.path(spec);
+                ComponentStatus {
+                    id: spec.id,
+                    name: spec.name,
+                    version: spec.version,
+                    license: spec.license,
+                    download_bytes: spec.download_bytes,
+                    installed: path.is_some(),
+                    bundled: matches!((&path, &self.bundled), (Some(p), Some(b)) if p.starts_with(b)),
+                }
             })
             .collect()
     }
@@ -364,5 +395,27 @@ mod tests {
         let components = Components::new(dir.path().to_path_buf()).unwrap();
         assert!(components.ytdlp().is_none());
         assert!(components.status().iter().all(|s| !s.installed));
+    }
+
+    #[test]
+    fn bundled_components_are_preferred() {
+        let dir = tempfile::tempdir().unwrap();
+        let bundled = dir.path().join("bundled");
+        let shipped = Components::dir_in(&bundled, &YTDLP);
+        std::fs::create_dir_all(&shipped).unwrap();
+        std::fs::write(shipped.join("yt-dlp.exe"), "exe").unwrap();
+        // An older version left in the bundle is ignored.
+        let stale = bundled.join("ffmpeg").join("0000000000000000");
+        std::fs::create_dir_all(&stale).unwrap();
+        std::fs::write(stale.join("ffmpeg.exe"), "old").unwrap();
+
+        let components = Components::new(dir.path().join("data"))
+            .unwrap()
+            .with_bundled(bundled);
+        assert_eq!(components.ytdlp(), Some(shipped.join("yt-dlp.exe")));
+        assert!(components.ffmpeg_dir().is_none());
+        let status = components.status();
+        assert!(status[0].installed && status[0].bundled);
+        assert!(!status[1].installed && !status[1].bundled);
     }
 }
