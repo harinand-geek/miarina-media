@@ -2,6 +2,15 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Version 0.1.1 — 2026-10-17
+
+| Plateforme | Fichier | Taille | SHA-256 |
+|---|---|---|---|
+| Windows 10/11 x64 | `MiarinaMedia-0.1.1-x64-setup.exe` | 68,8 Mo (72 109 015 octets) | `1836fac49c4e4d7dd0ccafdf64b34867d0e2f2c26a0ba12aba9ece0e90763dc0` |
+| Android 7.0+ | `MiarinaMedia-0.1.1.apk` | 31,4 Mo (32 885 379 octets) | `0054ec0802d4d88cf6e0de8a3771174682c3194483adb876b7a8c3fe689fa8ce` |
+
+APK signé avec la clé de publication (certificat `11de8715…c6479e1`, vérifié avec `apksigner`), versionCode 1001 : s'installe par-dessus la 0.1.0. Nouveautés : outils inclus dans l'installeur Windows (yt-dlp, FFmpeg, QuickJS-NG), MP3 320/256/192/128 kbps et FLAC, miniatures source pendant l'analyse et le téléchargement, retour plus clair sur le champ de lien (Windows et Android).
+
 ## Version 0.1.0 — 2026-10-14
 
 | Plateforme | Fichier (dossier `builds/`, non versionné) | Taille | Contenu |
