@@ -156,7 +156,7 @@ export function MobileSettings({
         <Row icon="language" label="Language" value="English" />
       </Group>
       <Group title="About">
-        <Row icon="info" label="Miarina Media" value={`Version ${version} · media.miarina.org`} />
+        <Row icon="info" label="Miarina Media" value={`Version ${version}`} />
       </Group>
     </div>
   );
