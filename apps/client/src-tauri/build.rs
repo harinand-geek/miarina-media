@@ -42,6 +42,14 @@ const COMMANDS: &[&str] = &[
     "browser_sheet",
     "browser_fab_size",
     "browser_show_in_app",
+    "player_open",
+    "player_status",
+    "player_play",
+    "player_pause",
+    "player_seek",
+    "player_rate",
+    "player_surface",
+    "player_close",
 ];
 
 fn main() {

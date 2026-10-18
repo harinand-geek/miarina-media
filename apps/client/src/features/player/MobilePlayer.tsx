@@ -1,29 +1,31 @@
 import { useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { formatClock } from '../../hooks/usePlaybackClock';
-import { detectPlatform, inTauri } from '../../services/platform';
+import { nativePlayback } from '../../services/nativePlayer';
 import type { MediaRecord } from '../../services/types';
 import { useUi } from '../../stores/ui';
 import { durationLabel, formatLabel, qualityLabel } from '../library/format';
 import { SeekBar } from './SeekBar';
 import { nextRate } from './playbackRate';
-import { usePlayback } from './usePlayback';
+import { useNativePlayback, type NativePlayback } from './useNativePlayback';
+import { usePlayback, type Playback } from './usePlayback';
 
 const ROUND = 'grid place-items-center text-[#F5F7FA]';
 
 /**
  * The Android WebView cannot stream local files (asset protocol, measured on
- * the emulator): playback waits for the native Media3 player (Phase 4)
- * instead of a control that hangs.
+ * the emulator): in the app, Media3 decodes and draws the video into the
+ * "video surface" area while these approved controls drive it.
  */
-const NATIVE_PLAYER_PENDING = inTauri() && detectPlatform() === 'android';
+const NATIVE = nativePlayback();
+const usePlayer: (media: MediaRecord) => Playback | NativePlayback = NATIVE
+  ? useNativePlayback
+  : usePlayback;
 
-/**
- * Android full-screen player. Uses the WebView media element for now;
- * Phase 4 moves playback to a native Media3 session (background audio).
- */
+/** Android full-screen player (design M-player). */
 export function MobilePlayer({ item }: { item: MediaRecord }) {
-  const { attachMedia, ...p } = usePlayback(item);
+  const { attachMedia, ...p } = usePlayer(item);
+  const attachSurface = 'attachSurface' in p ? p.attachSurface : undefined;
   const close = useUi((s) => s.play);
   const [subtitles, setSubtitles] = useState(false);
   const audio = item.kind === 'audio';
@@ -59,13 +61,13 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
       {audio ? (
         <div className="mx-8 mt-4 grid aspect-square place-items-center rounded-[20px] bg-[repeating-linear-gradient(135deg,#1C2C37_0_8px,#18262F_8px_16px)]">
           <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
-          {p.src && !NATIVE_PLAYER_PENDING && (
-            <audio ref={attachMedia} src={p.src} preload="metadata" />
-          )}
+          {p.src && !NATIVE && <audio ref={attachMedia} src={p.src} preload="metadata" />}
         </div>
       ) : (
         <div className="relative grid aspect-video place-items-center bg-[repeating-linear-gradient(135deg,#131D25_0_8px,#0F171E_8px_16px)] font-mono text-[11px] text-[#64748B]">
-          {p.src && !NATIVE_PLAYER_PENDING ? (
+          {NATIVE ? (
+            <div ref={attachSurface} className="absolute inset-0 bg-black" />
+          ) : p.src ? (
             <video
               ref={attachMedia}
               src={p.src}
@@ -78,19 +80,13 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
           )}
         </div>
       )}
-      {(p.error || NATIVE_PLAYER_PENDING) && (
+      {p.error && (
         <div
           role="alert"
           className="mx-4 mt-4 flex items-center gap-3 rounded-[14px] border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[14px]"
         >
           <Icon name="error" fill className="shrink-0 text-[#F07070]" />
-          {/* The WebView cannot stream local files on Android; playback moves to
-              a native Media3 player (Phase 4). */}
-          <span className="flex-1">
-            {NATIVE_PLAYER_PENDING
-              ? 'Playback on Android arrives with the native player. The file is saved.'
-              : `This file cannot be played here (${formatLabel(item)}).`}
-          </span>
+          <span className="flex-1">This file cannot be played here ({formatLabel(item)}).</span>
         </div>
       )}
       <div className="flex flex-col gap-1 px-6 pt-6">
@@ -114,13 +110,10 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
           <span>{durationLabel(p.duration || null)}</span>
         </div>
       </div>
-      <div
-        className={`flex items-center justify-center gap-4 py-4 ${NATIVE_PLAYER_PENDING ? 'opacity-40' : ''}`}
-      >
+      <div className="flex items-center justify-center gap-4 py-4">
         <button
           type="button"
           aria-label="Back 10 seconds"
-          disabled={NATIVE_PLAYER_PENDING}
           onClick={() => p.skip(-10)}
           className={`${ROUND} h-[52px] w-[52px]`}
         >
@@ -129,7 +122,6 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
         <button
           type="button"
           aria-label={p.playing ? 'Pause' : 'Play'}
-          disabled={NATIVE_PLAYER_PENDING}
           onClick={p.toggle}
           className="grid h-[76px] w-[76px] place-items-center rounded-full bg-accent text-accent-ink"
         >
@@ -138,7 +130,6 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
         <button
           type="button"
           aria-label="Forward 10 seconds"
-          disabled={NATIVE_PLAYER_PENDING}
           onClick={() => p.skip(10)}
           className={`${ROUND} h-[52px] w-[52px]`}
         >

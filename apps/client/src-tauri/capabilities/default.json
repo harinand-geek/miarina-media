@@ -47,6 +47,14 @@
     "allow-library-open-external",
     "allow-downloads-open-folder",
     "allow-browser-open",
+    "allow-player-open",
+    "allow-player-status",
+    "allow-player-play",
+    "allow-player-pause",
+    "allow-player-seek",
+    "allow-player-rate",
+    "allow-player-surface",
+    "allow-player-close",
     "core:app:allow-register-listener",
     "core:app:allow-remove-listener"
   ]

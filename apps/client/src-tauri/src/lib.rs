@@ -2,6 +2,7 @@
 mod android_tls;
 mod browser;
 mod commands;
+mod player;
 mod state;
 
 use std::path::{Path, PathBuf};
@@ -45,9 +46,12 @@ pub fn scan_library(library: &Library, dir: PathBuf) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    let app = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_opener::init());
+    #[cfg(target_os = "android")]
+    let builder = builder.plugin(player::init());
+    let app = builder
         .setup(|app| {
             #[cfg(target_os = "android")]
             android_tls::init()?;
@@ -194,6 +198,14 @@ pub fn run() {
             browser::browser_sheet,
             browser::browser_fab_size,
             browser::browser_show_in_app,
+            player::player_open,
+            player::player_status,
+            player::player_play,
+            player::player_pause,
+            player::player_seek,
+            player::player_rate,
+            player::player_surface,
+            player::player_close,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");

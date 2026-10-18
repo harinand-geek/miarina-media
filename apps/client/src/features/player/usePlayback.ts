@@ -5,9 +5,9 @@ import type { MediaRecord } from '../../services/types';
 
 const POSITION_KEY = (id: number) => `mm:position:${id}`;
 /** Positions this close to the start or the end are not worth resuming. */
-const RESUME_MARGIN_SECS = 5;
+export const RESUME_MARGIN_SECS = 5;
 
-function savedPosition(id: number): number {
+export function savedPosition(id: number): number {
   try {
     return Number(localStorage.getItem(POSITION_KEY(id))) || 0;
   } catch {
@@ -15,7 +15,7 @@ function savedPosition(id: number): number {
   }
 }
 
-function savePosition(id: number, time: number, duration: number) {
+export function savePosition(id: number, time: number, duration: number) {
   try {
     if (time < RESUME_MARGIN_SECS || duration - time < RESUME_MARGIN_SECS) {
       localStorage.removeItem(POSITION_KEY(id));

@@ -33,7 +33,7 @@ Date : 2026-10-14 · Environnement : émulateur `voakajy_test` (Android 15 / API
 
 ## Suite proposée (Android)
 
-1. Insets edge-to-edge + navigation M5 (Home / Browser / Downloads / Library, Settings dans Home).
-2. Plugin Kotlin « media » : lecteur Media3 et enregistrement MediaStore (Films / Téléchargements).
+1. ✅ Insets edge-to-edge + navigation M5 (Home / Browser / Downloads / Library, Settings dans Home) — commit 64018a5.
+2. Plugin Kotlin « media » : ✅ lecteur Media3 sous les contrôles React (2026-10-18, vérifié sur émulateur : vidéo et audio, pause, ±10 s, vitesse, reprise de position, pause vidéo en arrière-plan, audio qui continue ; question 6 ci-dessus résolue) ; à faire : enregistrement MediaStore (Films / Musique), miniatures et durées (MediaMetadataRetriever), partage et « ouvrir avec ».
 3. Plugin Kotlin « browser » : WebView native, détection via `shouldInterceptRequest` + relevé DOM, bouton flottant (M1/M3).
 4. Build release arm64 + mesure de taille ; validation sur appareil physique.
