@@ -3,6 +3,8 @@
 //! interface (`mobile.rs`, `page_state.rs`). Same command names everywhere.
 
 pub mod address;
+mod favorites;
+pub use favorites::*;
 #[cfg_attr(desktop, allow(dead_code))]
 mod page_state;
 

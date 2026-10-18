@@ -2,7 +2,6 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { MockBackend } from '../dev/mockBackend';
-import { BrowserChrome } from '../features/browser/BrowserChrome';
 import { BrowserOverlay } from '../features/browser/BrowserOverlay';
 import {
   candidates,
@@ -130,28 +129,6 @@ describe('browser candidates', () => {
       secure: true,
     });
     expect(splitAddress('http://a.org/').secure).toBe(false);
-  });
-});
-
-describe('browser chrome', () => {
-  it('starts on the start page with the address focused, then navigates', async () => {
-    const user = userEvent.setup();
-    render(<BrowserChrome />);
-    expect(await screen.findByText('Search or open a web page')).toBeInTheDocument();
-    expect(screen.getByRole('list', { name: 'Shortcuts' })).toHaveTextContent('YouTube');
-    const address = screen.getByRole('textbox', { name: 'Address' });
-    await waitFor(() => expect(address).toHaveFocus());
-
-    // Text that is not an address is searched.
-    await user.type(address, 'cats{Enter}');
-    await waitFor(() => expect(screen.queryByText('Search or open a web page')).toBeNull());
-    expect(screen.queryByRole('alert')).toBeNull();
-
-    await user.clear(address);
-    await user.type(address, 'studio.blender.org/films/sprite-fright/{Enter}');
-    expect(await screen.findByRole('button', { name: /2 media/ })).toBeInTheDocument();
-    expect(screen.queryByText('Search or open a web page')).not.toBeInTheDocument();
-    expect(screen.getByRole('tab')).toHaveTextContent('Sprite Fright — Blender Studio');
   });
 });
 

@@ -37,6 +37,7 @@ export function useLinkInput() {
   const [issue, setIssue] = useState<LinkIssue | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const analyzeInStore = useUi((s) => s.analyze);
+  const openInBrowser = useUi((s) => s.openInBrowser);
 
   const change = useCallback((value: string) => {
     setUrl(value);
@@ -51,6 +52,12 @@ export function useLinkInput() {
           result.code === 'malformed' || result.code === 'missing_host'
             ? suggestFix(value)
             : undefined;
+        // Words, not a link: search them in the built-in browser.
+        if (result.code === 'malformed' && !fix && !value.includes('://')) {
+          setIssue(null);
+          openInBrowser(value.trim());
+          return;
+        }
         setIssue({
           tone: result.code === 'empty' ? 'hint' : 'warn',
           message: fix ? 'This link is missing “https://”.' : LINK_ERROR_MESSAGES[result.code],
@@ -62,7 +69,7 @@ export function useLinkInput() {
       setIssue(null);
       analyzeInStore(result.url, tab);
     },
-    [url, analyzeInStore],
+    [url, analyzeInStore, openInBrowser],
   );
 
   /** Applies the suggested fix and analyzes it. */

@@ -2,6 +2,15 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Version 0.1.3 — 2026-10-18
+
+| Plateforme | Fichier | Taille | SHA-256 |
+|---|---|---|---|
+| Windows 10/11 x64 | `MiarinaMedia-0.1.3-x64-setup.exe` | 69,1 Mo (72 478 784 octets) | `d9b545b13735630700427e507fe20fd7e2a465652296a8276788772ff56e564c` |
+| Android 7.0+ | `MiarinaMedia-0.1.3.apk` | 35 Mo (36 928 485 octets) | `1bcfd16e46c24a7c1b7aecb8be2c80d895d124d2b2d4e97f746a8326c2e21008` |
+
+APK signé avec la clé de publication (certificat `11de8715…c6479e1`, vérifié avec `apksigner`), versionCode 1003 ; aucune permission ajoutée. Nouveautés : navigateur intégré Android (M1/M3) ; navigateur Windows dans la fenêtre principale, même présentation qu'Android ; favoris ; recherche depuis le champ de l'accueil ; présélection ≤ 1080p ; fond flou dans le lecteur. Vérifié : Windows sur une variante de test isolée (identifiant `org.miarina.media.test`, données supprimées ensuite) — navigateur, favoris, recherche depuis l'accueil, retour arrière, bouton flottant, lecteur vidéo/MP3 ; APK de publication sur l'émulateur Android 15 (recherche depuis l'accueil, étoile). Pas d'appareil physique.
+
 ## Version 0.1.2 — 2026-10-18
 
 | Plateforme | Fichier | Taille | SHA-256 |

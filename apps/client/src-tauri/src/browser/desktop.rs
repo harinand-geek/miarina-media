@@ -1,10 +1,10 @@
-//! Built-in browser window (decision 0001, design D1/D2). Desktop only:
-//! Android gets a native WebView adapter in Phase 4.
-//!
-//! One window, three child webviews:
-//! - `browser-ui`: title bar, toolbar and start page (app code, trusted);
-//! - `browser-page`: the visited site. Untrusted: no capability, http(s)
-//!   only, no popups, no browser-native downloads;
+//! Built-in browser on Windows (decision 0001), inside the main window like
+//! the Android browser (designs M1/M3 adapted, D2 sheet kept): the React
+//! browser screen draws the chrome and reports where the page goes
+//! (`browser_frame`); two child webviews of the main window sit there:
+//! - `browser-page`: the visited site. Untrusted: remote origin, so no
+//!   capability applies to it; http(s) only, no popups, no browser-native
+//!   downloads;
 //! - `browser-overlay`: floating download button and format sheet, drawn
 //!   transparently above the page.
 //!
@@ -18,15 +18,13 @@ use std::time::Duration;
 use media_core::detect::{DetectedMedia, Detections};
 use serde::Serialize;
 use tauri::webview::{NewWindowResponse, WebviewBuilder};
-use tauri::window::WindowBuilder;
-use tauri::{
-    AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, State, Url, WebviewUrl, WindowEvent,
-};
+use tauri::{AppHandle, Emitter, LogicalPosition, LogicalSize, Manager, State, Url, WebviewUrl};
 
+use super::page_state::valid_rect;
 use crate::commands::CommandError;
 
-pub const WINDOW: &str = "browser";
-pub const UI: &str = "browser-ui";
+/// The app window and its own webview (the browser screen).
+pub const MAIN: &str = "main";
 pub const PAGE: &str = "browser-page";
 pub const OVERLAY: &str = "browser-overlay";
 /// Browser state for the UI and overlay webviews.
@@ -36,10 +34,8 @@ pub const SHORTCUT_EVENT: &str = "browser://shortcut";
 /// Asks the main window to show a screen (e.g. Downloads).
 pub const APP_NAVIGATE_EVENT: &str = "app://navigate";
 
-/// Title bar (40) + toolbar (48), design D1.
-const CHROME_HEIGHT: f64 = 88.0;
-/// Floating button inset from the page corner, design D1.
-const FAB_INSET: f64 = 24.0;
+/// Floating button: centred, this far above the page bottom (design M1).
+const FAB_INSET: f64 = 16.0;
 const DEFAULT_FAB: (f64, f64) = (180.0, 52.0);
 /// Players often attach their sources after the page has loaded.
 const DOM_SCAN_INTERVAL: Duration = Duration::from_secs(3);
@@ -55,11 +51,14 @@ struct Inner {
     loading: bool,
     can_go_back: bool,
     can_go_forward: bool,
-    /// No page yet: the UI webview shows the start page full-window.
+    /// No page yet: the browser screen shows its start page.
     start_page: bool,
     sheet: bool,
     /// Size of the floating button reported by the overlay (logical px).
     fab: Option<(f64, f64)>,
+    /// Page area of the browser screen (logical px of the main window), or
+    /// `None` while the screen is not shown or something covers it.
+    frame: Option<(f64, f64, f64, f64)>,
 }
 
 #[derive(Clone, Serialize)]
@@ -102,30 +101,21 @@ fn update<R>(app: &AppHandle, f: impl FnOnce(&mut Inner) -> R) -> R {
 /// Sends the state to the trusted webviews and re-lays out the window.
 fn publish(app: &AppHandle) {
     let snapshot = update(app, |s| s.snapshot());
-    for label in [UI, OVERLAY] {
+    for label in [MAIN, OVERLAY] {
         let _ = app.emit_to(label, STATE_EVENT, snapshot.clone());
     }
     layout(app);
 }
 
-/// Positions the three webviews for the current state and window size.
+/// Positions the page and overlay over the browser screen's page area.
 fn layout(app: &AppHandle) {
-    let Some(window) = app.get_window(WINDOW) else {
-        return;
-    };
-    let (Ok(size), Ok(scale)) = (window.inner_size(), window.scale_factor()) else {
-        return;
-    };
-    let (w, h) = (
-        f64::from(size.width) / scale,
-        f64::from(size.height) / scale,
-    );
-    let (start_page, sheet, fab, has_media) = update(app, |s| {
+    let (start_page, sheet, fab, has_media, frame) = update(app, |s| {
         (
             s.start_page,
             s.sheet,
             s.fab.unwrap_or(DEFAULT_FAB),
             !s.detections.is_empty(),
+            s.frame,
         )
     });
     let place = |label: &str, x: f64, y: f64, width: f64, height: f64, visible: bool| {
@@ -140,24 +130,21 @@ fn layout(app: &AppHandle) {
             let _ = view.hide();
         }
     };
-    let page_h = (h - CHROME_HEIGHT).max(0.0);
-    if start_page {
-        place(UI, 0.0, 0.0, w, h, true);
-        place(PAGE, 0.0, CHROME_HEIGHT, w, page_h, false);
+    let Some((x, y, w, h)) = frame.filter(|_| !start_page) else {
+        place(PAGE, 0.0, 0.0, 0.0, 0.0, false);
         place(OVERLAY, 0.0, 0.0, 0.0, 0.0, false);
         return;
-    }
-    place(UI, 0.0, 0.0, w, CHROME_HEIGHT, true);
-    place(PAGE, 0.0, CHROME_HEIGHT, w, page_h, true);
+    };
+    place(PAGE, x, y, w, h, true);
     if sheet {
-        place(OVERLAY, 0.0, CHROME_HEIGHT, w, page_h, true);
+        place(OVERLAY, x, y, w, h, true);
     } else {
         // Sized to the button itself: the transparent area would otherwise
         // swallow clicks meant for the page (spike finding).
         let (fw, fh) = fab;
-        let x = (w - fw - FAB_INSET).max(0.0);
-        let y = (h - fh - FAB_INSET).max(CHROME_HEIGHT);
-        place(OVERLAY, x, y, fw, fh, has_media);
+        let fx = x + ((w - fw) / 2.0).max(0.0);
+        let fy = (y + h - fh - FAB_INSET).max(y);
+        place(OVERLAY, fx, fy, fw, fh, has_media);
     }
 }
 
@@ -167,10 +154,11 @@ fn is_web(url: &Url) -> bool {
 
 fn page(app: &AppHandle) -> Result<tauri::Webview, CommandError> {
     app.get_webview(PAGE)
-        .ok_or_else(|| CommandError::new("browser_closed", "The browser window is closed"))
+        .ok_or_else(|| CommandError::new("browser_closed", "The browser is not open"))
 }
 
 fn navigate_page(app: &AppHandle, url: Url) -> Result<(), CommandError> {
+    ensure_views(app).map_err(|e| CommandError::new("browser_failed", e.to_string()))?;
     update(app, |s| {
         s.start_page = false;
         s.sheet = false;
@@ -182,33 +170,24 @@ fn navigate_page(app: &AppHandle, url: Url) -> Result<(), CommandError> {
         .map_err(|e| CommandError::new("navigation_failed", e.to_string()))
 }
 
-/// Creates the browser window, or focuses it when it already exists.
-fn create_window(app: &AppHandle) -> tauri::Result<()> {
-    if let Some(window) = app.get_window(WINDOW) {
-        let _ = window.unminimize();
-        return window.set_focus();
+/// Adds the page and overlay webviews to the main window, once.
+fn ensure_views(app: &AppHandle) -> tauri::Result<()> {
+    // Commands run concurrently (placing the page and opening a search
+    // arrive together): only one of them creates the webviews.
+    static CREATING: Mutex<()> = Mutex::new(());
+    let _creating = CREATING.lock().unwrap_or_else(|e| e.into_inner());
+    if app.get_webview(PAGE).is_some() {
+        return Ok(());
     }
+    let Some(window) = app.get_window(MAIN) else {
+        return Ok(());
+    };
     update(app, |s| {
         *s = Inner {
             start_page: true,
             ..Inner::default()
         }
     });
-
-    let window = WindowBuilder::new(app, WINDOW)
-        .title("Miarina Media — Browser")
-        .inner_size(1280.0, 760.0)
-        .min_inner_size(800.0, 500.0)
-        .decorations(false)
-        .center()
-        .build()?;
-    let size = LogicalSize::new(1280.0, 760.0);
-
-    window.add_child(
-        WebviewBuilder::new(UI, WebviewUrl::App("browser.html".into())),
-        LogicalPosition::new(0.0, 0.0),
-        size,
-    )?;
 
     let popup_app = app.clone();
     let page = window.add_child(
@@ -226,8 +205,8 @@ fn create_window(app: &AppHandle) -> tauri::Result<()> {
         })
         // The app's engine owns downloads: the WebView never writes files.
         .on_download(|_, _| false),
-        LogicalPosition::new(0.0, CHROME_HEIGHT),
-        LogicalSize::new(size.width, size.height - CHROME_HEIGHT),
+        LogicalPosition::new(0.0, 0.0),
+        LogicalSize::new(1.0, 1.0),
     )?;
     page.hide()?;
     #[cfg(windows)]
@@ -241,13 +220,6 @@ fn create_window(app: &AppHandle) -> tauri::Result<()> {
     )?;
     overlay.hide()?;
 
-    let handle = app.clone();
-    window.on_window_event(move |event| match event {
-        WindowEvent::Resized(_) | WindowEvent::ScaleFactorChanged { .. } => layout(&handle),
-        WindowEvent::Destroyed => update(&handle, |s| *s = Inner::default()),
-        _ => {}
-    });
-
     #[cfg(windows)]
     {
         let handle = app.clone();
@@ -255,11 +227,13 @@ fn create_window(app: &AppHandle) -> tauri::Result<()> {
             let mut tick = tokio::time::interval(DOM_SCAN_INTERVAL);
             loop {
                 tick.tick().await;
-                let Some(window) = handle.get_window(WINDOW) else {
+                if handle.get_webview(PAGE).is_none() {
                     break;
-                };
-                let idle =
-                    window.is_minimized().unwrap_or(false) || update(&handle, |s| s.start_page);
+                }
+                let minimized = handle
+                    .get_window(MAIN)
+                    .is_some_and(|w| w.is_minimized().unwrap_or(false));
+                let idle = minimized || update(&handle, |s| s.start_page || s.frame.is_none());
                 if !idle {
                     hooks::scan_page(&handle);
                 }
@@ -272,11 +246,12 @@ fn create_window(app: &AppHandle) -> tauri::Result<()> {
 
 // ---------------------------------------------------------------- commands
 
-/// Opens (or focuses) the browser window, optionally on a page.
+/// Shows the browser screen of the main window, optionally on a page.
 /// Async: creating webviews waits on the main thread.
 #[tauri::command]
 pub async fn browser_open(app: AppHandle, url: Option<String>) -> Result<(), CommandError> {
-    create_window(&app).map_err(|e| CommandError::new("browser_failed", e.to_string()))?;
+    ensure_views(&app).map_err(|e| CommandError::new("browser_failed", e.to_string()))?;
+    let _ = app.emit_to(MAIN, APP_NAVIGATE_EVENT, "browser");
     if let Some(url) = url {
         navigate_page(&app, super::address::resolve_address(&url)?)?;
     }
@@ -302,7 +277,9 @@ pub async fn browser_nav(app: AppHandle, action: String) -> Result<(), CommandEr
                 s.title.clear();
                 s.detections.clear();
             });
-            let _ = page(&app)?.navigate("about:blank".parse().expect("about:blank"));
+            if let Ok(page) = page(&app) {
+                let _ = page.navigate("about:blank".parse().expect("about:blank"));
+            }
             publish(&app);
             Ok(())
         }
@@ -343,22 +320,36 @@ pub fn browser_fab_size(app: AppHandle, width: f64, height: f64) {
     }
 }
 
-/// Android only: the page is a native view placed by the interface.
+/// Places the page over the browser screen's page area (logical px of the
+/// main window), or hides it while the screen is not shown or covered.
+/// The floating button is the overlay webview's (`fab` is Android's) and no
+/// picture of the page is taken here (`snapshot`).
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
-pub fn browser_frame(
-    _x: f64,
-    _y: f64,
-    _width: f64,
-    _height: f64,
-    _visible: bool,
-    _fab: Option<String>,
-    _snapshot: bool,
+pub async fn browser_frame(
+    app: AppHandle,
+    x: f64,
+    y: f64,
+    width: f64,
+    height: f64,
+    visible: bool,
+    fab: Option<String>,
+    snapshot: bool,
 ) -> Result<Option<String>, CommandError> {
-    Err(CommandError::new(
-        "browser_unavailable",
-        "The page area is placed by the browser window on this platform",
-    ))
+    let _ = (fab, snapshot);
+    if !valid_rect([x, y, width, height]) {
+        return Err(CommandError::new("invalid_frame", "Invalid page area"));
+    }
+    ensure_views(&app).map_err(|e| CommandError::new("browser_failed", e.to_string()))?;
+    let shown = visible && width >= 1.0 && height >= 1.0;
+    update(&app, |s| {
+        s.frame = shown.then_some((x, y, width, height));
+        if !shown {
+            s.sheet = false;
+        }
+    });
+    layout(&app);
+    Ok(None)
 }
 
 /// Brings the main window forward on a screen (e.g. Downloads).
@@ -367,11 +358,7 @@ pub fn browser_show_in_app(app: AppHandle, screen: String) -> Result<(), Command
     if !matches!(screen.as_str(), "downloads" | "library" | "player") {
         return Err(CommandError::new("invalid_action", "Unknown screen"));
     }
-    let _ = app.emit_to("main", APP_NAVIGATE_EVENT, screen);
-    if let Some(main) = app.get_window("main") {
-        let _ = main.unminimize();
-        let _ = main.set_focus();
-    }
+    let _ = app.emit_to(MAIN, APP_NAVIGATE_EVENT, screen);
     Ok(())
 }
 
@@ -390,7 +377,7 @@ mod hooks {
     use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VK_CONTROL, VK_SHIFT};
     use windows::core::{HSTRING, Interface, PWSTR, w};
 
-    use super::{CommandError, PAGE, SHORTCUT_EVENT, UI, publish, update};
+    use super::{CommandError, MAIN, PAGE, SHORTCUT_EVENT, publish, update};
 
     /// Collects `<video>`/`<audio>` sources. It runs in the page, so its
     /// answer is a hint about the page's own media, filtered in Rust.
@@ -472,7 +459,7 @@ mod hooks {
     fn shortcut(app: &AppHandle, name: &'static str) {
         match name {
             "Ctrl+L" => {
-                if let Some(ui) = app.get_webview(UI) {
+                if let Some(ui) = app.get_webview(MAIN) {
                     let _ = ui.set_focus();
                 }
             }
@@ -487,7 +474,7 @@ mod hooks {
             }
             _ => {}
         }
-        let _ = app.emit_to(UI, SHORTCUT_EVENT, name);
+        let _ = app.emit_to(MAIN, SHORTCUT_EVENT, name);
     }
 
     pub fn install(page: &Webview, app: AppHandle) -> tauri::Result<()> {
@@ -559,16 +546,18 @@ mod hooks {
                     let mut uri = PWSTR::null();
                     args.Uri(&mut uri)?;
                     let uri = take(uri);
-                    if uri != "about:blank" {
-                        update(&app, |s| {
-                            s.url = uri;
-                            s.loading = true;
-                            s.title.clear();
-                            s.sheet = false;
-                            s.detections.clear();
-                        });
-                        publish(&app);
-                    }
+                    // History moves too (Back to the start page's blank
+                    // document, Forward to a page from it).
+                    let start_page = uri == "about:blank";
+                    update(&app, |s| {
+                        s.start_page = start_page;
+                        s.url = if start_page { String::new() } else { uri };
+                        s.loading = !start_page;
+                        s.title.clear();
+                        s.sheet = false;
+                        s.detections.clear();
+                    });
+                    publish(&app);
                     Ok(())
                 }));
                 let _ = core.add_NavigationStarting(&handler, &mut token);

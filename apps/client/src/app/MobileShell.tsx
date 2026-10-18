@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Overlay';
 import { ToastHost } from '../components/ToastHost';
@@ -6,7 +6,7 @@ import { MobileHome } from '../features/home/MobileHome';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
 import { MobileLibrary } from '../features/library/MobileLibrary';
 import { MobileSettings } from '../features/settings/MobileSettings';
-import { MobileBrowser } from '../features/browser/MobileBrowser';
+import { BrowserView } from '../features/browser/BrowserView';
 import { browserBack } from '../features/browser/browserBack';
 import { useAndroidBack } from '../hooks/useAndroidBack';
 import { useLaunchRequests } from '../hooks/useLaunchRequests';
@@ -76,6 +76,14 @@ export function MobileShell() {
     [closePlayer],
   );
   useLaunchRequests({ onLink, onPlayTask });
+  // A search typed on Home opens in the browser tab.
+  useEffect(
+    () =>
+      useUi.subscribe((s, prev) => {
+        if (s.browserRequest && s.browserRequest !== prev.browserRequest) setTab('browser');
+      }),
+    [],
+  );
   const tasks = useDownloads((s) => s.tasks);
   const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
 
@@ -86,7 +94,7 @@ export function MobileShell() {
           <MobileHome onNavigate={setTab} onOpenSettings={() => setSettingsOpen(true)} />
         )}
         {tab === 'browser' && (
-          <MobileBrowser
+          <BrowserView
             covered={!!nowPlaying || settingsOpen || sheetOpen || storageOpen || confirmOpen}
             onExit={() => setTab('home')}
             onOpenSettings={() => setSettingsOpen(true)}

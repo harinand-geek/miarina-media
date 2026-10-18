@@ -5,6 +5,8 @@ import { nativePlayback } from '../../services/nativePlayer';
 import type { MediaRecord } from '../../services/types';
 import { useUi } from '../../stores/ui';
 import { durationLabel, formatLabel, qualityLabel } from '../library/format';
+import { MediaThumb } from '../library/MediaThumb';
+import { ThumbBackdrop } from './Backdrop';
 import { SeekBar } from './SeekBar';
 import { nextRate } from './playbackRate';
 import { useNativePlayback, type NativePlayback } from './useNativePlayback';
@@ -61,12 +63,25 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
         </button>
       </div>
       {audio ? (
-        <div className="mx-8 mt-4 grid aspect-square place-items-center rounded-[20px] bg-[repeating-linear-gradient(135deg,#1C2C37_0_8px,#18262F_8px_16px)]">
-          <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
+        <div className="relative mx-8 mt-4">
+          {/* Blurred cover behind the cover (no placeholder stripes). */}
+          <div className="pointer-events-none absolute -inset-8 overflow-hidden">
+            <ThumbBackdrop path={item.thumbnail} />
+          </div>
+          {item.thumbnail ? (
+            <MediaThumb
+              media={item}
+              className="relative aspect-square rounded-[20px] shadow-menu"
+            />
+          ) : (
+            <div className="relative grid aspect-square place-items-center rounded-[20px] bg-[#182530]">
+              <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
+            </div>
+          )}
           {p.src && !NATIVE && <audio ref={attachMedia} src={p.src} preload="metadata" />}
         </div>
       ) : (
-        <div className="relative grid aspect-video place-items-center bg-[repeating-linear-gradient(135deg,#131D25_0_8px,#0F171E_8px_16px)] font-mono text-[11px] text-[#64748B]">
+        <div className="relative grid aspect-video place-items-center bg-black font-mono text-[11px] text-[#64748B]">
           {NATIVE ? (
             <div ref={attachSurface} className="absolute inset-0 bg-black" />
           ) : p.src ? (

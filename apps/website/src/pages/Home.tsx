@@ -135,12 +135,13 @@ export function Home() {
           <div className="stack">
             <div className="eyebrow-row">
               <span className="eyebrow">02 · NAVIGATEUR INTÉGRÉ</span>
-              <span className="badge-soon">ANDROID BIENTÔT</span>
             </div>
             <h2>Naviguez. Le bouton apparaît quand il y a quelque chose à garder.</h2>
             <p className="body">
-              Sous Windows, ouvrez une page dans Miarina Media : dès qu’il y a une vidéo ou un son,
-              un bouton de téléchargement apparaît dans le coin.
+              Sous Windows comme sous Android, tapez une adresse ou une recherche : dès qu’une page
+              contient une vidéo ou un son, un bouton de téléchargement apparaît au-dessus de la
+              barre. Sur Android, seuls les fichiers vidéo et audio d’une page sont proposés pour
+              l’instant.
             </p>
             <ul className="checks">
               <li>
@@ -155,9 +156,13 @@ export function Home() {
                 <Icon name="check" />
                 Choix du format sans quitter la page
               </li>
+              <li>
+                <Icon name="check" />
+                Recherche et favoris
+              </li>
               <li className="soon">
                 <Icon name="schedule" />
-                Onglets, favoris et historique : bientôt
+                Onglets et historique : bientôt
               </li>
             </ul>
           </div>
@@ -167,7 +172,7 @@ export function Home() {
               width={1280}
               height={800}
               loading="lazy"
-              alt="Navigateur intégré sous Windows : page Wikimedia Commons et feuille « Download from this page »"
+              alt="Navigateur intégré sous Windows, dans la fenêtre principale : page Wikimedia Commons et bouton « Download · 5 »"
             />
           </figure>
         </section>

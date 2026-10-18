@@ -50,7 +50,7 @@ export function DesktopShell() {
           <div key={screen} className="flex min-h-0 flex-1 animate-screen-in flex-col">
             <Suspense fallback={null}>{SCREENS[screen]()}</Suspense>
           </div>
-          <ToastHost />
+          <ToastHost position={screen === 'browser' ? 'browser' : 'desktop'} />
           <ConfirmDialog />
         </main>
       </div>

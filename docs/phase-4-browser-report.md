@@ -99,3 +99,15 @@ Environnement : émulateur `voakajy_test` (Android 15 / API 35, x86_64), APK rel
 - Téléchargements exigeant cookies, `Referer` ou session : non transmis → peuvent échouer.
 - L'écran Téléchargements Android n'a **pas d'action Annuler** (manque antérieur, constaté pendant ce test).
 - La page de confidentialité du site sera mise à jour à la publication d'une version contenant le navigateur.
+
+## 7. Windows : navigateur dans la fenêtre principale, favoris — 2026-10-18 (version 0.1.3)
+
+Demande de l'utilisateur : « mets exact comme [l'APK] sur desktop… pas de nouvelle fenêtre… ajouter des icônes favoris… laisse faire une recherche, pas lien seulement ».
+
+- **Écart avec la maquette D1 (accepté par l'utilisateur)** : plus de fenêtre dédiée. L'écran Browser de la fenêtre principale reprend l'écran Android (`BrowserView`, M1) ; la page (`browser-page`) et l'overlay (`browser-overlay` : bouton flottant B et feuille D2 conservés) sont des webviews enfants de la fenêtre `main`, placées par `browser_frame`. Le bouton flottant est centré au-dessus de la barre comme sur mobile. Le module `browser-ui` (barre de titre et onglet D1) est supprimé.
+- **Sécurité** : la page est dans la fenêtre `main`, mais c'est une origine distante ; les capabilities sans `remote` ne s'appliquent qu'aux origines locales (vérifié dans `tauri-utils` `acl/resolved.rs`), donc la page ne peut appeler aucune commande. L'overlay reçoit aussi la capability `default` (code de l'app).
+- **Favoris** (Windows et Android) : étoile dans la barre d'adresse ; tuiles « Favorites » sur la page de démarrage ; stockés dans la table `settings` SQLite (`browser.favorites`, 48 au plus, http(s) seulement, titre borné).
+- **Recherche depuis l'accueil** : des mots qui ne forment pas un lien ouvrent le navigateur sur une recherche (la barre d'adresse le faisait déjà).
+- **Défauts trouvés et corrigés pendant le test Windows** : création concurrente des webviews (« webview already exists ») → création exclusive ; retour arrière vers la page de démarrage laissant l'interface sur celle-ci → état « page de démarrage » suivi à chaque navigation ; lecteur : boucle de rendu (référence de la vidéo recréée à chaque rendu) qui vidait la fenêtre → référence stable.
+- **Lecteur** : bandes rayées remplacées par un fond flou (image courante de la vidéo, 48×27 px redessinée toutes les 400 ms pendant la lecture ; pochette floutée pour l'audio, fond uni sans pochette).
+- Toujours **un seul onglet** ; historique à venir.

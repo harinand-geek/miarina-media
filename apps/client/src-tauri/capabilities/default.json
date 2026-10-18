@@ -1,7 +1,7 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Least-privilege permissions for the main window. Only the application's own validated commands are allowed; no filesystem, shell, dialog or opener permission is exposed to the frontend.",
+  "description": "Least-privilege permissions for the main window (its own webview; the browser page in it is a remote origin and matches no capability). Only the application's own validated commands are allowed; no filesystem, shell, dialog or opener permission is exposed to the frontend.",
   "windows": ["main"],
   "permissions": [
     "core:event:default",
@@ -49,6 +49,13 @@
     "allow-library-share",
     "allow-downloads-open-folder",
     "allow-browser-open",
+    "allow-browser-navigate",
+    "allow-browser-nav",
+    "allow-browser-state",
+    "allow-browser-sheet",
+    "allow-browser-frame",
+    "allow-browser-favorites",
+    "allow-browser-favorite-toggle",
     "allow-player-open",
     "allow-player-status",
     "allow-player-play",

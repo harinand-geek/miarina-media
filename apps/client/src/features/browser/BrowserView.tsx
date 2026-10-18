@@ -2,7 +2,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
 import { backend } from '../../services/backend';
-import type { BrowserSnapshot } from '../../services/types';
+import type { BrowserSnapshot, Favorite } from '../../services/types';
 import { useUi, type AnalysisChoice } from '../../stores/ui';
 import { defaultFormat, shortQuality, useStartActions } from '../analysis/useAnalysis';
 import { candidates, distinctLabels, hostOf, mainCandidate, splitAddress } from './candidates';
@@ -24,7 +24,12 @@ const EMPTY: BrowserSnapshot = {
   streamPlayer: false,
 };
 
-interface MobileBrowserProps {
+interface BrowserViewProps {
+  /**
+   * Windows: the page is a child webview of the main window and the
+   * floating button and format sheet live in the overlay webview (D2).
+   */
+  desktop?: boolean;
   /** An app panel (sheet, settings, player, dialog) covers the page. */
   covered: boolean;
   onExit: () => void;
@@ -33,23 +38,26 @@ interface MobileBrowserProps {
 }
 
 /**
- * Android browser (design M1): address bar on top with page-load line,
- * the page in the middle, browser bar at the bottom. The page itself is a
- * native WebView (`BrowserPlugin.kt`) placed over the page area; native
- * views draw above the app, so the page is hidden while an app panel
- * covers it and a picture of it is shown instead.
+ * Browser screen (design M1, same on Android and Windows): address bar on
+ * top with page-load line, the page in the middle, browser bar at the
+ * bottom. The page itself is a native view placed over the page area
+ * (Android: `BrowserPlugin.kt`; Windows: a child webview of the main
+ * window). Those draw above the app, so the page is hidden while an app
+ * panel covers it (Android shows a picture of it instead).
  */
-export function MobileBrowser({
+export function BrowserView({
+  desktop = false,
   covered,
   onExit,
   onOpenSettings,
   onShowDownloads,
-}: MobileBrowserProps) {
+}: BrowserViewProps) {
   const [state, setState] = useState<BrowserSnapshot>(EMPTY);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [picture, setPicture] = useState<string | null>(null);
   const [error, setError] = useState('');
+  const [favorites, setFavorites] = useState<Favorite[]>([]);
   const pageRef = useRef<HTMLDivElement>(null);
   const analyzeChoice = useUi((s) => s.analyzeChoice);
   const pushToast = useUi((s) => s.pushToast);
@@ -67,10 +75,11 @@ export function MobileBrowser({
     media.length === 0 ? null : media.length === 1 ? 'Download' : `Download · ${media.length}`;
 
   const openSheet = useCallback(() => {
-    if (first) analyzeChoice(first.url, choices);
+    if (desktop) void backend.browserSheet(true);
+    else if (first) analyzeChoice(first.url, choices);
     // `choices` follows `first`: both come from the same snapshot.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [first?.url, media.length, analyzeChoice]);
+  }, [desktop, first?.url, media.length, analyzeChoice]);
 
   /** Long press on the button: default format, no sheet (design notes M1). */
   const quickDownload = useCallback(async () => {
@@ -114,11 +123,38 @@ export function MobileBrowser({
       if (alive) timer = window.setTimeout(tick, POLL_MS);
     };
     void tick();
+    // Windows: Ctrl+L pressed while the page had focus.
+    const stopShortcuts = backend.onBrowserShortcut((name) => {
+      if (name === 'Ctrl+L') setEditing(true);
+    });
     return () => {
       alive = false;
       window.clearTimeout(timer);
+      stopShortcuts();
     };
   }, []);
+
+  useEffect(() => {
+    backend
+      .browserFavorites()
+      .then(setFavorites)
+      .catch(() => {});
+  }, []);
+  const starred = !!state.url && favorites.some((f) => f.url === state.url);
+  const toggleFavorite = () => {
+    backend
+      .browserFavoriteToggle(state.url, state.title)
+      .then((list) => {
+        setFavorites(list);
+        pushToast({
+          tone: 'success',
+          message: list.some((f) => f.url === state.url)
+            ? 'Added to favorites'
+            : 'Removed from favorites',
+        });
+      })
+      .catch(() => {});
+  };
 
   // Place the native page over the page area, or hide it.
   const showPage = !state.startPage && !covered && !menuOpen;
@@ -151,7 +187,12 @@ export function MobileBrowser({
     if (!el) return;
     const observer = new ResizeObserver(place);
     observer.observe(el);
-    return () => observer.disconnect();
+    // The page area can move without changing size (sidebar, window).
+    window.addEventListener('resize', place);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', place);
+    };
   }, [place]);
   useEffect(
     () => () => {
@@ -184,13 +225,24 @@ export function MobileBrowser({
     };
   }, [menuOpen, editing, state.canGoBack]);
 
-  const open = (address: string) => {
+  const open = useCallback((address: string) => {
     setEditing(false);
     setError('');
     backend.browserNavigate(address).catch((e: unknown) => {
       setError(e instanceof Error ? e.message : 'This address cannot be opened');
     });
-  };
+  }, []);
+
+  // A search or address typed on Home.
+  const request = useUi((s) => s.browserRequest);
+  const openInBrowser = useUi((s) => s.openInBrowser);
+  useEffect(() => {
+    if (!request) return;
+    openInBrowser(null);
+    backend.browserNavigate(request).catch((e: unknown) => {
+      setError(e instanceof Error ? e.message : 'This address cannot be opened');
+    });
+  }, [request, openInBrowser]);
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
@@ -199,6 +251,8 @@ export function MobileBrowser({
           state={state}
           editing={editing}
           mediaCount={media.length}
+          starred={starred}
+          onStar={toggleFavorite}
           onEdit={() => setEditing(true)}
           onCancel={() => setEditing(false)}
           onSubmit={open}
@@ -231,7 +285,7 @@ export function MobileBrowser({
 
       <div ref={pageRef} className="relative min-h-0 flex-1 overflow-hidden bg-bg">
         {state.startPage ? (
-          <StartPage error={error} onOpen={open} />
+          <StartPage error={error} favorites={favorites} onOpen={open} />
         ) : (
           picture && (
             <img
@@ -305,6 +359,8 @@ function AddressBar({
   state,
   editing,
   mediaCount,
+  starred,
+  onStar,
   onEdit,
   onCancel,
   onSubmit,
@@ -313,6 +369,8 @@ function AddressBar({
   state: BrowserSnapshot;
   editing: boolean;
   mediaCount: number;
+  starred: boolean;
+  onStar: () => void;
   onEdit: () => void;
   onCancel: () => void;
   onSubmit: (address: string) => void;
@@ -379,6 +437,22 @@ function AddressBar({
           </>
         )}
       </button>
+      {!state.startPage && (
+        <button
+          type="button"
+          onClick={onStar}
+          aria-pressed={starred}
+          aria-label={starred ? 'Remove from favorites' : 'Add to favorites'}
+          className="grid size-8 shrink-0 place-items-center rounded-full active:bg-line-strong"
+        >
+          <Icon
+            name="star"
+            size={20}
+            fill={starred}
+            className={starred ? 'text-planned' : 'text-muted'}
+          />
+        </button>
+      )}
       {mediaCount > 0 && (
         <button
           type="button"
@@ -394,7 +468,15 @@ function AddressBar({
   );
 }
 
-function StartPage({ error, onOpen }: { error: string; onOpen: (address: string) => void }) {
+function StartPage({
+  error,
+  favorites,
+  onOpen,
+}: {
+  error: string;
+  favorites: Favorite[];
+  onOpen: (address: string) => void;
+}) {
   return (
     <main className="flex h-full flex-col items-center gap-6 overflow-auto px-4 pb-6 pt-10 text-center">
       <div className="flex flex-col items-center gap-3">
@@ -409,7 +491,26 @@ function StartPage({ error, onOpen }: { error: string; onOpen: (address: string)
           {error}
         </p>
       )}
-      <StartShortcuts onOpen={onOpen} />
+      {favorites.length > 0 && (
+        <section className="flex w-full max-w-[720px] flex-col gap-3">
+          <h2 className="m-0 text-left text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
+            Favorites
+          </h2>
+          <StartShortcuts
+            label="Favorites"
+            sites={favorites.map((f) => ({ name: f.title, address: f.url }))}
+            onOpen={onOpen}
+          />
+        </section>
+      )}
+      <section className="flex w-full max-w-[720px] flex-col gap-3">
+        {favorites.length > 0 && (
+          <h2 className="m-0 text-left text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
+            Sites
+          </h2>
+        )}
+        <StartShortcuts onOpen={onOpen} />
+      </section>
       <p className="m-0 mt-auto text-[12px] text-faint">
         Only download media you own or have permission to save.
       </p>

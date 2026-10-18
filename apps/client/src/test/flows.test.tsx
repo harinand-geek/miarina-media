@@ -36,8 +36,11 @@ describe('Windows shell', () => {
     expect(await screen.findByRole('heading', { name: 'History' })).toBeInTheDocument();
 
     await user.keyboard('{Control>}6{/Control}');
-    // No second window in the preview: the screen explains where the browser lives.
-    expect(await screen.findByText('The browser opens in its own window')).toBeInTheDocument();
+    // The browser is a screen of the main window (same as on Android).
+    expect(
+      await screen.findByRole('heading', { name: 'Search or open a web page' }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole('navigation', { name: 'Browser' })).toBeInTheDocument();
   });
 
   it('toggles the sidebar with Ctrl+B', async () => {
@@ -61,18 +64,31 @@ describe('Windows shell', () => {
     expect(useUi.getState().screen).toBe('home');
   });
 
-  it('warns about an unusable link and stays on Home', async () => {
+  it('searches words that are not a link in the built-in browser', async () => {
     const user = userEvent.setup();
     render(<DesktopShell />);
-    await user.type(screen.getByRole('textbox', { name: 'Media link' }), 'not a link');
+    await user.type(screen.getByRole('textbox', { name: 'Media link' }), 'big buck bunny');
     await user.click(screen.getByRole('button', { name: 'Analyze' }));
-    expect(screen.getByRole('alert')).toHaveTextContent('This doesn’t look like a complete link');
-    expect(screen.queryByRole('button', { name: /Add https/ })).toBeNull();
-    expect(screen.getByRole('textbox', { name: 'Media link' })).toHaveAttribute(
-      'aria-invalid',
-      'true',
+    await waitFor(() => expect(useUi.getState().screen).toBe('browser'));
+    expect(await screen.findByText('www.google.com')).toBeInTheDocument();
+  });
+
+  it('browser: a page can be added to favorites and opened from the start page', async () => {
+    const user = userEvent.setup();
+    render(<DesktopShell />);
+    await user.keyboard('{Control>}6{/Control}');
+    await user.click(await screen.findByRole('button', { name: 'Search or type a web address' }));
+    await user.type(
+      screen.getByRole('textbox', { name: 'Search or type a web address' }),
+      'studio.blender.org{Enter}',
     );
-    expect(useUi.getState().screen).toBe('home');
+    await user.click(await screen.findByRole('button', { name: 'Add to favorites' }));
+    expect(
+      await screen.findByRole('button', { name: 'Remove from favorites' }),
+    ).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Start page' }));
+    const list = await screen.findByRole('list', { name: 'Favorites' });
+    expect(list).toHaveTextContent('Sprite Fright');
   });
 
   it('offers to add the missing https:// and analyzes the fixed link', async () => {

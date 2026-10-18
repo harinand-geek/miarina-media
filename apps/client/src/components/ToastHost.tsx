@@ -7,9 +7,9 @@ const TOAST_MS = 4000;
 const PLACES = {
   desktop: 'bottom-5 right-5',
   mobile: 'inset-x-4 bottom-24',
-  // Android browser: the page is a native view drawn above the app, so the
-  // toast goes over the browser bar, one at a time.
-  browser: 'inset-x-2 bottom-2',
+  // Browser: the page is a native view drawn above the app, so the toast
+  // goes over the browser bar, one at a time.
+  browser: 'inset-x-2 bottom-2 sm:left-auto',
 };
 
 /** Bottom-right, 4 s, max 2 stacked, paused on hover; errors persist. */

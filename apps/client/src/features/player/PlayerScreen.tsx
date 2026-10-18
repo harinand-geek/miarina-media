@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button, IconButton } from '../../components/Button';
 import { EmptyState } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
@@ -12,6 +12,7 @@ import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { durationLabel, folderOf, formatLabel, qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
+import { ThumbBackdrop, VideoBackdrop } from './Backdrop';
 import { SeekBar } from './SeekBar';
 import { formatRate, nextRate } from './playbackRate';
 import { usePlayback } from './usePlayback';
@@ -46,6 +47,16 @@ export default function PlayerScreen() {
 
 function Player({ item }: { item: MediaRecord }) {
   const { attachMedia, ...p } = usePlayback(item);
+  const [videoEl, setVideoEl] = useState<HTMLVideoElement | null>(null);
+  // Stable: a new ref callback each render would detach and re-attach the
+  // element every time (and loop through the state update).
+  const attachVideo = useCallback(
+    (el: HTMLVideoElement | null) => {
+      attachMedia(el);
+      setVideoEl(el);
+    },
+    [attachMedia],
+  );
   const play = useUi((s) => s.play);
   const pushToast = useUi((s) => s.pushToast);
   const items = useLibrary((s) => s.items);
@@ -94,25 +105,33 @@ function Player({ item }: { item: MediaRecord }) {
   return (
     <div className="flex min-h-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col bg-player text-[#F5F7FA]">
-        <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-[repeating-linear-gradient(135deg,#0E161D_0_10px,#0B1218_10px_20px)]">
+        <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-[#0B1218]">
+          {/* Bars around the picture: blurred current frame, or blurred cover. */}
+          {isVideo ? <VideoBackdrop video={videoEl} /> : <ThumbBackdrop path={item.thumbnail} />}
           {p.src && isVideo && (
             <video
-              ref={attachMedia}
+              ref={attachVideo}
               src={p.src}
               preload="metadata"
               onClick={p.toggle}
               onDoubleClick={() => toggleFullscreen()}
-              className="absolute inset-0 h-full w-full bg-black object-contain"
+              className="absolute inset-0 h-full w-full object-contain"
             >
               {subtitles && null}
             </video>
           )}
           {p.src && !isVideo && <audio ref={attachMedia} src={p.src} preload="metadata" />}
-          {!isVideo && (
-            <div className="grid h-[min(55%,320px)] aspect-square place-items-center rounded-[20px] bg-[repeating-linear-gradient(135deg,#1C2C37_0_8px,#18262F_8px_16px)]">
-              <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
-            </div>
-          )}
+          {!isVideo &&
+            (item.thumbnail ? (
+              <MediaThumb
+                media={item}
+                className="relative aspect-square h-[min(55%,320px)] rounded-[20px] shadow-menu"
+              />
+            ) : (
+              <div className="relative grid aspect-square h-[min(55%,320px)] place-items-center rounded-[20px] bg-[#182530]">
+                <Icon name="music_note" size={64} className="text-[#8FB3D9]" />
+              </div>
+            ))}
           {!p.src && isVideo && (
             <span className="font-mono text-[12px] font-medium text-[#64748B]">
               video surface · preview

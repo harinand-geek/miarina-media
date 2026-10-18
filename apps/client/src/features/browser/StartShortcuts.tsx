@@ -1,5 +1,10 @@
 import { SHORTCUTS } from './shortcuts';
 
+interface Site {
+  name: string;
+  address: string;
+}
+
 /**
  * Start page shortcuts. Not in the handoff: letter tiles like the M4
  * favorites grid (no remote icons are loaded, the app CSP forbids them).
@@ -7,19 +12,23 @@ import { SHORTCUTS } from './shortcuts';
 export function StartShortcuts({
   onOpen,
   columns = 4,
+  sites = SHORTCUTS,
+  label = 'Shortcuts',
 }: {
   onOpen: (address: string) => void;
   columns?: 4 | 8;
+  sites?: Site[];
+  label?: string;
 }) {
   return (
     <ul
-      aria-label="Shortcuts"
+      aria-label={label}
       className={`m-0 grid w-full list-none gap-x-2 gap-y-4 p-0 ${
         columns === 8 ? 'max-w-[720px] grid-cols-8' : 'grid-cols-4'
       }`}
     >
-      {SHORTCUTS.map((site) => (
-        <li key={site.name}>
+      {sites.map((site) => (
+        <li key={site.address}>
           <button
             type="button"
             onClick={() => onOpen(site.address)}

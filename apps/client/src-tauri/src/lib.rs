@@ -311,6 +311,8 @@ pub fn run() {
             browser::browser_fab_size,
             browser::browser_show_in_app,
             browser::browser_frame,
+            browser::browser_favorites,
+            browser::browser_favorite_toggle,
             player::player_open,
             player::player_status,
             player::player_play,

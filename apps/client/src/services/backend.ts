@@ -14,6 +14,7 @@ import type {
   AppScreenRequest,
   BrowserAction,
   BrowserFrame,
+  Favorite,
   BrowserSnapshot,
   CommandError,
   ComponentStatus,
@@ -98,6 +99,9 @@ export interface Backend {
   onBrowserState(listener: (state: BrowserSnapshot) => void): () => void;
   /** Android: places or hides the native page view; may return a picture of the page. */
   browserFrame(frame: BrowserFrame): Promise<string | null>;
+  browserFavorites(): Promise<Favorite[]>;
+  /** Stars or unstars a page; returns the new list. */
+  browserFavoriteToggle(url: string, title: string): Promise<Favorite[]>;
   /** Shortcuts pressed while the web page had keyboard focus. */
   onBrowserShortcut(listener: (name: string) => void): () => void;
   /** Main window: another window asks to show a screen. */
@@ -236,6 +240,9 @@ class TauriBackend implements Backend {
   onBrowserState = (listener: (state: BrowserSnapshot) => void) =>
     onEvent<BrowserSnapshot>('browser://state', listener);
   browserFrame = (frame: BrowserFrame) => call<string | null>('browser_frame', { ...frame });
+  browserFavorites = () => call<Favorite[]>('browser_favorites');
+  browserFavoriteToggle = (url: string, title: string) =>
+    call<Favorite[]>('browser_favorite_toggle', { url, title });
   onBrowserShortcut = (listener: (name: string) => void) =>
     onEvent<string>('browser://shortcut', listener);
   onAppNavigate = (listener: (screen: AppScreenRequest) => void) =>

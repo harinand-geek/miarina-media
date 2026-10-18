@@ -10,16 +10,16 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.2',
+  version: '0.1.3',
   windows: {
-    name: 'MiarinaMedia-0.1.2-x64-setup.exe',
+    name: 'MiarinaMedia-0.1.3-x64-setup.exe',
     size: '69,1 Mo',
-    sha256: '2ae0daae2bf5433fe8108956f5bd695c19c0809e2736dff6b4ada33459d26098',
+    sha256: 'd9b545b13735630700427e507fe20fd7e2a465652296a8276788772ff56e564c',
   } satisfies ReleaseFile,
   android: {
-    name: 'MiarinaMedia-0.1.2.apk',
+    name: 'MiarinaMedia-0.1.3.apk',
     size: '35 Mo',
-    sha256: '2480eb7f8057bfcfc393ae78eb7dae4b6b27c55fed5e9e36c2c125278ae11dd1',
+    sha256: '1bcfd16e46c24a7c1b7aecb8be2c80d895d124d2b2d4e97f746a8326c2e21008',
   } satisfies ReleaseFile,
 };
 
@@ -41,16 +41,27 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Android : navigateur intégré, avec recherche et raccourcis',
+      'Navigateur : plusieurs onglets et historique',
       'Android : pages de sites vidéo (YouTube…)',
       'Android : lecture audio en arrière-plan, plein écran et image dans l’image',
-      'Windows : navigateur dans la fenêtre principale, avec onglets',
+    ],
+  },
+  {
+    name: '0.1.3',
+    date: 'Préversion de test · 18 octobre 2026',
+    current: true,
+    items: [
+      'Android : navigateur intégré, avec recherche, raccourcis et bouton de téléchargement quand la page contient un fichier vidéo ou audio',
+      'Windows : le navigateur s’ouvre dans la fenêtre principale, avec la même présentation que sur Android',
+      'Windows et Android : favoris dans le navigateur (étoile dans la barre d’adresse)',
+      'Windows et Android : des mots tapés dans le champ de l’accueil lancent une recherche dans le navigateur',
+      'Windows et Android : la meilleure copie jusqu’à 1080p est proposée en premier quand une page en contient plusieurs',
+      'Lecteur : fond flou tiré de la vidéo en cours, ou de la pochette pour l’audio',
     ],
   },
   {
     name: '0.1.2',
     date: 'Préversion de test · 18 octobre 2026',
-    current: true,
     items: [
       'Windows : correction des téléchargements dont le titre contient des accents',
       'Windows : yt-dlp se met à jour tout seul (une fois par jour au plus, signature vérifiée)',
@@ -95,7 +106,12 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Lecteur intégré', windows: true, android: true },
   { feature: 'Image dans l’image', windows: true, android: 'soon' },
   { feature: 'Téléchargement en arrière-plan, notifications', windows: true, android: true },
-  { feature: 'Navigateur intégré', windows: true, android: 'soon' },
+  { feature: 'Navigateur intégré, recherche et favoris', windows: true, android: true },
+  {
+    feature: 'Détection dans le navigateur',
+    windows: 'Fichiers et pages',
+    android: 'Fichiers vidéo et audio',
+  },
   { feature: 'Partager un lien vers l’app', windows: false, android: true },
   { feature: 'Partager ou ouvrir un fichier avec une autre app', windows: false, android: true },
   { feature: 'Fichiers visibles dans la galerie (Android 11+)', windows: false, android: true },

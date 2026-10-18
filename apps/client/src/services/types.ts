@@ -313,6 +313,12 @@ export interface BrowserSnapshot {
   fab?: 'tap' | 'hold' | null;
 }
 
+/** A starred page, shown on the browser's start page. */
+export interface Favorite {
+  url: string;
+  title: string;
+}
+
 /** Android: where the native page view goes, in CSS pixels of the app. */
 export interface BrowserFrame {
   x: number;

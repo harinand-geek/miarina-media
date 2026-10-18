@@ -49,9 +49,12 @@ export function Confidentialite() {
             accès à vos contacts, photos ou position.
           </li>
           <li>
-            <strong>Navigateur intégré (Windows) :</strong> comme tout navigateur, il charge les
-            pages que vous ouvrez ; ces sites peuvent déposer leurs propres cookies, conservés sur
-            votre appareil. Les pages visitées n’ont aucun accès aux fonctions de l’application.
+            <strong>Navigateur intégré (Windows et Android) :</strong> comme tout navigateur, il
+            charge les pages que vous ouvrez ; ces sites peuvent déposer leurs propres cookies,
+            conservés sur votre appareil. Le texte qui n’est pas une adresse est recherché sur
+            Google (<span className="mono">google.com</span>), qui le reçoit comme depuis un autre
+            navigateur. Les favoris sont enregistrés uniquement sur votre appareil. Les pages
+            visitées n’ont aucun accès aux fonctions de l’application.
           </li>
           <li>
             <strong>Vos fichiers</strong> restent dans le dossier de votre appareil où ils sont

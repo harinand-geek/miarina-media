@@ -20,11 +20,10 @@ export default defineConfig({
     // WebView2 is evergreen on Windows; Android System WebView is also updated.
     target: 'chrome111',
     sourcemap: !!process.env.TAURI_ENV_DEBUG,
-    // The built-in browser window loads its own small pages (decision 0001).
+    // The browser overlay webview loads its own small page (decision 0001).
     rollupOptions: {
       input: {
         main: 'index.html',
-        browser: 'browser.html',
         'browser-overlay': 'browser-overlay.html',
       },
     },

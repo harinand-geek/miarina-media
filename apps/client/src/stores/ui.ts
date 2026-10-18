@@ -38,12 +38,16 @@ interface UiState {
   /** Android browser: the page's other media, offered as chips in the sheet (design M3). */
   analysisChoices: AnalysisChoice[];
   nowPlaying: MediaRecord | null;
+  /** Search or address for the browser to open (Home field → browser). */
+  browserRequest: string | null;
   librarySearchFocus: number;
   go: (screen: Screen) => void;
   toggleSidebar: () => void;
   analyze: (url: string, tab?: UiState['analysisTab']) => void;
   /** Analyzes one of the media found on a page; `choices` are all of them. */
   analyzeChoice: (url: string, choices?: AnalysisChoice[]) => void;
+  /** Shows the browser and opens `text` there (searched unless it is an address). */
+  openInBrowser: (text: string | null) => void;
   setAnalysisTab: (tab: UiState['analysisTab']) => void;
   play: (item: MediaRecord | null) => void;
   focusLibrarySearch: () => void;
@@ -62,6 +66,7 @@ export const useUi = create<UiState>((set) => ({
   analysisTab: 'video',
   analysisChoices: [],
   nowPlaying: null,
+  browserRequest: null,
   librarySearchFocus: 0,
   go: (screen) => set({ screen, confirm: null }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
@@ -78,6 +83,8 @@ export const useUi = create<UiState>((set) => ({
       pendingUrl: url,
       analysisChoices: choices ?? s.analysisChoices,
     })),
+  openInBrowser: (browserRequest) =>
+    set((s) => ({ browserRequest, screen: browserRequest ? 'browser' : s.screen })),
   setAnalysisTab: (analysisTab) => set({ analysisTab }),
   play: (nowPlaying) => set({ nowPlaying }),
   focusLibrarySearch: () =>

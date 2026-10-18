@@ -7,6 +7,7 @@ import type {
   AppScreenRequest,
   BrowserAction,
   BrowserSnapshot,
+  Favorite,
   AnalyzeResult,
   BackendEvent,
   BackendSettings,
@@ -523,6 +524,19 @@ export class MockBackend {
 
   async browserFrame() {
     return null;
+  }
+
+  private favorites: Favorite[] = [];
+
+  async browserFavorites() {
+    return this.favorites;
+  }
+
+  async browserFavoriteToggle(url: string, title: string) {
+    this.favorites = this.favorites.some((f) => f.url === url)
+      ? this.favorites.filter((f) => f.url !== url)
+      : [{ url, title: title || url }, ...this.favorites];
+    return this.favorites;
   }
 
   async browserShowInApp(screen: AppScreenRequest) {

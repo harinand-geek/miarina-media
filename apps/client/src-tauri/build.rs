@@ -45,6 +45,8 @@ const COMMANDS: &[&str] = &[
     "browser_fab_size",
     "browser_show_in_app",
     "browser_frame",
+    "browser_favorites",
+    "browser_favorite_toggle",
     "player_open",
     "player_status",
     "player_play",
