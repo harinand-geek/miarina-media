@@ -10,6 +10,7 @@ import {
   type ThemePref,
 } from '../../stores/settings';
 import { useAndroidStorage } from './useAndroidStorage';
+import { version } from '../../../package.json';
 
 interface RowProps {
   icon: string;
@@ -155,7 +156,7 @@ export function MobileSettings({
         <Row icon="language" label="Language" value="English" />
       </Group>
       <Group title="About">
-        <Row icon="info" label="Miarina Media" value="Version 0.1.0 · media.miarina.org" />
+        <Row icon="info" label="Miarina Media" value={`Version ${version} · media.miarina.org`} />
       </Group>
     </div>
   );

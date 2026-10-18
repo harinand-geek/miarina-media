@@ -106,7 +106,7 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
         />
         <div className="flex justify-between font-mono text-[12px] font-medium text-[#94A3B8] tabular">
           <span>{formatClock(p.time, false)}</span>
-          {/* Unknown duration (no metadata on Android yet): show a dash, not 0:00. */}
+          {/* Unknown duration (metadata not read yet): show a dash, not 0:00. */}
           <span>{durationLabel(p.duration || null)}</span>
         </div>
       </div>

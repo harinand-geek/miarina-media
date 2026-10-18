@@ -33,7 +33,7 @@ Depuis le 2026-10-17 (décision 0002), yt-dlp et FFmpeg sont **inclus dans l'ins
 | Analyse de lien, formats, téléchargement HTTP direct | ✅ | ✅ (vérifié sur émulateur) |
 | Pages web via yt-dlp (YouTube, etc.), conversion audio | ✅ | ❌ (extracteur Android à évaluer) |
 | File, pause/reprise, historique, reprise après redémarrage | ✅ | ✅ (non vérifié en arrière-plan) |
-| Bibliothèque, miniatures, métadonnées | ✅ | partiel : pas de miniatures ni de durée |
+| Bibliothèque, miniatures, métadonnées | ✅ | ✅ via les API Android (vérifié sur émulateur ; version suivante) |
 | Lecture | ✅ | ✅ lecteur natif Media3 (vérifié sur émulateur ; version suivante) |
 | Navigateur intégré | ✅ (un onglet) | ❌ — à venir |
 | Fichiers visibles dans la galerie / Téléchargements | — | ❌ stockage privé de l'app (MediaStore à venir) |

@@ -2,6 +2,8 @@
 mod android_tls;
 mod browser;
 mod commands;
+#[cfg(target_os = "android")]
+mod media_tools;
 mod player;
 mod shell;
 mod state;
@@ -51,7 +53,10 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init());
     #[cfg(target_os = "android")]
-    let builder = builder.plugin(player::init()).plugin(shell::init());
+    let builder = builder
+        .plugin(player::init())
+        .plugin(shell::init())
+        .plugin(media_tools::init());
     let app = builder
         .setup(|app| {
             #[cfg(target_os = "android")]
@@ -127,6 +132,11 @@ pub fn run() {
                 allow_media_dir(app.handle(), &dir);
             }
 
+            // Android: metadata and thumbnails through platform APIs.
+            #[cfg(target_os = "android")]
+            if let Some(tools) = app.try_state::<media_tools::MediaTools>() {
+                library.set_prober(tools.prober());
+            }
             tauri::async_runtime::spawn(library.clone().run_worker());
             scan_library(&library, download_dir);
 

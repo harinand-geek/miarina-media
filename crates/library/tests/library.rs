@@ -322,3 +322,76 @@ async fn worker_reads_metadata_and_builds_thumbnails() {
     assert!(tone.thumbnail.is_none());
     assert!(storage.media_to_probe(10).unwrap().is_empty());
 }
+
+/// Stands in for Android's MediaMetadataRetriever.
+struct FakeProber {
+    asked_thumbnail: Mutex<Vec<bool>>,
+}
+
+impl library::Prober for FakeProber {
+    fn probe<'a>(
+        &'a self,
+        media: &'a Path,
+        thumbnail: Option<&'a Path>,
+        _max_px: u32,
+    ) -> library::ProbeFuture<'a> {
+        Box::pin(async move {
+            self.asked_thumbnail
+                .lock()
+                .unwrap()
+                .push(thumbnail.is_some());
+            if media.to_string_lossy().contains("broken") {
+                return Err(library::LibraryError::Probe("unreadable".into()));
+            }
+            if let Some(out) = thumbnail {
+                std::fs::write(out, [0xFF, 0xD8, 0xFF]).unwrap();
+            }
+            Ok(library::ProbeResult {
+                probe: storage::MediaProbe {
+                    duration_secs: Some(52.2),
+                    width: Some(854),
+                    height: Some(480),
+                    video_codec: Some("h264".into()),
+                    audio_codec: Some("aac".into()),
+                    container: Some("mp4".into()),
+                    has_video: true,
+                },
+                thumbnail_written: thumbnail.is_some(),
+            })
+        })
+    }
+}
+
+#[tokio::test]
+async fn a_platform_prober_replaces_ffmpeg() {
+    let h = harness();
+    std::fs::write(h.root.join("Sintel.mp4"), b"video").unwrap();
+    std::fs::write(h.root.join("broken.bad.mp4"), b"x").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let prober = Arc::new(FakeProber {
+        asked_thumbnail: Mutex::new(Vec::new()),
+    });
+    h.library.set_prober(prober.clone());
+    h.library.process_pending().await;
+
+    let items = h
+        .storage
+        .lock()
+        .unwrap()
+        .query_media(&MediaQuery::default())
+        .unwrap()
+        .items;
+    let sintel = items.iter().find(|m| m.title == "Sintel").unwrap();
+    assert!(sintel.probed);
+    assert_eq!(sintel.duration_secs, Some(52.2));
+    assert_eq!(sintel.height, Some(480));
+    let thumb = PathBuf::from(sintel.thumbnail.as_deref().expect("thumbnail stored"));
+    assert!(thumb.starts_with(h.library.thumbnails_dir()) && thumb.is_file());
+    // An unreadable file is marked, so it is not retried on every start.
+    let broken = items
+        .iter()
+        .find(|m| m.title.starts_with("broken"))
+        .unwrap();
+    assert!(broken.probed && broken.thumbnail.is_none());
+    assert_eq!(*prober.asked_thumbnail.lock().unwrap(), [true, true]);
+}

@@ -12,7 +12,7 @@ use download_engine::components::{Components, FFMPEG};
 use download_engine::fsops::finalize_no_clobber;
 use media_core::sanitize_filename;
 use serde::Serialize;
-use storage::{MediaRecord, NewMedia, Storage, StorageError};
+use storage::{MediaProbe, MediaRecord, NewMedia, Storage, StorageError};
 use thiserror::Error;
 use tokio::sync::{Notify, Semaphore};
 use tokio::task::JoinSet;
@@ -42,6 +42,38 @@ pub struct ScanReport {
 /// Notifies the UI that library rows changed.
 pub type ChangeListener = Arc<dyn Fn() + Send + Sync>;
 
+/// What a platform prober found: metadata, and whether it wrote a picture.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct ProbeResult {
+    pub probe: MediaProbe,
+    pub thumbnail_written: bool,
+}
+
+pub type ProbeFuture<'a> = std::pin::Pin<
+    Box<dyn std::future::Future<Output = Result<ProbeResult, LibraryError>> + Send + 'a>,
+>;
+
+/// Reads metadata and builds thumbnails with platform APIs where FFmpeg
+/// does not run (Android: MediaMetadataRetriever). When set, it replaces
+/// ffprobe/FFmpeg for the library.
+pub trait Prober: Send + Sync {
+    /// `thumbnail`: where to write a JPEG (longest edge at most `max_px`),
+    /// or `None` when the entry already has a picture.
+    fn probe<'a>(
+        &'a self,
+        media: &'a Path,
+        thumbnail: Option<&'a Path>,
+        max_px: u32,
+    ) -> ProbeFuture<'a>;
+}
+
+/// How the worker reads files.
+#[derive(Clone)]
+enum Tools {
+    Ffmpeg { ffmpeg: PathBuf, ffprobe: PathBuf },
+    Platform(Arc<dyn Prober>),
+}
+
 /// Settings applied to background work (from the resource mode).
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct WorkLimits {
@@ -65,6 +97,7 @@ struct Inner {
     components: Components,
     thumbnails: PathBuf,
     limits: Mutex<WorkLimits>,
+    prober: Mutex<Option<Arc<dyn Prober>>>,
     wake: Notify,
     on_change: ChangeListener,
 }
@@ -101,6 +134,7 @@ impl Library {
                 components,
                 thumbnails,
                 limits: Mutex::new(WorkLimits::default()),
+                prober: Mutex::new(None),
                 wake: Notify::new(),
                 on_change,
             }),
@@ -131,6 +165,25 @@ impl Library {
             return false;
         };
         picture && file.is_file() && file.parent() == Some(dir.as_path())
+    }
+
+    /// Uses platform APIs instead of FFmpeg (Android) and wakes the worker.
+    pub fn set_prober(&self, prober: Arc<dyn Prober>) {
+        *lock(&self.inner.prober) = Some(prober);
+        self.inner.wake.notify_one();
+    }
+
+    /// The platform prober when set, else FFmpeg/ffprobe when installed.
+    fn tools(&self) -> Option<Tools> {
+        if let Some(prober) = lock(&self.inner.prober).clone() {
+            return Some(Tools::Platform(prober));
+        }
+        let ffmpeg = self.inner.components.path(&FFMPEG)?;
+        let ffprobe = ffmpeg
+            .parent()
+            .map(|d| d.join("ffprobe.exe"))
+            .filter(|p| p.is_file())?;
+        Some(Tools::Ffmpeg { ffmpeg, ffprobe })
     }
 
     /// Wakes the background worker, e.g. once FFmpeg has been installed.
@@ -333,14 +386,7 @@ impl Library {
     /// Processes every pending entry, then returns (used by tests too).
     pub async fn process_pending(&self) {
         loop {
-            let Some(ffmpeg) = self.inner.components.path(&FFMPEG) else {
-                return;
-            };
-            let Some(ffprobe) = ffmpeg
-                .parent()
-                .map(|d| d.join("ffprobe.exe"))
-                .filter(|p| p.is_file())
-            else {
+            let Some(tools) = self.tools() else {
                 return;
             };
             let batch = match lock(&self.inner.storage).media_to_probe(PROBE_BATCH) {
@@ -357,9 +403,9 @@ impl Library {
                     .await
                     .expect("semaphore open");
                 let this = self.clone();
-                let (ffmpeg, ffprobe) = (ffmpeg.clone(), ffprobe.clone());
+                let tools = tools.clone();
                 jobs.spawn(async move {
-                    this.describe(&record, &ffprobe, &ffmpeg, limits).await;
+                    this.describe(&record, &tools, limits).await;
                     drop(permit);
                 });
             }
@@ -368,28 +414,46 @@ impl Library {
         }
     }
 
-    async fn describe(
-        &self,
-        record: &MediaRecord,
-        ffprobe: &Path,
-        ffmpeg: &Path,
-        limits: WorkLimits,
-    ) {
+    async fn describe(&self, record: &MediaRecord, tools: &Tools, limits: WorkLimits) {
         let path = Path::new(&record.path);
         if !path.is_file() {
             let _ = lock(&self.inner.storage).set_media_missing(record.id, true);
             return;
         }
-        let Ok(meta) = probe::probe(ffprobe, path).await else {
-            let _ = lock(&self.inner.storage).mark_media_unprobeable(record.id);
-            return;
-        };
-        let mut thumbnail = None;
         // A source thumbnail (downloads) is kept: no frame is extracted.
         let has_picture = record
             .thumbnail
             .as_deref()
             .is_some_and(|t| Path::new(t).is_file());
+        let (ffmpeg, ffprobe) = match tools {
+            Tools::Ffmpeg { ffmpeg, ffprobe } => (ffmpeg, ffprobe),
+            Tools::Platform(prober) => {
+                let out = self.inner.thumbnails.join(format!("{}.jpg", record.id));
+                let wanted =
+                    !has_picture && std::fs::create_dir_all(&self.inner.thumbnails).is_ok();
+                let target = wanted.then_some(out.as_path());
+                match prober.probe(path, target, limits.thumbnail_px).await {
+                    Ok(found) => {
+                        let thumbnail = (found.thumbnail_written && out.is_file())
+                            .then(|| out.to_string_lossy().into_owned());
+                        let _ = lock(&self.inner.storage).set_media_probe(
+                            record.id,
+                            &found.probe,
+                            thumbnail.as_deref(),
+                        );
+                    }
+                    Err(_) => {
+                        let _ = lock(&self.inner.storage).mark_media_unprobeable(record.id);
+                    }
+                }
+                return;
+            }
+        };
+        let Ok(meta) = probe::probe(ffprobe, path).await else {
+            let _ = lock(&self.inner.storage).mark_media_unprobeable(record.id);
+            return;
+        };
+        let mut thumbnail = None;
         if meta.has_video && !has_picture && std::fs::create_dir_all(&self.inner.thumbnails).is_ok()
         {
             let out = self.inner.thumbnails.join(format!("{}.jpg", record.id));
