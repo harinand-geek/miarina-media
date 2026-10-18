@@ -2,6 +2,15 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Version 0.1.2 — 2026-10-18
+
+| Plateforme | Fichier | Taille | SHA-256 |
+|---|---|---|---|
+| Windows 10/11 x64 | `MiarinaMedia-0.1.2-x64-setup.exe` | 69,1 Mo (72 472 445 octets) | `2ae0daae2bf5433fe8108956f5bd695c19c0809e2736dff6b4ada33459d26098` |
+| Android 7.0+ | `MiarinaMedia-0.1.2.apk` | 35 Mo (36 751 269 octets) | `2480eb7f8057bfcfc393ae78eb7dae4b6b27c55fed5e9e36c2c125278ae11dd1` |
+
+APK signé avec la clé de publication (certificat `11de8715…c6479e1`), versionCode 1002. APK de publication vérifié sur l'émulateur Android 15 (partage d'un lien, téléchargement avec notification, galerie, miniature, lecture). Permissions : INTERNET, FOREGROUND_SERVICE, FOREGROUND_SERVICE_DATA_SYNC, POST_NOTIFICATIONS, plus ACCESS_NETWORK_STATE et WAKE_LOCK ajoutées par Media3. Nouveautés : correction des titres accentués et mise à jour vérifiée de yt-dlp (Windows) ; lecteur Media3, miniatures/durées, Films/Musique (Android 11+), notifications et téléchargements en arrière-plan, partage entrant/sortant, icône et écran de démarrage (Android).
+
 ## Version 0.1.1 — 2026-10-17
 
 | Plateforme | Fichier | Taille | SHA-256 |
