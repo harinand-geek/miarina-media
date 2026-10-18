@@ -31,6 +31,24 @@ impl MediaTools {
     pub fn publisher(&self) -> Publisher {
         Publisher(self.0.clone())
     }
+
+    /// Hands a library file to another app: `share` (share sheet) or
+    /// `openWith` (chooser). The path comes from the library, never the page.
+    pub async fn hand_off(
+        &self,
+        command: &str,
+        path: &str,
+        title: Option<&str>,
+    ) -> Result<(), crate::commands::CommandError> {
+        self.0
+            .run_mobile_plugin_async::<serde_json::Value>(
+                command,
+                serde_json::json!({ "path": path, "title": title }),
+            )
+            .await
+            .map(drop)
+            .map_err(|e| crate::commands::CommandError::new("hand_off_failed", e.to_string()))
+    }
 }
 
 /// Makes finished downloads in shared storage visible to other apps.

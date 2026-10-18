@@ -20,6 +20,9 @@ export function useMediaActions() {
       go('player');
     },
     reveal: (media: MediaRecord) => void backend.libraryReveal(media.id).catch(report),
+    /** Android: share sheet / "Open with" chooser. */
+    share: (media: MediaRecord) => void backend.libraryShare(media.id).catch(report),
+    openWith: (media: MediaRecord) => void backend.libraryOpenExternal(media.id).catch(report),
     copyLink: (media: MediaRecord) => {
       if (!media.sourceUrl) {
         pushToast({ tone: 'error', message: 'This file has no source link.' });

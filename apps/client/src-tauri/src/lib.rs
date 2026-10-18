@@ -285,6 +285,7 @@ pub fn run() {
             commands::library_reveal,
             commands::library_rescan,
             commands::library_open_external,
+            commands::library_share,
             commands::downloads_open_folder,
             commands::storage_usage,
             commands::storage_clear_thumbnails,

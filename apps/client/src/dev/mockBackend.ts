@@ -432,6 +432,8 @@ export class MockBackend {
     throw new Error('Showing files is only available in the desktop app.');
   }
 
+  async libraryShare() {}
+
   async libraryOpenExternal() {
     throw new Error('Opening files is only available in the desktop app.');
   }

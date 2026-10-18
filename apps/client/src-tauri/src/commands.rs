@@ -874,7 +874,46 @@ pub async fn library_open_external(
             "The file is no longer on disk.",
         ));
     }
+    #[cfg(target_os = "android")]
+    {
+        use tauri::Manager;
+        let tools = app
+            .try_state::<crate::media_tools::MediaTools>()
+            .ok_or_else(|| CommandError::new("unsupported_platform", "Not available."))?;
+        tools.hand_off("openWith", &record.path, None).await
+    }
+    #[cfg(not(target_os = "android"))]
     open_local(&app, &record.path)
+}
+
+/// Android share sheet for a library file.
+#[tauri::command]
+pub async fn library_share(app: AppHandle, state: State<'_, AppState>, id: i64) -> CmdResult<()> {
+    let record = state.library.check(id).map_err(library_error)?;
+    if record.missing {
+        return Err(CommandError::new(
+            "file_missing",
+            "The file is no longer on disk.",
+        ));
+    }
+    #[cfg(target_os = "android")]
+    {
+        use tauri::Manager;
+        let tools = app
+            .try_state::<crate::media_tools::MediaTools>()
+            .ok_or_else(|| CommandError::new("unsupported_platform", "Not available."))?;
+        tools
+            .hand_off("share", &record.path, Some(&record.title))
+            .await
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        let _ = (app, record);
+        Err(CommandError::new(
+            "unsupported_platform",
+            "Sharing files is available on Android.",
+        ))
+    }
 }
 
 #[tauri::command]

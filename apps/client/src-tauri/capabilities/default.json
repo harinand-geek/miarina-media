@@ -46,6 +46,7 @@
     "allow-storage-clear-thumbnails",
     "allow-storage-clean-temp",
     "allow-library-open-external",
+    "allow-library-share",
     "allow-downloads-open-folder",
     "allow-browser-open",
     "allow-player-open",

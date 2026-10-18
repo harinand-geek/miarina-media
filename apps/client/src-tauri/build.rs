@@ -32,6 +32,7 @@ const COMMANDS: &[&str] = &[
     "library_reveal",
     "library_rescan",
     "library_open_external",
+    "library_share",
     "downloads_open_folder",
     "storage_usage",
     "storage_clear_thumbnails",

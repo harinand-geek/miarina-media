@@ -10,6 +10,7 @@ import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { SORT_LABELS, durationLabel, qualityLabel } from './format';
 import { MediaThumb } from './MediaThumb';
+import { useMobileMediaSheet } from './useMobileMediaSheet';
 
 const KINDS: { value: MediaKind | null; label: string }[] = [
   { value: null, label: 'All' },
@@ -22,6 +23,7 @@ export function MobileLibrary() {
   const { setSearch, setKind, setSort } = useLibrary.getState();
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const play = useUi((s) => s.play);
+  const actionsSheet = useMobileMediaSheet();
 
   return (
     <div
@@ -90,6 +92,12 @@ export function MobileLibrary() {
           <button
             type="button"
             onClick={() => play(m)}
+            // Long press (Android context menu) opens the actions.
+            onContextMenu={(e) => {
+              e.preventDefault();
+              actionsSheet.open(m);
+            }}
+            aria-label={`${m.title} (long press for actions)`}
             className="flex w-full flex-col gap-2 text-left"
           >
             <MediaThumb media={m} className="aspect-[16/10] w-full rounded-[10px]">
@@ -106,6 +114,7 @@ export function MobileLibrary() {
           </button>
         )}
       />
+      {actionsSheet.sheet}
     </div>
   );
 }

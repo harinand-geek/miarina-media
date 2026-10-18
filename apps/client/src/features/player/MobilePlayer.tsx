@@ -9,6 +9,7 @@ import { SeekBar } from './SeekBar';
 import { nextRate } from './playbackRate';
 import { useNativePlayback, type NativePlayback } from './useNativePlayback';
 import { usePlayback, type Playback } from './usePlayback';
+import { useMobileMediaSheet } from '../library/useMobileMediaSheet';
 
 const ROUND = 'grid place-items-center text-[#F5F7FA]';
 
@@ -29,6 +30,7 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
   const close = useUi((s) => s.play);
   const [subtitles, setSubtitles] = useState(false);
   const audio = item.kind === 'audio';
+  const actionsSheet = useMobileMediaSheet({ inPlayer: true });
 
   return (
     <div
@@ -51,9 +53,9 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
         </span>
         <button
           type="button"
-          aria-label="More actions (not designed yet)"
-          disabled
-          className={`${ROUND} h-12 w-12 opacity-50`}
+          aria-label="More actions"
+          onClick={() => actionsSheet.open(item)}
+          className={`${ROUND} h-12 w-12`}
         >
           <Icon name="more_vert" size={24} />
         </button>
@@ -175,6 +177,7 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
           <Icon name="picture_in_picture_alt" size={24} />
         </button>
       </div>
+      {actionsSheet.sheet}
     </div>
   );
 }

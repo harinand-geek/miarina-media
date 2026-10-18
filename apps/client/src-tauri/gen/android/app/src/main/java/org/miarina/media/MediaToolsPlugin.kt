@@ -2,6 +2,7 @@ package org.miarina.media
 
 import android.app.Activity
 import android.content.ContentValues
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaExtractor
@@ -10,6 +11,8 @@ import android.media.MediaMetadataRetriever
 import android.media.MediaScannerConnection
 import android.os.Build
 import android.provider.MediaStore
+import android.webkit.MimeTypeMap
+import androidx.core.content.FileProvider
 import app.tauri.annotation.Command
 import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
@@ -19,6 +22,12 @@ import app.tauri.plugin.Plugin
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Executors
+
+@InvokeArg
+class HandOffArgs {
+  lateinit var path: String
+  var title: String? = null
+}
 
 @InvokeArg
 class PublishArgs {
@@ -78,6 +87,46 @@ class MediaToolsPlugin(private val activity: Activity) : Plugin(activity) {
       } catch (e: Exception) {
         invoke.reject(e.message ?: "The file could not be read")
       }
+    }
+  }
+
+  /** Android share sheet for a library file (read access granted to the target only). */
+  @Command
+  fun share(invoke: Invoke) {
+    val args = invoke.parseArgs(HandOffArgs::class.java)
+    handOff(invoke, args) { uri, mime ->
+      Intent(Intent.ACTION_SEND).apply {
+        type = mime
+        putExtra(Intent.EXTRA_STREAM, uri)
+        args.title?.let { putExtra(Intent.EXTRA_TITLE, it) }
+      }
+    }
+  }
+
+  /** "Open with": another app plays or edits the file. */
+  @Command
+  fun openWith(invoke: Invoke) {
+    val args = invoke.parseArgs(HandOffArgs::class.java)
+    handOff(invoke, args) { uri, mime ->
+      Intent(Intent.ACTION_VIEW).apply { setDataAndType(uri, mime) }
+    }
+  }
+
+  private fun handOff(invoke: Invoke, args: HandOffArgs, build: (android.net.Uri, String) -> Intent) {
+    try {
+      val file = File(args.path)
+      if (!file.isFile) {
+        invoke.reject("This file is no longer on the device.")
+        return
+      }
+      val uri = FileProvider.getUriForFile(activity, activity.packageName + ".fileprovider", file)
+      val mime = MimeTypeMap.getSingleton()
+        .getMimeTypeFromExtension(file.extension.lowercase()) ?: "application/octet-stream"
+      val intent = build(uri, mime).addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+      activity.startActivity(Intent.createChooser(intent, null))
+      invoke.resolve()
+    } catch (e: Exception) {
+      invoke.reject(e.message ?: "No app can open this file.")
     }
   }
 

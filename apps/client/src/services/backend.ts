@@ -70,6 +70,8 @@ export interface Backend {
   libraryReveal(id: number): Promise<void>;
   /** Opens the file with the system player (formats the WebView cannot play). */
   libraryOpenExternal(id: number): Promise<void>;
+  /** Android share sheet for a library file. */
+  libraryShare(id: number): Promise<void>;
   libraryRescan(): Promise<void>;
   /** Opens the download folder in the file manager. */
   openDownloadFolder(): Promise<void>;
@@ -206,6 +208,7 @@ class TauriBackend implements Backend {
   libraryDelete = (id: number) => call<void>('library_delete', { id });
   libraryReveal = (id: number) => call<void>('library_reveal', { id });
   libraryOpenExternal = (id: number) => call<void>('library_open_external', { id });
+  libraryShare = (id: number) => call<void>('library_share', { id });
   openDownloadFolder = () => call<void>('downloads_open_folder');
   libraryRescan = async () => {
     await call('library_rescan');

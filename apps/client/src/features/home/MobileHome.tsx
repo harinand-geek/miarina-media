@@ -13,6 +13,7 @@ import type { MobileTab } from '../../app/MobileShell';
 import { LinkIssueNote } from './LinkIssueNote';
 import { linkFieldBorder, useLinkInput } from './useLinkInput';
 import { backend } from '../../services/backend';
+import { useMobileMediaSheet } from '../library/useMobileMediaSheet';
 
 export function MobileHome({
   onNavigate,
@@ -26,6 +27,7 @@ export function MobileHome({
   const summary = useMemo(() => summarize(tasks), [tasks]);
   const play = useUi((s) => s.play);
   const recent = useLibrary((s) => s.recent);
+  const actionsSheet = useMobileMediaSheet();
   const first = summary.active[0];
 
   const quick = [
@@ -190,14 +192,15 @@ export function MobileHome({
             </button>
             <IconButton
               icon="more_vert"
-              label="More actions (not designed yet)"
+              label={`Actions for ${item.title}`}
               size={44}
               iconSize={24}
-              disabled
+              onClick={() => actionsSheet.open(item)}
             />
           </div>
         ))}
       </section>
+      {actionsSheet.sheet}
     </div>
   );
 }
