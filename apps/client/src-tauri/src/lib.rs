@@ -2,6 +2,7 @@
 mod android_tls;
 mod browser;
 mod commands;
+mod download_notifications;
 #[cfg(target_os = "android")]
 mod media_tools;
 mod player;
@@ -84,7 +85,8 @@ pub fn run() {
     let builder = builder
         .plugin(player::init())
         .plugin(shell::init())
-        .plugin(media_tools::init());
+        .plugin(media_tools::init())
+        .plugin(download_notifications::init());
     let app = builder
         .setup(|app| {
             #[cfg(target_os = "android")]
@@ -211,10 +213,20 @@ pub fn run() {
                 app.try_state::<media_tools::MediaTools>()
                     .map(|t| t.publisher()),
             );
+            // Android: download notifications follow the manager's events.
+            let board = Arc::new(Mutex::new(download_notifications::Board::default()));
+            #[cfg(target_os = "android")]
+            download_notifications::spawn(app.handle(), board.clone(), manager.clone());
             let handle = app.handle().clone();
             let completed_library = library.clone();
             tauri::async_runtime::spawn(async move {
                 while let Some(event) = rx.recv().await {
+                    if cfg!(target_os = "android") {
+                        board
+                            .lock()
+                            .unwrap_or_else(|p| p.into_inner())
+                            .on_event(&event);
+                    }
                     // A finished download joins the library right away.
                     if let ManagerEvent::Task(task) = &event
                         && task.state == TaskState::Completed
@@ -306,7 +318,7 @@ pub fn run() {
             player::player_surface,
             player::player_close,
             shell::app_ready,
-            shell::app_take_shared_link,
+            shell::app_take_launch,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");

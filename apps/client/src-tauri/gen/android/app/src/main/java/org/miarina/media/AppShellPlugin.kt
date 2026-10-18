@@ -13,7 +13,8 @@ import app.tauri.plugin.Plugin
  * App shell signals between Android and the interface:
  * - `ready` ends the launch screen;
  * - text shared to the app ("Share → Miarina Media" from YouTube, Chrome…)
- *   is kept until the interface takes it with `takeShared`.
+ *   and the task of a tapped "Download complete" notification are kept
+ *   until the interface takes them with `takeShared`.
  */
 @TauriPlugin
 class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
@@ -36,12 +37,19 @@ class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
   fun takeShared(invoke: Invoke) {
     val result = JSObject()
     shared?.let { result.put("text", it) }
+    playTask?.let { result.put("playTask", it) }
     shared = null
+    playTask = null
     invoke.resolve(result)
   }
 
   private fun capture(intent: Intent?) {
-    if (intent?.action != Intent.ACTION_SEND || intent.type?.startsWith("text/") != true) return
+    if (intent == null) return
+    intent.getStringExtra(EXTRA_PLAY_TASK)?.let {
+      playTask = it.take(64)
+      intent.removeExtra(EXTRA_PLAY_TASK)
+    }
+    if (intent.action != Intent.ACTION_SEND || intent.type?.startsWith("text/") != true) return
     // Untrusted text from another app: bounded here, parsed and validated in Rust.
     shared = intent.getStringExtra(Intent.EXTRA_TEXT)?.take(MAX_SHARED_CHARS)
     // Handled once: a configuration change must not share it again.
@@ -55,6 +63,12 @@ class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
 
     @Volatile
     private var shared: String? = null
+
+    @Volatile
+    private var playTask: String? = null
+
+    /** Set by the "Download complete" notification (DownloadsPlugin). */
+    const val EXTRA_PLAY_TASK = "org.miarina.media.extra.PLAY_TASK"
 
     private const val MAX_SHARED_CHARS = 4096
   }

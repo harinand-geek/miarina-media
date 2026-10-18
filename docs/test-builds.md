@@ -39,7 +39,7 @@ Depuis le 2026-10-17 (décision 0002), yt-dlp et FFmpeg sont **inclus dans l'ins
 | Fichiers visibles dans la galerie / Téléchargements | — | ✅ Android 11+ : vidéo dans `Movies/Miarina`, audio dans `Music/Miarina` (vérifié sur émulateur ; version suivante). Android 7–10 : stockage de l'app |
 | Partage de lien depuis une autre app | — | ✅ « Partager → Miarina Media » (vérifié sur émulateur ; version suivante) |
 | Partager / ouvrir un fichier avec une autre app | — | ✅ (vérifié sur émulateur ; version suivante) |
-| Notifications, téléchargement en arrière-plan garanti | — | ❌ à venir |
+| Notifications, téléchargement en arrière-plan | — | ✅ service au premier plan + notification de progression (Pause, Cancel, Pause all) et « Download complete · tap to play » (vérifié sur émulateur ; version suivante) |
 
 ## Reproduire
 

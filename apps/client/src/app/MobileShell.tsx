@@ -8,7 +8,8 @@ import { MobileLibrary } from '../features/library/MobileLibrary';
 import { MobileSettings } from '../features/settings/MobileSettings';
 import { MobileBrowser } from '../features/browser/MobileBrowser';
 import { useAndroidBack } from '../hooks/useAndroidBack';
-import { useSharedLinks } from '../hooks/useSharedLinks';
+import { useLaunchRequests } from '../hooks/useLaunchRequests';
+import { backend } from '../services/backend';
 import { AnalysisSheet } from '../features/analysis/AnalysisSheet';
 import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
@@ -42,19 +43,33 @@ export function MobileShell() {
     else if (settingsOpen) setSettingsOpen(false);
     else setTab('home');
   });
-  // A link shared from another app opens its analysis on Home.
+  // A link shared from another app opens its analysis on Home; a tapped
+  // "Download complete" notification plays the file.
   const analyze = useUi((s) => s.analyze);
-  useSharedLinks(
-    useCallback(
-      (url: string) => {
-        closePlayer(null);
-        setSettingsOpen(false);
-        setTab('home');
-        analyze(url);
-      },
-      [analyze, closePlayer],
-    ),
+  const onLink = useCallback(
+    (url: string) => {
+      closePlayer(null);
+      setSettingsOpen(false);
+      setTab('home');
+      analyze(url);
+    },
+    [analyze, closePlayer],
   );
+  const onPlayTask = useCallback(
+    (taskId: string) => {
+      setSettingsOpen(false);
+      setTab('library');
+      void backend
+        .libraryQuery({ search: '', kind: null, sort: 'added', limit: 200 })
+        .then((page) => {
+          const media = page.items.find((m) => m.taskId === taskId);
+          if (media) closePlayer(media);
+        })
+        .catch(() => {});
+    },
+    [closePlayer],
+  );
+  useLaunchRequests({ onLink, onPlayTask });
   const tasks = useDownloads((s) => s.tasks);
   const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
 
