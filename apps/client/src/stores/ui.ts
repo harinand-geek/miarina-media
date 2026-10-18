@@ -21,6 +21,12 @@ export interface ConfirmRequest {
 const MAX_TOASTS = 2;
 let toastSeq = 0;
 
+export interface AnalysisChoice {
+  url: string;
+  label: string;
+  kind: 'video' | 'audio';
+}
+
 interface UiState {
   screen: Screen;
   sidebarCollapsed: boolean;
@@ -29,11 +35,15 @@ interface UiState {
   /** URL waiting to be analyzed (Home → Analysis, Android sheet). */
   pendingUrl: string;
   analysisTab: 'video' | 'audio' | 'subtitles';
+  /** Android browser: the page's other media, offered as chips in the sheet (design M3). */
+  analysisChoices: AnalysisChoice[];
   nowPlaying: MediaRecord | null;
   librarySearchFocus: number;
   go: (screen: Screen) => void;
   toggleSidebar: () => void;
   analyze: (url: string, tab?: UiState['analysisTab']) => void;
+  /** Analyzes one of the media found on a page; `choices` are all of them. */
+  analyzeChoice: (url: string, choices?: AnalysisChoice[]) => void;
   setAnalysisTab: (tab: UiState['analysisTab']) => void;
   play: (item: MediaRecord | null) => void;
   focusLibrarySearch: () => void;
@@ -50,12 +60,24 @@ export const useUi = create<UiState>((set) => ({
   confirm: null,
   pendingUrl: '',
   analysisTab: 'video',
+  analysisChoices: [],
   nowPlaying: null,
   librarySearchFocus: 0,
   go: (screen) => set({ screen, confirm: null }),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   analyze: (url, tab) =>
-    set((s) => ({ screen: 'analysis', pendingUrl: url, analysisTab: tab ?? s.analysisTab })),
+    set((s) => ({
+      screen: 'analysis',
+      pendingUrl: url,
+      analysisTab: tab ?? s.analysisTab,
+      analysisChoices: [],
+    })),
+  analyzeChoice: (url, choices) =>
+    set((s) => ({
+      screen: 'analysis',
+      pendingUrl: url,
+      analysisChoices: choices ?? s.analysisChoices,
+    })),
   setAnalysisTab: (analysisTab) => set({ analysisTab }),
   play: (nowPlaying) => set({ nowPlaying }),
   focusLibrarySearch: () =>

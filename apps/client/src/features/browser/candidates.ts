@@ -55,9 +55,20 @@ export function candidates(state: BrowserSnapshot): Candidate[] {
   return items;
 }
 
-/** Pre-selected item: the page player, else the first video, else the first item. */
+/** "Film.webm.720p.vp9.webm" → 720; 0 when the name gives no height. */
+const heightIn = (title: string) => Number(/(\d{3,4})p(?![a-z])/i.exec(title)?.[1] ?? 0);
+
+/**
+ * Pre-selected item: the page player, else the best video variant up to
+ * 1080p (pages often list a huge original next to sized copies), else the
+ * first video, else the first item.
+ */
 export function mainCandidate(list: Candidate[]): Candidate | undefined {
-  return list.find((c) => c.kind === 'page') ?? list.find((c) => c.kind === 'video') ?? list[0];
+  const videos = list.filter((c) => c.kind === 'video');
+  const sized = videos
+    .filter((c) => heightIn(c.title) > 0 && heightIn(c.title) <= 1080)
+    .sort((a, b) => heightIn(b.title) - heightIn(a.title));
+  return list.find((c) => c.kind === 'page') ?? sized[0] ?? videos[0] ?? list[0];
 }
 
 function decodeName(name: string) {
@@ -77,4 +88,14 @@ export function splitAddress(url: string): { host: string; rest: string; secure:
   } catch {
     return { host: url, rest: '', secure: false };
   }
+}
+
+/**
+ * Chip labels for the sheet: variants of one file ("Film.webm",
+ * "Film.webm.480p.vp9.webm") are named by what they add ("480p.vp9.webm").
+ */
+export function distinctLabels(names: string[]): string[] {
+  const shortest = [...names].sort((a, b) => a.length - b.length)[0];
+  if (names.length < 2 || !shortest || !names.every((n) => n.startsWith(shortest))) return names;
+  return names.map((name) => name.slice(shortest.length).replace(/^[._\-\s]+/, '') || name);
 }

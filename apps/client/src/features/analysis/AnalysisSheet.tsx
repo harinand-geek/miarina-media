@@ -23,9 +23,40 @@ export function AnalysisSheet({ onOpenStorage, onStarted }: AnalysisSheetProps) 
   const url = useUi((s) => s.pendingUrl);
   const go = useUi((s) => s.go);
   const { state, retry } = useAnalysis(url, open);
+  const choices = useUi((s) => s.analysisChoices);
+  const analyzeChoice = useUi((s) => s.analyzeChoice);
 
   return (
     <BottomSheet open={open} onClose={() => go('home')} label="Analyze link">
+      {choices.length > 1 && (
+        // Design M3: the other media of the browser page.
+        <div
+          role="radiogroup"
+          aria-label="Media on this page"
+          className="-mx-4 flex gap-2 overflow-x-auto px-4"
+        >
+          {choices.map((c) => {
+            const on = c.url === url;
+            return (
+              <button
+                key={c.url}
+                type="button"
+                role="radio"
+                aria-checked={on}
+                onClick={() => analyzeChoice(c.url)}
+                className={`flex h-9 max-w-[220px] shrink-0 items-center gap-1.5 rounded-[18px] border px-3.5 text-[13px] font-semibold ${
+                  on
+                    ? 'border-chip-border bg-accent-subtle text-chip-text'
+                    : 'border-line-strong text-muted'
+                }`}
+              >
+                <Icon name={c.kind === 'audio' ? 'music_note' : 'movie'} size={16} />
+                <span className="truncate">{c.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
       {state.status === 'loading' && (
         <div className="flex flex-col gap-3 pb-6 pt-2" aria-busy="true">
           <DelayedSkeletons>
@@ -88,7 +119,7 @@ function SheetContent({
           label=""
         />
         <div className="flex min-w-0 flex-col gap-[3px]">
-          <span className="text-[16px] font-bold">{info.title}</span>
+          <span className="text-[16px] font-bold [overflow-wrap:anywhere]">{info.title}</span>
           <span className="text-[12.5px] text-muted">
             {info.host} · {info.duration}
           </span>

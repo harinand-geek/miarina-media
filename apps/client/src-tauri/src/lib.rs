@@ -86,7 +86,8 @@ pub fn run() {
         .plugin(player::init())
         .plugin(shell::init())
         .plugin(media_tools::init())
-        .plugin(download_notifications::init());
+        .plugin(download_notifications::init())
+        .plugin(browser::init());
     let app = builder
         .setup(|app| {
             #[cfg(target_os = "android")]
@@ -309,6 +310,7 @@ pub fn run() {
             browser::browser_sheet,
             browser::browser_fab_size,
             browser::browser_show_in_app,
+            browser::browser_frame,
             player::player_open,
             player::player_status,
             player::player_play,

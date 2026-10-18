@@ -7,6 +7,7 @@ import { MobileDownloads } from '../features/downloads/MobileDownloads';
 import { MobileLibrary } from '../features/library/MobileLibrary';
 import { MobileSettings } from '../features/settings/MobileSettings';
 import { MobileBrowser } from '../features/browser/MobileBrowser';
+import { browserBack } from '../features/browser/browserBack';
 import { useAndroidBack } from '../hooks/useAndroidBack';
 import { useLaunchRequests } from '../hooks/useLaunchRequests';
 import { backend } from '../services/backend';
@@ -36,11 +37,16 @@ export function MobileShell() {
   const [settingsOpen, setSettingsOpen] = useState(false);
   const nowPlaying = useUi((s) => s.nowPlaying);
   const closePlayer = useUi((s) => s.play);
+  const sheetOpen = useUi((s) => s.screen === 'analysis');
+  const confirmOpen = useUi((s) => s.confirm !== null);
+  const pushToast = useUi((s) => s.pushToast);
 
-  // Back closes the top panel, then returns Home; on Home it leaves the app.
+  // Back closes the top panel, then goes back in the browser page, then
+  // returns Home; on Home it leaves the app.
   useAndroidBack(!!nowPlaying || settingsOpen || tab !== 'home', () => {
     if (nowPlaying) closePlayer(null);
     else if (settingsOpen) setSettingsOpen(false);
+    else if (tab === 'browser' && !sheetOpen && browserBack.current?.()) return;
     else setTab('home');
   });
   // A link shared from another app opens its analysis on Home; a tapped
@@ -79,7 +85,14 @@ export function MobileShell() {
         {tab === 'home' && (
           <MobileHome onNavigate={setTab} onOpenSettings={() => setSettingsOpen(true)} />
         )}
-        {tab === 'browser' && <MobileBrowser onPasteLink={() => setTab('home')} />}
+        {tab === 'browser' && (
+          <MobileBrowser
+            covered={!!nowPlaying || settingsOpen || sheetOpen || storageOpen || confirmOpen}
+            onExit={() => setTab('home')}
+            onOpenSettings={() => setSettingsOpen(true)}
+            onShowDownloads={() => setTab('downloads')}
+          />
+        )}
         {tab === 'downloads' && <MobileDownloads />}
         {tab === 'library' && <MobileLibrary />}
       </div>
@@ -92,7 +105,12 @@ export function MobileShell() {
         </div>
       )}
 
-      <nav aria-label="Main" className="flex h-20 shrink-0 border-t border-divider bg-sidebar px-2">
+      {/* The browser has its own bar (design M1); its Miarina button returns here. */}
+      <nav
+        aria-label="Main"
+        hidden={tab === 'browser'}
+        className="flex h-20 shrink-0 border-t border-divider bg-sidebar px-2"
+      >
         {TABS.map((t) => {
           const on = t.id === tab;
           return (
@@ -126,11 +144,20 @@ export function MobileShell() {
 
       <AnalysisSheet
         onOpenStorage={() => setStorageOpen(true)}
-        onStarted={() => setTab('downloads')}
+        onStarted={() => {
+          // From the browser, stay on the page (as in common mobile media apps).
+          if (tab !== 'browser') setTab('downloads');
+          else
+            pushToast({
+              tone: 'success',
+              message: 'Download started',
+              action: { label: 'View', run: () => setTab('downloads') },
+            });
+        }}
       />
       <StorageSheet open={storageOpen} onClose={() => setStorageOpen(false)} />
       {nowPlaying && <MobilePlayer item={nowPlaying} />}
-      <ToastHost position="mobile" />
+      <ToastHost position={tab === 'browser' ? 'browser' : 'mobile'} />
       <ConfirmDialog />
     </div>
   );

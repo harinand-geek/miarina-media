@@ -1,0 +1,13 @@
+{
+  "$schema": "../gen/schemas/mobile-schema.json",
+  "identifier": "browser-android",
+  "description": "Android built-in browser: the main window drives the native page view (BrowserPlugin.kt). The visited page runs in that separate WebView and can call nothing.",
+  "platforms": ["android"],
+  "windows": ["main"],
+  "permissions": [
+    "allow-browser-navigate",
+    "allow-browser-nav",
+    "allow-browser-state",
+    "allow-browser-frame"
+  ]
+}

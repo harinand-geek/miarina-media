@@ -343,6 +343,24 @@ pub fn browser_fab_size(app: AppHandle, width: f64, height: f64) {
     }
 }
 
+/// Android only: the page is a native view placed by the interface.
+#[tauri::command]
+#[allow(clippy::too_many_arguments)]
+pub fn browser_frame(
+    _x: f64,
+    _y: f64,
+    _width: f64,
+    _height: f64,
+    _visible: bool,
+    _fab: Option<String>,
+    _snapshot: bool,
+) -> Result<Option<String>, CommandError> {
+    Err(CommandError::new(
+        "browser_unavailable",
+        "The page area is placed by the browser window on this platform",
+    ))
+}
+
 /// Brings the main window forward on a screen (e.g. Downloads).
 #[tauri::command]
 pub fn browser_show_in_app(app: AppHandle, screen: String) -> Result<(), CommandError> {

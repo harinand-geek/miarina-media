@@ -13,6 +13,7 @@ import type {
   BackendSettings,
   AppScreenRequest,
   BrowserAction,
+  BrowserFrame,
   BrowserSnapshot,
   CommandError,
   ComponentStatus,
@@ -95,6 +96,8 @@ export interface Backend {
   /** Brings the main window forward on a screen. */
   browserShowInApp(screen: AppScreenRequest): Promise<void>;
   onBrowserState(listener: (state: BrowserSnapshot) => void): () => void;
+  /** Android: places or hides the native page view; may return a picture of the page. */
+  browserFrame(frame: BrowserFrame): Promise<string | null>;
   /** Shortcuts pressed while the web page had keyboard focus. */
   onBrowserShortcut(listener: (name: string) => void): () => void;
   /** Main window: another window asks to show a screen. */
@@ -232,6 +235,7 @@ class TauriBackend implements Backend {
   browserShowInApp = (screen: AppScreenRequest) => call<void>('browser_show_in_app', { screen });
   onBrowserState = (listener: (state: BrowserSnapshot) => void) =>
     onEvent<BrowserSnapshot>('browser://state', listener);
+  browserFrame = (frame: BrowserFrame) => call<string | null>('browser_frame', { ...frame });
   onBrowserShortcut = (listener: (name: string) => void) =>
     onEvent<string>('browser://shortcut', listener);
   onAppNavigate = (listener: (screen: AppScreenRequest) => void) =>

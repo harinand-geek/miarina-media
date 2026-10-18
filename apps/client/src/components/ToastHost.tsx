@@ -4,15 +4,22 @@ import { Icon } from './Icon';
 
 const TOAST_MS = 4000;
 
+const PLACES = {
+  desktop: 'bottom-5 right-5',
+  mobile: 'inset-x-4 bottom-24',
+  // Android browser: the page is a native view drawn above the app, so the
+  // toast goes over the browser bar, one at a time.
+  browser: 'inset-x-2 bottom-2',
+};
+
 /** Bottom-right, 4 s, max 2 stacked, paused on hover; errors persist. */
-export function ToastHost({ position = 'desktop' }: { position?: 'desktop' | 'mobile' }) {
-  const toasts = useUi((s) => s.toasts);
+export function ToastHost({ position = 'desktop' }: { position?: keyof typeof PLACES }) {
+  const all = useUi((s) => s.toasts);
+  const toasts = position === 'browser' ? all.slice(-1) : all;
   return (
     <div
       aria-live="polite"
-      className={`pointer-events-none absolute z-50 flex flex-col gap-2 ${
-        position === 'desktop' ? 'bottom-5 right-5' : 'inset-x-4 bottom-24'
-      }`}
+      className={`pointer-events-none absolute z-50 flex flex-col gap-2 ${PLACES[position]}`}
     >
       {toasts.map((t) => (
         <ToastItem key={t.id} toast={t} />

@@ -307,6 +307,23 @@ export interface BrowserSnapshot {
   media: DetectedMedia[];
   /** The page streams through MSE: only the page URL can be analyzed. */
   streamPlayer: boolean;
+  /** Android: page load progress, 0–100. */
+  progress?: number;
+  /** Android: gesture on the native floating button since the last poll. */
+  fab?: 'tap' | 'hold' | null;
+}
+
+/** Android: where the native page view goes, in CSS pixels of the app. */
+export interface BrowserFrame {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  visible: boolean;
+  /** Floating button label; null hides the button. */
+  fab: string | null;
+  /** Return a picture of the page before hiding it. */
+  snapshot: boolean;
 }
 
 export type BrowserAction = 'back' | 'forward' | 'reload' | 'stop' | 'home';

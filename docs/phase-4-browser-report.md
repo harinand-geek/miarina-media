@@ -52,3 +52,50 @@ Environnement : Windows 11 Pro 22000, Rust 1.99.0, Node 24.21, pnpm 12.11.2, Web
 - Le module `browser` n'est pas encore protégé par `cfg(desktop)` : à faire avant toute compilation Android.
 - Sites testés : Wikimedia Commons, YouTube, un fichier direct. Pas de test HLS/DASH réel, d'iframe de lecteur, de DPI élevé, ni de mesure CPU.
 - La correction du titre d'onglet (point 4) est couverte par le build mais n'a pas été revérifiée visuellement dans l'app.
+
+## 6. Tranche Android : navigateur (M1, M3) — 2026-10-18
+
+Environnement : émulateur `voakajy_test` (Android 15 / API 35, x86_64), APK release x86_64 signé. **Aucun appareil physique.**
+
+### Livré
+
+| Élément | Contenu |
+|---|---|
+| Page | `BrowserPlugin.kt` : WebView native placée par l'interface au-dessus de la zone « page » de l'écran React (même principe que la surface du lecteur Media3). Réglages : JavaScript et stockage DOM pour les sites ; **aucune interface JavaScript**, aucun accès fichier/contenu, contenu mixte refusé, pas de popups (les liens `target=_blank` s'ouvrent dans la page), géolocalisation coupée, lecture automatique sur geste seulement. Liens d'application (`intent:`, `market:`, `tel:`…) refusés. Vidéo plein écran du site gérée (Retour la quitte). |
+| Chrome (M1) | Barre d'adresse 44 dp (cadenas, hôte en mono, chip « ↓ N »), compteur d'onglets, menu ⋮ (Recharger, Paramètres), ligne de chargement 3 dp, barre du bas (précédent, suivant, accueil, historique, Miarina = retour à l'app). La barre de navigation principale est masquée dans le navigateur. Page de démarrage : recherche + raccourcis. Saisie : adresse ouverte, sinon recherche Google (`address.rs`, partagé avec Windows). |
+| Détection | Relevé des `<video>`/`<audio>` du document principal (fin de chargement puis toutes les 3 s, uniquement page affichée) et fichiers que la page propose au téléchargement (`DownloadListener` : ils sont signalés, jamais enregistrés par la WebView). Classement et filtres dans Rust (`browser/page_state.rs` → `media_core::detect`), remise à zéro à chaque navigation (y compris sites mono-page). **Android ne propose que les fichiers vidéo/audio directs** : flux HLS/DASH et lecteurs MSE (`blob:`) demandent l'extracteur, absent sur Android. |
+| Bouton flottant | Natif (les vues natives sont dessinées au-dessus de l'app) : pastille 52 dp `#35C9BD`, « Download » ou « Download · N », centré 16 dp au-dessus de la barre, entrée 200 ms fondu + montée 12 dp. Appui = feuille M3 ; appui long = téléchargement immédiat au format par défaut (toast « Downloading · … »). |
+| Feuille (M3) | Feuille d'analyse existante + puces des médias de la page. Les variantes d'un même fichier sont nommées par ce qui les distingue (« 480p.vp9.webm ») ; présélection : meilleure copie ≤ 1080p plutôt qu'un original énorme (aussi sur Windows). Après « Download », on reste sur la page avec un toast « Download started · View ». |
+| Recouvrement | Une feuille, un menu, les paramètres, le lecteur ou une confirmation masquent la page native ; une **image JPEG de la page** (prise juste avant, ½ résolution) est affichée à sa place sous le voile. Média de la page mis en pause quand elle est masquée. Toasts placés sur la barre du navigateur (sinon cachés par la page). |
+| Retour Android | Ferme le menu / la saisie, puis recule dans la page, puis revient à l'accueil de l'app. |
+
+### Vérifications réellement exécutées
+
+| Vérification | Résultat |
+|---|---|
+| `cargo test` (app) | ✅ dont 6 nouveaux tests `page_state` (génération, filtres Android, téléchargements proposés, adresse affichée, geste du bouton, entrées de l'interface) |
+| `cargo clippy --all-targets -D warnings`, `cargo fmt` | ✅ (hôte Windows) |
+| `tsc`, `eslint`, `prettier --check`, `vitest` | ✅ **63 tests** (+4 : navigateur mobile, adresse refusée, libellés des variantes, présélection ≤ 1080p) |
+| `tauri android build --apk --target x86_64` | ✅ |
+| Émulateur | ✅ page de démarrage ; saisie d'une adresse Commons → page affichée, **5 médias détectés**, bouton « Download · 5 » ; appui → feuille M3 avec capture de la page, puces, analyse réelle (WEBM 92 Mo) ; téléchargement lancé en restant sur la page, terminé, visible dans Récents ; recherche Google depuis la barre ; ouverture d'un résultat, touche Retour → page précédente, Suivant actif ; appui long → téléchargement direct + toast ; page masquée quand on quitte l'onglet |
+
+### Défauts trouvés sur émulateur et corrigés
+
+1. Toast invisible dans le navigateur (dessiné sous la page native) → placé sur la barre du bas, un seul à la fois.
+2. Puces identiques (« Big_Buck_Bunny_4K.we… ») → libellés distinctifs.
+3. Titre long débordant de la feuille → retour à la ligne.
+4. Appui long : l'original de 2,76 Go choisi → présélection ≤ 1080p.
+
+### Écarts avec la maquette (documentés)
+
+- **Un seul onglet** : le compteur affiche 1 sans ouvrir M2 ; historique (M4) désactivé dans la barre ; favoris et « Help & feedback » absents du menu. Tranches suivantes.
+- Bouton flottant natif : police système en gras (Manrope n'est pas disponible côté natif) ; réduction en cercle au défilement non réalisée.
+- Feuille M3 : le fond est une image figée de la page, pas la page vivante.
+
+### Limites / non vérifié
+
+- Pas d'appareil physique ; pas de mesure mémoire/CPU/batterie.
+- Médias dans des iframes d'autres origines non détectés (le relevé ne lit que le document principal).
+- Téléchargements exigeant cookies, `Referer` ou session : non transmis → peuvent échouer.
+- L'écran Téléchargements Android n'a **pas d'action Annuler** (manque antérieur, constaté pendant ce test).
+- La page de confidentialité du site sera mise à jour à la publication d'une version contenant le navigateur.

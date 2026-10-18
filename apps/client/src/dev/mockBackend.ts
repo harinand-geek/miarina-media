@@ -509,7 +509,10 @@ export class MockBackend {
   }
 
   async browserState() {
-    return this.browser;
+    const state = this.browser;
+    // The floating button gesture is reported once (as on Android).
+    if (state.fab) this.browser = { ...state, fab: null };
+    return state;
   }
 
   async browserSheet(open: boolean) {
@@ -517,6 +520,10 @@ export class MockBackend {
   }
 
   async browserFabSize() {}
+
+  async browserFrame() {
+    return null;
+  }
 
   async browserShowInApp(screen: AppScreenRequest) {
     void screen;

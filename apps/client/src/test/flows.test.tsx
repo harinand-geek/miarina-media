@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
 import { MobileShell } from '../app/MobileShell';
+import type { MockBackend } from '../dev/mockBackend';
 import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { useSettings } from '../stores/settings';
@@ -199,13 +200,53 @@ describe('Android shell', () => {
         .map((b) => b.textContent?.replace(/\d+/g, '')),
     ).toEqual(['homeHome', 'travel_exploreBrowser', 'downloadDownloads', 'video_libraryLibrary']);
     await user.click(within(nav).getByRole('button', { name: /Browser/ }));
-    expect(screen.getByRole('heading', { name: 'Browser' })).toBeInTheDocument();
-
-    await user.click(within(nav).getByRole('button', { name: /Home/ }));
+    // Design M1: the browser bar replaces the main navigation.
+    expect(screen.getByRole('heading', { name: 'Search or open a web page' })).toBeInTheDocument();
+    expect(nav).not.toBeVisible();
+    await user.click(screen.getByRole('button', { name: 'Back to Miarina Media' }));
+    expect(nav).toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Back' }));
     expect(screen.queryByRole('heading', { name: 'Settings' })).not.toBeInTheDocument();
+  });
+
+  it('browser: page media open the format sheet with one chip per media (M1, M3)', async () => {
+    const mock = resetMockBackend() as MockBackend;
+    const user = userEvent.setup();
+    render(<MobileShell />);
+    await user.click(screen.getByRole('button', { name: /Browser/ }));
+    await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
+    await user.type(
+      screen.getByRole('textbox', { name: 'Search or type a web address' }),
+      'studio.blender.org{Enter}',
+    );
+    const chip = await screen.findByRole('button', { name: /Download media found on this page/ });
+    expect(screen.getByText('studio.blender.org')).toBeInTheDocument();
+
+    // The native floating button reports a tap through the page state.
+    act(() => mock.showBrowserDemo({ fab: 'tap' }));
+    const sheet = await screen.findByRole('dialog', { name: 'Analyze link' }, { timeout: 2000 });
+    const chips = within(sheet).getAllByRole('radio', { checked: true });
+    expect(chips[0]).toHaveTextContent('sprite-fright.mp4');
+    expect(
+      within(within(sheet).getByRole('radiogroup', { name: 'Media on this page' })).getAllByRole(
+        'radio',
+      ).length,
+    ).toBeGreaterThan(1);
+    expect(chip).toBeInTheDocument();
+  });
+
+  it('browser: an address that is not a web page is refused', async () => {
+    const user = userEvent.setup();
+    render(<MobileShell />);
+    await user.click(screen.getByRole('button', { name: /Browser/ }));
+    await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
+    await user.type(
+      screen.getByRole('textbox', { name: 'Search or type a web address' }),
+      'ftp://example.org{Enter}',
+    );
+    expect(await screen.findByRole('alert')).toHaveTextContent('Only web pages');
   });
 
   it('opens the analysis as a bottom sheet', async () => {
