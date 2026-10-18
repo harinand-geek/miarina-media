@@ -38,3 +38,66 @@ pub async fn app_ready(app: AppHandle) -> Result<(), CommandError> {
     let _ = app;
     Ok(())
 }
+
+/// First http(s) link in text shared by another app ("Title https://youtu.be/x"),
+/// validated like a pasted link. `None` when there is none.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+pub fn extract_shared_link(text: &str) -> Option<String> {
+    let start = text.find("https://").or_else(|| text.find("http://"))?;
+    let candidate: String = text[start..]
+        .chars()
+        .take_while(|c| !c.is_whitespace())
+        .collect();
+    let candidate = candidate.trim_end_matches(['.', ',', ';', ')', ']', '"', '\'', '»']);
+    media_core::validate_media_url(candidate)
+        .ok()
+        .map(|url| url.as_str().to_owned())
+}
+
+/// Link shared to the app since the last call (Android "Share → Miarina
+/// Media"), taken once. Always `None` on desktop.
+#[tauri::command]
+pub async fn app_take_shared_link(app: AppHandle) -> Result<Option<String>, CommandError> {
+    #[cfg(target_os = "android")]
+    {
+        use tauri::Manager;
+        #[derive(serde::Deserialize)]
+        struct Shared {
+            text: Option<String>,
+        }
+        let Some(shell) = app.try_state::<AppShell>() else {
+            return Ok(None);
+        };
+        let shared: Shared = shell
+            .0
+            .run_mobile_plugin_async("takeShared", ())
+            .await
+            .map_err(|e| CommandError::new("app_shell", e.to_string()))?;
+        Ok(shared.text.as_deref().and_then(extract_shared_link))
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        let _ = app;
+        Ok(None)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_link_is_found_in_shared_text() {
+        assert_eq!(
+            extract_shared_link("SIMONDA - LOVE https://youtu.be/jkRyWwKqVs4?si=abc").as_deref(),
+            Some("https://youtu.be/jkRyWwKqVs4?si=abc")
+        );
+        assert_eq!(
+            extract_shared_link("Look (https://example.org/a.mp4).").as_deref(),
+            Some("https://example.org/a.mp4")
+        );
+        assert_eq!(extract_shared_link("no link here"), None);
+        assert_eq!(extract_shared_link("ftp://example.org/a.mp4"), None);
+        assert_eq!(extract_shared_link("https://user:pw@example.org/a"), None);
+    }
+}

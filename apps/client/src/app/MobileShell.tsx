@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Overlay';
 import { ToastHost } from '../components/ToastHost';
@@ -8,6 +8,7 @@ import { MobileLibrary } from '../features/library/MobileLibrary';
 import { MobileSettings } from '../features/settings/MobileSettings';
 import { MobileBrowser } from '../features/browser/MobileBrowser';
 import { useAndroidBack } from '../hooks/useAndroidBack';
+import { useSharedLinks } from '../hooks/useSharedLinks';
 import { AnalysisSheet } from '../features/analysis/AnalysisSheet';
 import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
@@ -41,6 +42,19 @@ export function MobileShell() {
     else if (settingsOpen) setSettingsOpen(false);
     else setTab('home');
   });
+  // A link shared from another app opens its analysis on Home.
+  const analyze = useUi((s) => s.analyze);
+  useSharedLinks(
+    useCallback(
+      (url: string) => {
+        closePlayer(null);
+        setSettingsOpen(false);
+        setTab('home');
+        analyze(url);
+      },
+      [analyze, closePlayer],
+    ),
+  );
   const tasks = useDownloads((s) => s.tasks);
   const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
 

@@ -58,6 +58,7 @@
     "allow-player-surface",
     "allow-player-close",
     "allow-app-ready",
+    "allow-app-take-shared-link",
     "core:app:allow-register-listener",
     "core:app:allow-remove-listener"
   ]

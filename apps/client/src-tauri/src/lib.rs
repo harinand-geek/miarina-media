@@ -306,6 +306,7 @@ pub fn run() {
             player::player_surface,
             player::player_close,
             shell::app_ready,
+            shell::app_take_shared_link,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");

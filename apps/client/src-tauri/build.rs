@@ -53,6 +53,7 @@ const COMMANDS: &[&str] = &[
     "player_surface",
     "player_close",
     "app_ready",
+    "app_take_shared_link",
 ];
 
 fn main() {

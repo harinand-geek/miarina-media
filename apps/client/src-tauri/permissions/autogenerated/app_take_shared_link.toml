@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-app-take-shared-link"
+description = "Enables the app_take_shared_link command without any pre-configured scope."
+commands.allow = ["app_take_shared_link"]
+
+[[permission]]
+identifier = "deny-app-take-shared-link"
+description = "Denies the app_take_shared_link command without any pre-configured scope."
+commands.deny = ["app_take_shared_link"]

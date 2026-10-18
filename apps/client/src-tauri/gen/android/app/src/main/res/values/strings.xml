@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">"Miarina Media"</string>
     <string name="main_activity_title">"Miarina Media"</string>
+    <!-- Name in the Android share sheet. -->
+    <string name="share_target_label">"Miarina Media"</string>
 </resources>
