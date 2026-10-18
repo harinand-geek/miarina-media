@@ -7,6 +7,7 @@ import { closeWindow, minimizeWindow, toggleMaximizeWindow } from '../../service
 import { summarize, useDownloads } from '../../stores/downloads';
 import { candidates, hostOf, splitAddress } from './candidates';
 import { useBrowserState } from './useBrowserState';
+import { StartShortcuts } from './StartShortcuts';
 
 const WINDOW_BUTTON =
   'grid h-10 w-[46px] place-items-center text-muted transition-colors duration-[80ms] hover:bg-surface hover:text-fg';
@@ -228,7 +229,7 @@ function AddressBar({ state, count }: { state: BrowserSnapshot; count: number })
           aria-describedby={error ? 'address-error' : undefined}
           spellCheck={false}
           autoComplete="off"
-          placeholder={editing || !state.url ? 'Type a web address' : undefined}
+          placeholder={editing || !state.url ? 'Search or type a web address' : undefined}
           value={draft ?? ''}
           onChange={(e) => {
             setDraft(e.target.value);
@@ -277,14 +278,19 @@ function AddressBar({ state, count }: { state: BrowserSnapshot; count: number })
 
 /** Not in the handoff: built from design-system pieces (empty-state pattern). */
 function StartPage() {
+  // Shortcut addresses are constants: they always resolve.
+  const open = (address: string) => void backend.browserNavigate(address).catch(() => {});
   return (
-    <main className="flex flex-1 flex-col items-center justify-center gap-3 px-6 text-center">
-      <Icon name="travel_explore" size={40} className="text-faint-icon" />
-      <h1 className="m-0 text-[15px] font-bold">Open a web page</h1>
-      <p className="m-0 max-w-[440px] text-[13px] text-muted">
-        Type an address above. When a page has video or audio, a download button appears in the
-        corner.
-      </p>
+    <main className="flex flex-1 flex-col items-center justify-center gap-6 px-6 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <Icon name="travel_explore" size={40} className="text-faint-icon" />
+        <h1 className="m-0 text-[15px] font-bold">Search or open a web page</h1>
+        <p className="m-0 max-w-[440px] text-[13px] text-muted">
+          Type an address or what you are looking for above. When a page has video or audio, a
+          download button appears in the corner.
+        </p>
+      </div>
+      <StartShortcuts columns={8} onOpen={open} />
       <p className="m-0 text-[12px] text-faint">
         Only download media you own or have permission to save.
       </p>

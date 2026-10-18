@@ -161,31 +161,6 @@ fn layout(app: &AppHandle) {
     }
 }
 
-/// Parses what the user typed in the address bar. Only web pages.
-pub fn parse_address(input: &str) -> Result<Url, CommandError> {
-    let text = input.trim();
-    let invalid =
-        || CommandError::new("not_a_web_address", "Enter a web address, like example.org");
-    if text.is_empty() || text.len() > 4096 || text.chars().any(char::is_whitespace) {
-        return Err(invalid());
-    }
-    let candidate = if text.contains("://") {
-        text.to_owned()
-    } else if text.contains('.') || text.starts_with("localhost") {
-        format!("https://{text}")
-    } else {
-        return Err(invalid());
-    };
-    let url = Url::parse(&candidate).map_err(|_| invalid())?;
-    match url.scheme() {
-        "http" | "https" if url.host_str().is_some() => Ok(url),
-        _ => Err(CommandError::new(
-            "unsupported_address",
-            "Only web pages (http, https) can be opened",
-        )),
-    }
-}
-
 fn is_web(url: &Url) -> bool {
     matches!(url.scheme(), "http" | "https")
 }
@@ -303,14 +278,14 @@ fn create_window(app: &AppHandle) -> tauri::Result<()> {
 pub async fn browser_open(app: AppHandle, url: Option<String>) -> Result<(), CommandError> {
     create_window(&app).map_err(|e| CommandError::new("browser_failed", e.to_string()))?;
     if let Some(url) = url {
-        navigate_page(&app, parse_address(&url)?)?;
+        navigate_page(&app, super::address::resolve_address(&url)?)?;
     }
     Ok(())
 }
 
 #[tauri::command]
 pub async fn browser_navigate(app: AppHandle, address: String) -> Result<String, CommandError> {
-    let url = parse_address(&address)?;
+    let url = super::address::resolve_address(&address)?;
     navigate_page(&app, url.clone())?;
     Ok(url.to_string())
 }
@@ -668,33 +643,5 @@ mod hooks {
                 let _ = controller.add_AcceleratorKeyPressed(&handler, &mut token);
             }
         })
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::parse_address;
-
-    #[test]
-    fn addresses_are_web_pages_only() {
-        assert_eq!(
-            parse_address("example.org").unwrap().as_str(),
-            "https://example.org/"
-        );
-        assert_eq!(
-            parse_address(" http://a.org/x ").unwrap().as_str(),
-            "http://a.org/x"
-        );
-        assert!(parse_address("localhost:8080").is_ok());
-        for bad in [
-            "",
-            "hello world",
-            "cats",
-            "file:///C:/x",
-            "javascript:alert(1)",
-            "ftp://a.org",
-        ] {
-            assert!(parse_address(bad).is_err(), "{bad}");
-        }
     }
 }

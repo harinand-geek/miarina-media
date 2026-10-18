@@ -2,6 +2,8 @@
 //! webviews (`desktop.rs`). Mobile: the same command names answer
 //! "unavailable"; Android gets a native WebView adapter (Phase 4).
 
+pub mod address;
+
 #[cfg(desktop)]
 mod desktop;
 #[cfg(desktop)]

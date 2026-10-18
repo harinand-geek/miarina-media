@@ -94,18 +94,20 @@ describe('browser chrome', () => {
   it('starts on the start page with the address focused, then navigates', async () => {
     const user = userEvent.setup();
     render(<BrowserChrome />);
-    expect(await screen.findByText('Open a web page')).toBeInTheDocument();
+    expect(await screen.findByText('Search or open a web page')).toBeInTheDocument();
+    expect(screen.getByRole('list', { name: 'Shortcuts' })).toHaveTextContent('YouTube');
     const address = screen.getByRole('textbox', { name: 'Address' });
     await waitFor(() => expect(address).toHaveFocus());
 
+    // Text that is not an address is searched.
     await user.type(address, 'cats{Enter}');
-    expect(screen.getByRole('alert')).toHaveTextContent('Enter a web address');
-    expect(address).toHaveAttribute('aria-invalid', 'true');
+    await waitFor(() => expect(screen.queryByText('Search or open a web page')).toBeNull());
+    expect(screen.queryByRole('alert')).toBeNull();
 
     await user.clear(address);
     await user.type(address, 'studio.blender.org/films/sprite-fright/{Enter}');
     expect(await screen.findByRole('button', { name: /2 media/ })).toBeInTheDocument();
-    expect(screen.queryByText('Open a web page')).not.toBeInTheDocument();
+    expect(screen.queryByText('Search or open a web page')).not.toBeInTheDocument();
     expect(screen.getByRole('tab')).toHaveTextContent('Sprite Fright — Blender Studio');
   });
 });

@@ -482,14 +482,24 @@ export class MockBackend {
   }
 
   async browserNavigate(address: string) {
-    // Same rule as `parse_address` in Rust: a bare host gets https://.
+    // Same rule as `resolve_address` in Rust: an address opens the page,
+    // anything else is searched.
     const text = address.trim();
+    if (!text) throw new Error('Type an address or what you are looking for');
     const bare =
-      !text.includes('://') &&
-      !/\s/.test(text) &&
-      (text.includes('.') || text.startsWith('localhost'));
-    const link = await checkLink(bare ? `https://${text}` : text.includes('://') ? text : '');
-    if (!link.ok) throw new Error('Enter a web address, like example.org');
+      !text.includes('://') && !/\s/.test(text) && /^[^/?#]*\.[a-z]{2,}([/?#:]|$)/i.test(text);
+    if (!text.includes('://') && !bare) {
+      const url = `https://www.google.com/search?q=${encodeURIComponent(text)}`;
+      this.setBrowser({
+        ...BROWSER_START,
+        startPage: false,
+        url,
+        title: `${text} - Google Search`,
+      });
+      return url;
+    }
+    const link = await checkLink(bare ? `https://${text}` : text);
+    if (!link.ok) throw new Error('Only web pages (http, https) can be opened');
     this.setBrowser({ ...BROWSER_DEMO, url: link.url });
     return link.url;
   }
