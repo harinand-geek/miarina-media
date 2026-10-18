@@ -3,6 +3,7 @@ mod android_tls;
 mod browser;
 mod commands;
 mod player;
+mod shell;
 mod state;
 
 use std::path::{Path, PathBuf};
@@ -50,7 +51,7 @@ pub fn run() {
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init());
     #[cfg(target_os = "android")]
-    let builder = builder.plugin(player::init());
+    let builder = builder.plugin(player::init()).plugin(shell::init());
     let app = builder
         .setup(|app| {
             #[cfg(target_os = "android")]
@@ -206,6 +207,7 @@ pub fn run() {
             player::player_rate,
             player::player_surface,
             player::player_close,
+            shell::app_ready,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");

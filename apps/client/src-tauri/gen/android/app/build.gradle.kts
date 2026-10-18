@@ -97,6 +97,8 @@ dependencies {
     implementation("androidx.activity:activity-ktx:1.10.1")
     implementation("com.google.android.material:material:1.12.0")
     implementation("androidx.lifecycle:lifecycle-process:2.10.0")
+    // Launch screen on Android 7+ (same API as the Android 12 splash screen).
+    implementation("androidx.core:core-splashscreen:1.2.0")
     // Native playback: the WebView cannot stream local files (NativePlayerPlugin).
     implementation("androidx.media3:media3-exoplayer:1.11.1")
     implementation("androidx.media3:media3-ui:1.11.1")

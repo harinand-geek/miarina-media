@@ -50,6 +50,7 @@ const COMMANDS: &[&str] = &[
     "player_rate",
     "player_surface",
     "player_close",
+    "app_ready",
 ];
 
 fn main() {
