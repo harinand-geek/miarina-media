@@ -22,6 +22,12 @@ pub struct AppState {
     pub ytdlp: YtDlpEngine,
     pub library: Library,
     pub default_download_dir: PathBuf,
+    /// Android 11+: audio goes to shared `Music/Miarina`, video to the
+    /// download folder (`Movies/Miarina`). `None`: one folder for both.
+    pub audio_download_dir: Option<PathBuf>,
+    /// Where temporary download files are written when not next to the
+    /// destination (Android shared storage only accepts media files).
+    pub staging_dir: Option<PathBuf>,
     /// Serializes component installs (one download of each tool at a time).
     pub install_lock: tokio::sync::Mutex<()>,
 }
@@ -30,6 +36,8 @@ pub struct AppState {
 #[serde(rename_all = "camelCase")]
 pub struct SettingsDto {
     pub download_dir: String,
+    /// Separate folder for audio (Android shared `Music/Miarina`).
+    pub audio_download_dir: Option<String>,
     pub concurrency: usize,
     pub resource_mode: ResourceMode,
     pub limits: Limits,
@@ -54,6 +62,21 @@ impl AppState {
             .unwrap_or_else(|poisoned| poisoned.into_inner())
     }
 
+    /// Folder holding temporary download files.
+    pub fn temp_dir(&self) -> PathBuf {
+        self.staging_dir
+            .clone()
+            .unwrap_or_else(|| PathBuf::from(self.settings().download_dir))
+    }
+
+    /// Folder a new download of `kind` is saved to.
+    pub fn download_dir_for(&self, kind: storage::MediaKind) -> String {
+        match (kind, &self.audio_download_dir) {
+            (storage::MediaKind::Audio, Some(dir)) => dir.to_string_lossy().into_owned(),
+            _ => self.settings().download_dir,
+        }
+    }
+
     pub fn settings(&self) -> SettingsDto {
         let storage = self.storage();
         let download_dir = storage
@@ -73,6 +96,10 @@ impl AppState {
             .unwrap_or_default();
         SettingsDto {
             download_dir,
+            audio_download_dir: self
+                .audio_download_dir
+                .as_ref()
+                .map(|d| d.to_string_lossy().into_owned()),
             concurrency,
             resource_mode,
             limits: limits(resource_mode, PLATFORM, concurrency, cpu_count()),

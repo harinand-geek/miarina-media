@@ -92,6 +92,9 @@ struct Inner {
     retry: RetryPolicy,
     running: Mutex<HashMap<String, Running>>,
     events: mpsc::Sender<ManagerEvent>,
+    /// Folder for temporary files when they cannot sit next to the
+    /// destination (Android shared storage only accepts media files).
+    staging: Mutex<Option<PathBuf>>,
 }
 
 #[derive(Clone)]
@@ -132,8 +135,15 @@ impl Manager {
                 retry,
                 running: Mutex::new(HashMap::new()),
                 events,
+                staging: Mutex::new(None),
             }),
         }
+    }
+
+    /// Writes temporary files in `dir` instead of next to the destination;
+    /// the finished file is then moved (or copied) to its folder.
+    pub fn set_staging_dir(&self, dir: PathBuf) {
+        *lock(&self.inner.staging) = Some(dir);
     }
 
     /// Recovers tasks interrupted by the previous session, then starts the
@@ -401,7 +411,18 @@ impl Manager {
             self.fail(&id, &EngineError::from_io(err));
             return;
         }
-        let part = part_path(&dest_dir, &task.file_name, &id);
+        let staging = lock(&self.inner.staging).clone();
+        let work_dir = match staging {
+            Some(dir) => match tokio::fs::create_dir_all(&dir).await {
+                Ok(()) => dir,
+                Err(err) => {
+                    self.fail(&id, &EngineError::from_io(err));
+                    return;
+                }
+            },
+            None => dest_dir.clone(),
+        };
+        let part = part_path(&work_dir, &task.file_name, &id);
         let _ = lock(&self.inner.storage).set_paths(&id, part.to_str(), None);
 
         loop {

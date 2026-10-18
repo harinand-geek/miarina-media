@@ -36,7 +36,7 @@ Depuis le 2026-10-17 (décision 0002), yt-dlp et FFmpeg sont **inclus dans l'ins
 | Bibliothèque, miniatures, métadonnées | ✅ | ✅ via les API Android (vérifié sur émulateur ; version suivante) |
 | Lecture | ✅ | ✅ lecteur natif Media3 (vérifié sur émulateur ; version suivante) |
 | Navigateur intégré | ✅ (un onglet) | ❌ — à venir |
-| Fichiers visibles dans la galerie / Téléchargements | — | ❌ stockage privé de l'app (MediaStore à venir) |
+| Fichiers visibles dans la galerie / Téléchargements | — | ✅ Android 11+ : vidéo dans `Movies/Miarina`, audio dans `Music/Miarina` (vérifié sur émulateur ; version suivante). Android 7–10 : stockage de l'app |
 | Partage de lien depuis une autre app, notifications | — | ❌ à venir |
 
 ## Reproduire

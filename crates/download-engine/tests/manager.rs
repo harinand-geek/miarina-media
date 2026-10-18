@@ -319,3 +319,29 @@ async fn rejects_unknown_engines() {
         Err(ManagerError::UnknownEngine(_))
     ));
 }
+
+#[tokio::test]
+async fn temporary_files_can_live_outside_the_destination() {
+    let server = serve(body(150_000), Behavior::default()).await;
+    let dir = tempfile::tempdir().unwrap();
+    let dest = dir.path().join("Movies").join("Miarina");
+    let staging = dir.path().join("partial");
+    let h = harness(&dir.path().join("db.sqlite"), 1);
+    h.manager.set_staging_dir(staging.clone());
+    h.manager.start().unwrap();
+    h.manager
+        .enqueue(task("s", server.url("/s.mp4"), &dest))
+        .unwrap();
+    wait_for(&h, "s", TaskState::Completed).await;
+
+    assert_eq!(std::fs::read(dest.join("s.mp4")).unwrap(), *server.body);
+    // Only the finished media file ever lands in the destination.
+    let names: Vec<_> = std::fs::read_dir(&dest)
+        .unwrap()
+        .map(|e| e.unwrap().file_name().into_string().unwrap())
+        .collect();
+    assert_eq!(names, ["s.mp4"]);
+    assert_eq!(std::fs::read_dir(&staging).unwrap().count(), 0);
+    let record = h.storage.lock().unwrap().task("s").unwrap();
+    assert_eq!(record.final_path.as_deref(), dest.join("s.mp4").to_str());
+}

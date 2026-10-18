@@ -1,12 +1,15 @@
 package org.miarina.media
 
 import android.app.Activity
+import android.content.ContentValues
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaExtractor
 import android.media.MediaFormat
 import android.media.MediaMetadataRetriever
+import android.media.MediaScannerConnection
 import android.os.Build
+import android.provider.MediaStore
 import app.tauri.annotation.Command
 import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
@@ -16,6 +19,11 @@ import app.tauri.plugin.Plugin
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.Executors
+
+@InvokeArg
+class PublishArgs {
+  lateinit var path: String
+}
 
 @InvokeArg
 class ProbeArgs {
@@ -34,8 +42,32 @@ class ProbeArgs {
  * how many files are read at once.
  */
 @TauriPlugin
-class MediaToolsPlugin(activity: Activity) : Plugin(activity) {
+class MediaToolsPlugin(private val activity: Activity) : Plugin(activity) {
   private val worker = Executors.newSingleThreadExecutor()
+
+  /**
+   * Makes a finished download in shared storage (Movies/, Music/) visible to
+   * the gallery and music apps: indexes it, then clears the "pending" flag
+   * the system can leave on a file moved in from the app's own folder.
+   */
+  @Command
+  fun publish(invoke: Invoke) {
+    val args = invoke.parseArgs(PublishArgs::class.java)
+    MediaScannerConnection.scanFile(activity, arrayOf(args.path), null) { _, uri ->
+      var visible = uri != null
+      if (uri != null && Build.VERSION.SDK_INT >= 29) {
+        try {
+          val values = ContentValues().apply { put(MediaStore.MediaColumns.IS_PENDING, 0) }
+          activity.contentResolver.update(uri, values, null, null)
+        } catch (e: Exception) {
+          visible = false
+        }
+      }
+      val result = JSObject()
+      result.put("indexed", visible)
+      invoke.resolve(result)
+    }
+  }
 
   @Command
   fun probe(invoke: Invoke) {

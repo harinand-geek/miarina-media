@@ -148,6 +148,8 @@ export interface Limits {
 
 export interface BackendSettings {
   downloadDir: string;
+  /** Separate audio folder (Android shared `Music/Miarina`). */
+  audioDownloadDir?: string | null;
   concurrency: number;
   resourceMode: ResourceMode;
   limits: Limits;

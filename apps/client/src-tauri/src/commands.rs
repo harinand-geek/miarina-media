@@ -186,7 +186,17 @@ pub async fn analyze_link(state: State<'_, AppState>, url: String) -> CmdResult<
     }
 }
 
+/// The pinned yt-dlp and FFmpeg builds are Windows executables.
+const EXTRACTOR_AVAILABLE: bool = cfg!(windows);
+
 async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<AnalysisDto> {
+    if !EXTRACTOR_AVAILABLE {
+        // Never offer to download Windows tools on Android.
+        return Ok(AnalysisDto::NoMedia {
+            reason: "this is a web page, not a media file. Reading web pages is not available                      on Android yet: paste a direct link to a video or audio file"
+                .into(),
+        });
+    }
     let components = state.ytdlp.components();
     if components.ytdlp().is_none() {
         return Ok(AnalysisDto::NeedsComponents {
@@ -399,6 +409,12 @@ pub async fn components_install(
     app: AppHandle,
     state: State<'_, AppState>,
 ) -> CmdResult<Vec<ComponentStatus>> {
+    if !EXTRACTOR_AVAILABLE {
+        return Err(CommandError::new(
+            "unsupported_platform",
+            "The media tools are Windows programs and cannot run on this device.",
+        ));
+    }
     let _guard = state.install_lock.lock().await;
     let components = state.ytdlp.components();
     for spec in download_engine::components::ALL {
@@ -530,7 +546,7 @@ pub async fn downloads_start(
         engine: request.engine,
         format_id: request.format_id,
         format_label: request.format_label.chars().take(80).collect(),
-        dest_dir: state.settings().download_dir,
+        dest_dir: state.download_dir_for(kind),
         file_name,
         // Only a picture from the source thumbnail cache is accepted.
         thumbnail: request
@@ -880,7 +896,7 @@ fn dir_size(path: &Path) -> u64 {
 pub async fn storage_usage(state: State<'_, AppState>) -> CmdResult<StorageUsage> {
     let download_dir = state.settings().download_dir;
     let dir = PathBuf::from(&download_dir);
-    let orphans = orphan_temp_files(&state, &dir);
+    let orphans = orphan_temp_files(&state, &state.temp_dir());
     Ok(StorageUsage {
         disk: disk_of(&dir),
         library_bytes: state.storage().media_stats()?.total_bytes,
@@ -899,9 +915,8 @@ pub async fn storage_clear_thumbnails(state: State<'_, AppState>) -> CmdResult<u
 /// Deletes orphan partial files only; active and paused downloads keep theirs.
 #[tauri::command]
 pub async fn storage_clean_temp(state: State<'_, AppState>) -> CmdResult<u64> {
-    let dir = PathBuf::from(state.settings().download_dir);
     let mut freed = 0;
-    for (path, size) in orphan_temp_files(&state, &dir) {
+    for (path, size) in orphan_temp_files(&state, &state.temp_dir()) {
         let removed = if path.is_dir() {
             std::fs::remove_dir_all(&path)
         } else {

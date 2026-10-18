@@ -345,6 +345,8 @@ fn looks_like_media(content_type: Option<&str>, name: &str) -> bool {
         extension(name).is_some_and(|e| MEDIA_EXTENSIONS.contains(&e.as_str()));
     match content_type.map(|c| c.split(';').next().unwrap_or("").trim()) {
         Some(ct) if ct.starts_with("video/") || ct.starts_with("audio/") => true,
+        // Ogg is registered under application/ (Wikimedia serves .ogg/.oga so).
+        Some("application/ogg") => true,
         Some("application/octet-stream" | "binary/octet-stream") | None => has_media_extension,
         _ => false,
     }
@@ -377,6 +379,7 @@ mod tests {
             "watch.mp4"
         ));
         assert!(looks_like_media(None, "a.flac"));
+        assert!(looks_like_media(Some("application/ogg"), "Example.ogg"));
     }
 
     #[test]

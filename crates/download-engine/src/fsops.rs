@@ -10,18 +10,40 @@ use crate::EngineError;
 /// Moves `part` to `dir/name`, or to the first free `name (n)` variant.
 /// Never overwrites an existing file, even if one appears concurrently.
 pub fn finalize_no_clobber(part: &Path, dir: &Path, name: &str) -> Result<PathBuf, EngineError> {
+    finalize_with(part, dir, name, move_no_replace)
+}
+
+/// Names the system may refuse in a row before finalization gives up.
+const MAX_REFUSED_NAMES: usize = 32;
+
+/// `finalize_no_clobber` with the move as a parameter (tests). A name the
+/// move refuses as existing is never retried, even when `exists()` says it
+/// is free (Android: a stale media index entry blocks the name), so the
+/// loop always ends (at most `MAX_REFUSED_NAMES` refusals).
+fn finalize_with(
+    part: &Path,
+    dir: &Path,
+    name: &str,
+    mut move_to: impl FnMut(&Path, &Path) -> io::Result<()>,
+) -> Result<PathBuf, EngineError> {
+    let mut refused: Vec<String> = Vec::new();
     loop {
-        let chosen =
-            unique_filename(name, |candidate| dir.join(candidate).exists()).map_err(|e| {
-                EngineError::Io {
-                    message: e.to_string(),
-                }
-            })?;
+        let chosen = unique_filename(name, |candidate| {
+            refused.iter().any(|r| r == candidate) || dir.join(candidate).exists()
+        })
+        .map_err(|e| EngineError::Io {
+            message: e.to_string(),
+        })?;
         let target = dir.join(&chosen);
-        match move_no_replace(part, &target) {
+        match move_to(part, &target) {
             Ok(()) => return Ok(target),
-            // Lost a race with another writer: pick the next free name.
-            Err(err) if err.kind() == io::ErrorKind::AlreadyExists => continue,
+            // Taken (another writer, or a name the system holds): next one.
+            Err(err) if err.kind() == io::ErrorKind::AlreadyExists => {
+                refused.push(chosen);
+                if refused.len() >= MAX_REFUSED_NAMES {
+                    return Err(EngineError::from_io(err));
+                }
+            }
             Err(err) => return Err(EngineError::from_io(err)),
         }
     }
@@ -59,7 +81,38 @@ fn move_no_replace(from: &Path, to: &Path) -> io::Result<()> {
             if to.exists() {
                 return Err(io::Error::from(io::ErrorKind::AlreadyExists));
             }
-            std::fs::rename(from, to)
+            match std::fs::rename(from, to) {
+                // Android: the temporary file is in the app's folder, the
+                // final one in shared storage (another file system).
+                Err(err) if err.kind() == io::ErrorKind::CrossesDevices => {
+                    copy_then_remove(from, to)
+                }
+                other => other,
+            }
+        }
+    }
+}
+
+/// Streams `from` into a new file `to` (never overwriting), syncs it, then
+/// removes `from`. On failure the partial copy is removed and `from` kept.
+#[cfg(not(windows))]
+fn copy_then_remove(from: &Path, to: &Path) -> io::Result<()> {
+    let copy = || -> io::Result<()> {
+        let mut source = std::fs::File::open(from)?;
+        let mut target = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(to)?;
+        io::copy(&mut source, &mut target)?;
+        target.sync_all()
+    };
+    match copy() {
+        Ok(()) => std::fs::remove_file(from),
+        Err(err) => {
+            if err.kind() != io::ErrorKind::AlreadyExists {
+                let _ = std::fs::remove_file(to);
+            }
+            Err(err)
         }
     }
 }
@@ -116,6 +169,33 @@ pub fn ensure_space(dir: &Path, remaining: u64) -> Result<(), EngineError> {
 
 #[cfg(test)]
 mod tests {
+
+    #[test]
+    fn a_name_refused_by_the_system_is_skipped_not_retried_forever() {
+        let dir = tempfile::tempdir().unwrap();
+        let part = dir.path().join("a.part");
+        std::fs::write(&part, b"x").unwrap();
+        let mut tries = Vec::new();
+        // "a.mp4" looks free but the move always reports it as existing.
+        let target = finalize_with(&part, dir.path(), "a.mp4", |from, to| {
+            tries.push(to.file_name().unwrap().to_string_lossy().into_owned());
+            if to.ends_with("a.mp4") {
+                Err(io::Error::from(io::ErrorKind::AlreadyExists))
+            } else {
+                std::fs::rename(from, to)
+            }
+        })
+        .unwrap();
+        assert_eq!(target, dir.path().join("a (1).mp4"));
+        assert_eq!(tries, ["a.mp4", "a (1).mp4"]);
+
+        // Every name refused: an error, not an endless loop.
+        std::fs::write(&part, b"x").unwrap();
+        let result = finalize_with(&part, dir.path(), "b.mp4", |_, _| {
+            Err(io::Error::from(io::ErrorKind::AlreadyExists))
+        });
+        assert!(result.is_err());
+    }
     use super::*;
 
     #[test]

@@ -27,6 +27,32 @@ impl MediaTools {
     pub fn prober(&self) -> Arc<dyn Prober> {
         Arc::new(AndroidProber(self.0.clone()))
     }
+
+    pub fn publisher(&self) -> Publisher {
+        Publisher(self.0.clone())
+    }
+}
+
+/// Makes finished downloads in shared storage visible to other apps.
+#[derive(Clone)]
+pub struct Publisher(Arc<PluginHandle<Wry>>);
+
+impl Publisher {
+    /// Indexes `path` for the gallery / music apps; `false` if it failed.
+    pub async fn publish(&self, path: &Path) -> bool {
+        #[derive(Deserialize)]
+        struct Reply {
+            #[serde(default)]
+            indexed: bool,
+        }
+        self.0
+            .run_mobile_plugin_async::<Reply>(
+                "publish",
+                serde_json::json!({ "path": path.to_string_lossy() }),
+            )
+            .await
+            .is_ok_and(|r| r.indexed)
+    }
 }
 
 struct AndroidProber(Arc<PluginHandle<Wry>>);

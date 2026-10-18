@@ -11,6 +11,8 @@ export type Density = 'comfortable' | 'compact';
 interface SettingsState {
   // Persisted by the backend (SQLite) and applied by the Rust scheduler.
   downloadDir: string;
+  /** Separate audio folder (Android shared `Music/Miarina`), if any. */
+  audioDownloadDir: string | null;
   resourceMode: ResourceMode;
   concurrency: number;
   /** Limits the backend actually applies for the current mode. */
@@ -47,6 +49,7 @@ export const MAX_CONCURRENCY = 8;
 
 const fromBackend = (s: BackendSettings) => ({
   downloadDir: s.downloadDir,
+  audioDownloadDir: s.audioDownloadDir ?? null,
   resourceMode: s.resourceMode,
   concurrency: s.concurrency,
   limits: s.limits,
@@ -62,6 +65,7 @@ function report(error: unknown) {
 
 export const useSettings = create<SettingsState>((set, get) => ({
   downloadDir: '',
+  audioDownloadDir: null,
   resourceMode: 'balanced',
   concurrency: 3,
   limits: mockLimits('balanced', 3),

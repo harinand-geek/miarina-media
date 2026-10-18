@@ -5,6 +5,7 @@ mod commands;
 #[cfg(target_os = "android")]
 mod media_tools;
 mod player;
+mod shared_storage;
 mod shell;
 mod state;
 
@@ -64,11 +65,30 @@ pub fn run() {
             let data_dir = app.path().app_data_dir()?;
             std::fs::create_dir_all(&data_dir)?;
             let storage = Arc::new(Mutex::new(Storage::open(&data_dir.join("miarina.db"))?));
-            let default_download_dir = app
+            let app_download_dir = app
                 .path()
                 .video_dir()
                 .or_else(|_| app.path().download_dir())?
                 .join("Miarina");
+            // Android 11+: shared Movies/Miarina and Music/Miarina (gallery,
+            // kept after uninstall). Elsewhere: the folder above.
+            #[cfg(target_os = "android")]
+            let shared =
+                shared_storage::shared_dirs(&app_download_dir, shared_storage::sdk_level());
+            #[cfg(not(target_os = "android"))]
+            let shared: Option<shared_storage::SharedDirs> = None;
+            let default_download_dir = shared
+                .as_ref()
+                .map_or_else(|| app_download_dir.clone(), |d| d.video.clone());
+            let audio_download_dir = shared.as_ref().map(|d| d.audio.clone());
+            // Shared folders only accept media files: temporary files stay
+            // in the app's own folder on the same storage (`files/partial`).
+            let staging_dir = shared.as_ref().and(
+                app_download_dir
+                    .parent()
+                    .and_then(Path::parent)
+                    .map(|files| files.join("partial")),
+            );
 
             let http = HttpEngine::new()?;
             // yt-dlp and FFmpeg ship with the Windows installer (`tools/`);
@@ -103,6 +123,9 @@ pub fn run() {
                 RetryPolicy::default(),
                 tx,
             );
+            if let Some(dir) = &staging_dir {
+                manager.set_staging_dir(dir.clone());
+            }
             let state = AppState {
                 storage: storage.clone(),
                 manager: manager.clone(),
@@ -110,6 +133,8 @@ pub fn run() {
                 ytdlp,
                 library: library.clone(),
                 default_download_dir,
+                audio_download_dir: audio_download_dir.clone(),
+                staging_dir: staging_dir.clone(),
                 install_lock: tokio::sync::Mutex::new(()),
             };
             // Apply the persisted settings before anything is scheduled.
@@ -138,8 +163,27 @@ pub fn run() {
                 library.set_prober(tools.prober());
             }
             tauri::async_runtime::spawn(library.clone().run_worker());
-            scan_library(&library, download_dir);
+            // Shared folders, plus the app folder used before Android 11
+            // storage support (earlier downloads stay in the library).
+            for dir in [
+                Some(download_dir.clone()),
+                audio_download_dir,
+                Some(app_download_dir),
+            ]
+            .into_iter()
+            .flatten()
+            .filter(|d| *d == download_dir || d.is_dir())
+            {
+                scan_library(&library, dir);
+            }
 
+            // Android: finished downloads in shared folders are published to
+            // the system media index (gallery, music apps).
+            #[cfg(target_os = "android")]
+            let publisher = shared.clone().zip(
+                app.try_state::<media_tools::MediaTools>()
+                    .map(|t| t.publisher()),
+            );
             let handle = app.handle().clone();
             let completed_library = library.clone();
             tauri::async_runtime::spawn(async move {
@@ -149,6 +193,18 @@ pub fn run() {
                         && task.state == TaskState::Completed
                         && let Some(path) = &task.final_path
                     {
+                        #[cfg(target_os = "android")]
+                        if let Some((dirs, publisher)) = &publisher {
+                            let file = PathBuf::from(path);
+                            if file.starts_with(&dirs.video) || file.starts_with(&dirs.audio) {
+                                let publisher = publisher.clone();
+                                tauri::async_runtime::spawn(async move {
+                                    if !publisher.publish(&file).await {
+                                        eprintln!("could not publish a download to the gallery");
+                                    }
+                                });
+                            }
+                        }
                         let _ = completed_library.add_download(
                             Path::new(path),
                             &task.source_host,

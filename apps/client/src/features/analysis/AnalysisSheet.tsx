@@ -66,10 +66,13 @@ function SheetContent({
   onOpenStorage: () => void;
   onStarted: () => void;
 }) {
-  const initialTab = useUi((s) => (s.analysisTab === 'audio' ? 'audio' : 'video'));
+  const requestedTab = useUi((s) => (s.analysisTab === 'audio' ? 'audio' : 'video'));
+  // A direct audio file only has an "Audio only" format: open that tab.
+  const initialTab =
+    info.formats[requestedTab].length || !info.formats.audio.length ? requestedTab : 'audio';
   const [tab, setTab] = useState<'video' | 'audio'>(initialTab);
   const [selected, setSelected] = useState<Partial<Record<'video' | 'audio', string>>>({});
-  const storage = useAndroidStorage();
+  const storage = useAndroidStorage(tab);
   const { download } = useStartActions();
 
   const formats = info.formats[tab];
