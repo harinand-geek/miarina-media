@@ -101,7 +101,7 @@ pub const ALL: [ComponentSpec; 3] = [YTDLP, FFMPEG, QUICKJS];
 pub struct ComponentStatus {
     pub id: ComponentId,
     pub name: &'static str,
-    pub version: &'static str,
+    pub version: String,
     pub license: &'static str,
     pub download_bytes: u64,
     pub installed: bool,
@@ -165,8 +165,21 @@ impl Components {
             .find(|path| path.is_file())
     }
 
+    /// yt-dlp to run: a verified update newer than the pinned version
+    /// (`ytdlp::update`), else the pinned one.
     pub fn ytdlp(&self) -> Option<PathBuf> {
-        self.path(&YTDLP)
+        self.updated_ytdlp()
+            .map(|(_, path)| path)
+            .or_else(|| self.path(&YTDLP))
+    }
+
+    /// Writable folder holding downloaded components.
+    pub(crate) fn root(&self) -> &Path {
+        &self.root
+    }
+
+    pub(crate) fn client(&self) -> &Client {
+        &self.client
     }
 
     /// JavaScript runtime for yt-dlp (`--js-runtimes quickjs:<path>`).
@@ -192,7 +205,10 @@ impl Components {
                 ComponentStatus {
                     id: spec.id,
                     name: spec.name,
-                    version: spec.version,
+                    version: match spec.id {
+                        ComponentId::YtDlp => self.ytdlp_version(),
+                        _ => spec.version.to_owned(),
+                    },
                     license: spec.license,
                     download_bytes: spec.download_bytes,
                     installed: path.is_some(),

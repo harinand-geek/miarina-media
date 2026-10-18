@@ -187,3 +187,20 @@ async fn accented_titles_download() {
     eprintln!("saved {}", outcome.final_path.display());
     assert!(std::fs::metadata(&outcome.final_path).unwrap().len() > 0);
 }
+
+#[tokio::test]
+#[ignore = "downloads yt-dlp (~18 MB) from GitHub and verifies its signature"]
+async fn a_signed_ytdlp_release_installs_and_activates() {
+    let dir = tempfile::tempdir().unwrap();
+    let components = Components::new(dir.path().to_path_buf()).unwrap();
+    components
+        .install_release("2026.08.19", &CancellationToken::new())
+        .await
+        .expect("signature, digest and --version all check out");
+    let (active, path) = components.active_ytdlp().expect("recorded as active");
+    eprintln!("active {} at {}", active.version, path.display());
+    assert_eq!(active.version, "2026.08.19");
+    assert!(path.is_file());
+    // Same version as the pinned one: the pinned executable stays in use.
+    assert_eq!(components.ytdlp_version(), "2026.08.19");
+}

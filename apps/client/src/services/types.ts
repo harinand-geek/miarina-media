@@ -187,6 +187,13 @@ export interface ComponentStatus {
   bundled: boolean;
 }
 
+/** `commands::YtDlpUpdateDto`. */
+export interface YtDlpUpdate {
+  status: 'up_to_date' | 'updated';
+  version: string;
+  checkedAt: number;
+}
+
 export interface InstallProgress {
   id: ComponentStatus['id'];
   name: string;

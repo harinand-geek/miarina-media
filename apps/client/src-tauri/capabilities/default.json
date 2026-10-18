@@ -34,6 +34,7 @@
     "allow-settings-pick-download-dir",
     "allow-components-status",
     "allow-components-install",
+    "allow-components-update-ytdlp",
     "allow-library-query",
     "allow-library-overview",
     "allow-library-get",

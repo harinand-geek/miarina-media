@@ -27,6 +27,7 @@ import type {
   StartRequest,
   StorageUsage,
   TaskRecord,
+  YtDlpUpdate,
 } from './types';
 
 export interface Backend {
@@ -54,6 +55,8 @@ export interface Backend {
   componentsStatus(): Promise<ComponentStatus[]>;
   /** Downloads the missing tools (explicit user consent, decision D3). */
   installComponents(onProgress: (p: InstallProgress) => void): Promise<ComponentStatus[]>;
+  /** Installs a newer yt-dlp if its signature verifies (Windows). */
+  updateYtDlp(): Promise<YtDlpUpdate>;
   subscribe(listener: (event: BackendEvent) => void): () => void;
 
   // Library (Phase 3)
@@ -179,6 +182,7 @@ class TauriBackend implements Backend {
     call<BackendSettings>('settings_set_resource_mode', { mode });
   pickDownloadDir = () => call<BackendSettings | null>('settings_pick_download_dir');
   componentsStatus = () => call<ComponentStatus[]>('components_status');
+  updateYtDlp = () => call<YtDlpUpdate>('components_update_ytdlp');
 
   async installComponents(onProgress: (p: InstallProgress) => void) {
     const unlisten = await listen<InstallProgress>('components://progress', (e) =>

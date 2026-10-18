@@ -23,6 +23,7 @@ import type {
   StorageUsage,
   TaskRecord,
   TaskState,
+  YtDlpUpdate,
 } from '../services/types';
 import { ANALYZED, DOWNLOADS, HISTORY, LIBRARY, NO_MEDIA_HOSTS } from './fixtures';
 
@@ -534,6 +535,10 @@ export class MockBackend {
 
   private libraryChanged() {
     for (const listener of this.libraryListeners) listener();
+  }
+
+  async updateYtDlp(): Promise<YtDlpUpdate> {
+    return { status: 'up_to_date', version: '2026.08.19', checkedAt: Date.now() };
   }
 
   async componentsStatus() {

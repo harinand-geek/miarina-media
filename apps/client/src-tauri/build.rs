@@ -23,6 +23,7 @@ const COMMANDS: &[&str] = &[
     "settings_pick_download_dir",
     "components_status",
     "components_install",
+    "components_update_ytdlp",
     "library_query",
     "library_overview",
     "library_get",

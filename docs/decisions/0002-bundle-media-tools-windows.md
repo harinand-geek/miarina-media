@@ -27,6 +27,18 @@ yt-dlp a besoin d'un moteur JavaScript pour répondre aux défis de YouTube (wik
 
 Décision : **QuickJS-NG 0.17.0** (MIT), inclus et épinglé comme les autres outils, passé à yt-dlp par `--js-runtimes quickjs:<chemin>` (analyse et téléchargement). Deno, recommandé par yt-dlp, coûterait ~40 Mo d'installeur pour un temps équivalent. Limite connue (wiki yt-dlp) : avec QuickJS, yt-dlp écrit des fichiers temporaires pour chaque exécution (risque TOCTOU théorique, local). Si YouTube impose un jour Deno, le changement se limite à `components.rs`.
 
+## Complément du 2026-10-18 : mises à jour automatiques et vérifiées de yt-dlp
+
+Décision du propriétaire du produit : yt-dlp reste inclus, **et se met à jour seul** (FFmpeg et QuickJS-NG ne changent qu'avec l'app).
+
+- Vérification au plus **une fois par jour** (2 min après le démarrage, puis toutes les heures si la dernière date de plus de 24 h), plus le bouton « Check for updates » (Réglages › Media tools). Échec (hors ligne…) : silencieux, nouvel essai à l'heure suivante.
+- Source : release officielle GitHub (`api.github.com/repos/yt-dlp/yt-dlp/releases/latest`, puis `SHA2-256SUMS`, `SHA2-256SUMS.sig`, `yt-dlp.exe`). Tailles bornées.
+- **Acceptée seulement si** la signature OpenPGP de `SHA2-256SUMS` est valide pour la clé de signature de yt-dlp épinglée dans l'app (`crates/download-engine/keys/yt-dlp-signing-key.asc`, empreinte `AC0C BBE6 848D 6A87 3464 AF4E 57CF 6593 3B5A 7581`, vérifiée aussi avec GnuPG le 2026-10-18), que `yt-dlp.exe` a l'empreinte signée, et que le nouvel exécutable répond `--version` avec le numéro attendu. Sinon rien ne change.
+- Activation par `components/yt-dlp/active.json` ; une version plus ancienne que celle de l'installeur ou un fichier illisible est ignoré : la version incluse reste le secours.
+- Dépendance ajoutée : `pgp` 0.21.0 (rPGP, MIT OR Apache-2.0, sans fonctionnalités par défaut).
+- Confidentialité : l'app contacte `api.github.com` et `github.com` une fois par jour (aucune donnée personnelle envoyée, en-tête User-Agent « MiarinaMedia/<version> »). À indiquer sur la page Confidentialité à la prochaine publication.
+- Limite : pas encore de retour automatique à la version précédente si une nouvelle version de yt-dlp fonctionne mal sur un site (le test `--version` ne le détecte pas).
+
 ## Conséquences
 
 - Installeur NSIS : **8,2 Mo → 68,1 Mo**, puis **68,8 Mo** avec QuickJS-NG (mesurés le 2026-10-17) ; ~157 Mo d’outils une fois installés.

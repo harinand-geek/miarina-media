@@ -38,6 +38,33 @@ pub fn allow_media_dir(app: &AppHandle, dir: &Path) {
     }
 }
 
+/// Checks for a newer yt-dlp a few minutes after start, then hourly, and
+/// installs it when the last check is more than a day old. Failures (e.g.
+/// offline) are retried on the next round; nothing is shown to the user.
+#[cfg(windows)]
+fn spawn_ytdlp_updates(app: AppHandle) {
+    use std::time::Duration;
+    tauri::async_runtime::spawn(async move {
+        tokio::time::sleep(Duration::from_secs(120)).await;
+        loop {
+            let state = app.state::<AppState>();
+            let last: i64 = state
+                .storage()
+                .setting(commands::KEY_YTDLP_CHECKED_AT)
+                .ok()
+                .flatten()
+                .unwrap_or(0);
+            if storage::now_ms() - last >= commands::YTDLP_CHECK_INTERVAL_MS {
+                // Settings reads the active version when opened.
+                if let Err(err) = commands::check_ytdlp_update(&state).await {
+                    eprintln!("yt-dlp update check failed: {}", err.message);
+                }
+            }
+            tokio::time::sleep(Duration::from_secs(3600)).await;
+        }
+    });
+}
+
 /// Indexes the library folder without blocking the async runtime.
 pub fn scan_library(library: &Library, dir: PathBuf) {
     let library = library.clone();
@@ -216,6 +243,9 @@ pub fn run() {
                     let _ = handle.emit(DOWNLOAD_EVENT, event);
                 }
             });
+            // Windows: keep yt-dlp current (verified updates, at most daily).
+            #[cfg(windows)]
+            spawn_ytdlp_updates(app.handle().clone());
             tauri::async_runtime::spawn(async move {
                 if let Err(err) = manager.start() {
                     eprintln!("download manager failed to start: {err}");
@@ -246,6 +276,7 @@ pub fn run() {
             commands::settings_pick_download_dir,
             commands::components_status,
             commands::components_install,
+            commands::components_update_ytdlp,
             commands::library_query,
             commands::library_overview,
             commands::library_get,

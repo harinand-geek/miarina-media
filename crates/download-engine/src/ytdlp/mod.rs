@@ -4,6 +4,7 @@
 
 pub mod info;
 pub mod offers;
+pub mod update;
 
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};

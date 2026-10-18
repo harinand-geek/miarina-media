@@ -445,6 +445,59 @@ pub async fn components_install(
     Ok(components.status())
 }
 
+/// When yt-dlp was last checked for updates (ms since the epoch).
+pub const KEY_YTDLP_CHECKED_AT: &str = "ytdlp_checked_at";
+/// At most one automatic check a day.
+pub const YTDLP_CHECK_INTERVAL_MS: i64 = 24 * 60 * 60 * 1000;
+
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct YtDlpUpdateDto {
+    /// `up_to_date` or `updated`.
+    pub status: &'static str,
+    pub version: String,
+    pub checked_at: i64,
+}
+
+/// Checks for a newer yt-dlp and installs it if its signature verifies
+/// (`download_engine::ytdlp::update`). Windows only.
+pub async fn check_ytdlp_update(state: &AppState) -> CmdResult<YtDlpUpdateDto> {
+    if !EXTRACTOR_AVAILABLE {
+        return Err(CommandError::new(
+            "unsupported_platform",
+            "yt-dlp is not used on this device.",
+        ));
+    }
+    let _guard = state.install_lock.lock().await;
+    let outcome = state
+        .ytdlp
+        .components()
+        .update_ytdlp(&CancellationToken::new())
+        .await
+        .map_err(|e| CommandError::new("ytdlp_update_failed", e.to_string()))?;
+    let checked_at = now_ms();
+    let _ = state
+        .storage()
+        .set_setting(KEY_YTDLP_CHECKED_AT, &checked_at);
+    let (status, version) = match outcome {
+        download_engine::ytdlp::update::UpdateOutcome::UpToDate { version } => {
+            ("up_to_date", version)
+        }
+        download_engine::ytdlp::update::UpdateOutcome::Updated { version } => ("updated", version),
+    };
+    Ok(YtDlpUpdateDto {
+        status,
+        version,
+        checked_at,
+    })
+}
+
+/// Settings › Media tools › "Check for updates".
+#[tauri::command]
+pub async fn components_update_ytdlp(state: State<'_, AppState>) -> CmdResult<YtDlpUpdateDto> {
+    check_ytdlp_update(&state).await
+}
+
 fn guess_extension(content_type: Option<&str>) -> String {
     match content_type
         .unwrap_or("")

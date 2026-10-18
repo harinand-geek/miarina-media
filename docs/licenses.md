@@ -28,7 +28,7 @@ Points de conformité :
 
 ## 3. Principales dépendances applicatives (à auditer en Phase 6)
 
-Tauri 2, tokio, reqwest (rustls, aws-lc-rs), rusqlite (SQLite bundled, domaine public), zip, sha2, React, Zustand, TanStack Virtual, Tailwind CSS — licences MIT / Apache-2.0 / ISC / BSD majoritairement. Un inventaire automatisé (`cargo about` / `license-checker`) sera produit avant la release.
+Tauri 2, tokio, reqwest (rustls, aws-lc-rs), pgp/rPGP (vérification des mises à jour de yt-dlp), rusqlite (SQLite bundled, domaine public), zip, sha2, React, Zustand, TanStack Virtual, Tailwind CSS — licences MIT / Apache-2.0 / ISC / BSD majoritairement. Un inventaire automatisé (`cargo about` / `license-checker`) sera produit avant la release.
 
 ## 4. Contenus
 
