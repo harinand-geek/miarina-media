@@ -24,7 +24,7 @@ export const ROUTES: Route[] = [
     og: {
       title: 'Miarina Media',
       description: 'Collez un lien, choisissez le format, gardez le fichier. Windows et Android.',
-      image: '/assets/img/windows-hero.jpg',
+      image: '/assets/img/windows-hero.jpg?v=013',
     },
   },
   {

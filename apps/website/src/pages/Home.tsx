@@ -101,7 +101,7 @@ export function Home() {
           <div className="hero-shots">
             <figure className="shot-windows">
               <img
-                src="/assets/img/windows-hero.jpg"
+                src="/assets/img/windows-hero.jpg?v=013"
                 width={1280}
                 height={800}
                 alt="Miarina Media sous Windows : navigateur intégré sur une page Wikimedia Commons, bouton « Download · 5 »"
@@ -168,7 +168,7 @@ export function Home() {
           </div>
           <figure className="frame">
             <img
-              src="/assets/img/windows-browser.jpg"
+              src="/assets/img/windows-browser.jpg?v=013"
               width={1280}
               height={800}
               loading="lazy"
