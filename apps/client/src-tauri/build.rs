@@ -54,6 +54,7 @@ const COMMANDS: &[&str] = &[
     "player_close",
     "app_ready",
     "app_take_launch",
+    "app_read_clipboard",
 ];
 
 fn main() {

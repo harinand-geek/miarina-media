@@ -1,5 +1,7 @@
 import { useCallback, useRef, useState } from 'react';
+import { invoke } from '@tauri-apps/api/core';
 import { LINK_ERROR_MESSAGES, checkLink, checkLinkLocally } from '../../services/link';
+import { detectPlatform, inTauri } from '../../services/platform';
 import { useUi } from '../../stores/ui';
 
 /**
@@ -71,16 +73,24 @@ export function useLinkInput() {
   }, [issue, submit]);
 
   const paste = useCallback(async () => {
+    const android = detectPlatform() === 'android';
     try {
-      const text = (await navigator.clipboard.readText()).trim();
-      if (text) change(text);
+      // The Android WebView refuses navigator.clipboard: read it natively.
+      const text = (
+        android && inTauri()
+          ? ((await invoke<{ text: string | null }>('app_read_clipboard')).text ?? '')
+          : await navigator.clipboard.readText()
+      ).trim();
       inputRef.current?.focus();
+      if (text) change(text);
+      else setIssue({ tone: 'hint', message: 'The clipboard is empty. Copy a link first.' });
     } catch {
-      // Clipboard read can be refused by the WebView; Ctrl+V still works.
       inputRef.current?.focus();
       setIssue({
         tone: 'hint',
-        message: 'Clipboard access was refused. Press Ctrl+V in the field instead.',
+        message: android
+          ? 'The clipboard could not be read. Long-press the field and choose Paste.'
+          : 'Clipboard access was refused. Press Ctrl+V in the field instead.',
       });
     }
   }, [change]);

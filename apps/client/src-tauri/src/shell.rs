@@ -128,3 +128,60 @@ mod tests {
         assert!(!valid_task_id(&"a".repeat(40)));
     }
 }
+
+/// What the Paste button puts in the link field.
+#[derive(Debug, Default, serde::Serialize)]
+pub struct ClipboardText {
+    /// The link found in the clipboard text, or the trimmed text itself.
+    pub text: Option<String>,
+}
+
+/// Android: reads the clipboard natively (the WebView refuses
+/// `navigator.clipboard`); a shared-style text keeps only its link.
+#[tauri::command]
+pub async fn app_read_clipboard(app: AppHandle) -> Result<ClipboardText, CommandError> {
+    #[cfg(target_os = "android")]
+    {
+        use tauri::Manager;
+        #[derive(serde::Deserialize)]
+        struct Raw {
+            text: Option<String>,
+        }
+        let Some(shell) = app.try_state::<AppShell>() else {
+            return Ok(ClipboardText::default());
+        };
+        let raw: Raw = shell
+            .0
+            .run_mobile_plugin_async("readClipboard", ())
+            .await
+            .map_err(|e| CommandError::new("app_shell", e.to_string()))?;
+        Ok(ClipboardText {
+            text: raw.text.as_deref().map(clipboard_to_field),
+        })
+    }
+    #[cfg(not(target_os = "android"))]
+    {
+        let _ = app;
+        Ok(ClipboardText::default())
+    }
+}
+
+/// "Title https://youtu.be/x" → the link; anything else → trimmed, bounded.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+fn clipboard_to_field(text: &str) -> String {
+    extract_shared_link(text).unwrap_or_else(|| text.trim().chars().take(2048).collect())
+}
+
+#[cfg(test)]
+mod clipboard_tests {
+    use super::*;
+
+    #[test]
+    fn pasted_text_keeps_its_link() {
+        assert_eq!(
+            clipboard_to_field("Regarde ça https://youtu.be/abc?si=1 !"),
+            "https://youtu.be/abc?si=1"
+        );
+        assert_eq!(clipboard_to_field("  youtu.be/abc  "), "youtu.be/abc");
+    }
+}

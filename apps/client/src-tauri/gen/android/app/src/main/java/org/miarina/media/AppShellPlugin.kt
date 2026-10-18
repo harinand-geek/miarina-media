@@ -1,6 +1,8 @@
 package org.miarina.media
 
 import android.app.Activity
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.webkit.WebView
 import app.tauri.annotation.Command
@@ -30,6 +32,25 @@ class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
   fun ready(invoke: Invoke) {
     Companion.ready = true
     invoke.resolve()
+  }
+
+  /**
+   * Text on the clipboard, for the Paste button: the WebView refuses
+   * navigator.clipboard to apps. Called on a tap, while the app has focus
+   * (Android 10+ only allows reading then).
+   */
+  @Command
+  fun readClipboard(invoke: Invoke) {
+    val clipboard = activity.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+    val text = clipboard.primaryClip
+      ?.takeIf { it.itemCount > 0 }
+      ?.getItemAt(0)
+      ?.coerceToText(activity)
+      ?.toString()
+      ?.take(MAX_SHARED_CHARS)
+    val result = JSObject()
+    text?.let { result.put("text", it) }
+    invoke.resolve(result)
   }
 
   /** The last shared text (once), or nothing. */

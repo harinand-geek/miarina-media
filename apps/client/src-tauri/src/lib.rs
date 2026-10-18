@@ -319,6 +319,7 @@ pub fn run() {
             player::player_close,
             shell::app_ready,
             shell::app_take_launch,
+            shell::app_read_clipboard,
         ])
         .build(tauri::generate_context!())
         .expect("error while building Miarina Media");
