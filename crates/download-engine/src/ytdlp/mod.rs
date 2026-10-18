@@ -13,7 +13,7 @@ use std::time::{Duration, Instant};
 use futures_util::FutureExt;
 use futures_util::future::BoxFuture;
 use media_core::ValidatedUrl;
-use tokio::io::{AsyncBufReadExt, AsyncReadExt, BufReader};
+use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncReadExt, BufReader};
 use tokio::process::Command;
 use tokio_util::sync::CancellationToken;
 
@@ -41,6 +41,10 @@ fn base_args(components: &Components) -> Vec<String> {
         "--no-playlist".into(),
         "--no-color".into(),
         "--no-mtime".into(),
+        // Windows: yt-dlp otherwise writes titles in the console code page
+        // (cp1252), which made downloads with accented titles fail.
+        "--encoding".into(),
+        "utf-8".into(),
         "--cache-dir".into(),
         components.cache_dir().to_string_lossy().into_owned(),
     ];
@@ -53,6 +57,22 @@ fn base_args(components: &Components) -> Vec<String> {
         ]);
     }
     args
+}
+
+/// Reads one line of untrusted subprocess output. Invalid UTF-8 is replaced
+/// instead of failing (it must never abort a download); line ends trimmed.
+async fn next_line_lossy<R: AsyncBufRead + Unpin>(
+    reader: &mut R,
+    buf: &mut Vec<u8>,
+) -> std::io::Result<Option<String>> {
+    buf.clear();
+    if reader.read_until(b'\n', buf).await? == 0 {
+        return Ok(None);
+    }
+    while matches!(buf.last(), Some(b'\n' | b'\r')) {
+        buf.pop();
+    }
+    Ok(Some(String::from_utf8_lossy(buf).into_owned()))
 }
 
 /// What analysis produced, before UI formatting.
@@ -224,8 +244,10 @@ impl YtDlpEngine {
         let stderr = child.stderr.take().expect("piped stderr");
         let stderr_task = tokio::spawn(async move {
             let mut tail = VecDeque::with_capacity(STDERR_TAIL);
-            let mut lines = BufReader::new(stderr).lines();
-            while let Ok(Some(line)) = lines.next_line().await {
+            let mut reader = BufReader::new(stderr);
+            let mut buf = Vec::new();
+            // Drained to the end, so yt-dlp never blocks on a full pipe.
+            while let Ok(Some(line)) = next_line_lossy(&mut reader, &mut buf).await {
                 if tail.len() == STDERR_TAIL {
                     tail.pop_front();
                 }
@@ -235,7 +257,8 @@ impl YtDlpEngine {
         });
 
         let mut tracker = Tracker::new(job.progress_interval);
-        let mut lines = BufReader::new(stdout).lines();
+        let mut reader = BufReader::new(stdout);
+        let mut buf = Vec::new();
         loop {
             let line = tokio::select! {
                 _ = cancel.cancelled() => {
@@ -243,7 +266,7 @@ impl YtDlpEngine {
                     let _ = child.kill().await;
                     return Err(EngineError::Canceled);
                 }
-                l = lines.next_line() => l.map_err(EngineError::from_io)?,
+                l = next_line_lossy(&mut reader, &mut buf) => l.map_err(EngineError::from_io)?,
             };
             let Some(line) = line else { break };
             if line.len() > MAX_LINE {
@@ -477,6 +500,34 @@ impl Tracker {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[tokio::test]
+    async fn output_lines_survive_invalid_utf8() {
+        // "Nouveauté" in cp1252, as yt-dlp printed it without --encoding.
+        let data: &[u8] = b"[download] Nouveaut\xe9 Gasy\r\nMMDL 10 100\nlast";
+        let mut reader = BufReader::new(data);
+        let mut buf = Vec::new();
+        let first = next_line_lossy(&mut reader, &mut buf).await.unwrap();
+        assert_eq!(first.as_deref(), Some("[download] Nouveaut\u{FFFD} Gasy"));
+        let second = next_line_lossy(&mut reader, &mut buf).await.unwrap();
+        assert_eq!(second.as_deref(), Some("MMDL 10 100"));
+        let third = next_line_lossy(&mut reader, &mut buf).await.unwrap();
+        assert_eq!(third.as_deref(), Some("last"));
+        assert!(
+            next_line_lossy(&mut reader, &mut buf)
+                .await
+                .unwrap()
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn yt_dlp_is_asked_for_utf8_output() {
+        let dir = tempfile::tempdir().unwrap();
+        let args = base_args(&Components::new(dir.path().to_path_buf()).unwrap());
+        let at = args.iter().position(|a| a == "--encoding").unwrap();
+        assert_eq!(args[at + 1], "utf-8");
+    }
 
     #[test]
     fn javascript_runtime_is_passed_only_when_installed() {

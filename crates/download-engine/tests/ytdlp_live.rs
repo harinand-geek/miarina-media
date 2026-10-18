@@ -148,3 +148,42 @@ async fn youtube_downloads_with_the_javascript_runtime() {
     eprintln!("{size} bytes in {:.1} s", started.elapsed().as_secs_f64());
     assert!(size > 1_000_000);
 }
+
+/// Accented title (CC BY-SA, Lingua Libre). yt-dlp used to print titles in
+/// the Windows console code page, which failed every such download.
+const PAGE_WITH_ACCENTS: &str =
+    "https://commons.wikimedia.org/wiki/File:LL-Q33302_(fsl)-Laura_Jauvert-%C3%89t%C3%A9.webm";
+
+#[tokio::test]
+#[ignore = "downloads a small video from Wikimedia Commons"]
+async fn accented_titles_download() {
+    let engine = YtDlpEngine::new(components());
+    let cancel = CancellationToken::new();
+    let url = validate_media_url(PAGE_WITH_ACCENTS).unwrap();
+    let analysis = engine.analyze(&url, &cancel).await.expect("analysis");
+    let title = analysis.info.title.clone().unwrap_or_default();
+    eprintln!("title: {title}");
+    assert!(title.contains("Été"), "title decoded as UTF-8: {title}");
+    let offer = analysis
+        .offers
+        .video
+        .iter()
+        .min_by_key(|o| o.size_bytes.unwrap_or(u64::MAX))
+        .expect("a video offer");
+    let dir = tempfile::tempdir().unwrap();
+    let job = DownloadJob {
+        url,
+        part_path: dir.path().join("ete.webm.test.part"),
+        dest_dir: dir.path().to_path_buf(),
+        file_name: format!("{title}.webm"),
+        progress_interval: Duration::from_millis(500),
+        format_id: Some(offer.spec.encode()),
+        process: Default::default(),
+    };
+    let outcome = engine
+        .download(&job, &|_| {}, cancel)
+        .await
+        .expect("download");
+    eprintln!("saved {}", outcome.final_path.display());
+    assert!(std::fs::metadata(&outcome.final_path).unwrap().len() > 0);
+}
