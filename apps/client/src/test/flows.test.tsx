@@ -195,6 +195,23 @@ describe('Windows shell', () => {
 });
 
 describe('Android shell', () => {
+  it('allows canceling an active download after confirmation', async () => {
+    const user = userEvent.setup();
+    render(<MobileShell />);
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
+        name: /Downloads/,
+      }),
+    );
+    const count = () => Object.keys(useDownloads.getState().tasks).length;
+    const before = count();
+    await user.click(screen.getAllByRole('button', { name: /^Cancel / })[0]!);
+    const dialog = screen.getByRole('alertdialog', { name: 'Cancel download?' });
+    expect(count()).toBe(before);
+    await user.click(within(dialog).getByRole('button', { name: 'Cancel download' }));
+    await waitFor(() => expect(count()).toBe(before - 1));
+  });
+
   it('uses bottom navigation, not the desktop sidebar', async () => {
     const user = userEvent.setup();
     render(<MobileShell />);

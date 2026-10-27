@@ -4,11 +4,13 @@
 
 pub mod info;
 pub mod offers;
+pub mod runtime;
 pub mod update;
 
 use std::collections::VecDeque;
 use std::path::{Path, PathBuf};
 use std::process::Stdio;
+use std::sync::{Arc, OnceLock};
 use std::time::{Duration, Instant};
 
 use futures_util::FutureExt;
@@ -86,15 +88,65 @@ pub struct Analysis {
 #[derive(Clone)]
 pub struct YtDlpEngine {
     components: Components,
+    android: Arc<OnceLock<runtime::AndroidRuntime>>,
 }
 
 impl YtDlpEngine {
     pub fn new(components: Components) -> Self {
-        Self { components }
+        Self {
+            components,
+            android: Arc::new(OnceLock::new()),
+        }
     }
 
     pub fn components(&self) -> &Components {
         &self.components
+    }
+
+    pub fn set_android_runtime(&self, runtime: runtime::AndroidRuntime) -> Result<(), EngineError> {
+        if !runtime.validate() {
+            return Err(EngineError::Unsupported {
+                reason: "Android media tools are incomplete; reinstall the APK".into(),
+            });
+        }
+        let _ = self.android.set(runtime);
+        Ok(())
+    }
+
+    pub fn available(&self) -> bool {
+        self.android.get().is_some() || (cfg!(windows) && self.components.ytdlp().is_some())
+    }
+
+    pub fn has_ffmpeg(&self) -> bool {
+        self.android.get().is_some() || self.components.ffmpeg_dir().is_some()
+    }
+
+    fn command(&self) -> Result<Command, EngineError> {
+        match self.android.get() {
+            Some(runtime) => Ok(runtime.command()),
+            None => Ok(Command::new(self.executable()?)),
+        }
+    }
+
+    fn args(&self) -> Vec<String> {
+        let mut args = base_args(&self.components);
+        args.extend([
+            "--socket-timeout".into(),
+            "20".into(),
+            "--retries".into(),
+            "3".into(),
+            "--fragment-retries".into(),
+            "3".into(),
+        ]);
+        if let Some(runtime) = self.android.get() {
+            args.extend([
+                "--js-runtimes".into(),
+                format!("quickjs:{}", runtime.quickjs.display()),
+                "--ffmpeg-location".into(),
+                runtime.ffmpeg.to_string_lossy().into_owned(),
+            ]);
+        }
+        args
     }
 
     fn executable(&self) -> Result<PathBuf, EngineError> {
@@ -110,10 +162,9 @@ impl YtDlpEngine {
         url: &ValidatedUrl,
         cancel: &CancellationToken,
     ) -> Result<Analysis, EngineError> {
-        let exe = self.executable()?;
-        let mut command = Command::new(exe);
+        let mut command = self.command()?;
         command
-            .args(base_args(&self.components))
+            .args(self.args())
             .args(["--dump-single-json", "--no-warnings", "--", url.as_str()])
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -158,7 +209,7 @@ impl YtDlpEngine {
                 reason: "live streams are not supported".into(),
             });
         }
-        let offers = build_offers(&info, self.components.ffmpeg_dir().is_some());
+        let offers = build_offers(&info, self.has_ffmpeg());
         if offers.video.is_empty() && offers.audio.is_empty() {
             let protected = info.formats().iter().any(|f| f.drm());
             return Err(EngineError::Unsupported {
@@ -178,7 +229,6 @@ impl YtDlpEngine {
         progress: ProgressFn<'_>,
         cancel: CancellationToken,
     ) -> Result<Outcome, EngineError> {
-        let exe = self.executable()?;
         let spec = FormatSpec::decode(job.format_id.as_deref().unwrap_or_default())
             .map_err(|reason| EngineError::Unsupported { reason })?;
         let work_dir = work_dir(&job.part_path);
@@ -186,7 +236,7 @@ impl YtDlpEngine {
             .await
             .map_err(EngineError::from_io)?;
 
-        let mut args = base_args(&self.components);
+        let mut args = self.args();
         args.extend([
             "--newline".into(),
             "--progress".into(),
@@ -225,13 +275,17 @@ impl YtDlpEngine {
             args.extend([
                 "--ffmpeg-location".into(),
                 ffmpeg.to_string_lossy().into_owned(),
+            ]);
+        }
+        if self.has_ffmpeg() {
+            args.extend([
                 "--postprocessor-args".into(),
                 format!("ffmpeg:-threads {}", job.process.ffmpeg_threads.max(1)),
             ]);
         }
         args.extend(["--".into(), job.url.as_str().to_owned()]);
 
-        let mut command = Command::new(exe);
+        let mut command = self.command()?;
         command
             .args(&args)
             .stdin(Stdio::null())

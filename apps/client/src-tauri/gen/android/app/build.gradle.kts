@@ -77,6 +77,8 @@ android {
     buildFeatures {
         buildConfig = true
     }
+    // Android executes only APK-owned native binaries (Python/FFmpeg/QuickJS).
+    packaging { jniLibs.useLegacyPackaging = true }
 }
 
 kotlin {
@@ -90,6 +92,8 @@ rust {
 }
 
 dependencies {
+    implementation("io.github.junkfood02.youtubedl-android:library:0.18.1")
+    implementation("io.github.junkfood02.youtubedl-android:ffmpeg:0.18.1")
     // Must match rustls-platform-verifier-android in Cargo.lock (0.2.0).
     implementation("org.rustls:rustls-platform-verifier:0.2.0")
     implementation("androidx.webkit:webkit:1.14.0")

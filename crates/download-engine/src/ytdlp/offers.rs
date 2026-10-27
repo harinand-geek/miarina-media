@@ -431,6 +431,17 @@ mod tests {
     }
 
     #[test]
+    fn storyboards_are_not_offered_as_video() {
+        let mut source = dash();
+        source.formats.as_mut().unwrap().push(RawFormat {
+            protocol: Some("mhtml".into()),
+            ..fmt("sb0", "mhtml", "none", "none", Some(180), 0)
+        });
+        let offers = build_offers(&source, true);
+        assert_eq!(offers, build_offers(&dash(), true));
+    }
+
+    #[test]
     fn video_offers_follow_the_source_and_skip_drm() {
         let offers = build_offers(&dash(), true);
         let qualities: Vec<_> = offers.video.iter().map(|o| o.quality.as_str()).collect();

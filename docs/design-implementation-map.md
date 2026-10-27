@@ -64,4 +64,9 @@ Recommandation : **commencer ces composants dans `apps/client/src/components`** 
 
 ## 5. Données fictives
 
+Adaptation technique du 2026-10-27 : `MobileDownloads` ajoute une action texte
+« Cancel download » avec la confirmation partagée, pour rendre l'annulation
+accessible aussi pendant une fusion FFmpeg. Elle réutilise les tokens existants
+et une cible tactile d'au moins 44 px ; aucun nouvel écran n'est introduit.
+
 Les titres du prototype (Blender, NASA, Musopen, Internet Archive) ne servent qu'aux fixtures de la Phase 1 (`apps/client/src/dev/fixtures/`), chargées uniquement en mode développement et retirées des flux de production en Phase 2.

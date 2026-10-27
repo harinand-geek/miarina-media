@@ -81,7 +81,10 @@ impl RawFormat {
     }
 
     pub fn has_video(&self) -> bool {
-        self.video_codec().is_some() || self.height.is_some()
+        self.video_codec().is_some()
+            || (self.vcodec.is_none()
+                && self.height.is_some()
+                && self.protocol.as_deref() != Some("mhtml"))
     }
 
     pub fn is_audio_only(&self) -> bool {

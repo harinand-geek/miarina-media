@@ -1,4 +1,6 @@
 #[cfg(target_os = "android")]
+mod android_extractor;
+#[cfg(target_os = "android")]
 mod android_tls;
 mod browser;
 mod commands;
@@ -87,6 +89,7 @@ pub fn run() {
         .plugin(shell::init())
         .plugin(media_tools::init())
         .plugin(download_notifications::init())
+        .plugin(android_extractor::init())
         .plugin(browser::init());
     let app = builder
         .setup(|app| {
@@ -259,7 +262,13 @@ pub fn run() {
             // Windows: keep yt-dlp current (verified updates, at most daily).
             #[cfg(windows)]
             spawn_ytdlp_updates(app.handle().clone());
+            #[cfg(target_os = "android")]
+            let extractor_app = app.handle().clone();
             tauri::async_runtime::spawn(async move {
+                #[cfg(target_os = "android")]
+                if android_extractor::prepare(&extractor_app).await.is_err() {
+                    eprintln!("Android media tools could not be prepared");
+                }
                 if let Err(err) = manager.start() {
                     eprintln!("download manager failed to start: {err}");
                 }

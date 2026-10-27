@@ -344,6 +344,15 @@ fn looks_like_media(content_type: Option<&str>, name: &str) -> bool {
     let has_media_extension =
         extension(name).is_some_and(|e| MEDIA_EXTENSIONS.contains(&e.as_str()));
     match content_type.map(|c| c.split(';').next().unwrap_or("").trim()) {
+        // These are playlists, not playable files. Let the extractor handle
+        // fragments and reject protected streams instead of saving a fake MP3.
+        Some(
+            "audio/mpegurl"
+            | "audio/x-mpegurl"
+            | "application/vnd.apple.mpegurl"
+            | "application/x-mpegurl"
+            | "application/dash+xml",
+        ) => false,
         Some(ct) if ct.starts_with("video/") || ct.starts_with("audio/") => true,
         // Ogg is registered under application/ (Wikimedia serves .ogg/.oga so).
         Some("application/ogg") => true,
@@ -364,6 +373,11 @@ mod tests {
 
     #[test]
     fn media_detection() {
+        assert!(!looks_like_media(Some("audio/x-mpegurl"), "playlist.m3u8"));
+        assert!(!looks_like_media(
+            Some("application/dash+xml"),
+            "manifest.mpd"
+        ));
         assert!(looks_like_media(Some("video/mp4"), "x"));
         assert!(looks_like_media(Some("audio/mpeg; charset=binary"), ""));
         assert!(looks_like_media(

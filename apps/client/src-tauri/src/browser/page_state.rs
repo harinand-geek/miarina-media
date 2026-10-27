@@ -3,7 +3,7 @@
 //! `BrowserPlugin.kt` and is untrusted: bounded, filtered and classified
 //! before it reaches the interface.
 
-use media_core::detect::{DetectedKind, DetectedMedia, Detections};
+use media_core::detect::{DetectedMedia, Detections};
 use serde::{Deserialize, Serialize};
 use tauri::Url;
 
@@ -113,22 +113,36 @@ impl PageState {
             can_go_forward: poll.can_go_forward,
             start_page,
             sheet: false,
-            // Android downloads files directly; streams and page players
-            // need the extractor, which does not run there yet.
-            media: self
-                .detections
-                .items()
-                .iter()
-                .filter(|m| matches!(m.kind, DetectedKind::Video | DetectedKind::Audio))
-                .cloned()
-                .collect(),
-            stream_player: false,
+            // The APK includes an extractor. Manifests and blob players are
+            // candidates for analysis, never proof that a stream is downloadable.
+            media: self.detections.items().to_vec(),
+            stream_player: self.detections.stream_player || youtube_video(&poll.url),
             fab: match poll.fab.as_deref() {
                 Some("tap") => Some(FabAction::Tap),
                 Some("hold") => Some(FabAction::Hold),
                 _ => None,
             },
         }
+    }
+}
+
+fn youtube_video(raw: &str) -> bool {
+    let Ok(url) = Url::parse(raw) else {
+        return false;
+    };
+    if !matches!(url.scheme(), "https" | "http") {
+        return false;
+    }
+    match url.host_str().unwrap_or_default() {
+        "youtu.be" => url.path().trim_matches('/').len() == 11,
+        "youtube.com" | "www.youtube.com" | "m.youtube.com" => {
+            (url.path() == "/watch" && url.query_pairs().any(|(k, v)| k == "v" && v.len() == 11))
+                || url
+                    .path()
+                    .strip_prefix("/shorts/")
+                    .is_some_and(|id| id.trim_matches('/').len() == 11)
+        }
+        _ => false,
     }
 }
 
@@ -229,7 +243,7 @@ mod tests {
     }
 
     #[test]
-    fn streams_and_page_players_are_not_offered_on_android() {
+    fn streams_and_page_players_are_sent_to_the_extractor() {
         let mut state = PageState::default();
         let snap = state.apply(page(
             1,
@@ -239,8 +253,20 @@ mod tests {
                 element(1, "video", "https://example.org/live.m3u8"),
             ],
         ));
-        assert!(snap.media.is_empty());
-        assert!(!snap.stream_player);
+        assert_eq!(snap.media.len(), 1);
+        assert!(snap.stream_player);
+    }
+
+    #[test]
+    fn youtube_candidates_do_not_require_playback_and_reject_lookalike_hosts() {
+        assert!(youtube_video("https://m.youtube.com/watch?v=aqz-KE-bpKQ"));
+        assert!(youtube_video("https://youtu.be/aqz-KE-bpKQ"));
+        assert!(!youtube_video(
+            "https://youtube.com.evil.test/watch?v=aqz-KE-bpKQ"
+        ));
+        assert!(!youtube_video(
+            "https://www.youtube.com/results?search_query=video"
+        ));
     }
 
     #[test]

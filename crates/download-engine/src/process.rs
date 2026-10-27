@@ -24,12 +24,16 @@ pub fn configure(command: &mut Command, low_priority: bool) {
     }
     #[cfg(not(windows))]
     let _ = low_priority;
+    #[cfg(unix)]
+    command.process_group(0);
 }
 
 /// Kills every process of the job when dropped.
 pub struct ProcessTree {
     #[cfg(windows)]
     job: windows_sys::Win32::Foundation::HANDLE,
+    #[cfg(unix)]
+    group: i32,
 }
 
 // The job handle is only used to terminate/close the job.
@@ -72,9 +76,33 @@ impl ProcessTree {
         }
     }
 
-    #[cfg(not(windows))]
+    #[cfg(unix)]
+    pub fn adopt(child: &Child) -> io::Result<Self> {
+        let group = child
+            .id()
+            .and_then(|id| i32::try_from(id).ok())
+            .filter(|id| *id > 0)
+            .ok_or_else(|| io::Error::other("process already exited"))?;
+        Ok(Self { group })
+    }
+
+    #[cfg(not(any(windows, unix)))]
     pub fn adopt(_child: &Child) -> io::Result<Self> {
         Ok(Self {})
+    }
+}
+
+#[cfg(unix)]
+impl Drop for ProcessTree {
+    fn drop(&mut self) {
+        unsafe extern "C" {
+            fn kill(pid: i32, signal: i32) -> i32;
+        }
+        // configure() puts only this child and its descendants in this group.
+        // SIGKILL terminates Python AND FFmpeg before the scheduler cleans files.
+        unsafe {
+            kill(-self.group, 9);
+        }
     }
 }
 

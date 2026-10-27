@@ -30,6 +30,7 @@ interface CardProps {
   actionLabel: string;
   onAction: () => void;
   actionDisabled?: boolean;
+  onCancel?: () => void;
   progress?: {
     value: number | null;
     percent: number;
@@ -49,6 +50,7 @@ function Card({
   actionLabel,
   onAction,
   actionDisabled,
+  onCancel,
   progress,
 }: CardProps) {
   return (
@@ -89,6 +91,16 @@ function Card({
           </span>
         </div>
       )}
+      {onCancel && (
+        <button
+          type="button"
+          aria-label={`Cancel ${title}`}
+          onClick={onCancel}
+          className="min-h-11 self-end rounded-sm px-3 text-[13px] font-semibold text-muted hover:bg-surface2"
+        >
+          Cancel download
+        </button>
+      )}
     </div>
   );
 }
@@ -111,7 +123,14 @@ export function MobileDownloads() {
     if (media) play(media);
     else pushToast({ tone: 'error', message: 'This file is no longer in the library.' });
   };
-  const { pause, resume, retry, startNow, pauseAll, resumeAll } = useDownloads.getState();
+  const { pause, resume, retry, startNow, pauseAll, resumeAll, cancel } = useDownloads.getState();
+  const cancelTask = (id: string, title: string) =>
+    useUi.getState().askConfirm({
+      title: 'Cancel download?',
+      body: `${title} will be removed from the queue and its partial files deleted.`,
+      confirmLabel: 'Cancel download',
+      onConfirm: () => cancel(id),
+    });
 
   const all = useMemo(() => ordered(tasks), [tasks]);
   const active = useMemo(() => all.filter((t) => isOpen(t) && isActiveRow(t)), [all]);
@@ -170,6 +189,7 @@ export function MobileDownloads() {
               }
               onAction={() => (failed ? retry(t.id) : paused ? resume(t.id) : pause(t.id))}
               actionDisabled={t.state === 'processing'}
+              onCancel={() => cancelTask(t.id, t.title)}
               progress={{
                 value: barValue(t),
                 percent: percentOf(t),
@@ -195,6 +215,7 @@ export function MobileDownloads() {
             icon="play_arrow"
             actionLabel={`Start ${q.title} now`}
             onAction={() => startNow(q.id)}
+            onCancel={() => cancelTask(q.id, q.title)}
           />
         ))}
 

@@ -64,6 +64,9 @@ impl From<UrlError> for CommandError {
 
 type CmdResult<T> = Result<T, CommandError>;
 
+// Component downloads/automatic updates still use Windows artifacts only.
+const EXTRACTOR_AVAILABLE: bool = cfg!(windows);
+
 // --------------------------------------------------------- system opener
 
 /// Android opens files through content URIs (FileProvider), which arrive
@@ -178,27 +181,74 @@ pub enum AnalysisDto {
 /// Reads what a link points to: a direct media file is probed over HTTP,
 /// anything else (a web page) goes to the yt-dlp extractor.
 #[tauri::command]
-pub async fn analyze_link(state: State<'_, AppState>, url: String) -> CmdResult<AnalysisDto> {
+pub async fn analyze_link(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    url: String,
+) -> CmdResult<AnalysisDto> {
     let url = validate(&url)?;
+    // Known video pages must go straight to their extractor: a generic HTTP
+    // probe may fail even when yt-dlp's service-specific requests work.
+    if matches!(
+        url.host(),
+        "youtube.com" | "www.youtube.com" | "m.youtube.com" | "youtu.be"
+    ) {
+        #[cfg(target_os = "android")]
+        crate::android_extractor::prepare(&app).await?;
+        return extractor_analysis(&state, &url).await;
+    }
+    #[cfg(not(target_os = "android"))]
+    let _ = app;
     match state.http.probe(&url).await {
         Ok(media) => Ok(direct_analysis(&url, media)),
-        Err(_) => extractor_analysis(&state, &url).await,
+        Err(error) if should_extract(&url, &error) => {
+            #[cfg(target_os = "android")]
+            crate::android_extractor::prepare(&app).await?;
+            extractor_analysis(&state, &url).await
+        }
+        Err(error) => Err(probe_error(error)),
     }
 }
 
-/// The pinned yt-dlp and FFmpeg builds are Windows executables.
-const EXTRACTOR_AVAILABLE: bool = cfg!(windows);
+// A page may reject generic requests yet work through its extractor. A direct
+// media link must retain its real HTTP/network error, never "unsupported page".
+fn should_extract(url: &ValidatedUrl, error: &EngineError) -> bool {
+    matches!(error, EngineError::NotMedia)
+        || (matches!(error, EngineError::Http { .. })
+            && tauri::Url::parse(url.as_str())
+                .ok()
+                .and_then(|u| {
+                    media_extension(&download_engine::DirectMedia {
+                        suggested_name: u.path().to_owned(),
+                        content_type: None,
+                        total_bytes: None,
+                        supports_resume: false,
+                    })
+                })
+                .is_none())
+}
+
+fn probe_error(error: EngineError) -> CommandError {
+    let message = match error {
+        EngineError::Network { .. } => {
+            "The source could not be reached. Check your connection and try again.".into()
+        }
+        EngineError::Http { status } => {
+            format!("The source refused the download (HTTP {status}). The link may have expired.")
+        }
+        _ => "The media link could not be checked. Try again.".into(),
+    };
+    CommandError::new(error.code(), message)
+}
 
 async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<AnalysisDto> {
-    if !EXTRACTOR_AVAILABLE {
-        // Never offer to download Windows tools on Android.
+    if !cfg!(any(windows, target_os = "android")) {
         return Ok(AnalysisDto::NoMedia {
-            reason: "this is a web page, not a media file. Reading web pages is not available                      on Android yet: paste a direct link to a video or audio file"
-                .into(),
+            reason: "Web page extraction is not available on this platform.".into(),
         });
     }
     let components = state.ytdlp.components();
-    if components.ytdlp().is_none() {
+    if !state.ytdlp.available() {
         return Ok(AnalysisDto::NeedsComponents {
             components: components.status(),
         });
@@ -244,7 +294,7 @@ async fn extractor_analysis(state: &AppState, url: &ValidatedUrl) -> CmdResult<A
         .clone()
         .unwrap_or_else(|| "Web page".into());
     let thumbnail = source_thumbnail(state, info.thumbnail.as_deref()).await;
-    let notice = components.ffmpeg_dir().is_none().then(|| {
+    let notice = (!state.ytdlp.has_ffmpeg()).then(|| {
         "Install FFmpeg to get more qualities (merged video + audio) and MP3 conversion.".to_owned()
     });
     Ok(AnalysisDto::Ready {
@@ -1037,6 +1087,28 @@ fn ensure_writable(dir: &Path) -> CmdResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn probe_failures_keep_network_and_direct_http_errors() {
+        let file = validate("https://example.org/video.mp4?token=secret").unwrap();
+        let page = validate("https://www.youtube.com/watch?v=aqz-KE-bpKQ").unwrap();
+        let network = EngineError::Network {
+            message: "private URL must not leak".into(),
+        };
+        assert!(!should_extract(&file, &network));
+        assert!(!should_extract(&page, &network));
+        assert!(!should_extract(&file, &EngineError::Http { status: 403 }));
+        assert!(should_extract(&page, &EngineError::Http { status: 403 }));
+        assert!(should_extract(&page, &EngineError::NotMedia));
+        assert_eq!(probe_error(network).code, "network");
+        assert!(
+            !probe_error(EngineError::Network {
+                message: "secret".into()
+            })
+            .message
+            .contains("secret")
+        );
+    }
 
     #[test]
     fn sizes_are_human_readable() {

@@ -21,3 +21,7 @@
 #-renamesourcefileattribute SourceFile
 # rustls-platform-verifier is reached through JNI only.
 -keep, includedescriptorclasses class org.rustls.platformverifier.** { *; }
+
+# Commons Compress registers ZIP extra fields reflectively while unpacking
+# Python/FFmpeg. R8 otherwise makes these classes abstract in release builds.
+-keep class * implements org.apache.commons.compress.archivers.zip.ZipExtraField { *; }
