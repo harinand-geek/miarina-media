@@ -38,7 +38,7 @@ export const ROUTES: Route[] = [
     Page: Confidentialite,
     title: 'Confidentialité — Miarina Media',
     description:
-      'Ce que Miarina Media et ce site traitent réellement : pas de compte, pas de publicité, pas de mesure d’audience.',
+      'Le fonctionnement local de Miarina Media, les connexions réseau et le traitement des données sur ce site.',
   },
 ];
 

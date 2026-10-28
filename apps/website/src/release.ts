@@ -115,7 +115,7 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Téléchargement par lien direct', windows: true, android: true },
   { feature: 'Pages de sites vidéo (via yt-dlp)', windows: true, android: 'soon' },
   { feature: 'Conversion en MP3', windows: true, android: 'soon' },
-  { feature: 'File, pause et reprise', windows: true, android: true },
+  { feature: 'File, pause et reprise selon la source', windows: true, android: true },
   { feature: 'Bibliothèque', windows: true, android: true },
   { feature: 'Lecteur intégré', windows: true, android: true },
   { feature: 'Image dans l’image', windows: true, android: 'soon' },

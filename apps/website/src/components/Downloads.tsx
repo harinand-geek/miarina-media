@@ -23,9 +23,8 @@ export function Downloads() {
           <DownloadButton key={platform} platform={platform} primary={i === 0} />
         ))}
       </div>
-      <span className="note">Gratuit · sans compte · sans publicité</span>
       <details className="checksums">
-        <summary>Vérifier les fichiers (SHA-256)</summary>
+        <summary>Sans compte · sans publicité · vérifier les fichiers (SHA-256)</summary>
         <dl>
           {[RELEASE.windows, RELEASE.android].map((file) => (
             <Fragment key={file.name}>
@@ -51,7 +50,9 @@ function DownloadButton({ platform, primary }: { platform: Platform; primary: bo
     >
       <Icon name={windows ? 'desktop_windows' : 'android'} />
       <span className="btn-text">
-        <span className="btn-label">Télécharger pour {windows ? 'Windows' : 'Android'}</span>
+        <span className="btn-label">
+          {windows ? 'Télécharger pour Windows' : primary ? 'Télécharger pour Android' : 'Android'}
+        </span>
         <span className="btn-meta">
           v{file.version} · {windows ? 'Windows 10 / 11 · 64 bits' : 'Android 7.0+ · APK'} ·{' '}
           {file.size}

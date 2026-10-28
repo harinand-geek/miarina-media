@@ -65,8 +65,10 @@ export function Confidentialite() {
         <h2>Sur ce site</h2>
         <ul>
           <li>
-            Pas de cookies, pas de mesure d’audience, pas de publicité, aucune ressource chargée
-            depuis un autre site (polices et images sont hébergées ici).
+            Le code du site n’intègre ni publicité ni outil de mesure d’audience. Les polices et
+            images sont hébergées ici. Le choix du thème est enregistré dans le stockage local du
+            navigateur. La démonstration est simulée sur votre appareil et ne télécharge aucun
+            média.
           </li>
           <li>
             Comme tout serveur web, le serveur qui héberge ce site enregistre des journaux
@@ -75,7 +77,8 @@ export function Confidentialite() {
           </li>
           <li>
             Le site passe par Cloudflare (réseau de diffusion et protection), qui traite les
-            requêtes pour les acheminer.
+            requêtes pour les acheminer. Un script de mesure Cloudflare a été observé lors du
+            contrôle du site ; son chargement était bloqué par la politique de sécurité du site.
           </li>
         </ul>
       </main>

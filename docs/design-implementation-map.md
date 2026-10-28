@@ -82,3 +82,6 @@ Miniatures absentes — demande du propriétaire du 28 octobre 2026 :
 `LocalThumb.tsx` remplace les rayures par le logo officiel à 15 % d'opacité
 sur surface-2, partagé entre desktop et mobile. Les miniatures existantes
 et les badges restent affichés normalement.
+
+## Landing v3
+Home.tsx : sections ; LandingShell.tsx : navigation, thème et scroll spy ; DownloadDemo.tsx : simulation locale ; ReleaseLog.tsx : frise ; landing.css : tokens et états du handoff. Downloads.tsx conserve les liens et empreintes de release.ts. Sans JS : menu natif, formats complets, FAQ native et tableau entier. Contrôles interactifs activés après hydratation.

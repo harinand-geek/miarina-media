@@ -237,3 +237,6 @@ Icônes ajoutées : `progress_activity downloading bookmarks star shield_with_he
 2. Le bouton flottant, la chip et la feuille D2 (avec scrim) **recouvrent la page web**. Techniquement, la page est une webview native distincte : l'UI de l'app ne peut pas dessiner par-dessus sans une couche dédiée → question centrale du spike (`docs/decisions/0001`). L'injection du bouton dans le DOM de la page est exclue (la page pourrait le masquer, l'imiter ou le déclencher).
 3. Raccourcis : quand la page a le focus, c'est elle qui reçoit le clavier ; ils devront être interceptés au niveau de la webview (à valider dans le spike).
 4. L'onglet « Subtitles » de D2 dépend de la prise en charge des sous-titres (🟡, cf. analyse).
+
+## Landing v3 — 28 octobre 2026
+Source approuvée : design/design_handoff_landing_v3/README.md. Coque latérale 232 px dès 900 px ; barre mobile 56 px, libellés masqués sous 400/360 px. Tokens clair/sombre et états repris du handoff. Préférence système par défaut, thème mémorisé ; CSS externe uniquement. Démo explicitement simulée, tailles fictives, reprise conditionnelle ; comparaison limitée aux versions publiques.
