@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { backend } from '../../services/backend';
 
-/** Tiny frame: the blur hides the detail, drawing it costs next to nothing. */
+/** Small frame: the blur does not need the source video's full resolution. */
 const FRAME_W = 48;
 const FRAME_H = 27;
 /** How often the frame follows the video while it plays. */
@@ -20,7 +20,7 @@ export function VideoBackdrop({ video }: { video: HTMLVideoElement | null }) {
     const ctx = canvasRef.current?.getContext('2d');
     if (!video || !ctx) return;
     const draw = () => {
-      if (video.readyState < 2) return;
+      if (document.hidden || video.readyState < 2) return;
       try {
         ctx.drawImage(video, 0, 0, FRAME_W, FRAME_H);
       } catch {
@@ -30,15 +30,19 @@ export function VideoBackdrop({ video }: { video: HTMLVideoElement | null }) {
     let timer = 0;
     const follow = () => {
       window.clearInterval(timer);
-      if (!video.paused) timer = window.setInterval(draw, FRAME_MS);
+      if (!document.hidden && !video.paused && !video.ended) {
+        timer = window.setInterval(draw, FRAME_MS);
+      }
       draw();
     };
-    const events = ['loadeddata', 'seeked', 'play', 'pause'] as const;
+    const events = ['loadeddata', 'seeked', 'play', 'pause', 'ended'] as const;
     for (const e of events) video.addEventListener(e, follow);
+    document.addEventListener('visibilitychange', follow);
     follow();
     return () => {
       window.clearInterval(timer);
       for (const e of events) video.removeEventListener(e, follow);
+      document.removeEventListener('visibilitychange', follow);
     };
   }, [video]);
   return (

@@ -69,8 +69,26 @@ async fn next_line_lossy<R: AsyncBufRead + Unpin>(
     buf: &mut Vec<u8>,
 ) -> std::io::Result<Option<String>> {
     buf.clear();
-    if reader.read_until(b'\n', buf).await? == 0 {
-        return Ok(None);
+    let mut received = false;
+    loop {
+        let chunk = reader.fill_buf().await?;
+        if chunk.is_empty() {
+            if !received {
+                return Ok(None);
+            }
+            break;
+        }
+        received = true;
+        let end = chunk.iter().position(|b| *b == b'\n');
+        let consumed = end.map_or(chunk.len(), |i| i + 1);
+        // Keep one extra byte so callers can reject an oversized progress line.
+        // Drain the remainder without allocating for untrusted subprocess output.
+        let keep = consumed.min((MAX_LINE + 1).saturating_sub(buf.len()));
+        buf.extend_from_slice(&chunk[..keep]);
+        reader.consume(consumed);
+        if end.is_some() {
+            break;
+        }
     }
     while matches!(buf.last(), Some(b'\n' | b'\r')) {
         buf.pop();
@@ -397,7 +415,12 @@ async fn produced_file(dir: &Path) -> Result<PathBuf, EngineError> {
             .iter()
             .any(|s| name.ends_with(s))
             || name.contains(".part-frag");
-        if temporary || !path.is_file() {
+        // The output template is media.%(ext)s. Separate streams retained after
+        // a retry (media.f137.mp4, etc.) are not the finished merged file.
+        let final_name = name.strip_prefix("media.").is_some_and(|ext| {
+            !ext.is_empty() && ext.len() <= 8 && ext.chars().all(|c| c.is_ascii_alphanumeric())
+        });
+        if temporary || !final_name || !path.is_file() {
             continue;
         }
         let len = entry.metadata().await.map(|m| m.len()).unwrap_or(0);
@@ -557,6 +580,27 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn oversized_output_is_bounded_and_next_line_survives() {
+        let mut data = vec![b'x'; 1024 * 1024];
+        data.extend_from_slice(b"\nMMDL 10 100\n");
+        let mut reader = BufReader::with_capacity(127, data.as_slice());
+        let mut buf = Vec::new();
+        let line = next_line_lossy(&mut reader, &mut buf)
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(line.len(), MAX_LINE + 1);
+        assert!(buf.capacity() <= 2 * (MAX_LINE + 1));
+        assert_eq!(
+            next_line_lossy(&mut reader, &mut buf)
+                .await
+                .unwrap()
+                .as_deref(),
+            Some("MMDL 10 100")
+        );
+    }
+
+    #[tokio::test]
     async fn output_lines_survive_invalid_utf8() {
         // "Nouveauté" in cp1252, as yt-dlp printed it without --encoding.
         let data: &[u8] = b"[download] Nouveaut\xe9 Gasy\r\nMMDL 10 100\nlast";
@@ -682,6 +726,7 @@ mod tests {
         let dir = tempfile::tempdir().unwrap();
         std::fs::write(dir.path().join("media.f137.mp4.part"), vec![0; 50]).unwrap();
         std::fs::write(dir.path().join("media.mp4.ytdl"), b"x").unwrap();
+        std::fs::write(dir.path().join("media.f137.mp4"), vec![0; 100]).unwrap();
         std::fs::write(dir.path().join("media.mp4"), vec![0; 10]).unwrap();
         assert_eq!(
             produced_file(dir.path()).await.unwrap(),

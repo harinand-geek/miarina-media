@@ -68,6 +68,11 @@ export function usePlayback(media: MediaRecord): Playback {
 
   const attachMedia = useCallback(
     (el: HTMLMediaElement | null) => {
+      const previous = element.current;
+      if (previous && previous !== el && Number.isFinite(previous.duration)) {
+        // React detaches refs before effect cleanup on unmount.
+        savePosition(media.id, previous.currentTime, previous.duration);
+      }
       element.current = el;
       if (!el) return;
       const sync = () =>
