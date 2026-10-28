@@ -111,3 +111,6 @@ The landing discloses emulator-only YouTube validation, incomplete MP3 validatio
 and no physical-device test. The licences page discloses the source limitation.
 APK: 132,808,453 bytes; SHA-256
 `9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d`.
+
+Publication completed on 2026-10-28: server SHA-256 matched the APK and application-source archive. Public APK URL returned HTTP 200 with Content-Length 132808453. Live landing hydration, demo and both 0.1.4 download URLs passed; licences and privacy pages returned 200. No additional device validation or native-source resolution is implied.
+
