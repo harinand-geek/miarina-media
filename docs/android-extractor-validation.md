@@ -59,6 +59,31 @@ in the APK hash above and needs the next build.
 
 ## Release gate
 
+### 0.1.4 candidate — verified 2026-10-28
+
+Local artifact: `builds/MiarinaMedia-0.1.4.apk`, 132,808,281 bytes.
+SHA-256: `6c2c72869a33acd2191343a38a9877ef337532014c5c3de497469111af245db0`.
+Build completed for arm64-v8a and x86_64, including the storyboard correction.
+Manifest verified: versionName 0.1.4, versionCode 1004, minSdk 24.
+Signature verified with apksigner against the existing release certificate
+`11de871564b14382fd46a210ea06327e6d260101125ad2b545159e8b1c6479e1`.
+
+MP3 test on the preceding development APK reached download progress and was
+successfully paused at 52%, then resumed. Completion/conversion was not observed
+before the session's approval-service quota interrupted verification. No
+emulator was connected when checking the completed candidate on 2026-10-28.
+
+Public deployment remains pending the corresponding-source requirement in
+decision 0004. The upstream 0.18.1 release offers APKs; its tree packages native
+binaries and general Termux build instructions, without an identified exact
+Termux source revision for all included libraries. The FFmpeg archive contains
+no source/build/license metadata entries found in this inspection. Native
+FFmpeg reports 7.1.1 with GPL/version3 and numerous external libraries enabled.
+Do not describe the generic build instructions or the app's source archive as
+a verified complete corresponding-source bundle. Resolve the exact source and
+notice inventory, or replace the native package with a reproducible build from
+pinned sources, before publishing. The live site still serves 0.1.3.
+
 Verify Android analysis, completed video+audio download, MP3 conversion,
 cancellation and library playback. Build ARM64, measure size, inspect dependency
 licenses/source availability for the exact artifacts, then publish a distinct
