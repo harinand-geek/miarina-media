@@ -77,9 +77,10 @@ export function Home() {
             />
             <p>
               Sous Windows comme sous Android, tapez une adresse ou une recherche. Quand un média
-              compatible est détecté, un bouton de téléchargement apparaît. Dans l’APK public
-              Android {RELEASE.android.version}, seuls les fichiers vidéo et audio directs sont
-              proposés : le téléchargement YouTube n’est pas encore disponible.
+              compatible est détecté, un bouton de téléchargement apparaît. L’APK Android{' '}
+              {RELEASE.android.version} intègre désormais l’extracteur : analyse YouTube,
+              téléchargement vidéo et lecture ont été testés sur émulateur. Les essais sur téléphone
+              réel restent à effectuer.
             </p>
           </div>
           <figure className="v-screenshot">

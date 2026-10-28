@@ -23,6 +23,10 @@ export function Downloads() {
           <DownloadButton key={platform} platform={platform} primary={i === 0} />
         ))}
       </div>
+      <p className="note">
+        Préversion Android : YouTube testé sur émulateur. Conversion MP3 complète et téléphone réel
+        non validés.
+      </p>
       <details className="checksums">
         <summary>Sans compte · sans publicité · vérifier les fichiers (SHA-256)</summary>
         <dl>

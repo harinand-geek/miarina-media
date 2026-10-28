@@ -12,13 +12,29 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
+        <h2>Application Android 0.1.4</h2>
+        <p>
+          Le code MIARINA de l’application Android est sous GPL-3.0-only. Les sources de
+          l’application et les instructions de compilation sont dans le{' '}
+          <a href="https://github.com/harinand-geek/miarina-media">dépôt Miarina Media</a>. L’APK
+          intègre youtubedl-android 0.18.1, Python, yt-dlp et FFmpeg. Les composants tiers
+          conservent leurs propres licences. L’inventaire des sources correspondant exactement aux
+          bibliothèques natives reste incomplet ; le dépôt de l’application ne constitue pas à lui
+          seul un ensemble complet de ces sources.
+        </p>
+        <p>
+          <a href="/downloads/MiarinaMedia-0.1.4-source.tar.gz">
+            Archive du code de l’application 0.1.4
+          </a>{' '}
+          — révision <code>eadba20</code>, sans les sources natives tierces manquantes.
+        </p>
         <h2>Outils inclus dans l’installateur (Windows)</h2>
         <p>
           Depuis la version 0.1.1, ils sont livrés avec l’installateur, dans le dossier{' '}
           <span className="mono">tools</span> de l’application, avec leurs textes de licence. Chaque
-          fichier est pris dans la publication officielle et vérifié avec une empreinte SHA-256 fixée
-          dans l’application. S’ils manquent, l’application propose de les télécharger, avec la même
-          vérification.
+          fichier est pris dans la publication officielle et vérifié avec une empreinte SHA-256
+          fixée dans l’application. S’ils manquent, l’application propose de les télécharger, avec
+          la même vérification.
         </p>
         <ul>
           <li>

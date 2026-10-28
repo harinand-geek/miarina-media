@@ -26,13 +26,18 @@ export function Confidentialite() {
             sont envoyées nulle part. L’historique peut être effacé depuis l’application.
           </li>
           <li>
-            <strong>Connexions réseau :</strong> l’application ne contacte que les adresses que vous
-            lui donnez à analyser ou à télécharger, et, sous Windows, le serveur d’images du site
-            analysé pour afficher la miniature de la vidéo (par exemple{' '}
-            <span className="mono">i.ytimg.com</span> pour YouTube) ; cette image est enregistrée
-            sur votre appareil. yt-dlp, FFmpeg et QuickJS-NG sont inclus dans l’installateur Windows
-            ; s’ils manquent, l’application propose de les télécharger depuis GitHub, avec votre
+            <strong>Connexions réseau :</strong> pour analyser un lien et télécharger un média,
+            l’application contacte le site demandé ainsi que les serveurs de médias, d’API et
+            d’images utilisés par ce site. Les miniatures peuvent provenir, par exemple, de{' '}
+            <span className="mono">i.ytimg.com</span> pour YouTube ; cette image est enregistrée sur
+            votre appareil. yt-dlp, FFmpeg et QuickJS-NG sont inclus dans l’installateur Windows ;
+            s’ils manquent, l’application propose de les télécharger depuis GitHub, avec votre
             accord (versions et empreintes fixées, voir <a href="/licences.html">Licences</a>).
+          </li>
+          <li>
+            <strong>Outils Android :</strong> l’extracteur et les outils de conversion sont intégrés
+            à l’APK 0.1.4. Ils sont mis à jour par installation d’un nouvel APK, sans téléchargement
+            automatique de code d’extraction à l’exécution.
           </li>
           <li>
             <strong>Mise à jour de yt-dlp (Windows) :</strong> au plus une fois par jour,

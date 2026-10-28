@@ -2,6 +2,16 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Android 0.1.4 — instruction de publication du 2026-10-28
+
+APK : `MiarinaMedia-0.1.4.apk`, 132 808 453 octets (126,7 Mio), code 1004.
+SHA-256 : `9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d`.
+Même certificat de publication, arm64-v8a et x86_64, Android 7+.
+Parcours YouTube testé sur émulateur sur un build de développement précédent.
+Conversion MP3 complète et téléphone physique non validés. Inventaire des sources
+natives incomplet : voir `android-extractor-validation.md`. Publication explicitement
+demandée par le propriétaire après information de ces limites.
+
 ## Windows 0.1.4 — 2026-10-28
 
 Installateur : `MiarinaMedia-0.1.4-x64-setup.exe`, 72 483 476 octets (69,13 Mio).
@@ -16,9 +26,8 @@ L'installation complète de ce paquet n'a pas été rejouée.
 
 Le second passage du bundler signale que le marqueur de type de paquet a déjà
 été remplacé dans le binaire ; aucune mise à jour automatique n'est configurée.
-Windows reste non signé. Android public reste en 0.1.3 : le candidat 0.1.4
-attend les sources correspondantes exactes des dépendances natives
-(décision 0004 et `android-extractor-validation.md`).
+Windows reste non signé. Voir la mise à jour Android 0.1.4 ci-dessus pour la
+décision de publication et les limites restantes des sources natives.
 
 ## Version 0.1.3 — 2026-10-18
 

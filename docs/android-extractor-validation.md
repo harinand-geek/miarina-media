@@ -1,6 +1,6 @@
 # Android extractor integration — 2026-10-27
 
-Development build based on 0.1.3; not a new published release.
+Initial development build based on 0.1.3. See the dated release updates below.
 Product direction: Android follows the SnapTube functional workflow; Windows
 follows Televzr. Both retain Miarina's branding and approved visual system.
 
@@ -99,3 +99,15 @@ cancellation and library playback. Build ARM64, measure size, inspect dependency
 licenses/source availability for the exact artifacts, then publish a distinct
 version with corresponding sources. Multiple tabs/history are not implemented
 by this slice. Physical-device verification remains outstanding.
+
+## Publication instruction — 2026-10-28
+
+The owner explicitly requested publication of the signed 0.1.4 candidate and
+accurate landing version information despite the previously reported remaining
+validation and source-inventory work. This supersedes the local publication
+hold for this release only; it does not complete or waive third-party license
+obligations. The native corresponding-source inventory remains unresolved.
+The landing discloses emulator-only YouTube validation, incomplete MP3 validation
+and no physical-device test. The licences page discloses the source limitation.
+APK: 132,808,453 bytes; SHA-256
+`9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d`.
