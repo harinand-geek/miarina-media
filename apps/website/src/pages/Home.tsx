@@ -3,11 +3,31 @@ import { Downloads } from '../components/Downloads';
 import { CHANGELOG, PLATFORMS, RELEASE } from '../release';
 
 const FEATURES = [
-  ['link', 'Collez un lien', 'Miarina Media lit l’adresse et vous montre ce qui peut être téléchargé.'],
-  ['tune', 'Choisissez le format', 'Qualité vidéo ou audio seul, avec la taille du fichier affichée avant de lancer.'],
-  ['download', 'File de téléchargements', 'Mettez en pause, reprenez plus tard. Si la connexion coupe, le téléchargement repart tout seul.'],
-  ['speed', 'Éco, Équilibré, Performance', 'Réglez combien de téléchargements tournent en même temps, selon votre machine.'],
-  ['video_library', 'Bibliothèque', 'Vos fichiers rangés par vidéo et audio, avec une recherche, des miniatures et la durée.'],
+  [
+    'link',
+    'Collez un lien',
+    'Miarina Media lit l’adresse et vous montre ce qui peut être téléchargé.',
+  ],
+  [
+    'tune',
+    'Choisissez le format',
+    'Qualité vidéo ou audio seul, avec la taille du fichier affichée avant de lancer.',
+  ],
+  [
+    'download',
+    'File de téléchargements',
+    'Mettez en pause, reprenez plus tard. Si la connexion coupe, le téléchargement repart tout seul.',
+  ],
+  [
+    'speed',
+    'Éco, Équilibré, Performance',
+    'Réglez combien de téléchargements tournent en même temps, selon votre machine.',
+  ],
+  [
+    'video_library',
+    'Bibliothèque',
+    'Vos fichiers rangés par vidéo et audio, avec une recherche, des miniatures et la durée.',
+  ],
   ['contrast', 'Clair ou sombre', 'Thème sombre par défaut, thème clair et mode système.'],
 ] as const;
 
@@ -38,11 +58,18 @@ const FORMATS: { icon: string; title: string; rows: [string, string, boolean?][]
 const PRIVACY = [
   ['block', 'Aucune publicité', 'Ni dans l’application, ni dans l’installateur.'],
   ['person_off', 'Aucun compte', 'Rien à créer pour utiliser l’application.'],
-  ['hard_drive', 'Vos fichiers restent chez vous', 'Fichiers, historique et bibliothèque restent sur votre appareil.'],
+  [
+    'hard_drive',
+    'Vos fichiers restent chez vous',
+    'Fichiers, historique et bibliothèque restent sur votre appareil.',
+  ],
 ] as const;
 
 const FAQ: [string, string][] = [
-  ['Miarina Media est-il gratuit ?', 'Oui. L’application est gratuite, sans publicité et sans compte.'],
+  [
+    'Miarina Media est-il gratuit ?',
+    'Oui. L’application est gratuite, sans publicité et sans compte.',
+  ],
   [
     'Quels sites sont pris en charge ?',
     'Les liens directs vers un fichier vidéo ou audio fonctionnent sur Windows et Android. Sous Windows, les pages de nombreux sites vidéo sont analysées avec yt-dlp, inclus dans l’installateur avec FFmpeg et QuickJS-NG : rien à télécharger en plus. Les contenus privés, protégés par connexion ou par DRM, et les diffusions en direct ne sont pas pris en charge.',
@@ -87,7 +114,7 @@ export function Home() {
       <TopBar home />
       <main>
         <header id="top" className="hero">
-          <span className="pill">v{RELEASE.version} · préversion de test · Windows &amp; Android</span>
+          <span className="pill">Préversions de test · Windows &amp; Android</span>
           <h1>
             Your media.
             <br />
@@ -119,7 +146,10 @@ export function Home() {
         </header>
 
         <section id="fonctions" className="section">
-          <SectionHead eyebrow="01 · FONCTIONNALITÉS" title="Du lien au fichier, en trois gestes." />
+          <SectionHead
+            eyebrow="01 · FONCTIONNALITÉS"
+            title="Du lien au fichier, en trois gestes."
+          />
           <div className="cards">
             {FEATURES.map(([icon, title, text]) => (
               <div key={title} className="card">
@@ -268,7 +298,9 @@ export function Home() {
 
         <section id="plateformes" className="section">
           <SectionHead eyebrow="06 · PLATEFORMES" title="Windows et Android.">
-            <p className="body">Ce que la version {RELEASE.version} sait faire aujourd’hui.</p>
+            <p className="body">
+              Windows {RELEASE.windows.version} · Android {RELEASE.android.version}
+            </p>
           </SectionHead>
           <div className="compare-wrap">
             <table className="compare">
@@ -323,7 +355,9 @@ export function Home() {
                 <div className="release-meta">
                   <span className="mono">{release.name}</span>
                   <span
-                    className={release.planned ? 'soon-text' : release.current ? 'current' : undefined}
+                    className={
+                      release.planned ? 'soon-text' : release.current ? 'current' : undefined
+                    }
                   >
                     {release.date}
                   </span>

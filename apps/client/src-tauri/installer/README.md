@@ -21,3 +21,9 @@ Vérification du 28 octobre 2026 : `tauri bundle --bundles nsis` réussi et écr
 d'accueil français inspecté dans Windows. Cette commande réutilise le binaire
 release existant ; ce paquet de prévisualisation 0.1.3 ne constitue pas une
 nouvelle version de l'application et n'a pas été publié.
+
+Contraste de fin revérifié le 28 octobre sur un aperçu NSIS sans installation :
+les deux cases à cocher utilisent maintenant des libellés clairs sur fond sombre.
+L'aperçu a également été recompilé en UTF-8 explicite (`/INPUTCHARSET UTF8`) :
+« Créer un raccourci » et le titre sont lisibles, et `MUI_ICON` affiche l'icône
+officielle dans la barre de titre. Cet aperçu n'exécute aucune installation.

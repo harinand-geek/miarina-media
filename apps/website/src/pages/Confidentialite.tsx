@@ -9,8 +9,8 @@ export function Confidentialite() {
         <span className="eyebrow">CONFIDENTIALITÉ</span>
         <h1>Ce que Miarina Media traite, et ce qu’il ne fait pas</h1>
         <p className="doc-lead">
-          Description factuelle de la version {RELEASE.version} et de ce site, mise à jour le 18
-          octobre 2026.
+          Description factuelle des versions Windows {RELEASE.windows.version} et Android{' '}
+          {RELEASE.android.version} et de ce site, mise à jour le 28 octobre 2026.
         </p>
 
         <h2>Dans l’application</h2>
@@ -29,9 +29,9 @@ export function Confidentialite() {
             <strong>Connexions réseau :</strong> l’application ne contacte que les adresses que vous
             lui donnez à analyser ou à télécharger, et, sous Windows, le serveur d’images du site
             analysé pour afficher la miniature de la vidéo (par exemple{' '}
-            <span className="mono">i.ytimg.com</span> pour YouTube) ; cette image est enregistrée sur
-            votre appareil. yt-dlp, FFmpeg et QuickJS-NG sont inclus dans l’installateur Windows ;
-            s’ils manquent, l’application propose de les télécharger depuis GitHub, avec votre
+            <span className="mono">i.ytimg.com</span> pour YouTube) ; cette image est enregistrée
+            sur votre appareil. yt-dlp, FFmpeg et QuickJS-NG sont inclus dans l’installateur Windows
+            ; s’ils manquent, l’application propose de les télécharger depuis GitHub, avec votre
             accord (versions et empreintes fixées, voir <a href="/licences.html">Licences</a>).
           </li>
           <li>
@@ -43,10 +43,10 @@ export function Confidentialite() {
           </li>
           <li>
             <strong>Permissions Android :</strong> Internet ; notifications (demandées au premier
-            téléchargement, pour la progression et « Téléchargement terminé » ; vous pouvez
-            refuser) ; service de premier plan pour continuer les téléchargements quand
-            l’application est en arrière-plan ; garder l’écran allumé pendant la lecture. Aucun
-            accès à vos contacts, photos ou position.
+            téléchargement, pour la progression et « Téléchargement terminé » ; vous pouvez refuser)
+            ; service de premier plan pour continuer les téléchargements quand l’application est en
+            arrière-plan ; garder l’écran allumé pendant la lecture. Aucun accès à vos contacts,
+            photos ou position.
           </li>
           <li>
             <strong>Navigateur intégré (Windows et Android) :</strong> comme tout navigateur, il

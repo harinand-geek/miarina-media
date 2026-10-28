@@ -59,6 +59,16 @@ in the APK hash above and needs the next build.
 
 ## Release gate
 
+### Rebuilt candidate — 2026-10-28
+
+After the desktop audit and shared missing-thumbnail logo changes, rebuilt both
+architectures successfully. `builds/MiarinaMedia-0.1.4.apk`: 132,808,453 bytes,
+SHA-256 `9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d`.
+apksigner verified the existing release certificate; aapt confirmed version
+0.1.4/code 1004, minSdk 24, targetSdk 37, arm64-v8a and x86_64. This replaces
+the earlier local candidate below. No additional device runtime test was run.
+The corresponding-source publication gate remains unresolved.
+
 ### 0.1.4 candidate — verified 2026-10-28
 
 Local artifact: `builds/MiarinaMedia-0.1.4.apk`, 132,808,281 bytes.

@@ -53,7 +53,8 @@ function DownloadButton({ platform, primary }: { platform: Platform; primary: bo
       <span className="btn-text">
         <span className="btn-label">Télécharger pour {windows ? 'Windows' : 'Android'}</span>
         <span className="btn-meta">
-          {windows ? 'Windows 10 / 11 · 64 bits' : 'Android 7.0+ · APK'} · {file.size}
+          v{file.version} · {windows ? 'Windows 10 / 11 · 64 bits' : 'Android 7.0+ · APK'} ·{' '}
+          {file.size}
         </span>
       </span>
     </a>

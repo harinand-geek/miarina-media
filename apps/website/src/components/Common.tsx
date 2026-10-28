@@ -2,7 +2,15 @@ import type { ReactNode } from 'react';
 import { RELEASE } from '../release';
 
 /** Material Symbols Rounded glyph (self-hosted subset). */
-export function Icon({ name, label, className }: { name: string; label?: string; className?: string }) {
+export function Icon({
+  name,
+  label,
+  className,
+}: {
+  name: string;
+  label?: string;
+  className?: string;
+}) {
   return (
     <span
       className={className ? `icon ${className}` : 'icon'}
@@ -72,7 +80,13 @@ export function SectionHead({
 }
 
 /** Without `home`, the short footer of a document page, linking to the other one. */
-export function Footer({ home, other }: { home?: boolean; other?: { href: string; label: string } }) {
+export function Footer({
+  home,
+  other,
+}: {
+  home?: boolean;
+  other?: { href: string; label: string };
+}) {
   if (!home) {
     return (
       <footer className="footer">
@@ -123,7 +137,9 @@ export function Footer({ home, other }: { home?: boolean; other?: { href: string
         </div>
         <div className="footer-bottom">
           <span>© 2026 MIARINA</span>
-          <span className="mono">v{RELEASE.version}</span>
+          <span className="mono">
+            Windows {RELEASE.windows.version} · Android {RELEASE.android.version}
+          </span>
         </div>
       </div>
     </footer>

@@ -3,6 +3,7 @@
 // Cloudflare caches by URL.
 
 export interface ReleaseFile {
+  version: string;
   name: string;
   /** Shown on the button, e.g. "69,1 Mo". */
   size: string;
@@ -10,13 +11,15 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.3',
+  version: '0.1.4',
   windows: {
-    name: 'MiarinaMedia-0.1.3-x64-setup.exe',
+    version: '0.1.4',
+    name: 'MiarinaMedia-0.1.4-x64-setup.exe',
     size: '69,1 Mo',
-    sha256: 'd9b545b13735630700427e507fe20fd7e2a465652296a8276788772ff56e564c',
+    sha256: 'a86968b36c9ce9cf272a563bdc8a11c4df0340aca343847f385cb4ab7aed75d9',
   } satisfies ReleaseFile,
   android: {
+    version: '0.1.3',
     name: 'MiarinaMedia-0.1.3.apk',
     size: '35 Mo',
     sha256: '1bcfd16e46c24a7c1b7aecb8be2c80d895d124d2b2d4e97f746a8326c2e21008',
@@ -44,6 +47,17 @@ export const CHANGELOG: Release[] = [
       'Navigateur : plusieurs onglets et historique',
       'Android : pages de sites vidéo (YouTube…)',
       'Android : lecture audio en arrière-plan, plein écran et image dans l’image',
+    ],
+  },
+  {
+    name: '0.1.4 · Windows',
+    date: 'Préversion de test · 28 octobre 2026',
+    current: true,
+    items: [
+      'Installateur aux couleurs de Miarina Media, en français et en anglais',
+      'Logo discret pour les médias sans miniature',
+      'Lecteur : position sauvegardée en quittant une vidéo et fond animé suspendu lorsque la page est masquée',
+      'Téléchargements : lecture mémoire bornée et exclusion des fragments intermédiaires lors de la finalisation',
     ],
   },
   {

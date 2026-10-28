@@ -2,6 +2,24 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Windows 0.1.4 — 2026-10-28
+
+Installateur : `MiarinaMedia-0.1.4-x64-setup.exe`, 72 483 476 octets (69,13 Mio).
+SHA-256 : `a86968b36c9ce9cf272a563bdc8a11c4df0340aca343847f385cb4ab7aed75d9`.
+
+Binaire Windows compilé en release puis paquet NSIS terminé. Interface de fin
+vérifiée dans un aperçu sans installation : textes clairs, accents corrects,
+icône officielle dans la barre de titre. Le paquet contient aussi le logo
+discret pour les miniatures absentes et les corrections de fiabilité décrites
+dans `desktop-audit-2026-10-28.md` (170 tests Rust et 65 tests frontend).
+L'installation complète de ce paquet n'a pas été rejouée.
+
+Le second passage du bundler signale que le marqueur de type de paquet a déjà
+été remplacé dans le binaire ; aucune mise à jour automatique n'est configurée.
+Windows reste non signé. Android public reste en 0.1.3 : le candidat 0.1.4
+attend les sources correspondantes exactes des dépendances natives
+(décision 0004 et `android-extractor-validation.md`).
+
 ## Version 0.1.3 — 2026-10-18
 
 | Plateforme | Fichier | Taille | SHA-256 |
