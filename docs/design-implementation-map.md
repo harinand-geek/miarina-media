@@ -70,3 +70,15 @@ accessible aussi pendant une fusion FFmpeg. Elle réutilise les tokens existants
 et une cible tactile d'au moins 44 px ; aucun nouvel écran n'est introduit.
 
 Les titres du prototype (Blender, NASA, Musopen, Internet Archive) ne servent qu'aux fixtures de la Phase 1 (`apps/client/src/dev/fixtures/`), chargées uniquement en mode développement et retirées des flux de production en Phase 2.
+# Installateur Windows — 2026-10-28
+
+Habillage demandé par le propriétaire : `apps/client/src-tauri/installer/`.
+Logo Flow mark, palette sombre et tagline issus du design system. Les panneaux
+NSIS utilisent ses dimensions standard ; contrôles système conservés.
+Accueil français vérifié sur Windows, génération NSIS réussie. Aucune nouvelle
+maquette de l'application ni aucun changement du parcours de mise à jour.
+
+Miniatures absentes — demande du propriétaire du 28 octobre 2026 :
+`LocalThumb.tsx` remplace les rayures par le logo officiel à 15 % d'opacité
+sur surface-2, partagé entre desktop et mobile. Les miniatures existantes
+et les badges restent affichés normalement.

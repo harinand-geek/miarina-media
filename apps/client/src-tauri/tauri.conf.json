@@ -38,6 +38,16 @@
       "nsis"
     ],
     "publisher": "MIARINA",
+    "windows": {
+      "nsis": {
+        "installerIcon": "icons/icon.ico",
+        "uninstallerIcon": "icons/icon.ico",
+        "sidebarImage": "installer/sidebar.bmp",
+        "headerImage": "installer/header.bmp",
+        "installerHooks": "installer/brand.nsh",
+        "languages": ["French", "English"]
+      }
+    },
     "homepage": "https://media.miarina.org",
     "category": "Video",
     "shortDescription": "Download, organize and play your media.",
