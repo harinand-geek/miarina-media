@@ -12,7 +12,7 @@ export function LocalThumb(props: {
   path: string | null | undefined;
   kind: MediaKind;
   className?: string;
-  /** Placeholder label; defaults to "Video" for videos. */
+  /** Optional label displayed over the fallback watermark. */
   label?: string;
   children?: ReactNode;
 }) {

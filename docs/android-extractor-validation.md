@@ -114,3 +114,13 @@ APK: 132,808,453 bytes; SHA-256
 
 Publication completed on 2026-10-28: server SHA-256 matched the APK and application-source archive. Public APK URL returned HTTP 200 with Content-Length 132808453. Live landing hydration, demo and both 0.1.4 download URLs passed; licences and privacy pages returned 200. No additional device validation or native-source resolution is implied.
 
+
+## Published APK MP3 validation — 2026-10-29
+
+Installed the published universal 0.1.4 APK (SHA-256 9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d) on the Android 15 x86_64 emulator. Analyzed the official Blender Big Buck Bunny video with its Creative Commons Attribution license and selected MP3 320 kbps. The download and conversion completed, creating a new `(1).mp3` in Music/Miarina while preserving the previous file.
+
+Pulled the new file and verified with ffprobe: MP3, 320000 bit/s, 48000 Hz, stereo, 634.578146 seconds, 25385324 bytes. Full decoding with FFmpeg (`-v error -f null -`) completed with exit 0 and no decoding errors. The earlier file had been observed playing in the native player; native playback of this new file and audible output were not rechecked. No physical-device or ARM64 runtime validation is implied. Other output bitrates remain untested. Native corresponding-source inventory remains outstanding.
+
+Development changes after the published APK: guard task creation against rapid duplicate Download/Add to queue actions on both platforms; show the existing disabled state and Starting label until the backend answers; release the guard after failures. Correct the processing label and the native notification settings description. These changes are not included in the published APK.
+
+Checks for this development slice: client TypeScript + Vite production build passed, ESLint passed, all 67 frontend tests passed (14 files), formatting and git diff checks passed. jsdom emitted its known unimplemented canvas warning. No new native installer/APK was built or published for this slice.

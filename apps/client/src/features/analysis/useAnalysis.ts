@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { backend } from '../../services/backend';
 import type { ComponentStatus, MediaFormat, MediaInfo } from '../../services/types';
 import { useDownloads } from '../../stores/downloads';
@@ -56,27 +56,39 @@ export function downloadTitle(info: MediaInfo, format: MediaFormat) {
 
 /** Download / queue actions shared by the desktop screen and Android sheet. */
 export function useStartActions() {
+  const inFlight = useRef(false);
+  const [starting, setStarting] = useState(false);
   const start = useDownloads((s) => s.start);
   const pushToast = useUi((s) => s.pushToast);
   const go = useUi((s) => s.go);
 
-  const request = (
+  const request = async (
     info: MediaInfo,
     format: MediaFormat,
     kind: 'video' | 'audio',
     startNow: boolean,
-  ) =>
-    start({
-      url: info.url,
-      title: downloadTitle(info, format),
-      kind,
-      engine: info.engine,
-      formatId: format.id === 'original' ? null : format.id,
-      formatLabel: format.quality,
-      extension: format.extension,
-      startNow,
-      thumbnail: info.thumbnail ?? null,
-    });
+  ) => {
+    // Lock synchronously: a second tap can arrive before React renders disabled buttons.
+    if (inFlight.current) return null;
+    inFlight.current = true;
+    setStarting(true);
+    try {
+      return await start({
+        url: info.url,
+        title: downloadTitle(info, format),
+        kind,
+        engine: info.engine,
+        formatId: format.id === 'original' ? null : format.id,
+        formatLabel: format.quality,
+        extension: format.extension,
+        startNow,
+        thumbnail: info.thumbnail ?? null,
+      });
+    } finally {
+      inFlight.current = false;
+      setStarting(false);
+    }
+  };
 
   /** "Download": starts immediately, even above the concurrency limit. */
   const download = (info: MediaInfo, format: MediaFormat, kind: 'video' | 'audio') =>
@@ -93,7 +105,7 @@ export function useStartActions() {
     }
   };
 
-  return { download, addToQueue };
+  return { download, addToQueue, starting };
 }
 
 const heightOf = (f: MediaFormat) => Number.parseInt(f.quality, 10) || 0;

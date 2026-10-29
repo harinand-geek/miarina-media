@@ -63,8 +63,7 @@ export function MobileSettings({
 }) {
   const s = useSettings();
   const storage = useAndroidStorage();
-  // Wi-Fi rules and notifications need the Android download service (Phase 4):
-  // the app says so instead of showing switches that do nothing.
+  // Wi-Fi rules are not implemented. Notification permission is managed by Android.
   const planned = backend.kind === 'tauri';
 
   return (
@@ -115,11 +114,13 @@ export function MobileSettings({
         <Row
           icon="notifications"
           label="Progress notifications"
-          value="Show speed and time left"
+          value={
+            planned
+              ? 'Speed and time left · permission managed in Android settings'
+              : 'Show speed and time left'
+          }
           control={
-            planned ? (
-              <PlannedBadge label="SOON" />
-            ) : (
+            !planned && (
               <Toggle
                 size="mobile"
                 label="Progress notifications"

@@ -104,7 +104,7 @@ function SheetContent({
   const [tab, setTab] = useState<'video' | 'audio'>(initialTab);
   const [selected, setSelected] = useState<Partial<Record<'video' | 'audio', string>>>({});
   const storage = useAndroidStorage(tab);
-  const { download } = useStartActions();
+  const { download, starting } = useStartActions();
 
   const formats = info.formats[tab];
   const format = formats.find((f) => f.id === selected[tab]) ?? defaultFormat(formats);
@@ -182,12 +182,13 @@ function SheetContent({
         variant="primary"
         pill
         className="h-[52px] text-[15px]"
-        disabled={!format}
+        disabled={!format || starting}
+        aria-busy={starting}
         onClick={async () => {
           if (format && (await download(info, format, tab))) onStarted();
         }}
       >
-        {format ? `Download · ${format.size}` : 'Download'}
+        {starting ? 'Starting…' : format ? `Download · ${format.size}` : 'Download'}
       </Button>
     </>
   );

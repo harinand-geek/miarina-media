@@ -88,7 +88,7 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
   const downloadDir = useSettings((s) => s.downloadDir);
   const pickDownloadDir = useSettings((s) => s.pickDownloadDir);
   const [selected, setSelected] = useState<Partial<Record<FormatGroup, string>>>({});
-  const { download, addToQueue } = useStartActions();
+  const { download, addToQueue, starting } = useStartActions();
 
   // A direct audio file only has an "Audio only" format: open that tab.
   const tab = info.formats[requestedTab].length
@@ -222,19 +222,23 @@ function AnalysisResult({ info }: { info: MediaInfo }) {
               </>
             ) : null}
           </span>
-          <Button disabled={!canDownload} onClick={() => format && addToQueue(info, format, kind)}>
+          <Button
+            disabled={!canDownload || starting}
+            onClick={() => format && addToQueue(info, format, kind)}
+          >
             Add to queue
           </Button>
           <Button
             variant="primary"
             icon="download"
             className="px-5"
-            disabled={!canDownload}
+            disabled={!canDownload || starting}
+            aria-busy={starting}
             onClick={async () => {
               if (format && (await download(info, format, kind))) go('downloads');
             }}
           >
-            Download
+            {starting ? 'Starting…' : 'Download'}
           </Button>
         </div>
       </div>

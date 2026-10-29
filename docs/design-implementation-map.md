@@ -85,3 +85,7 @@ et les badges restent affichés normalement.
 
 ## Landing v3
 Home.tsx : sections ; LandingShell.tsx : navigation, thème et scroll spy ; DownloadDemo.tsx : simulation locale ; ReleaseLog.tsx : frise ; landing.css : tokens et états du handoff. Downloads.tsx conserve les liens et empreintes de release.ts. Sans JS : menu natif, formats complets, FAQ native et tableau entier. Contrôles interactifs activés après hydratation.
+
+## Download submission states — 2026-10-29
+
+AnalysisScreen.tsx and AnalysisSheet.tsx reuse the approved Button disabled palette during task creation, with Starting and aria-busy. useStartActions synchronously prevents repeat submissions before rendering. No layout or assets changed. Notifications now describe the existing Android-managed permission instead of showing SOON; processing uses a format-neutral label.

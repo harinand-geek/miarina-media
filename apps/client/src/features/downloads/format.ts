@@ -36,7 +36,7 @@ export function statusLabel(task: DownloadTask) {
         ? 'Failed · disk full'
         : 'Failed';
     case 'processing':
-      return 'Preparing / merging';
+      return 'Processing media…';
     case 'waiting':
       return task.retry
         ? `Connection lost · retrying in ${retryIn(task)} s`
