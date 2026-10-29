@@ -124,3 +124,9 @@ Pulled the new file and verified with ffprobe: MP3, 320000 bit/s, 48000 Hz, ster
 Development changes after the published APK: guard task creation against rapid duplicate Download/Add to queue actions on both platforms; show the existing disabled state and Starting label until the backend answers; release the guard after failures. Correct the processing label and the native notification settings description. These changes are not included in the published APK.
 
 Checks for this development slice: client TypeScript + Vite production build passed, ESLint passed, all 67 frontend tests passed (14 files), formatting and git diff checks passed. jsdom emitted its known unimplemented canvas warning. No new native installer/APK was built or published for this slice.
+
+## Android 0.1.5 — 2026-10-29
+
+Built universal signed APK from application revision 4a05015: versionName 0.1.5, versionCode 1005, minSdk 24, targetSdk 37, arm64-v8a and x86_64. APK size 132808877 bytes; SHA-256 1f44a1bcf2de6b17ce42595f935384e81856e463b8216b7490a12a398f299bf0. apksigner confirmed the existing release certificate. Updating the emulator with adb install -r succeeded; package inspection confirmed 0.1.5/1005 and launch succeeded. Physical-device testing is pending the owner's installation. No new end-to-end download test was performed on 0.1.5.
+
+The first build exposed an Android-specific version override still set to 0.1.4. Corrected tauri.android.conf.json and rebuilt before publication. Application-source archive revision 4a05015, SHA-256 7076f9fe94fb6508f435faa3a530ec5ea3f22c8aad2806e06cba0ad4bb29e8f4. This remains application source only; the previously disclosed native corresponding-source inventory is unresolved. Website production/prerender build passed; Windows remains 0.1.4.

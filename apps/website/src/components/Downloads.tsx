@@ -24,8 +24,8 @@ export function Downloads() {
         ))}
       </div>
       <p className="note">
-        Préversion Android : YouTube testé sur émulateur. Conversion MP3 complète et téléphone réel
-        non validés.
+        Préversion Android : YouTube et conversion MP3 à 320 kbps testés sur émulateur. Tests sur
+        téléphone réel encore à effectuer.
       </p>
       <details className="checksums">
         <summary>Sans compte · sans publicité · vérifier les fichiers (SHA-256)</summary>

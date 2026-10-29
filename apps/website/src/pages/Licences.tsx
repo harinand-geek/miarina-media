@@ -12,7 +12,7 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
-        <h2>Application Android 0.1.4</h2>
+        <h2>Application Android 0.1.5</h2>
         <p>
           Le code MIARINA de l’application Android est sous GPL-3.0-only. Les sources de
           l’application et les instructions de compilation sont dans le{' '}
@@ -23,10 +23,10 @@ export function Licences() {
           seul un ensemble complet de ces sources.
         </p>
         <p>
-          <a href="/downloads/MiarinaMedia-0.1.4-source.tar.gz">
-            Archive du code de l’application 0.1.4
+          <a href="/downloads/MiarinaMedia-0.1.5-source.tar.gz">
+            Archive du code de l’application 0.1.5
           </a>{' '}
-          — révision <code>eadba20</code>, sans les sources natives tierces manquantes.
+          — révision <code>4a05015</code>, sans les sources natives tierces manquantes.
         </p>
         <h2>Outils inclus dans l’installateur (Windows)</h2>
         <p>

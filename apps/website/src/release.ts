@@ -11,7 +11,7 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.4',
+  version: '0.1.5',
   windows: {
     version: '0.1.4',
     name: 'MiarinaMedia-0.1.4-x64-setup.exe',
@@ -19,10 +19,10 @@ export const RELEASE = {
     sha256: 'a86968b36c9ce9cf272a563bdc8a11c4df0340aca343847f385cb4ab7aed75d9',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.4',
-    name: 'MiarinaMedia-0.1.4.apk',
+    version: '0.1.5',
+    name: 'MiarinaMedia-0.1.5.apk',
     size: '126,7 Mio',
-    sha256: '9468d53eae471013bcc91154559450050061003612f2febfacc4e1863a64183d',
+    sha256: '1f44a1bcf2de6b17ce42595f935384e81856e463b8216b7490a12a398f299bf0',
   } satisfies ReleaseFile,
 };
 
@@ -45,19 +45,29 @@ export const CHANGELOG: Release[] = [
     planned: true,
     items: [
       'Navigateur : plusieurs onglets et historique',
-      'Android : validation complète de la conversion MP3 et essais sur téléphone réel',
+      'Android : essais sur téléphone réel et autres qualités audio',
       'Android : lecture audio en arrière-plan, plein écran et image dans l’image',
+    ],
+  },
+  {
+    name: '0.1.5 · Android',
+    date: 'Préversion de test · 29 octobre 2026',
+    current: true,
+    items: [
+      'Extracteur et outils de conversion intégrés à l’APK',
+      'Parcours YouTube testé sur émulateur : analyse, téléchargement vidéo et lecture locale',
+      'Protection contre les doubles clics lors du lancement et textes de progression corrigés',
+      'Logo discret pour les médias sans miniature',
+      'MP3 320 kbps vérifié sur émulateur ; téléphone physique et autres débits encore à tester',
     ],
   },
   {
     name: '0.1.4 · Android',
     date: 'Préversion de test · 28 octobre 2026',
-    current: true,
     items: [
       'Extracteur et outils de conversion intégrés à l’APK',
-      'Parcours YouTube testé sur émulateur : analyse, téléchargement vidéo et lecture locale',
+      'Parcours YouTube et lecture locale testés sur émulateur',
       'Logo discret pour les médias sans miniature',
-      'Limites : conversion MP3 complète et téléphone physique non validés ; compatibilité de tous les sites non garantie',
     ],
   },
   {
@@ -128,7 +138,7 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
     windows: true,
     android: 'YouTube testé sur émulateur',
   },
-  { feature: 'Conversion en MP3', windows: true, android: 'Intégrée · validation en cours' },
+  { feature: 'Conversion en MP3', windows: true, android: '320 kbps testé sur émulateur' },
   { feature: 'File, pause et reprise selon la source', windows: true, android: true },
   { feature: 'Bibliothèque', windows: true, android: true },
   { feature: 'Lecteur intégré', windows: true, android: true },

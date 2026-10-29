@@ -58,7 +58,7 @@ export const FAQ: [string, string][] = [
   ],
   [
     'Quels sites sont pris en charge ?',
-    'Les liens directs vers un fichier vidéo ou audio fonctionnent sur Windows et Android. Sous Windows, les pages de nombreux sites vidéo sont analysées avec yt-dlp, inclus dans l’installateur avec FFmpeg et QuickJS-NG : rien à télécharger en plus. Android 0.1.4 intègre aussi un extracteur : le parcours YouTube a été testé sur émulateur. La conversion MP3 complète et les essais sur téléphone réel restent à valider. Les contenus privés, protégés par connexion ou par DRM, et les diffusions en direct ne sont pas pris en charge.',
+    'Les liens directs vers un fichier vidéo ou audio fonctionnent sur Windows et Android. Sous Windows, les pages de nombreux sites vidéo sont analysées avec yt-dlp, inclus dans l’installateur avec FFmpeg et QuickJS-NG : rien à télécharger en plus. Android 0.1.5 intègre aussi un extracteur : le parcours YouTube a été testé sur émulateur. La conversion MP3 à 320 kbps a été vérifiée sur émulateur ; les essais sur téléphone réel restent à faire. Les contenus privés, protégés par connexion ou par DRM, et les diffusions en direct ne sont pas pris en charge.',
   ],
   [
     'Ai-je le droit de télécharger ces contenus ?',
