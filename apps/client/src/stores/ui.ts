@@ -30,6 +30,7 @@ export interface AnalysisChoice {
 interface UiState {
   screen: Screen;
   sidebarCollapsed: boolean;
+  playerFullscreen: boolean;
   toasts: Toast[];
   confirm: ConfirmRequest | null;
   /** URL waiting to be analyzed (Home → Analysis, Android sheet). */
@@ -60,6 +61,7 @@ interface UiState {
 export const useUi = create<UiState>((set) => ({
   screen: 'home',
   sidebarCollapsed: false,
+  playerFullscreen: false,
   toasts: [],
   confirm: null,
   pendingUrl: '',

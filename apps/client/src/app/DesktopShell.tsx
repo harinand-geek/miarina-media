@@ -31,6 +31,7 @@ const SCREENS: Record<Screen, () => ReactNode> = {
 export function DesktopShell() {
   const screen = useUi((s) => s.screen);
   const collapsed = useUi((s) => s.sidebarCollapsed);
+  const fullscreen = useUi((s) => s.playerFullscreen && s.screen === 'player');
   // Design §11: the sidebar auto-collapses to 64 px between 1024 and 1279.
   const narrow = useMediaQuery('(max-width: 1279px)');
 
@@ -42,9 +43,9 @@ export function DesktopShell() {
 
   return (
     <div className="flex h-full min-h-[640px] min-w-[960px] flex-col bg-bg">
-      <TitleBar />
+      {!fullscreen && <TitleBar />}
       <div className="flex min-h-0 flex-1">
-        <Sidebar collapsed={collapsed} />
+        {!fullscreen && <Sidebar collapsed={collapsed} />}
         <main className="relative flex min-w-0 flex-1 flex-col overflow-hidden">
           {/* Screen change: fade + 8 px rise of the content; nav never moves. */}
           <div key={screen} className="flex min-h-0 flex-1 animate-screen-in flex-col">

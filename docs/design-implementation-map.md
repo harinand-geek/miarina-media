@@ -93,3 +93,7 @@ AnalysisScreen.tsx and AnalysisSheet.tsx reuse the approved Button disabled pale
 ## Desktop playback error recovery — 2026-10-31
 
 PlayerScreen.tsx retains the approved dark player surface and existing error banner. On media error, hide the failed video surface/backdrop; add Retry playback alongside the existing system-player action. Error text follows the media error code. This is a minimal recovery/accessibility adaptation to the reported white-screen failure; no new visual design.
+
+## Player fullscreen — 2026-10-31
+
+The native window was entering fullscreen but the app title/sidebar remained in the layout. DesktopShell now omits both while playerFullscreen is active; PlayerScreen hides its details panel as before. State is committed only after the native command succeeds, repeated requests are guarded, and leaving/unmounting the player exits native fullscreen. Escape restores normal layout. Minimal adaptation requested by the owner; existing player styles retained.

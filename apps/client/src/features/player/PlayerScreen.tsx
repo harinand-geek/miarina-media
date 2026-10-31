@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Button, IconButton } from '../../components/Button';
 import { EmptyState } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
@@ -61,7 +61,9 @@ function Player({ item }: { item: MediaRecord }) {
   const pushToast = useUi((s) => s.pushToast);
   const items = useLibrary((s) => s.items);
   const [subtitles, setSubtitles] = useState(false);
-  const [fullscreen, setFs] = useState(false);
+  const fullscreen = useUi((s) => s.playerFullscreen);
+  const mounted = useRef(true);
+  const changingFullscreen = useRef(false);
   const wide = useMediaQuery('(min-width: 1280px)');
   const [panelOpen, setPanelOpen] = useState(false);
   const showPanel = !fullscreen && (wide || panelOpen);
@@ -70,10 +72,30 @@ function Player({ item }: { item: MediaRecord }) {
   const index = items.findIndex((m) => m.id === item.id);
   const upNext = items.filter((m) => m.id !== item.id && m.kind === item.kind).slice(0, 5);
 
-  const toggleFullscreen = (on = !fullscreen) => {
-    setFs(on);
-    void setFullscreen(on);
+  const toggleFullscreen = async (on = !fullscreen) => {
+    if (changingFullscreen.current) return;
+    changingFullscreen.current = true;
+    try {
+      await setFullscreen(on);
+      if (mounted.current) useUi.setState({ playerFullscreen: on });
+      else if (on) await setFullscreen(false);
+    } catch {
+      pushToast({ tone: 'error', message: 'Could not change fullscreen mode. Please try again.' });
+    } finally {
+      changingFullscreen.current = false;
+    }
   };
+
+  useEffect(() => {
+    mounted.current = true;
+    return () => {
+      mounted.current = false;
+      if (useUi.getState().playerFullscreen) {
+        useUi.setState({ playerFullscreen: false });
+        void setFullscreen(false).catch(() => {});
+      }
+    };
+  }, []);
 
   const openExternal = () =>
     backend

@@ -8,6 +8,7 @@ import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { useSettings } from '../stores/settings';
 import { useUi } from '../stores/ui';
+import type { MediaRecord } from '../services/types';
 
 let stopEvents: () => void = () => {};
 
@@ -24,6 +25,33 @@ beforeEach(async () => {
 afterEach(() => stopEvents());
 
 describe('Windows shell', () => {
+  it('hides app navigation in player fullscreen and restores it on Escape', async () => {
+    const user = userEvent.setup();
+    useUi.setState({
+      screen: 'player',
+      nowPlaying: {
+        id: 999,
+        title: 'Fullscreen test',
+        kind: 'audio',
+        path: '/test.mp3',
+        durationSecs: 120,
+        sizeBytes: 1000,
+      } as MediaRecord,
+    });
+    render(<DesktopShell />);
+    await user.click(await screen.findByRole('button', { name: 'Fullscreen (F)' }));
+    expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).toBeNull();
+    expect(useUi.getState().playerFullscreen).toBe(true);
+    await user.keyboard('{Escape}');
+    expect(await screen.findByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
+    expect(useUi.getState().playerFullscreen).toBe(false);
+    await user.click(screen.getByRole('button', { name: 'Fullscreen (F)' }));
+    act(() => useUi.getState().go('home'));
+    expect(
+      await screen.findByRole('heading', { name: 'Download from a link' }),
+    ).toBeInTheDocument();
+    expect(useUi.getState().playerFullscreen).toBe(false);
+  });
   it('navigates with the sidebar and Ctrl+1…7 shortcuts', async () => {
     const user = userEvent.setup();
     render(<DesktopShell />);

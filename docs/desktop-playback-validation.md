@@ -8,3 +8,5 @@ Desktop player now records the HTML media error code, distinguishes unsupported 
 Native Windows reproduction and installer verification remain pending; this change is not a claim that the underlying WebView2 failure is eliminated.
 
 Verification: 69 frontend tests passed across 14 files; TypeScript/Vite production build and ESLint passed. FFmpeg checks passed as described above. jsdom emitted its existing canvas-not-implemented warning. No native installer built or published.
+
+Fullscreen checks: client production build, TypeScript and ESLint passed; 70 frontend tests passed including entering fullscreen, restoring sidebar with Escape, and resetting fullscreen on navigation. Native Windows fullscreen rendering is not yet manually rechecked; no new installer published.
