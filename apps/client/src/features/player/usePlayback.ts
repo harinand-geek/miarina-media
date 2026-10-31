@@ -51,11 +51,16 @@ export interface Playback {
  * protocol (range requests, nothing loaded in memory). In the browser
  * preview there is no file: a simulated clock keeps the UI usable.
  */
-export function usePlayback(media: MediaRecord): Playback {
+export function usePlayback(media: MediaRecord): Playback & {
+  errorCode: number | null;
+  retry: () => void;
+} {
   const src = backend.mediaUrl(media.path);
   const duration = media.durationSecs ?? 0;
   const simulated = usePlaybackClock(src ? 0 : duration, src ? 0 : savedPosition(media.id));
   const element = useRef<HTMLMediaElement | null>(null);
+  const retryPosition = useRef<number | null>(null);
+  const [errorCode, setErrorCode] = useState<number | null>(null);
   const [state, setState] = useState({
     time: 0,
     duration,
@@ -88,7 +93,8 @@ export function usePlayback(media: MediaRecord): Playback {
           rate: el.playbackRate,
         }));
       const start = () => {
-        const resume = savedPosition(media.id);
+        const resume = retryPosition.current ?? savedPosition(media.id);
+        retryPosition.current = null;
         if (resume > 0 && resume < el.duration - RESUME_MARGIN_SECS) el.currentTime = resume;
         void el.play().catch(() => sync());
         sync();
@@ -107,7 +113,16 @@ export function usePlayback(media: MediaRecord): Playback {
       };
       el.onvolumechange = sync;
       el.onratechange = sync;
-      el.onerror = () => setState((s) => ({ ...s, error: true, playing: false }));
+      el.onerror = () => {
+        setErrorCode(el.error?.code ?? 0);
+        setState((s) => ({ ...s, error: true, playing: false }));
+      };
+      el.onloadeddata = () => {
+        if (el.error) return;
+        setErrorCode(null);
+        setState((s) => ({ ...s, error: false }));
+        sync();
+      };
       // React creates the element during render: it may have loaded its
       // metadata before this ref ran (e.g. while the lazy screen committed).
       if (el.readyState >= HTMLMediaElement.HAVE_METADATA) start();
@@ -135,6 +150,8 @@ export function usePlayback(media: MediaRecord): Playback {
       volume: state.volume,
       rate: state.rate,
       error: false,
+      errorCode: null,
+      retry: () => {},
       toggle: simulated.toggle,
       seek: simulated.seek,
       skip: simulated.skip,
@@ -149,6 +166,15 @@ export function usePlayback(media: MediaRecord): Playback {
     src,
     attachMedia,
     ...state,
+    errorCode,
+    retry: () => {
+      const el = current();
+      if (!el) return;
+      retryPosition.current = Number.isFinite(el.currentTime) ? el.currentTime : state.time;
+      setErrorCode(null);
+      setState((s) => ({ ...s, error: false, playing: false, buffered: 0 }));
+      el.load();
+    },
     toggle: () => {
       const el = current();
       if (!el) return;

@@ -89,3 +89,7 @@ Home.tsx : sections ; LandingShell.tsx : navigation, thème et scroll spy ; Down
 ## Download submission states — 2026-10-29
 
 AnalysisScreen.tsx and AnalysisSheet.tsx reuse the approved Button disabled palette during task creation, with Starting and aria-busy. useStartActions synchronously prevents repeat submissions before rendering. No layout or assets changed. Notifications now describe the existing Android-managed permission instead of showing SOON; processing uses a format-neutral label.
+
+## Desktop playback error recovery — 2026-10-31
+
+PlayerScreen.tsx retains the approved dark player surface and existing error banner. On media error, hide the failed video surface/backdrop; add Retry playback alongside the existing system-player action. Error text follows the media error code. This is a minimal recovery/accessibility adaptation to the reported white-screen failure; no new visual design.

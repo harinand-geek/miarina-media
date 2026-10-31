@@ -107,7 +107,8 @@ function Player({ item }: { item: MediaRecord }) {
       <div className="flex min-w-0 flex-1 flex-col bg-player text-[#F5F7FA]">
         <div className="relative grid min-h-0 flex-1 place-items-center overflow-hidden bg-[#0B1218]">
           {/* Bars around the picture: blurred current frame, or blurred cover. */}
-          {isVideo ? <VideoBackdrop video={videoEl} /> : <ThumbBackdrop path={item.thumbnail} />}
+          {!p.error &&
+            (isVideo ? <VideoBackdrop video={videoEl} /> : <ThumbBackdrop path={item.thumbnail} />)}
           {p.src && isVideo && (
             <video
               ref={attachVideo}
@@ -115,7 +116,7 @@ function Player({ item }: { item: MediaRecord }) {
               preload="metadata"
               onClick={p.toggle}
               onDoubleClick={() => toggleFullscreen()}
-              className="absolute inset-0 h-full w-full object-contain"
+              className={`absolute inset-0 h-full w-full object-contain ${p.error ? 'invisible' : ''}`}
             >
               {subtitles && null}
             </video>
@@ -151,7 +152,18 @@ function Player({ item }: { item: MediaRecord }) {
               className="absolute inset-x-0 bottom-6 mx-auto flex w-fit max-w-[90%] items-center gap-3 rounded-lg border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[13px]"
             >
               <Icon name="error" fill className="text-[#F07070]" />
-              <span>This format cannot be played here ({formatLabel(item)}).</span>
+              <span>
+                {p.errorCode === 4
+                  ? `This format cannot be played here (${formatLabel(item)}).`
+                  : p.errorCode === 2
+                    ? 'The media file could not be read. Try loading it again.'
+                    : p.errorCode === 3
+                      ? 'Video or audio decoding stopped. Try resuming playback.'
+                      : 'Playback was interrupted. Try resuming playback.'}
+              </span>
+              <button type="button" onClick={p.retry} className="font-bold text-accent">
+                Retry playback
+              </button>
               <button type="button" onClick={openExternal} className="font-bold text-accent">
                 Open with system player
               </button>
