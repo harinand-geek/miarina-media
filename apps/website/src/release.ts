@@ -13,10 +13,10 @@ export interface ReleaseFile {
 export const RELEASE = {
   version: '0.1.5',
   windows: {
-    version: '0.1.4',
-    name: 'MiarinaMedia-0.1.4-x64-setup.exe',
+    version: '0.1.5',
+    name: 'MiarinaMedia-0.1.5-x64-setup.exe',
     size: '69,1 Mo',
-    sha256: 'a86968b36c9ce9cf272a563bdc8a11c4df0340aca343847f385cb4ab7aed75d9',
+    sha256: '97dd9247170f05f8358f10bf55012f5232d1b6c2498e71a7697a2144606e0cf6',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.5',
@@ -50,6 +50,17 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.1.5 · Windows',
+    date: 'Préversion de test · 31 octobre 2026',
+    current: true,
+    items: [
+      'Plein écran du lecteur : barres de navigation masquées, retour avec Échap',
+      'Lecture interrompue : bouton Réessayer à la position courante et message adapté à l’erreur',
+      'Surface vidéo défaillante masquée sur fond sombre',
+      'Protection contre les doubles clics au lancement des téléchargements',
+    ],
+  },
+  {
     name: '0.1.5 · Android',
     date: 'Préversion de test · 29 octobre 2026',
     current: true,
@@ -73,7 +84,6 @@ export const CHANGELOG: Release[] = [
   {
     name: '0.1.4 · Windows',
     date: 'Préversion de test · 28 octobre 2026',
-    current: true,
     items: [
       'Installateur aux couleurs de Miarina Media, en français et en anglais',
       'Logo discret pour les médias sans miniature',
