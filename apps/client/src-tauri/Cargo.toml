@@ -15,6 +15,10 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 tauri-build = { version = "2.7.2", features = [] }
 
+[features]
+# Opt-in until crash recovery and native application validation are complete.
+mdm-http = ["dep:miarina-mdm-adapter"]
+
 [dependencies]
 download-engine = { path = "../../../crates/download-engine" }
 library = { path = "../../../crates/library" }
@@ -32,6 +36,7 @@ tokio = { version = "1.53.2", features = ["sync", "time"] }
 tokio-util = { version = "0.7.19", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
+miarina-mdm-adapter = { path = "../../../crates/mdm-adapter", optional = true }
 # Browser media detection through native WebView2 events. Already in the
 # tree through wry; pinned to the same versions.
 webview2-com = "=0.39.1"

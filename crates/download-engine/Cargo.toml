@@ -15,7 +15,7 @@ resource-manager = { path = "../resource-manager" }
 serde.workspace = true
 serde_json.workspace = true
 pgp = { version = "=0.21.0", default-features = false }
-sha2 = "=0.11.0"
+sha2 = "=0.11.1"
 storage = { path = "../storage" }
 thiserror.workspace = true
 tokio = { version = "1.53.2", features = ["fs", "io-util", "macros", "process", "rt", "sync", "time"] }

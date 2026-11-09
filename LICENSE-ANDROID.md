@@ -12,8 +12,9 @@ The full license is in
 and is included in the APK. Third-party components retain their own licenses.
 This grant does not relicense third-party dependencies or grant rights to
 third-party trademarks. Recipients retain all rights granted by the GPL,
-including use and modification for other platforms. The separate Windows
-binary distribution retains its existing distribution terms.
+including use and modification for other platforms. Windows source is also
+licensed under GPL-3.0-only following the owner's authorization on 2026-11-09;
+see LICENSE.md and LICENSE at the repository root.
 
 Source repository: https://github.com/harinand-geek/miarina-media
 

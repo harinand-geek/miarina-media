@@ -144,9 +144,14 @@ pub fn run() {
             );
 
             let (tx, mut rx) = mpsc::channel::<ManagerEvent>(EVENT_BUFFER);
+            #[cfg(all(windows, feature = "mdm-http"))]
+            let transfer_http: Arc<dyn download_engine::Engine> =
+                Arc::new(miarina_mdm_adapter::MdmEngine::new(http.clone()));
+            #[cfg(not(all(windows, feature = "mdm-http")))]
+            let transfer_http: Arc<dyn download_engine::Engine> = Arc::new(http.clone());
             let manager = Manager::new(
                 storage.clone(),
-                vec![Arc::new(http.clone()), Arc::new(ytdlp.clone())],
+                vec![transfer_http, Arc::new(ytdlp.clone())],
                 resource_manager::limits(
                     Default::default(),
                     state::PLATFORM,

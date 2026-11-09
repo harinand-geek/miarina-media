@@ -1,0 +1,3 @@
+[submodule "vendor/misterdownloadmanager-source"]
+	path = vendor/misterdownloadmanager-source
+	url = https://github.com/anefzaoui/misterdownloadmanager.git

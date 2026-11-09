@@ -1,13 +1,13 @@
 [workspace]
 resolver = "3"
-members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "apps/client/src-tauri"]
+members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "apps/client/src-tauri"]
 # Feasibility spikes build on their own (they may enable unstable features).
-exclude = ["spikes"]
+exclude = ["spikes", "vendor"]
 
 [workspace.package]
 version = "0.1.3"
 edition = "2024"
-license = "UNLICENSED"
+license = "GPL-3.0-only"
 authors = ["MIARINA"]
 repository = "https://github.com/harinand-geek/miarina-media"
 
