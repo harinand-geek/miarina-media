@@ -20,10 +20,10 @@ export const ROUTES: Route[] = [
     Page: Home,
     title: 'Miarina Media — téléchargez et gardez vos médias',
     description:
-      'Collez un lien, choisissez le format, gardez le fichier. Miarina Media télécharge vidéos et audio sur Windows et Android, sans compte, sans publicité, sans pistage.',
+      'Téléchargez vidéos et audio sur Windows et Android. Torrents et extension Chrome/Edge sur Windows. Bibliothèque locale, sans compte ni publicité.',
     og: {
       title: 'Miarina Media',
-      description: 'Collez un lien, choisissez le format, gardez le fichier. Windows et Android.',
+      description: 'Vidéos et audio sur Windows et Android. Torrents et extension Chrome/Edge sur Windows.',
       image: '/assets/img/windows-hero.jpg?v=013',
     },
   },

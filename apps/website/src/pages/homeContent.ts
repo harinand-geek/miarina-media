@@ -25,6 +25,9 @@ export const FEATURES = [
     'Vos fichiers rangés par vidéo et audio, avec une recherche, des miniatures et la durée.',
   ],
   ['contrast', 'Clair ou sombre', 'Thème sombre par défaut, thème clair et mode système.'],
+  ['download', 'Torrents sur Windows', 'Ajoutez un torrent ou un lien magnet, choisissez les fichiers, réglez les débits et arrêtez le partage quand vous le souhaitez.'],
+  ['link', 'Depuis Chrome ou Edge', 'L’extension Windows envoie les liens que vous choisissez vers Miarina, même lorsque l’application est fermée. Installation en mode développeur.'],
+  ['music_note', 'Audio sur Android', 'L’extracteur et les outils de conversion sont inclus dans l’APK. Le MP3 à 320 kbps a été vérifié sur émulateur.'],
 ] as const;
 
 export const FORMATS: { icon: string; title: string; rows: [string, string, boolean?][] }[] = [
@@ -43,6 +46,7 @@ export const FORMATS: { icon: string; title: string; rows: [string, string, bool
     title: 'Audio',
     rows: [
       ['MP3 · 320, 256, 192 ou 128 kbps', 'conversion · Windows'],
+      ['MP3 · 320 kbps', 'Android · testé sur émulateur'],
       ['FLAC', 'conversion · Windows'],
       ['Piste audio d’origine', 'selon la source'],
       ['Fichier original', 'lien direct'],
@@ -53,11 +57,23 @@ export const FORMATS: { icon: string; title: string; rows: [string, string, bool
 
 export const FAQ: [string, string][] = [
   [
+    'Qu’apporte la version 0.1.6 ?',
+    'Sous Windows : torrents, liens magnet, sélection des fichiers et limites de débit, ainsi qu’une extension Chrome/Edge pour envoyer des liens. Windows et Android reçoivent aussi des corrections du nettoyage des fichiers temporaires et de la vérification du dossier de téléchargement. Les torrents et l’extension ne sont pas disponibles sur Android.',
+  ],
+  [
+    'Comment connecter l’extension Chrome ou Edge ?',
+    'Dans la page des extensions du navigateur, activez le mode développeur et chargez le dossier browser-extension fourni avec l’application Windows. Copiez l’identifiant de l’extension dans Réglages → Extension navigateur de Miarina, puis connectez-la. Les liens envoyés apparaissent dans la boîte de réception des réglages : vous choisissez ensuite lesquels télécharger. L’extension n’intercepte pas automatiquement tous les téléchargements et n’est pas encore publiée dans les magasins Chrome/Edge.',
+  ],
+  [
+    'Comment fonctionnent les torrents ?',
+    'Sur Windows, ouvrez la rubrique Torrents et ajoutez un fichier torrent ou un lien magnet. Vous pouvez choisir les fichiers, mettre en pause, reprendre et régler les débits. Un torrent échange des données avec d’autres participants : votre adresse IP leur est visible et des morceaux peuvent être partagés pendant son activité. Vous pouvez arrêter le partage dans l’application.',
+  ],
+  [
     'Miarina Media est-il gratuit ?',
     'Oui. L’application est gratuite, sans publicité et sans compte.',
   ],
   [
-    'Quels sites sont pris en charge ?',
+    'Quels liens sont pris en charge ?',
     'Les liens directs vers un fichier vidéo ou audio fonctionnent sur Windows et Android. Sous Windows, les pages de nombreux sites vidéo sont analysées avec yt-dlp, inclus dans l’installateur avec FFmpeg et QuickJS-NG : rien à télécharger en plus. Depuis la version 0.1.5, Android intègre aussi un extracteur : le parcours YouTube a été testé sur émulateur. La conversion MP3 à 320 kbps a été vérifiée sur émulateur ; les essais sur téléphone réel restent à faire. Les contenus privés, protégés par connexion ou par DRM, et les diffusions en direct ne sont pas pris en charge.',
   ],
   [
