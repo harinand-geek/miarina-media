@@ -1,0 +1,20 @@
+Miarina Media includes Mister Download Manager components
+
+Mister Download Manager and its contributors:
+https://github.com/anefzaoui/misterdownloadmanager
+Revision: 46bb3bcd316a540a05fc18feff40707afe5a4dee (0.5.1)
+License: GNU GPL version 3 or later. Full text: tools/GPL-3.0.txt.
+
+The torrent component uses librqbit and its contributors:
+https://github.com/ikatson/rqbit
+Pinned fork: https://github.com/anefzaoui/rqbit
+Revision: ef50d87f4a9d5be9e3951b74f722433f9b46bd76
+
+Miarina's corresponding application source and build instructions:
+https://github.com/harinand-geek/miarina-media
+See docs/integrations/misterdownloadmanager.md and Cargo.lock.
+Source releases must include the pinned submodule and dependency sources.
+
+Miarina's browser extension and native bridge are MIARINA-authored,
+licensed under GPL-3.0-only. They implement explicit link sending and are
+not the full upstream browser extension.

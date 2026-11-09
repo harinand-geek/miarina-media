@@ -1,6 +1,17 @@
 /// Application commands. Each one must be granted explicitly in
 /// `capabilities/default.json` (least privilege).
 const COMMANDS: &[&str] = &[
+    "browser_inbox",
+    "browser_inbox_dismiss",
+    "browser_bridge_register",
+    "browser_extension_folder",
+    "torrents_enable",
+    "torrents_disable",
+    "torrents_list",
+    "torrents_preview",
+    "torrents_start",
+    "torrents_action",
+    "torrents_limits",
     "validate_media_url",
     "analyze_link",
     "downloads_list",

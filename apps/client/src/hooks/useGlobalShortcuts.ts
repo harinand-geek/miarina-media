@@ -12,6 +12,7 @@ export const SECTION_ORDER: Screen[] = [
   'history',
   'browser',
   'settings',
+  'torrents',
 ];
 
 function isEditable(target: EventTarget | null) {
@@ -30,7 +31,7 @@ export function useGlobalShortcuts() {
       if (!ctrl || e.altKey) return;
       const key = e.key.toLowerCase();
 
-      if (/^[1-7]$/.test(key)) {
+      if (/^[1-8]$/.test(key)) {
         e.preventDefault();
         openSection(SECTION_ORDER[Number(key) - 1]!);
       } else if (key === 'b') {

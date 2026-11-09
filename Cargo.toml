@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "apps/client/src-tauri"]
+members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "crates/browser-bridge", "apps/client/src-tauri"]
 # Feasibility spikes build on their own (they may enable unstable features).
 exclude = ["spikes", "vendor"]
 
@@ -23,3 +23,17 @@ lto = true
 opt-level = "s"
 panic = "abort"
 strip = true
+
+# Pinned torrent fixes required by mdm-torrent; same revision as upstream.
+[patch.crates-io]
+librqbit = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-bencode = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-buffers = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-clone-to-owned = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-core = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-dht = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-lsd = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-peer-protocol = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-sha1-wrapper = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-tracker-comms = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }
+librqbit-upnp = { git = "https://github.com/anefzaoui/rqbit.git", rev = "ef50d87f4a9d5be9e3951b74f722433f9b46bd76" }

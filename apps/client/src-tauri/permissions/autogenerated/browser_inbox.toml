@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-browser-inbox"
+description = "Enables the browser_inbox command without any pre-configured scope."
+commands.allow = ["browser_inbox"]
+
+[[permission]]
+identifier = "deny-browser-inbox"
+description = "Denies the browser_inbox command without any pre-configured scope."
+commands.deny = ["browser_inbox"]

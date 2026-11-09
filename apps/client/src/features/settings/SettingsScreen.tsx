@@ -16,11 +16,13 @@ import {
 import { useUi } from '../../stores/ui';
 import { MediaTools } from './MediaTools';
 import { Select, SettingRow } from './SettingRow';
+import { BrowserExtension } from './BrowserExtension';
 
-type Tab = 'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language';
+type Tab = 'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language' | 'extension';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'general', label: 'General', icon: 'tune' },
+  { id: 'extension', label: 'Browser extension', icon: 'extension' },
   { id: 'downloads', label: 'Downloads', icon: 'download' },
   { id: 'storage', label: 'Storage', icon: 'hard_drive' },
   { id: 'performance', label: 'Performance', icon: 'speed' },
@@ -58,6 +60,7 @@ export default function SettingsScreen() {
         <div className="flex max-w-[700px] flex-col">
           <h2 className="m-0 pb-1.5 text-title font-bold">{title}</h2>
           {tab === 'general' && <GeneralTab />}
+          {tab === 'extension' && <BrowserExtension />}
           {tab === 'downloads' && <DownloadsTab />}
           {tab === 'storage' && <StorageTab />}
           {tab === 'performance' && <PerformanceTab />}

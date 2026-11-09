@@ -15,6 +15,9 @@ crate-type = ["staticlib", "cdylib", "rlib"]
 [build-dependencies]
 tauri-build = { version = "2.7.2", features = [] }
 
+[dev-dependencies]
+tempfile = "3.27.0"
+
 [features]
 # Opt-in until crash recovery and native application validation are complete.
 mdm-http = ["dep:miarina-mdm-adapter"]
@@ -36,6 +39,8 @@ tokio = { version = "1.53.2", features = ["sync", "time"] }
 tokio-util = { version = "0.7.19", default-features = false }
 
 [target.'cfg(windows)'.dependencies]
+miarina-browser-bridge = { path = "../../../crates/browser-bridge" }
+mdm-torrent = { path = "../../../vendor/misterdownloadmanager-source/crates/torrent" }
 miarina-mdm-adapter = { path = "../../../crates/mdm-adapter", optional = true }
 # Browser media detection through native WebView2 events. Already in the
 # tree through wry; pinned to the same versions.

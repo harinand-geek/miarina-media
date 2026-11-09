@@ -1,0 +1,38 @@
+body {
+  width: 300px;
+  margin: 0;
+  padding: 20px;
+  background: #101820;
+  color: #edf4fa;
+  font: 14px system-ui;
+}
+h1 {
+  font-size: 20px;
+}
+button {
+  background: #2ac5bd;
+  color: #082526;
+  border: 0;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  font-weight: 700;
+  width: 100%;
+}
+button:disabled {
+  opacity: 0.5;
+}
+p {
+  line-height: 1.5;
+}
+.hint {
+  color: #96aec2;
+  font-size: 12px;
+}
+code {
+  font-size: 11px;
+  word-break: break-all;
+}
+#status {
+  min-height: 42px;
+}

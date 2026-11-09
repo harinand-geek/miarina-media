@@ -2,7 +2,7 @@ import { create } from 'zustand';
 import type { MediaRecord } from '../services/types';
 
 export type Screen =
-  'home' | 'analysis' | 'downloads' | 'library' | 'player' | 'history' | 'browser' | 'settings';
+  'home' | 'analysis' | 'downloads' | 'library' | 'player' | 'history' | 'browser' | 'settings' | 'torrents';
 
 export interface Toast {
   id: number;

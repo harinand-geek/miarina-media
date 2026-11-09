@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-torrents-disable"
+description = "Enables the torrents_disable command without any pre-configured scope."
+commands.allow = ["torrents_disable"]
+
+[[permission]]
+identifier = "deny-torrents-disable"
+description = "Denies the torrents_disable command without any pre-configured scope."
+commands.deny = ["torrents_disable"]

@@ -16,6 +16,7 @@ const PlayerScreen = lazy(() => import('../features/player/PlayerScreen'));
 const HistoryScreen = lazy(() => import('../features/history/HistoryScreen'));
 const SettingsScreen = lazy(() => import('../features/settings/SettingsScreen'));
 const BrowserScreen = lazy(() => import('../features/browser/BrowserScreen'));
+const TorrentsScreen = lazy(() => import('../features/torrents/TorrentsScreen'));
 
 const SCREENS: Record<Screen, () => ReactNode> = {
   home: () => <HomeScreen />,
@@ -26,6 +27,7 @@ const SCREENS: Record<Screen, () => ReactNode> = {
   history: () => <HistoryScreen />,
   browser: () => <BrowserScreen />,
   settings: () => <SettingsScreen />,
+  torrents: () => <TorrentsScreen />,
 };
 
 export function DesktopShell() {

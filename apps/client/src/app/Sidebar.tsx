@@ -15,6 +15,7 @@ const NAV: Record<string, { label: string; icon: string }> = {
   history: { label: 'History', icon: 'history' },
   browser: { label: 'Browser', icon: 'travel_explore' },
   settings: { label: 'Settings', icon: 'settings' },
+  torrents: { label: 'Torrents', icon: 'hub' },
 };
 
 export function Sidebar({ collapsed }: { collapsed: boolean }) {

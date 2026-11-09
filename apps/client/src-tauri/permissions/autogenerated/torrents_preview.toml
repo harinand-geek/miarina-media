@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-torrents-preview"
+description = "Enables the torrents_preview command without any pre-configured scope."
+commands.allow = ["torrents_preview"]
+
+[[permission]]
+identifier = "deny-torrents-preview"
+description = "Denies the torrents_preview command without any pre-configured scope."
+commands.deny = ["torrents_preview"]

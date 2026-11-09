@@ -1,11 +1,14 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
   "build": {
-    "beforeDevCommand": "cargo run -q -p download-engine --example fetch_tools -- src-tauri/tools && pnpm vite",
-    "beforeBuildCommand": "cargo run -q -p download-engine --example fetch_tools -- src-tauri/tools && pnpm vite build"
+    "beforeDevCommand": "cargo build -p miarina-browser-bridge && node scripts/prepare-bridge.mjs --debug && cargo run -q -p download-engine --example fetch_tools -- src-tauri/tools && pnpm vite",
+    "beforeBuildCommand": "cargo build -p miarina-browser-bridge --release && node scripts/prepare-bridge.mjs && cargo run -q -p download-engine --example fetch_tools -- src-tauri/tools && pnpm vite build"
   },
   "bundle": {
     "resources": {
+      "tools/bridge/": "tools/bridge/",
+      "../../browser-extension/": "browser-extension/",
+      "resources/MDM-NOTICE.txt": "tools/MDM-NOTICE.txt",
       "tools/yt-dlp/": "tools/yt-dlp/",
       "tools/ffmpeg/": "tools/ffmpeg/",
       "tools/quickjs/": "tools/quickjs/",

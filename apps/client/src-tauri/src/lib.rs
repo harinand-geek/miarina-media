@@ -11,6 +11,10 @@ mod player;
 mod shared_storage;
 mod shell;
 mod state;
+#[cfg(windows)]
+mod torrents;
+#[cfg(windows)]
+mod browser_bridge;
 
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -96,6 +100,8 @@ pub fn run() {
             #[cfg(target_os = "android")]
             android_tls::init()?;
             let data_dir = app.path().app_data_dir()?;
+            #[cfg(windows)]
+            app.manage(torrents::TorrentState::default());
             std::fs::create_dir_all(&data_dir)?;
             let storage = Arc::new(Mutex::new(Storage::open(&data_dir.join("miarina.db"))?));
             let app_download_dir = app
@@ -281,6 +287,28 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            #[cfg(windows)]
+            browser_bridge::browser_inbox,
+            #[cfg(windows)]
+            browser_bridge::browser_inbox_dismiss,
+            #[cfg(windows)]
+            browser_bridge::browser_bridge_register,
+            #[cfg(windows)]
+            browser_bridge::browser_extension_folder,
+            #[cfg(windows)]
+            torrents::torrents_enable,
+            #[cfg(windows)]
+            torrents::torrents_disable,
+            #[cfg(windows)]
+            torrents::torrents_list,
+            #[cfg(windows)]
+            torrents::torrents_preview,
+            #[cfg(windows)]
+            torrents::torrents_start,
+            #[cfg(windows)]
+            torrents::torrents_action,
+            #[cfg(windows)]
+            torrents::torrents_limits,
             commands::validate_media_url,
             commands::analyze_link,
             commands::downloads_list,
@@ -344,6 +372,8 @@ pub fn run() {
 
     app.run(|handle, event| {
         if let RunEvent::Exit = event {
+            #[cfg(windows)]
+            tauri::async_runtime::block_on(handle.state::<torrents::TorrentState>().shutdown());
             // Flush partial files so interrupted downloads stay resumable.
             let manager = handle.state::<AppState>().manager.clone();
             tauri::async_runtime::block_on(manager.shutdown());
