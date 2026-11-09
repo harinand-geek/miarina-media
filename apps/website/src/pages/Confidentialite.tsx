@@ -10,7 +10,7 @@ export function Confidentialite() {
         <h1>Ce que Miarina Media traite, et ce qu’il ne fait pas</h1>
         <p className="doc-lead">
           Description factuelle des versions Windows {RELEASE.windows.version} et Android{' '}
-          {RELEASE.android.version} et de ce site, mise à jour le 28 octobre 2026.
+          {RELEASE.android.version} et de ce site, mise à jour le 9 novembre 2026.
         </p>
 
         <h2>Dans l’application</h2>
@@ -36,7 +36,7 @@ export function Confidentialite() {
           </li>
           <li>
             <strong>Outils Android :</strong> l’extracteur et les outils de conversion sont intégrés
-            à l’APK 0.1.4. Ils sont mis à jour par installation d’un nouvel APK, sans téléchargement
+            à l’APK. Ils sont mis à jour par installation d’un nouvel APK, sans téléchargement
             automatique de code d’extraction à l’exécution.
           </li>
           <li>
@@ -60,6 +60,19 @@ export function Confidentialite() {
             Google (<span className="mono">google.com</span>), qui le reçoit comme depuis un autre
             navigateur. Les favoris sont enregistrés uniquement sur votre appareil. Les pages
             visitées n’ont aucun accès aux fonctions de l’application.
+          </li>
+          <li>
+            <strong>Torrents (Windows) :</strong> après activation de la session, l’application
+            contacte des pairs, trackers et nœuds DHT. Votre adresse IP et les identifiants
+            des torrents sont visibles par ces participants. Les morceaux téléchargés peuvent
+            être partagés, y compris après la fin du téléchargement. Pause ou « Stop all torrents
+            and sharing » arrête ce partage. Les données de reprise restent sur votre appareil.
+          </li>
+          <li>
+            <strong>Extension Chrome/Edge :</strong> elle transmet uniquement les liens que vous
+            choisissez d’envoyer vers une boîte de réception locale. Elle ne collecte pas vos
+            cookies et ne surveille pas automatiquement les pages. Vous choisissez ensuite
+            d’analyser le lien dans Miarina.
           </li>
           <li>
             <strong>Vos fichiers</strong> restent dans le dossier de votre appareil où ils sont

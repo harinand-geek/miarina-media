@@ -2,6 +2,24 @@
 
 Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
 
+## Windows et Android 0.1.6 — 2026-11-09
+
+Révision application : `4fb262f05fa16d75e1d60844f0c0d72506f33386`. Moteur HTTP MDM expérimental désactivé.
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.1.6-x64-setup.exe | 73556226 | 3acfbbea71b4a268d45c4a62b4b36be53ac22dec4fc91ae1e78c42916c0192d8 |
+| MiarinaMedia-0.1.6.apk | 132841589 | ac237f14819fd57c977b5aa1ff819b3c8bcb3edae310d8adab3e95269bb7a7f0 |
+| MiarinaMedia-0.1.6-source.tar.gz | 33819407 | 3a4b22047f0dfed8e0b1c8c99701d9eded5a63af7dda242a449883ad90d0910d |
+
+Windows : compilation release et paquet NSIS réussis ; intégrité du paquet vérifiée avec 7-Zip. L’extension Chrome/Edge, sa passerelle native, les outils multimédias et les notices sont présents. Installateur non signé ; installation et interface de ce paquet non rejouées.
+
+Android : APK universel signé, versionCode 1006, Android 7+, ARM64 et x86_64. Signature v2 et alignement vérifiés. Certificat SHA-256 : `11de871564b14382fd46a210ea06327e6d260101125ad2b545159e8b1c6479e1`. Aucun appareil connecté lors de cette publication : essais téléphone, cycle de vie en arrière-plan et lecture native restent à effectuer. Avertissements de compilation non bloquants (imports inutilisés et API Gradle dépréciées).
+
+L’audit automatisé et le transfert torrent local sont décrits dans `prebuild-audit-2026-11-09.md`. La connexion de l’extension dans Chrome/Edge reste à valider manuellement ; distribution en mode développeur, sans publication en magasin. Les fonctions torrent sont Windows uniquement.
+
+L’archive source inclut la révision application et le sous-module Mister Download Manager épinglé ; elle ne constitue pas un ensemble complet des sources natives Android tierces (voir `android-extractor-validation.md`).
+
 ## Android 0.1.4 — instruction de publication du 2026-10-28
 
 APK : `MiarinaMedia-0.1.4.apk`, 132 808 453 octets (126,7 Mio), code 1004.

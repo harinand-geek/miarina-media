@@ -12,9 +12,9 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
-        <h2>Application Android 0.1.5</h2>
+        <h2>Applications Windows et Android 0.1.6</h2>
         <p>
-          Le code MIARINA de l’application Android est sous GPL-3.0-only. Les sources de
+          Le code MIARINA des applications Windows et Android est sous GPL-3.0-only. Les sources de
           l’application et les instructions de compilation sont dans le{' '}
           <a href="https://github.com/harinand-geek/miarina-media">dépôt Miarina Media</a>. L’APK
           intègre youtubedl-android 0.18.1, Python, yt-dlp et FFmpeg. Les composants tiers
@@ -23,10 +23,18 @@ export function Licences() {
           seul un ensemble complet de ces sources.
         </p>
         <p>
-          <a href="/downloads/MiarinaMedia-0.1.5-source.tar.gz">
-            Archive du code de l’application 0.1.5
+          <a href="/downloads/MiarinaMedia-0.1.6-source.tar.gz">
+            Archive du code de l’application 0.1.6
           </a>{' '}
-          — révision <code>4a05015</code>, sans les sources natives tierces manquantes.
+          — révision <code>4fb262f</code>, avec le sous-module Mister Download Manager,
+          sans les sources natives Android tierces manquantes.
+        </p>
+        <p>
+          Les torrents Windows utilisent les composants de{' '}
+          <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>
+          {' '}(GPL-3.0-or-later, révision <code>46bb3bcd</code>) et librqbit.
+          Les attributions sont incluses dans l’installateur. L’extension Miarina pour
+          Chrome et Edge est fournie en mode développeur, avec son code source.
         </p>
         <h2>Outils inclus dans l’installateur (Windows)</h2>
         <p>

@@ -11,18 +11,18 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.5',
+  version: '0.1.6',
   windows: {
-    version: '0.1.5',
-    name: 'MiarinaMedia-0.1.5-x64-setup.exe',
-    size: '69,1 Mo',
-    sha256: '97dd9247170f05f8358f10bf55012f5232d1b6c2498e71a7697a2144606e0cf6',
+    version: '0.1.6',
+    name: 'MiarinaMedia-0.1.6-x64-setup.exe',
+    size: '70,1 Mio',
+    sha256: '3acfbbea71b4a268d45c4a62b4b36be53ac22dec4fc91ae1e78c42916c0192d8',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.5',
-    name: 'MiarinaMedia-0.1.5.apk',
+    version: '0.1.6',
+    name: 'MiarinaMedia-0.1.6.apk',
     size: '126,7 Mio',
-    sha256: '1f44a1bcf2de6b17ce42595f935384e81856e463b8216b7490a12a398f299bf0',
+    sha256: 'ac237f14819fd57c977b5aa1ff819b3c8bcb3edae310d8adab3e95269bb7a7f0',
   } satisfies ReleaseFile,
 };
 
@@ -50,9 +50,19 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.1.6 · Windows et Android',
+    date: 'Préversion de test · 9 novembre 2026',
+    current: true,
+    items: [
+      'Windows : torrents et magnets, sélection des fichiers, pause/reprise, limites de débit et arrêt du partage',
+      'Windows : extension Chrome/Edge en mode développeur pour envoyer manuellement des liens vers une boîte de réception locale',
+      'Windows et Android : protection du nettoyage des fichiers temporaires et du contrôle du dossier de téléchargement',
+      'Tests automatisés et transfert torrent local validés ; essais sur téléphone réel et connexion de l’extension dans un navigateur encore à effectuer',
+    ],
+  },
+  {
     name: '0.1.5 · Windows',
     date: 'Préversion de test · 31 octobre 2026',
-    current: true,
     items: [
       'Plein écran du lecteur : barres de navigation masquées, retour avec Échap',
       'Lecture interrompue : bouton Réessayer à la position courante et message adapté à l’erreur',
@@ -63,7 +73,6 @@ export const CHANGELOG: Release[] = [
   {
     name: '0.1.5 · Android',
     date: 'Préversion de test · 29 octobre 2026',
-    current: true,
     items: [
       'Extracteur et outils de conversion intégrés à l’APK',
       'Parcours YouTube testé sur émulateur : analyse, téléchargement vidéo et lecture locale',
@@ -142,6 +151,8 @@ export const CHANGELOG: Release[] = [
 type Cell = boolean | 'soon' | string;
 
 export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
+  { feature: 'Torrents et liens magnet', windows: true, android: false },
+  { feature: 'Extension Chrome/Edge : envoi manuel de liens', windows: 'Mode développeur', android: false },
   { feature: 'Téléchargement par lien direct', windows: true, android: true },
   {
     feature: 'Pages de sites vidéo (via yt-dlp)',
