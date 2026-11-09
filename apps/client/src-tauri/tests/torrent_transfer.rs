@@ -64,12 +64,34 @@ async fn local_transfer_pause_and_remove_keep_the_file() {
         while receiver.stats(&got).unwrap().phase != Phase::Paused {
             tokio::time::sleep(Duration::from_millis(50)).await;
         }
-    }).await.expect("torrent did not reach paused state");
+    })
+    .await
+    .expect("torrent did not reach paused state");
     receiver.resume(&got).await.unwrap();
     finished(&receiver, &got).await;
     let path = destination.join(&meta.files[0].path);
     assert_eq!(std::fs::read(&path).unwrap(), bytes);
     receiver.pause(&got).await.unwrap();
+    receiver.stop().await;
+    drop(receiver);
+    let receiver = Torrents::start(config("receiver-state")).await.unwrap();
+    assert!(
+        receiver.has(&got),
+        "saved transfer must survive session restart"
+    );
+    tokio::time::timeout(Duration::from_secs(10), async {
+        while receiver.stats(&got).unwrap().phase == Phase::Checking {
+            tokio::time::sleep(Duration::from_millis(50)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(
+        receiver.stats(&got).unwrap().phase,
+        Phase::Paused,
+        "restart must preserve user pause"
+    );
+    assert_eq!(std::fs::read(&path).unwrap(), bytes);
     receiver.remove(&got, false).await.unwrap();
     assert!(path.is_file());
     assert!(!receiver.has(&got));

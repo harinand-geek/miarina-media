@@ -77,12 +77,29 @@ pub fn inbox(dir: &Path) -> io::Result<Vec<Entry>> {
     let mut entries = Vec::new();
     for file in fs::read_dir(dir)?.take(200) {
         let file = file?;
-        if file.path().extension().is_none_or(|e| e != "json")
-            || file.metadata()?.len() > MAX_FRAME as u64
+        if file.path().extension().is_none_or(|e| e != "json") {
+            continue;
+        }
+        // One stale, unreadable or oversized entry must not hide the whole inbox.
+        let Ok(input) = fs::File::open(file.path()) else {
+            continue;
+        };
+        let Ok(metadata) = input.metadata() else {
+            continue;
+        };
+        if !metadata.is_file() || metadata.len() > MAX_FRAME as u64 {
+            continue;
+        }
+        let mut bytes = Vec::new();
+        if input
+            .take(MAX_FRAME as u64 + 1)
+            .read_to_end(&mut bytes)
+            .is_err()
+            || bytes.len() > MAX_FRAME
         {
             continue;
         }
-        let Ok(entry) = serde_json::from_slice::<Entry>(&fs::read(file.path())?) else {
+        let Ok(entry) = serde_json::from_slice::<Entry>(&bytes) else {
             continue;
         };
         if valid_id(&entry.id)
@@ -165,5 +182,23 @@ mod tests {
             serde_json::from_slice::<serde_json::Value>(&out[4..]).unwrap()["ok"],
             true
         );
+    }
+
+    #[test]
+    fn malformed_entries_do_not_hide_valid_links() {
+        let dir = tempfile::tempdir().unwrap();
+        fs::create_dir(dir.path().join("1-1.json")).unwrap();
+        fs::write(dir.path().join("2-2.json"), b"invalid json").unwrap();
+        fs::write(dir.path().join("3-3.json"), vec![b' '; MAX_FRAME + 1]).unwrap();
+        enqueue(
+            dir.path(),
+            Request {
+                url: "https://example.com/valid".into(),
+            },
+        )
+        .unwrap();
+        let list = inbox(dir.path()).unwrap();
+        assert_eq!(list.len(), 1);
+        assert_eq!(list[0].url, "https://example.com/valid");
     }
 }

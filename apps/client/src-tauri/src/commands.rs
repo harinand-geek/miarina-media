@@ -992,19 +992,23 @@ pub struct StorageUsage {
 
 /// `.part` files and `.part.d` folders of the download folder that belong
 /// to no open task (leftovers of removed or crashed downloads).
-fn orphan_temp_files(state: &AppState, dir: &Path) -> Vec<(PathBuf, u64)> {
-    let in_use: Vec<PathBuf> = state
-        .storage()
-        .open_tasks()
-        .unwrap_or_default()
+fn orphan_temp_files(state: &AppState, dir: &Path) -> CmdResult<Vec<(PathBuf, u64)>> {
+    orphan_candidates(state.storage().open_tasks(), dir)
+}
+
+fn orphan_candidates(
+    tasks: storage::Result<Vec<TaskRecord>>,
+    dir: &Path,
+) -> CmdResult<Vec<(PathBuf, u64)>> {
+    let in_use: Vec<PathBuf> = tasks?
         .into_iter()
         .filter_map(|t| t.part_path)
         .map(PathBuf::from)
         .collect();
     let Ok(entries) = std::fs::read_dir(dir) else {
-        return Vec::new();
+        return Ok(Vec::new());
     };
-    entries
+    Ok(entries
         .flatten()
         .filter_map(|entry| {
             let path = entry.path();
@@ -1021,11 +1025,12 @@ fn orphan_temp_files(state: &AppState, dir: &Path) -> Vec<(PathBuf, u64)> {
             }
             Some((path.clone(), dir_size(&path)))
         })
-        .collect()
+        .collect())
 }
 
 fn dir_size(path: &Path) -> u64 {
-    match std::fs::metadata(path) {
+    match std::fs::symlink_metadata(path) {
+        Ok(m) if m.file_type().is_symlink() => 0,
         Ok(m) if m.is_file() => m.len(),
         Ok(_) => std::fs::read_dir(path)
             .map(|entries| entries.flatten().map(|e| dir_size(&e.path())).sum())
@@ -1038,7 +1043,7 @@ fn dir_size(path: &Path) -> u64 {
 pub async fn storage_usage(state: State<'_, AppState>) -> CmdResult<StorageUsage> {
     let download_dir = state.settings().download_dir;
     let dir = PathBuf::from(&download_dir);
-    let orphans = orphan_temp_files(&state, &state.temp_dir());
+    let orphans = orphan_temp_files(&state, &state.temp_dir())?;
     Ok(StorageUsage {
         disk: disk_of(&dir),
         library_bytes: state.storage().media_stats()?.total_bytes,
@@ -1058,7 +1063,7 @@ pub async fn storage_clear_thumbnails(state: State<'_, AppState>) -> CmdResult<u
 #[tauri::command]
 pub async fn storage_clean_temp(state: State<'_, AppState>) -> CmdResult<u64> {
     let mut freed = 0;
-    for (path, size) in orphan_temp_files(&state, &state.temp_dir()) {
+    for (path, size) in orphan_temp_files(&state, &state.temp_dir())? {
         let removed = if path.is_dir() {
             std::fs::remove_dir_all(&path)
         } else {
@@ -1072,10 +1077,19 @@ pub async fn storage_clean_temp(state: State<'_, AppState>) -> CmdResult<u64> {
 }
 
 fn ensure_writable(dir: &Path) -> CmdResult<()> {
-    let probe = dir.join(".miarina-write-test");
+    use std::io::Write;
+    let probe = dir.join(format!(".miarina-write-test-{}", new_task_id()));
     std::fs::create_dir_all(dir)
-        .and_then(|_| std::fs::write(&probe, b"ok"))
-        .and_then(|_| std::fs::remove_file(&probe))
+        .and_then(|_| {
+            let mut file = std::fs::OpenOptions::new()
+                .write(true)
+                .create_new(true)
+                .open(&probe)?;
+            let written = file.write_all(b"ok");
+            drop(file);
+            let removed = std::fs::remove_file(&probe);
+            written.and(removed)
+        })
         .map_err(|_| {
             CommandError::new(
                 "folder_not_writable",
@@ -1087,6 +1101,25 @@ fn ensure_writable(dir: &Path) -> CmdResult<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn unreadable_task_database_never_authorizes_temp_cleanup() {
+        let dir = tempfile::tempdir().unwrap();
+        let partial = dir.path().join("active.part");
+        std::fs::write(&partial, b"download in progress").unwrap();
+        assert!(orphan_candidates(Err(StorageError::Corrupted("state")), dir.path()).is_err());
+        assert_eq!(std::fs::read(partial).unwrap(), b"download in progress");
+    }
+
+    #[test]
+    fn writable_probe_never_overwrites_an_existing_user_file() {
+        let dir = tempfile::tempdir().unwrap();
+        let existing = dir.path().join(".miarina-write-test");
+        std::fs::write(&existing, b"keep my file").unwrap();
+        ensure_writable(dir.path()).unwrap();
+        assert_eq!(std::fs::read(existing).unwrap(), b"keep my file");
+        assert_eq!(std::fs::read_dir(dir.path()).unwrap().count(), 1);
+    }
 
     #[test]
     fn probe_failures_keep_network_and_direct_http_errors() {

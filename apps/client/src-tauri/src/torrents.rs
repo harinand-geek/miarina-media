@@ -220,6 +220,15 @@ pub async fn torrents_preview(
             })
             .collect(),
     };
+    // Do not revive a preview from a session stopped/replaced during lookup.
+    let _action = state.actions.lock().await;
+    let current = state.engine().await?;
+    if !Arc::ptr_eq(&current, &engine) {
+        return Err(CommandError::new(
+            "torrent_session_changed",
+            "The torrent session changed. Inspect the link again.",
+        ));
+    }
     let mut pending = state.pending.lock().await;
     if pending.len() >= 8 {
         pending.clear();
@@ -349,6 +358,7 @@ pub async fn torrents_limits(
     download: u64,
     upload: u64,
 ) -> Result<()> {
+    let _action = state.actions.lock().await;
     if download > u32::MAX as u64 || upload > u32::MAX as u64 {
         return Err(error("invalid limit"));
     }

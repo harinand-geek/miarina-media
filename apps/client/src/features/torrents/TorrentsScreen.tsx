@@ -26,8 +26,8 @@ export default function TorrentsScreen() {
   const [sequential, setSequential] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [down, setDown] = useState('0');
-  const [up, setUp] = useState('0');
+  const [down, setDown] = useState<string | null>(null);
+  const [up, setUp] = useState<string | null>(null);
   const native = inTauri();
   const refresh = useCallback(async () => {
     setSnapshot(await torrents.list());
@@ -149,7 +149,14 @@ export default function TorrentsScreen() {
               className="mt-3 flex items-end gap-3"
               onSubmit={(e) => {
                 e.preventDefault();
-                void run(() => torrents.limits(Number(down) * 1024, Number(up) * 1024));
+                void run(async () => {
+                  await torrents.limits(
+                    down === null ? snapshot.downloadLimit : Number(down) * 1024,
+                    up === null ? snapshot.uploadLimit : Number(up) * 1024,
+                  );
+                  setDown(null);
+                  setUp(null);
+                });
               }}
             >
               <label className="flex flex-col gap-1 text-sm">
@@ -160,7 +167,8 @@ export default function TorrentsScreen() {
                   min="0"
                   max="4194303"
                   step="1"
-                  value={down}
+                  required
+                  value={down ?? String(snapshot.downloadLimit / 1024)}
                   onChange={(e) => setDown(e.target.value)}
                 />
               </label>
@@ -172,7 +180,8 @@ export default function TorrentsScreen() {
                   min="0"
                   max="4194303"
                   step="1"
-                  value={up}
+                  required
+                  value={up ?? String(snapshot.uploadLimit / 1024)}
                   onChange={(e) => setUp(e.target.value)}
                 />
               </label>
@@ -256,14 +265,19 @@ export default function TorrentsScreen() {
             <div className="mt-3 flex gap-2">
               <button
                 className={button}
-                disabled={busy || !snapshot.enabled}
+                disabled={
+                  busy || !snapshot.enabled || row.phase === 'inactive' || row.phase === 'checking'
+                }
                 onClick={() =>
                   void run(() =>
-                    torrents.action(row.hash, row.phase === 'paused' ? 'resume' : 'pause'),
+                    torrents.action(
+                      row.hash,
+                      ['paused', 'error'].includes(row.phase) ? 'resume' : 'pause',
+                    ),
                   )
                 }
               >
-                {row.phase === 'paused' ? 'Resume' : 'Pause'}
+                {['paused', 'error'].includes(row.phase) ? 'Resume' : 'Pause'}
               </button>
               <button
                 className={button}

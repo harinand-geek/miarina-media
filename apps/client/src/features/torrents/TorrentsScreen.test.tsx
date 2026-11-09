@@ -25,6 +25,50 @@ beforeEach(() => {
     uploadLimit: 0,
   });
 });
+it('preserves the other persisted rate limit when editing one field', async () => {
+  vi.mocked(torrents.list).mockResolvedValue({
+    enabled: true,
+    rows: [],
+    downloadLimit: 102400,
+    uploadLimit: 51200,
+  });
+  const user = userEvent.setup();
+  render(<TorrentsScreen />);
+  await screen.findByRole('textbox', { name: 'Magnet link' });
+  await user.click(screen.getByText('Transfer limits'));
+  const download = screen.getByRole('spinbutton', { name: 'Download' });
+  expect(download).toHaveValue(100);
+  expect(screen.getByRole('spinbutton', { name: 'Upload' })).toHaveValue(50);
+  await user.clear(download);
+  await user.type(download, '200');
+  await user.click(screen.getByRole('button', { name: 'Apply' }));
+  await waitFor(() => expect(torrents.limits).toHaveBeenCalledWith(204800, 51200));
+});
+it('offers resume for an errored torrent', async () => {
+  vi.mocked(torrents.list).mockResolvedValue({
+    enabled: true,
+    downloadLimit: 0,
+    uploadLimit: 0,
+    rows: [
+      {
+        hash: 'abc',
+        name: 'Broken transfer',
+        folder: 'test',
+        phase: 'error',
+        done: 0,
+        total: 100,
+        uploaded: 0,
+        downSpeed: 0,
+        upSpeed: 0,
+        peers: 0,
+      },
+    ],
+  });
+  const user = userEvent.setup();
+  render(<TorrentsScreen />);
+  await user.click(await screen.findByRole('button', { name: 'Resume' }));
+  await waitFor(() => expect(torrents.action).toHaveBeenCalledWith('abc', 'resume'));
+});
 it('inspects a magnet before starting and sends only selected files', async () => {
   vi.mocked(torrents.preview).mockResolvedValue({
     hash: 'abc',
