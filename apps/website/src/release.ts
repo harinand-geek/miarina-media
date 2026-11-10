@@ -11,18 +11,18 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.6',
+  version: '0.1.7',
   windows: {
-    version: '0.1.6',
-    name: 'MiarinaMedia-0.1.6-x64-setup.exe',
-    size: '70,1 Mio',
-    sha256: '3acfbbea71b4a268d45c4a62b4b36be53ac22dec4fc91ae1e78c42916c0192d8',
+    version: '0.1.7',
+    name: 'MiarinaMedia-0.1.7-x64-setup.exe',
+    size: '70,2 Mio',
+    sha256: 'f083a6ee5aa85bedd8d131ce97864342c905866bcbe3d3b7fe53c0472c00a767',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.6',
-    name: 'MiarinaMedia-0.1.6.apk',
-    size: '126,7 Mio',
-    sha256: 'ac237f14819fd57c977b5aa1ff819b3c8bcb3edae310d8adab3e95269bb7a7f0',
+    version: '0.1.7',
+    name: 'MiarinaMedia-0.1.7.apk',
+    size: '126,8 Mio',
+    sha256: 'b9a04fba921bffa60eca104adc219af25de2814aaf1507a52ca7a9b85c8eba23',
   } satisfies ReleaseFile,
 };
 
@@ -50,9 +50,19 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.1.7 · Windows et Android',
+    date: 'Préversion de test · 10 novembre 2026',
+    current: true,
+    items: [
+      'Recherche automatique de nouvelles versions et notification dans Miarina',
+      'Téléchargement dans les réglages avec progression et vérification de la signature',
+      'Installation depuis l’application : installateur Windows ou confirmation système Android',
+      'Une installation manuelle de la 0.1.7 active ce parcours pour les prochaines versions',
+    ],
+  },
+  {
     name: '0.1.6 · Windows et Android',
     date: 'Préversion de test · 9 novembre 2026',
-    current: true,
     items: [
       'Windows : torrents et magnets, sélection des fichiers, pause/reprise, limites de débit et arrêt du partage',
       'Windows : extension Chrome/Edge en mode développeur pour envoyer manuellement des liens vers une boîte de réception locale',
@@ -151,6 +161,7 @@ export const CHANGELOG: Release[] = [
 type Cell = boolean | 'soon' | string;
 
 export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
+  { feature: 'Recherche et téléchargement des mises à jour dans l’app', windows: true, android: true },
   { feature: 'Torrents et liens magnet', windows: true, android: false },
   { feature: 'Extension Chrome/Edge : envoi manuel de liens', windows: 'Mode développeur', android: false },
   { feature: 'Téléchargement par lien direct', windows: true, android: true },

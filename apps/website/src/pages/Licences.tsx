@@ -12,7 +12,7 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
-        <h2>Applications Windows et Android 0.1.6</h2>
+        <h2>Applications Windows et Android 0.1.7</h2>
         <p>
           Le code MIARINA des applications Windows et Android est sous GPL-3.0-only. Les sources de
           l’application et les instructions de compilation sont dans le{' '}
@@ -23,10 +23,10 @@ export function Licences() {
           seul un ensemble complet de ces sources.
         </p>
         <p>
-          <a href="/downloads/MiarinaMedia-0.1.6-source.tar.gz">
-            Archive du code de l’application 0.1.6
+          <a href="/downloads/MiarinaMedia-0.1.7-source.tar.gz">
+            Archive du code de l’application 0.1.7
           </a>{' '}
-          — révision <code>4fb262f</code>, avec le sous-module Mister Download Manager,
+          — révision <code>0ccc620</code>, avec le sous-module Mister Download Manager,
           sans les sources natives Android tierces manquantes.
         </p>
         <p>

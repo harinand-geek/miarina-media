@@ -1,6 +1,18 @@
 # Builds de test
 
-Préversions publiées sur https://media.miarina.org. Pas encore de mise à jour automatique ; l’installateur Windows n’est pas signé.
+Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
+
+## Windows et Android 0.1.7 — 2026-11-10
+
+Sources : révision 0ccc620. Recherche automatique des nouvelles versions ; téléchargement et installation depuis les réglages sur action utilisateur. Une installation manuelle depuis la 0.1.6 est nécessaire.
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.1.7-x64-setup.exe | 73603463 | f083a6ee5aa85bedd8d131ce97864342c905866bcbe3d3b7fe53c0472c00a767 |
+| MiarinaMedia-0.1.7.apk | 132922457 | b9a04fba921bffa60eca104adc219af25de2814aaf1507a52ca7a9b85c8eba23 |
+| MiarinaMedia-0.1.7-source.tar.gz | 33828715 | bf36e137a8bffb2eea50e965686308e76f0768aa3bbb86e173d034fb702049f6 |
+
+Validation : 79 tests frontend, TypeScript et ESLint ; trois tests Rust de version, signature et altération du manifeste. Builds release Windows et Android réussis. Intégrité NSIS, signature APK v2 (certificat inchangé), versionCode 1007, ARM64/x86_64 et alignement vérifiés. Pas de validation de bout en bout d’une installation depuis l’interface, ni de test sur téléphone réel. Windows reste sans signature Authenticode. Voir app-updates.md pour le protocole et les limites : application ouverte pendant le téléchargement, pas de reprise par octets ni de téléchargement automatique Wi-Fi.
 
 ## Windows et Android 0.1.6 — 2026-11-09
 

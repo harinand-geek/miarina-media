@@ -10,7 +10,7 @@ export function Confidentialite() {
         <h1>Ce que Miarina Media traite, et ce qu’il ne fait pas</h1>
         <p className="doc-lead">
           Description factuelle des versions Windows {RELEASE.windows.version} et Android{' '}
-          {RELEASE.android.version} et de ce site, mise à jour le 9 novembre 2026.
+          {RELEASE.android.version} et de ce site, mise à jour le 10 novembre 2026.
         </p>
 
         <h2>Dans l’application</h2>
@@ -38,6 +38,13 @@ export function Confidentialite() {
             <strong>Outils Android :</strong> l’extracteur et les outils de conversion sont intégrés
             à l’APK. Ils sont mis à jour par installation d’un nouvel APK, sans téléchargement
             automatique de code d’extraction à l’exécution.
+          </li>
+          <li>
+            <strong>Mise à jour de l’application :</strong> Miarina consulte media.miarina.org au démarrage
+            et toutes les six heures lorsque l’interface est visible, ainsi que sur demande dans les réglages.
+            Le serveur reçoit les données normales de connexion, dont l’adresse IP. Le manifeste est signé ;
+            le téléchargement et l’installation nécessitent votre action. Android demande l’autorisation
+            d’installer une mise à jour depuis Miarina, puis une confirmation système.
           </li>
           <li>
             <strong>Mise à jour de yt-dlp (Windows) :</strong> au plus une fois par jour,

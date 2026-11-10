@@ -56,6 +56,7 @@ export const FORMATS: { icon: string; title: string; rows: [string, string, bool
 ];
 
 export const FAQ: [string, string][] = [
+  ['Comment mettre à jour Miarina sans revenir sur le site ?', 'À partir de la version 0.1.7, Miarina recherche les nouvelles versions au démarrage et toutes les six heures lorsque l’interface est visible. Dans Réglages → Mises à jour de Miarina, téléchargez la version proposée puis choisissez Installer. Gardez l’application ouverte pendant le téléchargement. Windows ouvre son installateur ; Android demande une autorisation puis votre confirmation. Vos fichiers et réglages sont conservés. Depuis la 0.1.6, une première installation manuelle de la 0.1.7 est nécessaire.'],
   [
     'Qu’apporte la version 0.1.6 ?',
     'Sous Windows : torrents, liens magnet, sélection des fichiers et limites de débit, ainsi qu’une extension Chrome/Edge pour envoyer des liens. Windows et Android reçoivent aussi des corrections du nettoyage des fichiers temporaires et de la vérification du dossier de téléchargement. Les torrents et l’extension ne sont pas disponibles sur Android.',
