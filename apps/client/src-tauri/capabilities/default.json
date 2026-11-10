@@ -4,6 +4,7 @@
   "description": "Least-privilege permissions for the main window (its own webview; the browser page in it is a remote origin and matches no capability). Only the application's own validated commands are allowed; no filesystem, shell, dialog or opener permission is exposed to the frontend.",
   "windows": ["main"],
   "permissions": [
+    "allow-app-update-progress", "allow-app-update-check", "allow-app-update-download", "allow-app-update-install",
     "allow-browser-inbox",
     "allow-browser-inbox-dismiss",
     "allow-browser-bridge-register",

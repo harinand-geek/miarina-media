@@ -1,6 +1,7 @@
 /// Application commands. Each one must be granted explicitly in
 /// `capabilities/default.json` (least privilege).
 const COMMANDS: &[&str] = &[
+    "app_update_progress", "app_update_check", "app_update_download", "app_update_install",
     "browser_inbox",
     "browser_inbox_dismiss",
     "browser_bridge_register",

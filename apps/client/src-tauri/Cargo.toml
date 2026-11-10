@@ -23,6 +23,9 @@ tempfile = "3.27.0"
 mdm-http = ["dep:miarina-mdm-adapter"]
 
 [dependencies]
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
+ring = "0.17.14"
+sha2 = "=0.11.1"
 download-engine = { path = "../../../crates/download-engine" }
 library = { path = "../../../crates/library" }
 media-core = { path = "../../../crates/media-core" }

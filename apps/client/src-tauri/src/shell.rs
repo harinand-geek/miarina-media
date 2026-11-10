@@ -185,3 +185,11 @@ mod clipboard_tests {
         assert_eq!(clipboard_to_field("  youtu.be/abc  "), "youtu.be/abc");
     }
 }
+
+#[cfg(target_os = "android")]
+pub async fn install_update(app: &AppHandle, path: String) -> Result<(), CommandError> {
+ use tauri::Manager;
+ app.state::<AppShell>().0.run_mobile_plugin_async::<serde_json::Value>("installUpdate", serde_json::json!({"path":path})).await
+ .map_err(|e|CommandError::new("update_install",e.to_string()))?;
+ Ok(())
+}

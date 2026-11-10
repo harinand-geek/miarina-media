@@ -1,3 +1,4 @@
+import { AppUpdates } from './AppUpdates';
 import type { ReactNode } from 'react';
 import { Segmented, Toggle } from '../../components/Controls';
 import { Icon } from '../../components/Icon';
@@ -156,6 +157,7 @@ export function MobileSettings({
         />
         <Row icon="language" label="Language" value="English" />
       </Group>
+      <AppUpdates />
       <Group title="About">
         <Row icon="info" label="Miarina Media" value={`Version ${version}`} />
       </Group>

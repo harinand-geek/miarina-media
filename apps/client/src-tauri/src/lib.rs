@@ -4,6 +4,7 @@ mod android_extractor;
 mod android_tls;
 mod browser;
 mod commands;
+mod updates;
 mod download_notifications;
 #[cfg(target_os = "android")]
 mod media_tools;
@@ -85,6 +86,7 @@ pub fn scan_library(library: &Library, dir: PathBuf) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let builder = tauri::Builder::default()
+        .manage(updates::Updates::default())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_opener::init());
     #[cfg(target_os = "android")]
@@ -287,6 +289,7 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            updates::app_update_progress, updates::app_update_check, updates::app_update_download, updates::app_update_install,
             #[cfg(windows)]
             browser_bridge::browser_inbox,
             #[cfg(windows)]

@@ -29,6 +29,35 @@ class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
   }
 
   @Command
+  fun installUpdate(invoke: Invoke) {
+    try {
+      val args = invoke.parseArgs(UpdateInstallArgs::class.java)
+      val file = java.io.File(args.path).canonicalFile
+      val cache = activity.cacheDir.canonicalFile
+      require(file.name == "miarina-update.apk" && file.path.startsWith(cache.path + java.io.File.separator))
+      if (android.os.Build.VERSION.SDK_INT >= 26 && !activity.packageManager.canRequestPackageInstalls()) {
+        activity.startActivity(Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+          android.net.Uri.parse("package:" + activity.packageName)))
+        invoke.reject("Autorisez Miarina à installer les mises à jour, puis appuyez à nouveau sur Installer.")
+        return
+      }
+      @Suppress("DEPRECATION")
+      val archive = activity.packageManager.getPackageArchiveInfo(file.path, android.content.pm.PackageManager.GET_SIGNATURES)
+      @Suppress("DEPRECATION")
+      val current = activity.packageManager.getPackageInfo(activity.packageName, android.content.pm.PackageManager.GET_SIGNATURES)
+      require(archive != null && archive.packageName == activity.packageName)
+      @Suppress("DEPRECATION")
+      require(!current.signatures.isNullOrEmpty() && !archive.signatures.isNullOrEmpty())
+      @Suppress("DEPRECATION")
+      require(archive.signatures?.map { it.toCharsString() }?.toSet() == current.signatures?.map { it.toCharsString() }?.toSet())
+      val uri = androidx.core.content.FileProvider.getUriForFile(activity, activity.packageName + ".fileprovider", file)
+      activity.startActivity(Intent(Intent.ACTION_VIEW).setDataAndType(uri,"application/vnd.android.package-archive")
+        .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION))
+      invoke.resolve()
+    } catch (e: Exception) { invoke.reject(e.message ?: "Installation unavailable") }
+  }
+
+  @Command
   fun ready(invoke: Invoke) {
     Companion.ready = true
     invoke.resolve()
@@ -94,3 +123,6 @@ class AppShellPlugin(private val activity: Activity) : Plugin(activity) {
     private const val MAX_SHARED_CHARS = 4096
   }
 }
+
+@app.tauri.annotation.InvokeArg
+class UpdateInstallArgs { var path: String = "" }

@@ -1,3 +1,4 @@
+import { UpdateMonitor } from '../features/settings/AppUpdates';
 import { useEffect } from 'react';
 import { useAppearance } from '../hooks/useAppearance';
 import { backend } from '../services/backend';
@@ -27,5 +28,5 @@ export function App() {
     };
   }, []);
 
-  return platform === 'android' ? <MobileShell /> : <DesktopShell />;
+  return <><UpdateMonitor />{platform === 'android' ? <MobileShell /> : <DesktopShell />}</>;
 }

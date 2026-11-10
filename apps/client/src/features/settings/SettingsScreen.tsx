@@ -14,6 +14,7 @@ import {
   type ThemePref,
 } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { AppUpdates } from './AppUpdates';
 import { MediaTools } from './MediaTools';
 import { Select, SettingRow } from './SettingRow';
 import { BrowserExtension } from './BrowserExtension';
@@ -77,6 +78,7 @@ function GeneralTab() {
   const toggle = useSettings((s) => s.toggle);
   return (
     <>
+      <AppUpdates />
       <SettingRow label="Launch at startup" description="Start minimized in the system tray.">
         <Toggle
           label="Launch at startup"
