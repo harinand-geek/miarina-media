@@ -2,6 +2,7 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import type { MediaRecord } from '../../services/types';
+import { useT } from '../../i18n';
 import { useLibrary } from '../../stores/library';
 import { useMediaActions } from './useMediaActions';
 
@@ -21,6 +22,7 @@ export function MediaContextMenu({
   onClose: () => void;
   onRename: (media: MediaRecord) => void;
 }) {
+  const t = useT();
   const actions = useMediaActions();
   const ref = useRef<HTMLDivElement>(null);
   const { media } = target;
@@ -42,7 +44,7 @@ export function MediaContextMenu({
     { icon: 'drive_file_rename_outline', label: 'Rename', key: 'F2', run: () => onRename(media) },
     {
       icon: 'delete',
-      label: 'Delete file',
+      label: t('removeOrDelete'),
       key: 'Del',
       run: () => actions.askDelete(media),
       danger: true,

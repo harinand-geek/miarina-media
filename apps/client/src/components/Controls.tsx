@@ -149,18 +149,21 @@ export function Toggle({ checked, onChange, label, size = 'desktop' }: TogglePro
 interface RadioDotProps {
   checked: boolean;
   size?: 16 | 20;
+  /** Destructive choice (e.g. delete a file). */
+  tone?: 'accent' | 'danger';
 }
 
 /** Visual radio indicator used inside selectable rows. */
-export function RadioDot({ checked, size = 16 }: RadioDotProps) {
+export function RadioDot({ checked, size = 16, tone = 'accent' }: RadioDotProps) {
+  const on = tone === 'danger' ? 'danger' : 'accent';
   return (
     <span
       aria-hidden="true"
-      className={`grid shrink-0 place-items-center rounded-full border-2 ${checked ? 'border-accent' : 'border-faint-icon'}`}
+      className={`grid shrink-0 place-items-center rounded-full border-2 ${checked ? (on === 'danger' ? 'border-danger' : 'border-accent') : 'border-faint-icon'}`}
       style={{ width: size, height: size }}
     >
       <span
-        className={`rounded-full ${checked ? 'bg-accent' : 'bg-transparent'}`}
+        className={`rounded-full ${checked ? (on === 'danger' ? 'bg-danger' : 'bg-accent') : 'bg-transparent'}`}
         style={{ width: size === 16 ? 6 : 10, height: size === 16 ? 6 : 10 }}
       />
     </span>

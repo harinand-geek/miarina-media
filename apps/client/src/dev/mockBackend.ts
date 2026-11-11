@@ -423,6 +423,12 @@ export class MockBackend {
     return renamed;
   }
 
+  async libraryRemove(id: number) {
+    await this.libraryGet(id);
+    this.library = this.library.filter((m) => m.id !== id);
+    this.libraryChanged();
+  }
+
   async libraryDelete(id: number) {
     await this.libraryGet(id);
     this.library = this.library.filter((m) => m.id !== id);

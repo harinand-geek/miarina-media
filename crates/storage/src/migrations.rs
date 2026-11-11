@@ -107,5 +107,15 @@ pub fn migrations() -> Migrations<'static> {
         // v3 — picture shown while a task downloads: the source's thumbnail,
         // cached locally at analysis time (path inside the thumbnail folder).
         M::up("ALTER TABLE tasks ADD COLUMN thumbnail TEXT;"),
+        // v4 — files removed from the library but kept on disk (COM-10):
+        // folder scans must not add them back.
+        M::up(
+            r#"
+        CREATE TABLE media_removed (
+            path       TEXT PRIMARY KEY,
+            removed_at INTEGER NOT NULL
+        );
+        "#,
+        ),
     ])
 }

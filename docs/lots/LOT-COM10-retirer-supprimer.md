@@ -1,0 +1,25 @@
+# Fiche LOT-COM10 — Retirer de la bibliothèque vs supprimer le fichier
+
+- Statut : À tester (recette native Windows non faite)
+- Exigences CDC : COM-10 (P0), PAR-07 (partiel : rien n'est supprimé implicitement), UX-07 (focus dans le dialogue)
+- Version de départ / commit : `d30101f`
+- Objectif utilisateur : pouvoir sortir un média de la bibliothèque sans perdre le fichier, et ne supprimer un fichier que par un choix explicite.
+- Inclus :
+  - Migration SQLite v4 : table `media_removed` (chemins retirés). Les scans du dossier ne les réajoutent pas ; un nouvel ajout explicite (téléchargement au même chemin) annule le retrait.
+  - `Storage::remove_media` (transaction), `removed_media_paths`, `Library::remove`, commande Tauri `library_remove` + permission `allow-library-remove`.
+  - Dialogue Windows v2 « Retirer ou supprimer » : choix par défaut = retirer, focus initial sur Annuler, Échap/scrim annulent, bouton destructif seulement pour « Supprimer », chemin complet affiché. Menu contextuel « Retirer ou supprimer… » et touche Suppr.
+  - Retrait/suppression retirent aussi le média de la file de lecture.
+- Exclus : corbeille Windows (nouvelle dépendance à valider) ; Android (confirmation de suppression inchangée, en attente de la maquette mobile) ; playlists (n'existent pas encore) ; écran de restauration des éléments retirés.
+- Risques et données concernées : migration additive (nouvelle table), aucune donnée existante modifiée ; testée depuis une base v3.
+- Travail :
+  - [x] Implémentation
+  - [x] Tests automatisés
+  - [ ] Recette native (Tauri Windows, vrai dossier, rescan)
+  - [x] Documentation
+- Tests :
+  - `cargo test -p storage -p library` : 25 + 8 + 5 tests, OK (nouveaux : `removed_media_is_remembered_until_added_again`, `v4_keeps_the_library_of_a_v3_database`, `remove_keeps_the_file_and_scans_do_not_add_it_back`).
+  - `cargo check` de l'application Tauri : OK.
+  - Front : `tsc`, `eslint`, `vitest` 98/98 sur 3 exécutions, `vite build` OK.
+  - Aperçu Edge headless (FR) : dialogue conforme à la maquette.
+- Retour arrière : revert du commit ; la table `media_removed` peut rester (ignorée par l'ancien code).
+- Prochaine étape : recette native, puis L06 (tags, albums/artistes/dossiers).

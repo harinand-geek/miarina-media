@@ -122,6 +122,19 @@ const fr = {
   openExternal: 'Ouvrir avec le lecteur du système',
   videoPreview: 'surface vidéo · aperçu',
 
+  // Remove or delete (COM-10)
+  removeOrDelete: 'Retirer ou supprimer…',
+  removeOption: 'Retirer de la bibliothèque',
+  removeOptionBody: 'Le fichier reste sur le disque. Il ne réapparaît pas au prochain scan.',
+  deleteOption: 'Supprimer le fichier du disque',
+  deleteOptionBody:
+    'Le fichier est supprimé définitivement (il ne passe pas par la corbeille). Il est aussi retiré de la file de lecture.',
+  removeConfirm: 'Retirer',
+  deleteConfirm: 'Supprimer le fichier',
+  removeDone: 'Retiré de la bibliothèque. Le fichier reste sur le disque.',
+  deleteDone: 'Fichier supprimé du disque.',
+  cancel: 'Annuler',
+
   // Language setting
   language: 'Langue',
   languageNote:
@@ -238,6 +251,18 @@ const en: Record<MessageKey, string> = {
   retry: 'Retry playback',
   openExternal: 'Open with system player',
   videoPreview: 'video surface · preview',
+
+  removeOrDelete: 'Remove or delete…',
+  removeOption: 'Remove from library',
+  removeOptionBody: 'The file stays on disk. It will not reappear on the next scan.',
+  deleteOption: 'Delete the file from disk',
+  deleteOptionBody:
+    'The file is deleted permanently (it does not go to the Recycle Bin). It is also removed from the play queue.',
+  removeConfirm: 'Remove',
+  deleteConfirm: 'Delete file',
+  removeDone: 'Removed from library. The file stays on disk.',
+  deleteDone: 'File deleted from disk.',
+  cancel: 'Cancel',
 
   language: 'Language',
   languageNote: 'French and English. Screens not yet migrated to the catalog stay in English.',

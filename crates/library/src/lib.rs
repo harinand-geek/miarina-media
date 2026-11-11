@@ -251,9 +251,13 @@ impl Library {
         let found = files::media_files(root);
         let storage = lock(&self.inner.storage);
         let known = storage.media_paths()?;
+        let removed = storage.removed_media_paths()?;
         let mut report = ScanReport::default();
         for path in &found {
             let key = path.to_string_lossy();
+            if removed.contains(key.as_ref()) {
+                continue;
+            }
             match known.iter().find(|(_, p, _)| *p == key) {
                 Some((id, _, true)) => {
                     storage.set_media_missing(*id, false)?;
@@ -326,6 +330,26 @@ impl Library {
         )?;
         (self.inner.on_change)();
         Ok(updated)
+    }
+
+    /// Removes the entry from the library but keeps the file on disk; later
+    /// scans do not add it back (COM-10). A generated thumbnail goes with
+    /// the entry; cached source pictures stay (tasks may still use them).
+    pub fn remove(&self, id: i64) -> Result<(), LibraryError> {
+        let storage = lock(&self.inner.storage);
+        let record = storage.media(id)?;
+        storage.remove_media(id)?;
+        drop(storage);
+        if let Some(thumb) = &record.thumbnail {
+            let thumb = Path::new(thumb);
+            if thumb.starts_with(&self.inner.thumbnails)
+                && !thumb.starts_with(self.source_thumbnails_dir())
+            {
+                let _ = std::fs::remove_file(thumb);
+            }
+        }
+        (self.inner.on_change)();
+        Ok(())
     }
 
     /// Deletes the file and its thumbnail, then forgets the entry.

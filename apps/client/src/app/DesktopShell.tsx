@@ -5,6 +5,7 @@ import { ToastHost } from '../components/ToastHost';
 import { HomeScreen } from '../features/home/HomeScreen';
 import { AnalysisScreen } from '../features/analysis/AnalysisScreen';
 import { DownloadsScreen } from '../features/downloads/DownloadsScreen';
+import { RemoveDialog } from '../features/library/RemoveDialog';
 import { MiniPlayer } from '../features/player/MiniPlayer';
 import { PlayerHost } from '../features/player/PlayerHost';
 import { useGlobalShortcuts } from '../hooks/useGlobalShortcuts';
@@ -93,6 +94,7 @@ export function DesktopShell() {
               <Suspense fallback={null}>{SCREENS[screen]()}</Suspense>
             </div>
             <ConfirmDialog />
+            <RemoveDialog />
           </main>
           {showMini && <MiniPlayer />}
           <ToastHost

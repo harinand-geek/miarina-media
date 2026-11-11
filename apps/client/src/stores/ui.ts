@@ -60,6 +60,8 @@ interface UiState {
   playerFullscreen: boolean;
   toasts: Toast[];
   confirm: ConfirmRequest | null;
+  /** Desktop "Remove or delete" dialog target (COM-10). */
+  removal: MediaRecord | null;
   /** URL waiting to be analyzed (Home → Analysis, Android sheet). */
   pendingUrl: string;
   analysisTab: 'video' | 'audio' | 'subtitles';
@@ -82,6 +84,7 @@ interface UiState {
   pushToast: (toast: Omit<Toast, 'id'>) => void;
   dismissToast: (id: number) => void;
   askConfirm: (request: ConfirmRequest) => void;
+  askRemoval: (media: MediaRecord | null) => void;
   closeConfirm: () => void;
 }
 
@@ -94,13 +97,15 @@ export const useUi = create<UiState>((set) => ({
   playerFullscreen: false,
   toasts: [],
   confirm: null,
+  removal: null,
   pendingUrl: '',
   analysisTab: 'video',
   analysisChoices: [],
   nowPlaying: null,
   browserRequest: null,
   librarySearchFocus: 0,
-  go: (screen) => set((s) => ({ screen, confirm: null, space: spaceOf(screen, s.space) })),
+  go: (screen) =>
+    set((s) => ({ screen, confirm: null, removal: null, space: spaceOf(screen, s.space) })),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   analyze: (url, tab) =>
     set((s) => ({
@@ -135,5 +140,6 @@ export const useUi = create<UiState>((set) => ({
     set((s) => ({ toasts: [...s.toasts, { ...toast, id: ++toastSeq }].slice(-MAX_TOASTS) })),
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
   askConfirm: (confirm) => set({ confirm }),
+  askRemoval: (removal) => set({ removal }),
   closeConfirm: () => set({ confirm: null }),
 }));

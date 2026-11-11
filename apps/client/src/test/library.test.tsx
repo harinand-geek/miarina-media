@@ -94,10 +94,39 @@ describe('library screen', () => {
     )[0]!;
     renamed.focus();
     await user.keyboard('{Delete}');
-    const dialog = screen.getByRole('alertdialog', { name: 'Delete this file?' });
-    expect(within(dialog).getByRole('button', { name: 'Keep' })).toHaveFocus();
+    const dialog = screen.getByRole('dialog', { name: '« Renamed clip »' });
+    expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus();
+    // Removing (keeping the file) is the default choice (COM-10).
+    expect(within(dialog).getByRole('radio', { name: /Remove from library/ })).toBeChecked();
+    await user.click(within(dialog).getByRole('radio', { name: /Delete the file from disk/ }));
     await user.click(within(dialog).getByRole('button', { name: 'Delete file' }));
     await waitFor(() => expect(useLibrary.getState().total).toBe(8));
+    expect(await screen.findByText('File deleted from disk.')).toBeInTheDocument();
+  });
+
+  it('removes from the library without deleting the file (COM-10)', async () => {
+    const user = userEvent.setup();
+    await openLibrary();
+    const remove = vi.spyOn(backend, 'libraryRemove');
+    const del = vi.spyOn(backend, 'libraryDelete');
+    const list = await screen.findByRole('list', { name: /Library items/ });
+    const first = within(list).getAllByRole('button')[0]!;
+    first.focus();
+    await user.keyboard('{Delete}');
+    const dialog = screen.getByRole('dialog');
+    await user.keyboard('{Escape}');
+    expect(dialog).not.toBeInTheDocument();
+    expect(useLibrary.getState().total).toBe(9);
+
+    first.focus();
+    await user.keyboard('{Delete}');
+    await user.click(within(screen.getByRole('dialog')).getByRole('button', { name: 'Remove' }));
+    await waitFor(() => expect(useLibrary.getState().total).toBe(8));
+    expect(remove).toHaveBeenCalledOnce();
+    expect(del).not.toHaveBeenCalled();
+    expect(
+      await screen.findByText('Removed from library. The file stays on disk.'),
+    ).toBeInTheDocument();
   });
 
   it('opens the design context menu on right click', async () => {
@@ -115,7 +144,7 @@ describe('library screen', () => {
       'folder_openShow in folder',
       'content_copyCopy source link',
       'drive_file_rename_outlineRename',
-      'deleteDelete file',
+      'deleteRemove or delete…',
     ]);
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();

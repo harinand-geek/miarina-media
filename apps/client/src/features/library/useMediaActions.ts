@@ -45,8 +45,11 @@ export function useMediaActions() {
         .then(() => pushToast({ tone: 'success', message: 'Source link copied' }))
         .catch(report);
     },
+    /** Desktop: "Remove or delete" choice (COM-10). Android: delete confirmation. */
     askDelete: (media: MediaRecord) =>
-      askConfirm({
+      desktop
+        ? useUi.getState().askRemoval(media)
+        : askConfirm({
         title: 'Delete this file?',
         body: `“${media.title}” will be removed from your library and deleted from disk.`,
         confirmLabel: 'Delete file',

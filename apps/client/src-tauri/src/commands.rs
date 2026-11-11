@@ -888,6 +888,12 @@ pub async fn library_rename(
     state.library.rename(id, &title).map_err(library_error)
 }
 
+/// Removes the entry from the library; the file stays on disk (COM-10).
+#[tauri::command]
+pub async fn library_remove(state: State<'_, AppState>, id: i64) -> CmdResult<()> {
+    state.library.remove(id).map_err(library_error)
+}
+
 /// Deletes the file from disk (the UI asks for confirmation first).
 #[tauri::command]
 pub async fn library_delete(state: State<'_, AppState>, id: i64) -> CmdResult<()> {

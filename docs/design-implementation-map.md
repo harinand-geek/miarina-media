@@ -116,6 +116,7 @@ Handoff : `design/design_handoff_windows_v2`. Ordre conseillé par le handoff : 
 | Lecteur vidéo (en-tête, barre corail, ±10 s, volume, vitesse, PiP, plein écran) | Fait ; pistes/sous-titres PRÉVU | `features/player/PlayerScreen.tsx` |
 | Bibliothèque Titres / Vidéos | Fait (liste par défaut pour Titres, grille pour Vidéos) ; table musique v2 à faire | `features/library/LibraryScreen.tsx` |
 | Accueil, Analyse, Téléchargements, Navigateur, Torrents, Historique, Réglages v2 | À faire (lots suivants) | — |
-| Éditeur de tags, dialogue Retirer/Supprimer | À faire (L06, COM-10) | — |
+| Dialogue Retirer / Supprimer (COM-10) | Fait (Windows) ; Android garde la confirmation de suppression en attendant la maquette mobile | `features/library/RemoveDialog.tsx`, commande `library_remove`, migration SQLite v4 |
+| Éditeur de tags | À faire (L06) | — |
 
 Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.

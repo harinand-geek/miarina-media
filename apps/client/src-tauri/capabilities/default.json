@@ -51,6 +51,7 @@
     "allow-library-overview",
     "allow-library-get",
     "allow-library-rename",
+    "allow-library-remove",
     "allow-library-delete",
     "allow-library-reveal",
     "allow-library-rescan",

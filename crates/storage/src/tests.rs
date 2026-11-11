@@ -30,12 +30,12 @@ fn migrations_apply_and_are_idempotent() {
     let path = dir.path().join("miarina.db");
     {
         let storage = Storage::open(&path).unwrap();
-        assert_eq!(storage.schema_version().unwrap(), 3);
+        assert!(storage.schema_version().unwrap() >= 3);
         storage.insert_task(&new_task("a")).unwrap();
     }
     // Reopening runs migrations again without touching existing data.
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 3);
+    assert!(storage.schema_version().unwrap() >= 3);
     assert_eq!(storage.task("a").unwrap().title, "Title a");
 }
 
@@ -251,7 +251,7 @@ fn upgrading_a_v1_database_keeps_existing_data() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 3);
+    assert!(storage.schema_version().unwrap() >= 3);
     assert_eq!(storage.setting::<u32>("concurrency").unwrap(), Some(5));
     assert_eq!(storage.media_stats().unwrap().count, 0);
 }
@@ -273,7 +273,7 @@ fn v3_keeps_existing_tasks_and_stores_thumbnails() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 3);
+    assert!(storage.schema_version().unwrap() >= 3);
     assert_eq!(storage.task("old").unwrap().thumbnail, None);
 
     let task = storage
@@ -286,4 +286,54 @@ fn v3_keeps_existing_tasks_and_stores_thumbnails() {
         task.thumbnail.as_deref(),
         Some("C:/data/thumbnails/sources/ab.jpg")
     );
+}
+
+#[test]
+fn removed_media_is_remembered_until_added_again() {
+    let storage = Storage::open_in_memory().unwrap();
+    let media = |path: &str| NewMedia {
+        path: path.into(),
+        title: "Hira".into(),
+        kind: MediaKind::Audio,
+        source_host: None,
+        source_url: None,
+        task_id: None,
+        size_bytes: 3,
+    };
+    let kept = storage.upsert_media(&media("C:/Music/hira.mp3")).unwrap();
+    storage.remove_media(kept.id).unwrap();
+    assert_eq!(storage.media_stats().unwrap().count, 0);
+    assert!(
+        storage
+            .removed_media_paths()
+            .unwrap()
+            .contains("C:/Music/hira.mp3")
+    );
+    assert!(matches!(
+        storage.remove_media(kept.id),
+        Err(StorageError::NotFound(_))
+    ));
+
+    storage.upsert_media(&media("C:/Music/hira.mp3")).unwrap();
+    assert!(storage.removed_media_paths().unwrap().is_empty());
+    assert_eq!(storage.media_stats().unwrap().count, 1);
+}
+
+#[test]
+fn v4_keeps_the_library_of_a_v3_database() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 3).unwrap();
+        conn.execute(
+            "INSERT INTO media (path, title, kind, size_bytes, added_at, modified_at)              VALUES ('C:/V/a.mp4', 'A', 'video', 1, 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 4);
+    assert_eq!(storage.media_stats().unwrap().count, 1);
+    assert!(storage.removed_media_paths().unwrap().is_empty());
 }

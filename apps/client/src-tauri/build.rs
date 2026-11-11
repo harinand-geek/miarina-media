@@ -40,6 +40,7 @@ const COMMANDS: &[&str] = &[
     "library_overview",
     "library_get",
     "library_rename",
+    "library_remove",
     "library_delete",
     "library_reveal",
     "library_rescan",

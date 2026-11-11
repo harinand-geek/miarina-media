@@ -238,6 +238,27 @@ fn delete_removes_the_file_and_the_entry() {
 }
 
 #[test]
+fn remove_keeps_the_file_and_scans_do_not_add_it_back() {
+    let h = harness();
+    let file = h.root.join("kept.mp3");
+    std::fs::write(&file, b"x").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let id = h
+        .storage
+        .lock()
+        .unwrap()
+        .media_by_path(&file.to_string_lossy())
+        .unwrap()
+        .unwrap()
+        .id;
+    h.library.remove(id).unwrap();
+    assert!(file.exists());
+    assert!(titles(&h).is_empty());
+    assert_eq!(h.library.scan(&h.root).unwrap(), Default::default());
+    assert!(titles(&h).is_empty());
+}
+
+#[test]
 fn check_detects_vanished_files() {
     let h = harness();
     let file = h.root.join("v.webm");

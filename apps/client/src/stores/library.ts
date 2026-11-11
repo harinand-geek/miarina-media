@@ -23,7 +23,10 @@ interface LibraryState {
   setKind: (kind: MediaKind | null) => void;
   setSort: (sort: MediaSort) => void;
   rename: (id: number, title: string) => Promise<boolean>;
+  /** Deletes the file from disk. */
   remove: (id: number) => Promise<boolean>;
+  /** Removes from the library only; the file stays on disk. */
+  removeFromLibrary: (id: number) => Promise<boolean>;
 }
 
 const REFRESH_DEBOUNCE_MS = 300;
@@ -92,6 +95,18 @@ export const useLibrary = create<LibraryState>((set, get) => {
     rename: async (id, title) => {
       try {
         await backend.libraryRename(id, title);
+        await get().refresh();
+        return true;
+      } catch (e) {
+        report(e);
+        return false;
+      }
+    },
+    removeFromLibrary: async (id) => {
+      try {
+        await backend.libraryRemove(id);
+        if (useUi.getState().nowPlaying?.id === id) useUi.getState().play(null);
+        usePlayer.getState().forget(id);
         await get().refresh();
         return true;
       } catch (e) {

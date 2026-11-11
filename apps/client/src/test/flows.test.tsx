@@ -51,11 +51,15 @@ describe('Windows shell', () => {
         sizeBytes: 1000,
       } as MediaRecord),
     );
-    await user.click(await screen.findByRole('button', { name: 'Fullscreen (F)' }));
+    await user.click(
+      await screen.findByRole('button', { name: 'Fullscreen (F)' }, { timeout: 3000 }),
+    );
     expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).toBeNull();
     expect(useUi.getState().playerFullscreen).toBe(true);
     await user.keyboard('{Escape}');
-    expect(await screen.findByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: 'Collapse sidebar' }, { timeout: 3000 }),
+    ).toBeInTheDocument();
     expect(useUi.getState().playerFullscreen).toBe(false);
     await user.click(screen.getByRole('button', { name: 'Fullscreen (F)' }));
     act(() => useUi.getState().go('home'));

@@ -129,8 +129,12 @@ pub fn fts_query(input: &str) -> Option<String> {
 
 impl Storage {
     /// Adds a file, or refreshes size/source if the path is already known.
+    /// Adding a path explicitly (e.g. a new download) cancels an earlier
+    /// removal from the library.
     pub fn upsert_media(&self, media: &NewMedia) -> Result<MediaRecord> {
         let now = now_ms();
+        self.conn
+            .execute("DELETE FROM media_removed WHERE path = ?1", [&media.path])?;
         self.conn.execute(
             "INSERT INTO media (path, title, kind, source_host, source_url, task_id, size_bytes, \
              added_at, modified_at) VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, ?8) \
@@ -328,6 +332,33 @@ impl Storage {
         crate::ensure_found(changed, &id.to_string())
     }
 
+    /// Removes an entry from the library and remembers its path so folder
+    /// scans skip it; the file itself is not touched.
+    pub fn remove_media(&self, id: i64) -> Result<()> {
+        let tx = self.conn.unchecked_transaction()?;
+        let path: Option<String> = tx
+            .query_row("SELECT path FROM media WHERE id = ?1", [id], |r| r.get(0))
+            .optional()?;
+        let Some(path) = path else {
+            return crate::ensure_found(0, &id.to_string());
+        };
+        tx.execute(
+            "INSERT INTO media_removed (path, removed_at) VALUES (?1, ?2)              ON CONFLICT(path) DO UPDATE SET removed_at = excluded.removed_at",
+            params![path, now_ms()],
+        )?;
+        tx.execute("DELETE FROM media WHERE id = ?1", [id])?;
+        tx.commit()?;
+        Ok(())
+    }
+
+    /// Paths removed from the library by the user (skipped by scans).
+    pub fn removed_media_paths(&self) -> Result<std::collections::HashSet<String>> {
+        let mut stmt = self.conn.prepare("SELECT path FROM media_removed")?;
+        stmt.query_map([], |r| r.get(0))?
+            .collect::<rusqlite::Result<_>>()
+            .map_err(Into::into)
+    }
+
     /// Every known path (for folder scans).
     pub fn media_paths(&self) -> Result<Vec<(i64, String, bool)>> {
         let mut stmt = self.conn.prepare("SELECT id, path, missing FROM media")?;
@@ -432,7 +463,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            3
+            4
         );
     }
 

@@ -339,6 +339,7 @@ pub fn run() {
             commands::library_overview,
             commands::library_get,
             commands::library_rename,
+            commands::library_remove,
             commands::library_delete,
             commands::library_reveal,
             commands::library_rescan,
