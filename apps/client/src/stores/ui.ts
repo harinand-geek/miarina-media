@@ -77,6 +77,8 @@ interface UiState {
   /** Android browser: the page's other media, offered as chips in the sheet (design M3). */
   analysisChoices: AnalysisChoice[];
   nowPlaying: MediaRecord | null;
+  /** Android: full-screen player shown (otherwise the mini-player). */
+  mobilePlayerExpanded: boolean;
   /** Search or address for the browser to open (Home field → browser). */
   browserRequest: string | null;
   librarySearchFocus: number;
@@ -113,6 +115,7 @@ export const useUi = create<UiState>((set) => ({
   analysisTab: 'video',
   analysisChoices: [],
   nowPlaying: null,
+  mobilePlayerExpanded: false,
   browserRequest: null,
   librarySearchFocus: 0,
   go: (screen) =>
@@ -146,7 +149,7 @@ export const useUi = create<UiState>((set) => ({
       space: browserRequest ? 'get' : s.space,
     })),
   setAnalysisTab: (analysisTab) => set({ analysisTab }),
-  play: (nowPlaying) => set({ nowPlaying }),
+  play: (nowPlaying) => set({ nowPlaying, mobilePlayerExpanded: nowPlaying !== null }),
   focusLibrarySearch: () =>
     set((s) => ({
       screen: 'library',

@@ -33,7 +33,7 @@ export function MobileHome({
     { icon: 'music_note', label: 'Audio', run: () => void submit(url, 'audio') },
     { icon: 'playlist_play', label: 'Playlist', planned: true },
     { icon: 'format_list_bulleted', label: 'Batch', planned: true },
-    { icon: 'folder_open', label: 'Files', run: () => onNavigate('library') },
+    { icon: 'folder_open', label: 'Files', run: () => onNavigate('music') },
   ];
 
   return (
@@ -48,7 +48,7 @@ export function MobileHome({
           iconSize={24}
           tone="default"
           className="rounded-full"
-          onClick={() => onNavigate('library')}
+          onClick={() => onNavigate('music')}
         />
         <IconButton
           icon="settings"
@@ -158,7 +158,7 @@ export function MobileHome({
           <h2 className="m-0 text-[15px] font-bold">Recent</h2>
           <button
             type="button"
-            onClick={() => onNavigate('library')}
+            onClick={() => onNavigate('music')}
             className="text-[13px] font-semibold text-accent-strong"
           >
             See all

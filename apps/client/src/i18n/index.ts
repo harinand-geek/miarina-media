@@ -199,6 +199,16 @@ const fr = {
   tagsSavedLibrary: 'Tags enregistrés dans la bibliothèque. Fichier inchangé.',
   invalidNumber: 'Nombre entier attendu',
 
+  // Android v2 shell
+  tabHome: 'Accueil',
+  tabBrowser: 'Navigateur',
+  tabDownloads: 'Téléch.',
+  tabMusic: 'Musique',
+  tabVideos: 'Vidéos',
+  openPlayer: 'Ouvrir le lecteur',
+  minimizePlayer: 'Réduire le lecteur',
+  nextPlanned: 'Suivant : la file de lecture Android arrive avec le lot L03',
+
   // Language setting
   language: 'Langue',
   languageNote:
@@ -390,6 +400,15 @@ const en: Record<MessageKey, string> = {
   tagsSavedFile: 'Tags written to the file.',
   tagsSavedLibrary: 'Tags saved in the library. File unchanged.',
   invalidNumber: 'Whole number expected',
+
+  tabHome: 'Home',
+  tabBrowser: 'Browser',
+  tabDownloads: 'Downloads',
+  tabMusic: 'Music',
+  tabVideos: 'Videos',
+  openPlayer: 'Open player',
+  minimizePlayer: 'Minimize player',
+  nextPlanned: 'Next: the Android play queue comes with lot L03',
 
   language: 'Language',
   languageNote: 'French and English. Screens not yet migrated to the catalog stay in English.',

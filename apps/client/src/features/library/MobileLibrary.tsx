@@ -1,5 +1,4 @@
-import { useState } from 'react';
-import { Chip } from '../../components/Controls';
+import { useEffect, useState } from 'react';
 import { ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
@@ -7,20 +6,22 @@ import { VirtualGrid } from '../../components/VirtualGrid';
 import type { MediaKind, MediaSort } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
+import { useT } from '../../i18n';
 import { useUi } from '../../stores/ui';
 import { SORT_LABELS, durationLabel, qualityLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import { useMobileMediaSheet } from './useMobileMediaSheet';
 
-const KINDS: { value: MediaKind | null; label: string }[] = [
-  { value: null, label: 'All' },
-  { value: 'video', label: 'Video' },
-  { value: 'audio', label: 'Audio' },
-];
+/** Android v2: the Music and Videos tabs each list one kind. */
+export function MobileLibrary({ kind }: { kind: MediaKind }) {
+  const t = useT();
+  const { search, sort, items, ready } = useLibrary();
+  const { setSearch, setSort } = useLibrary.getState();
+  const synced = useLibrary((s) => s.kind === kind && s.group === null);
 
-export function MobileLibrary() {
-  const { search, kind, sort, items, ready } = useLibrary();
-  const { setSearch, setKind, setSort } = useLibrary.getState();
+  useEffect(() => {
+    useLibrary.getState().show(kind, null);
+  }, [kind]);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const play = useUi((s) => s.play);
   const actionsSheet = useMobileMediaSheet();
@@ -30,6 +31,9 @@ export function MobileLibrary() {
       ref={setScroller}
       className="relative flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-5 pt-2"
     >
+      <h1 className="m-0 flex h-12 items-center text-[22px] font-extrabold tracking-[-0.01em]">
+        {kind === 'audio' ? t('tabMusic') : t('tabVideos')}
+      </h1>
       <div className="mt-1 flex h-[52px] items-center gap-2.5 rounded-[26px] bg-surface px-4">
         <Icon name="search" size={22} className="text-muted" />
         <input
@@ -62,26 +66,14 @@ export function MobileLibrary() {
           }))}
         />
       </div>
-      <div className="flex gap-2 overflow-x-auto">
-        {KINDS.map((k) => (
-          <Chip
-            key={k.label}
-            size="mobile"
-            selected={kind === k.value}
-            onClick={() => setKind(k.value)}
-          >
-            {k.label}
-          </Chip>
-        ))}
-      </div>
-      {ready && items.length === 0 && (
+      {ready && synced && items.length === 0 && (
         <p className="py-10 text-center text-[13.5px] text-muted">
           {search.trim() ? `No items match “${search.trim()}”.` : 'Your library is empty.'}
         </p>
       )}
       <VirtualGrid
         label="Library items"
-        items={items}
+        items={synced ? items : []}
         scrollRef={{ current: scroller }}
         columns={2}
         columnGap={10}

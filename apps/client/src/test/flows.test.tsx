@@ -261,7 +261,7 @@ describe('Android shell', () => {
     render(<MobileShell />);
     expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).not.toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Main' });
-    expect(within(nav).getAllByRole('button')).toHaveLength(4);
+    expect(within(nav).getAllByRole('button')).toHaveLength(5);
     await user.click(within(nav).getByRole('button', { name: /Downloads/ }));
     expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
   });
@@ -275,7 +275,13 @@ describe('Android shell', () => {
         .getAllByRole('button')
         // Labels only: the Downloads badge adds a count.
         .map((b) => b.textContent?.replace(/\d+/g, '')),
-    ).toEqual(['homeHome', 'travel_exploreBrowser', 'downloadDownloads', 'video_libraryLibrary']);
+    ).toEqual([
+      'homeHome',
+      'travel_exploreBrowser',
+      'downloadDownloads',
+      'library_musicMusic',
+      'video_libraryVideos',
+    ]);
     await user.click(within(nav).getByRole('button', { name: /Browser/ }));
     // Design M1: the browser bar replaces the main navigation.
     expect(screen.getByRole('heading', { name: 'Search or open a web page' })).toBeInTheDocument();

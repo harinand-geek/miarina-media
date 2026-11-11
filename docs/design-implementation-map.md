@@ -125,7 +125,7 @@ Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.
 
 | Écran | Statut |
 |---|---|
-| Shell 5 onglets, mini-lecteur Android | À faire |
+| Shell 5 onglets, mini-lecteur Android | Fait : `app/MobileShell.tsx`, `features/player/MobileMiniPlayer.tsx` ; le lecteur plein écran reste monté quand il est réduit (le moteur natif n'est pas fermé) ; Retour réduit le lecteur au lieu de l'arrêter ; « Suivant » désactivé tant que la file Android n'existe pas (L03) ; Musique/Vidéos réutilisent la grille existante en attendant les écrans 05/14 |
 | 05/06/15/16 Musique, 14 Vidéos | À faire (données L06 déjà disponibles : tags, groupes) |
 | 11 Retirer / Supprimer (sheet) | Fait : `features/library/MobileRemoveSheet.tsx` ; ouverte depuis la feuille d'actions (« Retirer ou supprimer… ») ; texte « playlists mises à jour » remplacé par « retiré de la file de lecture » (pas encore de playlists) |
 | 07/08/09 En lecture, File, Son | À faire (après L03 MediaSessionService) |

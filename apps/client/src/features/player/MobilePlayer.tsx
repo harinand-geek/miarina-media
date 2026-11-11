@@ -1,9 +1,12 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Icon } from '../../components/Icon';
 import { formatClock } from '../../hooks/usePlaybackClock';
 import { nativePlayback } from '../../services/nativePlayer';
 import type { MediaRecord } from '../../services/types';
+import { useT } from '../../i18n';
 import { useUi } from '../../stores/ui';
+import { MobileMiniPlayer } from './MobileMiniPlayer';
 import { durationLabel, formatLabel, qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
 import { ThumbBackdrop } from './Backdrop';
@@ -25,27 +28,54 @@ const usePlayer: (media: MediaRecord) => Playback | NativePlayback = NATIVE
   ? useNativePlayback
   : usePlayback;
 
-/** Android full-screen player (design M-player). */
-export function MobilePlayer({ item }: { item: MediaRecord }) {
+/**
+ * Android full-screen player (design M-player). Minimizing keeps it mounted,
+ * so the engine keeps playing; the mini-player is portalled into `miniSlot`
+ * (absent on screens that hide it: browser, settings).
+ */
+export function MobilePlayer({
+  item,
+  miniSlot,
+}: {
+  item: MediaRecord;
+  miniSlot: HTMLElement | null;
+}) {
+  const t = useT();
   const { attachMedia, ...p } = usePlayer(item);
   const attachSurface = 'attachSurface' in p ? p.attachSurface : undefined;
-  const close = useUi((s) => s.play);
+  const expanded = useUi((s) => s.mobilePlayerExpanded);
+  const setExpanded = (mobilePlayerExpanded: boolean) => useUi.setState({ mobilePlayerExpanded });
   const [subtitles, setSubtitles] = useState(false);
   const audio = item.kind === 'audio';
   const actionsSheet = useMobileMediaSheet({ inPlayer: true });
 
   return (
+    <>
+    {!expanded &&
+      miniSlot &&
+      createPortal(
+        <MobileMiniPlayer
+          media={item}
+          playing={p.playing}
+          time={p.time}
+          duration={p.duration}
+          onToggle={p.toggle}
+          onExpand={() => setExpanded(true)}
+        />,
+        miniSlot,
+      )}
     <div
       role="dialog"
       aria-modal="true"
       aria-label={`Now playing: ${item.title}`}
+      hidden={!expanded}
       className="absolute inset-0 z-40 flex animate-sheet-in flex-col bg-[#0A0F14] text-[#F5F7FA] [--mm-border:36_53_69]"
     >
       <div className="flex h-14 items-center px-1">
         <button
           type="button"
-          aria-label="Close player"
-          onClick={() => close(null)}
+          aria-label={t('minimizePlayer')}
+          onClick={() => setExpanded(false)}
           className={`${ROUND} h-12 w-12`}
         >
           <Icon name="keyboard_arrow_down" size={26} />
@@ -83,7 +113,8 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
       ) : (
         <div className="relative grid aspect-video place-items-center bg-black font-mono text-[11px] text-[#64748B]">
           {NATIVE ? (
-            <div ref={attachSurface} className="absolute inset-0 bg-black" />
+            // Minimized: no surface, the native picture is hidden (sound goes on).
+            expanded && <div ref={attachSurface} className="absolute inset-0 bg-black" />
           ) : p.src ? (
             <video
               ref={attachMedia}
@@ -140,7 +171,7 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
           type="button"
           aria-label={p.playing ? 'Pause' : 'Play'}
           onClick={p.toggle}
-          className="grid h-[76px] w-[76px] place-items-center rounded-full bg-accent text-accent-ink"
+          className="grid h-[76px] w-[76px] place-items-center rounded-full bg-coral text-coral-ink"
         >
           <Icon name={p.playing ? 'pause' : 'play_arrow'} size={40} fill />
         </button>
@@ -194,5 +225,6 @@ export function MobilePlayer({ item }: { item: MediaRecord }) {
       </div>
       {actionsSheet.sheet}
     </div>
+    </>
   );
 }
