@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, type KeyboardEvent, type MouseEvent } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Chip } from '../../components/Controls';
 import { Button } from '../../components/Button';
 import { EmptyState, ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
-import type { MediaKind, MediaRecord, MediaSort } from '../../services/types';
+import type { MediaRecord, MediaSort } from '../../services/types';
+import { useT } from '../../i18n';
 import { formatBytes } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
@@ -17,16 +17,19 @@ import { MediaThumb } from './MediaThumb';
 
 const LIST_COLUMNS = 'grid-cols-[56px_minmax(0,1fr)_180px_80px_90px_90px]';
 
-const KINDS: { value: MediaKind | null; label: string }[] = [
-  { value: null, label: 'All' },
-  { value: 'video', label: 'Video' },
-  { value: 'audio', label: 'Audio' },
-];
-
 export default function LibraryScreen() {
+  const t = useT();
   const { search, kind, sort, items, total, overview, ready } = useLibrary();
   const { setSearch, setKind, setSort } = useLibrary.getState();
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  // Windows v2 navigation B: the Play space picks the kind (Tracks / Videos).
+  const libraryView = useUi((s) => s.libraryView);
+  const wantedKind = libraryView === 'videos' ? 'video' : 'audio';
+  const [views, setViews] = useState({ tracks: 'list', videos: 'grid' } as Record<
+    typeof libraryView,
+    'grid' | 'list'
+  >);
+  const view = views[libraryView];
+  const setView = (v: 'grid' | 'list') => setViews((s) => ({ ...s, [libraryView]: v }));
   const [menu, setMenu] = useState<MenuTarget | null>(null);
   const [renaming, setRenaming] = useState<MediaRecord | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -39,16 +42,16 @@ export default function LibraryScreen() {
     if (focusRequest > 0) searchRef.current?.focus();
   }, [focusRequest]);
 
-  // Library-wide counts: hidden while searching, where they would not match
-  // the results shown.
-  const searching = search.trim() !== '';
-  const counts: Record<string, number | undefined> = searching
-    ? {}
-    : {
-        All: overview?.stats.count,
-        Video: overview?.stats.videoCount,
-        Audio: overview?.stats.audioCount,
-      };
+  useEffect(() => {
+    if (kind !== wantedKind) setKind(wantedKind);
+  }, [kind, wantedKind, setKind]);
+
+  // Library-wide count: hidden while searching, where it would not match.
+  const count = search.trim()
+    ? undefined
+    : wantedKind === 'video'
+      ? overview?.stats.videoCount
+      : overview?.stats.audioCount;
 
   /** Right click, ⇧F10 / context-menu key, plus the design's shortcuts. */
   const itemHandlers = (m: MediaRecord) => ({
@@ -74,13 +77,21 @@ export default function LibraryScreen() {
     },
   });
 
-  const empty = ready && items.length === 0;
-  const filtered = search.trim() !== '' || kind !== null;
+  const empty = ready && kind === wantedKind && items.length === 0;
+  const filtered = search.trim() !== '';
+  // The visible list becomes the play queue (COM-03).
+  const open = (m: MediaRecord) => actions.open(m, items);
 
   return (
     <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
       <div className="flex items-center gap-3">
-        <h1 className="m-0 flex-1 text-title-lg font-bold tracking-[-0.02em]">Library</h1>
+        <h1 className="m-0 flex items-baseline gap-2.5 text-title-lg font-extrabold tracking-[-0.02em]">
+          {t(libraryView)}
+          {count !== undefined && (
+            <span className="font-mono text-[13px] font-medium text-muted">{count}</span>
+          )}
+        </h1>
+        <span className="flex-1" />
         <label className="flex h-9 w-[280px] items-center gap-2 rounded-sm border border-line bg-surface px-2.5 focus-within:border-accent">
           <Icon name="search" size={18} className="text-muted" />
           <input
@@ -137,19 +148,6 @@ export default function LibraryScreen() {
         </div>
       </div>
 
-      <div className="flex gap-2">
-        {KINDS.map((k) => (
-          <Chip
-            key={k.label}
-            selected={kind === k.value}
-            onClick={() => setKind(k.value)}
-            count={counts[k.label]}
-          >
-            {k.label}
-          </Chip>
-        ))}
-      </div>
-
       {empty &&
         (filtered ? (
           <EmptyState>
@@ -157,7 +155,7 @@ export default function LibraryScreen() {
           </EmptyState>
         ) : (
           <EmptyState
-            icon="video_library"
+            icon={wantedKind === 'video' ? 'movie' : 'library_music'}
             title="Your library is empty"
             action={
               <Button
@@ -187,7 +185,7 @@ export default function LibraryScreen() {
           renderItem={(m) => (
             <button
               type="button"
-              onClick={() => actions.open(m)}
+              onClick={() => open(m)}
               {...itemHandlers(m)}
               className="group flex w-full flex-col gap-2.5 rounded-md text-left"
             >
@@ -216,7 +214,7 @@ export default function LibraryScreen() {
         <LibraryList
           items={items}
           scrollRef={scrollRef}
-          onOpen={actions.open}
+          onOpen={open}
           handlers={itemHandlers}
         />
       )}

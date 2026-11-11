@@ -2,7 +2,21 @@ import { create } from 'zustand';
 import { mockLimits } from '../dev/mockBackend';
 import { backend } from '../services/backend';
 import type { BackendSettings, Limits, ResourceMode } from '../services/types';
+import type { Lang } from '../i18n';
 import { useUi } from './ui';
+
+const LANG_KEY = 'mm:lang';
+
+/** English until every screen reads the catalog (CDC UX-01: no mixed screens by default). */
+function initialLang(): Lang {
+  try {
+    const saved = localStorage.getItem(LANG_KEY);
+    if (saved === 'fr' || saved === 'en') return saved;
+  } catch {
+    // Storage unavailable: keep the default.
+  }
+  return 'en';
+}
 
 export type { ResourceMode } from '../services/types';
 export type ThemePref = 'dark' | 'light' | 'system';
@@ -18,6 +32,8 @@ interface SettingsState {
   /** Limits the backend actually applies for the current mode. */
   limits: Limits;
   loaded: boolean;
+  /** Interface language (persisted locally). */
+  lang: Lang;
   // UI preferences (not persisted yet).
   theme: ThemePref;
   density: Density;
@@ -38,6 +54,7 @@ interface SettingsState {
   setConcurrency: (n: number) => void;
   pickDownloadDir: () => void;
   setTheme: (theme: ThemePref) => void;
+  setLang: (lang: Lang) => void;
   setDensity: (density: Density) => void;
   setReduceMotion: (on: boolean) => void;
   setAndroidStore: (store: 'int' | 'sd') => void;
@@ -70,6 +87,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   concurrency: 3,
   limits: mockLimits('balanced', 3),
   loaded: false,
+  lang: initialLang(),
   theme: 'dark',
   density: 'comfortable',
   reduceMotion: false,
@@ -116,6 +134,14 @@ export const useSettings = create<SettingsState>((set, get) => ({
       .catch(report);
   },
   setTheme: (theme) => set({ theme }),
+  setLang: (lang) => {
+    try {
+      localStorage.setItem(LANG_KEY, lang);
+    } catch {
+      // Not persisted: applies to this session only.
+    }
+    set({ lang });
+  },
   setDensity: (density) => set({ density }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),
   setAndroidStore: (androidStore) => set({ androidStore }),

@@ -7,7 +7,12 @@ export function useAppearance() {
   const theme = useSettings((s) => s.theme);
   const reduceMotion = useSettings((s) => s.reduceMotion);
   const modeReduces = useSettings((s) => s.limits.reducedMotion);
+  const lang = useSettings((s) => s.lang);
   const systemDark = useMediaQuery('(prefers-color-scheme: dark)');
+
+  useEffect(() => {
+    document.documentElement.lang = lang;
+  }, [lang]);
 
   const resolved = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme;
   const reduced = reduceMotion || modeReduces;

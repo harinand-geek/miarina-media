@@ -9,6 +9,9 @@ interface SeekBarProps {
   thumbSize?: 12 | 16;
   hitHeight?: number;
   halo?: boolean;
+  /** Windows v2: coral is the playback accent. */
+  tone?: 'accent' | 'coral';
+  label?: string;
 }
 
 /** Accessible seek slider: click to seek, ←/→ ±10 s, Home/End. */
@@ -20,7 +23,10 @@ export function SeekBar({
   thumbSize = 12,
   hitHeight = 14,
   halo = true,
+  tone = 'accent',
+  label = 'Seek',
 }: SeekBarProps) {
+  const coral = tone === 'coral';
   const pct = duration > 0 ? (time / duration) * 100 : 0;
   const bufPct =
     buffered !== undefined && duration > 0 ? Math.min(100, (buffered / duration) * 100) : 0;
@@ -29,7 +35,7 @@ export function SeekBar({
     <div
       role="slider"
       tabIndex={0}
-      aria-label="Seek"
+      aria-label={label}
       aria-valuemin={0}
       aria-valuemax={duration}
       aria-valuenow={Math.round(time)}
@@ -57,9 +63,12 @@ export function SeekBar({
           style={{ width: `${bufPct}%` }}
         />
       )}
-      <div className="absolute left-0 h-1 rounded-full bg-accent" style={{ width: `${pct}%` }} />
       <div
-        className={`absolute rounded-full bg-[#F5F7FA] ${halo ? 'shadow-[0_0_0_3px_rgba(53,201,189,.3)]' : ''}`}
+        className={`absolute left-0 h-1 rounded-full ${coral ? 'bg-coral' : 'bg-accent'}`}
+        style={{ width: `${pct}%` }}
+      />
+      <div
+        className={`absolute rounded-full ${coral ? 'bg-coral' : 'bg-[#F5F7FA]'} ${halo && !coral ? 'shadow-[0_0_0_3px_rgba(53,201,189,.3)]' : ''}`}
         style={{ left: `${pct}%`, width: thumbSize, height: thumbSize, marginLeft: -thumbSize / 2 }}
       />
     </div>

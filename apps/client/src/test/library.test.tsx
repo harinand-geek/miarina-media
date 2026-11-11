@@ -1,6 +1,6 @@
 import { act, render, renderHook, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
 import { durationLabel, qualityLabel, formatLabel } from '../features/library/format';
 import { usePlayback } from '../features/player/usePlayback';
@@ -9,12 +9,24 @@ import type { MediaRecord } from '../services/types';
 import { useDownloads } from '../stores/downloads';
 import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
+import { resetPlayerForTests, usePlayer } from '../stores/player';
 import { useUi } from '../stores/ui';
 
 let stop: () => void = () => {};
 
+// Lazy screens: load their modules once so the first test does not race the
+// cold import under a busy parallel run (findBy* waits 1 s).
+beforeAll(async () => {
+  await Promise.all([
+    import('../features/library/LibraryScreen'),
+    import('../features/player/PlayerScreen'),
+    import('../features/player/NowPlayingScreen'),
+  ]);
+});
+
 beforeEach(async () => {
   resetMockBackend();
+  resetPlayerForTests();
   useUi.setState(useUi.getInitialState(), true);
   useDownloads.setState(useDownloads.getInitialState(), true);
   useLibrary.setState(useLibrary.getInitialState(), true);
@@ -25,31 +37,39 @@ beforeEach(async () => {
 
 afterEach(() => stop());
 
-async function openLibrary() {
-  useUi.setState({ screen: 'library' });
+async function openLibrary(view: 'tracks' | 'videos' = 'videos') {
+  useUi.setState({ screen: 'library', space: 'play', libraryView: view });
   render(<DesktopShell />);
-  return screen.findByRole('heading', { name: 'Library' });
+  const heading = await screen.findByRole('heading', { name: view === 'videos' ? /Videos/ : /Tracks/ });
+  await waitFor(() =>
+    expect(
+      useLibrary.getState().items.every((m) => m.kind === (view === 'videos' ? 'video' : 'audio')),
+    ).toBe(true),
+  );
+  return heading;
 }
 
 describe('library screen', () => {
   it('searches through the backend with prefixes and diacritics', async () => {
     const user = userEvent.setup();
-    await openLibrary();
-    expect(useLibrary.getState().total).toBe(12);
+    await openLibrary('tracks');
+    await waitFor(() => expect(useLibrary.getState().total).toBe(3));
     await user.type(screen.getByRole('searchbox', { name: 'Search titles' }), 'gymno');
     await waitFor(() =>
       expect(useLibrary.getState().items.map((m) => m.title)).toEqual(['Gymnopédie No. 1 — Satie']),
     );
   });
 
-  it('filters by kind with real counts', async () => {
+  it('lists audio under Tracks and video under Videos (navigation B)', async () => {
     const user = userEvent.setup();
-    await openLibrary();
-    await user.click(screen.getByRole('button', { name: /Audio/ }));
+    await openLibrary('tracks');
+    await waitFor(() => expect(useLibrary.getState().total).toBe(3));
+    await user.click(screen.getByRole('button', { name: 'Videos' }));
+    expect(await screen.findByRole('heading', { name: /Videos/ })).toBeInTheDocument();
     await waitFor(() =>
-      expect(useLibrary.getState().items.every((m) => m.kind === 'audio')).toBe(true),
+      expect(useLibrary.getState().items.every((m) => m.kind === 'video')).toBe(true),
     );
-    expect(useLibrary.getState().total).toBe(3);
+    expect(useLibrary.getState().total).toBe(9);
   });
 
   it('renames with F2 and deletes after confirmation', async () => {
@@ -77,7 +97,7 @@ describe('library screen', () => {
     const dialog = screen.getByRole('alertdialog', { name: 'Delete this file?' });
     expect(within(dialog).getByRole('button', { name: 'Keep' })).toHaveFocus();
     await user.click(within(dialog).getByRole('button', { name: 'Delete file' }));
-    await waitFor(() => expect(useLibrary.getState().total).toBe(11));
+    await waitFor(() => expect(useLibrary.getState().total).toBe(8));
   });
 
   it('opens the design context menu on right click', async () => {
@@ -103,14 +123,18 @@ describe('library screen', () => {
 
   it('plays an item and resumes from the saved position', async () => {
     const user = userEvent.setup();
+    await openLibrary();
     const item = useLibrary.getState().items[0]!;
     localStorage.setItem(`mm:position:${item.id}`, '42');
-    await openLibrary();
     const list = await screen.findByRole('list', { name: /Library items/ });
     await user.click(within(list).getAllByRole('button')[0]!);
-    expect(await screen.findByRole('slider', { name: 'Seek' })).toHaveAttribute(
+    expect(await screen.findByRole('slider', { name: 'Playback position' })).toHaveAttribute(
       'aria-valuenow',
       '42',
+    );
+    // The visible list became the play queue.
+    expect(usePlayer.getState().queue.map((m) => m.id)).toEqual(
+      useLibrary.getState().items.map((m) => m.id),
     );
     await act(() => Promise.resolve());
     localStorage.clear();

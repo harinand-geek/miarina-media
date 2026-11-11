@@ -240,3 +240,29 @@ Icônes ajoutées : `progress_activity downloading bookmarks star shield_with_he
 
 ## Landing v3 — 28 octobre 2026
 Source approuvée : design/design_handoff_landing_v3/README.md. Coque latérale 232 px dès 900 px ; barre mobile 56 px, libellés masqués sous 400/360 px. Tokens clair/sombre et états repris du handoff. Préférence système par défaut, thème mémorisé ; CSS externe uniquement. Démo explicitement simulée, tailles fictives, reprise conditionnelle ; comparaison limitée aux versions publiques.
+
+## 15. Windows v2 — handoff `design/design_handoff_windows_v2` (reçu le 2026-11-11)
+
+Source : `README.md` du handoff, `Miarina Media Windows v2.dc.html` (prototype cliquable FR/EN) et `Charte Miarina Media.dc.html`. Haute fidélité ; répond au CDC-MIARINA-001.
+
+### Ajouts de tokens (implémentés dans `apps/client/src/styles/theme.css`)
+
+| Token Tailwind | Sombre | Clair | Usage |
+|---|---|---|---|
+| `coral` | `#FF7A45` | `#FF7A45` | Accent « lire » : bouton play plein, progression de lecture, mini-lecteur |
+| `coral-hover` / `coral-press` | `#FF9166` / `#E8642E` | idem | États du bouton play |
+| `coral-ink` | `#1F0C03` | idem | Glyphe sur fond corail |
+| `coral-strong` | `#FF9166` | `#C2410C` | Texte/icône corail sur fond neutre (titre en cours, shuffle/repeat actifs) |
+| `coral-subtle` | `#3A2620` | `#FFE8DE` | Pastilles « lire », badge ● En lecture |
+| `warn-subtle` | `#2B2616` | `#FBF1DC` | Bandeau hors ligne |
+
+Règle : teal = télécharger / sélectionner / progresser / focus ; corail = lire. Un seul bouton plein de chaque accent par vue.
+
+### Marque
+Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`components/Logo.tsx`, `assets/logo.svg`). Variante Windows avec liseré `#3A4D5E` dans la barre de titre (`<Logo outlined />`). Le jeu complet (PNG Windows, mipmaps Android, web) est dans `design/brand/miarina-media-logo/` ; les icônes d'installation (`src-tauri/icons`, mipmaps Android) ne sont pas encore remplacées : à faire avec la prochaine build, puis vérifier l'ICO multi-tailles.
+
+### Adaptations techniques documentées
+- **Bandeau hors ligne** : le texte du prototype annonce « les téléchargements reprendront au retour du réseau ». Le moteur actuel fait des tentatives bornées puis échoue ; le texte est donc « réessaient quelques fois puis s'arrêtent » tant que la reprise automatique au retour réseau (DL-02, L01) n'existe pas.
+- **Langue par défaut** : anglais tant que tous les écrans ne lisent pas le catalogue (UX-01, pas de mélange par défaut). Le français est sélectionnable dans Réglages → Language, avec mention explicite de la migration partielle.
+- **Fonctions non prêtes** (UX-06) : Albums, Artistes, Dossiers, Playlists, Favoris, égaliseur, « Enregistrer en playlist », pistes/sous-titres vidéo sont affichés désactivés avec badge PRÉVU/PLANNED. A–B, ratio et fenêtre compacte du lecteur vidéo ne sont pas affichés.
+- **Ligne secondaire « artiste »** : sans tags (COM-07, L06), on affiche le site source ou le nom du dossier.

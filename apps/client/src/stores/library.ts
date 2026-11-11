@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { backend } from '../services/backend';
 import type { LibraryOverview, MediaKind, MediaRecord, MediaSort } from '../services/types';
+import { usePlayer } from './player';
 import { useUi } from './ui';
 
 // Mirror of the SQLite library. Search, filters and sorting run in Rust
@@ -102,6 +103,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
       try {
         await backend.libraryDelete(id);
         if (useUi.getState().nowPlaying?.id === id) useUi.getState().play(null);
+        usePlayer.getState().forget(id);
         await get().refresh();
         return true;
       } catch (e) {

@@ -2,7 +2,30 @@ import { create } from 'zustand';
 import type { MediaRecord } from '../services/types';
 
 export type Screen =
-  'home' | 'analysis' | 'downloads' | 'library' | 'player' | 'history' | 'browser' | 'settings' | 'torrents';
+  | 'home'
+  | 'analysis'
+  | 'downloads'
+  | 'library'
+  | 'player'
+  | 'now'
+  | 'history'
+  | 'browser'
+  | 'settings'
+  | 'torrents';
+
+/** Windows v2 navigation B: "Get" (download) and "Play" (listen & watch) spaces. */
+export type Space = 'get' | 'play';
+/** Library views of the Play space (others arrive with lot L06). */
+export type LibraryView = 'tracks' | 'videos';
+
+const PLAY_SCREENS: Screen[] = ['library', 'player', 'now'];
+const GET_SCREENS: Screen[] = ['home', 'analysis', 'downloads', 'browser', 'torrents', 'history'];
+
+export function spaceOf(screen: Screen, current: Space): Space {
+  if (PLAY_SCREENS.includes(screen)) return 'play';
+  if (GET_SCREENS.includes(screen)) return 'get';
+  return current;
+}
 
 export interface Toast {
   id: number;
@@ -29,6 +52,10 @@ export interface AnalysisChoice {
 
 interface UiState {
   screen: Screen;
+  space: Space;
+  libraryView: LibraryView;
+  /** Right panel of "Now playing". */
+  nowPanel: 'queue' | 'sound';
   sidebarCollapsed: boolean;
   playerFullscreen: boolean;
   toasts: Toast[];
@@ -60,6 +87,9 @@ interface UiState {
 
 export const useUi = create<UiState>((set) => ({
   screen: 'home',
+  space: 'get',
+  libraryView: 'tracks',
+  nowPanel: 'queue',
   sidebarCollapsed: false,
   playerFullscreen: false,
   toasts: [],
@@ -70,11 +100,12 @@ export const useUi = create<UiState>((set) => ({
   nowPlaying: null,
   browserRequest: null,
   librarySearchFocus: 0,
-  go: (screen) => set({ screen, confirm: null }),
+  go: (screen) => set((s) => ({ screen, confirm: null, space: spaceOf(screen, s.space) })),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   analyze: (url, tab) =>
     set((s) => ({
       screen: 'analysis',
+      space: 'get',
       pendingUrl: url,
       analysisTab: tab ?? s.analysisTab,
       analysisChoices: [],
@@ -82,15 +113,24 @@ export const useUi = create<UiState>((set) => ({
   analyzeChoice: (url, choices) =>
     set((s) => ({
       screen: 'analysis',
+      space: 'get',
       pendingUrl: url,
       analysisChoices: choices ?? s.analysisChoices,
     })),
   openInBrowser: (browserRequest) =>
-    set((s) => ({ browserRequest, screen: browserRequest ? 'browser' : s.screen })),
+    set((s) => ({
+      browserRequest,
+      screen: browserRequest ? 'browser' : s.screen,
+      space: browserRequest ? 'get' : s.space,
+    })),
   setAnalysisTab: (analysisTab) => set({ analysisTab }),
   play: (nowPlaying) => set({ nowPlaying }),
   focusLibrarySearch: () =>
-    set((s) => ({ screen: 'library', librarySearchFocus: s.librarySearchFocus + 1 })),
+    set((s) => ({
+      screen: 'library',
+      space: 'play',
+      librarySearchFocus: s.librarySearchFocus + 1,
+    })),
   pushToast: (toast) =>
     set((s) => ({ toasts: [...s.toasts, { ...toast, id: ++toastSeq }].slice(-MAX_TOASTS) })),
   dismissToast: (id) => set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),

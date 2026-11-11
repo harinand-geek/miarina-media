@@ -97,3 +97,25 @@ PlayerScreen.tsx retains the approved dark player surface and existing error ban
 ## Player fullscreen — 2026-10-31
 
 The native window was entering fullscreen but the app title/sidebar remained in the layout. DesktopShell now omits both while playerFullscreen is active; PlayerScreen hides its details panel as before. State is committed only after the native command succeeds, repeated requests are guarded, and leaving/unmounting the player exits native fullscreen. Escape restores normal layout. Minimal adaptation requested by the owner; existing player styles retained.
+
+## Windows v2 — lot UI2-01 (2026-11-11)
+
+Handoff : `design/design_handoff_windows_v2`. Ordre conseillé par le handoff : contrat lecteur → shell nav B + mini-lecteur → bibliothèque → lecteur vidéo natif → En lecture/Son → mises à jour → torrents/navigateur.
+
+| Élément v2 | Statut | Code |
+|---|---|---|
+| Tokens corail, bandeau hors ligne | Fait | `styles/theme.css`, `app/DesktopShell.tsx`, `hooks/useOnline.ts` |
+| Logo 4d | Fait (app) ; icônes installateur à régénérer | `components/Logo.tsx`, `assets/logo.svg` |
+| Barre de titre (recherche 420, logo liseré) | Fait | `app/TitleBar.tsx` |
+| Sidebar navigation B (Obtenir / Écouter, groupes Musique/Vidéo, En lecture, point mise à jour) | Fait ; vues L06 en PRÉVU | `app/Sidebar.tsx`, `app/navigation.ts`, `stores/ui.ts` (`space`, `libraryView`) |
+| Catalogue FR/EN | Shell, mini-lecteur, En lecture, lecteur vidéo, titre bibliothèque, langue | `i18n/index.ts`, `stores/settings.ts` (`lang`) |
+| Contrat lecteur COM-01 + file COM-03 + aléatoire/répétition COM-12 | Fait côté client (persistance localStorage) | `stores/player.ts` |
+| Moteur unique (un élément média pour toute l'app) | Fait (WebView) ; libVLC après WIN-SPIKE | `features/player/PlayerHost.tsx` |
+| Mini-lecteur 68 px | Fait | `features/player/MiniPlayer.tsx` |
+| En lecture (pochette, transport, File/Son, vitesse, minuteur) | Fait ; égaliseur PRÉVU | `features/player/NowPlayingScreen.tsx` |
+| Lecteur vidéo (en-tête, barre corail, ±10 s, volume, vitesse, PiP, plein écran) | Fait ; pistes/sous-titres PRÉVU | `features/player/PlayerScreen.tsx` |
+| Bibliothèque Titres / Vidéos | Fait (liste par défaut pour Titres, grille pour Vidéos) ; table musique v2 à faire | `features/library/LibraryScreen.tsx` |
+| Accueil, Analyse, Téléchargements, Navigateur, Torrents, Historique, Réglages v2 | À faire (lots suivants) | — |
+| Éditeur de tags, dialogue Retirer/Supprimer | À faire (L06, COM-10) | — |
+
+Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.

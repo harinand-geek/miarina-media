@@ -3,6 +3,7 @@ import { Button } from '../../components/Button';
 import { RadioDot, Segmented, Stepper, Toggle } from '../../components/Controls';
 import { PlannedBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
+import { useT, type Lang } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { StorageUsage } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
@@ -393,29 +394,53 @@ function AppearanceTab() {
       <SettingRow label="Density" description="Compact density has not been designed yet.">
         <PlannedBadge />
       </SettingRow>
-      <SettingRow label="Accent" description="Miarina Teal · #35C9BD">
+      <SettingRow label="Accent" description="Teal #35C9BD · download — Coral #FF7A45 · play">
         <Select label="Accent" value="Teal" options={['Teal']} disabled />
       </SettingRow>
     </>
   );
 }
 
-const LANGUAGES = ['English', 'Français', 'Malagasy', 'Español', 'Português'];
+/** Catalog languages (CDC UX-01) first; the others are not translated yet. */
+const LANGUAGES: { label: string; code?: Lang }[] = [
+  { label: 'English', code: 'en' },
+  { label: 'Français', code: 'fr' },
+  { label: 'Malagasy' },
+  { label: 'Español' },
+  { label: 'Português' },
+];
 
 function LanguageTab() {
+  const t = useT();
+  const lang = useSettings((s) => s.lang);
+  const setLang = useSettings((s) => s.setLang);
   return (
-    <div role="radiogroup" aria-label="Language">
-      {LANGUAGES.map((lang) => {
-        const available = lang === 'English';
+    <div role="radiogroup" aria-label={t('language')}>
+      {LANGUAGES.map(({ label, code }) => {
+        const checked = code === lang;
         return (
           <SettingRow
-            key={lang}
-            label={lang}
-            description={available ? undefined : 'Translation planned for a later release.'}
+            key={label}
+            label={label}
+            description={
+              code === 'fr'
+                ? t('languageNote')
+                : code
+                  ? undefined
+                  : 'Translation planned for a later release.'
+            }
           >
-            <span role="radio" aria-checked={available} aria-disabled={!available}>
-              <RadioDot checked={available} size={20} />
-            </span>
+            <button
+              type="button"
+              role="radio"
+              aria-label={label}
+              aria-checked={checked}
+              disabled={!code}
+              onClick={() => code && setLang(code)}
+              className="grid place-items-center rounded-full disabled:opacity-50"
+            >
+              <RadioDot checked={checked} size={20} />
+            </button>
           </SettingRow>
         );
       })}

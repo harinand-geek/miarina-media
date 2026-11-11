@@ -8,6 +8,7 @@ import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { addedLabel, qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
+import { openSection, playFrom } from '../../app/navigation';
 import { LinkIssueNote } from './LinkIssueNote';
 import { linkFieldBorder, useLinkInput } from './useLinkInput';
 
@@ -35,7 +36,6 @@ export function HomeScreen() {
   const { url, issue, inputRef, change, submit, paste, applyFix } = useLinkInput();
   const [dragging, setDragging] = useState(false);
   const go = useUi((s) => s.go);
-  const play = useUi((s) => s.play);
   const pushToast = useUi((s) => s.pushToast);
   const recent = useLibrary((s) => s.recent);
   const overview = useLibrary((s) => s.overview);
@@ -217,11 +217,8 @@ export function HomeScreen() {
                 label={`Play ${item.title}`}
                 fill
                 size={32}
-                tone="accent-hover"
-                onClick={() => {
-                  play(item);
-                  go('player');
-                }}
+                onClick={() => playFrom(item)}
+                className="!rounded-full bg-coral-subtle !text-coral-strong hover:!bg-coral hover:!text-coral-ink"
               />
             </div>
           ))}
@@ -272,7 +269,7 @@ export function HomeScreen() {
               </span>
             </div>
           )}
-          <Button size="sm" className="mt-auto h-9 text-[13px]" onClick={() => go('library')}>
+          <Button size="sm" className="mt-auto h-9 text-[13px]" onClick={() => openSection('library')}>
             Open library
           </Button>
         </section>

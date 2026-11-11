@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { isRunning, useDownloads } from '../stores/downloads';
 import { openSection } from '../app/navigation';
+import { usePlayer } from '../stores/player';
 import { useUi, type Screen } from '../stores/ui';
 
 /** Order of the sidebar, used by Ctrl+1…7 (design system §10). */
@@ -22,12 +23,44 @@ function isEditable(target: EventTarget | null) {
   );
 }
 
-/** Desktop keyboard shortcuts. Player keys live in the player screen. */
+/** Keys that act on their own focused control rather than on playback. */
+function ownsKey(target: EventTarget | null) {
+  return (
+    target instanceof HTMLElement &&
+    (['BUTTON', 'A', 'SUMMARY'].includes(target.tagName) ||
+      ['slider', 'radio', 'tab', 'menuitem', 'option', 'row', 'listitem'].includes(
+        target.getAttribute('role') ?? '',
+      ) ||
+      target.tagName === 'LI')
+  );
+}
+
+/**
+ * Desktop keyboard shortcuts. Space plays/pauses anywhere outside text and
+ * controls; ←/→ seek ±10 s on the player screens (Windows v2, WIN-11).
+ * F and Escape live in the video screen.
+ */
 export function useGlobalShortcuts() {
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (useUi.getState().confirm) return;
       const ctrl = e.ctrlKey || e.metaKey;
+      if (!ctrl && !e.altKey && !e.shiftKey && !isEditable(e.target) && !ownsKey(e.target)) {
+        const player = usePlayer.getState();
+        const { screen } = useUi.getState();
+        if (e.key === ' ' && player.media && screen !== 'browser') {
+          e.preventDefault();
+          player.toggle();
+          return;
+        }
+        if ((screen === 'player' || screen === 'now') && player.media) {
+          if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+            e.preventDefault();
+            player.skip(e.key === 'ArrowLeft' ? -10 : 10);
+            return;
+          }
+        }
+      }
       if (!ctrl || e.altKey) return;
       const key = e.key.toLowerCase();
 

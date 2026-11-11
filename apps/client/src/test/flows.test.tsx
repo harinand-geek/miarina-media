@@ -1,19 +1,31 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
 import { MobileShell } from '../app/MobileShell';
 import type { MockBackend } from '../dev/mockBackend';
 import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { useSettings } from '../stores/settings';
+import { resetPlayerForTests, usePlayer } from '../stores/player';
 import { useUi } from '../stores/ui';
 import type { MediaRecord } from '../services/types';
 
 let stopEvents: () => void = () => {};
 
+// Lazy screens: load their modules once so the first test does not race the
+// cold import under a busy parallel run (findBy* waits 1 s).
+beforeAll(async () => {
+  await Promise.all([
+    import('../features/library/LibraryScreen'),
+    import('../features/player/PlayerScreen'),
+    import('../features/player/NowPlayingScreen'),
+  ]);
+});
+
 beforeEach(async () => {
   resetMockBackend();
+  resetPlayerForTests();
   useUi.setState(useUi.getInitialState(), true);
   useDownloads.setState(useDownloads.getInitialState(), true);
   useSettings.setState(useSettings.getInitialState(), true);
@@ -27,18 +39,18 @@ afterEach(() => stopEvents());
 describe('Windows shell', () => {
   it('hides app navigation in player fullscreen and restores it on Escape', async () => {
     const user = userEvent.setup();
-    useUi.setState({
-      screen: 'player',
-      nowPlaying: {
+    useUi.setState({ screen: 'player' });
+    render(<DesktopShell />);
+    act(() =>
+      usePlayer.getState().playMedia({
         id: 999,
         title: 'Fullscreen test',
-        kind: 'audio',
-        path: '/test.mp3',
+        kind: 'video',
+        path: '/test.mp4',
         durationSecs: 120,
         sizeBytes: 1000,
-      } as MediaRecord,
-    });
-    render(<DesktopShell />);
+      } as MediaRecord),
+    );
     await user.click(await screen.findByRole('button', { name: 'Fullscreen (F)' }));
     expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).toBeNull();
     expect(useUi.getState().playerFullscreen).toBe(true);

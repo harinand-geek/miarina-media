@@ -1,9 +1,13 @@
 import { backend } from '../../services/backend';
+import { detectPlatform } from '../../services/platform';
 import type { MediaRecord } from '../../services/types';
 import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
+import { playFrom } from '../../app/navigation';
 
 /** Library actions shared by the grid, the list and keyboard shortcuts. */
+const desktop = detectPlatform() !== 'android';
+
 export function useMediaActions() {
   const play = useUi((s) => s.play);
   const go = useUi((s) => s.go);
@@ -15,7 +19,15 @@ export function useMediaActions() {
     pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) });
 
   return {
-    open: (media: MediaRecord) => {
+    /**
+     * Desktop: plays through the shared engine, with the visible list of the
+     * same kind as the play queue. Android keeps its own player sheet.
+     */
+    open: (media: MediaRecord, list?: MediaRecord[]) => {
+      if (desktop) {
+        playFrom(media, list?.filter((m) => m.kind === media.kind && !m.missing));
+        return;
+      }
       play(media);
       go('player');
     },
