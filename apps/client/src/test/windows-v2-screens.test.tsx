@@ -29,7 +29,18 @@ describe('Windows v2 Home', () => {
   it('continues unfinished media the user played last', async () => {
     const user = userEvent.setup();
     // Sintel (mock id 2, 14:48) was left at 5:00; Big Buck Bunny was finished.
-    localStorage.setItem('mm:recentPlays:v1', JSON.stringify([2, 1]));
+    const play = (id: number, title: string, at: number) => ({
+      id,
+      title,
+      kind: 'video',
+      at,
+      position: 0,
+      duration: 0,
+    });
+    localStorage.setItem(
+      'mm:playHistory:v1',
+      JSON.stringify([play(2, 'Sintel', 2000), play(1, 'Big Buck Bunny', 1000)]),
+    );
     localStorage.setItem('mm:position:2', '300');
     render(<DesktopShell />);
 
@@ -50,7 +61,10 @@ describe('Windows v2 Home', () => {
 
   it('remembers media that actually started playing', () => {
     act(() => {
-      usePlayer.setState({ media: { id: 42 } as never, state: 'playing' });
+      usePlayer.setState({
+        media: { id: 42, title: 'Clip', kind: 'video' } as never,
+        state: 'playing',
+      });
     });
     expect(recentPlays()[0]).toBe(42);
   });
@@ -87,5 +101,48 @@ describe('Windows v2 Downloads', () => {
     expect(
       screen.getByRole('button', { name: 'Cannot pause while preparing the file' }),
     ).toBeDisabled();
+  });
+});
+
+describe('Windows v2 History', () => {
+  it('shows downloads by day, then plays, and clears only the play history', async () => {
+    const user = userEvent.setup();
+    localStorage.setItem(
+      'mm:playHistory:v1',
+      JSON.stringify([
+        { id: 2, title: 'Sintel', kind: 'video', at: Date.now(), position: 300, duration: 888 },
+      ]),
+    );
+    useUi.setState({ screen: 'history' });
+    render(<DesktopShell />);
+
+    expect(await screen.findByRole('region', { name: 'Today' })).toBeInTheDocument();
+    expect(screen.getByText('Failed · Live streams are not supported')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('radio', { name: 'Plays' }));
+    const row = screen.getByRole('button', { name: 'Play Sintel' });
+    expect(row).toHaveTextContent('stopped at 5:00');
+
+    await user.click(screen.getByRole('button', { name: 'Clear history' }));
+    await user.click(
+      within(screen.getByRole('alertdialog', { name: 'Clear play history?' })).getByRole('button', {
+        name: 'Clear history',
+      }),
+    );
+    expect(screen.getByText('What you play appears here.')).toBeInTheDocument();
+    expect(useDownloads.getState().history.length).toBeGreaterThan(0);
+  });
+
+  it('notes where playback stopped and keeps one entry per play', () => {
+    const media = { id: 7, title: 'Song', kind: 'audio', durationSecs: 200 } as never;
+    act(() => usePlayer.setState({ media, state: 'playing', position: 0 }));
+    act(() => usePlayer.setState({ state: 'paused', position: 42 }));
+    act(() => usePlayer.setState({ state: 'playing' }));
+    const entries = JSON.parse(localStorage.getItem('mm:playHistory:v1')!) as {
+      id: number;
+      position: number;
+    }[];
+    expect(entries.filter((e) => e.id === 7)).toHaveLength(1);
+    expect(entries[0]!.position).toBe(42);
   });
 });

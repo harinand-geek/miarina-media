@@ -306,6 +306,31 @@ const fr = {
   // Android v2 browser
   downloadCount: 'Télécharger · {n}',
 
+  // Windows v2: History
+  histDownloads: 'Téléchargements',
+  histPlays: 'Lectures',
+  histKind: 'Type d’historique',
+  clearHistory: 'Effacer l’historique',
+  histNoteDl: 'Effacer l’historique ne supprime aucun fichier.',
+  histNotePlays:
+    'Historique de lecture local, distinct de l’historique de téléchargement. Effaçable à tout moment.',
+  today: 'Aujourd’hui',
+  yesterday: 'Hier',
+  histEmptyDl: 'Les téléchargements terminés, échoués ou annulés apparaissent ici.',
+  histEmptyPlays: 'Ce que vous écoutez ou regardez apparaît ici.',
+  clearDlTitle: 'Effacer l’historique des téléchargements ?',
+  clearDlBody:
+    'La liste des téléchargements passés est effacée. Les fichiers déjà enregistrés dans votre bibliothèque ne sont pas supprimés.',
+  clearPlaysTitle: 'Effacer l’historique de lecture ?',
+  clearPlaysBody:
+    'La liste des lectures et la section « Reprendre » de l’Accueil sont vidées. Aucun fichier n’est supprimé.',
+  stCanceled: 'Annulé',
+  failedBecause: 'Échec · {reason}',
+  playedOf: 'écouté {pos} / {dur}',
+  stoppedAt: 'arrêté à {pos}',
+  copySourceLink: 'Copier le lien source',
+  linkCopied: 'Lien source copié',
+  copyFailed: 'Impossible de copier le lien.',
   // Windows v2: Home, Analysis, Downloads
   homeTitle: 'Du lien à votre bibliothèque',
   homeSub: 'Collez un lien, choisissez le format, écoutez ou regardez hors ligne.',
@@ -709,6 +734,29 @@ const en: Record<MessageKey, string> = {
 
   downloadCount: 'Download · {n}',
 
+  // Windows v2: History
+  histDownloads: 'Downloads',
+  histPlays: 'Plays',
+  histKind: 'History type',
+  clearHistory: 'Clear history',
+  histNoteDl: 'Clearing history deletes no files.',
+  histNotePlays: 'Local play history, separate from download history. Can be cleared at any time.',
+  today: 'Today',
+  yesterday: 'Yesterday',
+  histEmptyDl: 'Finished, failed and cancelled downloads appear here.',
+  histEmptyPlays: 'What you play appears here.',
+  clearDlTitle: 'Clear download history?',
+  clearDlBody:
+    'This removes the list of past downloads. Files already saved in your library are not deleted.',
+  clearPlaysTitle: 'Clear play history?',
+  clearPlaysBody: 'This empties the list of plays and Home “Continue”. No file is deleted.',
+  stCanceled: 'Cancelled',
+  failedBecause: 'Failed · {reason}',
+  playedOf: 'played {pos} / {dur}',
+  stoppedAt: 'stopped at {pos}',
+  copySourceLink: 'Copy source link',
+  linkCopied: 'Source link copied',
+  copyFailed: 'Could not copy the link.',
   // Windows v2: Home, Analysis, Downloads
   homeTitle: 'From link to library',
   homeSub: 'Paste a link, pick a format, play it offline.',

@@ -10,7 +10,7 @@ import { useUi } from '../../stores/ui';
 import { openSection, playFrom } from '../../app/navigation';
 import { qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
-import { recentPlays } from '../player/recentPlays';
+import { recentPlays, usePlayHistory } from '../player/recentPlays';
 import { savedPosition } from '../player/usePlayback';
 import { LinkIssueNote } from './LinkIssueNote';
 import { linkFieldBorder, useLinkInput } from './useLinkInput';
@@ -42,8 +42,10 @@ const CONTINUE_MAX = 3;
 /** Unfinished media the user played last (resume position still saved). */
 function useContinueItems() {
   const [items, setItems] = useState<ContinueItem[]>([]);
-  // The library changes when files are added, removed or retagged.
+  // Refresh when the library changes (files added, removed, retagged) or
+  // something new is played.
   const version = useLibrary((s) => s.recent);
+  const plays = usePlayHistory();
   useEffect(() => {
     let alive = true;
     const ids = recentPlays()
@@ -61,7 +63,7 @@ function useContinueItems() {
     return () => {
       alive = false;
     };
-  }, [version]);
+  }, [version, plays]);
   return items;
 }
 

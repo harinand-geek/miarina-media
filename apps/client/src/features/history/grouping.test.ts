@@ -27,9 +27,16 @@ describe('history grouping', () => {
     expect(dayLabel(at(10, 16), now)).toBe('Saturday, 10 October');
   });
 
+  it('labels days in French', () => {
+    expect(dayLabel(at(14, 9), now, 'fr')).toBe('Aujourd’hui');
+    expect(dayLabel(at(13, 23), now, 'fr')).toBe('Hier');
+    expect(dayLabel(at(10, 16), now, 'fr')).toBe('samedi 10 octobre');
+  });
+
   it('groups newest first', () => {
     const groups = groupByDay(
       [entry(1, at(10, 16)), entry(2, at(14, 9)), entry(3, at(14, 11))],
+      (e) => e.finishedAt,
       now,
     );
     expect(groups.map((g) => g.day)).toEqual(['Today', 'Saturday, 10 October']);

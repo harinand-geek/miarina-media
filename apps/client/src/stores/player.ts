@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { notePlayed } from '../features/player/recentPlays';
+import { notePlayed, noteStopped } from '../features/player/recentPlays';
 import { savePosition, savedPosition } from '../features/player/usePlayback';
 import type { MediaRecord } from '../services/types';
 
@@ -533,15 +533,21 @@ usePlayer.subscribe((s, prev) => {
   }
 });
 
-// Home "Continue": remember what actually started playing (not a queue
-// restored at launch, which stays paused).
+// Play history (History › Plays, Home "Continue"): what actually started
+// playing (not a queue restored at launch, which stays paused) and where it
+// stopped.
 usePlayer.subscribe((s, prev) => {
+  if (
+    prev.media &&
+    (s.media?.id !== prev.media.id || (prev.state === 'playing' && s.state === 'paused'))
+  )
+    noteStopped(prev.media.id, prev.media.id === s.media?.id ? s.position : prev.position);
   if (
     s.state === 'playing' &&
     s.media &&
     (prev.state !== 'playing' || prev.media?.id !== s.media.id)
   )
-    notePlayed(s.media.id);
+    notePlayed(s.media);
 });
 
 export function resetPlayerForTests() {

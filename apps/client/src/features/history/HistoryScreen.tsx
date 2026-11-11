@@ -1,108 +1,167 @@
-import { useMemo, useState } from 'react';
-import { Button, IconButton } from '../../components/Button';
-import { Segmented } from '../../components/Controls';
-import { EmptyState } from '../../components/Feedback';
+import { useMemo, useState, type ReactNode } from 'react';
+import { IconButton } from '../../components/Button';
+import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
-import type { HistoryEntry, HistoryStatus } from '../../services/types';
+import { useT } from '../../i18n';
+import { backend } from '../../services/backend';
+import type { HistoryEntry } from '../../services/types';
 import { formatBytes, useDownloads } from '../../stores/downloads';
+import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { playFrom } from '../../app/navigation';
+import { durationLabel } from '../library/format';
+import { clearPlayHistory, usePlayHistory, type PlayEntry } from '../player/recentPlays';
+import { useNow } from '../downloads/useNow';
 import { groupByDay } from './grouping';
 
-type Filter = 'all' | 'completed' | 'failed';
+type Tab = 'downloads' | 'plays';
 
-const STATUS: Record<HistoryStatus, { label: string; color: string }> = {
-  completed: { label: 'Completed', color: 'text-accent-strong' },
-  failed: { label: 'Failed', color: 'text-danger' },
-  canceled: { label: 'Cancelled', color: 'text-muted' },
-};
-
-const ROW_COLUMNS = 'grid-cols-[52px_minmax(0,1fr)_150px_80px_110px_72px]';
+const AUDIO_FORMATS = /^(MP3|FLAC|M4A|OPUS|OGG|WAV|AAC|ALAC|VORBIS)\b/i;
 
 function timeLabel(ts: number) {
   const d = new Date(ts);
   return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }
 
-function sizeLabel(entry: HistoryEntry) {
-  if (entry.status === 'completed') return formatBytes(entry.totalBytes ?? entry.doneBytes);
-  if (!entry.doneBytes) return '—';
-  return entry.totalBytes
-    ? `${formatBytes(entry.doneBytes)} of ${formatBytes(entry.totalBytes)}`
-    : formatBytes(entry.doneBytes);
-}
-
+/** Windows v2 screen 10: downloads and plays, grouped by day (COM-13). */
 export default function HistoryScreen() {
+  const t = useT();
+  const lang = useSettings((s) => s.lang);
+  const [tab, setTab] = useState<Tab>('downloads');
   const history = useDownloads((s) => s.history);
-  const clear = useDownloads((s) => s.clearHistory);
+  const clearDownloads = useDownloads((s) => s.clearHistory);
+  const plays = usePlayHistory();
   const askConfirm = useUi((s) => s.askConfirm);
-  const [filter, setFilter] = useState<Filter>('all');
+  // Day labels move on at midnight.
+  const now = useNow(60_000);
 
-  const groups = useMemo(
-    () => groupByDay(history.filter((e) => filter === 'all' || e.status === filter)),
-    [history, filter],
+  const dlGroups = useMemo(
+    () => groupByDay(history, (e) => e.finishedAt, now, lang),
+    [history, now, lang],
   );
+  const playGroups = useMemo(() => groupByDay(plays, (e) => e.at, now, lang), [plays, now, lang]);
+  const empty = tab === 'downloads' ? history.length === 0 : plays.length === 0;
+
+  const clear = () =>
+    askConfirm(
+      tab === 'downloads'
+        ? {
+            title: t('clearDlTitle'),
+            body: t('clearDlBody'),
+            confirmLabel: t('clearHistory'),
+            onConfirm: clearDownloads,
+          }
+        : {
+            title: t('clearPlaysTitle'),
+            body: t('clearPlaysBody'),
+            confirmLabel: t('clearHistory'),
+            onConfirm: clearPlayHistory,
+          },
+    );
 
   return (
-    <div className="flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
+    <div className="flex flex-1 flex-col gap-5 overflow-auto px-12 py-8">
       <div className="flex items-center gap-3">
-        <h1 className="m-0 flex-1 text-title-lg font-bold tracking-[-0.02em]">History</h1>
-        <Segmented<Filter>
-          label="Filter history"
-          value={filter}
-          onChange={setFilter}
-          className="!self-auto border-line bg-surface"
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'completed', label: 'Completed' },
-            { value: 'failed', label: 'Failed' },
-          ]}
-        />
-        <Button
-          size="sm"
-          className="h-9 border-line-strong bg-transparent text-[13px] hover:bg-surface"
-          disabled={history.length === 0}
-          onClick={() =>
-            askConfirm({
-              title: 'Clear download history?',
-              body: 'This removes the list of past downloads. Files already saved in your library are not deleted.',
-              confirmLabel: 'Clear history',
-              onConfirm: clear,
-            })
-          }
+        <h1 className="m-0 flex-1 text-[24px] font-extrabold tracking-[-0.02em]">{t('history')}</h1>
+        <div
+          role="radiogroup"
+          aria-label={t('histKind')}
+          className="flex rounded-[7px] border border-line bg-bg p-[3px]"
         >
-          Clear history
-        </Button>
+          {(['downloads', 'plays'] as const).map((id) => (
+            <button
+              key={id}
+              type="button"
+              role="radio"
+              aria-checked={tab === id}
+              onClick={() => setTab(id)}
+              className={`h-[30px] rounded-[5px] px-3.5 text-[12.5px] font-semibold ${
+                tab === id ? 'bg-line-strong text-fg' : 'text-muted hover:text-fg'
+              }`}
+            >
+              {t(id === 'downloads' ? 'histDownloads' : 'histPlays')}
+            </button>
+          ))}
+        </div>
+        <button
+          type="button"
+          disabled={empty}
+          onClick={clear}
+          className="flex h-9 items-center gap-1.5 rounded-sm border border-line-strong bg-surface2 px-3.5 text-[13px] font-semibold text-fg enabled:hover:bg-secondary-hover disabled:opacity-50"
+        >
+          <Icon name="delete_sweep" size={18} />
+          {t('clearHistory')}
+        </button>
       </div>
 
-      {groups.map((group) => (
-        <section key={group.day} aria-label={group.day} className="flex flex-col gap-1.5">
-          <h2 className="m-0 text-[12px] font-bold text-muted">{group.day}</h2>
-          <div className="rounded-lg border border-surface2">
+      {tab === 'downloads' &&
+        dlGroups.map((group) => (
+          <Group key={group.day} day={group.day}>
             {group.entries.map((entry) => (
-              <HistoryRow key={entry.id} entry={entry} />
+              <DownloadRow key={entry.id} entry={entry} />
             ))}
-          </div>
-        </section>
-      ))}
+          </Group>
+        ))}
+      {tab === 'plays' &&
+        playGroups.map((group) => (
+          <Group key={group.day} day={group.day}>
+            {group.entries.map((entry) => (
+              <PlayRow key={`${entry.id}-${entry.at}`} entry={entry} />
+            ))}
+          </Group>
+        ))}
 
-      {groups.length === 0 && (
-        <EmptyState>
-          {history.length === 0
-            ? 'History is empty. Finished, failed and cancelled downloads appear here.'
-            : `No ${filter} downloads.`}
-        </EmptyState>
+      {empty ? (
+        <div className="rounded-[10px] border border-dashed border-line-strong p-12 text-center text-[13.5px] text-muted">
+          {t(tab === 'downloads' ? 'histEmptyDl' : 'histEmptyPlays')}
+        </div>
+      ) : (
+        <span className="text-[12px] text-muted">
+          {t(tab === 'downloads' ? 'histNoteDl' : 'histNotePlays')}
+        </span>
       )}
     </div>
   );
 }
 
-function HistoryRow({ entry }: { entry: HistoryEntry }) {
+function Group({ day, children }: { day: string; children: ReactNode }) {
+  return (
+    <section aria-label={day} className="flex flex-col gap-1.5">
+      <h2 className="m-0 py-1.5 text-[11px] font-bold uppercase tracking-[0.06em] text-faint">
+        {day}
+      </h2>
+      <ul className="m-0 flex list-none flex-col gap-1.5 p-0">{children}</ul>
+    </section>
+  );
+}
+
+const ROW =
+  'flex h-[52px] items-center gap-3.5 rounded-lg border border-line bg-surface px-3.5 text-left text-fg';
+
+function DownloadRow({ entry }: { entry: HistoryEntry }) {
+  const t = useT();
   const task = useDownloads((s) => s.tasks[entry.taskId]);
   const { retry, revealHistory } = useDownloads.getState();
   const analyze = useUi((s) => s.analyze);
   const pushToast = useUi((s) => s.pushToast);
   const completed = entry.status === 'completed';
-  const status = STATUS[entry.status];
+
+  const icon = completed
+    ? AUDIO_FORMATS.test(entry.formatLabel)
+      ? 'music_note'
+      : 'movie'
+    : entry.status === 'failed'
+      ? 'error'
+      : 'cancel';
+  const meta = completed
+    ? [entry.formatLabel, formatBytes(entry.totalBytes ?? entry.doneBytes), entry.sourceHost]
+        .filter(Boolean)
+        .join(' · ')
+    : entry.status === 'failed'
+      ? entry.reason
+        ? t('failedBecause', { reason: entry.reason })
+        : t('stFailed')
+      : `${t('stCanceled')} · ${entry.sourceHost}`;
 
   // A failed task still exists and keeps its format; a cancelled one is
   // analyzed again from its source link.
@@ -112,61 +171,81 @@ function HistoryRow({ entry }: { entry: HistoryEntry }) {
   };
 
   return (
-    <div
-      className={`grid ${ROW_COLUMNS} h-[50px] items-center gap-4 border-b border-surface2 pl-4 pr-3 text-[13px] last:border-b-0 hover:bg-surface`}
-    >
-      <span className="font-mono text-[12px] font-medium text-muted">
+    <li className={ROW}>
+      <span className="w-11 shrink-0 font-mono text-[12px] text-muted">
         {timeLabel(entry.finishedAt)}
       </span>
-      <div className="flex min-w-0 flex-col">
-        <span className="truncate font-semibold">{entry.title}</span>
-        <span className="truncate text-[11.5px] text-muted">
-          {entry.reason ? `${entry.sourceHost} · ${entry.reason}` : entry.sourceHost}
-        </span>
-      </div>
-      <span className="truncate text-muted">{entry.formatLabel}</span>
-      <span className="font-mono text-[12px] font-medium text-muted">{sizeLabel(entry)}</span>
-      <span className={`flex items-center gap-[7px] text-[12.5px] font-semibold ${status.color}`}>
-        <span className="h-[7px] w-[7px] rounded-full bg-current" aria-hidden="true" />
-        {status.label}
-      </span>
-      <div className="flex justify-end gap-0.5">
-        <IconButton
-          icon={completed ? 'folder_open' : 'refresh'}
-          label={completed ? 'Show in folder' : 'Retry'}
-          size={30}
-          iconSize={18}
-          onClick={completed ? () => revealHistory(entry.id) : retryEntry}
-        />
-        <Menu
-          label={`Actions for ${entry.title}`}
-          trigger={({ open, toggle, id }) => (
-            <IconButton
-              icon="more_horiz"
-              label="More"
-              size={30}
-              iconSize={18}
-              aria-haspopup="menu"
-              aria-expanded={open}
-              aria-controls={id}
-              onClick={toggle}
-            />
-          )}
-          items={[
-            {
-              label: 'Copy source link',
-              icon: 'content_copy',
-              shortcut: 'Ctrl C',
-              onSelect: () => {
-                navigator.clipboard
-                  ?.writeText(entry.url)
-                  .then(() => pushToast({ tone: 'success', message: 'Source link copied' }))
-                  .catch(() => pushToast({ tone: 'error', message: 'Could not copy the link.' }));
-              },
+      <Icon name={icon} className={entry.status === 'failed' ? 'text-danger' : 'text-muted'} />
+      <span className="min-w-0 flex-1 truncate text-[13.5px] font-bold">{entry.title}</span>
+      <span className="shrink-0 truncate font-mono text-[11.5px] text-muted">{meta}</span>
+      <Menu
+        label={t('actionsFor', { title: entry.title })}
+        trigger={({ open, toggle, id }) => (
+          <IconButton
+            icon="more_horiz"
+            label={t('moreActions')}
+            size={30}
+            iconSize={18}
+            aria-haspopup="menu"
+            aria-expanded={open}
+            aria-controls={id}
+            onClick={toggle}
+          />
+        )}
+        items={[
+          completed
+            ? {
+                label: t('showInFolder'),
+                icon: 'folder_open',
+                onSelect: () => revealHistory(entry.id),
+              }
+            : { label: t('tryAgain'), icon: 'refresh', onSelect: retryEntry },
+          {
+            label: t('copySourceLink'),
+            icon: 'content_copy',
+            onSelect: () => {
+              navigator.clipboard
+                ?.writeText(entry.url)
+                .then(() => pushToast({ tone: 'success', message: t('linkCopied') }))
+                .catch(() => pushToast({ tone: 'error', message: t('copyFailed') }));
             },
-          ]}
-        />
-      </div>
-    </div>
+          },
+        ]}
+      />
+    </li>
+  );
+}
+
+function PlayRow({ entry }: { entry: PlayEntry }) {
+  const t = useT();
+  const pushToast = useUi((s) => s.pushToast);
+  const pos = durationLabel(entry.position);
+  const meta = !entry.position
+    ? durationLabel(entry.duration || null)
+    : entry.kind === 'audio' && entry.duration
+      ? t('playedOf', { pos, dur: durationLabel(entry.duration) })
+      : t('stoppedAt', { pos });
+  const play = () =>
+    void backend
+      .libraryGet(entry.id)
+      .then((media) => playFrom(media))
+      .catch(() => pushToast({ tone: 'error', message: t('fileGone') }));
+
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={play}
+        aria-label={t('playTitle', { title: entry.title })}
+        className={`${ROW} w-full hover:bg-surface2`}
+      >
+        <span className="w-11 shrink-0 font-mono text-[12px] text-muted">
+          {timeLabel(entry.at)}
+        </span>
+        <Icon name={entry.kind === 'audio' ? 'music_note' : 'movie'} className="text-muted" />
+        <span className="min-w-0 flex-1 truncate text-[13.5px] font-bold">{entry.title}</span>
+        <span className="shrink-0 font-mono text-[11.5px] text-muted">{meta}</span>
+      </button>
+    </li>
   );
 }
