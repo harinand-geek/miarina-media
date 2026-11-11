@@ -64,14 +64,14 @@ describe('Windows shell', () => {
     await user.click(screen.getByRole('button', { name: 'Fullscreen (F)' }));
     act(() => useUi.getState().go('home'));
     expect(
-      await screen.findByRole('heading', { name: 'Download from a link' }),
+      await screen.findByRole('heading', { name: 'From link to library' }),
     ).toBeInTheDocument();
     expect(useUi.getState().playerFullscreen).toBe(false);
   });
   it('navigates with the sidebar and Ctrl+1…7 shortcuts', async () => {
     const user = userEvent.setup();
     render(<DesktopShell />);
-    expect(screen.getByRole('heading', { name: 'Download from a link' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'From link to library' })).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Downloads/ }));
     expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
@@ -155,7 +155,7 @@ describe('Windows shell', () => {
       screen.getByRole('textbox', { name: 'Media link' }),
       'https://mango.blender.org/download/{Enter}',
     );
-    expect(screen.getByText('Reading available formats…')).toBeInTheDocument();
+    expect(screen.getByText('Reading formats…')).toBeInTheDocument();
 
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(screen.getByRole('heading', { name: 'Tears of Steel' })).toBeInTheDocument();
@@ -163,7 +163,7 @@ describe('Windows shell', () => {
     expect(within(quality).getByRole('radio', { checked: true })).toHaveTextContent('1080p');
 
     await user.click(within(quality).getByRole('radio', { name: /720p/ }));
-    await user.click(screen.getByRole('button', { name: 'Download' }));
+    await user.click(screen.getByRole('button', { name: /^Download( ·|$)/ }));
     expect(await screen.findByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
     expect(await screen.findByText('Tears of Steel (720p)')).toBeInTheDocument();
     vi.useRealTimers();
@@ -179,7 +179,8 @@ describe('Windows shell', () => {
     );
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(screen.getByText('No downloadable media found')).toBeInTheDocument();
-    expect(screen.getByText('live streams are not supported')).toBeInTheDocument();
+    expect(screen.getByText(/live streams are not supported/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Open in browser' })).toBeInTheDocument();
     vi.useRealTimers();
   });
 
@@ -207,15 +208,15 @@ describe('Windows shell', () => {
     const count = () => Object.keys(useDownloads.getState().tasks).length;
     const before = count();
 
-    await user.click(screen.getAllByRole('button', { name: 'Cancel' })[0]!);
-    const dialog = screen.getByRole('alertdialog', { name: 'Cancel this download?' });
+    await user.click(screen.getAllByRole('button', { name: /^Cancel / })[0]!);
+    const dialog = screen.getByRole('alertdialog', { name: 'Cancel download?' });
     expect(within(dialog).getByRole('button', { name: 'Keep' })).toHaveFocus();
 
     await user.keyboard('{Escape}');
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
     expect(count()).toBe(before);
 
-    await user.click(screen.getAllByRole('button', { name: 'Cancel' })[0]!);
+    await user.click(screen.getAllByRole('button', { name: /^Cancel / })[0]!);
     await user.click(screen.getByRole('button', { name: 'Cancel download' }));
     await waitFor(() => expect(count()).toBe(before - 1));
   });

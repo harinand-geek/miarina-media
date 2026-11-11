@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { notePlayed } from '../features/player/recentPlays';
 import { savePosition, savedPosition } from '../features/player/usePlayback';
 import type { MediaRecord } from '../services/types';
 
@@ -13,19 +14,10 @@ import type { MediaRecord } from '../services/types';
  */
 
 export type PlayerState =
-  | 'idle'
-  | 'loading'
-  | 'ready'
-  | 'playing'
-  | 'paused'
-  | 'buffering'
-  | 'ended'
-  | 'error';
+  'idle' | 'loading' | 'ready' | 'playing' | 'paused' | 'buffering' | 'ended' | 'error';
 export type RepeatMode = 'off' | 'all' | 'one';
 export type SleepTimer =
-  | { mode: 'off' }
-  | { mode: 'minutes'; minutes: number; endsAt: number }
-  | { mode: 'end' };
+  { mode: 'off' } | { mode: 'minutes'; minutes: number; endsAt: number } | { mode: 'end' };
 
 /** `MediaError.code` mapped to a structured error (WIN-02: no misleading message). */
 export interface PlayerError {
@@ -367,7 +359,12 @@ export const usePlayer = create<PlayerStore>((set, get) => {
       else {
         get().stop();
         const media = list[nextAt]!;
-        set({ index: nextAt, media, position: savedPosition(media.id), duration: media.durationSecs ?? 0 });
+        set({
+          index: nextAt,
+          media,
+          position: savedPosition(media.id),
+          duration: media.durationSecs ?? 0,
+        });
       }
     },
     move: (from, to) => {
@@ -391,7 +388,12 @@ export const usePlayer = create<PlayerStore>((set, get) => {
       if (on) {
         const others = shuffled(queue.filter((_, i) => i !== index));
         const list = current ? [current, ...others] : others;
-        set({ shuffle: true, unshuffled: queue.map((m) => m.id), queue: list, index: current ? 0 : -1 });
+        set({
+          shuffle: true,
+          unshuffled: queue.map((m) => m.id),
+          queue: list,
+          index: current ? 0 : -1,
+        });
         return;
       }
       // Original order for what is still queued; later additions keep their place at the end.
@@ -400,9 +402,15 @@ export const usePlayer = create<PlayerStore>((set, get) => {
         .map((m, i) => ({ m, k: order.get(m.id) ?? order.size + i }))
         .sort((a, b) => a.k - b.k)
         .map((x) => x.m);
-      set({ shuffle: false, unshuffled: null, queue: list, index: current ? list.indexOf(current) : -1 });
+      set({
+        shuffle: false,
+        unshuffled: null,
+        queue: list,
+        index: current ? list.indexOf(current) : -1,
+      });
     },
-    cycleRepeat: () => set((s) => ({ repeat: s.repeat === 'off' ? 'all' : s.repeat === 'all' ? 'one' : 'off' })),
+    cycleRepeat: () =>
+      set((s) => ({ repeat: s.repeat === 'off' ? 'all' : s.repeat === 'all' ? 'one' : 'off' })),
 
     setSleep: (sleep) => {
       clearSleep();
@@ -435,7 +443,14 @@ export const usePlayer = create<PlayerStore>((set, get) => {
         const list = get().queue.filter((m) => m.id !== id);
         const index = list.length ? Math.min(at, list.length - 1) : -1;
         const media = list[index] ?? null;
-        set({ queue: list, index, media, position: 0, duration: media?.durationSecs ?? 0, state: 'idle' });
+        set({
+          queue: list,
+          index,
+          media,
+          position: 0,
+          duration: media?.durationSecs ?? 0,
+          state: 'idle',
+        });
       } else {
         get().removeAt(at);
       }
@@ -516,6 +531,17 @@ usePlayer.subscribe((s, prev) => {
   } catch {
     // Storage full or unavailable: the queue lives for this session only.
   }
+});
+
+// Home "Continue": remember what actually started playing (not a queue
+// restored at launch, which stays paused).
+usePlayer.subscribe((s, prev) => {
+  if (
+    s.state === 'playing' &&
+    s.media &&
+    (prev.state !== 'playing' || prev.media?.id !== s.media.id)
+  )
+    notePlayed(s.media.id);
 });
 
 export function resetPlayerForTests() {

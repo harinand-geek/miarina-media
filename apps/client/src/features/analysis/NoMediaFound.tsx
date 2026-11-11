@@ -1,25 +1,47 @@
-import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
+import { useT } from '../../i18n';
 
-/** Design system §6 "No downloadable media found". "Report link" is hidden in the MVP (Q3). */
-export function NoMediaFound({ onRetry, reason }: { onRetry: () => void; reason?: string }) {
+/**
+ * "No downloadable media found" (Windows v2 screen 2, no-media state).
+ * Miarina never bypasses logins, DRM or live restrictions: it says so.
+ */
+export function NoMediaFound({
+  onRetry,
+  onOpenBrowser,
+  reason,
+}: {
+  onRetry: () => void;
+  /** Opens the page in the built-in browser, where media can be detected. */
+  onOpenBrowser?: () => void;
+  reason?: string;
+}) {
+  const t = useT();
   return (
-    <div role="alert" className="flex max-w-[480px] flex-col gap-2.5 rounded-lg bg-surface p-6">
-      <Icon name="link_off" size={28} className="text-danger" />
-      <span className="text-[15px] font-bold">No downloadable media found</span>
-      <span className="text-[13px] leading-normal text-muted">
-        This page may be private, require sign-in, or be a live stream. Miarina Media only lists
-        formats the source actually provides.
-      </span>
-      {reason && (
-        <span className="text-[12.5px] text-muted">
-          Reason: <span className="text-fg">{reason}</span>
-        </span>
-      )}
-      <div className="mt-1.5 flex gap-2">
-        <Button size="sm" className="h-[34px] text-[13px]" onClick={onRetry}>
-          Try again
-        </Button>
+    <div
+      role="alert"
+      className="mx-auto my-[60px] flex max-w-[460px] flex-col items-center gap-3 text-center"
+    >
+      <Icon name="link_off" size={40} className="text-danger" />
+      <span className="text-[18px] font-bold">{t('noMediaTitle')}</span>
+      <span className="text-[13.5px] leading-[1.55] text-muted">{t('noMediaBody')}</span>
+      {reason && <span className="text-[12.5px] text-muted">{t('noMediaReason', { reason })}</span>}
+      <div className="flex gap-2.5 pt-2">
+        <button
+          type="button"
+          onClick={onRetry}
+          className="h-9 rounded-sm border border-line-strong bg-surface2 px-3.5 text-[13px] font-semibold text-fg hover:bg-secondary-hover"
+        >
+          {t('tryAgain')}
+        </button>
+        {onOpenBrowser && (
+          <button
+            type="button"
+            onClick={onOpenBrowser}
+            className="h-9 rounded-sm bg-accent px-4 text-[13px] font-bold text-accent-ink hover:bg-accent-hover"
+          >
+            {t('openInBrowser')}
+          </button>
+        )}
       </div>
     </div>
   );

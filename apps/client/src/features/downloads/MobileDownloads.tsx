@@ -1,86 +1,17 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { LocalThumb } from '../../components/LocalThumb';
 import { ProgressBar } from '../../components/ProgressBar';
-import { useT, type Translate } from '../../i18n';
+import { useT } from '../../i18n';
 import type { DownloadTask, HistoryEntry } from '../../services/types';
-import {
-  formatBytes,
-  isOpen,
-  isRunning,
-  ordered,
-  percentOf,
-  useDownloads,
-} from '../../stores/downloads';
+import { formatBytes, isRunning, useDownloads } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
-import { barTone, barValue, etaLabel, progressAriaLabel, retryIn } from './format';
+import { barTone, barValue, progressAriaLabel } from './format';
+import { mediaOfDownload, statusOf, useDownloadLists, waitsForSlot, type Status } from './status';
 import { useNow } from './useNow';
 
 type Tab = 'active' | 'done' | 'failed';
-
-interface Status {
-  icon: string;
-  text: string;
-  /** Text color class: the state is never carried by color alone. */
-  tone: string;
-  detail: string;
-}
-
-const pct = (task: DownloadTask) => `${Math.floor(percentOf(task))} %`;
-
-/** Android v2 screen 04: icon + words for each state (DL-02, DL-06). */
-function statusOf(task: DownloadTask, t: Translate, now: number): Status {
-  if (task.retry) {
-    return {
-      icon: 'wifi_off',
-      text: t('stRetry', { n: retryIn(task, now) }),
-      tone: 'text-danger',
-      detail:
-        task.supportsResume && task.downloadedBytes > 0
-          ? t('stResumeAt', { n: Math.floor(percentOf(task)) })
-          : '',
-    };
-  }
-  switch (task.state) {
-    case 'downloading':
-      return {
-        icon: 'downloading',
-        text: task.bytesPerSec > 0 ? t('stDownloading') : t('stStarting'),
-        tone: 'text-accent-strong',
-        detail: task.etaSecs !== null ? `${pct(task)} · ${etaLabel(task.etaSecs)}` : pct(task),
-      };
-    case 'processing':
-      return { icon: 'autorenew', text: t('stConverting'), tone: 'text-accent-strong', detail: '' };
-    case 'paused':
-      return {
-        icon: 'pause_circle',
-        text:
-          task.supportsResume || task.downloadedBytes === 0 ? t('stPaused') : t('stPausedRestart'),
-        tone: 'text-warn',
-        detail: pct(task),
-      };
-    case 'failed':
-      return {
-        icon: 'error',
-        text:
-          task.errorCode === 'disk_full' || task.errorCode === 'insufficient_space'
-            ? t('stDiskFull')
-            : t('stFailed'),
-        tone: 'text-danger',
-        detail: task.supportsResume && task.downloadedBytes > 0 ? t('stResumeAt', { n: Math.floor(percentOf(task)) }) : '',
-      };
-    case 'analyzing':
-      return { icon: 'hourglass_empty', text: t('stAnalyzing'), tone: 'text-muted', detail: '' };
-    default:
-      return {
-        icon: 'schedule',
-        text: t('stQueued'),
-        tone: 'text-muted',
-        detail: task.totalBytes ? formatBytes(task.totalBytes) : '',
-      };
-  }
-}
 
 function Row({
   title,
@@ -148,18 +79,12 @@ function Row({
 export function MobileDownloads() {
   const t = useT();
   const [tab, setTab] = useState<Tab>('active');
-  const tasks = useDownloads((s) => s.tasks);
-  const history = useDownloads((s) => s.history);
+  const { active: open, failedTasks, failedHistory, done, counts } = useDownloadLists();
   const library = useLibrary((s) => s.items);
   const play = useUi((s) => s.play);
   const pushToast = useUi((s) => s.pushToast);
   const { pause, resume, retry, startNow, pauseAll, resumeAll, cancel } = useDownloads.getState();
 
-  const all = useMemo(() => ordered(tasks), [tasks]);
-  const open = useMemo(() => all.filter((x) => isOpen(x) && x.state !== 'failed'), [all]);
-  const failedTasks = useMemo(() => all.filter((x) => x.state === 'failed'), [all]);
-  const failedHistory = useMemo(() => history.filter((h) => h.status === 'failed'), [history]);
-  const done = useMemo(() => history.filter((h) => h.status === 'completed'), [history]);
   const anyRunning = open.some(isRunning);
   const anyPaused = open.some((x) => x.state === 'paused');
   const retrying = open.some((x) => x.retry);
@@ -167,8 +92,8 @@ export function MobileDownloads() {
 
   const mediaOf = (h: HistoryEntry) =>
     library.find((m) => m.taskId === h.taskId || (h.finalPath && m.path === h.finalPath));
-  const playDone = (h: HistoryEntry) => {
-    const media = mediaOf(h);
+  const playDone = async (h: HistoryEntry) => {
+    const media = await mediaOfDownload(h);
     if (media) play(media);
     else pushToast({ tone: 'error', message: t('fileGone') });
   };
@@ -184,11 +109,23 @@ export function MobileDownloads() {
     const status = statusOf(task, t, now);
     const main =
       task.state === 'failed'
-        ? { icon: 'refresh', label: t('actRetry', { title: task.title }), run: () => retry(task.id) }
+        ? {
+            icon: 'refresh',
+            label: t('actRetry', { title: task.title }),
+            run: () => retry(task.id),
+          }
         : task.state === 'paused'
-          ? { icon: 'play_arrow', label: t('actResume', { title: task.title }), run: () => resume(task.id) }
-          : task.state === 'queued' || (task.state === 'waiting' && !task.retry)
-            ? { icon: 'play_arrow', label: t('actStart', { title: task.title }), run: () => startNow(task.id) }
+          ? {
+              icon: 'play_arrow',
+              label: t('actResume', { title: task.title }),
+              run: () => resume(task.id),
+            }
+          : waitsForSlot(task)
+            ? {
+                icon: 'play_arrow',
+                label: t('actStart', { title: task.title }),
+                run: () => startNow(task.id),
+              }
             : {
                 icon: 'pause',
                 label: t('actPause', { title: task.title }),
@@ -210,19 +147,24 @@ export function MobileDownloads() {
         }
         actions={[
           main,
-          { icon: 'close', label: t('cancelNamed', { title: task.title }), run: () => askCancel(task) },
+          {
+            icon: 'close',
+            label: t('cancelNamed', { title: task.title }),
+            run: () => askCancel(task),
+          },
         ]}
       />
     );
   };
 
-  const counts = { active: open.length, done: done.length, failed: failedTasks.length + failedHistory.length };
   const empty = counts[tab] === 0;
 
   return (
     <div className="flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3 pt-1">
       <header className="flex h-12 shrink-0 items-center gap-2">
-        <h1 className="m-0 flex-1 text-[22px] font-extrabold tracking-[-0.01em]">{t('downloads')}</h1>
+        <h1 className="m-0 flex-1 text-[22px] font-extrabold tracking-[-0.01em]">
+          {t('downloads')}
+        </h1>
         {(anyRunning || anyPaused) && (
           <button
             type="button"
@@ -270,7 +212,12 @@ export function MobileDownloads() {
               format={h.formatLabel}
               kind="video"
               thumbnail={null}
-              status={{ icon: 'error', text: h.reason ?? t('stFailed'), tone: 'text-danger', detail: '' }}
+              status={{
+                icon: 'error',
+                text: h.reason ?? t('stFailed'),
+                tone: 'text-danger',
+                detail: '',
+              }}
               actions={[]}
             />
           ))}
@@ -291,7 +238,11 @@ export function MobileDownloads() {
                   detail: formatBytes(h.doneBytes),
                 }}
                 actions={[
-                  { icon: 'play_arrow', label: t('playTitle', { title: h.title }), run: () => playDone(h) },
+                  {
+                    icon: 'play_arrow',
+                    label: t('playTitle', { title: h.title }),
+                    run: () => void playDone(h),
+                  },
                 ]}
               />
             );

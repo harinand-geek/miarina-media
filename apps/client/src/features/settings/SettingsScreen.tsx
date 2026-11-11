@@ -20,7 +20,8 @@ import { MediaTools } from './MediaTools';
 import { Select, SettingRow } from './SettingRow';
 import { BrowserExtension } from './BrowserExtension';
 
-type Tab = 'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language' | 'extension';
+type Tab =
+  'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language' | 'extension';
 
 const TABS: { id: Tab; label: string; icon: string }[] = [
   { id: 'general', label: 'General', icon: 'tune' },
@@ -120,6 +121,7 @@ function GeneralTab() {
 
 /** Destination folder, persisted by the backend after a writability check. */
 function PathRow({ label }: { label: string }) {
+  const t = useT();
   const downloadDir = useSettings((s) => s.downloadDir);
   const pick = useSettings((s) => s.pickDownloadDir);
   return (
@@ -130,6 +132,21 @@ function PathRow({ label }: { label: string }) {
       >
         {downloadDir}
       </span>
+      <Button
+        size="sm"
+        className="text-[12.5px]"
+        onClick={() =>
+          void backend
+            .openDownloadFolder()
+            .catch((e: unknown) =>
+              useUi
+                .getState()
+                .pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
+            )
+        }
+      >
+        {t('openFolder')}
+      </Button>
       <Button size="sm" className="text-[12.5px]" onClick={pick}>
         Change
       </Button>
