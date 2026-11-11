@@ -11,9 +11,9 @@ export function SettingRow({
   children: ReactNode;
 }) {
   return (
-    <div className="flex items-center gap-6 border-b border-divider py-4">
-      <div className="flex flex-1 flex-col gap-[3px]">
-        <span className="text-[14px] font-semibold">{label}</span>
+    <div className="flex min-h-[64px] items-center gap-5 border-b border-line py-3.5">
+      <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
+        <span className="text-[14px] font-bold">{label}</span>
         {description && <span className="text-[12.5px] text-muted">{description}</span>}
       </div>
       {children}

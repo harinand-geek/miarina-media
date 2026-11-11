@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
-import { Button } from '../../components/Button';
-import { RadioDot, Segmented, Stepper, Toggle } from '../../components/Controls';
+import { invoke } from '@tauri-apps/api/core';
+import { useEffect, useMemo, useState } from 'react';
+import { Segmented, Stepper, Toggle } from '../../components/Controls';
 import { PlannedBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
-import { useT, type Lang } from '../../i18n';
+import { ProgressBar } from '../../components/ProgressBar';
+import { useT, type Lang, type MessageKey } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { StorageUsage } from '../../services/types';
-import { formatBytes } from '../../stores/downloads';
+import { formatBytes, isRunning, summarize, useDownloads } from '../../stores/downloads';
 import {
   MAX_CONCURRENCY,
   MIN_CONCURRENCY,
@@ -15,60 +16,100 @@ import {
   type ThemePref,
 } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
-import { AppUpdates } from './AppUpdates';
-import { MediaTools } from './MediaTools';
-import { Select, SettingRow } from './SettingRow';
+import { version } from '../../../package.json';
 import { BrowserExtension } from './BrowserExtension';
+import { MediaTools } from './MediaTools';
+import { SettingRow } from './SettingRow';
+import { useUpdates } from './useUpdates';
 
 type Tab =
-  'general' | 'downloads' | 'storage' | 'performance' | 'appearance' | 'language' | 'extension';
+  | 'general'
+  | 'updates'
+  | 'downloads'
+  | 'playback'
+  | 'storage'
+  | 'performance'
+  | 'appearance'
+  | 'language'
+  | 'extension';
 
-const TABS: { id: Tab; label: string; icon: string }[] = [
-  { id: 'general', label: 'General', icon: 'tune' },
-  { id: 'extension', label: 'Browser extension', icon: 'extension' },
-  { id: 'downloads', label: 'Downloads', icon: 'download' },
-  { id: 'storage', label: 'Storage', icon: 'hard_drive' },
-  { id: 'performance', label: 'Performance', icon: 'speed' },
-  { id: 'appearance', label: 'Appearance', icon: 'palette' },
-  { id: 'language', label: 'Language', icon: 'language' },
+const TABS: { id: Tab; label: MessageKey; icon: string }[] = [
+  { id: 'general', label: 'tabGeneral', icon: 'tune' },
+  { id: 'updates', label: 'tabUpdates', icon: 'system_update_alt' },
+  { id: 'downloads', label: 'downloads', icon: 'download' },
+  { id: 'playback', label: 'tabPlayback', icon: 'play_circle' },
+  { id: 'storage', label: 'tabStorage', icon: 'hard_drive' },
+  { id: 'performance', label: 'modePerformance', icon: 'speed' },
+  { id: 'appearance', label: 'tabAppearance', icon: 'palette' },
+  { id: 'language', label: 'language', icon: 'language' },
+  { id: 'extension', label: 'tabExtension', icon: 'extension' },
 ];
 
+const SECONDARY =
+  'h-[34px] shrink-0 rounded-sm border border-line-strong bg-surface2 px-3 text-[13px] font-semibold text-fg enabled:hover:bg-secondary-hover disabled:opacity-50';
+
+function report(e: unknown) {
+  useUi
+    .getState()
+    .pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) });
+}
+
+/** A setting the engine does not support yet (UX-06): shown, never faked. */
+function Planned() {
+  const t = useT();
+  return (
+    <span title={t('plannedHint')}>
+      <PlannedBadge label={t('planned')} />
+    </span>
+  );
+}
+
+/** Windows v2 screen 11: settings, one section at a time. */
 export default function SettingsScreen() {
+  const t = useT();
   const [tab, setTab] = useState<Tab>('general');
-  const title = TABS.find((t) => t.id === tab)!.label;
+  const update = useUpdates((s) => s.release !== null);
+  const title = t(TABS.find((x) => x.id === tab)!.label);
 
   return (
     <div className="flex min-h-0 flex-1">
       <nav
-        aria-label="Settings sections"
-        className="flex w-[220px] shrink-0 flex-col gap-0.5 border-r border-divider px-3 py-7"
+        aria-label={t('settingsSections')}
+        className="flex w-[236px] shrink-0 flex-col gap-0.5 border-r border-divider px-3 py-8"
       >
-        <h1 className="m-0 px-3 pb-3.5 text-title-lg font-bold tracking-[-0.02em]">Settings</h1>
-        {TABS.map((t) => (
+        <h1 className="m-0 px-3 pb-4 text-[24px] font-extrabold tracking-[-0.02em]">
+          {t('settings')}
+        </h1>
+        {TABS.map((x) => (
           <button
-            key={t.id}
+            key={x.id}
             type="button"
-            aria-current={tab === t.id ? 'page' : undefined}
-            onClick={() => setTab(t.id)}
-            className={`flex h-9 items-center gap-2.5 rounded-sm px-3 text-left text-[13px] font-semibold hover:text-fg ${
-              tab === t.id ? 'bg-line-strong text-fg' : 'text-muted'
+            aria-current={tab === x.id ? 'page' : undefined}
+            onClick={() => setTab(x.id)}
+            className={`flex h-9 items-center gap-2.5 rounded-md px-3 text-left text-[13.5px] font-semibold hover:text-fg ${
+              tab === x.id ? 'bg-line-strong text-fg' : 'text-muted'
             }`}
           >
-            <Icon name={t.icon} size={18} />
-            {t.label}
+            <Icon name={x.icon} size={18} />
+            <span className="flex-1">{t(x.label)}</span>
+            {x.id === 'updates' && update && (
+              <span className="h-2 w-2 rounded-full bg-accent" aria-label={t('updateAvailable')} />
+            )}
           </button>
         ))}
       </nav>
-      <div className="flex-1 overflow-auto px-12 py-9">
-        <div className="flex max-w-[700px] flex-col">
-          <h2 className="m-0 pb-1.5 text-title font-bold">{title}</h2>
+      <div className="flex-1 overflow-auto px-12 py-8">
+        <div className="flex max-w-[720px] flex-col">
+          <h2 className="m-0 pb-2 text-[18px] font-bold">{title}</h2>
           {tab === 'general' && <GeneralTab />}
-          {tab === 'extension' && <BrowserExtension />}
+          {tab === 'updates' && <UpdatesTab />}
           {tab === 'downloads' && <DownloadsTab />}
+          {tab === 'playback' && <PlaybackTab />}
           {tab === 'storage' && <StorageTab />}
           {tab === 'performance' && <PerformanceTab />}
           {tab === 'appearance' && <AppearanceTab />}
           {tab === 'language' && <LanguageTab />}
+          {tab === 'extension' && <BrowserExtension />}
         </div>
       </div>
     </div>
@@ -76,44 +117,170 @@ export default function SettingsScreen() {
 }
 
 function GeneralTab() {
-  const toggles = useSettings((s) => s.toggles);
-  const toggle = useSettings((s) => s.toggle);
+  const t = useT();
   return (
     <>
-      <AppUpdates />
-      <SettingRow label="Launch at startup" description="Start minimized in the system tray.">
-        <Toggle
-          label="Launch at startup"
-          checked={toggles.launchAtStartup}
-          onChange={() => toggle('launchAtStartup')}
-        />
+      <SettingRow label={t('launchStartup')} description={t('launchStartupDesc')}>
+        <Planned />
       </SettingRow>
-      <SettingRow
-        label="Close to tray"
-        description="Downloads keep running when the window is closed."
-      >
-        <Toggle
-          label="Close to tray"
-          checked={toggles.closeToTray}
-          onChange={() => toggle('closeToTray')}
-        />
+      <SettingRow label={t('closeTray')} description={t('closeTrayDesc')}>
+        <Planned />
       </SettingRow>
-      <SettingRow
-        label="Detect copied links"
-        description="Offer to analyze a link when one is copied to the clipboard."
-      >
-        <Toggle
-          label="Detect copied links"
-          checked={toggles.detectCopiedLinks}
-          onChange={() => toggle('detectCopiedLinks')}
-        />
+      <SettingRow label={t('detectCopied')} description={t('detectCopiedDesc')}>
+        <Planned />
       </SettingRow>
-      <SettingRow label="When a link is pasted">
-        <Select
-          label="When a link is pasted"
-          value="Analyze automatically"
-          options={['Analyze automatically', 'Do nothing']}
-        />
+      {/* Ctrl+V outside a text field always pastes and analyzes. */}
+      <SettingRow label={t('whenPasted')}>
+        <span className="text-[13px] font-semibold">{t('whenPastedValue')}</span>
+      </SettingRow>
+    </>
+  );
+}
+
+const mib = (bytes: number, lang: Lang) =>
+  `${(bytes / 1048576).toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US', { maximumFractionDigits: 1 })} ${lang === 'fr' ? 'Mio' : 'MiB'}`;
+
+/** UPD-01..07: never installs without the user; verified before install. */
+function UpdatesTab() {
+  const t = useT();
+  const lang = useSettings((s) => s.lang);
+  const { phase, release, error, checked, check, download, install } = useUpdates();
+  const tasks = useDownloads((s) => s.tasks);
+  const running = useMemo(() => summarize(tasks).active.filter(isRunning).length, [tasks]);
+  const [downloaded, setDownloaded] = useState(0);
+
+  useEffect(() => {
+    if (phase !== 'downloading') return;
+    let alive = true;
+    const timer = setInterval(() => {
+      void invoke<number>('app_update_progress')
+        .then((n) => alive && setDownloaded(n))
+        .catch(() => {});
+    }, 1000);
+    return () => {
+      alive = false;
+      clearInterval(timer);
+    };
+  }, [phase]);
+
+  const size = release ? mib(release.size, lang) : '';
+  const notes = (release?.notes ?? '')
+    .split('\n')
+    .map((l) => l.replace(/^\s*[-•*]\s*/, '').trim())
+    .filter(Boolean);
+  const ready = phase === 'ready' || phase === 'installing';
+
+  return (
+    <>
+      {release ? (
+        <section
+          aria-label={t('updAvailable', { v: release.version })}
+          className="mt-2 flex flex-col gap-3.5 rounded-xl border border-line bg-surface p-5"
+        >
+          <div className="flex items-center gap-3.5">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-lg border border-line bg-bg">
+              <Icon name="system_update_alt" className="text-accent-strong" />
+            </span>
+            <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+              <span className="text-[15px] font-bold">
+                {ready
+                  ? t('updReady', { v: release.version })
+                  : phase === 'downloading'
+                    ? t('updDownloading', { v: release.version })
+                    : t('updAvailable', { v: release.version })}
+              </span>
+              <span className="font-mono text-[12px] text-muted">
+                {t('updInstalled', { v: version, size })}
+              </span>
+            </div>
+            <span className="rounded-xs bg-surface2 px-2 py-[3px] text-[11.5px] font-semibold text-muted">
+              {t('updBadge')}
+            </span>
+          </div>
+          {notes.length > 0 && (
+            <ul className="m-0 flex list-disc flex-col gap-1 pl-5 text-[13px]">
+              {notes.map((n) => (
+                <li key={n}>{n}</li>
+              ))}
+            </ul>
+          )}
+          {phase === 'downloading' && (
+            <ProgressBar
+              value={release.size ? Math.min(100, (downloaded / release.size) * 100) : null}
+              label={t('updProgress')}
+            />
+          )}
+          {ready && (
+            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-chip-text">
+              <Icon name="verified" size={16} />
+              {t('updVerified')}
+            </span>
+          )}
+          {ready && running > 0 && (
+            <span className="flex items-start gap-2 text-[12.5px] text-muted">
+              <Icon name="info" size={16} className="shrink-0 text-warn" />
+              {t('updActive', { n: running })}
+            </span>
+          )}
+          {error && (
+            <p role="alert" className="m-0 text-[12.5px] text-danger">
+              {error}
+            </p>
+          )}
+          <div className="flex gap-2.5">
+            {phase === 'available' && (
+              <button
+                type="button"
+                onClick={() => void download()}
+                className="h-10 rounded-sm bg-accent px-4 text-[13.5px] font-bold text-accent-ink hover:bg-accent-hover"
+              >
+                {t('updDownload', { size })}
+              </button>
+            )}
+            {ready && (
+              <button
+                type="button"
+                disabled={phase === 'installing'}
+                onClick={() => void install()}
+                className="h-10 rounded-sm bg-accent px-4 text-[13.5px] font-bold text-accent-ink enabled:hover:bg-accent-hover disabled:opacity-60"
+              >
+                {phase === 'installing' ? t('updInstalling') : t('updInstall')}
+              </button>
+            )}
+          </div>
+          <span className="text-[12.5px] leading-[18px] text-muted">{t('updWindowsNote')}</span>
+        </section>
+      ) : (
+        <SettingRow
+          label={
+            phase === 'checking'
+              ? t('updChecking')
+              : checked
+                ? t('updLatest', { v: version })
+                : t('versionLabel', { v: version })
+          }
+          description={t('updAutoCheck')}
+        >
+          {error && (
+            <span role="alert" className="max-w-[240px] text-[12px] text-danger">
+              {error}
+            </span>
+          )}
+          <button
+            type="button"
+            disabled={phase === 'checking'}
+            onClick={() => void check()}
+            className={SECONDARY}
+          >
+            {t('updCheck')}
+          </button>
+        </SettingRow>
+      )}
+      <SettingRow label={t('updChannel')} description={t('updChannelDesc')}>
+        <Planned />
+      </SettingRow>
+      <SettingRow label={t('updAuto')} description={t('updAutoDesc')}>
+        <Planned />
       </SettingRow>
     </>
   );
@@ -127,117 +294,111 @@ function PathRow({ label }: { label: string }) {
   return (
     <SettingRow label={label}>
       <span
-        className="max-w-[320px] truncate font-mono text-[12.5px] text-muted"
+        className="max-w-[300px] truncate font-mono text-[12.5px] text-muted"
         title={downloadDir}
       >
         {downloadDir}
       </span>
-      <Button
-        size="sm"
-        className="text-[12.5px]"
-        onClick={() =>
-          void backend
-            .openDownloadFolder()
-            .catch((e: unknown) =>
-              useUi
-                .getState()
-                .pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
-            )
-        }
+      <button
+        type="button"
+        onClick={() => void backend.openDownloadFolder().catch(report)}
+        className={SECONDARY}
       >
         {t('openFolder')}
-      </Button>
-      <Button size="sm" className="text-[12.5px]" onClick={pick}>
-        Change
-      </Button>
+      </button>
+      <button type="button" onClick={pick} className={SECONDARY}>
+        {t('change')}
+      </button>
     </SettingRow>
   );
 }
 
 function DownloadsTab() {
+  const t = useT();
   const concurrency = useSettings((s) => s.concurrency);
   const setConcurrency = useSettings((s) => s.setConcurrency);
-  const toggles = useSettings((s) => s.toggles);
-  const toggle = useSettings((s) => s.toggle);
-  const [quality, setQuality] = useState('1080p');
-  const [audio, setAudio] = useState('MP3 · 320 kbps');
-  const [limit, setLimit] = useState('Unlimited');
   return (
     <>
-      <PathRow label="Save to" />
-      <SettingRow
-        label="Default video quality"
-        description="Falls back to the next lower quality when unavailable."
-      >
-        <Select
-          label="Default video quality"
-          value={quality}
-          onChange={setQuality}
-          options={['2160p', '1440p', '1080p', '720p', '480p']}
-        />
+      <PathRow label={t('saveTo')} />
+      <SettingRow label={t('defaultVideoQuality')} description={t('defaultVideoQualityDesc')}>
+        <Planned />
       </SettingRow>
-      <SettingRow label="Default audio format">
-        <Select
-          label="Default audio format"
-          value={audio}
-          onChange={setAudio}
-          options={['MP3 · 320 kbps', 'M4A · 256 kbps', 'FLAC', 'Opus · 160 kbps']}
-        />
+      <SettingRow label={t('defaultAudio')}>
+        <Planned />
       </SettingRow>
-      <SettingRow label="Simultaneous downloads" description="Additional items wait in the queue.">
+      <SettingRow label={t('simultaneous')} description={t('simultaneousDesc')}>
         <Stepper
-          label="Simultaneous downloads"
+          label={t('simultaneous')}
           value={concurrency}
           min={MIN_CONCURRENCY}
           max={MAX_CONCURRENCY}
           onChange={setConcurrency}
         />
       </SettingRow>
-      <SettingRow label="Speed limit">
-        <Select
-          label="Speed limit"
-          value={limit}
-          onChange={setLimit}
-          options={['Unlimited', '10 MB/s', '5 MB/s', '2 MB/s', '1 MB/s']}
-        />
+      <SettingRow label={t('speedLimit')}>
+        <Planned />
       </SettingRow>
-      <SettingRow
-        label="Create a subfolder per source"
-        description="Example: Videos\Miarina\blender.org"
-      >
-        <Toggle
-          label="Create a subfolder per source"
-          checked={toggles.subfolderPerSource}
-          onChange={() => toggle('subfolderPerSource')}
-        />
+      <SettingRow label={t('downloadSubs')} description={t('downloadSubsDesc')}>
+        <Planned />
       </SettingRow>
       <MediaTools />
     </>
   );
 }
 
+function PlaybackTab() {
+  const t = useT();
+  const resume = useSettings((s) => s.resumePlayback);
+  const setResume = useSettings((s) => s.setResumePlayback);
+  return (
+    <>
+      <SettingRow label={t('engine')} description={t('engineDesc')}>
+        <span className="font-mono text-[12.5px] text-muted">{t('engineValue')}</span>
+      </SettingRow>
+      <SettingRow label={t('hwDecoding')} description={t('hwDecodingDesc')}>
+        <Planned />
+      </SettingRow>
+      <SettingRow label={t('audioOutput')}>
+        <span className="text-[13px] font-semibold">{t('audioOutputValue')}</span>
+      </SettingRow>
+      <SettingRow label={t('resumeSetting')} description={t('resumeSettingDesc')}>
+        <Toggle label={t('resumeSetting')} checked={resume} onChange={() => setResume(!resume)} />
+      </SettingRow>
+      <SettingRow label={t('gaplessSetting')} description={t('gaplessDesc')}>
+        <Planned />
+      </SettingRow>
+      {/* The player offers "Open with system player" when a file cannot be read. */}
+      <SettingRow label={t('externalFallback')} description={t('externalFallbackDesc')}>
+        <span className="text-[13px] font-semibold">{t('alwaysOffered')}</span>
+      </SettingRow>
+      <SettingRow label={t('fileAssoc')} description={t('fileAssocDesc')}>
+        <Planned />
+      </SettingRow>
+    </>
+  );
+}
+
 function StorageTab() {
+  const t = useT();
   const askConfirm = useUi((s) => s.askConfirm);
   const pushToast = useUi((s) => s.pushToast);
   const [usage, setUsage] = useState<StorageUsage | null>(null);
-  const [version, setVersion] = useState(0);
+  const [refresh, setRefresh] = useState(0);
 
   useEffect(() => {
     backend
       .storageUsage()
       .then(setUsage)
       .catch(() => setUsage(null));
-  }, [version]);
+  }, [refresh]);
 
-  const run = (action: () => Promise<number>, done: (freed: number) => string) =>
+  const run = (action: () => Promise<number>, done: MessageKey) =>
     action()
       .then((freed) => {
-        pushToast({ tone: 'success', message: done(freed) });
-        setVersion((v) => v + 1);
+        pushToast({ tone: 'success', message: t(done, { size: formatBytes(freed) }) });
+        setRefresh((v) => v + 1);
       })
-      .catch((e: unknown) =>
-        pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
-      );
+      .catch(report);
 
   const disk = usage?.disk;
   const share = (bytes: number) => (disk?.total ? `${(bytes / disk.total) * 100}%` : '0%');
@@ -246,14 +407,17 @@ function StorageTab() {
 
   return (
     <>
-      {disk && (
-        <div className="mb-1.5 mt-3.5 flex flex-col gap-2.5 rounded-lg border border-surface2 bg-surface p-4">
+      {disk && usage && (
+        <section className="mb-1 mt-2 flex flex-col gap-3 rounded-[10px] border border-line bg-surface p-4">
           <div className="flex justify-between text-[13px]">
-            <span className="font-semibold">
-              {drive ? `Drive ${drive.toUpperCase()}:` : 'Storage'}
+            <span className="font-bold">
+              {drive ? t('driveLabel', { d: drive.toUpperCase() }) : t('tabStorage')}
             </span>
             <span className="text-muted">
-              {formatBytes(disk.total - disk.free)} used of {formatBytes(disk.total)}
+              {t('usedOf', {
+                used: formatBytes(disk.total - disk.free),
+                total: formatBytes(disk.total),
+              })}
             </span>
           </div>
           <div className="flex h-2 overflow-hidden rounded-[4px] bg-line" aria-hidden="true">
@@ -263,204 +427,143 @@ function StorageTab() {
           <div className="flex gap-[18px] text-[12px] text-muted">
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-[2px] bg-accent" />
-              Miarina library {formatBytes(usage.libraryBytes)}
+              {t('libraryShare', { size: formatBytes(usage.libraryBytes) })}
             </span>
             <span className="flex items-center gap-1.5">
               <span className="h-2 w-2 rounded-[2px] bg-faint-icon" />
-              Other {formatBytes(other)}
+              {t('otherShare', { size: formatBytes(other) })}
             </span>
           </div>
-        </div>
+        </section>
       )}
-      <PathRow label="Library location" />
-      <SettingRow
-        label="Thumbnail cache"
-        description={usage ? formatBytes(usage.thumbnailBytes) : undefined}
-      >
-        <Button
-          size="sm"
-          className="text-[12.5px]"
+      <PathRow label={t('libraryLocation')} />
+      <SettingRow label={t('thumbCache')}>
+        <span className="font-mono text-[12.5px] text-muted">
+          {usage ? formatBytes(usage.thumbnailBytes) : '—'}
+        </span>
+        <button
+          type="button"
+          className={SECONDARY}
           disabled={!usage?.thumbnailBytes}
-          onClick={() =>
-            void run(
-              () => backend.clearThumbnails(),
-              (freed) => `Thumbnail cache cleared · ${formatBytes(freed)} freed`,
-            )
-          }
+          onClick={() => void run(() => backend.clearThumbnails(), 'thumbsCleared')}
         >
-          Clear cache
-        </Button>
+          {t('clearCache')}
+        </button>
       </SettingRow>
-      <SettingRow
-        label="Temporary files"
-        description={
-          usage
-            ? usage.orphanTempCount
-              ? `${formatBytes(usage.orphanTempBytes)} left by removed or interrupted downloads`
-              : 'No leftover partial files'
-            : undefined
-        }
-      >
-        <Button
-          size="sm"
-          className="text-[12.5px]"
+      <SettingRow label={t('tempFiles')} description={t('tempFilesDesc')}>
+        <span className="font-mono text-[12.5px] text-muted">
+          {usage ? formatBytes(usage.orphanTempBytes) : '—'}
+        </span>
+        <button
+          type="button"
+          className={SECONDARY}
           disabled={!usage?.orphanTempCount}
           onClick={() =>
             askConfirm({
-              title: 'Delete temporary files?',
-              body: `Partial files left by ${usage?.orphanTempCount ?? 0} removed or interrupted downloads (${formatBytes(usage?.orphanTempBytes ?? 0)}) will be removed. Downloads in progress or paused keep theirs.`,
-              confirmLabel: 'Delete files',
-              onConfirm: () =>
-                void run(
-                  () => backend.cleanTemp(),
-                  (freed) => `Temporary files deleted · ${formatBytes(freed)} freed`,
-                ),
+              title: t('tempConfirmTitle'),
+              body: t('tempConfirmBody', {
+                n: usage?.orphanTempCount ?? 0,
+                size: formatBytes(usage?.orphanTempBytes ?? 0),
+              }),
+              confirmLabel: t('tempConfirm'),
+              onConfirm: () => void run(() => backend.cleanTemp(), 'tempDeleted'),
             })
           }
         >
-          Clean up
-        </Button>
+          {t('cleanUp')}
+        </button>
       </SettingRow>
     </>
   );
 }
 
-const MODE_DESCRIPTIONS: Record<ResourceMode, string> = {
-  eco: 'One download at a time, slower progress refresh, no animations.',
-  balanced: 'Up to 3 downloads at once. Recommended.',
-  performance: 'Uses your “Simultaneous downloads” setting without a cap.',
-};
+const MODES: { value: ResourceMode; label: MessageKey }[] = [
+  { value: 'eco', label: 'modeEco' },
+  { value: 'balanced', label: 'modeBalanced' },
+  { value: 'performance', label: 'modePerformance' },
+];
 
 function PerformanceTab() {
-  const toggles = useSettings((s) => s.toggles);
-  const toggle = useSettings((s) => s.toggle);
+  const t = useT();
   const mode = useSettings((s) => s.resourceMode);
   const setMode = useSettings((s) => s.setResourceMode);
+  const limits = useSettings((s) => s.limits);
   const reduceMotion = useSettings((s) => s.reduceMotion);
   const setReduceMotion = useSettings((s) => s.setReduceMotion);
-  const [thumbs, setThumbs] = useState('Balanced');
-  const ecoForcesMotion = useSettings((s) => s.limits.reducedMotion);
   return (
     <>
-      {/* Q1: replaces the design's "Low-resource mode" toggle. */}
-      <SettingRow label="Resource mode" description={MODE_DESCRIPTIONS[mode]}>
+      <SettingRow
+        label={t('resourceMode')}
+        description={t('modeDesc', {
+          n: limits.maxDownloads,
+          c: limits.maxConversions,
+          anim: limits.reducedMotion ? t('animReduced') : t('animStandard'),
+        })}
+      >
         <Segmented
-          label="Resource mode"
+          label={t('resourceMode')}
           value={mode}
           onChange={setMode}
-          options={[
-            { value: 'eco', label: 'Eco' },
-            { value: 'balanced', label: 'Balanced' },
-            { value: 'performance', label: 'Performance' },
-          ]}
+          options={MODES.map((m) => ({ value: m.value, label: t(m.label) }))}
         />
       </SettingRow>
       <SettingRow
-        label="Hardware acceleration"
-        description="Use the GPU for video decoding and playback."
+        label={t('reduceMotion')}
+        description={limits.reducedMotion ? t('reduceMotionEco') : t('reduceMotionDesc')}
       >
         <Toggle
-          label="Hardware acceleration"
-          checked={toggles.hardwareAcceleration}
-          onChange={() => toggle('hardwareAcceleration')}
-        />
-      </SettingRow>
-      <SettingRow
-        label="Reduce motion"
-        description={
-          ecoForcesMotion
-            ? 'Always on in Eco mode.'
-            : 'Replace slides and scaling with simple fades.'
-        }
-      >
-        <Toggle
-          label="Reduce motion"
-          checked={reduceMotion || ecoForcesMotion}
+          label={t('reduceMotion')}
+          checked={reduceMotion || limits.reducedMotion}
           onChange={() => setReduceMotion(!reduceMotion)}
         />
       </SettingRow>
-      <SettingRow label="Thumbnail quality">
-        <Select
-          label="Thumbnail quality"
-          value={thumbs}
-          onChange={setThumbs}
-          options={['Low', 'Balanced', 'High']}
-        />
-      </SettingRow>
     </>
   );
 }
 
+const THEMES: { value: ThemePref; label: MessageKey }[] = [
+  { value: 'dark', label: 'themeDark' },
+  { value: 'light', label: 'themeLight' },
+  { value: 'system', label: 'themeSystem' },
+];
+
 function AppearanceTab() {
+  const t = useT();
   const theme = useSettings((s) => s.theme);
   const setTheme = useSettings((s) => s.setTheme);
   return (
     <>
-      <SettingRow label="Theme">
+      <SettingRow label={t('theme')}>
         <Segmented<ThemePref>
-          label="Theme"
+          label={t('theme')}
           value={theme}
           onChange={setTheme}
-          options={[
-            { value: 'dark', label: 'Dark' },
-            { value: 'light', label: 'Light' },
-            { value: 'system', label: 'System' },
-          ]}
+          options={THEMES.map((x) => ({ value: x.value, label: t(x.label) }))}
         />
       </SettingRow>
-      <SettingRow label="Density" description="Compact density has not been designed yet.">
-        <PlannedBadge />
-      </SettingRow>
-      <SettingRow label="Accent" description="Teal #35C9BD · download — Coral #FF7A45 · play">
-        <Select label="Accent" value="Teal" options={['Teal']} disabled />
+      <SettingRow label={t('colors')}>
+        <span className="font-mono text-[12.5px] text-muted">{t('colorsValue')}</span>
       </SettingRow>
     </>
   );
 }
 
-/** Catalog languages (CDC UX-01) first; the others are not translated yet. */
-const LANGUAGES: { label: string; code?: Lang }[] = [
-  { label: 'English', code: 'en' },
-  { label: 'Français', code: 'fr' },
-  { label: 'Malagasy' },
-  { label: 'Español' },
-  { label: 'Português' },
-];
-
+/** Catalog languages (CDC UX-01); others wait for a validated translation. */
 function LanguageTab() {
   const t = useT();
   const lang = useSettings((s) => s.lang);
   const setLang = useSettings((s) => s.setLang);
   return (
-    <div role="radiogroup" aria-label={t('language')}>
-      {LANGUAGES.map(({ label, code }) => {
-        const checked = code === lang;
-        return (
-          <SettingRow
-            key={label}
-            label={label}
-            description={
-              code === 'fr'
-                ? t('languageNote')
-                : code
-                  ? undefined
-                  : 'Translation planned for a later release.'
-            }
-          >
-            <button
-              type="button"
-              role="radio"
-              aria-label={label}
-              aria-checked={checked}
-              disabled={!code}
-              onClick={() => code && setLang(code)}
-              className="grid place-items-center rounded-full disabled:opacity-50"
-            >
-              <RadioDot checked={checked} size={20} />
-            </button>
-          </SettingRow>
-        );
-      })}
-    </div>
+    <SettingRow label={t('language')} description={t('languageMg')}>
+      <Segmented<Lang>
+        label={t('language')}
+        value={lang}
+        onChange={setLang}
+        options={[
+          { value: 'fr', label: 'Français' },
+          { value: 'en', label: 'English' },
+        ]}
+      />
+    </SettingRow>
   );
 }

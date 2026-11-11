@@ -168,7 +168,12 @@ function UpdateCard() {
       )}
       <div className="flex gap-2.5">
         {phase === 'available' && (
-          <Button variant="primary" pill className="h-11 flex-1 text-[14px] font-extrabold" onClick={() => void download()}>
+          <Button
+            variant="primary"
+            pill
+            className="h-11 flex-1 text-[14px] font-extrabold"
+            onClick={() => void download()}
+          >
             {t('updDownload', { size })}
           </Button>
         )}
@@ -235,7 +240,9 @@ export function MobileSettings({
         <UpdateCard />
 
         <section aria-label={t('perfTitle')} className="flex flex-col gap-2.5">
-          <h2 className="m-0 text-[11.5px] font-bold tracking-[0.06em] text-faint">{t('perfTitle')}</h2>
+          <h2 className="m-0 text-[11.5px] font-bold tracking-[0.06em] text-faint">
+            {t('perfTitle')}
+          </h2>
           <div
             role="radiogroup"
             aria-label={t('perfTitle')}
@@ -283,10 +290,30 @@ export function MobileSettings({
               />
             }
           />
-          <Row icon="headphones" label={t('headsetSetting')} value={t('headsetSettingDesc')} control={<Planned />} />
-          <Row icon="gesture" label={t('gesturesSetting')} value={t('gesturesSettingDesc')} control={<Planned />} />
-          <Row icon="blur_linear" label={t('crossfadeSetting')} value={t('crossfadeSettingDesc')} control={<Planned />} />
-          <Row icon="all_inclusive" label={t('gaplessSetting')} value={t('gaplessSettingDesc')} control={<Planned />} />
+          <Row
+            icon="headphones"
+            label={t('headsetSetting')}
+            value={t('headsetSettingDesc')}
+            control={<Planned />}
+          />
+          <Row
+            icon="gesture"
+            label={t('gesturesSetting')}
+            value={t('gesturesSettingDesc')}
+            control={<Planned />}
+          />
+          <Row
+            icon="blur_linear"
+            label={t('crossfadeSetting')}
+            value={t('crossfadeSettingDesc')}
+            control={<Planned />}
+          />
+          <Row
+            icon="all_inclusive"
+            label={t('gaplessSetting')}
+            value={t('gaplessSettingDesc')}
+            control={<Planned />}
+          />
         </Group>
 
         <Group title={t('downloadsTitle')}>

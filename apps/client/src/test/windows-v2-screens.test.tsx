@@ -146,3 +146,28 @@ describe('Windows v2 History', () => {
     expect(entries[0]!.position).toBe(42);
   });
 });
+
+describe('Windows v2 Settings', () => {
+  it('marks unbuilt settings as planned instead of faking them', async () => {
+    const user = userEvent.setup();
+    useUi.setState({ screen: 'settings' });
+    render(<DesktopShell />);
+    const sections = await screen.findByRole('navigation', { name: 'Settings sections' });
+
+    // General: tray, startup and clipboard watching do not exist yet.
+    expect(screen.getByText('Launch at startup')).toBeInTheDocument();
+    expect(screen.queryByRole('switch')).toBeNull();
+    expect(screen.getAllByText('PLANNED').length).toBeGreaterThanOrEqual(3);
+
+    await user.click(within(sections).getByRole('button', { name: /Updates/ }));
+    expect(screen.getByRole('button', { name: 'Check for updates' })).toBeInTheDocument();
+
+    await user.click(within(sections).getByRole('button', { name: /Playback/ }));
+    expect(screen.getByRole('switch', { name: 'Resume where I left off' })).toBeChecked();
+
+    await user.click(within(sections).getByRole('button', { name: /Language/ }));
+    await user.click(screen.getByRole('radio', { name: 'Français' }));
+    expect(useSettings.getState().lang).toBe('fr');
+    expect(await screen.findByRole('heading', { name: 'Réglages' })).toBeInTheDocument();
+  });
+});
