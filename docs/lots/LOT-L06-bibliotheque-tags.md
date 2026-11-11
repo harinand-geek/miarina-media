@@ -1,6 +1,6 @@
 # Fiche LOT-L06 — Bibliothèque musicale et éditeur de tags (Windows)
 
-- Statut : À tester (recette native Windows non faite)
+- Statut : Recetté sur Windows (2026-11-11)
 - Exigences CDC : COM-07 (métadonnées), COM-09 (recherche artiste/album/dossier), AND-15 (paroles locales, saisie seulement), COM-10 (corbeille Windows)
 - Version de départ / commit : `1c35fb1`
 - Objectif utilisateur : retrouver sa musique par album, artiste ou dossier, corriger les tags et les écrire dans le fichier si on le souhaite.
@@ -19,6 +19,13 @@
   - `cargo check` de l'application Tauri.
   - Front : `tsc`, `eslint`, `vitest` 103/103 (deux exécutions), `vite build`.
   - Aperçu Edge headless (FR) : Albums, Titres, éditeur de tags.
-  - Non testé : vrais fichiers MP3/FLAC/M4A de l'utilisateur, fichier en cours de lecture, Corbeille réelle depuis l'application.
+  - Recette native (2026-11-11, build release isolé, fichiers de test) :
+    - Lecture des tags à l'indexation : MP3 (titre, artiste, album, artiste de l'album, année, genre, piste), FLAC, M4A : OK.
+    - Albums, Artistes, Dossiers ; album ouvert dans l'ordre des pistes ; « Tout lire » : OK.
+    - Écriture dans le fichier vérifiée avec ffprobe : MP3 (accents, piste 2/3 conservée), FLAC, WAV ; aucun fichier temporaire restant.
+    - Fichier **en cours de lecture** : écriture réussie, la lecture continue, le nouveau titre apparaît dans la file.
+    - Vidéo : écriture refusée proprement (`tags_unsupported`, fichier intact) ; enregistrement dans la bibliothèque seule : OK ; la case d'écriture est inactive pour une vidéo.
+    - Corbeille réelle depuis l'application : OK (voir COM-10).
+  - Non testé : vrais fichiers de l'utilisateur (seulement en lecture), renommage « Artiste - Titre ».
 - Retour arrière : revert ; les colonnes v5 restent (ignorées par l'ancien code) ; aucun fichier n'est modifié sans l'action « Enregistrer » avec écriture cochée.
 - Prochaine étape : recette native, puis pochettes et playlists/favoris (COM-06).

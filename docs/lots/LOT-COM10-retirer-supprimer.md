@@ -1,6 +1,6 @@
 # Fiche LOT-COM10 — Retirer de la bibliothèque vs supprimer le fichier
 
-- Statut : À tester (recette native Windows non faite)
+- Statut : Recetté sur Windows (2026-11-11)
 - Exigences CDC : COM-10 (P0), PAR-07 (partiel : rien n'est supprimé implicitement), UX-07 (focus dans le dialogue)
 - Version de départ / commit : `d30101f`
 - Objectif utilisateur : pouvoir sortir un média de la bibliothèque sans perdre le fichier, et ne supprimer un fichier que par un choix explicite.
@@ -15,7 +15,11 @@
 - Travail :
   - [x] Implémentation
   - [x] Tests automatisés
-  - [ ] Recette native (Tauri Windows, vrai dossier, rescan)
+  - [x] Recette native (Tauri Windows, vrai dossier, rescan) :
+    - Retirer : fichier conservé, notification correcte, absent après rescan et après redémarrage de l'appli.
+    - Supprimer : fichier placé dans la Corbeille Windows (vérifié dans la Corbeille), plus dans la bibliothèque.
+    - Touche Suppr sur une ligne : dialogue ouvert, focus sur Annuler, « Retirer » coché par défaut ; Échap annule sans rien modifier.
+    - Défaut trouvé et corrigé : le dialogue annonçait une suppression définitive « sans passer par la corbeille » alors que Windows utilise la Corbeille depuis L06. Textes « Le fichier va dans la Corbeille… » et « Fichier placé dans la Corbeille. » sur Windows ; Android garde la suppression définitive.
   - [x] Documentation
 - Tests :
   - `cargo test -p storage -p library` : 25 + 8 + 5 tests, OK (nouveaux : `removed_media_is_remembered_until_added_again`, `v4_keeps_the_library_of_a_v3_database`, `remove_keeps_the_file_and_scans_do_not_add_it_back`).

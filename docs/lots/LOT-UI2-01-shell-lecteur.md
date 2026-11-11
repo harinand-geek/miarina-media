@@ -1,6 +1,6 @@
 # Fiche LOT-UI2-01 — Shell Windows v2, contrat lecteur et mini-lecteur
 
-- Statut : À tester (recette native Windows non faite)
+- Statut : Recetté sur Windows (2026-11-11) — DPI 150/200 % et deux écrans restent à vérifier
 - Exigences CDC : COM-01, COM-02, COM-03, COM-04 (positions existantes), COM-05, COM-12, AND-09/AND-11 côté Windows (vitesse, minuteur), UX-01 (partiel), UX-06, WIN-02 (messages d'erreur conservés), WIN-11 (Espace, ←/→, F, Échap)
 - Version de départ / commit : 0.1.7, `9215a34`
 - Objectif utilisateur : écouter et regarder sans que la lecture s'arrête en changeant d'écran ; retrouver la file, la vitesse et le minuteur ; naviguer en deux espaces Obtenir / Écouter.
@@ -20,14 +20,27 @@
   - [x] Diagnostic
   - [x] Implémentation
   - [x] Tests automatisés pertinents
-  - [ ] Recette native (application Tauri sur Windows, vrais fichiers)
+  - [x] Recette native (application Tauri sur Windows, vrais fichiers) — voir « Recette native » ci-dessous
   - [x] Documentation (`design-system.md` §15, `design-implementation-map.md`)
 - Tests (appareil, OS, build, fichier, résultat) :
   - `tsc --noEmit`, `eslint .`, `vitest run` (Windows 11 Pro, Node, jsdom) : 19 fichiers, 97 tests, tous verts (3 exécutions complètes consécutives).
   - `vite build` : OK.
   - Aperçu navigateur (backend fictif, Edge headless 1440 × 900, FR et EN) : Titres, En lecture, Son, Accueil avec mini-lecteur, Vidéos, lecteur vidéo ; rectangle de l'élément média = rectangle de la surface (908 × 765).
-  - Non testé : lecture réelle de fichiers dans la WebView2 Tauri, PiP réel, plein écran natif, DPI 150/200 %, deux écrans.
+  - Non testé : DPI 150/200 %, deux écrans.
 - Critères de réception satisfaits : changement d'écran sans recréer le média (test `keeps one playback across screens`), file distincte vidée sans suppression, réponses obsolètes ignorées, répétition/aléatoire testés, minuteur testé.
+- Recette native (2026-11-11) — Windows 11 Pro, écran 1920 × 1080 à 100 %, build release `tauri build --no-bundle` avec identifiant isolé `org.miarina.media.recette` (base, réglages et WebView2 séparés de l'appli installée), pilotage par CDP WebView2, fichiers de test générés (3 MP3 tagués, FLAC, M4A, WAV, WebM VP9/Opus) + 8 vidéos MP4/H.264 1080p et 3 MP3 réels en lecture seule.
+  | Vérification | Résultat |
+  |---|---|
+  | Lecture réelle MP3, FLAC, M4A, WAV, WebM VP9, MP4 H.264 1080p | OK |
+  | Changement d'écran pendant la lecture (Albums, Artistes, Dossiers, Vidéos, Accueil, Réglages) | OK : même élément média, aucune coupure |
+  | Naviguer sans lancer de lecture ne modifie pas la file | OK |
+  | Enchaînement automatique, Suivant / Précédent | OK |
+  | Espace (partout), ←/→ ±10 s (écrans lecteur), F plein écran natif, Échap | OK |
+  | File : aléatoire puis retour à l'ordre d'origine, répétition off / file / titre | OK |
+  | Vitesse 1,5× appliquée au média ; minuteur « fin du titre » : pause en fin de titre sans passer au suivant | OK |
+  | Image dans l'image, y compris en changeant d'écran | OK |
+  | Redémarrage : file et position restaurées, en pause, aucun son au lancement (40 s d'observation) | OK |
+  | Remarques (non bloquantes) : « Précédent » reprend un titre à sa position enregistrée plutôt qu'au début ; la file affiche « À suivre » pour toute la file, titres déjà lus compris. | À trancher |
 - Défauts / limites restantes : écrans non migrés restent en anglais quand le français est choisi ; la ligne « artiste » montre le site ou le dossier ; la file n'est pas encore en SQLite ; égaliseur absent.
 - Retour arrière / récupération : revert du commit ; supprimer `mm:player:v1` et `mm:lang` remet l'état d'origine.
 - Commit et preuves : voir historique git.

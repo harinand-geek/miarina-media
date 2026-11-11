@@ -127,12 +127,13 @@ const fr = {
   removeOption: 'Retirer de la bibliothèque',
   removeOptionBody: 'Le fichier reste sur le disque. Il ne réapparaît pas au prochain scan.',
   deleteOption: 'Supprimer le fichier du disque',
-  deleteOptionBody:
-    'Le fichier est supprimé définitivement (il ne passe pas par la corbeille). Il est aussi retiré de la file de lecture.',
   removeConfirm: 'Retirer',
   deleteConfirm: 'Supprimer le fichier',
   removeDone: 'Retiré de la bibliothèque. Le fichier reste sur le disque.',
   deleteDone: 'Fichier supprimé du disque.',
+  deleteOptionTrashBody:
+    'Le fichier va dans la Corbeille, d’où vous pouvez le restaurer. Il est aussi retiré de la file de lecture.',
+  trashDone: 'Fichier placé dans la Corbeille.',
   cancel: 'Annuler',
   mRemoveTitle: 'Retirer « {title} » ?',
   mRemoveBody: 'Choisissez ce qui arrive au fichier. Il est aussi retiré de la file de lecture.',
@@ -161,10 +162,13 @@ const fr = {
   albumsCount: '{n} albums',
   albumTracks: '{artist} · {tracks}',
   artistAlbums: '{albums} · {tracks}',
-  noAlbums: 'Aucun album pour l’instant. Les titres dont le tag « album » est renseigné apparaissent ici.',
-  noArtists: 'Aucun artiste pour l’instant. Les titres dont le tag « artiste » est renseigné apparaissent ici.',
+  noAlbums:
+    'Aucun album pour l’instant. Les titres dont le tag « album » est renseigné apparaissent ici.',
+  noArtists:
+    'Aucun artiste pour l’instant. Les titres dont le tag « artiste » est renseigné apparaissent ici.',
   noFolders: 'Aucun dossier de musique pour l’instant.',
-  folderNote: 'Les dossiers regroupent les titres déjà dans la bibliothèque. L’import de dossiers arrive avec COM-08.',
+  folderNote:
+    'Les dossiers regroupent les titres déjà dans la bibliothèque. L’import de dossiers arrive avec COM-08.',
   emptyLibTitle: 'Votre bibliothèque est vide',
   emptyLibBody: 'Les vidéos et la musique téléchargées apparaissent ici.',
   pasteLink: 'Coller un lien',
@@ -220,14 +224,16 @@ const fr = {
   playingFrom: 'LECTURE DEPUIS',
   libraryFallback: 'Bibliothèque',
   lyrics: 'Paroles',
-  noLyrics: 'Aucune parole enregistrée pour ce titre. Elles s’ajoutent dans l’éditeur de tags (Windows).',
+  noLyrics:
+    'Aucune parole enregistrée pour ce titre. Elles s’ajoutent dans l’éditeur de tags (Windows).',
   queueCount: 'File · {n}',
   queueTitle: 'File de lecture',
   queueRemaining: '{tracks} · {time} restantes',
   clearShort: 'Vider',
   clearNote: 'Vider la file ne supprime aucun fichier.',
   reset: 'Réinitialiser',
-  eqUnavailable: 'L’égaliseur sera branché sur le lecteur natif Android (lots L03/L07). Le son est restitué sans modification.',
+  eqUnavailable:
+    'L’égaliseur sera branché sur le lecteur natif Android (lots L03/L07). Le son est restitué sans modification.',
   sleepIn: 'La musique s’arrêtera dans {time}. L’app reste ouverte.',
   sleepAtEnd: 'La musique s’arrêtera à la fin de « {title} ». L’app reste ouverte.',
   moveHandle: 'Déplacer {title}',
@@ -311,9 +317,11 @@ const fr = {
   downloadFound: 'Télécharger les médias trouvés sur cette page ({n})',
   tabsCount: '{n} onglet',
   startTitle: 'Rechercher ou ouvrir une page web',
-  startBody: 'Quand une page contient une vidéo ou un fichier audio, un bouton de téléchargement apparaît au-dessus de la barre.',
+  startBody:
+    'Quand une page contient une vidéo ou un fichier audio, un bouton de téléchargement apparaît au-dessus de la barre.',
   sites: 'Sites',
-  legalHint: 'Téléchargez seulement les médias qui vous appartiennent ou que vous avez le droit d’enregistrer.',
+  legalHint:
+    'Téléchargez seulement les médias qui vous appartiennent ou que vous avez le droit d’enregistrer.',
 
   // Android v2 Settings
   updAvailable: 'Miarina {v} est disponible',
@@ -322,7 +330,8 @@ const fr = {
   updInstalling: 'Ouverture de l’installation…',
   updMeta: 'Canal Stable · {size}',
   updVerified: 'Signature et SHA-256 vérifiées',
-  updActive: '{n} téléchargement(s) en cours : interrompus pendant l’installation, retrouvés en pause au redémarrage. Bibliothèque et réglages conservés.',
+  updActive:
+    '{n} téléchargement(s) en cours : interrompus pendant l’installation, retrouvés en pause au redémarrage. Bibliothèque et réglages conservés.',
   updDownload: 'Télécharger · {size}',
   updInstall: 'Installer maintenant',
   updLater: 'Plus tard',
@@ -484,12 +493,13 @@ const en: Record<MessageKey, string> = {
   removeOption: 'Remove from library',
   removeOptionBody: 'The file stays on disk. It will not reappear on the next scan.',
   deleteOption: 'Delete the file from disk',
-  deleteOptionBody:
-    'The file is deleted permanently (it does not go to the Recycle Bin). It is also removed from the play queue.',
   removeConfirm: 'Remove',
   deleteConfirm: 'Delete file',
   removeDone: 'Removed from library. The file stays on disk.',
   deleteDone: 'File deleted from disk.',
+  deleteOptionTrashBody:
+    'The file goes to the Recycle Bin, where you can restore it. It is also removed from the play queue.',
+  trashDone: 'File moved to the Recycle Bin.',
   cancel: 'Cancel',
   mRemoveTitle: 'Remove “{title}”?',
   mRemoveBody: 'Choose what happens to the file. It is also removed from the play queue.',
@@ -520,7 +530,8 @@ const en: Record<MessageKey, string> = {
   noAlbums: 'No albums yet. Tracks with an album tag appear here.',
   noArtists: 'No artists yet. Tracks with an artist tag appear here.',
   noFolders: 'No music folders yet.',
-  folderNote: 'Folders group the tracks already in your library. Importing folders comes with COM-08.',
+  folderNote:
+    'Folders group the tracks already in your library. Importing folders comes with COM-08.',
   emptyLibTitle: 'Your library is empty',
   emptyLibBody: 'Downloaded videos and audio appear here.',
   pasteLink: 'Paste a link',
@@ -581,7 +592,8 @@ const en: Record<MessageKey, string> = {
   clearShort: 'Clear',
   clearNote: 'Clearing the queue deletes no file.',
   reset: 'Reset',
-  eqUnavailable: 'The equalizer will be wired to the Android native player (lots L03/L07). Sound currently plays unaltered.',
+  eqUnavailable:
+    'The equalizer will be wired to the Android native player (lots L03/L07). Sound currently plays unaltered.',
   sleepIn: 'Music stops in {time}. The app stays open.',
   sleepAtEnd: 'Music stops after “{title}”. The app stays open.',
   moveHandle: 'Move {title}',
@@ -671,7 +683,8 @@ const en: Record<MessageKey, string> = {
   updInstalling: 'Opening the installer…',
   updMeta: 'Stable channel · {size}',
   updVerified: 'Signature and SHA-256 verified',
-  updActive: '{n} active download(s): interrupted during the install, found paused on restart. Library and settings are kept.',
+  updActive:
+    '{n} active download(s): interrupted during the install, found paused on restart. Library and settings are kept.',
   updDownload: 'Download · {size}',
   updInstall: 'Install now',
   updLater: 'Later',

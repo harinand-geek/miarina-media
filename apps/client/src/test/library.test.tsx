@@ -98,10 +98,12 @@ describe('library screen', () => {
     expect(within(dialog).getByRole('button', { name: 'Cancel' })).toHaveFocus();
     // Removing (keeping the file) is the default choice (COM-10).
     expect(within(dialog).getByRole('radio', { name: /Remove from library/ })).toBeChecked();
+    // Windows deletion goes to the Recycle Bin (`trash`): the text says so.
+    expect(within(dialog).getByText(/goes to the Recycle Bin/)).toBeInTheDocument();
     await user.click(within(dialog).getByRole('radio', { name: /Delete the file from disk/ }));
     await user.click(within(dialog).getByRole('button', { name: 'Delete file' }));
     await waitFor(() => expect(useLibrary.getState().total).toBe(8));
-    expect(await screen.findByText('File deleted from disk.')).toBeInTheDocument();
+    expect(await screen.findByText('File moved to the Recycle Bin.')).toBeInTheDocument();
   });
 
   it('removes from the library without deleting the file (COM-10)', async () => {

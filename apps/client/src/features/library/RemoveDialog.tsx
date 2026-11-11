@@ -57,7 +57,8 @@ function Dialog({ media }: { media: MediaRecord }) {
 
   const options: { id: Choice; title: string; body: string }[] = [
     { id: 'remove', title: t('removeOption'), body: t('removeOptionBody') },
-    { id: 'delete', title: t('deleteOption'), body: t('deleteOptionBody') },
+    // Windows: the file goes to the Recycle Bin (`trash`, L06).
+    { id: 'delete', title: t('deleteOption'), body: t('deleteOptionTrashBody') },
   ];
 
   return (
