@@ -271,3 +271,7 @@ Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`compo
 ## 16. Android v2 — handoff `design/design_handoff_android_v2` (reçu le 2026-11-11)
 
 18 écrans 412 × 892 dp (Accueil, Navigateur, Formats, Téléchargements, Musique Titres/Playlists/Albums/Artiste, En lecture, File, Son, Notification, Retirer/Supprimer, Réglages, Vidéo paysage, Vidéos, clair/EN). Mêmes tokens que §15 ; nouveau token `coral-chip-border #7A4330` (à ajouter avec la première implémentation Android). Barre basse à 5 onglets : Accueil, Navigateur, Téléch., Musique, Vidéos. Non implémenté à ce jour : voir `design-implementation-map.md`.
+
+## 17. Splash Android — handoff `design/design_handoff_splash` (reçu le 2026-11-11)
+
+Splash système AndroidX avec logo 4d animé (AVD 1000 ms : barres teal en cascade puis triangle corail), fond `#101820`, branding « Miarina Media » / « MIARINA », sortie en fondu 300 ms ; écran React « Mise à jour de votre bibliothèque » (> 400 ms de migration) et « Le démarrage prend plus de temps » (> 3 s). Correction attendue : `res/drawable/splash_icon.xml` dessine encore l'ancien logo teal. Non implémenté à ce jour.

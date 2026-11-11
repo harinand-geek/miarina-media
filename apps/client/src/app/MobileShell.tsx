@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Overlay';
+import { MobileRemoveSheet } from '../features/library/MobileRemoveSheet';
 import { ToastHost } from '../components/ToastHost';
 import { MobileHome } from '../features/home/MobileHome';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
@@ -39,12 +40,14 @@ export function MobileShell() {
   const closePlayer = useUi((s) => s.play);
   const sheetOpen = useUi((s) => s.screen === 'analysis');
   const confirmOpen = useUi((s) => s.confirm !== null);
+  const removalOpen = useUi((s) => s.removal !== null);
   const pushToast = useUi((s) => s.pushToast);
 
   // Back closes the top panel, then goes back in the browser page, then
   // returns Home; on Home it leaves the app.
-  useAndroidBack(!!nowPlaying || settingsOpen || tab !== 'home', () => {
-    if (nowPlaying) closePlayer(null);
+  useAndroidBack(removalOpen || !!nowPlaying || settingsOpen || tab !== 'home', () => {
+    if (removalOpen) useUi.getState().askRemoval(null);
+    else if (nowPlaying) closePlayer(null);
     else if (settingsOpen) setSettingsOpen(false);
     else if (tab === 'browser' && !sheetOpen && browserBack.current?.()) return;
     else setTab('home');
@@ -95,7 +98,9 @@ export function MobileShell() {
         )}
         {tab === 'browser' && (
           <BrowserView
-            covered={!!nowPlaying || settingsOpen || sheetOpen || storageOpen || confirmOpen}
+            covered={
+              !!nowPlaying || settingsOpen || sheetOpen || storageOpen || confirmOpen || removalOpen
+            }
             onExit={() => setTab('home')}
             onOpenSettings={() => setSettingsOpen(true)}
             onShowDownloads={() => setTab('downloads')}
@@ -167,6 +172,7 @@ export function MobileShell() {
       {nowPlaying && <MobilePlayer item={nowPlaying} />}
       <ToastHost position={tab === 'browser' ? 'browser' : 'mobile'} />
       <ConfirmDialog />
+      <MobileRemoveSheet />
     </div>
   );
 }

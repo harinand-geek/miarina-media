@@ -9,7 +9,8 @@
   - `Storage::remove_media` (transaction), `removed_media_paths`, `Library::remove`, commande Tauri `library_remove` + permission `allow-library-remove`.
   - Dialogue Windows v2 « Retirer ou supprimer » : choix par défaut = retirer, focus initial sur Annuler, Échap/scrim annulent, bouton destructif seulement pour « Supprimer », chemin complet affiché. Menu contextuel « Retirer ou supprimer… » et touche Suppr.
   - Retrait/suppression retirent aussi le média de la file de lecture.
-- Exclus : corbeille Windows (nouvelle dépendance à valider) ; Android (confirmation de suppression inchangée, en attente de la maquette mobile) ; playlists (n'existent pas encore) ; écran de restauration des éléments retirés.
+- Exclus : playlists (n'existent pas encore) ; écran de restauration des éléments retirés.
+- Suites : corbeille Windows ajoutée avec L06 (`trash`) ; feuille Android v2 (écran 11) ajoutée le 2026-11-11 (`MobileRemoveSheet`, suppression définitive comme dans la maquette).
 - Risques et données concernées : migration additive (nouvelle table), aucune donnée existante modifiée ; testée depuis une base v3.
 - Travail :
   - [x] Implémentation

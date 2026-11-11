@@ -44,7 +44,7 @@ describe('useMobileMediaSheet', () => {
       'open_in_newOpen with…',
       'content_copyCopy source link',
       'drive_file_rename_outlineRename',
-      'deleteDelete file',
+      'deleteRemove or delete…',
     ]);
 
     await user.click(screen.getByRole('button', { name: /Share/ }));
@@ -60,7 +60,7 @@ describe('useMobileMediaSheet', () => {
     expect(sheet).toHaveTextContent('Share');
     expect(sheet).toHaveTextContent('Open with…');
     expect(sheet).not.toHaveTextContent('Play');
-    expect(sheet).not.toHaveTextContent('Delete file');
+    expect(sheet).not.toHaveTextContent('Remove or delete');
     expect(sheet).not.toHaveTextContent('Rename');
   });
 });

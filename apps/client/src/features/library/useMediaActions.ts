@@ -1,7 +1,6 @@
 import { backend } from '../../services/backend';
 import { detectPlatform } from '../../services/platform';
 import type { MediaRecord } from '../../services/types';
-import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { playFrom } from '../../app/navigation';
 
@@ -12,8 +11,6 @@ export function useMediaActions() {
   const play = useUi((s) => s.play);
   const go = useUi((s) => s.go);
   const pushToast = useUi((s) => s.pushToast);
-  const askConfirm = useUi((s) => s.askConfirm);
-  const remove = useLibrary((s) => s.remove);
 
   const report = (e: unknown) =>
     pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) });
@@ -45,15 +42,7 @@ export function useMediaActions() {
         .then(() => pushToast({ tone: 'success', message: 'Source link copied' }))
         .catch(report);
     },
-    /** Desktop: "Remove or delete" choice (COM-10). Android: delete confirmation. */
-    askDelete: (media: MediaRecord) =>
-      desktop
-        ? useUi.getState().askRemoval(media)
-        : askConfirm({
-        title: 'Delete this file?',
-        body: `“${media.title}” will be removed from your library and deleted from disk.`,
-        confirmLabel: 'Delete file',
-        onConfirm: () => void remove(media.id),
-      }),
+    /** "Remove or delete" choice (COM-10): dialog on Windows, sheet on Android. */
+    askDelete: (media: MediaRecord) => useUi.getState().askRemoval(media),
   };
 }

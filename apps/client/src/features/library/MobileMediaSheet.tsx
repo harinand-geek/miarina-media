@@ -1,5 +1,6 @@
 import { Icon } from '../../components/Icon';
 import { BottomSheet } from '../../components/Overlay';
+import { useT } from '../../i18n';
 import type { MediaRecord } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
 import { qualityLabel } from './format';
@@ -21,6 +22,7 @@ export function MobileMediaSheet({
   onRename: (media: MediaRecord) => void;
   inPlayer: boolean;
 }) {
+  const t = useT();
   const actions = useMediaActions();
   const items = [
     !inPlayer && { icon: 'play_arrow', label: 'Play', run: () => actions.open(media) },
@@ -39,7 +41,7 @@ export function MobileMediaSheet({
     },
     !inPlayer && {
       icon: 'delete',
-      label: 'Delete file',
+      label: t('removeOrDelete'),
       run: () => actions.askDelete(media),
       danger: true,
     },

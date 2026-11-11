@@ -127,7 +127,7 @@ Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.
 |---|---|
 | Shell 5 onglets, mini-lecteur Android | À faire |
 | 05/06/15/16 Musique, 14 Vidéos | À faire (données L06 déjà disponibles : tags, groupes) |
-| 11 Retirer / Supprimer (sheet) | À faire (back-end COM-10 prêt) |
+| 11 Retirer / Supprimer (sheet) | Fait : `features/library/MobileRemoveSheet.tsx` ; ouverte depuis la feuille d'actions (« Retirer ou supprimer… ») ; texte « playlists mises à jour » remplacé par « retiré de la file de lecture » (pas encore de playlists) |
 | 07/08/09 En lecture, File, Son | À faire (après L03 MediaSessionService) |
 | 10 Notification / écran verrouillé | À faire (L03) |
 | 01–04 Accueil, Navigateur, Formats, Téléchargements | À faire |

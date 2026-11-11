@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<style>
+html{background:#0A1016}body{margin:0;background:#0A1016;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#5FE0D5;text-decoration:none}a:hover{color:#4FD6CB}
+*{box-sizing:border-box}
+@keyframes mmBar1{0%,3%{opacity:0;transform:translateX(-5px)}14%,100%{opacity:1;transform:none}}
+@keyframes mmBar2{0%,6%{opacity:0;transform:translateX(-5px)}17%,100%{opacity:1;transform:none}}
+@keyframes mmBar3{0%,9%{opacity:0;transform:translateX(-5px)}20%,100%{opacity:1;transform:none}}
+@keyframes mmTri{0%,11%{opacity:0;transform:scale(.6)}28%,100%{opacity:1;transform:none}}
+@keyframes mmBrand{0%,18%{opacity:0}30%,100%{opacity:1}}
+@keyframes mmOut{0%,60%{opacity:1}68%,94%{opacity:0}100%{opacity:1}}
+@keyframes mmIn{0%{opacity:0;transform:translateX(-5px)}100%{opacity:1;transform:none}}
+@keyframes mmTriIn{0%{opacity:0;transform:scale(.6)}100%{opacity:1;transform:none}}
+@keyframes mmFade{0%{opacity:0}100%{opacity:1}}
+@keyframes mmPulse{0%,100%{box-shadow:0 0 0 0 rgba(53,201,189,.55)}50%{box-shadow:0 0 0 10px rgba(53,201,189,0)}}
+@keyframes mmRise{0%{opacity:0;transform:translateY(8px)}100%{opacity:1;transform:none}}
+@keyframes mmNav{0%{transform:translateY(100%)}100%{transform:none}}
+@keyframes mmSk{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes mmToMig{0%{transform:translateY(84px) scale(1.556)}100%{transform:none}}
+@keyframes mmFlyS{0%{transform:none}100%{transform:translate(-134px,-339px) scale(.232)}}
+@keyframes mmFlyM{0%{transform:none}100%{transform:translate(-154px,-275px) scale(.361)}}
+@keyframes mmBgOut{0%{opacity:1}100%{opacity:0}}
+@keyframes mmIndet{0%{transform:translateX(-100%)}100%{transform:translateX(330%)}}
+</style>
+</helmet>
+<section data-screen-label="Prototype splash" style="background:#0A1016;padding:64px 72px 40px;display:flex;flex-direction:column;gap:28px;min-width:1400px">
+  <header style="display:flex;align-items:flex-end;gap:20px">
+    <svg width="48" height="48" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:600;letter-spacing:.08em;color:#94A3B8">MIARINA · ANDROID v2 · LANCEMENT</span>
+      <h1 style="margin:0;font-size:36px;font-weight:800;letter-spacing:-.02em">Splash screen — prototype cliquable</h1>
+    </div>
+  </header>
+  <p style="margin:0;max-width:900px;font-size:15px;line-height:22px;color:#94A3B8;text-wrap:pretty">Touchez l'icône <b style="color:#F5F7FA">Miarina Media</b> sur l'écran d'accueil du téléphone. Choisissez le scénario à droite. Les maquettes de l'application restent dans <a href="Miarina Media Android v2.dc.html">Miarina Media Android v2</a>.</p>
+
+  <div style="display:flex;gap:64px;align-items:flex-start">
+    <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;flex-shrink:0;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+
+      <sc-if value="{{ isHome }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:#101820;display:flex;flex-direction:column">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;display:flex;flex-direction:column;gap:20px;padding:4px 16px 16px">
+            <div style="height:48px;display:flex;align-items:center;gap:10px">
+              <svg width="26" height="26" viewBox="0 0 32 32" style="animation:mmFade 1ms 460ms both"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+              <span style="flex:1;font-size:18px;font-weight:800;letter-spacing:-.01em;animation:mmRise 320ms cubic-bezier(.2,0,0,1) 300ms both">Miarina Media</span>
+              <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div>
+              <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span></div>
+            </div>
+            <sc-if value="{{ showUpdated }}" hint-placeholder-val="{{ false }}">
+              <div style="animation:mmRise 380ms cubic-bezier(.2,0,0,1) 520ms both;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:12px;background:#1F3A3C;border:1px solid #2E6A68;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#5FE0D5">check_circle</span><span style="flex:1"><b>Miarina 0.1.8 installée.</b> <span style="color:#94A3B8">Bibliothèque à jour.</span></span><span style="font-weight:700;color:#5FE0D5">Nouveautés</span></div>
+            </sc-if>
+            <div style="animation:mmRise 380ms cubic-bezier(.2,0,0,1) 140ms both;display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:#182530">
+              <span style="font-size:15px;font-weight:700">Coller un lien</span>
+              <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px;border-radius:10px;background:#101820;border:1px solid #2A3D4E"><span style="flex:1;font-family:'JetBrains Mono';font-size:14px;color:#64748B">https://</span><div style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:6px;background:#1F2F3B;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">content_paste</span>Coller</div></div>
+              <div style="height:52px;border-radius:26px;background:#35C9BD;color:#062320;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700">Analyser le lien<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_forward</span></div>
+            </div>
+            <div style="animation:mmRise 380ms cubic-bezier(.2,0,0,1) 200ms both;display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">music_note</span></span>Audio seul</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#94A3B8"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#64748B"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">playlist_play</span></span>Playlist</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">folder_open</span></span>Fichiers</div>
+            </div>
+            <div style="animation:mmRise 380ms cubic-bezier(.2,0,0,1) 260ms both;display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:15px;font-weight:700">Reprendre</span>
+              <sc-if value="{{ thumbsLoading }}" hint-placeholder-val="{{ true }}">
+                <div style="display:flex;gap:12px">
+                  <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:94px;border-radius:10px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out infinite"></div><div style="height:12px;width:70%;border-radius:4px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out infinite"></div><div style="height:10px;width:50%;border-radius:4px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out infinite"></div></div>
+                  <div style="width:168px;display:flex;flex-direction:column;gap:8px"><div style="height:94px;border-radius:10px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out 150ms infinite"></div><div style="height:12px;width:70%;border-radius:4px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out 150ms infinite"></div><div style="height:10px;width:50%;border-radius:4px;background:#1F2F3B;animation:mmSk 1.2s ease-in-out 150ms infinite"></div></div>
+                </div>
+              </sc-if>
+              <sc-if value="{{ thumbsReady }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:12px">
+                  <div style="width:168px;display:flex;flex-direction:column;gap:6px;animation:mmFade 240ms linear both"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#243545"><div style="width:40%;height:3px;background:#FF7A45"></div></div><span style="position:absolute;right:6px;bottom:8px;width:28px;height:28px;border-radius:14px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">play_arrow</span></span></div><span style="font-size:13px;font-weight:600">Sintel</span><span style="font-size:12px;color:#94A3B8;font-family:'JetBrains Mono'">5:12 / 14:48</span></div>
+                  <div style="width:168px;display:flex;flex-direction:column;gap:6px;animation:mmFade 240ms linear 60ms both"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#243545"><div style="width:72%;height:3px;background:#FF7A45"></div></div></div><span style="font-size:13px;font-weight:600">Cours de guitare #4</span><span style="font-size:12px;color:#94A3B8;font-family:'JetBrains Mono'">18:40 / 26:02</span></div>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="animation:mmNav 360ms cubic-bezier(.2,0,0,1) 220ms both;height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#1F3A3C;display:grid;place-items:center;color:#5FE0D5"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isMigrate }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:#101820;display:flex;flex-direction:column;align-items:center">
+          <div style="margin-top:326px;animation:mmToMig 420ms cubic-bezier(.2,0,0,1) both"><svg width="72" height="72" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+          <span style="margin-top:28px;font-size:18px;font-weight:800;animation:mmRise 320ms cubic-bezier(.2,0,0,1) 200ms both">Mise à jour de votre bibliothèque</span>
+          <span style="animation:mmRise 320ms cubic-bezier(.2,0,0,1) 260ms both;margin-top:8px;width:300px;text-align:center;font-size:14px;line-height:20px;color:#94A3B8">Vos fichiers, playlists et positions de lecture sont conservés.</span>
+          <div style="animation:mmFade 240ms linear 320ms both;margin-top:28px;width:240px;height:6px;border-radius:3px;background:#243545;overflow:hidden"><div style="height:6px;border-radius:3px;background:#35C9BD;width:{{ migPct }};transition:width 120ms linear"></div></div>
+          <span style="margin-top:10px;font-family:'JetBrains Mono';font-size:12px;color:#94A3B8">{{ migLabel }}</span>
+          <div style="flex:1"></div>
+          <span style="margin-bottom:56px;font-family:'JetBrains Mono';font-size:11px;color:#64748B">0.1.7 → 0.1.8 · sauvegarde créée</span>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSlow }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;background:#101820;display:flex;flex-direction:column;align-items:center">
+          <div style="margin-top:326px;animation:mmToMig 420ms cubic-bezier(.2,0,0,1) both"><svg width="72" height="72" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+          <span style="margin-top:28px;font-size:18px;font-weight:800;animation:mmRise 320ms cubic-bezier(.2,0,0,1) 200ms both">Le démarrage prend plus de temps</span>
+          <span style="animation:mmRise 320ms cubic-bezier(.2,0,0,1) 260ms both;margin-top:8px;width:300px;text-align:center;font-size:14px;line-height:20px;color:#94A3B8">Miarina prépare l'interface. La lecture en cours n'est pas interrompue.</span>
+          <div style="margin-top:20px;width:160px;height:4px;border-radius:2px;background:#243545;overflow:hidden"><div style="width:30%;height:4px;border-radius:2px;background:#35C9BD;animation:mmIndet 1.4s linear infinite"></div></div>
+          <div style="animation:mmRise 320ms cubic-bezier(.2,0,0,1) 320ms both;margin-top:28px;display:flex;gap:10px">
+            <div onClick="{{ relaunch }}" style="height:48px;padding:0 22px;border-radius:24px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#26384A"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">refresh</span>Relancer</div>
+            <div style="height:48px;padding:0 18px;border-radius:24px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#94A3B8">Diagnostic</div>
+          </div>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ isSplash }}" hint-placeholder-val="{{ false }}">{{ splashEl }}</sc-if>
+      {{ flyEl }}
+
+      <sc-if value="{{ isLauncher }}" hint-placeholder-val="{{ true }}">
+        <div style="position:absolute;inset:0;background:linear-gradient(160deg,#1B2A36 0%,#0D141B 70%);display:flex;flex-direction:column">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="padding:48px 28px 0;display:flex;flex-direction:column;gap:4px"><span style="font-size:56px;font-weight:300;letter-spacing:-.03em;line-height:1">9:41</span><span style="font-size:15px;font-weight:600;color:#C9D2DB">Mercredi 11 novembre</span></div>
+          <div style="flex:1"></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:24px 8px;padding:0 20px 28px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Photos</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Agenda</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Fichiers</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Météo</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Horloge</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Notes</div>
+            <div onClick="{{ launch }}" style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:700;cursor:pointer">
+              <span style="width:56px;height:56px;border-radius:28px;background:#182530;display:grid;place-items:center;animation:mmPulse 1.6s ease-in-out infinite"><svg width="56" height="56" viewBox="0 0 32 32"><circle cx="16" cy="16" r="16" fill="#182530"></circle><g transform="translate(4.8 4.8) scale(.7)"><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></g></svg></span>Miarina Media
+            </div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;color:#C9D2DB"><span style="width:56px;height:56px;border-radius:28px;background:#2A3D4E"></span>Réglages</div>
+          </div>
+          <div style="margin:0 16px 12px;height:76px;border-radius:28px;background:rgba(31,47,59,.7);display:flex;justify-content:space-around;align-items:center"><span style="width:52px;height:52px;border-radius:26px;background:#2A3D4E"></span><span style="width:52px;height:52px;border-radius:26px;background:#2A3D4E"></span><span style="width:52px;height:52px;border-radius:26px;background:#2A3D4E"></span><span style="width:52px;height:52px;border-radius:26px;background:#2A3D4E"></span></div>
+          <div style="height:20px;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#94A3B8"></div></div>
+        </div>
+      </sc-if>
+    </div>
+
+    <div style="width:420px;display:flex;flex-direction:column;gap:28px;padding-top:8px">
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B">SCÉNARIO</span>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <sc-for list="{{ scenarios }}" as="sc" hint-placeholder-count="3">
+            <div onClick="{{ sc.pick }}" style="display:flex;gap:12px;padding:14px;border-radius:12px;cursor:pointer;background:{{ sc.bg }};border:1px solid {{ sc.bd }}">
+              <span style="width:20px;height:20px;margin-top:2px;border-radius:10px;border:2px solid {{ sc.ring }};display:grid;place-items:center;flex-shrink:0"><span style="width:10px;height:10px;border-radius:5px;background:{{ sc.dot }}"></span></span>
+              <span style="display:flex;flex-direction:column;gap:3px"><b style="font-size:14.5px">{{ sc.t }}</b><span style="font-size:13px;line-height:18px;color:#94A3B8">{{ sc.d }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B">ÉTAPES</span>
+        <div style="display:flex;flex-direction:column">
+          <sc-for list="{{ steps }}" as="st" hint-placeholder-count="4">
+            <div style="display:flex;gap:12px;align-items:flex-start;padding:8px 0">
+              <span style="width:10px;height:10px;margin-top:5px;border-radius:5px;flex-shrink:0;background:{{ st.dot }}"></span>
+              <span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;color:{{ st.col }}">{{ st.t }}</span><span style="font-family:'JetBrains Mono';font-size:11.5px;color:#64748B">{{ st.d }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px">
+        <div onClick="{{ launch }}" style="height:44px;padding:0 18px;border-radius:22px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;cursor:pointer" style-hover="background:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;font-variation-settings:'FILL' 1">play_arrow</span>Lancer</div>
+        <div onClick="{{ reset }}" style="height:44px;padding:0 18px;border-radius:22px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600;cursor:pointer" style-hover="background:#26384A"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">home</span>Écran du téléphone</div>
+      </div>
+      <p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty">Le splash système reste affiché tant que <span style="font-family:'JetBrains Mono'">AppShellPlugin.ready</span> est faux, avec un plafond de 3 s. Sortie : le logo du splash se déplace jusqu'à celui de l'en-tête (460 ms), le fond s'efface, puis les blocs de l'Accueil montent en cascade (8 px, 40–60 ms d'écart) ; les miniatures passent du squelette au contenu.</p>
+    </div>
+  </div>
+</section>
+<section data-screen-label="Splash" style="background:#0A1016;padding:24px 72px 96px;display:flex;flex-direction:column;gap:32px;min-width:2000px">
+  <div style="display:flex;flex-direction:column;gap:8px;max-width:1100px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#FF7A45"></span><h2 style="margin:0;font-size:28px;font-weight:800;letter-spacing:-.02em">Splash screen</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">AndroidX SplashScreen · UX-03 · UPD-10</span></div>
+    <p style="margin:0;font-size:15px;line-height:22px;color:#94A3B8;text-wrap:pretty">Le splash actuel (<span style="font-family:'JetBrains Mono';font-size:13px">res/drawable/splash_icon.xml</span>) dessine encore l'ancien logo : tuile teal et glyphes sombres. Il passe au logo 4d (tuile <span style="font-family:'JetBrains Mono';font-size:13px">#182530</span>, triangle corail, barres teal), avec une icône animée de moins de 1 s qui raconte « du lien à la lecture » : les barres entrent, puis le triangle play apparaît. Le maintien reste piloté par <span style="font-family:'JetBrains Mono';font-size:13px">AppShellPlugin.ready</span> (plafond 3 s).</p>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+    <div data-screen-label="S1 Animation" style="display:flex;flex-direction:column;gap:14px;width:412px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">S1</span><span style="font-size:15px;font-weight:700">Lancement animé · boucle de démonstration</span></div>
+      <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="height:36px;flex-shrink:0"></div>
+        <div style="flex:1;display:flex;flex-direction:column;gap:20px;padding:4px 16px 16px">
+          <div style="height:48px;display:flex;align-items:center;gap:10px"><span style="width:26px;height:26px;border-radius:7px;background:#182530"></span><span style="font-size:18px;font-weight:800">Miarina Media</span></div>
+          <div style="height:212px;border-radius:16px;background:#182530"></div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px"><span style="height:52px;border-radius:16px;background:#182530"></span><span style="height:52px;border-radius:16px;background:#182530"></span><span style="height:52px;border-radius:16px;background:#182530"></span><span style="height:52px;border-radius:16px;background:#182530"></span></div>
+          <div style="height:96px;border-radius:16px;background:#182530"></div>
+        </div>
+        <div style="height:72px;flex-shrink:0;background:#0D141B;border-top:1px solid #1B2935"></div>
+        {{ splashAnim }}
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty">Boucle de 3,6 s pour la revue : animation de l'icône 0–1000 ms, maintien jusqu'à <span style="font-family:'JetBrains Mono'">ready</span>, sortie en fondu 300 ms vers l'Accueil, dont le premier rendu est déjà prêt dessous.</p></sc-if>
+    </div>
+
+    <div data-screen-label="S2 Android 12+" style="display:flex;flex-direction:column;gap:14px;width:412px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">S2</span><span style="font-size:15px;font-weight:700">État final · Android 12+ · sombre</span></div>
+      <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="position:absolute;left:86px;top:326px;width:240px;height:240px;border:1px dashed #2A3D4E;display:grid;place-items:center"><span style="position:absolute;top:4px;left:6px;font-family:'JetBrains Mono';font-size:10px;color:#3A4D5E">240 dp</span><div style="width:160px;height:160px;border-radius:80px;border:1px dashed #3A4D5E;display:grid;place-items:center"><svg width="112" height="112" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div><span style="position:absolute;bottom:4px;right:6px;font-family:'JetBrains Mono';font-size:10px;color:#3A4D5E">cercle 160 dp</span></div>
+        <div style="position:absolute;left:106px;bottom:48px;width:200px;height:80px;border:1px dashed #2A3D4E;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px"><span style="font-size:22px;font-weight:800;letter-spacing:-.02em">Miarina Media</span><span style="font-size:11px;font-weight:600;letter-spacing:.08em;color:#64748B">MIARINA</span><span style="position:absolute;top:-16px;left:0;font-family:'JetBrains Mono';font-size:10px;color:#3A4D5E">branding 200 × 80 dp</span></div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty">Fond <span style="font-family:'JetBrains Mono'">@color/mm_bg #101820</span>. Icône : tuile 112 dp (70 % du cercle) dessinée dans le canevas 240 dp, aucun contenu hors du cercle de 160 dp. Branding : wordmark 22/800 −2 % + overline MIARINA 11/600 +8 %, rendu en PNG. Pas de tagline (charte §1).</p></sc-if>
+    </div>
+
+    <div data-screen-label="S3 Clair" style="display:flex;flex-direction:column;gap:14px;width:412px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">S3</span><span style="font-size:15px;font-weight:700">Thème système clair</span></div>
+      <div style="width:412px;height:892px;border-radius:40px;background:#F6F8FA;overflow:hidden;position:relative;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="position:absolute;left:150px;top:390px"><svg width="112" height="112" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+        <div style="position:absolute;left:106px;bottom:48px;width:200px;height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:#101820"><span style="font-size:22px;font-weight:800;letter-spacing:-.02em">Miarina Media</span><span style="font-size:11px;font-weight:600;letter-spacing:.08em;color:#526072">MIARINA</span></div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono'">values-night</span> garde le sombre ; <span style="font-family:'JetBrains Mono'">values</span> (clair) : fond <span style="font-family:'JetBrains Mono'">#F6F8FA</span>, tuile <span style="font-family:'JetBrains Mono'">#101820</span>, wordmark <span style="font-family:'JetBrains Mono'">#101820</span>. À appliquer seulement quand le thème clair de l'app est livré ; sinon, garder le sombre partout pour éviter un flash clair → sombre.</p></sc-if>
+    </div>
+
+    <div data-screen-label="S4 Migration" style="display:flex;flex-direction:column;gap:14px;width:412px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">S4</span><span style="font-size:15px;font-weight:700">Premier lancement après mise à jour</span></div>
+      <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="margin-top:326px"><svg width="72" height="72" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+        <span style="margin-top:28px;font-size:18px;font-weight:800">Mise à jour de votre bibliothèque</span>
+        <span style="margin-top:8px;width:300px;text-align:center;font-size:14px;line-height:20px;color:#94A3B8">Vos fichiers, playlists et positions de lecture sont conservés.</span>
+        <div style="margin-top:28px;width:240px;height:6px;border-radius:3px;background:#243545"><div style="width:58%;height:6px;border-radius:3px;background:#35C9BD"></div></div>
+        <span style="margin-top:10px;font-family:'JetBrains Mono';font-size:12px;color:#94A3B8">1 840 / 3 172 médias</span>
+        <div style="flex:1"></div>
+        <span style="margin-bottom:56px;font-family:'JetBrains Mono';font-size:11px;color:#64748B">0.1.7 → 0.1.8 · sauvegarde créée</span>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">UPD-01 · UPD-10</span> — Écran React affiché juste après le splash système, seulement si une migration dure plus de 400 ms. Progression réelle, sinon indéterminée. Échec : restauration de la sauvegarde et message dédié, jamais de downgrade.</p></sc-if>
+    </div>
+
+    <div data-screen-label="S5 Lent" style="display:flex;flex-direction:column;gap:14px;width:412px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#E8B04B;background:#2B2616;padding:2px 6px;border-radius:4px">S5</span><span style="font-size:15px;font-weight:700">Démarrage anormalement long</span></div>
+      <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="margin-top:326px"><svg width="72" height="72" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+        <span style="margin-top:28px;font-size:18px;font-weight:800">Le démarrage prend plus de temps</span>
+        <span style="margin-top:8px;width:300px;text-align:center;font-size:14px;line-height:20px;color:#94A3B8">Miarina prépare l'interface. La lecture en cours n'est pas interrompue.</span>
+        <div style="margin-top:28px;display:flex;gap:10px"><div style="height:48px;padding:0 22px;border-radius:24px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:8px;font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">refresh</span>Relancer</div><div style="height:48px;padding:0 18px;border-radius:24px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#94A3B8">Diagnostic</div></div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#E8B04B">UX-03 · SEC-04</span> — Quand le plafond <span style="font-family:'JetBrains Mono'">SPLASH_MAX_MS = 3000</span> est atteint sans <span style="font-family:'JetBrains Mono'">ready</span>, la WebView affiche cet état plutôt qu'une fenêtre vide. « Diagnostic » ouvre un journal local expurgé, avec aperçu avant partage.</p></sc-if>
+    </div>
+  </div>
+
+  <div data-screen-label="S6 Storyboard" style="display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">S6</span><span style="font-size:15px;font-weight:700">Storyboard de l'icône animée (AnimatedVectorDrawable, 1000 ms)</span></div>
+    <div style="display:flex;gap:16px">
+      <sc-for list="{{ frames }}" as="fr" hint-placeholder-count="6">
+        <div style="width:200px;display:flex;flex-direction:column;gap:10px">
+          <div style="width:200px;height:200px;border-radius:20px;background:#101820;border:1px solid #1B2935;display:grid;place-items:center">
+            <svg width="112" height="112" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#182530"></rect><g opacity="{{ fr.b1 }}"><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></g><g opacity="{{ fr.b2 }}"><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect></g><g opacity="{{ fr.b3 }}"><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></g><g opacity="{{ fr.t }}"><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path></g></svg>
+          </div>
+          <span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166">{{ fr.ms }}</span>
+          <span style="font-size:13px;line-height:18px;color:#94A3B8">{{ fr.d }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;max-width:1280px;text-wrap:pretty">Barres : <span style="font-family:'JetBrains Mono'">translateX −5 → 0</span> + alpha 0 → 1, 400 ms chacune, décalées de 100 ms, easing <span style="font-family:'JetBrains Mono'">cubic-bezier(.2,0,0,1)</span>. Triangle : scale .6 → 1 + alpha, 600 ms dès 400 ms. Tuile visible dès 0 ms (aucun écran vide). <span style="font-family:'JetBrains Mono'">windowSplashScreenAnimationDuration = 1000</span>. Animations système désactivées ou mode Éco : icône statique (état 1000 ms). Android ≤ 11 : icône statique centrée via <span style="font-family:'JetBrains Mono'">Theme.SplashScreen</span> compat, sans branding.</p></sc-if>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { phase: 'launcher', scenario: 'normal', run: 0, exiting: false, mig: 0, updated: false };
+  timers = [];
+  clear() { this.timers.forEach(clearTimeout); this.timers.forEach(clearInterval); this.timers = []; }
+  later(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  componentWillUnmount() { this.clear(); }
+  toHome(from, updated) {
+    this.setState(s => ({ phase: 'home', fly: from, flyRun: (s.flyRun || 0) + 1, thumbs: false, updated: !!updated }));
+    this.later(() => this.setState({ fly: null }), 540);
+    this.later(() => this.setState({ thumbs: true }), 1200);
+  }
+  flyEl() {
+    const from = this.state.fly;
+    if (!from) return null;
+    const h = React.createElement;
+    const s = from === 'splash';
+    const geo = s ? { left: 150, top: 390, size: 112, anim: 'mmFlyS' } : { left: 170, top: 326, size: 72, anim: 'mmFlyM' };
+    return h('div', { key: 'fly' + this.state.flyRun, style: { position: 'absolute', inset: 0, zIndex: 6, pointerEvents: 'none' } },
+      h('div', { style: { position: 'absolute', inset: 0, background: '#101820', animation: 'mmBgOut 360ms cubic-bezier(.3,0,1,1) 60ms both' } }),
+      s ? h('div', { style: { position: 'absolute', left: 106, bottom: 48, width: 200, height: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, animation: 'mmBgOut 150ms linear both' } },
+        h('span', { style: { fontSize: 22, fontWeight: 800, letterSpacing: '-.02em' } }, 'Miarina Media'),
+        h('span', { style: { fontSize: 11, fontWeight: 600, letterSpacing: '.08em', color: '#64748B' } }, 'MIARINA')) : null,
+      h('svg', { width: geo.size, height: geo.size, viewBox: '0 0 32 32', style: { position: 'absolute', left: geo.left, top: geo.top, transformOrigin: '0 0', animation: geo.anim + ' 460ms cubic-bezier(.2,0,0,1) both' } },
+        h('rect', { width: 32, height: 32, rx: 8, fill: '#182530' }),
+        h('path', { d: 'M13 9.5v13l10-6.5z', fill: '#FF7A45' }),
+        h('rect', { x: 6, y: 10.5, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD' }),
+        h('rect', { x: 4, y: 14.75, width: 6, height: 2.5, rx: 1.25, fill: '#35C9BD' }),
+        h('rect', { x: 6, y: 19, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD' })));
+  }
+  launch = () => {
+    this.clear();
+    const sc = this.state.scenario;
+    this.setState(s => ({ phase: 'splash', run: s.run + 1, exiting: false, mig: 0, updated: false }));
+    if (sc === 'normal') this.later(() => this.toHome('splash'), 1500);
+    if (sc === 'update') this.later(() => {
+      this.setState({ phase: 'migrate', mig: 0 });
+      const iv = setInterval(() => {
+        const m = Math.min(100, this.state.mig + 4);
+        this.setState({ mig: m });
+        if (m >= 100) { clearInterval(iv); this.later(() => this.toHome('migrate', true), 250); }
+      }, 100);
+      this.timers.push(iv);
+    }, 1300);
+    if (sc === 'slow') this.later(() => this.setState({ phase: 'slow' }), 3000);
+  };
+  relaunch = () => {
+    this.clear();
+    this.setState(s => ({ phase: 'splash', run: s.run + 1, exiting: false }));
+    this.later(() => this.toHome('splash'), 1500);
+  };
+  reset = () => { this.clear(); this.setState({ phase: 'launcher', exiting: false, updated: false, fly: null }); };
+  splash() {
+    const h = React.createElement;
+    const ease = 'cubic-bezier(.2,0,0,1) both';
+    const tb = { transformBox: 'fill-box', transformOrigin: 'center' };
+    return h('div', { key: 'sp' + this.state.run, style: { position: 'absolute', inset: 0, background: '#101820', zIndex: 5, opacity: this.state.exiting ? 0 : 1, transition: 'opacity 300ms cubic-bezier(.3,0,1,1)' } },
+      h('svg', { width: 112, height: 112, viewBox: '0 0 32 32', style: { position: 'absolute', left: 150, top: 390 } },
+        h('rect', { width: 32, height: 32, rx: 8, fill: '#182530' }),
+        h('rect', { x: 6, y: 10.5, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmIn 400ms 0ms ' + ease } }),
+        h('rect', { x: 4, y: 14.75, width: 6, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmIn 400ms 100ms ' + ease } }),
+        h('rect', { x: 6, y: 19, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmIn 400ms 200ms ' + ease } }),
+        h('path', { d: 'M13 9.5v13l10-6.5z', fill: '#FF7A45', style: { ...tb, animation: 'mmTriIn 600ms 400ms ' + ease } })),
+      h('div', { style: { position: 'absolute', left: 106, bottom: 48, width: 200, height: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, animation: 'mmFade 300ms 600ms linear both' } },
+        h('span', { style: { fontSize: 22, fontWeight: 800, letterSpacing: '-.02em' } }, 'Miarina Media'),
+        h('span', { style: { fontSize: 11, fontWeight: 600, letterSpacing: '.08em', color: '#64748B' } }, 'MIARINA')));
+  }
+  renderVals() {
+    const { phase, scenario, mig } = this.state;
+    const defs = [
+      ['normal', 'Lancement normal', 'Animation 1 s, interface prête, fondu vers l\u2019Accueil.'],
+      ['update', 'Premier lancement après mise à jour', 'Splash puis migration de la bibliothèque avec progression réelle.'],
+      ['slow', 'Démarrage long', 'ready non reçu après 3 s : état explicite avec Relancer.'],
+    ];
+    const scenarios = defs.map(([id, t, d]) => {
+      const on = id === scenario;
+      return { t, d, pick: () => this.setState({ scenario: id }), bg: on ? '#16302F' : '#182530', bd: on ? '#35C9BD' : '#243545', ring: on ? '#35C9BD' : '#3A4D5E', dot: on ? '#35C9BD' : 'transparent' };
+    });
+    const flow = { normal: ['launcher', 'splash', 'home'], update: ['launcher', 'splash', 'migrate', 'home'], slow: ['launcher', 'splash', 'slow', 'home'] }[scenario];
+    const meta = {
+      launcher: ['Écran d\u2019accueil Android', 'tap sur l\u2019icône'],
+      splash: ['Splash système', 'AVD 1000 ms · maintien jusqu\u2019à ready'],
+      migrate: ['Migration (React)', 'affichée si > 400 ms · sauvegarde avant'],
+      slow: ['Démarrage long (React)', 'SPLASH_MAX_MS = 3000'],
+      home: ['Accueil', 'fondu 300 ms'],
+    };
+    const cur = flow.indexOf(phase);
+    const steps = flow.map((p, i) => ({ t: meta[p][0], d: meta[p][1], dot: i === cur ? '#FF7A45' : i < cur ? '#35C9BD' : '#2A3D4E', col: i === cur ? '#F5F7FA' : i < cur ? '#94A3B8' : '#64748B' }));
+    return {
+      isLauncher: phase === 'launcher', isSplash: phase === 'splash', isMigrate: phase === 'migrate', isSlow: phase === 'slow', isHome: phase === 'home',
+      showUpdated: this.state.updated,
+      flyEl: this.flyEl(), thumbsLoading: !this.state.thumbs, thumbsReady: !!this.state.thumbs,
+      splashEl: phase === 'splash' ? this.splash() : null,
+      migPct: mig + '%', migLabel: Math.round(3172 * mig / 100).toLocaleString('fr-FR') + ' / 3 172 médias',
+      scenarios, steps, launch: this.launch, relaunch: this.relaunch, reset: this.reset,
+      showNotes: true,
+      splashAnim: this.splashAnim(),
+      frames: this.frames(),
+    };
+  }
+  splashAnim() {
+    if (this._sa) return this._sa;
+    const h = React.createElement;
+    const cyc = '3.6s cubic-bezier(.2,0,0,1) infinite both';
+    const tb = { transformBox: 'fill-box', transformOrigin: 'center' };
+    return (this._sa = h('div', { style: { position: 'absolute', inset: 0, background: '#101820', animation: 'mmOut 3.6s linear infinite', zIndex: 5 } },
+      h('svg', { width: 112, height: 112, viewBox: '0 0 32 32', style: { position: 'absolute', left: 150, top: 390 } },
+        h('rect', { width: 32, height: 32, rx: 8, fill: '#182530' }),
+        h('rect', { x: 6, y: 10.5, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmBar1 ' + cyc } }),
+        h('rect', { x: 4, y: 14.75, width: 6, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmBar2 ' + cyc } }),
+        h('rect', { x: 6, y: 19, width: 4, height: 2.5, rx: 1.25, fill: '#35C9BD', style: { ...tb, animation: 'mmBar3 ' + cyc } }),
+        h('path', { d: 'M13 9.5v13l10-6.5z', fill: '#FF7A45', style: { ...tb, animation: 'mmTri ' + cyc } })),
+      h('div', { style: { position: 'absolute', left: 106, bottom: 48, width: 200, height: 80, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4, animation: 'mmBrand 3.6s linear infinite both' } },
+        h('span', { style: { fontSize: 22, fontWeight: 800, letterSpacing: '-.02em' } }, 'Miarina Media'),
+        h('span', { style: { fontSize: 11, fontWeight: 600, letterSpacing: '.08em', color: '#64748B' } }, 'MIARINA'))));
+  }
+  frames() {
+    return [
+      { ms: '0 ms', d: 'Tuile seule, dès le tap sur l\u2019icône.', b1: 0, b2: 0, b3: 0, t: 0 },
+      { ms: '150 ms', d: 'Barre haute entre.', b1: 0.7, b2: 0, b3: 0, t: 0 },
+      { ms: '300 ms', d: 'Barre longue (le lien).', b1: 1, b2: 0.7, b3: 0.2, t: 0 },
+      { ms: '450 ms', d: 'Barre basse ; le triangle commence.', b1: 1, b2: 1, b3: 0.8, t: 0.25 },
+      { ms: '700 ms', d: 'Triangle play à 80 %.', b1: 1, b2: 1, b3: 1, t: 0.8 },
+      { ms: '1000 ms', d: 'Logo complet, maintenu jusqu\u2019à ready.', b1: 1, b2: 1, b3: 1, t: 1 },
+    ];
+  }
+}
+</script>
+</body>
+</html>

@@ -3,8 +3,8 @@ import { Button } from '../../components/Button';
 import { RadioDot } from '../../components/Controls';
 import { useT } from '../../i18n';
 import type { MediaRecord } from '../../services/types';
-import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
+import { applyRemoval } from './removal';
 
 type Choice = 'remove' | 'delete';
 
@@ -34,19 +34,7 @@ function Dialog({ media }: { media: MediaRecord }) {
 
   const destructive = choice === 'delete';
 
-  const confirm = async () => {
-    close();
-    const library = useLibrary.getState();
-    const done = destructive
-      ? await library.remove(media.id)
-      : await library.removeFromLibrary(media.id);
-    if (done) {
-      useUi.getState().pushToast({
-        tone: 'success',
-        message: destructive ? t('deleteDone') : t('removeDone'),
-      });
-    }
-  };
+  const confirm = () => applyRemoval(media, destructive, t);
 
   const onKeyDown = (e: KeyboardEvent) => {
     if (e.key === 'Escape') {

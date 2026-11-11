@@ -134,6 +134,11 @@ const fr = {
   removeDone: 'Retiré de la bibliothèque. Le fichier reste sur le disque.',
   deleteDone: 'Fichier supprimé du disque.',
   cancel: 'Annuler',
+  mRemoveTitle: 'Retirer « {title} » ?',
+  mRemoveBody: 'Choisissez ce qui arrive au fichier. Il est aussi retiré de la file de lecture.',
+  mRemoveOptionBody: 'Le fichier reste sur l’appareil.',
+  mDeleteOption: 'Supprimer le fichier de l’appareil',
+  mDeleteOptionBody: 'Définitif. Le fichier suivant sera effacé :',
 
   // Library and tags (L06, COM-07)
   librarySearch: 'Titre, artiste, album, dossier',
@@ -322,6 +327,11 @@ const en: Record<MessageKey, string> = {
   removeDone: 'Removed from library. The file stays on disk.',
   deleteDone: 'File deleted from disk.',
   cancel: 'Cancel',
+  mRemoveTitle: 'Remove “{title}”?',
+  mRemoveBody: 'Choose what happens to the file. It is also removed from the play queue.',
+  mRemoveOptionBody: 'The file stays on the device.',
+  mDeleteOption: 'Delete the file from the device',
+  mDeleteOptionBody: 'Permanent. This file will be erased:',
 
   librarySearch: 'Title, artist, album, folder',
   sort: 'Sort',
