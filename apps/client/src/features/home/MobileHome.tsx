@@ -1,19 +1,55 @@
-import { useMemo } from 'react';
-import { Button, IconButton } from '../../components/Button';
-import { ThumbBadge } from '../../components/Feedback';
+import { useEffect, useMemo, useState } from 'react';
+import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
 import { ProgressBar } from '../../components/ProgressBar';
-import { useLibrary } from '../../stores/library';
-import { durationLabel, qualityLabel } from '../library/format';
-import { MediaThumb } from '../library/MediaThumb';
-import { formatBytes, percentOf, summarize, useDownloads } from '../../stores/downloads';
-import { useUi } from '../../stores/ui';
+import { useT } from '../../i18n';
+import { backend } from '../../services/backend';
+import type { MediaRecord } from '../../services/types';
+import { percentOf, summarize, useDownloads } from '../../stores/downloads';
+import { useMobilePlayback } from '../../stores/mobilePlayback';
 import type { MobileTab } from '../../app/MobileShell';
+import { formatClock } from '../../hooks/usePlaybackClock';
+import { durationLabel } from '../library/format';
+import { MediaThumb } from '../library/MediaThumb';
+import { useMobileMediaSheet } from '../library/useMobileMediaSheet';
+import { RESUME_MARGIN_SECS, savedPosition } from '../player/usePlayback';
+import { useUpdates } from '../settings/useUpdates';
 import { LinkIssueNote } from './LinkIssueNote';
 import { linkFieldBorder, useLinkInput } from './useLinkInput';
-import { useMobileMediaSheet } from '../library/useMobileMediaSheet';
 
+/** Started media first (COM-04); latest downloads when nothing is started. */
+const RESUME_SCAN = 100;
+const CAROUSEL = 8;
+
+function useHomeMedia() {
+  const [items, setItems] = useState<MediaRecord[]>([]);
+  useEffect(() => {
+    let alive = true;
+    const load = () =>
+      backend
+        .libraryQuery({ search: '', kind: null, sort: 'added', limit: RESUME_SCAN })
+        .then((page) => alive && setItems(page.items))
+        .catch(() => {});
+    void load();
+    const stop = backend.onLibraryChanged(() => void load());
+    return () => {
+      alive = false;
+      stop();
+    };
+  }, []);
+  return useMemo(() => {
+    const started = items.filter((m) => {
+      const at = savedPosition(m.id);
+      return at > 0 && (!m.durationSecs || at < m.durationSecs - RESUME_MARGIN_SECS);
+    });
+    return started.length
+      ? { resume: true, items: started.slice(0, CAROUSEL) }
+      : { resume: false, items: items.slice(0, CAROUSEL) };
+  }, [items]);
+}
+
+/** Android v2 Home (screen 01): link first, quick actions, downloads, continue. */
 export function MobileHome({
   onNavigate,
   onOpenSettings,
@@ -21,58 +57,67 @@ export function MobileHome({
   onNavigate: (tab: MobileTab) => void;
   onOpenSettings: () => void;
 }) {
+  const t = useT();
   const { url, issue, inputRef, change, submit, paste, applyFix } = useLinkInput();
   const tasks = useDownloads((s) => s.tasks);
   const summary = useMemo(() => summarize(tasks), [tasks]);
-  const play = useUi((s) => s.play);
-  const recent = useLibrary((s) => s.recent);
+  const updateWaiting = useUpdates((s) => s.phase === 'available' || s.phase === 'ready');
+  const home = useHomeMedia();
   const actionsSheet = useMobileMediaSheet();
   const first = summary.active[0];
 
   const quick = [
-    { icon: 'music_note', label: 'Audio', run: () => void submit(url, 'audio') },
-    { icon: 'playlist_play', label: 'Playlist', planned: true },
-    { icon: 'format_list_bulleted', label: 'Batch', planned: true },
-    { icon: 'folder_open', label: 'Files', run: () => onNavigate('music') },
+    { icon: 'music_note', label: t('qAudio'), run: () => void submit(url, 'audio') },
+    { icon: 'playlist_play', label: t('qPlaylist'), planned: true },
+    { icon: 'travel_explore', label: t('tabBrowser'), run: () => onNavigate('browser') },
+    { icon: 'folder_open', label: t('qFiles'), run: () => onNavigate('music') },
   ];
 
+  const downloadsTitle = [
+    summary.running.length ? t('sumRunning', { n: summary.running.length }) : t('sumPaused'),
+    summary.queued.length ? t('sumQueue', { n: summary.queued.length }) : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
+
   return (
-    <div className="flex flex-1 flex-col gap-5 overflow-auto px-4 pb-5 pt-2">
-      <header className="flex h-12 items-center gap-2.5">
+    <div className="flex flex-1 flex-col gap-5 overflow-auto px-4 pb-4 pt-1">
+      <header className="flex h-12 shrink-0 items-center gap-2.5">
         <Logo size={26} />
-        <span className="flex-1 text-[18px] font-bold tracking-[-0.01em]">Miarina Media</span>
-        <IconButton
-          icon="search"
-          label="Search library"
-          size={44}
-          iconSize={24}
-          tone="default"
-          className="rounded-full"
+        <span className="flex-1 text-[18px] font-extrabold tracking-[-0.01em]">Miarina Media</span>
+        <button
+          type="button"
+          aria-label={t('searchLibrary')}
           onClick={() => onNavigate('music')}
-        />
-        <IconButton
-          icon="settings"
-          label="Settings"
-          size={44}
-          iconSize={24}
-          tone="default"
-          className="rounded-full"
+          className="grid h-11 w-11 place-items-center rounded-full"
+        >
+          <Icon name="search" size={24} />
+        </button>
+        <button
+          type="button"
+          aria-label={updateWaiting ? `${t('settings')} — ${t('updateAvailable')}` : t('settings')}
           onClick={onOpenSettings}
-        />
+          className="relative grid h-11 w-11 place-items-center rounded-full"
+        >
+          <Icon name="settings" size={24} />
+          {updateWaiting && (
+            <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent" />
+          )}
+        </button>
       </header>
 
       <form
-        className="flex flex-col gap-3 rounded-[16px] bg-surface p-4"
+        className="flex flex-col gap-3 rounded-2xl bg-surface p-4"
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
         }}
       >
         <label htmlFor="mobile-link" className="text-[15px] font-bold">
-          Paste a link
+          {t('homeLink')}
         </label>
         <div
-          className={`flex h-[52px] items-center gap-2 rounded-[10px] border bg-bg pl-3.5 pr-1.5 transition-colors duration-150 ${linkFieldBorder(issue)}`}
+          className={`flex h-[52px] items-center gap-2 rounded-[10px] border bg-bg pl-3.5 pr-1.5 transition-colors duration-150 focus-within:shadow-[0_0_0_3px_rgba(53,201,189,0.16)] ${linkFieldBorder(issue)}`}
         >
           <input
             id="mobile-link"
@@ -89,38 +134,37 @@ export function MobileHome({
           <button
             type="button"
             onClick={paste}
-            className="flex h-10 items-center gap-1.5 rounded-md bg-surface2 px-3 text-[13px] font-semibold"
+            className="flex h-10 items-center gap-1.5 rounded-sm bg-surface2 px-3 text-[13px] font-semibold"
           >
             <Icon name="content_paste" size={18} />
-            Paste
+            {t('pasteShort')}
           </button>
         </div>
         {issue && <LinkIssueNote id="mobile-link-issue" issue={issue} onFix={applyFix} compact />}
-        <Button type="submit" variant="primary" pill className="h-[52px] text-[15px]">
-          Analyze link
+        <Button type="submit" variant="primary" pill className="h-[52px] gap-2 text-[15px]">
+          {t('analyzeLink')}
+          <Icon name="arrow_forward" size={20} />
         </Button>
-        <span className="text-center text-[12px] text-muted">
-          Or share a link to Miarina Media from any app.
-        </span>
+        <span className="text-center text-[12px] text-muted">{t('shareHint')}</span>
       </form>
 
       <div className="grid grid-cols-4 gap-2">
         {quick.map((q) => (
           <button
-            key={q.label}
+            key={q.icon}
             type="button"
             disabled={q.planned}
-            aria-label={q.planned ? `${q.label} (planned)` : q.label}
+            aria-label={q.planned ? t('plannedNamed', { name: q.label }) : q.label}
             onClick={q.run}
-            className="flex flex-col items-center gap-2 rounded-[12px] px-1 py-3 text-[12px] font-semibold text-fg disabled:text-muted"
+            className="flex flex-col items-center gap-2 text-[12px] font-semibold text-fg disabled:text-muted"
           >
             <span
-              className={`relative grid h-[52px] w-[52px] place-items-center rounded-[16px] bg-surface ${q.planned ? 'text-faint' : 'text-accent-strong'}`}
+              className={`relative grid h-[52px] w-[52px] place-items-center rounded-2xl bg-surface ${q.planned ? 'text-faint' : 'text-accent-strong'}`}
             >
               <Icon name={q.icon} size={24} />
               {q.planned && (
-                <span className="absolute -right-1 -top-1 rounded-xs bg-planned px-1 font-mono text-[9px] font-bold text-planned-ink">
-                  LATER
+                <span className="absolute -right-2 -top-[5px] rounded-xs bg-planned-ink px-1 py-px font-mono text-[9px] font-bold text-planned">
+                  {t('planned')}
                 </span>
               )}
             </span>
@@ -133,68 +177,96 @@ export function MobileHome({
         <button
           type="button"
           onClick={() => onNavigate('downloads')}
-          className="flex flex-col gap-2.5 rounded-[16px] bg-surface p-3.5 text-left"
+          className="flex flex-col gap-2.5 rounded-2xl bg-surface p-3.5 text-left"
         >
-          <span className="flex w-full justify-between text-[13px]">
-            <span className="font-bold">{summary.stateLabel}</span>
+          <span className="flex w-full justify-between gap-3 text-[13px]">
+            <span className="truncate font-bold">{downloadsTitle}</span>
             <span className="font-mono text-accent-strong">
-              {summary.speedLabel === 'Paused' ? '—' : summary.speedLabel}
+              {summary.running.length ? summary.speedLabel : '—'}
             </span>
           </span>
-          <span className="flex w-full justify-between text-[13px] text-muted">
-            <span className="truncate">{first.title}</span>
-            <span className="font-mono tabular">{Math.floor(percentOf(first))}%</span>
+          <span className="flex w-full justify-between gap-3 text-[13px] text-muted">
+            <span className="truncate">
+              {[first.title, first.formatLabel].filter(Boolean).join(' — ')}
+            </span>
+            <span className="font-mono tabular">{Math.floor(percentOf(first))} %</span>
           </span>
           <ProgressBar
             value={percentOf(first)}
-            label={`${first.title}, ${Math.floor(percentOf(first))} percent`}
+            height={6}
+            label={`${first.title}, ${Math.floor(percentOf(first))} %`}
             className="w-full"
           />
         </button>
       )}
 
-      <section aria-label="Recent" className="flex flex-col gap-1">
-        <div className="flex h-9 items-center justify-between">
-          <h2 className="m-0 text-[15px] font-bold">Recent</h2>
+      <section aria-label={home.resume ? t('resumeTitle') : t('recentTitle')} className="flex flex-col gap-2.5">
+        <div className="flex items-center justify-between">
+          <h2 className="m-0 text-[15px] font-bold">
+            {home.resume ? t('resumeTitle') : t('recentTitle')}
+          </h2>
           <button
             type="button"
-            onClick={() => onNavigate('music')}
-            className="text-[13px] font-semibold text-accent-strong"
+            onClick={() => onNavigate('videos')}
+            className="text-[13px] font-semibold text-coral-strong"
           >
-            See all
+            {t('seeAll')}
           </button>
         </div>
-        {recent.length === 0 && (
-          <p className="m-0 py-4 text-[13px] text-muted">Your downloads will appear here.</p>
+        {home.items.length === 0 && (
+          <p className="m-0 py-4 text-[13px] text-muted">{t('homeEmpty')}</p>
         )}
-        {recent.map((item) => (
-          <div key={item.id} className="flex min-h-16 items-center gap-3">
-            <button
-              type="button"
-              onClick={() => play(item)}
-              className="flex min-w-0 flex-1 items-center gap-3 text-left"
-            >
-              <MediaThumb media={item} className="h-[45px] w-20 rounded-md">
-                {item.durationSecs != null && (
-                  <ThumbBadge position="br">{durationLabel(item.durationSecs)}</ThumbBadge>
-                )}
-              </MediaThumb>
-              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                <span className="truncate text-[14px] font-semibold">{item.title}</span>
-                <span className="text-[12px] text-muted">
-                  {qualityLabel(item)} · {formatBytes(item.sizeBytes)}
+        <ul className="-mx-4 m-0 flex list-none gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+          {home.items.map((item, i) => {
+            const at = savedPosition(item.id);
+            const pct = home.resume && item.durationSecs ? Math.min(100, (at / item.durationSecs) * 100) : 0;
+            return (
+              <li key={item.id} className="flex w-[168px] shrink-0 flex-col gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => useMobilePlayback.getState().start(item, home.items, home.resume ? t('resumeTitle') : t('recentTitle'))}
+                  onContextMenu={(e) => {
+                    e.preventDefault();
+                    actionsSheet.open(item);
+                  }}
+                  aria-label={t('playTitle', { title: item.title })}
+                  className="block"
+                >
+                  <MediaThumb media={item} className="h-[94px] w-full rounded-[10px]">
+                    {pct > 0 && (
+                      <span className="absolute inset-x-0 bottom-0 h-[3px] bg-line" aria-hidden="true">
+                        <span className="block h-full bg-coral" style={{ width: `${pct}%` }} />
+                      </span>
+                    )}
+                    {i === 0 && (
+                      <span className="absolute bottom-2 right-1.5 grid h-7 w-7 place-items-center rounded-full bg-coral text-coral-ink">
+                        <Icon name="play_arrow" size={18} fill />
+                      </span>
+                    )}
+                  </MediaThumb>
+                </button>
+                <span className="flex items-start gap-1">
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="truncate text-[13px] font-semibold">{item.title}</span>
+                    <span className="font-mono text-[12px] text-muted">
+                      {home.resume
+                        ? `${formatClock(at, false)} / ${durationLabel(item.durationSecs)}`
+                        : durationLabel(item.durationSecs)}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    aria-label={t('actionsFor', { title: item.title })}
+                    onClick={() => actionsSheet.open(item)}
+                    className="-mr-2 grid h-9 w-9 shrink-0 place-items-center text-muted"
+                  >
+                    <Icon name="more_vert" size={20} />
+                  </button>
                 </span>
-              </span>
-            </button>
-            <IconButton
-              icon="more_vert"
-              label={`Actions for ${item.title}`}
-              size={44}
-              iconSize={24}
-              onClick={() => actionsSheet.open(item)}
-            />
-          </div>
-        ))}
+              </li>
+            );
+          })}
+        </ul>
       </section>
       {actionsSheet.sheet}
     </div>

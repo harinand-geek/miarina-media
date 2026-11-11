@@ -130,5 +130,6 @@ Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.
 | 11 Retirer / Supprimer (sheet) | Fait : `features/library/MobileRemoveSheet.tsx` ; ouverte depuis la feuille d'actions (« Retirer ou supprimer… ») ; texte « playlists mises à jour » remplacé par « retiré de la file de lecture » (pas encore de playlists) |
 | 07/08/09 En lecture, File, Son | Fait (audio) : `features/player/MobilePlayer.tsx`, `MobilePlayerSheets.tsx`, `stores/mobilePlayback.ts` — « Lecture depuis », aléatoire, répétition off/file/titre, vitesse persistée, minuteur, paroles locales, file réordonnable (poignée) ; égaliseur remplacé par une explication (natif L03/L07) ; favori (cœur) masqué tant que COM-06 n'existe pas ; balayer pour retirer remplacé par le bouton ✕ ; tout cela au premier plan seulement jusqu'à L03 |
 | 10 Notification / écran verrouillé | À faire (L03) |
-| 01–04 Accueil, Navigateur, Formats, Téléchargements | À faire |
+| 01 Accueil | Fait : `features/home/MobileHome.tsx` — carte de lien, actions rapides (Playlist PRÉVU), carte téléchargements, « Reprendre » d'après les positions enregistrées (sinon « Récemment téléchargés »), point de mise à jour sur Réglages ; animation logo du splash non faite (handoff splash) |
+| 02–04 Navigateur, Formats, Téléchargements | À faire |
 | 12 Réglages, 13 Vidéo paysage, 17–18 clair/EN | À faire |

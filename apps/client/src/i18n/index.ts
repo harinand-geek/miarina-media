@@ -232,6 +232,22 @@ const fr = {
   sleepAtEnd: 'La musique s’arrêtera à la fin de « {title} ». L’app reste ouverte.',
   moveHandle: 'Déplacer {title}',
 
+  // Android v2 Home
+  homeLink: 'Coller un lien',
+  pasteShort: 'Coller',
+  analyzeLink: 'Analyser le lien',
+  shareHint: 'Ou partagez un lien vers Miarina depuis n’importe quelle app.',
+  qAudio: 'Audio seul',
+  qPlaylist: 'Playlist',
+  qFiles: 'Fichiers',
+  resumeTitle: 'Reprendre',
+  recentTitle: 'Récemment téléchargés',
+  seeAll: 'Tout voir',
+  homeEmpty: 'Vos téléchargements apparaîtront ici.',
+  searchLibrary: 'Rechercher dans la bibliothèque',
+  actionsFor: 'Actions pour {title}',
+  plannedNamed: '{name} (prévu)',
+
   // Language setting
   language: 'Langue',
   languageNote:
@@ -454,6 +470,21 @@ const en: Record<MessageKey, string> = {
   sleepIn: 'Music stops in {time}. The app stays open.',
   sleepAtEnd: 'Music stops after “{title}”. The app stays open.',
   moveHandle: 'Move {title}',
+
+  homeLink: 'Paste a link',
+  pasteShort: 'Paste',
+  analyzeLink: 'Analyze link',
+  shareHint: 'Or share a link to Miarina from any app.',
+  qAudio: 'Audio only',
+  qPlaylist: 'Playlist',
+  qFiles: 'Files',
+  resumeTitle: 'Continue watching',
+  recentTitle: 'Recently downloaded',
+  seeAll: 'See all',
+  homeEmpty: 'Your downloads will appear here.',
+  searchLibrary: 'Search library',
+  actionsFor: 'Actions for {title}',
+  plannedNamed: '{name} (planned)',
 
   language: 'Language',
   languageNote: 'French and English. Screens not yet migrated to the catalog stay in English.',

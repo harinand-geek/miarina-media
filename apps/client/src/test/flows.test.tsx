@@ -298,7 +298,11 @@ describe('Android shell', () => {
     const mock = resetMockBackend() as MockBackend;
     const user = userEvent.setup();
     render(<MobileShell />);
-    await user.click(screen.getByRole('button', { name: /Browser/ }));
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
+        name: /Browser/,
+      }),
+    );
     await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
     await user.type(
       screen.getByRole('textbox', { name: 'Search or type a web address' }),
@@ -323,7 +327,11 @@ describe('Android shell', () => {
   it('browser: an address that is not a web page is refused', async () => {
     const user = userEvent.setup();
     render(<MobileShell />);
-    await user.click(screen.getByRole('button', { name: /Browser/ }));
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
+        name: /Browser/,
+      }),
+    );
     await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
     await user.type(
       screen.getByRole('textbox', { name: 'Search or type a web address' }),
