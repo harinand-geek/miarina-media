@@ -13,6 +13,21 @@ import { useUi } from './ui';
 export const MAX_MOBILE_QUEUE = 500;
 export const MOBILE_RATES = [0.5, 0.75, 1, 1.25, 1.5, 2] as const;
 const RATE_KEY = 'mm:mobile:rate';
+const SESSION_KEY = 'mm:mobile:session:v1';
+
+/**
+ * How the player starts a session: open the queue and play, attach to a
+ * service that is still playing (app reopened), or wait for Play (queue
+ * restored after the process died: no surprise sound, CDC AND-05).
+ */
+export type StartMode = 'open' | 'attach' | 'deferred';
+
+interface SavedSession {
+  queue: MediaRecord[];
+  currentId: number;
+  source: string | null;
+  repeat: RepeatMode;
+}
 /** "Previous" restarts the track when past this point. */
 export const MOBILE_RESTART_SECS = 3;
 
@@ -45,6 +60,7 @@ interface MobilePlaybackState {
   repeat: RepeatMode;
   rate: number;
   sleep: SleepTimer;
+  startMode: StartMode;
   /** Opens the player on `item` with `queue` coming next. */
   start: (item: MediaRecord, queue: MediaRecord[], source?: string | null) => void;
   /** Next item; `manual` wraps around when the whole queue repeats. */
@@ -61,6 +77,8 @@ interface MobilePlaybackState {
   setSleep: (sleep: 'off' | 'end' | number) => void;
   /** The native player moved to `id` on its own (end of track, lock screen). */
   syncFromNative: (id: number) => void;
+  /** Puts back a saved queue, minimized, attached or waiting for Play. */
+  restore: (saved: SavedSession, mode: Exclude<StartMode, 'open'>) => void;
 }
 
 const current = () => useUi.getState().nowPlaying;
@@ -77,13 +95,21 @@ export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
   repeat: 'off',
   rate: savedRate(),
   sleep: { mode: 'off' },
+  startMode: 'open',
 
   start: (item, queue, source = null) => {
     const list = (queue.some((m) => m.id === item.id) ? queue : [item, ...queue]).slice(
       0,
       MAX_MOBILE_QUEUE,
     );
-    set((s) => ({ queue: list, source, shuffle: false, unshuffled: null, session: s.session + 1 }));
+    set((s) => ({
+      queue: list,
+      source,
+      shuffle: false,
+      unshuffled: null,
+      session: s.session + 1,
+      startMode: 'open',
+    }));
     useUi.getState().play(item);
   },
 
@@ -172,6 +198,21 @@ export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
     set({ rate: r });
   },
 
+  restore: (saved, mode) => {
+    const item = saved.queue.find((m) => m.id === saved.currentId);
+    if (!item) return;
+    set((s) => ({
+      queue: saved.queue.slice(0, MAX_MOBILE_QUEUE),
+      source: saved.source,
+      repeat: saved.repeat,
+      shuffle: false,
+      unshuffled: null,
+      session: s.session + 1,
+      startMode: mode,
+    }));
+    useUi.setState({ nowPlaying: item, mobilePlayerExpanded: false });
+  },
+
   syncFromNative: (id) => {
     const item = get().queue.find((m) => m.id === id);
     if (item && item.id !== current()?.id) show(item);
@@ -194,7 +235,13 @@ useUi.subscribe((s, prev) => {
   if (s.nowPlaying === prev.nowPlaying) return;
   const store = useMobilePlayback.getState();
   if (!s.nowPlaying) {
-    useMobilePlayback.setState({ queue: [], source: null, shuffle: false, unshuffled: null, sleep: { mode: 'off' } });
+    useMobilePlayback.setState({
+      queue: [],
+      source: null,
+      shuffle: false,
+      unshuffled: null,
+      sleep: { mode: 'off' },
+    });
     return;
   }
   if (!store.queue.some((m) => m.id === s.nowPlaying!.id)) {
@@ -204,6 +251,49 @@ useUi.subscribe((s, prev) => {
       shuffle: false,
       unshuffled: null,
       session: store.session + 1,
+      startMode: 'open',
     });
   }
+});
+
+/** The saved Android session, if any (bounded, small records only). */
+export function savedSession(): SavedSession | null {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw) as Partial<SavedSession>;
+    if (!Array.isArray(s.queue) || typeof s.currentId !== 'number') return null;
+    const queue = s.queue.slice(0, MAX_MOBILE_QUEUE);
+    if (!queue.some((m) => m.id === s.currentId)) return null;
+    return {
+      queue,
+      currentId: s.currentId,
+      source: typeof s.source === 'string' ? s.source : null,
+      repeat: s.repeat === 'all' || s.repeat === 'one' ? s.repeat : 'off',
+    };
+  } catch {
+    return null;
+  }
+}
+
+function persist() {
+  const item = useUi.getState().nowPlaying;
+  const { queue, source, repeat } = useMobilePlayback.getState();
+  try {
+    if (!item || !queue.length) localStorage.removeItem(SESSION_KEY);
+    else
+      localStorage.setItem(
+        SESSION_KEY,
+        JSON.stringify({ queue, currentId: item.id, source, repeat } satisfies SavedSession),
+      );
+  } catch {
+    // Storage full or unavailable: nothing is restored after a restart.
+  }
+}
+
+useMobilePlayback.subscribe((s, prev) => {
+  if (s.queue !== prev.queue || s.source !== prev.source || s.repeat !== prev.repeat) persist();
+});
+useUi.subscribe((s, prev) => {
+  if (s.nowPlaying !== prev.nowPlaying) persist();
 });

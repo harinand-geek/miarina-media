@@ -222,11 +222,18 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
     invoke.resolve()
   }
 
+  /**
+   * Connects to the service if needed: after the app is reopened, music the
+   * service is still playing shows up here (CDC AND-05).
+   */
   @Command
   fun status(invoke: Invoke) {
-    val c = controller
+    withController(invoke) { c -> invoke.resolve(statusOf(c)) }
+  }
+
+  private fun statusOf(c: MediaController): JSObject {
     val result = JSObject()
-    if (c == null || c.mediaItemCount == 0) {
+    if (c.mediaItemCount == 0) {
       result.put("open", false)
     } else {
       result.put("open", true)
@@ -240,7 +247,7 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
       c.currentMediaItem?.mediaId?.toLongOrNull()?.let { result.put("mediaId", it) }
       error?.let { result.put("error", it) }
     }
-    invoke.resolve(result)
+    return result
   }
 
   @Command

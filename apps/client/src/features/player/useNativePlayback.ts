@@ -8,6 +8,8 @@ import { RESUME_MARGIN_SECS, savePosition, savedPosition, type Playback } from '
 
 /** How often the screen reads the native position (only while visible). */
 const POLL_MS = 250;
+/** Resume point refresh while playing (localStorage write, kept rare). */
+const SAVE_EVERY_MS = 5000;
 /** How long a UI skip may wait for the service to confirm it. */
 const PENDING_MS = 2000;
 
@@ -27,8 +29,10 @@ const kindOf = (id: number) =>
  * track, queue order, repeat mode. Same contract as `usePlayback` otherwise.
  */
 export function useNativePlayback(media: MediaRecord): NativePlayback {
+  /** How this session starts (see `StartMode`), fixed for the session. */
+  const [mode] = useState(() => useMobilePlayback.getState().startMode);
   const [state, setState] = useState({
-    time: 0,
+    time: mode === 'deferred' ? savedPosition(media.id) : 0,
     duration: media.durationSecs ?? 0,
     buffered: 0,
     playing: false,
@@ -44,6 +48,8 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
   /** UI-requested track not yet confirmed by the service, and since when. */
   const pending = useRef<{ id: number; at: number } | null>(null);
   const first = useRef(media);
+  /** Opens the queue natively; set by the session effect. */
+  const openNow = useRef<(() => void) | null>(null);
 
   /** Sends the current box of the surface element to the native view. */
   const pushSurface = useCallback(() => {
@@ -66,6 +72,16 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
     let closed = false;
     let timer: ReturnType<typeof setInterval> | undefined;
     let inFlight = false;
+    let savedAt = 0;
+
+    /** Keeps the resume point fresh: the process may be killed while playing. */
+    const keepPosition = (s: NativePlayerStatus, force: boolean) => {
+      if (s.durationMs <= 0 || s.mediaId == null || s.mediaId !== currentId.current) return;
+      const now = Date.now();
+      if (!force && now - savedAt < SAVE_EVERY_MS) return;
+      savedAt = now;
+      savePosition(s.mediaId, s.positionMs / 1000, s.durationMs / 1000);
+    };
 
     const apply = (s: NativePlayerStatus) => {
       last.current = s;
@@ -90,6 +106,7 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
           useUi.getState().pushToast({ tone: 'success', message: t('sleepStopped') });
         }
       }
+      if (s.playing) keepPosition(s, false);
       setState((prev) => ({
         ...prev,
         time: s.positionMs / 1000,
@@ -115,38 +132,63 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
         });
     };
 
-    const start = first.current;
-    const store = useMobilePlayback.getState();
-    const ids = store.queue.some((m) => m.id === start.id) ? store.queue.map((m) => m.id) : [start.id];
-    const saved = savedPosition(start.id);
-    const duration = start.durationSecs ?? 0;
-    const resume = saved > 0 && (!duration || saved < duration - RESUME_MARGIN_SECS) ? saved : 0;
-    nativePlayer
-      .open(ids, Math.max(0, ids.indexOf(start.id)), resume)
-      .then((isVideo) => {
-        if (closed) {
-          void nativePlayer.close().catch(() => {});
-          return;
-        }
-        ready.current = true;
-        video.current = isVideo;
-        void nativePlayer.setRepeat(useMobilePlayback.getState().repeat).catch(() => {});
-        pushSurface();
-        timer = setInterval(poll, POLL_MS);
-      })
-      .catch(() => setState((s) => ({ ...s, error: true })));
+    const follow = () => {
+      ready.current = true;
+      void nativePlayer.setRepeat(useMobilePlayback.getState().repeat).catch(() => {});
+      pushSurface();
+      timer = setInterval(poll, POLL_MS);
+    };
+
+    const open = () => {
+      openNow.current = null;
+      const start = useUi.getState().nowPlaying ?? first.current;
+      const store = useMobilePlayback.getState();
+      const ids = store.queue.some((m) => m.id === start.id)
+        ? store.queue.map((m) => m.id)
+        : [start.id];
+      const saved = savedPosition(start.id);
+      const duration = start.durationSecs ?? 0;
+      const resume = saved > 0 && (!duration || saved < duration - RESUME_MARGIN_SECS) ? saved : 0;
+      currentId.current = start.id;
+      nativePlayer
+        .open(ids, Math.max(0, ids.indexOf(start.id)), resume)
+        .then((isVideo) => {
+          if (closed) {
+            void nativePlayer.close().catch(() => {});
+            return;
+          }
+          video.current = isVideo;
+          follow();
+        })
+        .catch(() => setState((s) => ({ ...s, error: true })));
+    };
+
+    if (mode === 'attach') follow();
+    else if (mode === 'deferred') openNow.current = open;
+    else open();
 
     // Queue order and repeat mode follow the UI (same session only).
     const stop = useMobilePlayback.subscribe((s, prev) => {
       if (!ready.current || s.session !== prev.session) return;
       if (s.queue !== prev.queue) {
         const at = s.queue.findIndex((m) => m.id === currentId.current);
-        if (at >= 0) void nativePlayer.setQueue(s.queue.map((m) => m.id), at).catch(() => {});
+        if (at >= 0)
+          void nativePlayer
+            .setQueue(
+              s.queue.map((m) => m.id),
+              at,
+            )
+            .catch(() => {});
       }
       if (s.repeat !== prev.repeat) void nativePlayer.setRepeat(s.repeat).catch(() => {});
     });
 
-    const onVisibility = () => pushSurface();
+    const onVisibility = () => {
+      pushSurface();
+      // Polling stops in the background: save where the music is now.
+      if (document.hidden && ready.current && last.current?.playing)
+        keepPosition(last.current, true);
+    };
     document.addEventListener('visibilitychange', onVisibility);
     window.addEventListener('resize', pushSurface);
     // The player slides in (CSS transform): a box measured mid-animation is
@@ -172,7 +214,7 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
         })
         .catch(() => {});
     };
-  }, [pushSurface]);
+  }, [pushSurface, mode]);
 
   // The UI picked another track of the queue (next, previous, queue sheet).
   useEffect(() => {
@@ -180,7 +222,8 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
     const at = useMobilePlayback.getState().queue.findIndex((m) => m.id === media.id);
     if (at < 0) return;
     const s = last.current;
-    if (s && s.durationMs > 0) savePosition(currentId.current, s.positionMs / 1000, s.durationMs / 1000);
+    if (s && s.durationMs > 0)
+      savePosition(currentId.current, s.positionMs / 1000, s.durationMs / 1000);
     currentId.current = media.id;
     pending.current = { id: media.id, at: Date.now() };
     video.current = media.kind === 'video';
@@ -212,7 +255,11 @@ export function useNativePlayback(media: MediaRecord): NativePlayback {
     ...state,
     volume: 1,
     toggle: () => {
-      if (state.playing) {
+      if (openNow.current) {
+        // Restored queue: the first Play opens it where it stopped.
+        setState((s) => ({ ...s, playing: true }));
+        openNow.current();
+      } else if (state.playing) {
         setState((s) => ({ ...s, playing: false }));
         void nativePlayer.pause().catch(() => {});
         if (state.duration) savePosition(currentId.current, state.time, state.duration);

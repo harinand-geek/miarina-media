@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.os.Bundle
 import android.os.SystemClock
 import android.view.View
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -23,6 +24,15 @@ class MainActivity : TauriActivity() {
       statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
       navigationBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
     )
+    // Back on the last screen: go to the background like Home instead of
+    // finishing, which would end the process and stop the music and the
+    // downloads (CDC AND-05). Registered before Tauri's own callback, which
+    // falls back to this one when the page does not handle Back.
+    onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
+      override fun handleOnBackPressed() {
+        moveTaskToBack(true)
+      }
+    })
     super.onCreate(savedInstanceState)
     // Android 15 draws the app behind the system bars: keep the web content
     // inside them (the WebView in use does not expose safe-area insets).

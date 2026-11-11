@@ -16,6 +16,7 @@ import { backend } from '../services/backend';
 import { AnalysisSheet } from '../features/analysis/AnalysisSheet';
 import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
+import { restoreMobileSession } from '../features/player/restoreSession';
 import { summarize, useDownloads } from '../stores/downloads';
 import { useT, type MessageKey } from '../i18n';
 import { nativePlayback } from '../services/nativePlayer';
@@ -46,6 +47,11 @@ export function MobileShell() {
   const [miniSlot, setMiniSlot] = useState<HTMLDivElement | null>(null);
   const playerExpanded = useUi((s) => s.nowPlaying !== null && s.mobilePlayerExpanded);
   const session = useMobilePlayback((s) => s.session);
+
+  // Android app: bring back the last queue (or follow music still playing).
+  useEffect(() => {
+    if (NATIVE_PLAYER) void restoreMobileSession();
+  }, []);
   const [storageOpen, setStorageOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const nowPlaying = useUi((s) => s.nowPlaying);
@@ -113,7 +119,12 @@ export function MobileShell() {
         {tab === 'browser' && (
           <BrowserView
             covered={
-              playerExpanded || settingsOpen || sheetOpen || storageOpen || confirmOpen || removalOpen
+              playerExpanded ||
+              settingsOpen ||
+              sheetOpen ||
+              storageOpen ||
+              confirmOpen ||
+              removalOpen
             }
             onExit={() => setTab('home')}
             onOpenSettings={() => setSettingsOpen(true)}
@@ -163,7 +174,9 @@ export function MobileShell() {
                   name={item.icon}
                   size={24}
                   fill={on}
-                  className={on ? (item.play ? 'text-coral-strong' : 'text-chip-text') : 'text-muted'}
+                  className={
+                    on ? (item.play ? 'text-coral-strong' : 'text-chip-text') : 'text-muted'
+                  }
                 />
                 {item.id === 'downloads' && activeCount > 0 && (
                   <span className="absolute right-1.5 top-0 grid h-4 min-w-4 place-items-center rounded-lg bg-accent px-1 text-[10px] font-extrabold text-accent-ink">
