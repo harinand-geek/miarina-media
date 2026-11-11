@@ -1,4 +1,6 @@
 import { invoke } from '@tauri-apps/api/core';
+import { createTorrentsMock } from '../dev/torrentsMock';
+import { inTauri } from './platform';
 
 export interface TorrentPreview {
   hash: string;
@@ -23,7 +25,7 @@ export interface TorrentSnapshot {
   downloadLimit: number;
   uploadLimit: number;
 }
-export const torrents = {
+const native = {
   list: () => invoke<TorrentSnapshot>('torrents_list'),
   enable: () => invoke<void>('torrents_enable'),
   disable: () => invoke<void>('torrents_disable'),
@@ -35,3 +37,9 @@ export const torrents = {
   limits: (download: number, upload: number) =>
     invoke<void>('torrents_limits', { download, upload }),
 };
+
+/** Tauri commands; sample data in the browser preview (development only). */
+export const torrents: typeof native =
+  !inTauri() && import.meta.env.DEV && import.meta.env.MODE !== 'test'
+    ? createTorrentsMock()
+    : native;

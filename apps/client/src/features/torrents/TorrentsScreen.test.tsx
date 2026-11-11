@@ -35,13 +35,11 @@ it('preserves the other persisted rate limit when editing one field', async () =
   const user = userEvent.setup();
   render(<TorrentsScreen />);
   await screen.findByRole('textbox', { name: 'Magnet link' });
-  await user.click(screen.getByText('Transfer limits'));
-  const download = screen.getByRole('spinbutton', { name: 'Download' });
+  const download = await screen.findByRole('spinbutton', { name: /Download limit/ });
   expect(download).toHaveValue(100);
-  expect(screen.getByRole('spinbutton', { name: 'Upload' })).toHaveValue(50);
+  expect(screen.getByRole('spinbutton', { name: /Upload limit/ })).toHaveValue(50);
   await user.clear(download);
-  await user.type(download, '200');
-  await user.click(screen.getByRole('button', { name: 'Apply' }));
+  await user.type(download, '200{Enter}');
   await waitFor(() => expect(torrents.limits).toHaveBeenCalledWith(204800, 51200));
 });
 it('offers resume for an errored torrent', async () => {
@@ -102,6 +100,36 @@ it('requires explicit session activation and displays activation failures', asyn
   const user = userEvent.setup();
   render(<TorrentsScreen />);
   expect(torrents.enable).not.toHaveBeenCalled();
-  await user.click(await screen.findByRole('button', { name: 'Enable torrent session' }));
+  await user.click(await screen.findByRole('button', { name: 'Enable session' }));
   expect(await screen.findByRole('alert')).toHaveTextContent('Session unavailable');
+});
+it('shows sharing after completion and stops it on request (TOR-03)', async () => {
+  vi.mocked(torrents.list).mockResolvedValue({
+    enabled: true,
+    downloadLimit: 0,
+    uploadLimit: 0,
+    rows: [
+      {
+        hash: 'done',
+        name: 'Finished set',
+        folder: 'test',
+        phase: 'finished',
+        done: 100,
+        total: 100,
+        uploaded: 80,
+        downSpeed: 0,
+        upSpeed: 2048,
+        peers: 3,
+      },
+    ],
+  });
+  const user = userEvent.setup();
+  render(<TorrentsScreen />);
+  expect(await screen.findByText('Session on · sharing')).toBeInTheDocument();
+  expect(screen.getByText('0.8')).toBeInTheDocument();
+  await user.click(screen.getByRole('button', { name: 'Stop sharing' }));
+  await waitFor(() => expect(torrents.action).toHaveBeenCalledWith('done', 'pause'));
+  // Targets that do not exist yet are not offered as working settings.
+  expect(screen.getByText('Target ratio')).toBeInTheDocument();
+  expect(screen.getAllByText('PLANNED').length).toBe(2);
 });
