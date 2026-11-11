@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '../../components/Icon';
 import { formatClock } from '../../hooks/usePlaybackClock';
@@ -48,6 +48,20 @@ export function MobilePlayer({
   const [subtitles, setSubtitles] = useState(false);
   const audio = item.kind === 'audio';
   const actionsSheet = useMobileMediaSheet({ inPlayer: true });
+  const hasNext = useUi((s) => {
+    const at = s.mobileQueue.findIndex((m) => m.id === item.id);
+    return at >= 0 && at + 1 < s.mobileQueue.length;
+  });
+
+  // End of the media: continue with the queue (foreground; L03 moves this
+  // to the native MediaSession service).
+  const advanced = useRef(false);
+  const ended = !p.playing && p.duration > 0 && p.time >= p.duration - 1;
+  useEffect(() => {
+    if (!ended || advanced.current || !hasNext) return;
+    advanced.current = true;
+    useUi.getState().playNextMobile();
+  }, [ended, hasNext]);
 
   return (
     <>
@@ -61,6 +75,7 @@ export function MobilePlayer({
           duration={p.duration}
           onToggle={p.toggle}
           onExpand={() => setExpanded(true)}
+          onNext={hasNext ? () => useUi.getState().playNextMobile() : undefined}
         />,
         miniSlot,
       )}

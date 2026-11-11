@@ -15,6 +15,7 @@ export function MobileMiniPlayer({
   duration,
   onToggle,
   onExpand,
+  onNext,
 }: {
   media: MediaRecord;
   playing: boolean;
@@ -22,6 +23,8 @@ export function MobileMiniPlayer({
   duration: number;
   onToggle: () => void;
   onExpand: () => void;
+  /** Absent when nothing follows in the queue. */
+  onNext?: () => void;
 }) {
   const t = useT();
   const pct = duration > 0 ? Math.min(100, (time / duration) * 100) : 0;
@@ -52,9 +55,9 @@ export function MobileMiniPlayer({
       </button>
       <button
         type="button"
-        disabled
-        aria-label={t('nextPlanned')}
-        title={t('nextPlanned')}
+        disabled={!onNext}
+        onClick={onNext}
+        aria-label={t('next')}
         className="grid h-12 w-12 place-items-center text-fg disabled:opacity-40"
       >
         <Icon name="skip_next" size={28} fill />

@@ -5,7 +5,8 @@ import { MobileRemoveSheet } from '../features/library/MobileRemoveSheet';
 import { ToastHost } from '../components/ToastHost';
 import { MobileHome } from '../features/home/MobileHome';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
-import { MobileLibrary } from '../features/library/MobileLibrary';
+import { MobileMusic } from '../features/library/MobileMusic';
+import { MobileVideos } from '../features/library/MobileVideos';
 import { MobileSettings } from '../features/settings/MobileSettings';
 import { BrowserView } from '../features/browser/BrowserView';
 import { browserBack } from '../features/browser/browserBack';
@@ -115,8 +116,8 @@ export function MobileShell() {
           />
         )}
         {tab === 'downloads' && <MobileDownloads />}
-        {tab === 'music' && <MobileLibrary kind="audio" />}
-        {tab === 'videos' && <MobileLibrary kind="video" />}
+        {tab === 'music' && <MobileMusic />}
+        {tab === 'videos' && <MobileVideos />}
       </div>
       {settingsOpen && (
         <div className="absolute inset-0 z-30 flex animate-screen-in flex-col bg-bg">

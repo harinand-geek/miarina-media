@@ -1,12 +1,11 @@
-import { useEffect, useState } from 'react';
 import { EmptyState } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { LocalThumb } from '../../components/LocalThumb';
 import { useT } from '../../i18n';
-import { backend } from '../../services/backend';
-import type { GroupBy, MediaGroup } from '../../services/types';
+import type { GroupBy } from '../../services/types';
 import { openGroup } from '../../app/navigation';
 import { durationLabel } from './format';
+import { useGroups } from './useGroups';
 
 /** Albums, artists or folders of the music library (Windows v2, L06). */
 export function GroupsView({ by }: { by: GroupBy }) {
@@ -90,23 +89,4 @@ export function GroupsView({ by }: { by: GroupBy }) {
       ))}
     </ul>
   );
-}
-
-function useGroups(by: GroupBy) {
-  const [state, setState] = useState<{ by: GroupBy; groups: MediaGroup[] | Error } | null>(null);
-  useEffect(() => {
-    let alive = true;
-    const load = () =>
-      backend
-        .libraryGroups(by)
-        .then((groups) => alive && setState({ by, groups }))
-        .catch((e: unknown) => alive && setState({ by, groups: e instanceof Error ? e : new Error(String(e)) }));
-    void load();
-    const stop = backend.onLibraryChanged(() => void load());
-    return () => {
-      alive = false;
-      stop();
-    };
-  }, [by]);
-  return state?.by === by ? state.groups : null;
 }
