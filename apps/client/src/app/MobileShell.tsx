@@ -133,7 +133,7 @@ export function MobileShell() {
       {tab !== 'browser' && !settingsOpen && <div ref={setMiniSlot} className="shrink-0" />}
 
       <nav
-        aria-label="Main"
+        aria-label={t('navLabel')}
         hidden={tab === 'browser'}
         className="flex h-[72px] shrink-0 border-t border-divider bg-sidebar px-1"
       >

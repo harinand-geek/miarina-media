@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
+import { useT } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { BrowserSnapshot, Favorite } from '../../services/types';
 import { useUi, type AnalysisChoice } from '../../stores/ui';
@@ -52,6 +53,7 @@ export function BrowserView({
   onOpenSettings,
   onShowDownloads,
 }: BrowserViewProps) {
+  const t = useT();
   const [state, setState] = useState<BrowserSnapshot>(EMPTY);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -72,7 +74,11 @@ export function BrowserView({
   }));
   const first = mainCandidate(media);
   const fabLabel =
-    media.length === 0 ? null : media.length === 1 ? 'Download' : `Download · ${media.length}`;
+    media.length === 0
+      ? null
+      : media.length === 1
+        ? t('downloadVerb')
+        : t('downloadCount', { n: media.length });
 
   const openSheet = useCallback(() => {
     if (desktop) void backend.browserSheet(true);
@@ -246,7 +252,8 @@ export function BrowserView({
 
   return (
     <div className="relative flex min-h-0 flex-1 flex-col">
-      <div className="flex h-[60px] shrink-0 items-center gap-1 pl-3 pr-1.5">
+      {/* Android v2 screen 02: address bar on the navigation color, load line below. */}
+      <div className="relative flex shrink-0 items-center gap-2 bg-sidebar pb-2.5 pl-3 pr-2 pt-1.5">
         <AddressBar
           state={state}
           editing={editing}
@@ -258,26 +265,25 @@ export function BrowserView({
           onSubmit={open}
           onMedia={openSheet}
         />
-        <span role="img" aria-label="1 tab" className="grid size-11 shrink-0 place-items-center">
-          <span className="grid size-[22px] place-items-center rounded-[5px] border-2 border-fg text-[11px] font-extrabold">
+        <span role="img" aria-label={t('tabsCount', { n: 1 })} className="grid size-11 shrink-0 place-items-center">
+          <span className="grid size-6 place-items-center rounded-md border-2 border-fg text-[12px] font-extrabold">
             1
           </span>
         </span>
         <button
           type="button"
-          aria-label="More"
+          aria-label={t('moreActions')}
           aria-haspopup="menu"
           aria-expanded={menuOpen}
           onClick={() => setMenuOpen((o) => !o)}
-          className="grid size-11 shrink-0 place-items-center rounded-full active:bg-line-strong"
+          className="grid h-11 w-9 shrink-0 place-items-center rounded-full active:bg-line-strong"
         >
           <Icon name="more_vert" size={24} />
         </button>
-      </div>
-      <div className="h-[3px] shrink-0 bg-surface" aria-hidden="true">
         {state.loading && (
           <div
-            className="h-full bg-accent transition-[width] duration-200"
+            aria-hidden="true"
+            className="absolute bottom-0 left-0 h-[3px] bg-accent transition-[width] duration-200"
             style={{ width: `${Math.max(state.progress ?? 0, 8)}%` }}
           />
         )}
@@ -298,24 +304,29 @@ export function BrowserView({
       </div>
 
       <nav
-        aria-label="Browser"
-        className="grid h-16 shrink-0 grid-cols-5 items-center border-t border-divider bg-sidebar"
+        aria-label={t('browser')}
+        className="grid h-[60px] shrink-0 grid-cols-5 items-center border-t border-divider bg-sidebar"
       >
         <BarButton
           icon="arrow_back"
-          label="Back"
+          label={t('back')}
           disabled={!state.canGoBack}
           onClick={() => void backend.browserNav('back')}
         />
         <BarButton
           icon="arrow_forward"
-          label="Forward"
+          label={t('forward')}
           disabled={!state.canGoForward}
           onClick={() => void backend.browserNav('forward')}
         />
-        <BarButton icon="home" label="Start page" onClick={() => void backend.browserNav('home')} />
-        <BarButton icon="history" label="History (coming soon)" disabled onClick={() => {}} />
-        <BarButton icon="apps" label="Back to Miarina Media" accent onClick={onExit} />
+        <BarButton icon="home" label={t('startPage')} onClick={() => void backend.browserNav('home')} />
+        {/* Favorites are listed on the start page. */}
+        <BarButton
+          icon="bookmarks"
+          label={t('favorites')}
+          onClick={() => void backend.browserNav('home')}
+        />
+        <BarButton icon="apps" label={t('backToApp')} accent onClick={onExit} />
       </nav>
 
       {menuOpen && (
@@ -327,13 +338,13 @@ export function BrowserView({
           />
           <div
             role="menu"
-            aria-label="Browser menu"
+            aria-label={t('browserMenu')}
             className="absolute right-3.5 top-14 z-20 flex w-[220px] animate-fade-in flex-col rounded-[12px] border border-overlay-border bg-surface2 p-1.5 shadow-menu"
           >
             {!state.startPage && (
               <MenuRow
                 icon="refresh"
-                label="Reload"
+                label={t('reload')}
                 onSelect={() => {
                   setMenuOpen(false);
                   void backend.browserNav('reload');
@@ -342,7 +353,7 @@ export function BrowserView({
             )}
             <MenuRow
               icon="settings"
-              label="Settings"
+              label={t('settings')}
               onSelect={() => {
                 setMenuOpen(false);
                 onOpenSettings();
@@ -376,11 +387,12 @@ function AddressBar({
   onSubmit: (address: string) => void;
   onMedia: () => void;
 }) {
+  const t = useT();
   const inputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (editing) inputRef.current?.select();
   }, [editing]);
-  const { host, secure } = splitAddress(state.url);
+  const { host, rest, secure } = splitAddress(state.url);
 
   if (editing) {
     return (
@@ -398,8 +410,8 @@ function AddressBar({
           ref={inputRef}
           autoFocus
           defaultValue={state.url}
-          aria-label="Search or type a web address"
-          placeholder="Search or type a web address"
+          aria-label={t('addressPh')}
+          placeholder={t('addressPh')}
           enterKeyHint="go"
           autoCapitalize="off"
           autoCorrect="off"
@@ -416,13 +428,13 @@ function AddressBar({
       <button
         type="button"
         onClick={onEdit}
-        aria-label={state.url ? `Address: ${state.url}. Edit` : 'Search or type a web address'}
+        aria-label={state.url ? t('addressEdit', { url: state.url }) : t('addressPh')}
         className="flex h-full min-w-0 flex-1 items-center gap-2 text-left"
       >
         {state.startPage ? (
           <>
             <Icon name="search" size={18} className="text-muted" />
-            <span className="truncate text-[14px] text-muted">Search or type a web address</span>
+            <span className="truncate text-[14px] text-muted">{t('addressPh')}</span>
           </>
         ) : (
           <>
@@ -433,6 +445,7 @@ function AddressBar({
             />
             <span className="min-w-0 flex-1 truncate font-mono text-[14px]">
               {host || hostOf(state.url)}
+              <span className="text-muted">{rest}</span>
             </span>
           </>
         )}
@@ -442,7 +455,7 @@ function AddressBar({
           type="button"
           onClick={onStar}
           aria-pressed={starred}
-          aria-label={starred ? 'Remove from favorites' : 'Add to favorites'}
+          aria-label={starred ? t('favRemove') : t('favAdd')}
           className="grid size-8 shrink-0 place-items-center rounded-full active:bg-line-strong"
         >
           <Icon
@@ -457,10 +470,10 @@ function AddressBar({
         <button
           type="button"
           onClick={onMedia}
-          aria-label={`Download media found on this page (${mediaCount})`}
-          className="flex h-8 shrink-0 items-center gap-1 rounded-2xl border border-chip-border bg-accent-subtle px-2.5 text-[13px] font-bold text-chip-text"
+          aria-label={t('downloadFound', { n: mediaCount })}
+          className="flex h-[30px] shrink-0 items-center gap-1 rounded-[15px] border border-chip-border bg-accent-subtle px-2.5 text-[12px] font-bold text-chip-text"
         >
-          <Icon name="download" size={16} />
+          <Icon name="movie" size={16} />
           {mediaCount}
         </button>
       )}
@@ -477,14 +490,13 @@ function StartPage({
   favorites: Favorite[];
   onOpen: (address: string) => void;
 }) {
+  const t = useT();
   return (
     <main className="flex h-full flex-col items-center gap-6 overflow-auto px-4 pb-6 pt-10 text-center">
       <div className="flex flex-col items-center gap-3">
         <Logo size={44} />
-        <h1 className="m-0 text-[17px] font-bold">Search or open a web page</h1>
-        <p className="m-0 max-w-[320px] text-[13px] text-muted">
-          When a page has a video or audio file, a download button appears above the bar.
-        </p>
+        <h1 className="m-0 text-[17px] font-bold">{t('startTitle')}</h1>
+        <p className="m-0 max-w-[320px] text-[13px] text-muted">{t('startBody')}</p>
       </div>
       {error && (
         <p role="alert" className="m-0 text-[13px] text-danger">
@@ -494,10 +506,10 @@ function StartPage({
       {favorites.length > 0 && (
         <section className="flex w-full max-w-[720px] flex-col gap-3">
           <h2 className="m-0 text-left text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
-            Favorites
+            {t('favorites')}
           </h2>
           <StartShortcuts
-            label="Favorites"
+            label={t('favorites')}
             sites={favorites.map((f) => ({ name: f.title, address: f.url }))}
             onOpen={onOpen}
           />
@@ -506,13 +518,13 @@ function StartPage({
       <section className="flex w-full max-w-[720px] flex-col gap-3">
         {favorites.length > 0 && (
           <h2 className="m-0 text-left text-[13px] font-bold uppercase tracking-[0.06em] text-muted">
-            Sites
+            {t('sites')}
           </h2>
         )}
         <StartShortcuts onOpen={onOpen} />
       </section>
       <p className="m-0 mt-auto text-[12px] text-faint">
-        Only download media you own or have permission to save.
+        {t('legalHint')}
       </p>
     </main>
   );

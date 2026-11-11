@@ -1,248 +1,308 @@
 import { useMemo, useState } from 'react';
-import { Segmented } from '../../components/Controls';
-import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
+import { LocalThumb } from '../../components/LocalThumb';
 import { ProgressBar } from '../../components/ProgressBar';
-import { useLibrary } from '../../stores/library';
-import { useUi } from '../../stores/ui';
+import { useT, type Translate } from '../../i18n';
+import type { DownloadTask, HistoryEntry } from '../../services/types';
 import {
   formatBytes,
-  isActiveRow,
   isOpen,
-  isQueued,
   isRunning,
   ordered,
   percentOf,
   useDownloads,
 } from '../../stores/downloads';
-import { barTone, barValue, progressAriaLabel, statusLabel, statusTone } from './format';
+import { useLibrary } from '../../stores/library';
+import { useUi } from '../../stores/ui';
+import { barTone, barValue, etaLabel, progressAriaLabel, retryIn } from './format';
+import { useNow } from './useNow';
 
-type Tab = 'active' | 'queue' | 'done';
+type Tab = 'active' | 'done' | 'failed';
 
-interface CardProps {
-  title: string;
-  kind: 'video' | 'audio';
-  thumbnail: string | null;
-  detail: string;
-  status: string;
-  statusClass: string;
+interface Status {
   icon: string;
-  actionLabel: string;
-  onAction: () => void;
-  actionDisabled?: boolean;
-  onCancel?: () => void;
-  progress?: {
-    value: number | null;
-    percent: number;
-    label: string;
-    tone: ReturnType<typeof barTone>;
-  };
+  text: string;
+  /** Text color class: the state is never carried by color alone. */
+  tone: string;
+  detail: string;
 }
 
-function Card({
+const pct = (task: DownloadTask) => `${Math.floor(percentOf(task))} %`;
+
+/** Android v2 screen 04: icon + words for each state (DL-02, DL-06). */
+function statusOf(task: DownloadTask, t: Translate, now: number): Status {
+  if (task.retry) {
+    return {
+      icon: 'wifi_off',
+      text: t('stRetry', { n: retryIn(task, now) }),
+      tone: 'text-danger',
+      detail:
+        task.supportsResume && task.downloadedBytes > 0
+          ? t('stResumeAt', { n: Math.floor(percentOf(task)) })
+          : '',
+    };
+  }
+  switch (task.state) {
+    case 'downloading':
+      return {
+        icon: 'downloading',
+        text: task.bytesPerSec > 0 ? t('stDownloading') : t('stStarting'),
+        tone: 'text-accent-strong',
+        detail: task.etaSecs !== null ? `${pct(task)} · ${etaLabel(task.etaSecs)}` : pct(task),
+      };
+    case 'processing':
+      return { icon: 'autorenew', text: t('stConverting'), tone: 'text-accent-strong', detail: '' };
+    case 'paused':
+      return {
+        icon: 'pause_circle',
+        text:
+          task.supportsResume || task.downloadedBytes === 0 ? t('stPaused') : t('stPausedRestart'),
+        tone: 'text-warn',
+        detail: pct(task),
+      };
+    case 'failed':
+      return {
+        icon: 'error',
+        text:
+          task.errorCode === 'disk_full' || task.errorCode === 'insufficient_space'
+            ? t('stDiskFull')
+            : t('stFailed'),
+        tone: 'text-danger',
+        detail: task.supportsResume && task.downloadedBytes > 0 ? t('stResumeAt', { n: Math.floor(percentOf(task)) }) : '',
+      };
+    case 'analyzing':
+      return { icon: 'hourglass_empty', text: t('stAnalyzing'), tone: 'text-muted', detail: '' };
+    default:
+      return {
+        icon: 'schedule',
+        text: t('stQueued'),
+        tone: 'text-muted',
+        detail: task.totalBytes ? formatBytes(task.totalBytes) : '',
+      };
+  }
+}
+
+function Row({
   title,
+  format,
   kind,
   thumbnail,
-  detail,
   status,
-  statusClass,
-  icon,
-  actionLabel,
-  onAction,
-  actionDisabled,
-  onCancel,
   progress,
-}: CardProps) {
+  actions,
+}: {
+  title: string;
+  format: string;
+  kind: 'video' | 'audio';
+  thumbnail: string | null;
+  status: Status;
+  progress?: { value: number | null; label: string; tone: ReturnType<typeof barTone> };
+  actions: { icon: string; label: string; run: () => void; disabled?: boolean }[];
+}) {
   return (
-    <div className="flex flex-col gap-3 rounded-[16px] bg-surface p-3.5">
-      <div className="flex items-center gap-3">
-        <LocalThumb
-          path={thumbnail}
-          kind={kind}
-          className="h-16 w-16 rounded-[10px]"
-          label={kind === 'video' ? 'Video' : 'Audio'}
-        />
-        <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-          <span className="truncate text-[14.5px] font-bold">{title}</span>
-          <span className="truncate text-[12.5px] text-muted">{detail}</span>
-          <span className={`text-[12.5px] font-semibold ${statusClass}`}>{status}</span>
+    <li className="flex gap-3 border-b border-divider py-3">
+      <LocalThumb path={thumbnail} kind={kind} className="h-11 w-[72px] rounded-md" />
+      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+        <div className="flex items-baseline gap-2">
+          <span className="min-w-0 flex-1 truncate text-[14px] font-bold">{title}</span>
+          <span className="shrink-0 font-mono text-[11px] text-muted">{format}</span>
         </div>
-        <button
-          type="button"
-          aria-label={actionLabel}
-          disabled={actionDisabled}
-          onClick={onAction}
-          className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface2 text-fg disabled:opacity-50"
-        >
-          <Icon name={icon} size={24} fill />
-        </button>
-      </div>
-      {progress && (
-        <div className="flex items-center gap-2.5">
+        {progress && (
           <ProgressBar
             value={progress.value}
             height={6}
             tone={progress.tone}
             label={progress.label}
-            className="flex-1"
+            className="w-full"
           />
-          <span className="w-[76px] text-right font-mono text-[12px] font-medium text-muted tabular">
-            {Math.floor(progress.percent)}%
+        )}
+        <div className="flex items-center gap-1.5 text-[12px]">
+          <Icon name={status.icon} size={16} className={status.tone} />
+          <span className={`min-w-0 flex-1 truncate font-semibold ${status.tone}`}>
+            {status.text}
           </span>
+          {status.detail && (
+            <span className="shrink-0 font-mono text-muted tabular">{status.detail}</span>
+          )}
         </div>
-      )}
-      {onCancel && (
-        <button
-          type="button"
-          aria-label={`Cancel ${title}`}
-          onClick={onCancel}
-          className="min-h-11 self-end rounded-sm px-3 text-[13px] font-semibold text-muted hover:bg-surface2"
-        >
-          Cancel download
-        </button>
-      )}
-    </div>
+      </div>
+      <div className="flex shrink-0 items-start">
+        {actions.map((a) => (
+          <button
+            key={a.icon}
+            type="button"
+            aria-label={a.label}
+            disabled={a.disabled}
+            onClick={a.run}
+            className="grid h-11 w-10 place-items-center text-muted disabled:opacity-40"
+          >
+            <Icon name={a.icon} size={24} />
+          </button>
+        ))}
+      </div>
+    </li>
   );
 }
 
+/** Android v2 Downloads (screen 04). */
 export function MobileDownloads() {
+  const t = useT();
   const [tab, setTab] = useState<Tab>('active');
   const tasks = useDownloads((s) => s.tasks);
   const history = useDownloads((s) => s.history);
   const library = useLibrary((s) => s.items);
   const play = useUi((s) => s.play);
   const pushToast = useUi((s) => s.pushToast);
-
-  /** Library entry created by a finished download. */
-  const mediaOf = (taskId: string, finalPath: string | null) =>
-    library.find((m) => m.taskId === taskId || (finalPath && m.path === finalPath));
-
-  /** Plays the library entry created by a finished download. */
-  const playDone = (taskId: string, finalPath: string | null) => {
-    const media = mediaOf(taskId, finalPath);
-    if (media) play(media);
-    else pushToast({ tone: 'error', message: 'This file is no longer in the library.' });
-  };
   const { pause, resume, retry, startNow, pauseAll, resumeAll, cancel } = useDownloads.getState();
-  const cancelTask = (id: string, title: string) =>
-    useUi.getState().askConfirm({
-      title: 'Cancel download?',
-      body: `${title} will be removed from the queue and its partial files deleted.`,
-      confirmLabel: 'Cancel download',
-      onConfirm: () => cancel(id),
-    });
 
   const all = useMemo(() => ordered(tasks), [tasks]);
-  const active = useMemo(() => all.filter((t) => isOpen(t) && isActiveRow(t)), [all]);
-  const queue = useMemo(() => all.filter(isQueued), [all]);
+  const open = useMemo(() => all.filter((x) => isOpen(x) && x.state !== 'failed'), [all]);
+  const failedTasks = useMemo(() => all.filter((x) => x.state === 'failed'), [all]);
+  const failedHistory = useMemo(() => history.filter((h) => h.status === 'failed'), [history]);
   const done = useMemo(() => history.filter((h) => h.status === 'completed'), [history]);
-  const anyRunning = active.some(isRunning);
-  const anyPaused = active.some((t) => t.state === 'paused');
+  const anyRunning = open.some(isRunning);
+  const anyPaused = open.some((x) => x.state === 'paused');
+  const retrying = open.some((x) => x.retry);
+  const now = useNow(retrying ? 1000 : null);
 
-  const empty =
-    (tab === 'active' && !active.length) ||
-    (tab === 'queue' && !queue.length) ||
-    (tab === 'done' && !done.length);
+  const mediaOf = (h: HistoryEntry) =>
+    library.find((m) => m.taskId === h.taskId || (h.finalPath && m.path === h.finalPath));
+  const playDone = (h: HistoryEntry) => {
+    const media = mediaOf(h);
+    if (media) play(media);
+    else pushToast({ tone: 'error', message: t('fileGone') });
+  };
+  const askCancel = (task: DownloadTask) =>
+    useUi.getState().askConfirm({
+      title: t('cancelTitle'),
+      body: t('cancelBody', { title: task.title }),
+      confirmLabel: t('cancelConfirm'),
+      onConfirm: () => cancel(task.id),
+    });
+
+  const taskRow = (task: DownloadTask) => {
+    const status = statusOf(task, t, now);
+    const main =
+      task.state === 'failed'
+        ? { icon: 'refresh', label: t('actRetry', { title: task.title }), run: () => retry(task.id) }
+        : task.state === 'paused'
+          ? { icon: 'play_arrow', label: t('actResume', { title: task.title }), run: () => resume(task.id) }
+          : task.state === 'queued' || (task.state === 'waiting' && !task.retry)
+            ? { icon: 'play_arrow', label: t('actStart', { title: task.title }), run: () => startNow(task.id) }
+            : {
+                icon: 'pause',
+                label: t('actPause', { title: task.title }),
+                run: () => pause(task.id),
+                disabled: task.state === 'processing' || task.state === 'analyzing',
+              };
+    return (
+      <Row
+        key={task.id}
+        title={task.title}
+        format={task.formatLabel}
+        kind={task.kind}
+        thumbnail={task.thumbnail}
+        status={status}
+        progress={
+          task.state === 'queued' || task.state === 'analyzing'
+            ? undefined
+            : { value: barValue(task), label: progressAriaLabel(task), tone: barTone(task) }
+        }
+        actions={[
+          main,
+          { icon: 'close', label: t('cancelNamed', { title: task.title }), run: () => askCancel(task) },
+        ]}
+      />
+    );
+  };
+
+  const counts = { active: open.length, done: done.length, failed: failedTasks.length + failedHistory.length };
+  const empty = counts[tab] === 0;
 
   return (
-    <div className="flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-5 pt-2">
-      <header className="flex h-12 items-center">
-        <h1 className="m-0 flex-1 text-[22px] font-bold tracking-[-0.02em]">Downloads</h1>
+    <div className="flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3 pt-1">
+      <header className="flex h-12 shrink-0 items-center gap-2">
+        <h1 className="m-0 flex-1 text-[22px] font-extrabold tracking-[-0.01em]">{t('downloads')}</h1>
         {(anyRunning || anyPaused) && (
           <button
             type="button"
+            aria-label={anyRunning ? t('pauseAll') : t('resumeAll')}
             onClick={anyRunning ? pauseAll : resumeAll}
-            className="h-10 rounded-[20px] border border-line-strong px-3.5 text-[13px] font-semibold"
+            className="flex h-10 items-center gap-1.5 rounded-full border border-line-strong bg-surface2 px-3 text-[13px] font-semibold"
           >
-            {anyRunning ? 'Pause all' : 'Resume all'}
+            <Icon name={anyRunning ? 'pause' : 'play_arrow'} size={18} />
+            {t('pauseAllShort')}
           </button>
         )}
       </header>
-      <Segmented<Tab>
-        label="Download lists"
-        variant="mobile"
-        value={tab}
-        onChange={setTab}
-        options={[
-          { value: 'active', label: `Active · ${active.length}` },
-          { value: 'queue', label: `Queue · ${queue.length}` },
-          { value: 'done', label: 'Done' },
-        ]}
-      />
 
-      {tab === 'active' &&
-        active.map((t) => {
-          const failed = t.state === 'failed';
-          const paused = t.state === 'paused';
-          return (
-            <Card
-              key={t.id}
-              title={t.title}
-              kind={t.kind}
-              thumbnail={t.thumbnail}
-              detail={t.formatLabel}
-              status={statusLabel(t)}
-              statusClass={statusTone(t)}
-              icon={failed ? 'refresh' : paused ? 'play_arrow' : 'pause'}
-              actionLabel={
-                failed ? `Retry ${t.title}` : paused ? `Resume ${t.title}` : `Pause ${t.title}`
-              }
-              onAction={() => (failed ? retry(t.id) : paused ? resume(t.id) : pause(t.id))}
-              actionDisabled={t.state === 'processing'}
-              onCancel={() => cancelTask(t.id, t.title)}
-              progress={{
-                value: barValue(t),
-                percent: percentOf(t),
-                label: progressAriaLabel(t),
-                tone: barTone(t),
-              }}
-            />
-          );
-        })}
-
-      {tab === 'queue' &&
-        queue.map((q) => (
-          <Card
-            key={q.id}
-            title={q.title}
-            kind={q.kind}
-            thumbnail={q.thumbnail}
-            detail={
-              q.totalBytes ? `${q.formatLabel} · ${formatBytes(q.totalBytes)}` : q.formatLabel
-            }
-            status="Waiting for a free slot"
-            statusClass="text-muted"
-            icon="play_arrow"
-            actionLabel={`Start ${q.title} now`}
-            onAction={() => startNow(q.id)}
-            onCancel={() => cancelTask(q.id, q.title)}
-          />
+      <div
+        role="radiogroup"
+        aria-label={t('downloadLists')}
+        className="flex rounded-[20px] border border-line bg-sidebar p-[3px]"
+      >
+        {(['active', 'done', 'failed'] as const).map((id) => (
+          <button
+            key={id}
+            type="button"
+            role="radio"
+            aria-checked={tab === id}
+            onClick={() => setTab(id)}
+            className={`h-9 flex-1 rounded-[17px] text-[13px] ${
+              tab === id ? 'bg-line-strong font-bold text-fg' : 'font-semibold text-muted'
+            }`}
+          >
+            {t(id === 'active' ? 'tabActive' : id === 'done' ? 'tabDone' : 'tabFailed', {
+              n: counts[id],
+            })}
+          </button>
         ))}
+      </div>
 
-      {tab === 'done' &&
-        done.map((h) => {
-          const media = mediaOf(h.taskId, h.finalPath);
-          return (
-            <Card
-              key={h.id}
+      <ul className="m-0 flex list-none flex-col p-0">
+        {tab === 'active' && open.map(taskRow)}
+        {tab === 'failed' && failedTasks.map(taskRow)}
+        {tab === 'failed' &&
+          failedHistory.map((h) => (
+            <Row
+              key={`h${h.id}`}
               title={h.title}
-              kind={media?.kind ?? 'video'}
-              thumbnail={media?.thumbnail ?? null}
-              detail={`${h.formatLabel} · ${formatBytes(h.doneBytes)}`}
-              status="Saved to Internal storage"
-              statusClass="text-accent-strong"
-              icon="play_arrow"
-              actionLabel={`Play ${h.title}`}
-              onAction={() => playDone(h.taskId, h.finalPath)}
+              format={h.formatLabel}
+              kind="video"
+              thumbnail={null}
+              status={{ icon: 'error', text: h.reason ?? t('stFailed'), tone: 'text-danger', detail: '' }}
+              actions={[]}
             />
-          );
-        })}
+          ))}
+        {tab === 'done' &&
+          done.map((h) => {
+            const media = mediaOf(h);
+            return (
+              <Row
+                key={h.id}
+                title={h.title}
+                format={h.formatLabel}
+                kind={media?.kind ?? 'video'}
+                thumbnail={media?.thumbnail ?? null}
+                status={{
+                  icon: 'check_circle',
+                  text: t('stDone'),
+                  tone: 'text-accent-strong',
+                  detail: formatBytes(h.doneBytes),
+                }}
+                actions={[
+                  { icon: 'play_arrow', label: t('playTitle', { title: h.title }), run: () => playDone(h) },
+                ]}
+              />
+            );
+          })}
+      </ul>
 
       {empty && (
         <div className="flex flex-col items-center gap-1.5 px-6 py-12 text-center">
           <Icon name="download_done" size={36} className="text-faint-icon" />
-          <span className="font-bold">Nothing here</span>
-          <span className="text-[13px] text-muted">Items you add will show up in this list.</span>
+          <span className="font-bold">{t('dlEmptyTitle')}</span>
+          <span className="text-[13px] text-muted">{t('dlEmptyBody')}</span>
         </div>
       )}
     </div>

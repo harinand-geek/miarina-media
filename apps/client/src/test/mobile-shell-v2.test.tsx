@@ -43,7 +43,7 @@ describe('Android v2 shell', () => {
   it('reads the French catalog for the tabs', () => {
     useSettings.setState({ lang: 'fr' });
     render(<MobileShell />);
-    const labels = within(nav())
+    const labels = within(screen.getByRole('navigation', { name: 'Navigation principale' }))
       .getAllByRole('button')
       .map((b) => b.textContent?.replace(/^[a-z_]+/, '').replace(/\d+$/, ''));
     expect(labels).toEqual(['Accueil', 'Navigateur', 'Téléch.', 'Musique', 'Vidéos']);
