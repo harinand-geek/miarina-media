@@ -270,7 +270,7 @@ Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`compo
 
 ## 16. Android v2 — handoff `design/design_handoff_android_v2` (reçu le 2026-11-11)
 
-18 écrans 412 × 892 dp (Accueil, Navigateur, Formats, Téléchargements, Musique Titres/Playlists/Albums/Artiste, En lecture, File, Son, Notification, Retirer/Supprimer, Réglages, Vidéo paysage, Vidéos, clair/EN). Mêmes tokens que §15 ; nouveau token `coral-chip-border #7A4330` (à ajouter avec la première implémentation Android). Barre basse à 5 onglets : Accueil, Navigateur, Téléch., Musique, Vidéos. Non implémenté à ce jour : voir `design-implementation-map.md`.
+18 écrans 412 × 892 dp (Accueil, Navigateur, Formats, Téléchargements, Musique Titres/Playlists/Albums/Artiste, En lecture, File, Son, Notification, Retirer/Supprimer, Réglages, Vidéo paysage, Vidéos, clair/EN). Mêmes tokens que §15 ; nouveau token `coral-chip-border #7A4330` ajouté dans `theme.css` (valeur claire `#F2B8A0` dérivée, à valider). Barre basse à 5 onglets : Accueil, Navigateur, Téléch., Musique, Vidéos. Non implémenté à ce jour : voir `design-implementation-map.md`.
 
 ## 17. Splash Android — handoff `design/design_handoff_splash` (reçu le 2026-11-11)
 

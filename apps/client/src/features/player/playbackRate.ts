@@ -9,3 +9,8 @@ export function nextRate(rate: number) {
 export function formatRate(rate: number) {
   return `${Number.isInteger(rate) ? rate.toFixed(1) : rate}×`;
 }
+
+/** "1,25×" in French, "1.25×" in English. */
+export function rateLabel(rate: number, lang: string) {
+  return `${rate.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US')}×`;
+}

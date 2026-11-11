@@ -43,6 +43,7 @@
   /* Windows v2: coral is the "play" accent (design_handoff_windows_v2). */
   --mm-coral-strong: 255 145 102; /* #FF9166 — coral text on dark grounds */
   --mm-coral-subtle: 58 38 32; /* #3A2620 */
+  --mm-coral-chip-border: 122 67 48; /* #7A4330 — active coral chips (Android v2) */
   --mm-warning-subtle: 43 38 22; /* #2B2616 — offline banner */
   /* 4d mark: dark tile, coral play, teal flow bars (Charte Miarina Media). */
   --mm-logo-tile: #101820;
@@ -84,6 +85,7 @@
   --mm-planned-border: 240 221 176;
   --mm-coral-strong: 194 65 12; /* #C2410C */
   --mm-coral-subtle: 255 232 222; /* #FFE8DE */
+  --mm-coral-chip-border: 242 184 160; /* derived — #F2B8A0, pending design review */
   --mm-warning-subtle: 251 241 220; /* #FBF1DC */
   --mm-logo-tile: #101820;
   --mm-logo-stroke: #3a4d5e;
@@ -125,6 +127,7 @@
   --color-coral-ink: #1f0c03;
   --color-coral-strong: rgb(var(--mm-coral-strong));
   --color-coral-subtle: rgb(var(--mm-coral-subtle));
+  --color-coral-chip-border: rgb(var(--mm-coral-chip-border));
   --color-warn-subtle: rgb(var(--mm-warning-subtle));
 
   --color-divider: rgb(var(--mm-divider));

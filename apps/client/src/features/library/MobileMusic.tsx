@@ -7,6 +7,7 @@ import { useT, type MessageKey, type Translate } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { GroupBy, MediaGroup, MediaRecord, MediaSort } from '../../services/types';
 import { useLibrary } from '../../stores/library';
+import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { useUi } from '../../stores/ui';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
@@ -44,8 +45,8 @@ const tracksLabel = (n: number, t: Translate) => (n === 1 ? t('oneTrack') : t('t
 const lastSegment = (path: string) => path.split(/[\\/]/).filter(Boolean).pop() ?? path;
 
 /** Plays `items` from `start` with the rest as the Android queue. */
-function playList(items: MediaRecord[], start: MediaRecord | undefined) {
-  if (start) useUi.getState().play(start, items);
+function playList(items: MediaRecord[], start: MediaRecord | undefined, source: string | null) {
+  if (start) useMobilePlayback.getState().start(start, items, source);
 }
 
 /** Android v2 Music (screens 05, 15, 16): tracks, albums, artists, folders. */
@@ -160,7 +161,7 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
           disabled={!list.length}
           onClick={() => {
             const order = shuffled(list);
-            playList(order, order[0]);
+            playList(order, order[0], t('tracks'));
           }}
           className="flex h-10 items-center gap-2 rounded-full bg-coral pl-3 pr-4 text-[14px] font-extrabold text-coral-ink disabled:opacity-50"
         >
@@ -195,7 +196,7 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
           {search.trim() ? t('noMatch', { q: search.trim() }) : t('emptyLibBody')}
         </p>
       )}
-      <TrackList items={list} scroller={scroller} />
+      <TrackList items={list} scroller={scroller} source={t('tracks')} />
     </>
   );
 }
@@ -206,9 +207,12 @@ function TrackList({
   scroller,
   numbered = false,
   secondary = 'artist',
+  source,
 }: {
   items: MediaRecord[];
   scroller: HTMLDivElement | null;
+  /** "Playing from" label of the queue. */
+  source: string;
   numbered?: boolean;
   /** Second line: the artist, or the album on an artist page. */
   secondary?: 'artist' | 'album';
@@ -233,7 +237,7 @@ function TrackList({
             <div className={`flex items-center gap-3 ${numbered ? 'h-14' : 'h-16'}`}>
               <button
                 type="button"
-                onClick={() => playList(items, m)}
+                onClick={() => playList(items, m, source)}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   actionsSheet.open(m);
@@ -402,7 +406,9 @@ function GroupCard({
             onClick={() =>
               void backend
                 .libraryQuery({ search: '', kind: 'audio', sort: 'added', album: group.name })
-                .then((page) => playList(page.items, page.items[0]))
+                .then((page) =>
+                  playList(page.items, page.items[0], t('sourceAlbum', { name: group.name })),
+                )
                 .catch(() => {})
             }
             className="absolute bottom-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-[rgb(16_24_32/0.85)] text-coral-strong"
@@ -451,6 +457,10 @@ function GroupPage({
   }, [list]);
   const back: MessageKey = group.by === 'album' ? 'albums' : group.by === 'artist' ? 'artists' : 'folders';
   const title = group.by === 'folder' ? lastSegment(group.name) : group.name;
+  const source = t(
+    group.by === 'album' ? 'sourceAlbum' : group.by === 'artist' ? 'sourceArtist' : 'sourceFolder',
+    { name: title },
+  );
   const stats = [
     group.by === 'artist' && (albums.length === 1 ? t('oneAlbum') : t('albumsCount', { n: albums.length })),
     tracksLabel(list.length, t),
@@ -494,7 +504,7 @@ function GroupPage({
           <button
             type="button"
             disabled={!list.length}
-            onClick={() => playList(list, list[0])}
+            onClick={() => playList(list, list[0], source)}
             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-coral text-[14.5px] font-extrabold text-coral-ink disabled:opacity-50"
           >
             <Icon name="play_arrow" size={22} fill />
@@ -505,7 +515,7 @@ function GroupPage({
             disabled={!list.length}
             onClick={() => {
               const order = shuffled(list);
-              playList(order, order[0]);
+              playList(order, order[0], source);
             }}
             className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-line-strong bg-surface2 text-[14px] font-semibold disabled:opacity-50"
           >
@@ -535,6 +545,7 @@ function GroupPage({
           scroller={scroller}
           numbered={group.by === 'album'}
           secondary={group.by === 'artist' ? 'album' : 'artist'}
+          source={source}
         />
       </div>
     </>

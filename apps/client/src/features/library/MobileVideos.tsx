@@ -5,7 +5,7 @@ import { useT } from '../../i18n';
 import type { MediaRecord } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
-import { useUi } from '../../stores/ui';
+import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { savedPosition } from '../player/usePlayback';
 import { durationLabel, folderOf, qualityLabel } from './format';
 import { MediaThumb } from './MediaThumb';
@@ -159,7 +159,7 @@ export function MobileVideos() {
             <div className={`flex ${asList ? 'items-center gap-3' : 'flex-col gap-1.5'}`}>
               <button
                 type="button"
-                onClick={() => useUi.getState().play(m, shown)}
+                onClick={() => useMobilePlayback.getState().start(m, shown, t('tabVideos'))}
                 onContextMenu={(e) => {
                   e.preventDefault();
                   actionsSheet.open(m);

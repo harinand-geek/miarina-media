@@ -48,7 +48,6 @@ export interface ConfirmRequest {
 }
 
 const MAX_TOASTS = 2;
-const MAX_MOBILE_QUEUE = 500;
 let toastSeq = 0;
 
 export interface AnalysisChoice {
@@ -80,8 +79,6 @@ interface UiState {
   nowPlaying: MediaRecord | null;
   /** Android: full-screen player shown (otherwise the mini-player). */
   mobilePlayerExpanded: boolean;
-  /** Android play queue (bounded); the current item is part of it. */
-  mobileQueue: MediaRecord[];
   /** Search or address for the browser to open (Home field → browser). */
   browserRequest: string | null;
   librarySearchFocus: number;
@@ -93,13 +90,7 @@ interface UiState {
   /** Shows the browser and opens `text` there (searched unless it is an address). */
   openInBrowser: (text: string | null) => void;
   setAnalysisTab: (tab: UiState['analysisTab']) => void;
-  /**
-   * Opens the player on `item`; `queue` (Android, foreground only until L03)
-   * is what plays next.
-   */
-  play: (item: MediaRecord | null, queue?: MediaRecord[]) => void;
-  /** Android: next item of the queue, keeping the player expanded or not. */
-  playNextMobile: () => boolean;
+  play: (item: MediaRecord | null) => void;
   focusLibrarySearch: () => void;
   pushToast: (toast: Omit<Toast, 'id'>) => void;
   dismissToast: (id: number) => void;
@@ -108,7 +99,7 @@ interface UiState {
   closeConfirm: () => void;
 }
 
-export const useUi = create<UiState>((set, get) => ({
+export const useUi = create<UiState>((set) => ({
   screen: 'home',
   space: 'get',
   libraryView: 'tracks',
@@ -125,7 +116,6 @@ export const useUi = create<UiState>((set, get) => ({
   analysisChoices: [],
   nowPlaying: null,
   mobilePlayerExpanded: false,
-  mobileQueue: [],
   browserRequest: null,
   librarySearchFocus: 0,
   go: (screen) =>
@@ -159,20 +149,7 @@ export const useUi = create<UiState>((set, get) => ({
       space: browserRequest ? 'get' : s.space,
     })),
   setAnalysisTab: (analysisTab) => set({ analysisTab }),
-  play: (nowPlaying, queue) =>
-    set({
-      nowPlaying,
-      mobilePlayerExpanded: nowPlaying !== null,
-      mobileQueue: nowPlaying ? (queue ?? [nowPlaying]).slice(0, MAX_MOBILE_QUEUE) : [],
-    }),
-  playNextMobile: () => {
-    const { nowPlaying, mobileQueue } = get();
-    const at = mobileQueue.findIndex((m) => m.id === nowPlaying?.id);
-    const next = at >= 0 ? mobileQueue[at + 1] : undefined;
-    if (!next) return false;
-    set({ nowPlaying: next });
-    return true;
-  },
+  play: (nowPlaying) => set({ nowPlaying, mobilePlayerExpanded: nowPlaying !== null }),
   focusLibrarySearch: () =>
     set((s) => ({
       screen: 'library',

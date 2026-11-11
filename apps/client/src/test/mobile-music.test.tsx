@@ -6,6 +6,7 @@ import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
+import { useMobilePlayback } from '../stores/mobilePlayback';
 import { useUi } from '../stores/ui';
 
 let stop: () => void = () => {};
@@ -42,7 +43,7 @@ describe('Android v2 Music', () => {
     expect(await screen.findByText('3 tracks')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
-    expect(useUi.getState().mobileQueue).toHaveLength(3);
+    expect(useMobilePlayback.getState().queue).toHaveLength(3);
     expect(useUi.getState().nowPlaying).not.toBeNull();
   });
 
@@ -61,7 +62,7 @@ describe('Android v2 Music', () => {
     );
     await user.click(screen.getByRole('button', { name: /Play all/ }));
     expect(useUi.getState().nowPlaying?.title).toBe('Gymnopédie No. 1 — Satie');
-    expect(useUi.getState().mobileQueue.map((m) => m.trackNo)).toEqual([1, 2]);
+    expect(useMobilePlayback.getState().queue.map((m) => m.trackNo)).toEqual([1, 2]);
 
     // The mini-player offers the next track of the queue.
     act(() => useUi.setState({ mobilePlayerExpanded: false }));
