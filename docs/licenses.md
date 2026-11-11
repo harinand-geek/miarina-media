@@ -37,6 +37,8 @@ Ajouts du lot L06 (2026-11-11, vérifiés sur crates.io le jour même) :
 | `lofty` | 0.25.5 (MSRV 1.89) | MIT OR Apache-2.0 | Lecture et écriture des tags audio (ID3v2, Vorbis, MP4 ilst, APE, RIFF) | Windows, Android |
 | `trash` | 5.3.0 (MSRV 1.87) | MIT | « Supprimer le fichier » envoie à la Corbeille | Windows (non compilé pour Android) |
 
+Ajout du lot L03 (2026-11-11) : `androidx.media3:media3-session` 1.11.1 (Apache-2.0), même famille et même version que `media3-exoplayer` / `media3-ui` déjà embarqués ; fournit `MediaSessionService`, la notification média et les commandes écran verrouillé / Bluetooth (CDC §5).
+
 ## 4. Contenus
 
 Miarina Media ne contourne ni DRM, ni paywall, ni authentification : les formats marqués DRM sont exclus des propositions, les pages privées ou nécessitant un compte sont signalées comme non supportées. Les tests de bout en bout utilisent exclusivement des contenus sous licence libre (Blender Foundation, CC BY 3.0).

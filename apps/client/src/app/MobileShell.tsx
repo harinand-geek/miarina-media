@@ -18,7 +18,11 @@ import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
 import { summarize, useDownloads } from '../stores/downloads';
 import { useT, type MessageKey } from '../i18n';
+import { nativePlayback } from '../services/nativePlayer';
+import { useMobilePlayback } from '../stores/mobilePlayback';
 import { useUi } from '../stores/ui';
+
+const NATIVE_PLAYER = nativePlayback();
 
 export type MobileTab = 'home' | 'browser' | 'downloads' | 'music' | 'videos';
 
@@ -41,6 +45,7 @@ export function MobileShell() {
   const [tab, setTab] = useState<MobileTab>('home');
   const [miniSlot, setMiniSlot] = useState<HTMLDivElement | null>(null);
   const playerExpanded = useUi((s) => s.nowPlaying !== null && s.mobilePlayerExpanded);
+  const session = useMobilePlayback((s) => s.session);
   const [storageOpen, setStorageOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const nowPlaying = useUi((s) => s.nowPlaying);
@@ -186,7 +191,15 @@ export function MobileShell() {
         }}
       />
       <StorageSheet open={storageOpen} onClose={() => setStorageOpen(false)} />
-      {nowPlaying && <MobilePlayer key={nowPlaying.id} item={nowPlaying} miniSlot={miniSlot} />}
+      {nowPlaying && (
+        <MobilePlayer
+          // Native: one player per queue session (the service changes tracks);
+          // preview: one player per media.
+          key={NATIVE_PLAYER ? `session-${session}` : nowPlaying.id}
+          item={nowPlaying}
+          miniSlot={miniSlot}
+        />
+      )}
       <ToastHost position={tab === 'browser' ? 'browser' : 'mobile'} />
       <ConfirmDialog />
       <MobileRemoveSheet />

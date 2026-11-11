@@ -35,6 +35,8 @@ function shuffled<T>(items: T[]): T[] {
 }
 
 interface MobilePlaybackState {
+  /** Changes when a new queue starts: one native player session per queue. */
+  session: number;
   queue: MediaRecord[];
   /** "Playing from" label (album, artist, Tracks…), or null. */
   source: string | null;
@@ -57,6 +59,8 @@ interface MobilePlaybackState {
   cycleRepeat: () => void;
   setRate: (rate: number) => void;
   setSleep: (sleep: 'off' | 'end' | number) => void;
+  /** The native player moved to `id` on its own (end of track, lock screen). */
+  syncFromNative: (id: number) => void;
 }
 
 const current = () => useUi.getState().nowPlaying;
@@ -65,6 +69,7 @@ const indexOfCurrent = (queue: MediaRecord[]) => queue.findIndex((m) => m.id ===
 const show = (item: MediaRecord) => useUi.setState({ nowPlaying: item });
 
 export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
+  session: 0,
   queue: [],
   source: null,
   shuffle: false,
@@ -78,7 +83,7 @@ export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
       0,
       MAX_MOBILE_QUEUE,
     );
-    set({ queue: list, source, shuffle: false, unshuffled: null });
+    set((s) => ({ queue: list, source, shuffle: false, unshuffled: null, session: s.session + 1 }));
     useUi.getState().play(item);
   },
 
@@ -167,6 +172,11 @@ export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
     set({ rate: r });
   },
 
+  syncFromNative: (id) => {
+    const item = get().queue.find((m) => m.id === id);
+    if (item && item.id !== current()?.id) show(item);
+  },
+
   setSleep: (sleep) =>
     set({
       sleep:
@@ -188,6 +198,12 @@ useUi.subscribe((s, prev) => {
     return;
   }
   if (!store.queue.some((m) => m.id === s.nowPlaying!.id)) {
-    useMobilePlayback.setState({ queue: [s.nowPlaying], source: null, shuffle: false, unshuffled: null });
+    useMobilePlayback.setState({
+      queue: [s.nowPlaying],
+      source: null,
+      shuffle: false,
+      unshuffled: null,
+      session: store.session + 1,
+    });
   }
 });

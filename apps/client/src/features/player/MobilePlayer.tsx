@@ -78,6 +78,8 @@ export function MobilePlayer({
   const handled = useRef(false);
   const ended = !p.playing && p.duration > 0 && p.time >= p.duration - 1;
   useEffect(() => {
+    // Android app: the MediaSession service chains tracks and repeats itself.
+    if (NATIVE) return;
     if (!ended) {
       handled.current = false;
       return;

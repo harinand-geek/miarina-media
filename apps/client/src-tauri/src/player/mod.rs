@@ -39,6 +39,34 @@ pub struct PlayerStatus {
     /// Media3 error code name, e.g. `ERROR_CODE_DECODING_FORMAT_UNSUPPORTED`.
     #[serde(default)]
     pub error: Option<String>,
+    /// Position in the queue; the native player moves on by itself.
+    #[serde(default)]
+    pub index: Option<i64>,
+    /// Library id of the current item.
+    #[serde(default)]
+    pub media_id: Option<i64>,
+}
+
+/// Longest queue handed to the native player.
+pub const MAX_QUEUE: usize = 500;
+
+/// Repeat modes of the queue.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+pub fn check_repeat(mode: &str) -> Result<&str, CommandError> {
+    match mode {
+        "off" | "all" | "one" => Ok(mode),
+        _ => Err(CommandError::new("invalid_request", "unknown repeat mode")),
+    }
+}
+
+/// A queue from the page: 1..=MAX_QUEUE ids and a position inside it.
+#[cfg_attr(not(target_os = "android"), allow(dead_code))]
+pub fn check_queue(ids: &[i64], index: usize) -> Result<(), CommandError> {
+    if ids.is_empty() || ids.len() > MAX_QUEUE || index >= ids.len() {
+        Err(CommandError::new("invalid_request", "invalid play queue"))
+    } else {
+        Ok(())
+    }
 }
 
 /// Where the video is drawn, in CSS pixels of the WebView viewport.
@@ -140,5 +168,18 @@ mod tests {
         assert_eq!((closed.open, closed.position_ms), (false, 25_177));
         assert!(to_ms(-1.0).is_err());
         assert!(to_ms(f64::NAN).is_err());
+    }
+
+    #[test]
+    fn queues_and_repeat_modes_are_bounded() {
+        assert!(check_queue(&[1, 2, 3], 2).is_ok());
+        assert!(check_queue(&[], 0).is_err());
+        assert!(check_queue(&[1, 2], 2).is_err());
+        assert!(check_queue(&vec![1; MAX_QUEUE + 1], 0).is_err());
+        assert!(check_repeat("all").is_ok());
+        assert!(check_repeat("shuffle").is_err());
+        let status: PlayerStatus =
+            serde_json::from_str(r#"{"open":true,"index":2,"mediaId":17}"#).unwrap();
+        assert_eq!((status.index, status.media_id), (Some(2), Some(17)));
     }
 }

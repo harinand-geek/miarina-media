@@ -9,7 +9,7 @@ use tauri::{Manager, State, Wry};
 use crate::commands::CommandError;
 use crate::state::AppState;
 
-use super::{PlayerStatus, SurfaceRect, check_rate, check_rect, to_ms};
+use super::{PlayerStatus, SurfaceRect, check_queue, check_rate, check_rect, check_repeat, to_ms};
 
 pub struct NativePlayer(PluginHandle<Wry>);
 
@@ -42,40 +42,137 @@ impl NativePlayer {
     }
 }
 
+/// A queue entry for the native player: path and metadata come from the
+/// library, so the notification and lock screen show the real tags.
 #[derive(Serialize)]
 #[serde(rename_all = "camelCase")]
-struct OpenArgs {
+struct QueueItem {
+    id: i64,
     path: String,
-    position_ms: i64,
+    title: String,
+    artist: Option<String>,
+    album: Option<String>,
+    artwork: Option<String>,
     video: bool,
 }
 
-/// Opens a library entry. Returns `true` for video (a surface is needed).
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct OpenArgs {
+    items: Vec<QueueItem>,
+    start_index: usize,
+    position_ms: i64,
+}
+
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct QueueArgs {
+    items: Vec<QueueItem>,
+    current_index: usize,
+}
+
+/// Resolves `ids` from the library, dropping entries whose file is gone;
+/// returns the items and the new position of `ids[index]`.
+fn resolve(
+    state: &AppState,
+    ids: &[i64],
+    index: usize,
+) -> Result<(Vec<QueueItem>, usize), CommandError> {
+    check_queue(ids, index)?;
+    let wanted = ids[index];
+    let mut items = Vec::with_capacity(ids.len());
+    let mut at = None;
+    for &id in ids {
+        let Ok(record) = state.library.check(id) else {
+            continue;
+        };
+        if record.missing {
+            continue;
+        }
+        if id == wanted && at.is_none() {
+            at = Some(items.len());
+        }
+        items.push(QueueItem {
+            id,
+            video: record.kind == storage::MediaKind::Video,
+            path: record.path,
+            title: record.title,
+            artist: record.artist,
+            album: record.album,
+            artwork: record.thumbnail,
+        });
+    }
+    let at =
+        at.ok_or_else(|| CommandError::new("not_found", "This file is no longer on the device."))?;
+    Ok((items, at))
+}
+
+/// Opens a play queue at `index`. Returns `true` when that item is a video
+/// (a surface is needed).
 #[tauri::command]
 pub async fn player_open(
     state: State<'_, AppState>,
     player: State<'_, NativePlayer>,
-    id: i64,
+    ids: Vec<i64>,
+    index: usize,
     position_secs: f64,
 ) -> Result<bool, CommandError> {
-    let record = state
-        .library
-        .check(id)
-        .map_err(|_| CommandError::new("not_found", "This item is no longer in the library."))?;
-    if record.missing {
-        return Err(CommandError::new(
-            "not_found",
-            "This file is no longer on the device.",
-        ));
-    }
-    let video = record.kind == storage::MediaKind::Video;
+    let (items, start_index) = resolve(&state, &ids, index)?;
+    let video = items[start_index].video;
     let args = OpenArgs {
-        path: record.path,
+        items,
+        start_index,
         position_ms: to_ms(position_secs)?,
-        video,
     };
     player.run("open", args).await?;
     Ok(video)
+}
+
+/// Reorders the queue around the current item without interrupting it.
+#[tauri::command]
+pub async fn player_queue(
+    state: State<'_, AppState>,
+    player: State<'_, NativePlayer>,
+    ids: Vec<i64>,
+    current_index: usize,
+) -> Result<(), CommandError> {
+    let (items, current_index) = resolve(&state, &ids, current_index)?;
+    player
+        .run(
+            "setQueue",
+            QueueArgs {
+                items,
+                current_index,
+            },
+        )
+        .await
+}
+
+#[tauri::command]
+pub async fn player_skip(
+    player: State<'_, NativePlayer>,
+    index: usize,
+) -> Result<(), CommandError> {
+    if index >= super::MAX_QUEUE {
+        return Err(CommandError::new(
+            "invalid_request",
+            "invalid queue position",
+        ));
+    }
+    player
+        .run("skip", serde_json::json!({ "index": index }))
+        .await
+}
+
+#[tauri::command]
+pub async fn player_repeat(
+    player: State<'_, NativePlayer>,
+    mode: String,
+) -> Result<(), CommandError> {
+    let mode = check_repeat(&mode)?;
+    player
+        .run("setRepeat", serde_json::json!({ "mode": mode }))
+        .await
 }
 
 #[tauri::command]

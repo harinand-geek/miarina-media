@@ -18,6 +18,9 @@ export interface NativePlayerStatus {
   ended: boolean;
   rate: number;
   error?: string | null;
+  /** Queue position and library id of the current item. */
+  index?: number | null;
+  mediaId?: number | null;
 }
 
 export interface SurfaceRect {
@@ -29,8 +32,17 @@ export interface SurfaceRect {
 }
 
 export const nativePlayer = {
-  /** Opens a library entry by id; resolves `true` for video. */
-  open: (id: number, positionSecs: number) => invoke<boolean>('player_open', { id, positionSecs }),
+  /**
+   * Opens a play queue (library ids) at `index`; resolves `true` when that
+   * item is a video. The native service then moves through the queue itself.
+   */
+  open: (ids: number[], index: number, positionSecs: number) =>
+    invoke<boolean>('player_open', { ids, index, positionSecs }),
+  /** Reorders the queue around the current item without interrupting it. */
+  setQueue: (ids: number[], currentIndex: number) =>
+    invoke<void>('player_queue', { ids, currentIndex }),
+  skip: (index: number) => invoke<void>('player_skip', { index }),
+  setRepeat: (mode: 'off' | 'all' | 'one') => invoke<void>('player_repeat', { mode }),
   status: () => invoke<NativePlayerStatus>('player_status'),
   play: () => invoke<void>('player_play'),
   pause: () => invoke<void>('player_pause'),

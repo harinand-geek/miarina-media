@@ -13,7 +13,26 @@ fn unavailable() -> CommandError {
 }
 
 #[tauri::command]
-pub async fn player_open(_id: i64, _position_secs: f64) -> Result<bool, CommandError> {
+pub async fn player_open(
+    _ids: Vec<i64>,
+    _index: usize,
+    _position_secs: f64,
+) -> Result<bool, CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_queue(_ids: Vec<i64>, _current_index: usize) -> Result<(), CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_skip(_index: usize) -> Result<(), CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_repeat(_mode: String) -> Result<(), CommandError> {
     Err(unavailable())
 }
 

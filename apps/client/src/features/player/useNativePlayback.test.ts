@@ -9,6 +9,8 @@ vi.mock('@tauri-apps/api/core', () => ({
 }));
 
 const { useNativePlayback } = await import('./useNativePlayback');
+const { useMobilePlayback } = await import('../../stores/mobilePlayback');
+const { useUi } = await import('../../stores/ui');
 
 const media = {
   id: 7,
@@ -43,7 +45,7 @@ describe('useNativePlayback', () => {
   it('opens at the saved position, follows the native clock and saves on close', async () => {
     localStorage.setItem('mm:position:7', '21');
     const { result, unmount } = renderHook(() => useNativePlayback(media));
-    expect(invoke).toHaveBeenCalledWith('player_open', { id: 7, positionSecs: 21 });
+    expect(invoke).toHaveBeenCalledWith('player_open', { ids: [7], index: 0, positionSecs: 21 });
 
     await waitFor(() => expect(result.current.time).toBe(12.5), { timeout: 2000 });
     expect(result.current.duration).toBe(52);
@@ -69,5 +71,63 @@ describe('useNativePlayback', () => {
     const { result } = renderHook(() => useNativePlayback(media));
     await waitFor(() => expect(result.current.error).toBe(true));
     expect(invoke).not.toHaveBeenCalledWith('player_status');
+  });
+});
+
+describe('native queue session (L03)', () => {
+  const track = (id: number) =>
+    ({ id, kind: 'audio', title: `T${id}`, durationSecs: 200 }) as unknown as MediaRecord;
+  const tracks = [1, 2, 3].map(track);
+  let current = 1;
+
+  beforeEach(() => {
+    current = 1;
+    useUi.setState(useUi.getInitialState(), true);
+    useMobilePlayback.setState({ repeat: 'off', sleep: { mode: 'off' } });
+    useMobilePlayback.getState().start(tracks[0]!, tracks, 'Album');
+    invoke.mockImplementation(async (cmd: string) => {
+      if (cmd === 'player_open') return false;
+      if (cmd === 'player_status')
+        return { ...status(5_000), index: current - 1, mediaId: current };
+      return undefined;
+    });
+  });
+
+  const render = () =>
+    renderHook(() => useNativePlayback(useUi((s) => s.nowPlaying) ?? tracks[0]!));
+
+  it('hands the whole queue to the service and follows it when it moves on', async () => {
+    render();
+    expect(invoke).toHaveBeenCalledWith('player_open', { ids: [1, 2, 3], index: 0, positionSecs: 0 });
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('player_repeat', { mode: 'off' }));
+    current = 2; // e.g. end of track with the screen locked
+    await waitFor(() => expect(useUi.getState().nowPlaying?.id).toBe(2), { timeout: 2000 });
+    expect(invoke).not.toHaveBeenCalledWith('player_skip', expect.anything());
+  });
+
+  it('forwards track changes, queue order and repeat from the UI', async () => {
+    render();
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('player_repeat', { mode: 'off' }));
+    act(() => {
+      useMobilePlayback.getState().next(true);
+    });
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('player_skip', { index: 1 }));
+    // Statuses still naming track 1 must not pull the UI back.
+    await new Promise((r) => setTimeout(r, 600));
+    expect(useUi.getState().nowPlaying?.id).toBe(2);
+    current = 2;
+    act(() => useMobilePlayback.getState().move(2, 0));
+    expect(invoke).toHaveBeenCalledWith('player_queue', { ids: [3, 1, 2], currentIndex: 2 });
+    act(() => useMobilePlayback.getState().cycleRepeat());
+    expect(invoke).toHaveBeenCalledWith('player_repeat', { mode: 'all' });
+  });
+
+  it('pauses after the current track for the end-of-track sleep timer', async () => {
+    render();
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('player_repeat', { mode: 'off' }));
+    act(() => useMobilePlayback.getState().setSleep('end'));
+    current = 2;
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('player_pause'), { timeout: 2000 });
+    expect(useMobilePlayback.getState().sleep.mode).toBe('off');
   });
 });
