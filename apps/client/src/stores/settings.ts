@@ -3,6 +3,7 @@ import { mockLimits } from '../dev/mockBackend';
 import { backend } from '../services/backend';
 import type { BackendSettings, Limits, ResourceMode } from '../services/types';
 import type { Lang } from '../i18n';
+import { RESUME_KEY, resumeEnabled } from '../features/player/usePlayback';
 import { useUi } from './ui';
 
 const LANG_KEY = 'mm:lang';
@@ -34,6 +35,8 @@ interface SettingsState {
   loaded: boolean;
   /** Interface language (persisted locally). */
   lang: Lang;
+  /** Resume each media where it stopped (persisted locally). */
+  resumePlayback: boolean;
   // UI preferences (not persisted yet).
   theme: ThemePref;
   density: Density;
@@ -55,6 +58,7 @@ interface SettingsState {
   pickDownloadDir: () => void;
   setTheme: (theme: ThemePref) => void;
   setLang: (lang: Lang) => void;
+  setResumePlayback: (on: boolean) => void;
   setDensity: (density: Density) => void;
   setReduceMotion: (on: boolean) => void;
   setAndroidStore: (store: 'int' | 'sd') => void;
@@ -88,6 +92,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   limits: mockLimits('balanced', 3),
   loaded: false,
   lang: initialLang(),
+  resumePlayback: resumeEnabled(),
   theme: 'dark',
   density: 'comfortable',
   reduceMotion: false,
@@ -141,6 +146,14 @@ export const useSettings = create<SettingsState>((set, get) => ({
       // Not persisted: applies to this session only.
     }
     set({ lang });
+  },
+  setResumePlayback: (resumePlayback) => {
+    try {
+      localStorage.setItem(RESUME_KEY, resumePlayback ? '1' : '0');
+    } catch {
+      // Not persisted: applies to this session only.
+    }
+    set({ resumePlayback });
   },
   setDensity: (density) => set({ density }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),

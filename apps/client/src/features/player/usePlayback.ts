@@ -7,7 +7,19 @@ const POSITION_KEY = (id: number) => `mm:position:${id}`;
 /** Positions this close to the start or the end are not worth resuming. */
 export const RESUME_MARGIN_SECS = 5;
 
+/** "Resume where I left off" (Settings); positions keep being saved. */
+export const RESUME_KEY = 'mm:resume';
+
+export function resumeEnabled(): boolean {
+  try {
+    return localStorage.getItem(RESUME_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
+
 export function savedPosition(id: number): number {
+  if (!resumeEnabled()) return 0;
   try {
     return Number(localStorage.getItem(POSITION_KEY(id))) || 0;
   } catch {
