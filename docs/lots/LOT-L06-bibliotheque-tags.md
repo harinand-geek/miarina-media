@@ -1,0 +1,24 @@
+# Fiche LOT-L06 — Bibliothèque musicale et éditeur de tags (Windows)
+
+- Statut : À tester (recette native Windows non faite)
+- Exigences CDC : COM-07 (métadonnées), COM-09 (recherche artiste/album/dossier), AND-15 (paroles locales, saisie seulement), COM-10 (corbeille Windows)
+- Version de départ / commit : `1c35fb1`
+- Objectif utilisateur : retrouver sa musique par album, artiste ou dossier, corriger les tags et les écrire dans le fichier si on le souhaite.
+- Inclus :
+  - Migration SQLite v5 : artiste, album, artiste de l'album, année, genre, n° de piste/disque, commentaire, paroles, `tags_read` ; recherche plein texte étendue à l'artiste et à l'album (index reconstruit).
+  - Lecture des tags avec `lofty` dans le worker de la bibliothèque, sans dépendre de FFmpeg ; le titre du tag remplace le titre issu du nom de fichier seulement à la première lecture.
+  - Écriture des tags (MP3, FLAC, M4A, Ogg, Opus, WAV, AIFF) dans une copie qui remplace ensuite l'original ; les vidéos gardent leurs tags dans la bibliothèque seulement.
+  - Commandes `library_tags`, `library_update_tags` (écriture fichier explicite), `library_groups`.
+  - Écrans : tableau Titres v2, Albums, Artistes, Dossiers, ouverture d'un groupe (ordre disque/piste pour un album), Tout lire / Lecture aléatoire, éditeur de tags, entrée « Modifier les tags » au menu contextuel.
+  - « Supprimer le fichier » utilise la Corbeille sous Windows (`trash`).
+- Exclus : pochettes (choix d'image, miniature source, capture), playlists et favoris (COM-06), import de dossiers (COM-08), écran Android.
+- Dépendances ajoutées (approuvées le 2026-11-11) : `lofty` 0.25.5, `trash` 5.3.0 — voir `licenses.md`.
+- Risques : écriture dans les fichiers de l'utilisateur. Mitigation : copie + remplacement, jamais implicite, refus propre si le format n'est pas pris en charge, fichier inchangé en cas d'erreur. Un fichier ouvert par le lecteur peut refuser le remplacement : l'erreur est affichée et rien n'est enregistré.
+- Tests :
+  - `cargo test -p storage` (29) et `-p library` (11 + 5) : migration v4 → v5, première lecture des tags, groupes, filtre dossier avec jokers LIKE échappés, recherche par artiste, écriture/relecture sur un vrai WAV, aucun fichier temporaire restant, vidéo refusée sans modification.
+  - `cargo check` de l'application Tauri.
+  - Front : `tsc`, `eslint`, `vitest` 103/103 (deux exécutions), `vite build`.
+  - Aperçu Edge headless (FR) : Albums, Titres, éditeur de tags.
+  - Non testé : vrais fichiers MP3/FLAC/M4A de l'utilisateur, fichier en cours de lecture, Corbeille réelle depuis l'application.
+- Retour arrière : revert ; les colonnes v5 restent (ignorées par l'ancien code) ; aucun fichier n'est modifié sans l'action « Enregistrer » avec écriture cochée.
+- Prochaine étape : recette native, puis pochettes et playlists/favoris (COM-06).

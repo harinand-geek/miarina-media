@@ -4,7 +4,7 @@ use std::sync::{Arc, Mutex};
 
 use download_engine::components::{Components, FFMPEG};
 use library::{Library, WorkLimits};
-use storage::{MediaKind, MediaQuery, Storage};
+use storage::{MediaKind, MediaQuery, MediaTags, Storage};
 
 struct Harness {
     library: Library,
@@ -29,6 +29,8 @@ fn harness_with(components: Components) -> Harness {
             counter.fetch_add(1, Ordering::SeqCst);
         }),
     );
+    // Tests must not fill the developer's Recycle Bin.
+    library.set_use_trash(false);
     Harness {
         library,
         storage,
@@ -415,4 +417,102 @@ async fn a_platform_prober_replaces_ffmpeg() {
         .unwrap();
     assert!(broken.probed && broken.thumbnail.is_none());
     assert_eq!(*prober.asked_thumbnail.lock().unwrap(), [true, true]);
+}
+
+/// Smallest valid PCM WAV (lofty can tag it with ID3v2).
+fn write_wav(path: &Path) {
+    let samples = vec![0u8; 1600];
+    let mut wav = Vec::new();
+    wav.extend_from_slice(b"RIFF");
+    wav.extend_from_slice(&(36 + samples.len() as u32).to_le_bytes());
+    wav.extend_from_slice(b"WAVEfmt ");
+    wav.extend_from_slice(&16u32.to_le_bytes());
+    wav.extend_from_slice(&1u16.to_le_bytes()); // PCM
+    wav.extend_from_slice(&1u16.to_le_bytes()); // mono
+    wav.extend_from_slice(&8000u32.to_le_bytes());
+    wav.extend_from_slice(&16000u32.to_le_bytes());
+    wav.extend_from_slice(&2u16.to_le_bytes());
+    wav.extend_from_slice(&16u16.to_le_bytes());
+    wav.extend_from_slice(b"data");
+    wav.extend_from_slice(&(samples.len() as u32).to_le_bytes());
+    wav.extend_from_slice(&samples);
+    std::fs::write(path, wav).unwrap();
+}
+
+fn id_of(h: &Harness, path: &Path) -> i64 {
+    h.storage
+        .lock()
+        .unwrap()
+        .media_by_path(&path.to_string_lossy())
+        .unwrap()
+        .unwrap()
+        .id
+}
+
+fn sample_tags() -> MediaTags {
+    MediaTags {
+        title: Some("Hira vaovao".into()),
+        artist: Some("Ankorabe Sound".into()),
+        album: Some("Tany Maitso".into()),
+        album_artist: Some("Ankorabe Sound".into()),
+        year: Some(2024),
+        genre: Some("Hira gasy".into()),
+        track_no: Some(3),
+        disc_no: Some(1),
+        comment: Some("Test".into()),
+        lyrics: Some("Tononkira".into()),
+    }
+}
+
+#[test]
+fn tags_are_written_through_a_copy_and_read_back() {
+    let h = harness();
+    let file = h.root.join("01 hira.wav");
+    write_wav(&file);
+    h.library.scan(&h.root).unwrap();
+    let id = id_of(&h, &file);
+
+    let updated = h.library.update_tags(id, &sample_tags(), true).unwrap();
+    assert_eq!(updated.title, "Hira vaovao");
+    assert_eq!(updated.album.as_deref(), Some("Tany Maitso"));
+
+    let read = library::tags::read(&file).expect("tags in the file");
+    assert_eq!(read.artist.as_deref(), Some("Ankorabe Sound"));
+    assert_eq!(read.album_artist.as_deref(), Some("Ankorabe Sound"));
+    assert_eq!(read.year, Some(2024));
+    assert_eq!(read.track_no, Some(3));
+    assert_eq!(read.lyrics.as_deref(), Some("Tononkira"));
+    let leftovers: Vec<_> = std::fs::read_dir(&h.root)
+        .unwrap()
+        .flatten()
+        .filter(|e| e.file_name().to_string_lossy().ends_with(".tmp"))
+        .collect();
+    assert!(leftovers.is_empty(), "no temporary copy left");
+}
+
+#[tokio::test]
+async fn tags_read_at_indexing_name_the_track() {
+    let h = harness();
+    let file = h.root.join("track01.wav");
+    write_wav(&file);
+    library::tags::write(&file, &sample_tags()).unwrap();
+    h.library.scan(&h.root).unwrap();
+    h.library.read_pending_tags().await;
+    assert_eq!(titles(&h), ["Hira vaovao"]);
+    let tags = h.library.tags(id_of(&h, &file)).unwrap();
+    assert_eq!(tags.genre.as_deref(), Some("Hira gasy"));
+}
+
+#[test]
+fn video_tags_stay_in_the_library() {
+    let h = harness();
+    let file = h.root.join("clip.mp4");
+    std::fs::write(&file, b"not really a video").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let id = id_of(&h, &file);
+    assert!(h.library.update_tags(id, &sample_tags(), true).is_err());
+    assert_eq!(h.library.tags(id).unwrap().artist, None, "nothing saved");
+    let saved = h.library.update_tags(id, &sample_tags(), false).unwrap();
+    assert_eq!(saved.artist.as_deref(), Some("Ankorabe Sound"));
+    assert_eq!(std::fs::read(&file).unwrap(), b"not really a video");
 }

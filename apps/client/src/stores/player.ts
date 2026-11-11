@@ -99,6 +99,8 @@ interface PlayerStore {
   setShuffle: (on: boolean) => void;
   cycleRepeat: () => void;
   setSleep: (sleep: 'off' | 'end' | number) => void;
+  /** A library entry changed (tags, title): update its queued copies. */
+  refreshMedia: (media: MediaRecord) => void;
   /** A library entry was removed: drop it from the queue. */
   forget: (id: number) => void;
   retry: () => void;
@@ -418,6 +420,12 @@ export const usePlayer = create<PlayerStore>((set, get) => {
         onSleepEnded?.();
       }, ms);
     },
+
+    refreshMedia: (updated) =>
+      set((s) => ({
+        queue: s.queue.map((m) => (m.id === updated.id ? updated : m)),
+        media: s.media?.id === updated.id ? updated : s.media,
+      })),
 
     forget: (id) => {
       const at = get().queue.findIndex((m) => m.id === id);

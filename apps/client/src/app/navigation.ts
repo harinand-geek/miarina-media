@@ -1,6 +1,6 @@
 import { useLibrary } from '../stores/library';
 import { usePlayer } from '../stores/player';
-import { useUi, type LibraryView, type Screen } from '../stores/ui';
+import { useUi, type LibraryGroup, type LibraryView, type Screen } from '../stores/ui';
 import type { MediaRecord } from '../services/types';
 
 /** Video plays on the video screen; audio on "Now playing". */
@@ -20,12 +20,17 @@ export function openSection(id: Screen) {
   useUi.getState().go(id);
 }
 
-/** Play space: Tracks list audio, Videos lists video. */
+/** Play space: music views list audio, Videos lists video. */
 export function openLibrary(view: LibraryView) {
-  useUi.setState({ libraryView: view });
+  useUi.setState({ libraryView: view, libraryGroup: null });
   useUi.getState().go('library');
-  const kind = view === 'videos' ? 'video' : 'audio';
-  if (useLibrary.getState().kind !== kind) useLibrary.getState().setKind(kind);
+  useLibrary.getState().show(view === 'videos' ? 'video' : 'audio', null);
+}
+
+/** Tracks of one album, artist or folder. */
+export function openGroup(group: LibraryGroup) {
+  useUi.setState({ libraryGroup: group });
+  useLibrary.getState().show('audio', group);
 }
 
 /** Plays `media` with `queue` as the play queue and shows its player. */

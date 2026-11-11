@@ -11,8 +11,8 @@ use media_core::{UrlError, ValidatedUrl, sanitize_filename, validate_media_url a
 use resource_manager::ResourceMode;
 use serde::{Deserialize, Serialize};
 use storage::{
-    HistoryEntry, MediaKind, MediaPage, MediaQuery, MediaRecord, MediaStats, NewTask, StorageError,
-    TaskRecord, now_ms,
+    GroupBy, HistoryEntry, MediaGroup, MediaKind, MediaPage, MediaQuery, MediaRecord, MediaStats,
+    MediaTags, NewTask, StorageError, TaskRecord, now_ms,
 };
 use tauri::{AppHandle, Emitter, State};
 use tauri_plugin_dialog::DialogExt;
@@ -853,6 +853,16 @@ fn library_error(err: library::LibraryError) -> CommandError {
         library::LibraryError::InvalidName => {
             CommandError::new("invalid_name", "This name cannot be used.")
         }
+        library::LibraryError::Missing => {
+            CommandError::new("file_missing", "The file is no longer on disk.")
+        }
+        library::LibraryError::Tags(library::tags::TagWriteError::Unsupported) => {
+            CommandError::new(
+                "tags_unsupported",
+                "Tags cannot be written into this file type; they were not saved.",
+            )
+        }
+        library::LibraryError::Tags(e) => CommandError::new("tags_write", e.to_string()),
         other => CommandError::new("library", other.to_string()),
     }
 }
@@ -886,6 +896,34 @@ pub async fn library_rename(
 ) -> CmdResult<MediaRecord> {
     let title: String = title.chars().take(200).collect();
     state.library.rename(id, &title).map_err(library_error)
+}
+
+/// Every tag of a library entry (tag editor).
+#[tauri::command]
+pub async fn library_tags(state: State<'_, AppState>, id: i64) -> CmdResult<MediaTags> {
+    state.library.tags(id).map_err(library_error)
+}
+
+/// Saves edited tags; `write_to_file` also writes them into the file
+/// (audio formats only), never implicitly.
+#[tauri::command]
+pub async fn library_update_tags(
+    state: State<'_, AppState>,
+    id: i64,
+    tags: MediaTags,
+    write_to_file: bool,
+) -> CmdResult<MediaRecord> {
+    let library = state.library.clone();
+    tauri::async_runtime::spawn_blocking(move || library.update_tags(id, &tags, write_to_file))
+        .await
+        .map_err(|e| CommandError::new("library", e.to_string()))?
+        .map_err(library_error)
+}
+
+/// Albums, artists or folders of the music library.
+#[tauri::command]
+pub async fn library_groups(state: State<'_, AppState>, by: GroupBy) -> CmdResult<Vec<MediaGroup>> {
+    state.library.groups(by).map_err(library_error)
 }
 
 /// Removes the entry from the library; the file stays on disk (COM-10).

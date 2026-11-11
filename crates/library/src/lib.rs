@@ -4,6 +4,7 @@
 
 pub mod files;
 pub mod probe;
+pub mod tags;
 
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -12,7 +13,9 @@ use download_engine::components::{Components, FFMPEG};
 use download_engine::fsops::finalize_no_clobber;
 use media_core::sanitize_filename;
 use serde::Serialize;
-use storage::{MediaProbe, MediaRecord, NewMedia, Storage, StorageError};
+use storage::{
+    GroupBy, MediaGroup, MediaProbe, MediaRecord, MediaTags, NewMedia, Storage, StorageError,
+};
 use thiserror::Error;
 use tokio::sync::{Notify, Semaphore};
 use tokio::task::JoinSet;
@@ -29,6 +32,10 @@ pub enum LibraryError {
     Thumbnail(String),
     #[error("invalid name")]
     InvalidName,
+    #[error(transparent)]
+    Tags(#[from] tags::TagWriteError),
+    #[error("the file is no longer on disk")]
+    Missing,
 }
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
@@ -100,6 +107,8 @@ struct Inner {
     prober: Mutex<Option<Arc<dyn Prober>>>,
     wake: Notify,
     on_change: ChangeListener,
+    /// `false`: "Delete file" erases instead of using the Recycle Bin.
+    use_trash: std::sync::atomic::AtomicBool,
 }
 
 #[derive(Clone)]
@@ -111,12 +120,28 @@ fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
     m.lock().unwrap_or_else(|poisoned| poisoned.into_inner())
 }
 
+fn discard(path: &Path, use_trash: bool) -> Result<(), LibraryError> {
+    #[cfg(not(target_os = "android"))]
+    if use_trash {
+        return trash::delete(path).map_err(|e| LibraryError::Io(e.to_string()));
+    }
+    #[cfg(target_os = "android")]
+    let _ = use_trash;
+    match std::fs::remove_file(path) {
+        Ok(()) => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) => Err(io(e)),
+    }
+}
+
 fn io(err: std::io::Error) -> LibraryError {
     LibraryError::Io(err.to_string())
 }
 
 /// Items read with ffprobe per worker round.
 const PROBE_BATCH: u32 = 32;
+/// Tag reads per batch (pure Rust, no external tool).
+const TAG_BATCH: u32 = 64;
 /// Subfolder of the thumbnail folder holding source thumbnails.
 const SOURCES_DIR: &str = "sources";
 const PICTURE_EXTENSIONS: [&str; 3] = ["jpg", "png", "webp"];
@@ -137,8 +162,17 @@ impl Library {
                 prober: Mutex::new(None),
                 wake: Notify::new(),
                 on_change,
+                use_trash: std::sync::atomic::AtomicBool::new(cfg!(not(target_os = "android"))),
             }),
         }
+    }
+
+    /// Deletes files permanently instead of moving them to the Recycle Bin
+    /// (tests, or systems without a trash).
+    pub fn set_use_trash(&self, on: bool) {
+        self.inner
+            .use_trash
+            .store(on, std::sync::atomic::Ordering::Relaxed);
     }
 
     pub fn thumbnails_dir(&self) -> &Path {
@@ -352,13 +386,16 @@ impl Library {
         Ok(())
     }
 
-    /// Deletes the file and its thumbnail, then forgets the entry.
+    /// Moves the file to the Recycle Bin (desktop) or deletes it (Android),
+    /// removes its thumbnail, then forgets the entry.
     pub fn delete(&self, id: i64) -> Result<(), LibraryError> {
         let record = lock(&self.inner.storage).media(id)?;
-        match std::fs::remove_file(&record.path) {
-            Ok(()) => {}
-            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
-            Err(e) => return Err(io(e)),
+        if Path::new(&record.path).exists() {
+            let trash = self
+                .inner
+                .use_trash
+                .load(std::sync::atomic::Ordering::Relaxed);
+            discard(Path::new(&record.path), trash)?;
         }
         if let Some(thumb) = &record.thumbnail {
             let _ = std::fs::remove_file(thumb);
@@ -366,6 +403,64 @@ impl Library {
         lock(&self.inner.storage).delete_media(id)?;
         (self.inner.on_change)();
         Ok(())
+    }
+
+    /// Every tag of an entry (editor).
+    pub fn tags(&self, id: i64) -> Result<MediaTags, LibraryError> {
+        Ok(lock(&self.inner.storage).media_tags(id)?)
+    }
+
+    /// Saves edited tags in the library and, when asked and supported,
+    /// in the file itself. Blocking file work: call from a blocking task.
+    pub fn update_tags(
+        &self,
+        id: i64,
+        tags: &MediaTags,
+        write_to_file: bool,
+    ) -> Result<MediaRecord, LibraryError> {
+        let record = lock(&self.inner.storage).media(id)?;
+        if write_to_file {
+            let path = Path::new(&record.path);
+            if !path.is_file() {
+                return Err(LibraryError::Missing);
+            }
+            tags::write(path, tags)?;
+        }
+        let updated = lock(&self.inner.storage).update_media_tags(id, tags)?;
+        (self.inner.on_change)();
+        Ok(updated)
+    }
+
+    /// Albums, artists or folders of the music library.
+    pub fn groups(&self, by: GroupBy) -> Result<Vec<MediaGroup>, LibraryError> {
+        Ok(lock(&self.inner.storage).media_groups(by)?)
+    }
+
+    /// Reads the tags of entries that were never read. Runs without FFmpeg.
+    pub async fn read_pending_tags(&self) {
+        loop {
+            let batch = match lock(&self.inner.storage).media_to_tag(TAG_BATCH) {
+                Ok(batch) if !batch.is_empty() => batch,
+                _ => return,
+            };
+            let read = tokio::task::spawn_blocking(move || {
+                batch
+                    .into_iter()
+                    .map(|(id, path)| (id, tags::read(Path::new(&path))))
+                    .collect::<Vec<_>>()
+            })
+            .await
+            .unwrap_or_default();
+            if read.is_empty() {
+                return;
+            }
+            let storage = lock(&self.inner.storage);
+            for (id, tags) in &read {
+                let _ = storage.set_media_tags_read(*id, tags.as_ref());
+            }
+            drop(storage);
+            (self.inner.on_change)();
+        }
     }
 
     /// Size of the thumbnail cache, in bytes.
@@ -409,6 +504,7 @@ impl Library {
 
     /// Processes every pending entry, then returns (used by tests too).
     pub async fn process_pending(&self) {
+        self.read_pending_tags().await;
         loop {
             let Some(tools) = self.tools() else {
                 return;

@@ -117,5 +117,52 @@ pub fn migrations() -> Migrations<'static> {
         );
         "#,
         ),
+        // v5 — music tags (L06, COM-07): read from files, editable; search
+        // also covers artist and album.
+        M::up(
+            r#"
+        ALTER TABLE media ADD COLUMN artist TEXT;
+        ALTER TABLE media ADD COLUMN album TEXT;
+        ALTER TABLE media ADD COLUMN album_artist TEXT;
+        ALTER TABLE media ADD COLUMN year INTEGER;
+        ALTER TABLE media ADD COLUMN genre TEXT;
+        ALTER TABLE media ADD COLUMN track_no INTEGER;
+        ALTER TABLE media ADD COLUMN disc_no INTEGER;
+        ALTER TABLE media ADD COLUMN comment TEXT;
+        ALTER TABLE media ADD COLUMN lyrics TEXT;
+        ALTER TABLE media ADD COLUMN tags_read INTEGER NOT NULL DEFAULT 0;
+        CREATE INDEX media_tags_pending ON media (tags_read, missing);
+        CREATE INDEX media_album ON media (album COLLATE NOCASE) WHERE album IS NOT NULL;
+        CREATE INDEX media_artist ON media (artist COLLATE NOCASE) WHERE artist IS NOT NULL;
+
+        DROP TRIGGER media_ai;
+        DROP TRIGGER media_ad;
+        DROP TRIGGER media_au;
+        DROP TABLE media_fts;
+        CREATE VIRTUAL TABLE media_fts USING fts5(
+            title, source_host, artist, album, content='media', content_rowid='id',
+            tokenize='unicode61 remove_diacritics 2'
+        );
+        CREATE TRIGGER media_ai AFTER INSERT ON media BEGIN
+            INSERT INTO media_fts(rowid, title, source_host, artist, album)
+            VALUES (new.id, new.title, coalesce(new.source_host, ''),
+                    coalesce(new.artist, ''), coalesce(new.album, ''));
+        END;
+        CREATE TRIGGER media_ad AFTER DELETE ON media BEGIN
+            INSERT INTO media_fts(media_fts, rowid, title, source_host, artist, album)
+            VALUES ('delete', old.id, old.title, coalesce(old.source_host, ''),
+                    coalesce(old.artist, ''), coalesce(old.album, ''));
+        END;
+        CREATE TRIGGER media_au AFTER UPDATE OF title, source_host, artist, album ON media BEGIN
+            INSERT INTO media_fts(media_fts, rowid, title, source_host, artist, album)
+            VALUES ('delete', old.id, old.title, coalesce(old.source_host, ''),
+                    coalesce(old.artist, ''), coalesce(old.album, ''));
+            INSERT INTO media_fts(rowid, title, source_host, artist, album)
+            VALUES (new.id, new.title, coalesce(new.source_host, ''),
+                    coalesce(new.artist, ''), coalesce(new.album, ''));
+        END;
+        INSERT INTO media_fts(media_fts) VALUES ('rebuild');
+        "#,
+        ),
     ])
 }

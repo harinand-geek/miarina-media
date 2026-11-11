@@ -5,31 +5,48 @@ import { EmptyState, ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
-import type { MediaRecord, MediaSort } from '../../services/types';
-import { useT } from '../../i18n';
+import type { GroupBy, MediaRecord, MediaSort } from '../../services/types';
+import { useT, type MessageKey } from '../../i18n';
 import { formatBytes } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
-import { useUi } from '../../stores/ui';
-import { SORT_LABELS, durationLabel, qualityLabel } from './format';
+import { usePlayer } from '../../stores/player';
+import { useUi, type LibraryView } from '../../stores/ui';
+import { playFrom } from '../../app/navigation';
+import { durationLabel, qualityLabel } from './format';
+import { GroupsView } from './GroupsView';
 import { MediaContextMenu, RenameDialog, type MenuTarget } from './MediaActions';
 import { useMediaActions } from './useMediaActions';
 import { MediaThumb } from './MediaThumb';
+import { TracksTable } from './TracksTable';
 
 const LIST_COLUMNS = 'grid-cols-[56px_minmax(0,1fr)_180px_80px_90px_90px]';
 
+const SORTS: Record<MediaSort, MessageKey> = {
+  added: 'sortAdded',
+  title: 'sortTitle',
+  size: 'sortSize',
+  duration: 'sortDuration',
+};
+
+const GROUP_OF: Partial<Record<LibraryView, GroupBy>> = {
+  albums: 'album',
+  artists: 'artist',
+  folders: 'folder',
+};
+
+const folderName = (path: string) => path.split(/[\\/]/).filter(Boolean).pop() ?? path;
+
 export default function LibraryScreen() {
   const t = useT();
-  const { search, kind, sort, items, total, overview, ready } = useLibrary();
-  const { setSearch, setKind, setSort } = useLibrary.getState();
-  // Windows v2 navigation B: the Play space picks the kind (Tracks / Videos).
+  const { search, kind, sort, items, total, overview, ready, group } = useLibrary();
+  const { setSearch, setSort } = useLibrary.getState();
   const libraryView = useUi((s) => s.libraryView);
-  const wantedKind = libraryView === 'videos' ? 'video' : 'audio';
-  const [views, setViews] = useState({ tracks: 'list', videos: 'grid' } as Record<
-    typeof libraryView,
-    'grid' | 'list'
-  >);
-  const view = views[libraryView];
-  const setView = (v: 'grid' | 'list') => setViews((s) => ({ ...s, [libraryView]: v }));
+  const opened = useUi((s) => s.libraryGroup);
+  const isVideos = libraryView === 'videos';
+  const groupBy = GROUP_OF[libraryView] ?? null;
+  const showGroups = groupBy !== null && opened === null;
+  const wantedKind = isVideos ? 'video' : 'audio';
+  const [videoView, setVideoView] = useState<'grid' | 'list'>('grid');
   const [menu, setMenu] = useState<MenuTarget | null>(null);
   const [renaming, setRenaming] = useState<MediaRecord | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -42,16 +59,24 @@ export default function LibraryScreen() {
     if (focusRequest > 0) searchRef.current?.focus();
   }, [focusRequest]);
 
+  // The navigation (view and opened group) decides what the store lists.
   useEffect(() => {
-    if (kind !== wantedKind) setKind(wantedKind);
-  }, [kind, wantedKind, setKind]);
+    useLibrary.getState().show(wantedKind, opened);
+  }, [wantedKind, opened]);
+
+  const synced =
+    kind === wantedKind && group?.by === opened?.by && group?.name === opened?.name;
 
   // Library-wide count: hidden while searching, where it would not match.
   const count = search.trim()
     ? undefined
-    : wantedKind === 'video'
-      ? overview?.stats.videoCount
-      : overview?.stats.audioCount;
+    : opened
+      ? total
+      : isVideos
+        ? overview?.stats.videoCount
+        : libraryView === 'tracks'
+          ? overview?.stats.audioCount
+          : undefined;
 
   /** Right click, ⇧F10 / context-menu key, plus the design's shortcuts. */
   const itemHandlers = (m: MediaRecord) => ({
@@ -77,86 +102,135 @@ export default function LibraryScreen() {
     },
   });
 
-  const empty = ready && kind === wantedKind && items.length === 0;
+  const empty = ready && synced && items.length === 0;
   const filtered = search.trim() !== '';
   // The visible list becomes the play queue (COM-03).
   const open = (m: MediaRecord) => actions.open(m, items);
+  const editTags = (m: MediaRecord) => useUi.setState({ tagEditor: m });
+  const playAll = (shuffle: boolean) => {
+    const first = shuffle ? items[Math.floor(Math.random() * items.length)] : items[0];
+    if (!first) return;
+    playFrom(first, items);
+    if (shuffle) usePlayer.getState().setShuffle(true);
+  };
+
+  const heading = opened ? (opened.by === 'folder' ? folderName(opened.name) : opened.name) : t(libraryView);
 
   return (
     <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
-      <div className="flex items-center gap-3">
-        <h1 className="m-0 flex items-baseline gap-2.5 text-title-lg font-extrabold tracking-[-0.02em]">
-          {t(libraryView)}
-          {count !== undefined && (
-            <span className="font-mono text-[13px] font-medium text-muted">{count}</span>
-          )}
-        </h1>
-        <span className="flex-1" />
-        <label className="flex h-9 w-[280px] items-center gap-2 rounded-sm border border-line bg-surface px-2.5 focus-within:border-accent">
-          <Icon name="search" size={18} className="text-muted" />
-          <input
-            ref={searchRef}
-            type="search"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search titles"
-            aria-label="Search titles"
-            className="flex-1 bg-transparent text-[13px] font-medium text-fg outline-none focus-visible:outline-none"
-          />
-        </label>
-        <Menu
-          label="Sort by"
-          trigger={({ open, toggle, id }) => (
-            <button
-              type="button"
-              aria-haspopup="menu"
-              aria-expanded={open}
-              aria-controls={id}
-              onClick={toggle}
-              className="flex h-9 items-center gap-1.5 rounded-sm border border-line bg-surface px-3 text-[13px]"
-            >
-              <span className="text-muted">Sort</span>
-              <span className="font-semibold">{SORT_LABELS[sort]}</span>
-              <Icon name="expand_more" size={18} className="text-muted" />
-            </button>
-          )}
-          items={(Object.keys(SORT_LABELS) as MediaSort[]).map((key) => ({
-            label: SORT_LABELS[key],
-            selected: key === sort,
-            onSelect: () => setSort(key),
-          }))}
-        />
-        <div
-          role="radiogroup"
-          aria-label="View"
-          className="flex rounded-[7px] border border-line bg-surface p-[3px]"
+      {opened && (
+        <button
+          type="button"
+          onClick={() => useUi.setState({ libraryGroup: null })}
+          className="-mb-2 flex items-center gap-1.5 self-start text-[13px] font-semibold text-muted hover:text-fg"
         >
-          {(['grid', 'list'] as const).map((v) => (
-            <button
-              key={v}
-              type="button"
-              role="radio"
-              aria-checked={view === v}
-              aria-label={v === 'grid' ? 'Grid view' : 'List view'}
-              title={v === 'grid' ? 'Grid view' : 'List view'}
-              onClick={() => setView(v)}
-              className={`grid h-7 w-8 place-items-center rounded-[5px] text-fg ${view === v ? 'bg-line-strong' : ''}`}
-            >
-              <Icon name={v === 'grid' ? 'grid_view' : 'view_list'} size={18} />
-            </button>
-          ))}
+          <Icon name="arrow_back" size={18} />
+          {t('back')}
+        </button>
+      )}
+      <div className="flex items-center gap-3">
+        <div className="flex min-w-0 flex-col gap-0.5">
+          <h1 className="m-0 flex items-baseline gap-2.5 truncate text-title-lg font-extrabold tracking-[-0.02em]">
+            <span className="truncate">{heading}</span>
+            {count !== undefined && (
+              <span className="font-mono text-[13px] font-medium text-muted">{count}</span>
+            )}
+          </h1>
+          {opened?.by === 'folder' && (
+            <span className="truncate font-mono text-[11.5px] text-muted" title={opened.name}>
+              {opened.name}
+            </span>
+          )}
         </div>
+        <span className="flex-1" />
+        {opened && items.length > 0 && (
+          <>
+            <Button
+              size="sm"
+              onClick={() => playAll(false)}
+              className="h-9 gap-1.5 !border-transparent !bg-coral text-[13px] !text-coral-ink hover:!bg-coral-hover"
+            >
+              <Icon name="play_arrow" size={18} fill />
+              {t('playAll')}
+            </Button>
+            <Button size="sm" onClick={() => playAll(true)} className="h-9 gap-1.5 text-[13px]">
+              <Icon name="shuffle" size={18} />
+              {t('shufflePlay')}
+            </Button>
+          </>
+        )}
+        {!showGroups && (
+          <label className="flex h-9 w-[280px] items-center gap-2 rounded-sm border border-line bg-surface px-2.5 focus-within:border-accent">
+            <Icon name="search" size={18} className="text-muted" />
+            <input
+              ref={searchRef}
+              type="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={t('librarySearch')}
+              aria-label={t('librarySearch')}
+              className="flex-1 bg-transparent text-[13px] font-medium text-fg outline-none focus-visible:outline-none"
+            />
+          </label>
+        )}
+        {!showGroups && opened?.by !== 'album' && (
+          <Menu
+            label={t('sort')}
+            trigger={({ open: isOpen, toggle, id }) => (
+              <button
+                type="button"
+                aria-haspopup="menu"
+                aria-expanded={isOpen}
+                aria-controls={id}
+                onClick={toggle}
+                className="flex h-9 items-center gap-1.5 rounded-sm border border-line bg-surface px-3 text-[13px]"
+              >
+                <span className="text-muted">{t('sort')}</span>
+                <span className="font-semibold">{t(SORTS[sort])}</span>
+                <Icon name="expand_more" size={18} className="text-muted" />
+              </button>
+            )}
+            items={(Object.keys(SORTS) as MediaSort[]).map((key) => ({
+              label: t(SORTS[key]),
+              selected: key === sort,
+              onSelect: () => setSort(key),
+            }))}
+          />
+        )}
+        {isVideos && (
+          <div
+            role="radiogroup"
+            aria-label={t('gridView')}
+            className="flex rounded-[7px] border border-line bg-surface p-[3px]"
+          >
+            {(['grid', 'list'] as const).map((v) => (
+              <button
+                key={v}
+                type="button"
+                role="radio"
+                aria-checked={videoView === v}
+                aria-label={v === 'grid' ? t('gridView') : t('listView')}
+                title={v === 'grid' ? t('gridView') : t('listView')}
+                onClick={() => setVideoView(v)}
+                className={`grid h-7 w-8 place-items-center rounded-[5px] text-fg ${videoView === v ? 'bg-line-strong' : ''}`}
+              >
+                <Icon name={v === 'grid' ? 'grid_view' : 'view_list'} size={18} />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {empty &&
-        (filtered ? (
-          <EmptyState>
-            {search.trim() ? `No items match “${search.trim()}”.` : 'No items in this category.'}
-          </EmptyState>
+      {showGroups && <GroupsView by={groupBy} />}
+
+      {!showGroups &&
+        empty &&
+        (filtered || opened ? (
+          <EmptyState>{filtered ? t('noMatch', { q: search.trim() }) : t('noItems')}</EmptyState>
         ) : (
           <EmptyState
-            icon={wantedKind === 'video' ? 'movie' : 'library_music'}
-            title="Your library is empty"
+            icon={isVideos ? 'movie' : 'library_music'}
+            title={t('emptyLibTitle')}
             action={
               <Button
                 variant="primary"
@@ -164,15 +238,27 @@ export default function LibraryScreen() {
                 className="h-9 text-[13px]"
                 onClick={() => go('home')}
               >
-                Paste a link
+                {t('pasteLink')}
               </Button>
             }
           >
-            Downloaded videos and audio appear here.
+            {t('emptyLibBody')}
           </EmptyState>
         ))}
 
-      {items.length > 0 && view === 'grid' && (
+      {!showGroups && synced && items.length > 0 && !isVideos && (
+        <TracksTable
+          items={items}
+          scrollRef={scrollRef}
+          onPlay={open}
+          onEditTags={editTags}
+          onMore={(m, e) => setMenu({ media: m, x: e.clientX, y: e.clientY })}
+          handlers={itemHandlers}
+          showTrackNo={opened?.by === 'album'}
+        />
+      )}
+
+      {synced && items.length > 0 && isVideos && videoView === 'grid' && (
         <VirtualGrid
           label={`Library items, ${total} results`}
           items={items}
@@ -210,7 +296,7 @@ export default function LibraryScreen() {
         />
       )}
 
-      {items.length > 0 && view === 'list' && (
+      {synced && items.length > 0 && isVideos && videoView === 'list' && (
         <LibraryList
           items={items}
           scrollRef={scrollRef}

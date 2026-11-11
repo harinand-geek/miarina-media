@@ -114,9 +114,21 @@ Handoff : `design/design_handoff_windows_v2`. Ordre conseillé par le handoff : 
 | Mini-lecteur 68 px | Fait | `features/player/MiniPlayer.tsx` |
 | En lecture (pochette, transport, File/Son, vitesse, minuteur) | Fait ; égaliseur PRÉVU | `features/player/NowPlayingScreen.tsx` |
 | Lecteur vidéo (en-tête, barre corail, ±10 s, volume, vitesse, PiP, plein écran) | Fait ; pistes/sous-titres PRÉVU | `features/player/PlayerScreen.tsx` |
-| Bibliothèque Titres / Vidéos | Fait (liste par défaut pour Titres, grille pour Vidéos) ; table musique v2 à faire | `features/library/LibraryScreen.tsx` |
+| Bibliothèque Titres (tableau v2), Albums, Artistes, Dossiers, ouverture d'un groupe, Tout lire / Aléatoire | Fait (L06) ; Playlists et Favoris PRÉVU (COM-06) | `features/library/{LibraryScreen,TracksTable,GroupsView}.tsx`, commande `library_groups`, migration v5 |
+| Éditeur de tags (Windows v2 écran 5) | Fait : champs audio/vidéo, paroles, « Remplir depuis le nom », « Renommer Artiste - Titre », écriture fichier optionnelle (audio) ; pochette PRÉVU | `features/library/TagEditor.tsx`, `crates/library/src/tags.rs`, commandes `library_tags` / `library_update_tags` |
 | Accueil, Analyse, Téléchargements, Navigateur, Torrents, Historique, Réglages v2 | À faire (lots suivants) | — |
 | Dialogue Retirer / Supprimer (COM-10) | Fait (Windows) ; Android garde la confirmation de suppression en attendant la maquette mobile | `features/library/RemoveDialog.tsx`, commande `library_remove`, migration SQLite v4 |
-| Éditeur de tags | À faire (L06) | — |
 
 Le lecteur Android (`MobilePlayer`, Media3) n'est pas concerné par ce lot.
+
+## Android v2 (handoff reçu le 2026-11-11)
+
+| Écran | Statut |
+|---|---|
+| Shell 5 onglets, mini-lecteur Android | À faire |
+| 05/06/15/16 Musique, 14 Vidéos | À faire (données L06 déjà disponibles : tags, groupes) |
+| 11 Retirer / Supprimer (sheet) | À faire (back-end COM-10 prêt) |
+| 07/08/09 En lecture, File, Son | À faire (après L03 MediaSessionService) |
+| 10 Notification / écran verrouillé | À faire (L03) |
+| 01–04 Accueil, Navigateur, Formats, Téléchargements | À faire |
+| 12 Réglages, 13 Vidéo paysage, 17–18 clair/EN | À faire |

@@ -4,6 +4,7 @@ import { Icon } from '../../components/Icon';
 import type { MediaRecord } from '../../services/types';
 import { useT } from '../../i18n';
 import { useLibrary } from '../../stores/library';
+import { useUi } from '../../stores/ui';
 import { useMediaActions } from './useMediaActions';
 
 export interface MenuTarget {
@@ -42,6 +43,12 @@ export function MediaContextMenu({
       disabled: !media.sourceUrl,
     },
     { icon: 'drive_file_rename_outline', label: 'Rename', key: 'F2', run: () => onRename(media) },
+    {
+      icon: 'edit_note',
+      label: t('editTags'),
+      key: '',
+      run: () => useUi.setState({ tagEditor: media }),
+    },
     {
       icon: 'delete',
       label: t('removeOrDelete'),

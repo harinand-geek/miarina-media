@@ -333,7 +333,38 @@ fn v4_keeps_the_library_of_a_v3_database() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 4);
+    assert!(storage.schema_version().unwrap() >= 4);
     assert_eq!(storage.media_stats().unwrap().count, 1);
     assert!(storage.removed_media_paths().unwrap().is_empty());
+}
+
+#[test]
+fn v5_adds_tags_and_keeps_search_of_a_v4_database() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 4).unwrap();
+        conn.execute(
+            "INSERT INTO media (path, title, kind, source_host, size_bytes, added_at, modified_at) \
+             VALUES ('C:/M/a.mp3', 'Rivotra', 'audio', 'example.org', 1, 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 5);
+    let found = storage
+        .query_media(&MediaQuery {
+            search: "rivo".into(),
+            ..Default::default()
+        })
+        .unwrap();
+    assert_eq!(found.total, 1, "existing entries are re-indexed");
+    assert_eq!(found.items[0].artist, None);
+    assert_eq!(
+        storage.media_to_tag(10).unwrap().len(),
+        1,
+        "tags read later"
+    );
 }

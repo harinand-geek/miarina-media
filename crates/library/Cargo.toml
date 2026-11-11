@@ -9,12 +9,17 @@ repository.workspace = true
 
 [dependencies]
 download-engine = { path = "../download-engine" }
+lofty = "0.25.5"
 media-core = { path = "../media-core" }
 serde.workspace = true
 serde_json.workspace = true
 storage = { path = "../storage" }
 thiserror.workspace = true
 tokio = { version = "1.53.2", features = ["fs", "macros", "process", "rt", "sync", "time"] }
+
+# Recycle Bin / Trash for "Delete file" (COM-10); Android deletes directly.
+[target.'cfg(not(target_os = "android"))'.dependencies]
+trash = "5.3.0"
 
 [dev-dependencies]
 tempfile = "3.27.0"

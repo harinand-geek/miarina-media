@@ -9,22 +9,25 @@ import { checkLink } from './link';
 import { inTauri } from './platform';
 import type {
   AnalyzeResult,
+  AppScreenRequest,
   BackendEvent,
   BackendSettings,
-  AppScreenRequest,
   BrowserAction,
   BrowserFrame,
-  Favorite,
   BrowserSnapshot,
   CommandError,
   ComponentStatus,
-  InstallProgress,
+  Favorite,
+  GroupBy,
   HistoryEntry,
+  InstallProgress,
   LibraryOverview,
+  MediaGroup,
   MediaInfo,
   MediaPage,
   MediaQuery,
   MediaRecord,
+  MediaTags,
   ResourceMode,
   StartRequest,
   StorageUsage,
@@ -68,6 +71,9 @@ export interface Backend {
   libraryGet(id: number): Promise<MediaRecord>;
   libraryRename(id: number, title: string): Promise<MediaRecord>;
   /** Deletes the file from disk. */
+  libraryTags(id: number): Promise<MediaTags>;
+  libraryUpdateTags(id: number, tags: MediaTags, writeToFile: boolean): Promise<MediaRecord>;
+  libraryGroups(by: GroupBy): Promise<MediaGroup[]>;
   /** Forgets the entry; the file stays on disk and scans skip it (COM-10). */
   libraryRemove(id: number): Promise<void>;
   libraryDelete(id: number): Promise<void>;
@@ -214,6 +220,10 @@ class TauriBackend implements Backend {
   libraryOverview = () => call<LibraryOverview>('library_overview');
   libraryGet = (id: number) => call<MediaRecord>('library_get', { id });
   libraryRename = (id: number, title: string) => call<MediaRecord>('library_rename', { id, title });
+  libraryTags = (id: number) => call<MediaTags>('library_tags', { id });
+  libraryUpdateTags = (id: number, tags: MediaTags, writeToFile: boolean) =>
+    call<MediaRecord>('library_update_tags', { id, tags, writeToFile });
+  libraryGroups = (by: GroupBy) => call<MediaGroup[]>('library_groups', { by });
   libraryRemove = (id: number) => call<void>('library_remove', { id });
   libraryDelete = (id: number) => call<void>('library_delete', { id });
   libraryReveal = (id: number) => call<void>('library_reveal', { id });

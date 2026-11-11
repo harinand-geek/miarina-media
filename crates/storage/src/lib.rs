@@ -7,7 +7,8 @@ mod media;
 mod migrations;
 
 pub use media::{
-    MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats, NewMedia, fts_query,
+    GroupBy, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats,
+    MediaTags, NewMedia, fts_query,
 };
 
 use std::path::Path;

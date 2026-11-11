@@ -30,6 +30,13 @@ Points de conformité :
 
 Tauri 2, tokio, reqwest (rustls, aws-lc-rs), pgp/rPGP (vérification des mises à jour de yt-dlp), rusqlite (SQLite bundled, domaine public), zip, sha2, React, Zustand, TanStack Virtual, Tailwind CSS — licences MIT / Apache-2.0 / ISC / BSD majoritairement. Un inventaire automatisé (`cargo about` / `license-checker`) sera produit avant la release.
 
+Ajouts du lot L06 (2026-11-11, vérifiés sur crates.io le jour même) :
+
+| Crate | Version | Licence | Usage | Plateformes |
+|---|---|---|---|---|
+| `lofty` | 0.25.5 (MSRV 1.89) | MIT OR Apache-2.0 | Lecture et écriture des tags audio (ID3v2, Vorbis, MP4 ilst, APE, RIFF) | Windows, Android |
+| `trash` | 5.3.0 (MSRV 1.87) | MIT | « Supprimer le fichier » envoie à la Corbeille | Windows (non compilé pour Android) |
+
 ## 4. Contenus
 
 Miarina Media ne contourne ni DRM, ni paywall, ni authentification : les formats marqués DRM sont exclus des propositions, les pages privées ou nécessitant un compte sont signalées comme non supportées. Les tests de bout en bout utilisent exclusivement des contenus sous licence libre (Blender Foundation, CC BY 3.0).

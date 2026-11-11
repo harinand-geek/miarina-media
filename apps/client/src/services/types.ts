@@ -234,6 +234,40 @@ export interface MediaRecord {
   missing: boolean;
   addedAt: number;
   modifiedAt: number;
+  artist?: string | null;
+  album?: string | null;
+  albumArtist?: string | null;
+  year?: number | null;
+  genre?: string | null;
+  trackNo?: number | null;
+  discNo?: number | null;
+}
+
+/** `storage::MediaTags` (tag editor, COM-07). */
+export interface MediaTags {
+  title: string | null;
+  artist: string | null;
+  album: string | null;
+  albumArtist: string | null;
+  year: number | null;
+  genre: string | null;
+  trackNo: number | null;
+  discNo: number | null;
+  comment: string | null;
+  lyrics: string | null;
+}
+
+export type GroupBy = 'album' | 'artist' | 'folder';
+
+/** `storage::MediaGroup`: an album, artist or folder of the music library. */
+export interface MediaGroup {
+  name: string;
+  /** Album artist (albums) or number of albums (artists). */
+  detail: string | null;
+  count: number;
+  durationSecs: number;
+  year: number | null;
+  thumbnail: string | null;
 }
 
 export type MediaSort = 'added' | 'title' | 'size' | 'duration';
@@ -241,6 +275,9 @@ export type MediaSort = 'added' | 'title' | 'size' | 'duration';
 export interface MediaQuery {
   search: string;
   kind: MediaKind | null;
+  album?: string | null;
+  artist?: string | null;
+  folder?: string | null;
   sort: MediaSort;
   offset?: number;
   limit?: number;

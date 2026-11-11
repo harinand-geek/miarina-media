@@ -55,7 +55,8 @@ describe('Windows v2 shell — navigation B', () => {
     expect(await screen.findByRole('heading', { name: /Tracks/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Torrents' })).toBeNull();
     // Future views are shown but never presented as available (CDC UX-06).
-    expect(screen.getByRole('button', { name: /Albums/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: /Playlists/ })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Albums' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Videos' })).toBeEnabled();
   });
 

@@ -4,21 +4,24 @@
 
 import { checkLink } from '../services/link';
 import type {
-  AppScreenRequest,
-  BrowserAction,
-  BrowserSnapshot,
-  Favorite,
   AnalyzeResult,
+  AppScreenRequest,
   BackendEvent,
   BackendSettings,
+  BrowserAction,
+  BrowserSnapshot,
   ComponentStatus,
-  InstallProgress,
+  Favorite,
+  GroupBy,
   HistoryEntry,
+  InstallProgress,
   LibraryOverview,
   Limits,
+  MediaGroup,
   MediaPage,
   MediaQuery,
   MediaRecord,
+  MediaTags,
   ResourceMode,
   StartRequest,
   StorageUsage,
@@ -34,6 +37,36 @@ const sizeBytes = (size: string) =>
   );
 
 /** Library rows built from the design fixtures. */
+const same = (a: string | null | undefined, b: string) =>
+  !!a && a.localeCompare(b, undefined, { sensitivity: 'accent' }) === 0;
+const folderOf = (path: string) => path.slice(0, Math.max(0, path.search(/[\\/][^\\/]*$/)));
+
+/** Fictitious tags for the audio fixtures (Musopen, NASA). */
+const MOCK_TAGS: Record<string, Partial<MediaRecord>> = {
+  'Gymnopédie No. 1 — Satie': {
+    artist: 'Erik Satie',
+    album: 'Musopen Piano',
+    albumArtist: 'Musopen',
+    year: 2012,
+    genre: 'Classique',
+    trackNo: 1,
+  },
+  'Clair de Lune — Debussy': {
+    artist: 'Claude Debussy',
+    album: 'Musopen Piano',
+    albumArtist: 'Musopen',
+    year: 2012,
+    genre: 'Classique',
+    trackNo: 2,
+  },
+  'Voyager Golden Record — Sounds of Earth': {
+    artist: 'NASA',
+    album: 'Voyager Golden Record',
+    year: 1977,
+    trackNo: 1,
+  },
+};
+
 function seedLibrary(): MediaRecord[] {
   const now = Date.now();
   return LIBRARY.map((item, i) => {
@@ -58,6 +91,7 @@ function seedLibrary(): MediaRecord[] {
       missing: false,
       addedAt: now - i * 3_600_000,
       modifiedAt: now - i * 3_600_000,
+      ...MOCK_TAGS[item.title],
     };
   });
 }
@@ -131,6 +165,7 @@ export class MockBackend {
   private history: HistoryEntry[] = [...HISTORY];
   private settings: BackendSettings;
   private library: MediaRecord[] = seedLibrary();
+  private tagExtras = new Map<number, { comment: string | null; lyrics: string | null }>();
   private libraryListeners = new Set<() => void>();
   private listeners = new Set<(e: BackendEvent) => void>();
   private timer: ReturnType<typeof setInterval> | undefined;
@@ -360,7 +395,7 @@ export class MockBackend {
       .split(/[^\p{L}\p{N}]+/u)
       .filter(Boolean);
     const text = (m: MediaRecord) =>
-      `${m.title} ${m.sourceHost ?? ''}`
+      `${m.title} ${m.sourceHost ?? ''} ${m.artist ?? ''} ${m.album ?? ''}`
         .toLowerCase()
         .normalize('NFD')
         .replace(/\p{Diacritic}/gu, '');
@@ -368,6 +403,9 @@ export class MockBackend {
       (m) =>
         !m.missing &&
         (!query.kind || m.kind === query.kind) &&
+        (!query.album || same(m.album, query.album)) &&
+        (!query.artist || same(m.artist, query.artist) || same(m.albumArtist, query.artist)) &&
+        (!query.folder || folderOf(m.path).startsWith(query.folder)) &&
         words.every((w) =>
           text(m)
             .split(/[^\p{L}\p{N}]+/u)
@@ -380,7 +418,9 @@ export class MockBackend {
       size: (a, b) => b.sizeBytes - a.sizeBytes,
       duration: (a, b) => (b.durationSecs ?? -1) - (a.durationSecs ?? -1),
     };
-    const sorted = [...matches].sort(compare[query.sort]);
+    const byTrack = (a: MediaRecord, b: MediaRecord) =>
+      (a.discNo ?? 1) - (b.discNo ?? 1) || (a.trackNo ?? 9999) - (b.trackNo ?? 9999);
+    const sorted = [...matches].sort(query.album ? byTrack : compare[query.sort]);
     const offset = query.offset ?? 0;
     return { items: sorted.slice(offset, offset + (query.limit || 10_000)), total: matches.length };
   }
@@ -421,6 +461,82 @@ export class MockBackend {
     this.library = this.library.map((m) => (m.id === id ? renamed : m));
     this.libraryChanged();
     return renamed;
+  }
+
+  async libraryTags(id: number): Promise<MediaTags> {
+    const m = await this.libraryGet(id);
+    return {
+      title: m.title,
+      artist: m.artist ?? null,
+      album: m.album ?? null,
+      albumArtist: m.albumArtist ?? null,
+      year: m.year ?? null,
+      genre: m.genre ?? null,
+      trackNo: m.trackNo ?? null,
+      discNo: m.discNo ?? null,
+      comment: this.tagExtras.get(id)?.comment ?? null,
+      lyrics: this.tagExtras.get(id)?.lyrics ?? null,
+    };
+  }
+
+  async libraryUpdateTags(id: number, tags: MediaTags, writeToFile: boolean) {
+    const m = await this.libraryGet(id);
+    if (writeToFile && m.kind === 'video') {
+      throw new Error('Tags cannot be written into this file type; they were not saved.');
+    }
+    const clean = (v: string | null) => (v?.trim() ? v.trim() : null);
+    const updated: MediaRecord = {
+      ...m,
+      title: clean(tags.title) ?? m.title,
+      artist: clean(tags.artist),
+      album: clean(tags.album),
+      albumArtist: clean(tags.albumArtist),
+      year: tags.year,
+      genre: clean(tags.genre),
+      trackNo: tags.trackNo,
+      discNo: tags.discNo,
+      modifiedAt: Date.now(),
+    };
+    this.tagExtras.set(id, { comment: clean(tags.comment), lyrics: clean(tags.lyrics) });
+    this.library = this.library.map((x) => (x.id === id ? updated : x));
+    this.libraryChanged();
+    return updated;
+  }
+
+  async libraryGroups(by: GroupBy): Promise<MediaGroup[]> {
+    const groups = new Map<string, MediaGroup & { albums: Set<string> }>();
+    for (const m of this.library) {
+      if (m.missing || m.kind !== 'audio') continue;
+      const name = by === 'album' ? m.album : by === 'artist' ? m.artist : folderOf(m.path);
+      if (!name) continue;
+      const key = name.toLowerCase();
+      const g = groups.get(key) ?? {
+        name,
+        detail: null,
+        count: 0,
+        durationSecs: 0,
+        year: null,
+        thumbnail: null,
+        albums: new Set<string>(),
+      };
+      g.count += 1;
+      g.durationSecs += m.durationSecs ?? 0;
+      g.year = Math.max(g.year ?? 0, m.year ?? 0) || null;
+      if (by === 'album') g.detail = m.albumArtist ?? m.artist ?? g.detail;
+      if (m.album) g.albums.add(m.album.toLowerCase());
+      if (by === 'artist') g.detail = String(g.albums.size);
+      groups.set(key, g);
+    }
+    return [...groups.values()]
+      .map((g): MediaGroup => ({
+        name: g.name,
+        detail: g.detail,
+        count: g.count,
+        durationSecs: g.durationSecs,
+        year: g.year,
+        thumbnail: g.thumbnail,
+      }))
+      .sort((a, b) => a.name.localeCompare(b.name));
   }
 
   async libraryRemove(id: number) {

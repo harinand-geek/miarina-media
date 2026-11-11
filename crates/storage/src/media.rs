@@ -53,6 +53,78 @@ pub struct MediaRecord {
     pub missing: bool,
     pub added_at: i64,
     pub modified_at: i64,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub album_artist: Option<String>,
+    pub year: Option<i32>,
+    pub genre: Option<String>,
+    pub track_no: Option<u32>,
+    pub disc_no: Option<u32>,
+}
+
+/// Editable tags of a library entry (COM-07). `None` = no value.
+#[derive(Debug, Clone, Default, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase", default)]
+pub struct MediaTags {
+    pub title: Option<String>,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub album_artist: Option<String>,
+    pub year: Option<i32>,
+    pub genre: Option<String>,
+    pub track_no: Option<u32>,
+    pub disc_no: Option<u32>,
+    pub comment: Option<String>,
+    pub lyrics: Option<String>,
+}
+
+/// Longest stored value of a short tag / of lyrics (characters).
+pub const TAG_TEXT_MAX: usize = 500;
+pub const TAG_LYRICS_MAX: usize = 20_000;
+
+fn bounded(value: &Option<String>, max: usize) -> Option<String> {
+    let text = value.as_deref()?.trim();
+    (!text.is_empty()).then(|| text.chars().take(max).collect())
+}
+
+impl MediaTags {
+    /// Trimmed, length-bounded copy; empty strings become `None`, numbers
+    /// out of range are dropped.
+    pub fn normalized(&self) -> Self {
+        Self {
+            title: bounded(&self.title, TAG_TEXT_MAX),
+            artist: bounded(&self.artist, TAG_TEXT_MAX),
+            album: bounded(&self.album, TAG_TEXT_MAX),
+            album_artist: bounded(&self.album_artist, TAG_TEXT_MAX),
+            year: self.year.filter(|y| (1..=9999).contains(y)),
+            genre: bounded(&self.genre, TAG_TEXT_MAX),
+            track_no: self.track_no.filter(|n| (1..=9999).contains(n)),
+            disc_no: self.disc_no.filter(|n| (1..=999).contains(n)),
+            comment: bounded(&self.comment, TAG_TEXT_MAX * 4),
+            lyrics: bounded(&self.lyrics, TAG_LYRICS_MAX),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum GroupBy {
+    Album,
+    Artist,
+    Folder,
+}
+
+/// One album, artist or folder of the music library.
+#[derive(Debug, Clone, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MediaGroup {
+    pub name: String,
+    /// Album artist (albums) or number of albums (artists).
+    pub detail: Option<String>,
+    pub count: u64,
+    pub duration_secs: f64,
+    pub year: Option<i32>,
+    pub thumbnail: Option<String>,
 }
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
@@ -70,6 +142,10 @@ pub enum MediaSort {
 pub struct MediaQuery {
     pub search: String,
     pub kind: Option<MediaKind>,
+    /// Tracks of one album / artist / folder (sub-folders included).
+    pub album: Option<String>,
+    pub artist: Option<String>,
+    pub folder: Option<String>,
     pub sort: MediaSort,
     pub offset: u32,
     pub limit: u32,
@@ -99,7 +175,7 @@ const MAX_SEARCH_TOKENS: usize = 8;
 
 const COLUMNS: &str = "id, path, title, kind, source_host, source_url, task_id, size_bytes, \
      duration_secs, width, height, video_codec, audio_codec, container, thumbnail, probed, \
-     missing, added_at, modified_at";
+     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no";
 
 impl<'de> Deserialize<'de> for MediaKind {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
@@ -192,8 +268,32 @@ impl Storage {
             conditions.push("m.kind = ?".into());
             values.push(Value::Text(kind.as_str().into()));
         }
+        if let Some(album) = &query.album {
+            conditions.push("m.album = ? COLLATE NOCASE".into());
+            values.push(Value::Text(album.clone()));
+        }
+        if let Some(artist) = &query.artist {
+            conditions
+                .push("(m.artist = ? COLLATE NOCASE OR m.album_artist = ? COLLATE NOCASE)".into());
+            values.push(Value::Text(artist.clone()));
+            values.push(Value::Text(artist.clone()));
+        }
+        if let Some(folder) = &query.folder {
+            conditions.push("(m.path LIKE ? ESCAPE '!' OR m.path LIKE ? ESCAPE '!')".into());
+            let escaped = folder
+                .trim_end_matches(['/', '\\'])
+                .replace('!', "!!")
+                .replace('%', "!%")
+                .replace('_', "!_");
+            values.push(Value::Text(format!("{escaped}\\%")));
+            values.push(Value::Text(format!("{escaped}/%")));
+        }
         let filter = conditions.join(" AND ");
         let order = match query.sort {
+            // Within an album, disc and track order wins.
+            _ if query.album.is_some() => {
+                "coalesce(m.disc_no, 1), coalesce(m.track_no, 9999), m.title COLLATE NOCASE, m.id"
+            }
             MediaSort::Added => "m.added_at DESC, m.id DESC",
             MediaSort::Title => "m.title COLLATE NOCASE ASC, m.id",
             MediaSort::Size => "m.size_bytes DESC, m.id DESC",
@@ -327,6 +427,165 @@ impl Storage {
         self.media(id)
     }
 
+    /// Entries whose tags were never read (present files only).
+    pub fn media_to_tag(&self, limit: u32) -> Result<Vec<(i64, String)>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT id, path FROM media WHERE tags_read = 0 AND missing = 0 \
+             ORDER BY added_at DESC LIMIT ?1",
+        )?;
+        stmt.query_map([limit], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect::<rusqlite::Result<_>>()
+            .map_err(Into::into)
+    }
+
+    /// Stores tags read from the file (`None`: nothing readable). A tag
+    /// title replaces the file-name title only on this first read.
+    pub fn set_media_tags_read(&self, id: i64, tags: Option<&MediaTags>) -> Result<()> {
+        let Some(tags) = tags.map(MediaTags::normalized) else {
+            self.conn
+                .execute("UPDATE media SET tags_read = 1 WHERE id = ?1", [id])?;
+            return Ok(());
+        };
+        self.conn.execute(
+            "UPDATE media SET title = coalesce(?2, title), artist = ?3, album = ?4, \
+             album_artist = ?5, year = ?6, genre = ?7, track_no = ?8, disc_no = ?9, \
+             comment = ?10, lyrics = ?11, tags_read = 1 WHERE id = ?1 AND tags_read = 0",
+            params![
+                id,
+                tags.title,
+                tags.artist,
+                tags.album,
+                tags.album_artist,
+                tags.year,
+                tags.genre,
+                tags.track_no,
+                tags.disc_no,
+                tags.comment,
+                tags.lyrics,
+            ],
+        )?;
+        Ok(())
+    }
+
+    /// Tags edited by the user (the title is kept when none is given).
+    pub fn update_media_tags(&self, id: i64, tags: &MediaTags) -> Result<MediaRecord> {
+        let tags = tags.normalized();
+        let changed = self.conn.execute(
+            "UPDATE media SET title = coalesce(?2, title), artist = ?3, album = ?4, \
+             album_artist = ?5, year = ?6, genre = ?7, track_no = ?8, disc_no = ?9, \
+             comment = ?10, lyrics = ?11, tags_read = 1, modified_at = ?12 WHERE id = ?1",
+            params![
+                id,
+                tags.title,
+                tags.artist,
+                tags.album,
+                tags.album_artist,
+                tags.year,
+                tags.genre,
+                tags.track_no,
+                tags.disc_no,
+                tags.comment,
+                tags.lyrics,
+                now_ms(),
+            ],
+        )?;
+        crate::ensure_found(changed, &id.to_string())?;
+        self.media(id)
+    }
+
+    /// Every tag of an entry, lyrics and comment included (editor).
+    pub fn media_tags(&self, id: i64) -> Result<MediaTags> {
+        self.conn
+            .query_row(
+                "SELECT title, artist, album, album_artist, year, genre, track_no, disc_no, \
+                 comment, lyrics FROM media WHERE id = ?1",
+                [id],
+                |r| {
+                    Ok(MediaTags {
+                        title: r.get(0)?,
+                        artist: r.get(1)?,
+                        album: r.get(2)?,
+                        album_artist: r.get(3)?,
+                        year: r.get(4)?,
+                        genre: r.get(5)?,
+                        track_no: r.get(6)?,
+                        disc_no: r.get(7)?,
+                        comment: r.get(8)?,
+                        lyrics: r.get(9)?,
+                    })
+                },
+            )
+            .optional()?
+            .ok_or_else(|| StorageError::NotFound(id.to_string()))
+    }
+
+    /// Albums, artists or folders of the present audio files.
+    pub fn media_groups(&self, by: GroupBy) -> Result<Vec<MediaGroup>> {
+        let sql = match by {
+            GroupBy::Album => {
+                "SELECT min(album), max(coalesce(album_artist, artist)), count(*), \
+                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail) FROM media \
+                 WHERE kind = 'audio' AND missing = 0 AND album IS NOT NULL \
+                 GROUP BY album COLLATE NOCASE ORDER BY album COLLATE NOCASE"
+            }
+            GroupBy::Artist => {
+                "SELECT min(artist), CAST(count(DISTINCT album COLLATE NOCASE) AS TEXT), count(*), \
+                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail) FROM media \
+                 WHERE kind = 'audio' AND missing = 0 AND artist IS NOT NULL \
+                 GROUP BY artist COLLATE NOCASE ORDER BY artist COLLATE NOCASE"
+            }
+            GroupBy::Folder => return self.media_folders(),
+        };
+        let mut stmt = self.conn.prepare(sql)?;
+        stmt.query_map([], |r| {
+            Ok(MediaGroup {
+                name: r.get(0)?,
+                detail: r.get(1)?,
+                count: r.get::<_, i64>(2)?.max(0) as u64,
+                duration_secs: r.get(3)?,
+                year: r.get(4)?,
+                thumbnail: r.get(5)?,
+            })
+        })?
+        .collect::<rusqlite::Result<_>>()
+        .map_err(Into::into)
+    }
+
+    fn media_folders(&self) -> Result<Vec<MediaGroup>> {
+        let mut stmt = self.conn.prepare(
+            "SELECT path, coalesce(duration_secs, 0.0), thumbnail FROM media \
+             WHERE kind = 'audio' AND missing = 0",
+        )?;
+        let rows = stmt.query_map([], |r| {
+            Ok((
+                r.get::<_, String>(0)?,
+                r.get::<_, f64>(1)?,
+                r.get::<_, Option<String>>(2)?,
+            ))
+        })?;
+        let mut folders = std::collections::BTreeMap::<String, MediaGroup>::new();
+        for row in rows {
+            let (path, secs, thumbnail) = row?;
+            let Some(parent) = parent_folder(&path) else {
+                continue;
+            };
+            let group = folders.entry(parent.clone()).or_insert(MediaGroup {
+                name: parent,
+                detail: None,
+                count: 0,
+                duration_secs: 0.0,
+                year: None,
+                thumbnail: None,
+            });
+            group.count += 1;
+            group.duration_secs += secs;
+            if group.thumbnail.is_none() {
+                group.thumbnail = thumbnail;
+            }
+        }
+        Ok(folders.into_values().collect())
+    }
+
     pub fn delete_media(&self, id: i64) -> Result<()> {
         let changed = self.conn.execute("DELETE FROM media WHERE id = ?1", [id])?;
         crate::ensure_found(changed, &id.to_string())
@@ -415,7 +674,21 @@ fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord>> {
         missing: row.get(16)?,
         added_at: row.get(17)?,
         modified_at: row.get(18)?,
+        artist: row.get(19)?,
+        album: row.get(20)?,
+        album_artist: row.get(21)?,
+        year: row.get(22)?,
+        genre: row.get(23)?,
+        track_no: opt_u32(24)?,
+        disc_no: opt_u32(25)?,
     }))
+}
+
+/// Folder part of a stored path, for both `\` and `/` separators (paths
+/// may come from Windows or Android).
+fn parent_folder(path: &str) -> Option<String> {
+    let cut = path.rfind(['/', '\\'])?;
+    (cut > 0).then(|| path[..cut].to_owned())
 }
 
 #[cfg(test)]
@@ -463,8 +736,136 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            4
+            5
         );
+    }
+
+    fn tags(artist: &str, album: &str, track: u32) -> MediaTags {
+        MediaTags {
+            artist: Some(artist.into()),
+            album: Some(album.into()),
+            track_no: Some(track),
+            ..Default::default()
+        }
+    }
+
+    #[test]
+    fn tags_read_once_then_user_edits_win() {
+        let s = Storage::open_in_memory().unwrap();
+        let m = s
+            .upsert_media(&new("C:/M/01 hira.mp3", "01 hira", MediaKind::Audio, 1))
+            .unwrap();
+        assert_eq!(s.media_to_tag(10).unwrap(), vec![(m.id, m.path.clone())]);
+        let read = MediaTags {
+            title: Some("  Hira vaovao ".into()),
+            year: Some(0),
+            ..tags("Ankorabe Sound", "Tany Maitso", 1)
+        };
+        s.set_media_tags_read(m.id, Some(&read)).unwrap();
+        let r = s.media(m.id).unwrap();
+        assert_eq!(r.title, "Hira vaovao");
+        assert_eq!(r.artist.as_deref(), Some("Ankorabe Sound"));
+        assert_eq!(r.year, None, "out of range year dropped");
+        assert!(s.media_to_tag(10).unwrap().is_empty());
+
+        // A second read never overrides the stored values.
+        s.set_media_tags_read(m.id, Some(&tags("Other", "Other", 2)))
+            .unwrap();
+        assert_eq!(s.media(m.id).unwrap().album.as_deref(), Some("Tany Maitso"));
+
+        let edited = s
+            .update_media_tags(
+                m.id,
+                &MediaTags {
+                    title: Some(String::new()),
+                    lyrics: Some("Tononkira".into()),
+                    ..tags("Ankorabe", "Live", 3)
+                },
+            )
+            .unwrap();
+        assert_eq!(edited.title, "Hira vaovao", "empty title keeps the old one");
+        assert_eq!(edited.track_no, Some(3));
+        assert_eq!(
+            s.media_tags(m.id).unwrap().lyrics.as_deref(),
+            Some("Tononkira")
+        );
+    }
+
+    #[test]
+    fn albums_artists_and_folders_group_audio_only() {
+        let s = Storage::open_in_memory().unwrap();
+        for (path, artist, album, track) in [
+            ("C:\\Music\\A\\1.mp3", "Tsiory", "Andro vaovao", 2),
+            ("C:\\Music\\A\\2.mp3", "Tsiory", "andro VAOVAO", 1),
+            ("C:\\Music\\B\\3.flac", "Voahangy R.", "Lalana", 1),
+        ] {
+            let m = s
+                .upsert_media(&new(path, path, MediaKind::Audio, 1))
+                .unwrap();
+            s.set_media_tags_read(m.id, Some(&tags(artist, album, track)))
+                .unwrap();
+        }
+        s.upsert_media(&new("C:\\Videos\\v.mp4", "v", MediaKind::Video, 1))
+            .unwrap();
+
+        let albums = s.media_groups(GroupBy::Album).unwrap();
+        assert_eq!(
+            albums
+                .iter()
+                .map(|g| (g.name.as_str(), g.count))
+                .collect::<Vec<_>>(),
+            [("Andro vaovao", 2), ("Lalana", 1)]
+        );
+        assert_eq!(albums[0].detail.as_deref(), Some("Tsiory"));
+        let artists = s.media_groups(GroupBy::Artist).unwrap();
+        assert_eq!(artists[0].detail.as_deref(), Some("1"), "one album");
+        let folders = s.media_groups(GroupBy::Folder).unwrap();
+        assert_eq!(
+            folders.iter().map(|g| g.name.as_str()).collect::<Vec<_>>(),
+            ["C:\\Music\\A", "C:\\Music\\B"]
+        );
+
+        let album = s
+            .query_media(&MediaQuery {
+                album: Some("ANDRO VAOVAO".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        assert_eq!(
+            album.items.iter().map(|m| m.track_no).collect::<Vec<_>>(),
+            [Some(1), Some(2)],
+            "track order"
+        );
+        let folder = s
+            .query_media(&MediaQuery {
+                folder: Some("C:\\Music\\B".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        assert_eq!(folder.total, 1);
+        let by_artist = s
+            .query_media(&MediaQuery {
+                search: "voahangy".into(),
+                ..Default::default()
+            })
+            .unwrap();
+        assert_eq!(by_artist.total, 1, "search covers artists");
+    }
+
+    #[test]
+    fn folder_filter_escapes_like_wildcards() {
+        let s = Storage::open_in_memory().unwrap();
+        s.upsert_media(&new("C:/M/a_b/1.mp3", "1", MediaKind::Audio, 1))
+            .unwrap();
+        s.upsert_media(&new("C:/M/axb/2.mp3", "2", MediaKind::Audio, 1))
+            .unwrap();
+        let page = s
+            .query_media(&MediaQuery {
+                folder: Some("C:/M/a_b".into()),
+                ..Default::default()
+            })
+            .unwrap();
+        assert_eq!(page.total, 1);
     }
 
     #[test]

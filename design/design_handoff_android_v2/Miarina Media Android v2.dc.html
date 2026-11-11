@@ -1,0 +1,930 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#0A1016;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#5FE0D5;text-decoration:none}a:hover{color:#4FD6CB}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section style="padding:64px 72px 96px;display:flex;flex-direction:column;gap:56px;min-width:2000px">
+  <header style="display:flex;align-items:flex-end;gap:24px;max-width:1400px">
+    <svg width="56" height="56" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820" stroke="#3A4D5E" stroke-width="1"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <span style="font-size:13px;font-weight:600;letter-spacing:.08em;color:#94A3B8">MIARINA · CDC-MIARINA-001 · ANDROID v2</span>
+      <h1 style="margin:0;font-size:40px;font-weight:800;letter-spacing:-.02em">Miarina Media — application mobile</h1>
+      <p style="margin:0;font-size:16px;color:#94A3B8;max-width:880px;text-wrap:pretty">Deux espaces. <b style="color:#35C9BD">Obtenir</b> (usages type SnapTube : lien, navigateur, détection, formats, file de téléchargement) en teal. <b style="color:#FF7A45">Écouter</b> (usages type Lark Player : bibliothèque musicale, mini-lecteur, En lecture, égaliseur, minuteur) en corail. Marque, tokens et composants Miarina ; aucune ressource tierce reprise.</p>
+    </div>
+  </header>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#35C9BD"></span><h2 style="margin:0;font-size:22px;font-weight:800">Espace Obtenir</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">PAR-01 · DL · NAV</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+      <!-- 01 ACCUEIL -->
+      <div data-screen-label="01 Accueil" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">01</span><span style="font-size:15px;font-weight:700">Accueil</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:20px;padding:4px 16px 16px">
+            <div style="height:48px;display:flex;align-items:center;gap:10px">
+              <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0D141B"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+              <span style="flex:1;font-size:18px;font-weight:800;letter-spacing:-.01em">Miarina Media</span>
+              <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:22px"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div>
+              <div style="width:44px;height:44px;display:grid;place-items:center;border-radius:22px;position:relative"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span><span style="position:absolute;top:10px;right:10px;width:8px;height:8px;border-radius:4px;background:#35C9BD"></span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:#182530">
+              <span style="font-size:15px;font-weight:700">Coller un lien</span>
+              <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px;border-radius:10px;background:#101820;border:1px solid #35C9BD;box-shadow:0 0 0 3px rgba(53,201,189,.16)">
+                <span style="flex:1;min-width:0;font-family:'JetBrains Mono';font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">https://archive.org/details/tears-of-st…</span>
+                <div style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:6px;background:#1F2F3B;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">content_paste</span>Coller</div>
+              </div>
+              <div style="height:52px;border-radius:26px;background:#35C9BD;color:#062320;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700">Analyser le lien<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_forward</span></div>
+              <span style="text-align:center;font-size:12px;color:#94A3B8">Ou partagez un lien vers Miarina depuis n'importe quelle app.</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">music_note</span></span>Audio seul</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#94A3B8"><span style="position:relative;width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#64748B"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">playlist_play</span><span style="position:absolute;top:-5px;right:-8px;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:#E8B04B;background:#1A1204;padding:1px 4px;border-radius:4px">PRÉVU</span></span>Playlist</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#182530;display:grid;place-items:center;color:#35C9BD"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">folder_open</span></span>Fichiers</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:#182530">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:700">2 en cours · 1 en attente</span><span style="font-family:'JetBrains Mono';color:#35C9BD">6,4 Mo/s</span></div>
+              <div style="display:flex;justify-content:space-between;gap:12px;font-size:13px;color:#94A3B8"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Tears of Steel — 1080p</span><span style="font-family:'JetBrains Mono'">62 %</span></div>
+              <div style="height:6px;border-radius:3px;background:#243545"><div style="width:62%;height:6px;border-radius:3px;background:#35C9BD"></div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:700">Reprendre</span><span style="font-size:13px;font-weight:600;color:#FF9166">Tout voir</span></div>
+              <div style="display:flex;gap:12px">
+                <div style="width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px);display:grid;place-items:center"><span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">miniature</span><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#243545"><div style="width:40%;height:3px;background:#FF7A45"></div></div><span style="position:absolute;right:6px;bottom:8px;width:28px;height:28px;border-radius:14px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;font-variation-settings:'FILL' 1">play_arrow</span></span></div><span style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Sintel</span><span style="font-size:12px;color:#94A3B8;font-family:'JetBrains Mono'">5:12 / 14:48</span></div>
+                <div style="width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px);display:grid;place-items:center"><span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">miniature</span><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#243545"><div style="width:72%;height:3px;background:#FF7A45"></div></div></div><span style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Cours de guitare #4</span><span style="font-size:12px;color:#94A3B8;font-family:'JetBrains Mono'">18:40 / 26:02</span></div>
+                <div style="width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="height:94px;border-radius:10px;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#1F2F3B;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Lalan-kely</span><span style="font-size:12px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;font-variation-settings:'FILL' 1">skip_next</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#2A3D4E"><div style="width:38%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#1F3A3C;display:grid;place-items:center;color:#5FE0D5"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="position:relative;width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span><span style="position:absolute;top:0;right:8px;min-width:16px;height:16px;border-radius:8px;background:#35C9BD;color:#062320;font-size:10px;font-weight:800;display:grid;place-items:center;padding:0 4px">3</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">PAR-01 · COM-04 · COM-05 · UX-06</span> — Champ de lien en tête comme point d'entrée unique. Les fonctions non prêtes (Playlist) gardent le badge PRÉVU. Le mini-lecteur reste au-dessus de la barre sur tous les écrans de navigation.</p></sc-if>
+      </div>
+
+      <!-- 02 NAVIGATEUR -->
+      <div data-screen-label="02 Navigateur" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">02</span><span style="font-size:15px;font-weight:700">Navigateur · média détecté</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700;background:#0D141B"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex-shrink:0;display:flex;align-items:center;gap:8px;padding:6px 8px 10px 12px;background:#0D141B;position:relative">
+            <div style="flex:1;min-width:0;height:44px;border-radius:22px;background:#182530;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px">
+              <span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:#35C9BD">lock</span>
+              <span style="flex:1;min-width:0;font-family:'JetBrains Mono';font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">archive.org<span style="color:#94A3B8">/details/sintel</span></span>
+              <span style="height:30px;border-radius:15px;background:#1F3A3C;border:1px solid #2E6A68;color:#5FE0D5;font-size:12px;font-weight:700;display:flex;align-items:center;gap:4px;padding:0 10px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">movie</span>2</span>
+            </div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="width:24px;height:24px;border:2px solid #F5F7FA;border-radius:6px;font-size:12px;font-weight:800;display:grid;place-items:center">3</span></div>
+            <div style="width:36px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">more_vert</span></div>
+            <div style="position:absolute;left:0;bottom:0;height:3px;width:70%;background:#35C9BD"></div>
+          </div>
+          <div style="flex:1;min-height:0;position:relative;background:#F4F4F1;display:flex;flex-direction:column;gap:14px;padding:16px">
+            <div style="height:212px;border-radius:6px;background:repeating-linear-gradient(135deg,#E4E4DF 0 6px,#EDEDE8 6px 12px);display:grid;place-items:center"><span style="font-family:'JetBrains Mono';font-size:11px;color:#7A7F86">page web · lecteur vidéo de la page</span></div>
+            <div style="height:16px;width:80%;border-radius:4px;background:#DCDCD6"></div>
+            <div style="height:12px;width:55%;border-radius:4px;background:#E4E4DF"></div>
+            <div style="height:10px;width:92%;border-radius:4px;background:#EAEAE5"></div>
+            <div style="height:10px;width:86%;border-radius:4px;background:#EAEAE5"></div>
+            <div style="height:10px;width:60%;border-radius:4px;background:#EAEAE5"></div>
+            <div style="height:120px;border-radius:6px;background:repeating-linear-gradient(135deg,#E4E4DF 0 6px,#EDEDE8 6px 12px)"></div>
+            <div style="position:absolute;left:50%;bottom:16px;transform:translateX(-50%);height:52px;border-radius:26px;background:#35C9BD;color:#062320;display:flex;align-items:center;box-shadow:0 12px 32px rgba(0,0,0,.4)">
+              <span style="display:flex;align-items:center;gap:8px;padding:0 16px 0 20px;font-size:15px;font-weight:800"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">download</span>Télécharger · 2</span>
+              <span style="width:1px;height:28px;background:rgba(6,35,32,.25)"></span>
+              <span style="padding:0 14px 0 10px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">expand_less</span></span>
+            </div>
+          </div>
+          <div style="height:60px;flex-shrink:0;display:flex;align-items:center;justify-content:space-around;background:#0D141B;border-top:1px solid #1B2935">
+            <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span>
+            <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#64748B">arrow_forward</span>
+            <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span>
+            <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">bookmarks</span>
+            <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#35C9BD">apps</span>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">NAV-01 · NAV-02 · NAV-04 · NAV-05</span> — Barre d'adresse avec chip « N médias » ; compteur d'onglets (grille). Le bouton flottant n'apparaît qu'avec un média réellement détecté et ne recouvre pas la barre du bas. <span style="font-family:'JetBrains Mono'">apps</span> = retour à Miarina.</p></sc-if>
+      </div>
+
+      <!-- 03 FEUILLE DE FORMATS -->
+      <div data-screen-label="03 Formats" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">03</span><span style="font-size:15px;font-weight:700">Feuille de formats</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#F4F4F1;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="position:absolute;inset:0;background:rgba(5,9,13,.62)"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;border-radius:24px 24px 0 0;background:#1F2F3B;box-shadow:0 24px 64px rgba(0,0,0,.5);display:flex;flex-direction:column;gap:14px;padding:10px 16px 0">
+            <div style="align-self:center;width:36px;height:4px;border-radius:2px;background:#3A4D5E"></div>
+            <div style="display:flex;gap:12px;align-items:center">
+              <div style="width:96px;height:54px;border-radius:8px;flex-shrink:0;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px)"></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font-size:16px;font-weight:800">Sintel</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#94A3B8">archive.org · 14:48</span></div>
+            </div>
+            <div style="display:flex;gap:8px">
+              <span style="height:32px;border-radius:16px;background:#1F3A3C;border:1px solid #2E6A68;color:#5FE0D5;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Média 1 · Sintel</span>
+              <span style="height:32px;border-radius:16px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Média 2 · Bande-annonce</span>
+            </div>
+            <div style="display:flex;padding:3px;border-radius:20px;background:#101820;border:1px solid #243545">
+              <span style="flex:1;height:36px;border-radius:17px;background:#2A3D4E;display:grid;place-items:center;font-size:13px;font-weight:700">Vidéo</span>
+              <span style="flex:1;height:36px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#94A3B8">Audio seul</span>
+              <span style="flex:1;height:36px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#94A3B8">Sous-titres</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ formats }}" as="f" hint-placeholder-count="4">
+                <sc-if value="{{ f.on }}" hint-placeholder-val="{{ false }}">
+                  <div style="height:60px;border-radius:12px;background:#16302F;border:1px solid #35C9BD;display:flex;align-items:center;gap:12px;padding:0 14px">
+                    <span style="width:20px;height:20px;border-radius:10px;border:2px solid #35C9BD;display:grid;place-items:center"><span style="width:10px;height:10px;border-radius:5px;background:#35C9BD"></span></span>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:700;display:flex;gap:8px;align-items:center">{{ f.q }}<span style="font-size:10.5px;font-weight:700;color:#5FE0D5;background:#1F3A3C;padding:2px 6px;border-radius:4px">Recommandé</span></span><span style="font-family:'JetBrains Mono';font-size:12px;color:#94A3B8">{{ f.d }}</span></div>
+                    <span style="font-family:'JetBrains Mono';font-size:13px">{{ f.s }}</span>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ f.off }}" hint-placeholder-val="{{ true }}">
+                  <div style="height:60px;border-radius:12px;background:#182530;border:1px solid #243545;display:flex;align-items:center;gap:12px;padding:0 14px">
+                    <span style="width:20px;height:20px;border-radius:10px;border:2px solid #3A4D5E"></span>
+                    <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:700">{{ f.q }}</span><span style="font-family:'JetBrains Mono';font-size:12px;color:#94A3B8">{{ f.d }}</span></div>
+                    <span style="font-family:'JetBrains Mono';font-size:13px;color:#94A3B8">{{ f.s }}</span>
+                  </div>
+                </sc-if>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:4px 0;font-size:13px">
+              <span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#94A3B8">sd_card</span>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column"><span style="color:#94A3B8;font-size:12px">Enregistrer dans</span><span style="font-family:'JetBrains Mono';font-size:12.5px">Movies/Miarina · 18,2 Go libres</span></div>
+              <span style="font-weight:700;color:#5FE0D5">Changer</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;background:#182530;font-size:12.5px;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1;color:#35C9BD">wifi</span><span style="flex:1">Wi-Fi uniquement pour les fichiers &gt; 100 Mo</span><span style="width:38px;height:22px;border-radius:11px;background:#35C9BD;position:relative"><span style="position:absolute;right:3px;top:3px;width:16px;height:16px;border-radius:8px;background:#062320"></span></span></div>
+            <div style="display:flex;gap:10px">
+              <div style="height:52px;padding:0 18px;border-radius:26px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;font-size:14px;font-weight:600">À la file</div>
+              <div style="flex:1;height:52px;border-radius:26px;background:#35C9BD;color:#062320;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:800"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">download</span>Télécharger · 372 Mo</div>
+            </div>
+            <div style="height:20px;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+          </div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">DL-04 · DL-05 · DL-08 · DL-10</span> — Même feuille depuis le lien collé et depuis le navigateur. Audio seul : MP3 128/192/256/320 convertis, M4A original. Règle réseau mesuré appliquée par le moteur, pas un simple toggle décoratif.</p></sc-if>
+      </div>
+
+      <!-- 04 TELECHARGEMENTS -->
+      <div data-screen-label="04 Téléchargements" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">04</span><span style="font-size:15px;font-weight:700">Téléchargements</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:4px 16px 12px">
+            <div style="height:48px;display:flex;align-items:center;gap:8px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Téléchargements</span><div style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:20px;background:#1F2F3B;border:1px solid #2A3D4E;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">pause</span>Tout</div></div>
+            <div style="display:flex;padding:3px;border-radius:20px;background:#0D141B;border:1px solid #243545">
+              <span style="flex:1;height:36px;border-radius:17px;background:#2A3D4E;display:grid;place-items:center;font-size:13px;font-weight:700">En cours · 5</span>
+              <span style="flex:1;height:36px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#94A3B8">Terminés · 24</span>
+              <span style="flex:1;height:36px;display:grid;place-items:center;font-size:13px;font-weight:600;color:#94A3B8">Échecs · 1</span>
+            </div>
+            <div style="display:flex;gap:10px;align-items:flex-start;padding:12px;border-radius:12px;background:#2B2616;border:1px solid #4A3F1F;font-size:13px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#E8B04B">signal_cellular_alt</span><span style="flex:1;line-height:18px"><b>Réseau mobile.</b> <span style="color:#94A3B8">1 fichier attend le Wi-Fi selon vos réglages.</span></span><span style="font-weight:700;color:#E8B04B">Lancer</span></div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ downloads }}" as="d" hint-placeholder-count="5">
+                <div style="display:flex;gap:12px;padding:12px 0;border-bottom:1px solid #1B2935">
+                  <div style="width:72px;height:44px;border-radius:8px;flex-shrink:0;background:repeating-linear-gradient(135deg,#1F2F3B 0 5px,#182530 5px 10px)"></div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px">
+                    <div style="display:flex;gap:8px;align-items:baseline"><span style="flex:1;min-width:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ d.t }}</span><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">{{ d.f }}</span></div>
+                    <div style="height:6px;border-radius:3px;background:#243545;overflow:hidden"><div style="height:6px;border-radius:3px;width:{{ d.p }};background:{{ d.c }}"></div></div>
+                    <div style="display:flex;align-items:center;gap:6px;font-size:12px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:{{ d.c2 }}">{{ d.i }}</span><span style="flex:1;color:{{ d.c2 }};font-weight:600">{{ d.s }}</span><span style="font-family:'JetBrains Mono';color:#94A3B8">{{ d.r }}</span></div>
+                  </div>
+                  <div style="width:40px;height:44px;display:grid;place-items:center;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">{{ d.a }}</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#1F3A3C;display:grid;place-items:center;color:#5FE0D5"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">DL-01 · DL-02 · DL-06 · DL-09</span> — État porté par icône + texte. Conversion distincte du téléchargement. Erreur réseau : reprise à l'octet vérifié, sinon redémarrage proposé explicitement.</p></sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#FF7A45"></span><h2 style="margin:0;font-size:22px;font-weight:800">Espace Écouter</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">PAR-02 · COM · AND</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+      <!-- 05 MUSIQUE TITRES -->
+      <div data-screen-label="05 Musique" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">05</span><span style="font-size:15px;font-weight:700">Musique · Titres</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex-shrink:0;display:flex;flex-direction:column;gap:10px;padding:4px 16px 0">
+            <div style="height:48px;display:flex;align-items:center;gap:4px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Musique</span><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">create_new_folder</span></div></div>
+            <div style="display:flex;gap:22px;border-bottom:1px solid #1B2935;font-size:14px;font-weight:600;color:#94A3B8;white-space:nowrap;overflow:hidden">
+              <span style="padding:10px 0;color:#F5F7FA;font-weight:700;border-bottom:2px solid #FF7A45">Titres</span><span style="padding:10px 0">Playlists</span><span style="padding:10px 0">Albums</span><span style="padding:10px 0">Artistes</span><span style="padding:10px 0">Dossiers</span><span style="padding:10px 0">Favoris</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:4px 0">
+              <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px 0 12px;border-radius:20px;background:#FF7A45;color:#1F0C03;font-size:14px;font-weight:800"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">shuffle</span>Lecture aléatoire</div>
+              <span style="flex:1;font-size:13px;color:#94A3B8">248 titres</span>
+              <div style="height:36px;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">sort</span>Ajout récent</div>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:0 8px 0 16px">
+            <sc-for list="{{ tracks }}" as="t" hint-placeholder-count="8">
+              <div style="height:64px;flex-shrink:0;display:flex;align-items:center;gap:12px;opacity:{{ t.op }}">
+                <div style="width:48px;height:48px;border-radius:8px;flex-shrink:0;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 5px,#182530 5px 10px)"><sc-if value="{{ t.cur }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:8px;background:rgba(16,24,32,.6);display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">equalizer</span></span></sc-if></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ t.col }}">{{ t.t }}</span>
+                  <sc-if value="{{ t.ok }}" hint-placeholder-val="{{ true }}"><span style="font-size:12.5px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.a }} · {{ t.d }}</span></sc-if>
+                  <sc-if value="{{ t.missing }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#E8B04B;display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">folder_off</span>Fichier introuvable · <b>Localiser</b></span></sc-if>
+                </div>
+                <sc-if value="{{ t.fav }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#FF9166;font-variation-settings:'FILL' 1">favorite</span></sc-if>
+                <div style="width:40px;height:48px;display:grid;place-items:center;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_vert</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#1F2F3B;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Lalan-kely</span><span style="font-size:12px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">queue_music</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#2A3D4E"><div style="width:38%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#3A2620;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-07 · COM-09 · AND-06 · PAR-07</span> — Onglets Titres / Playlists / Albums / Artistes / Dossiers / Favoris. Titre en cours en corail + icône égaliseur. Fichier déplacé : ligne atténuée et action « Localiser » (URI SAF révoquée).</p></sc-if>
+      </div>
+
+      <!-- 06 PLAYLISTS -->
+      <div data-screen-label="06 Playlists" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">06</span><span style="font-size:15px;font-weight:700">Musique · Playlists</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:4px 16px 12px">
+            <div style="height:48px;display:flex;align-items:center;gap:4px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Musique</span><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">create_new_folder</span></div></div>
+            <div style="display:flex;gap:22px;border-bottom:1px solid #1B2935;font-size:14px;font-weight:600;color:#94A3B8;white-space:nowrap;overflow:hidden;margin-top:-4px">
+              <span style="padding:10px 0">Titres</span><span style="padding:10px 0;color:#F5F7FA;font-weight:700;border-bottom:2px solid #FF7A45">Playlists</span><span style="padding:10px 0">Albums</span><span style="padding:10px 0">Artistes</span><span style="padding:10px 0">Dossiers</span><span style="padding:10px 0">Favoris</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+              <div style="height:88px;border-radius:14px;background:#3A2620;display:flex;flex-direction:column;justify-content:space-between;padding:12px"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF9166;font-variation-settings:'FILL' 1">favorite</span><span style="display:flex;flex-direction:column"><b style="font-size:13.5px">Favoris</b><span style="font-size:11.5px;color:#94A3B8">42 titres</span></span></div>
+              <div style="height:88px;border-radius:14px;background:#182530;display:flex;flex-direction:column;justify-content:space-between;padding:12px"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#94A3B8">history</span><span style="display:flex;flex-direction:column"><b style="font-size:13.5px">Récents</b><span style="font-size:11.5px;color:#94A3B8">30 titres</span></span></div>
+              <div style="height:88px;border-radius:14px;background:#182530;display:flex;flex-direction:column;justify-content:space-between;padding:12px"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#94A3B8">trending_up</span><span style="display:flex;flex-direction:column"><b style="font-size:13.5px">Plus écoutés</b><span style="font-size:11.5px;color:#94A3B8">25 titres</span></span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px"><span style="flex:1;font-size:15px;font-weight:700">Mes playlists · 5</span><span style="height:36px;display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:18px;border:1px solid #2A3D4E;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">upload_file</span>M3U</span></div>
+            <div style="height:64px;display:flex;align-items:center;gap:12px"><span style="width:56px;height:56px;border-radius:10px;border:1.5px dashed #3A4D5E;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">add</span></span><span style="font-size:14.5px;font-weight:700">Nouvelle playlist</span></div>
+            <sc-for list="{{ playlists }}" as="p" hint-placeholder-count="5">
+              <div style="height:64px;display:flex;align-items:center;gap:12px">
+                <div style="width:56px;height:56px;border-radius:10px;display:grid;grid-template-columns:1fr 1fr;gap:2px;overflow:hidden;flex-shrink:0"><span style="background:#243545"></span><span style="background:#1F2F3B"></span><span style="background:#1F2F3B"></span><span style="background:#2A3D4E"></span></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:700">{{ p.n }}</span><span style="font-size:12.5px;color:#94A3B8">{{ p.c }} titres · {{ p.d }}</span></div>
+                <div style="width:40px;height:48px;display:grid;place-items:center;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_vert</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#1F2F3B;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Lalan-kely</span><span style="font-size:12px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">queue_music</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#2A3D4E"><div style="width:39%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#3A2620;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-06 · COM-11 · COM-13</span> — Listes automatiques (Favoris, Récents, Plus écoutés) locales et effaçables ; playlists utilisateur créées, renommées, réordonnées ; import/export M3U UTF-8.</p></sc-if>
+      </div>
+
+      <!-- 07 EN LECTURE -->
+      <div data-screen-label="07 En lecture" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">07</span><span style="font-size:15px;font-weight:700">En lecture</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:linear-gradient(180deg,#2A2320 0%,#141C24 45%,#0A0F14 100%);overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">bluetooth</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="height:56px;flex-shrink:0;display:flex;align-items:center;padding:0 4px">
+            <div style="width:48px;height:48px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1">keyboard_arrow_down</span></div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center"><span style="font-size:11px;font-weight:700;letter-spacing:.06em;color:#94A3B8">LECTURE DEPUIS</span><span style="font-size:13px;font-weight:700">Playlist · Trajet du matin</span></div>
+            <div style="width:48px;height:48px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">more_vert</span></div>
+          </div>
+          <div style="margin:20px 36px 0;aspect-ratio:1;border-radius:20px;background:repeating-linear-gradient(135deg,#2A3D4E 0 7px,#243545 7px 14px);display:grid;place-items:center;box-shadow:0 24px 64px rgba(0,0,0,.5)"><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">pochette · logo discret si absente</span></div>
+          <div style="display:flex;align-items:center;gap:12px;padding:28px 24px 0">
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span style="font-size:24px;font-weight:800;letter-spacing:-.01em">Lalan-kely</span><span style="font-size:15px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:48px;height:48px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1;font-variation-settings:'FILL' 1">favorite</span></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:20px 24px 0">
+            <div style="height:16px;position:relative;display:flex;align-items:center"><div style="height:4px;width:100%;border-radius:2px;background:rgba(245,247,250,.18)"><div style="width:38%;height:4px;border-radius:2px;background:#FF7A45"></div></div><span style="position:absolute;left:38%;width:14px;height:14px;margin-left:-7px;border-radius:7px;background:#FF7A45"></span></div>
+            <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:12px;color:#94A3B8"><span>1:36</span><span>4:12</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 20px 0">
+            <div style="width:48px;height:48px;display:grid;place-items:center;color:#FF9166;position:relative"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">shuffle</span><span style="position:absolute;bottom:6px;width:4px;height:4px;border-radius:2px;background:#FF9166"></span></div>
+            <div style="width:56px;height:56px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:38px;line-height:1;font-variation-settings:'FILL' 1">skip_previous</span></div>
+            <div style="width:76px;height:76px;border-radius:38px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:42px;line-height:1;font-variation-settings:'FILL' 1">pause</span></div>
+            <div style="width:56px;height:56px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:38px;line-height:1;font-variation-settings:'FILL' 1">skip_next</span></div>
+            <div style="width:48px;height:48px;display:grid;place-items:center;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">repeat</span></div>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex;justify-content:space-around;padding:0 12px 12px">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8;width:64px"><span style="height:28px;display:grid;place-items:center;font-family:'JetBrains Mono';font-size:14px;font-weight:700;color:#F5F7FA">1,25×</span>Vitesse</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#FF9166;width:64px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">graphic_eq</span>Égaliseur</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#FF9166;width:64px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">bedtime</span>28 min</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8;width:64px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">lyrics</span>Paroles</div>
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8;width:64px"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">queue_music</span>File · 12</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-02 · COM-12 · AND-09 · AND-11 · AND-15</span> — Fond teinté par la pochette (dégradé neutre si absente). Barre d'accès direct aux réglages audio ; un état actif est indiqué par couleur + libellé (« 28 min »). Répétition : off → file → titre.</p></sc-if>
+      </div>
+
+      <!-- 08 FILE -->
+      <div data-screen-label="08 File de lecture" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">08</span><span style="font-size:15px;font-weight:700">File de lecture</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#0A0F14;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#2A2320 0%,#141C24 45%,#0A0F14 100%)"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,9,13,.62)"></div>
+          <div style="position:absolute;left:0;right:0;top:120px;bottom:0;border-radius:24px 24px 0 0;background:#1F2F3B;display:flex;flex-direction:column;padding:10px 0 0">
+            <div style="align-self:center;width:36px;height:4px;border-radius:2px;background:#3A4D5E"></div>
+            <div style="display:flex;align-items:center;gap:8px;padding:14px 16px 6px"><div style="flex:1;display:flex;flex-direction:column"><span style="font-size:18px;font-weight:800">File de lecture</span><span style="font-size:12.5px;color:#94A3B8">12 titres · 47 min restantes</span></div><span style="width:40px;height:40px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">shuffle</span></span><span style="width:40px;height:40px;display:grid;place-items:center;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">repeat</span></span></div>
+            <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:0 8px">
+              <sc-for list="{{ queue }}" as="q" hint-placeholder-count="9">
+                <div style="height:60px;flex-shrink:0;display:flex;align-items:center;gap:10px;padding:0 8px;border-radius:10px;background:{{ q.bg }}">
+                  <span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#64748B">drag_indicator</span>
+                  <div style="width:40px;height:40px;border-radius:6px;flex-shrink:0;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px)"></div>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ q.col }}">{{ q.t }}</span><span style="font-size:12px;color:#94A3B8">{{ q.a }}</span></div>
+                  <span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:{{ q.ic }}">{{ q.i }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:10px;padding:12px 16px 8px;border-top:1px solid #2A3D4E">
+              <div style="flex:1;height:48px;border-radius:24px;background:#182530;border:1px solid #2A3D4E;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13.5px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">playlist_add</span>Enregistrer en playlist</div>
+              <div style="height:48px;padding:0 16px;border-radius:24px;display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">clear_all</span>Vider</div>
+            </div>
+            <span style="padding:0 16px 6px;font-size:11.5px;color:#64748B;text-align:center">Vider la file ne supprime aucun fichier.</span>
+            <div style="height:20px;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+          </div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-03 · AND-05</span> — File distincte des téléchargements : glisser pour réordonner, balayer pour retirer, « Lire ensuite » insère après le titre courant. Restaurée après redémarrage sans son surprise.</p></sc-if>
+      </div>
+
+      <!-- 09 SON -->
+      <div data-screen-label="09 Son" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">09</span><span style="font-size:15px;font-weight:700">Son · égaliseur, vitesse, minuteur</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#0A0F14;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,#2A2320 0%,#141C24 45%,#0A0F14 100%)"></div>
+          <div style="position:absolute;inset:0;background:rgba(5,9,13,.62)"></div>
+          <div style="position:absolute;left:0;right:0;top:96px;bottom:0;border-radius:24px 24px 0 0;background:#1F2F3B;display:flex;flex-direction:column;gap:18px;padding:10px 16px 0">
+            <div style="align-self:center;width:36px;height:4px;border-radius:2px;background:#3A4D5E"></div>
+            <div style="display:flex;align-items:center;gap:12px"><span style="flex:1;font-size:18px;font-weight:800">Égaliseur</span><span style="font-size:13px;font-weight:600;color:#94A3B8">Réinitialiser</span><span style="width:52px;height:32px;border-radius:16px;background:#FF7A45;position:relative"><span style="position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:12px;background:#1F0C03"></span></span></div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Neutre</span>
+              <span style="height:34px;border-radius:17px;background:#3A2620;border:1px solid #7A4330;color:#FF9166;font-size:12.5px;font-weight:700;display:flex;align-items:center;padding:0 12px">Basses</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Voix</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Rock</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Classique</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Personnalisé</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:4px;padding:6px 0 0">
+              <sc-for list="{{ bands }}" as="b" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+                  <span style="font-family:'JetBrains Mono';font-size:11px;color:#F5F7FA">{{ b.v }}</span>
+                  <div style="width:4px;height:140px;border-radius:2px;background:#2A3D4E;position:relative"><div style="position:absolute;left:0;right:0;bottom:0;height:{{ b.h }};border-radius:2px;background:#FF7A45"></div><span style="position:absolute;left:-8px;bottom:{{ b.h }};margin-bottom:-10px;width:20px;height:20px;border-radius:10px;background:#F5F7FA;border:3px solid #FF7A45"></span></div>
+                  <span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">{{ b.f }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <div style="height:1px;background:#2A3D4E"></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:14px;font-weight:700">Vitesse</span>
+              <div style="display:flex;padding:3px;border-radius:20px;background:#101820;border:1px solid #243545;font-family:'JetBrains Mono';font-size:12.5px">
+                <span style="flex:1;height:34px;display:grid;place-items:center;color:#94A3B8">0,5×</span><span style="flex:1;height:34px;display:grid;place-items:center;color:#94A3B8">0,75×</span><span style="flex:1;height:34px;display:grid;place-items:center;color:#94A3B8">1×</span><span style="flex:1;height:34px;border-radius:17px;background:#2A3D4E;display:grid;place-items:center;font-weight:700">1,25×</span><span style="flex:1;height:34px;display:grid;place-items:center;color:#94A3B8">1,5×</span><span style="flex:1;height:34px;display:grid;place-items:center;color:#94A3B8">2×</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:14px;font-weight:700">Minuteur de sommeil</span>
+              <div style="display:flex;gap:8px;flex-wrap:wrap">
+                <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Off</span>
+                <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">15 min</span>
+                <span style="height:34px;border-radius:17px;background:#3A2620;border:1px solid #7A4330;color:#FF9166;font-size:12.5px;font-weight:700;display:flex;align-items:center;padding:0 12px">30 min</span>
+                <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">60 min</span>
+                <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Fin du titre</span>
+              </div>
+              <span style="font-size:12.5px;color:#94A3B8;display:flex;gap:6px;align-items:center"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#FF9166">bedtime</span>La musique s'arrêtera dans <b style="font-family:'JetBrains Mono';color:#F5F7FA">28:14</b>. L'app reste ouverte.</span>
+            </div>
+            <div style="flex:1"></div>
+            <div style="height:20px;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+          </div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">AND-09 · AND-10 · AND-11</span> — Égaliseur 6 bandes avec bypass et reset ; masqué avec explication si le périphérique ne le supporte pas. Vitesse 0,5–2× persistée. Minuteur annulable, sans fermeture forcée.</p></sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#FF7A45"></span><h2 style="margin:0;font-size:22px;font-weight:800">Bibliothèque · suite</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">COM-04 · COM-07 · COM-09 · L06</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+      <!-- 14 VIDEOS -->
+      <div data-screen-label="14 Vidéos" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">14</span><span style="font-size:15px;font-weight:700">Vidéos</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:4px 16px 12px">
+            <div style="height:48px;display:flex;align-items:center;gap:4px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Vidéos</span><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">view_list</span></div></div>
+            <div style="display:flex;gap:8px;white-space:nowrap;overflow:hidden">
+              <span style="height:34px;border-radius:17px;background:#1F3A3C;border:1px solid #2E6A68;color:#5FE0D5;font-size:12.5px;font-weight:700;display:flex;align-items:center;padding:0 12px">Toutes · 36</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">En cours · 4</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Movies/Miarina</span>
+              <span style="height:34px;border-radius:17px;border:1px solid #2A3D4E;color:#94A3B8;font-size:12.5px;font-weight:600;display:flex;align-items:center;padding:0 12px">Camera</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">
+              <sc-for list="{{ videos }}" as="v" hint-placeholder-count="8">
+                <div style="display:flex;flex-direction:column;gap:6px;min-width:0">
+                  <div style="aspect-ratio:16/9;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)">
+                    <span style="position:absolute;right:6px;bottom:8px;font-family:'JetBrains Mono';font-size:10.5px;font-weight:700;background:rgba(5,9,13,.8);padding:1px 5px;border-radius:4px">{{ v.d }}</span>
+                    <sc-if value="{{ v.res }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#243545"><div style="height:3px;width:{{ v.p }};background:#FF7A45"></div></div></sc-if>
+                  </div>
+                  <div style="display:flex;gap:4px;align-items:flex-start"><div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:13.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ v.t }}</span><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">{{ v.m }}</span></div><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#94A3B8">more_vert</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#1F2F3B;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Lalan-kely</span><span style="font-size:12px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">queue_music</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#2A3D4E"><div style="width:40%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#3A2620;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-04 · COM-09 · AND-06</span> — Grille 2 colonnes, barre de reprise corail sur les vidéos entamées, filtres par dossier MediaStore. Format réel affiché en mono.</p></sc-if>
+      </div>
+
+      <!-- 15 ALBUMS -->
+      <div data-screen-label="15 Albums" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">15</span><span style="font-size:15px;font-weight:700">Musique · Albums</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:14px;padding:4px 16px 12px">
+            <div style="height:48px;display:flex;align-items:center;gap:4px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Musique</span><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">create_new_folder</span></div></div>
+            <div style="display:flex;gap:22px;border-bottom:1px solid #1B2935;font-size:14px;font-weight:600;color:#94A3B8;white-space:nowrap;overflow:hidden;margin-top:-4px">
+              <span style="padding:10px 0">Titres</span><span style="padding:10px 0">Playlists</span><span style="padding:10px 0;color:#F5F7FA;font-weight:700;border-bottom:2px solid #FF7A45">Albums</span><span style="padding:10px 0">Artistes</span><span style="padding:10px 0">Dossiers</span><span style="padding:10px 0">Favoris</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#94A3B8"><span>18 albums</span><span style="display:flex;align-items:center;gap:4px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">sort</span>A → Z</span></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px 12px">
+              <sc-for list="{{ albums }}" as="al" hint-placeholder-count="6">
+                <div style="display:flex;flex-direction:column;gap:8px;min-width:0">
+                  <div style="aspect-ratio:1;border-radius:12px;position:relative;background:repeating-linear-gradient(135deg,#1F2F3B 0 7px,#182530 7px 14px);display:grid;place-items:center"><span style="font-family:'JetBrains Mono';font-size:10px;color:#64748B">pochette</span><span style="position:absolute;right:8px;bottom:8px;width:36px;height:36px;border-radius:18px;background:rgba(16,24,32,.85);color:#FF9166;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;font-variation-settings:'FILL' 1">play_arrow</span></span></div>
+                  <div style="display:flex;flex-direction:column;gap:1px"><span style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ al.n }}</span><span style="font-size:12.5px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ al.a }} · {{ al.c }} titres</span></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #1B2935;background:#0D141B;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Accueil</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Navigateur</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Téléch.</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#3A2620;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">library_music</span></span>Musique</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#94A3B8"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Vidéos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#0D141B"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-07 · L06</span> — Regroupement par tag Album (ID3/MP4). Sans tag : « Album inconnu ». Bouton lecture direct sur la pochette.</p></sc-if>
+      </div>
+
+      <!-- 16 ARTISTES -->
+      <div data-screen-label="16 Artiste" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">16</span><span style="font-size:15px;font-weight:700">Artistes · fiche artiste</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="height:56px;flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 8px"><div style="width:48px;height:48px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><span style="flex:1;font-size:13px;font-weight:600;color:#94A3B8">Artistes</span><div style="width:48px;height:48px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">more_vert</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:16px;padding:0 16px 12px">
+            <div style="display:flex;align-items:center;gap:16px">
+              <div style="width:112px;height:112px;border-radius:56px;flex-shrink:0;background:repeating-linear-gradient(135deg,#1F2F3B 0 7px,#182530 7px 14px);display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:44px;line-height:1;color:#3A4D5E">person</span></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px"><span style="font-size:24px;font-weight:800;letter-spacing:-.01em">Ny Ando</span><span style="font-size:13px;color:#94A3B8">3 albums · 27 titres · 1 h 48</span></div>
+            </div>
+            <div style="display:flex;gap:10px">
+              <div style="flex:1;height:48px;border-radius:24px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14.5px;font-weight:800"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;font-variation-settings:'FILL' 1">play_arrow</span>Tout lire</div>
+              <div style="flex:1;height:48px;border-radius:24px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;justify-content:center;gap:8px;font-size:14px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">shuffle</span>Aléatoire</div>
+            </div>
+            <span style="font-size:15px;font-weight:700">Albums</span>
+            <div style="display:flex;gap:12px">
+              <div style="width:112px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:1;border-radius:10px;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"></div><span style="font-size:13px;font-weight:700">Mazava</span><span style="font-size:11.5px;color:#94A3B8;font-family:'JetBrains Mono'">2025 · 11</span></div>
+              <div style="width:112px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:1;border-radius:10px;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"></div><span style="font-size:13px;font-weight:700">Tany</span><span style="font-size:11.5px;color:#94A3B8;font-family:'JetBrains Mono'">2023 · 9</span></div>
+              <div style="width:112px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:1;border-radius:10px;background:repeating-linear-gradient(135deg,#1F2F3B 0 6px,#182530 6px 12px)"></div><span style="font-size:13px;font-weight:700">Live 2022</span><span style="font-size:11.5px;color:#94A3B8;font-family:'JetBrains Mono'">2022 · 7</span></div>
+            </div>
+            <span style="font-size:15px;font-weight:700">Titres</span>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ artistTracks }}" as="at" hint-placeholder-count="4">
+                <div style="height:56px;display:flex;align-items:center;gap:12px">
+                  <span style="width:20px;font-family:'JetBrains Mono';font-size:12px;color:{{ at.nc }};text-align:right">{{ at.n }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:1px"><span style="font-size:14.5px;font-weight:700;color:{{ at.col }}">{{ at.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ at.al }} · {{ at.d }}</span></div>
+                  <span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#94A3B8">more_vert</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#1F2F3B;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Lalan-kely</span><span style="font-size:12px;color:#94A3B8">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#FF9166"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">queue_music</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#2A3D4E"><div style="width:41%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#101820"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">COM-07 · COM-09</span> — Liste Artistes en cercles (vue précédente), fiche avec « Tout lire » corail (seul bouton plein) et Aléatoire secondaire. Aucune image distante : photo seulement si fournie par l'utilisateur.</p></sc-if>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#94A3B8"></span><h2 style="margin:0;font-size:22px;font-weight:800">Système, vidéo et réglages</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">AND-01..08 · COM-10 · UPD</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+      <!-- 10 ECRAN VERROUILLE -->
+      <div data-screen-label="10 Écran verrouillé" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">10</span><span style="font-size:15px;font-weight:700">Écran verrouillé · notification</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:repeating-linear-gradient(135deg,#141C24 0 10px,#10171E 10px 20px);overflow:hidden;position:relative;display:flex;flex-direction:column;align-items:center;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="align-self:stretch;height:36px;display:flex;align-items:center;justify-content:flex-end;gap:4px;padding:0 24px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">bluetooth</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div>
+          <span style="margin-top:56px;font-size:88px;font-weight:300;letter-spacing:-.03em;line-height:1">7:24</span>
+          <span style="margin-top:8px;font-size:16px;font-weight:600;color:#C9D2DB">Mercredi 11 novembre</span>
+          <div style="margin-top:56px;width:380px;border-radius:24px;background:rgba(31,47,59,.92);padding:16px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 32px rgba(0,0,0,.4)">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;color:#94A3B8"><svg width="16" height="16" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#0D141B"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg><span style="flex:1">Miarina Media</span><span style="display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">headphones</span>Casque BT</span></div>
+            <div style="display:flex;gap:14px;align-items:center">
+              <div style="width:64px;height:64px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,#2A3D4E 0 5px,#243545 5px 10px)"></div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:16px;font-weight:800">Lalan-kely</span><span style="font-size:13px;color:#94A3B8">Ny Ando · Mazava</span></div>
+              <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#FF9166;font-variation-settings:'FILL' 1">favorite</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px"><div style="height:4px;border-radius:2px;background:rgba(245,247,250,.18)"><div style="width:38%;height:4px;border-radius:2px;background:#FF7A45"></div></div><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono';font-size:11px;color:#94A3B8"><span>1:36</span><span>4:12</span></div></div>
+            <div style="display:flex;justify-content:space-around;align-items:center">
+              <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#94A3B8">shuffle</span>
+              <span style="font-family:'Material Symbols Rounded';font-size:34px;line-height:1;font-variation-settings:'FILL' 1">skip_previous</span>
+              <span style="width:56px;height:56px;border-radius:28px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause</span></span>
+              <span style="font-family:'Material Symbols Rounded';font-size:34px;line-height:1;font-variation-settings:'FILL' 1">skip_next</span>
+              <span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;color:#94A3B8">close</span>
+            </div>
+          </div>
+          <div style="margin-top:12px;width:380px;border-radius:20px;background:rgba(31,47,59,.85);padding:14px 16px;display:flex;gap:12px;align-items:center">
+            <span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#35C9BD">downloading</span>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:6px"><span style="font-size:13px;font-weight:700">2 téléchargements · 6,4 Mo/s</span><div style="height:4px;border-radius:2px;background:#243545"><div style="width:62%;height:4px;border-radius:2px;background:#35C9BD"></div></div></div>
+            <span style="font-size:12.5px;font-weight:700;color:#94A3B8">Pause</span>
+          </div>
+          <div style="flex:1"></div>
+          <div style="display:flex;justify-content:space-between;align-self:stretch;padding:0 40px 28px"><span style="width:48px;height:48px;border-radius:24px;background:rgba(31,47,59,.8);display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">call</span></span><span style="font-family:'Material Symbols Rounded';font-size:28px;line-height:1;align-self:center">fingerprint</span><span style="width:48px;height:48px;border-radius:24px;background:rgba(31,47,59,.8);display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">photo_camera</span></span></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">AND-01 · AND-02 · AND-03 · AND-04 · DL-09</span> — Lecture portée par un MediaSessionService : la notification reflète l'état réel ; boutons casque Bluetooth et écran verrouillé. Notification téléchargement séparée, avec Pause.</p></sc-if>
+      </div>
+
+      <!-- 11 DIALOGUE RETIRER / SUPPRIMER -->
+      <div data-screen-label="11 Retirer ou supprimer" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#F07070;background:#3A1F22;padding:2px 6px;border-radius:4px">11</span><span style="font-size:15px;font-weight:700">Retirer ou supprimer</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0"></div>
+          <div style="padding:4px 16px;display:flex;flex-direction:column;gap:6px;opacity:.5">
+            <div style="height:48px;display:flex;align-items:center"><span style="font-size:22px;font-weight:800">Musique</span></div>
+            <div style="height:64px;border-radius:8px;background:#182530"></div><div style="height:64px;border-radius:8px;background:#182530"></div><div style="height:64px;border-radius:8px;background:#182530"></div>
+          </div>
+          <div style="position:absolute;inset:0;background:rgba(5,9,13,.62)"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;border-radius:24px 24px 0 0;background:#1F2F3B;display:flex;flex-direction:column;gap:16px;padding:10px 20px 0;box-shadow:0 24px 64px rgba(0,0,0,.5)">
+            <div style="align-self:center;width:36px;height:4px;border-radius:2px;background:#3A4D5E"></div>
+            <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:19px;font-weight:800">Retirer « Lalan-kely » ?</span><span style="font-size:14px;line-height:20px;color:#94A3B8">Choisissez ce qui arrive au fichier. Les playlists qui contiennent ce titre seront mises à jour.</span></div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;gap:12px;padding:14px;border-radius:12px;background:#16302F;border:1px solid #35C9BD"><span style="width:20px;height:20px;margin-top:2px;border-radius:10px;border:2px solid #35C9BD;display:grid;place-items:center;flex-shrink:0"><span style="width:10px;height:10px;border-radius:5px;background:#35C9BD"></span></span><span style="display:flex;flex-direction:column;gap:3px"><b style="font-size:14.5px">Retirer de la bibliothèque</b><span style="font-size:13px;color:#94A3B8">Le fichier reste sur l'appareil.</span></span></div>
+              <div style="display:flex;gap:12px;padding:14px;border-radius:12px;background:#182530;border:1px solid #243545"><span style="width:20px;height:20px;margin-top:2px;border-radius:10px;border:2px solid #3A4D5E;flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:3px"><b style="font-size:14.5px">Supprimer le fichier de l'appareil</b><span style="font-size:13px;color:#94A3B8">Définitif. Le fichier suivant sera effacé :</span><span style="font-family:'JetBrains Mono';font-size:11.5px;color:#C9D2DB;word-break:break-all">Music/Miarina/Ny Ando - Lalan-kely.mp3 · 9,8 Mo</span></span></div>
+            </div>
+            <div style="display:flex;gap:10px;padding-top:4px">
+              <div style="flex:1;height:52px;border-radius:26px;background:#182530;border:2px solid #35C9BD;display:grid;place-items:center;font-size:15px;font-weight:700">Annuler</div>
+              <div style="flex:1;height:52px;border-radius:26px;background:#2A3D4E;display:grid;place-items:center;font-size:15px;font-weight:700">Retirer</div>
+            </div>
+            <div style="height:20px;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+          </div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#F07070">COM-10 (P0)</span> — Retirer par défaut. Le bouton devient destructif rouge « Supprimer le fichier » uniquement si l'option est choisie ; chemin et taille nommés ; focus initial sur Annuler.</p></sc-if>
+      </div>
+
+      <!-- 12 REGLAGES -->
+      <div data-screen-label="12 Réglages" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">12</span><span style="font-size:15px;font-weight:700">Réglages · mise à jour, lecture, ressources</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="height:56px;flex-shrink:0;display:flex;align-items:center;gap:4px;padding:0 8px"><div style="width:48px;height:48px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">arrow_back</span></div><span style="font-size:20px;font-weight:800">Réglages</span></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:18px;padding:4px 16px 16px">
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:#182530;border:1px solid #2E6A68">
+              <div style="display:flex;gap:12px;align-items:center"><span style="width:40px;height:40px;border-radius:12px;background:#1F3A3C;color:#5FE0D5;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">system_update_alt</span></span><div style="flex:1;display:flex;flex-direction:column"><b style="font-size:15px">0.1.8 est prête</b><span style="font-size:12.5px;color:#94A3B8">Canal Stable · 128,4 Mio</span></div></div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:#5FE0D5"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">verified</span>Signature et SHA-256 vérifiées</div>
+              <div style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:17px;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1;color:#E8B04B">info</span>2 téléchargements en cours. Ils seront mis en pause avant l'installation ; bibliothèque et playlists conservées.</div>
+              <div style="display:flex;gap:10px"><div style="flex:1;height:44px;border-radius:22px;background:#35C9BD;color:#062320;display:grid;place-items:center;font-size:14px;font-weight:800">Installer maintenant</div><div style="height:44px;padding:0 18px;border-radius:22px;border:1px solid #2A3D4E;display:grid;place-items:center;font-size:14px;font-weight:600">Plus tard</div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B">PERFORMANCE</span>
+              <div style="display:flex;padding:3px;border-radius:20px;background:#0D141B;border:1px solid #243545">
+                <span style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">battery_saver</span>Éco</span>
+                <span style="flex:1;height:38px;border-radius:19px;background:#2A3D4E;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">balance</span>Équilibré</span>
+                <span style="flex:1;height:38px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:13px;font-weight:600;color:#94A3B8"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">speed</span>Performance</span>
+              </div>
+              <span style="font-size:12.5px;line-height:18px;color:#94A3B8">2 téléchargements simultanés, conversions une par une, animations standard.</span>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B;padding-bottom:4px">LECTURE</span>
+              <sc-for list="{{ settings }}" as="s" hint-placeholder-count="5">
+                <div style="min-height:60px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #1B2935;padding:8px 0">
+                  <span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#94A3B8">{{ s.i }}</span>
+                  <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:600">{{ s.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ s.d }}</span></div>
+                  <sc-if value="{{ s.on }}" hint-placeholder-val="{{ false }}"><span style="width:52px;height:32px;border-radius:16px;background:#35C9BD;position:relative;flex-shrink:0"><span style="position:absolute;right:4px;top:4px;width:24px;height:24px;border-radius:12px;background:#062320"></span></span></sc-if>
+                  <sc-if value="{{ s.off }}" hint-placeholder-val="{{ false }}"><span style="width:52px;height:32px;border-radius:16px;background:#2A3D4E;position:relative;flex-shrink:0"><span style="position:absolute;left:4px;top:4px;width:24px;height:24px;border-radius:12px;background:#94A3B8"></span></span></sc-if>
+                  <sc-if value="{{ s.later }}" hint-placeholder-val="{{ false }}"><span style="font-family:'JetBrains Mono';font-size:10px;font-weight:700;color:#E8B04B;background:#1A1204;padding:2px 6px;border-radius:4px">PRÉVU</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center"><div style="width:120px;height:4px;border-radius:2px;background:#64748B"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">UPD-02 · UPD-04 · UPD-06 · UX-06</span> — Installation jamais forcée, tâches en cours nommées. Sélecteur Éco / Équilibré / Performance à la place du toggle « Low-resource ». Fonctions en étude marquées PRÉVU.</p></sc-if>
+      </div>
+    </div>
+
+    <!-- 13 VIDEO PAYSAGE -->
+    <div data-screen-label="13 Lecteur vidéo" style="display:flex;flex-direction:column;gap:14px;width:892px">
+      <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">13</span><span style="font-size:15px;font-weight:700">Lecteur vidéo plein écran · pistes et sous-titres</span></div>
+      <div style="width:892px;height:412px;border-radius:40px;background:#000;overflow:hidden;position:relative;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+        <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#0A0F14 0 10px,#0D141B 10px 20px);display:grid;place-items:center"><span style="font-family:'JetBrains Mono';font-size:12px;color:#3A4D5E">surface vidéo native · Media3</span></div>
+        <div style="position:absolute;left:0;right:340px;top:0;height:96px;background:linear-gradient(180deg,rgba(0,0,0,.75),rgba(0,0,0,0));display:flex;align-items:flex-start;gap:8px;padding:18px 12px 0 24px">
+          <span style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1">arrow_back</span></span>
+          <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding-top:4px"><span style="font-size:16px;font-weight:700">Sintel</span><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">MKV · H.264 1080p · AAC 2.0 · 2 pistes · 3 ST</span></div>
+          <span style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">picture_in_picture_alt</span></span>
+          <span style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">screen_rotation</span></span>
+        </div>
+        <div style="position:absolute;left:44px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:8px"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1;color:#C9D2DB">light_mode</span><div style="width:4px;height:96px;border-radius:2px;background:rgba(245,247,250,.25);position:relative"><div style="position:absolute;bottom:0;left:0;right:0;height:62%;border-radius:2px;background:#F5F7FA"></div></div><span style="font-family:'JetBrains Mono';font-size:11px;color:#C9D2DB">62</span></div>
+        <div style="position:absolute;left:0;right:340px;top:50%;transform:translateY(-50%);display:flex;justify-content:center;align-items:center;gap:56px">
+          <span style="font-family:'Material Symbols Rounded';font-size:40px;line-height:1">replay_10</span>
+          <span style="width:68px;height:68px;border-radius:34px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:40px;line-height:1;font-variation-settings:'FILL' 1">pause</span></span>
+          <span style="font-family:'Material Symbols Rounded';font-size:40px;line-height:1">forward_10</span>
+        </div>
+        <div style="position:absolute;left:0;right:340px;bottom:92px;display:flex;justify-content:center"><span style="font-size:20px;font-weight:600;background:rgba(0,0,0,.65);padding:4px 10px;border-radius:4px">Je cherche un dragon.</span></div>
+        <div style="position:absolute;left:0;right:340px;bottom:0;height:88px;background:linear-gradient(0deg,rgba(0,0,0,.8),rgba(0,0,0,0));display:flex;flex-direction:column;justify-content:flex-end;gap:6px;padding:0 24px 16px 40px">
+          <div style="display:flex;align-items:center;gap:12px;font-family:'JetBrains Mono';font-size:12px"><span>5:12</span><div style="flex:1;height:4px;border-radius:2px;background:rgba(245,247,250,.2);position:relative"><div style="position:absolute;left:0;top:0;height:4px;width:55%;border-radius:2px;background:#3A4D5E"></div><div style="position:absolute;left:0;top:0;height:4px;width:35%;border-radius:2px;background:#FF7A45"></div><span style="position:absolute;left:35%;top:-5px;width:14px;height:14px;margin-left:-7px;border-radius:7px;background:#FF7A45"></span></div><span style="color:#94A3B8">14:48</span></div>
+          <div style="display:flex;align-items:center;gap:6px;color:#C9D2DB">
+            <span style="width:40px;height:36px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">lock</span></span>
+            <span style="flex:1"></span>
+            <span style="height:36px;display:flex;align-items:center;gap:6px;padding:0 10px;border-radius:18px;background:rgba(255,122,69,.18);color:#FF9166;font-size:12.5px;font-weight:700"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">closed_caption</span>FR</span>
+            <span style="height:36px;display:grid;place-items:center;padding:0 10px;font-family:'JetBrains Mono';font-size:12.5px">1×</span>
+            <span style="width:40px;height:36px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">aspect_ratio</span></span>
+          </div>
+        </div>
+        <div style="position:absolute;top:0;right:0;bottom:0;width:340px;background:rgba(24,37,48,.96);display:flex;flex-direction:column;gap:12px;padding:20px 24px 16px 20px;border-left:1px solid #2A3D4E">
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B">PISTE AUDIO</span>
+          <div style="display:flex;flex-direction:column;gap:2px;font-size:14px">
+            <div style="height:38px;display:flex;align-items:center;gap:10px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#35C9BD">check</span><span style="flex:1;font-weight:700">Anglais</span><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">AAC 2.0</span></div>
+            <div style="height:38px;display:flex;align-items:center;gap:10px;color:#C9D2DB"><span style="width:20px"></span><span style="flex:1">Français</span><span style="font-family:'JetBrains Mono';font-size:11px;color:#94A3B8">AC-3 5.1</span></div>
+          </div>
+          <span style="font-size:11.5px;font-weight:700;letter-spacing:.06em;color:#64748B">SOUS-TITRES</span>
+          <div style="display:flex;flex-direction:column;gap:2px;font-size:14px">
+            <div style="height:36px;display:flex;align-items:center;gap:10px;color:#C9D2DB"><span style="width:20px"></span>Désactivés</div>
+            <div style="height:36px;display:flex;align-items:center;gap:10px"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#35C9BD">check</span><span style="font-weight:700">Français · interne</span></div>
+            <div style="height:36px;display:flex;align-items:center;gap:10px;color:#5FE0D5;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">upload_file</span>Charger SRT / VTT…</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;font-size:13px"><span style="flex:1;color:#94A3B8">Décalage</span><span style="width:36px;height:36px;border-radius:18px;background:#1F2F3B;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">remove</span></span><span style="font-family:'JetBrains Mono';width:56px;text-align:center">+0,3 s</span><span style="width:36px;height:36px;border-radius:18px;background:#1F2F3B;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">add</span></span></div>
+        </div>
+      </div>
+      <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;max-width:892px;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">AND-07 · AND-08 · AND-13 · AND-14</span> — Vrai plein écran (barres système masquées, retour Android cohérent). Gestes : gauche luminosité, droite volume, double tap ±10 s ; désactivables et doublés par des boutons. Cadenas = verrouillage des commandes. Infos techniques réelles lues du fichier.</p></sc-if>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:center;gap:12px"><span style="width:10px;height:10px;border-radius:5px;background:#F6F8FA"></span><h2 style="margin:0;font-size:22px;font-weight:800">Thème clair · English</h2><span style="font-family:'JetBrains Mono';font-size:12px;color:#64748B">UX-01 · UX-05</span></div>
+    <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start">
+
+      <!-- 17 HOME LIGHT EN -->
+      <div data-screen-label="17 Home light EN" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#35C9BD;background:#1F3A3C;padding:2px 6px;border-radius:4px">17</span><span style="font-size:15px;font-weight:700">Home · light · EN</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#F6F8FA;color:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:20px;padding:4px 16px 16px">
+            <div style="height:48px;display:flex;align-items:center;gap:10px">
+              <svg width="26" height="26" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+              <span style="flex:1;font-size:18px;font-weight:800;letter-spacing:-.01em">Miarina Media</span>
+              <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div>
+              <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">settings</span></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;padding:16px;border-radius:16px;background:#FFFFFF;border:1px solid #DDE3E9">
+              <span style="font-size:15px;font-weight:700">Paste a link</span>
+              <div style="height:52px;display:flex;align-items:center;gap:8px;padding:0 6px 0 14px;border-radius:10px;background:#F6F8FA;border:1px solid #C9D2DB">
+                <span style="flex:1;font-family:'JetBrains Mono';font-size:14px;color:#526072">https://</span>
+                <div style="height:40px;display:flex;align-items:center;gap:6px;padding:0 12px;border-radius:6px;background:#EEF2F5;font-size:13px;font-weight:600"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">content_paste</span>Paste</div>
+              </div>
+              <div style="height:52px;border-radius:26px;background:#35C9BD;color:#062320;display:flex;align-items:center;justify-content:center;gap:8px;font-size:15px;font-weight:700">Analyze link<span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">arrow_forward</span></div>
+              <span style="text-align:center;font-size:12px;color:#526072">Or share a link to Miarina Media from any app.</span>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#DDF5F2;display:grid;place-items:center;color:#0F8579"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">music_note</span></span>Audio only</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600;color:#526072"><span style="position:relative;width:52px;height:52px;border-radius:16px;background:#EEF2F5;display:grid;place-items:center;color:#8A96A6"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">playlist_play</span><span style="position:absolute;top:-5px;right:-10px;font-family:'JetBrains Mono';font-size:9px;font-weight:700;color:#A86F0A;background:#FBF1DC;padding:1px 4px;border-radius:4px">PLANNED</span></span>Playlist</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#DDF5F2;display:grid;place-items:center;color:#0F8579"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Browser</div>
+              <div style="display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;font-weight:600"><span style="width:52px;height:52px;border-radius:16px;background:#DDF5F2;display:grid;place-items:center;color:#0F8579"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">folder_open</span></span>Files</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:#FFFFFF;border:1px solid #DDE3E9">
+              <div style="display:flex;justify-content:space-between;font-size:13px"><span style="font-weight:700">2 downloading · 1 queued</span><span style="font-family:'JetBrains Mono';color:#0F8579">6.4 MB/s</span></div>
+              <div style="display:flex;justify-content:space-between;font-size:13px;color:#526072"><span>Tears of Steel — 1080p</span><span style="font-family:'JetBrains Mono'">62%</span></div>
+              <div style="height:6px;border-radius:3px;background:#DDE3E9"><div style="width:62%;height:6px;border-radius:3px;background:#35C9BD"></div></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="display:flex;justify-content:space-between;align-items:center"><span style="font-size:15px;font-weight:700">Continue watching</span><span style="font-size:13px;font-weight:600;color:#C2410C">See all</span></div>
+              <div style="display:flex;gap:12px">
+                <div style="width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#E4E9EE 0 6px,#EEF2F5 6px 12px)"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#DDE3E9"><div style="width:40%;height:3px;background:#FF7A45"></div></div></div><span style="font-size:13px;font-weight:600">Sintel</span><span style="font-size:12px;color:#526072;font-family:'JetBrains Mono'">5:12 / 14:48</span></div>
+                <div style="width:168px;flex-shrink:0;display:flex;flex-direction:column;gap:6px"><div style="height:94px;border-radius:10px;overflow:hidden;position:relative;background:repeating-linear-gradient(135deg,#E4E9EE 0 6px,#EEF2F5 6px 12px)"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:#DDE3E9"><div style="width:72%;height:3px;background:#FF7A45"></div></div></div><span style="font-size:13px;font-weight:600">Guitar lesson #4</span><span style="font-size:12px;color:#526072;font-family:'JetBrains Mono'">18:40 / 26:02</span></div>
+              </div>
+            </div>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#FFFFFF;border:1px solid #DDE3E9;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#E4E9EE 0 5px,#EEF2F5 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Lalan-kely</span><span style="font-size:12px;color:#526072">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#C2410C"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:26px;line-height:1;font-variation-settings:'FILL' 1">skip_next</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#DDE3E9"><div style="width:38%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #DDE3E9;background:#EDF1F4;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#DDF5F2;display:grid;place-items:center;color:#0F8579"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">home</span></span>Home</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Browser</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Downloads</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">library_music</span></span>Music</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Videos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#EDF1F4"><div style="width:120px;height:4px;border-radius:2px;background:#8A96A6"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#5FE0D5">UX-01 · UX-05</span> — Clair : texte teal en <span style="font-family:'JetBrains Mono'">#0F8579</span>, corail texte <span style="font-family:'JetBrains Mono'">#C2410C</span> (contraste ≥ 4.5:1). Remplissages teal/corail inchangés. Libellé « Downloads » complet en anglais.</p></sc-if>
+      </div>
+
+      <!-- 18 MUSIC LIGHT EN -->
+      <div data-screen-label="18 Music light EN" style="display:flex;flex-direction:column;gap:14px;width:412px">
+        <div style="display:flex;gap:10px;align-items:baseline"><span style="font-family:'JetBrains Mono';font-size:12px;font-weight:700;color:#FF9166;background:#3A2620;padding:2px 6px;border-radius:4px">18</span><span style="font-size:15px;font-weight:700">Music · Songs · light · EN</span></div>
+        <div style="width:412px;height:892px;border-radius:40px;background:#F6F8FA;color:#101820;overflow:hidden;position:relative;display:flex;flex-direction:column;box-shadow:0 0 0 10px #05090D,0 0 0 11px #2A3D4E,0 30px 80px rgba(0,0,0,.5)">
+          <div style="height:36px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;padding:0 24px;font-size:13px;font-weight:700"><span>9:41</span><div style="display:flex;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">signal_cellular_alt</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">wifi</span><span style="font-family:'Material Symbols Rounded';font-size:16px;line-height:1">battery_5_bar</span></div></div>
+          <div style="flex-shrink:0;display:flex;flex-direction:column;gap:10px;padding:4px 16px 0">
+            <div style="height:48px;display:flex;align-items:center;gap:4px"><span style="flex:1;font-size:22px;font-weight:800;letter-spacing:-.01em">Music</span><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">search</span></div><div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">create_new_folder</span></div></div>
+            <div style="display:flex;gap:22px;border-bottom:1px solid #DDE3E9;font-size:14px;font-weight:600;color:#526072;white-space:nowrap;overflow:hidden">
+              <span style="padding:10px 0;color:#101820;font-weight:700;border-bottom:2px solid #FF7A45">Songs</span><span style="padding:10px 0">Playlists</span><span style="padding:10px 0">Albums</span><span style="padding:10px 0">Artists</span><span style="padding:10px 0">Folders</span><span style="padding:10px 0">Favorites</span>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;padding:4px 0">
+              <div style="height:40px;display:flex;align-items:center;gap:8px;padding:0 16px 0 12px;border-radius:20px;background:#FF7A45;color:#1F0C03;font-size:14px;font-weight:800"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1">shuffle</span>Shuffle play</div>
+              <span style="flex:1;font-size:13px;color:#526072">248 songs</span>
+              <div style="height:36px;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:600;color:#526072"><span style="font-family:'Material Symbols Rounded';font-size:18px;line-height:1">sort</span>Recently added</div>
+            </div>
+          </div>
+          <div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;padding:0 8px 0 16px">
+            <sc-for list="{{ tracksLight }}" as="t" hint-placeholder-count="8">
+              <div style="height:64px;flex-shrink:0;display:flex;align-items:center;gap:12px;opacity:{{ t.op }}">
+                <div style="width:48px;height:48px;border-radius:8px;flex-shrink:0;position:relative;background:repeating-linear-gradient(135deg,#E4E9EE 0 5px,#EEF2F5 5px 10px)"><sc-if value="{{ t.cur }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;inset:0;border-radius:8px;background:rgba(255,232,222,.85);display:grid;place-items:center;color:#C2410C"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">equalizer</span></span></sc-if></div>
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:14.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ t.col }}">{{ t.t }}</span>
+                  <sc-if value="{{ t.ok }}" hint-placeholder-val="{{ true }}"><span style="font-size:12.5px;color:#526072">{{ t.a }} · {{ t.d }}</span></sc-if>
+                  <sc-if value="{{ t.missing }}" hint-placeholder-val="{{ false }}"><span style="font-size:12.5px;color:#A86F0A;display:flex;align-items:center;gap:4px"><span style="font-family:'Material Symbols Rounded';font-size:15px;line-height:1">folder_off</span>File not found · <b>Locate</b></span></sc-if>
+                </div>
+                <sc-if value="{{ t.fav }}" hint-placeholder-val="{{ false }}"><span style="font-family:'Material Symbols Rounded';font-size:20px;line-height:1;color:#C2410C;font-variation-settings:'FILL' 1">favorite</span></sc-if>
+                <div style="width:40px;height:48px;display:grid;place-items:center;color:#526072"><span style="font-family:'Material Symbols Rounded';font-size:22px;line-height:1">more_vert</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin:0 8px 8px;height:64px;flex-shrink:0;border-radius:14px;background:#FFFFFF;border:1px solid #DDE3E9;position:relative;overflow:hidden;display:flex;align-items:center;gap:12px;padding:0 6px 0 10px">
+            <div style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#E4E9EE 0 5px,#EEF2F5 5px 10px);flex-shrink:0"></div>
+            <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px"><span style="font-size:14px;font-weight:700">Lalan-kely</span><span style="font-size:12px;color:#526072">Ny Ando · Mazava</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center;color:#C2410C"><span style="font-family:'Material Symbols Rounded';font-size:32px;line-height:1;font-variation-settings:'FILL' 1">pause_circle</span></div>
+            <div style="width:44px;height:44px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">queue_music</span></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;height:2px;background:#DDE3E9"><div style="width:38%;height:2px;background:#FF7A45"></div></div>
+          </div>
+          <div style="height:72px;flex-shrink:0;display:flex;border-top:1px solid #DDE3E9;background:#EDF1F4;padding:0 4px">
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">home</span></span>Home</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">travel_explore</span></span>Browser</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">download</span></span>Downloads</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:700"><span style="width:56px;height:32px;border-radius:16px;background:#FFE8DE;display:grid;place-items:center;color:#C2410C"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1;font-variation-settings:'FILL' 1">library_music</span></span>Music</div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:11.5px;font-weight:600;color:#526072"><span style="width:56px;height:32px;display:grid;place-items:center"><span style="font-family:'Material Symbols Rounded';font-size:24px;line-height:1">video_library</span></span>Videos</div>
+          </div>
+          <div style="height:20px;flex-shrink:0;display:grid;place-items:center;background:#EDF1F4"><div style="width:120px;height:4px;border-radius:2px;background:#8A96A6"></div></div>
+        </div>
+        <sc-if value="{{ showNotes }}" hint-placeholder-val="{{ true }}"><p style="margin:0;font-size:13px;line-height:19px;color:#94A3B8;text-wrap:pretty"><span style="font-family:'JetBrains Mono';color:#FF9166">UX-01 · UX-05 · PAR-07</span> — Même structure que l'écran 05, tokens clairs. Avertissement fichier manquant en warning clair <span style="font-family:'JetBrains Mono'">#A86F0A</span> + icône.</p></sc-if>
+      </div>
+    </div>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showNotes&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Présentation&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const T = '#35C9BD', W = '#E8B04B', D = '#F07070', M = '#94A3B8', P = '#5B6B7C';
+    const tracks = [
+      ['Lalan-kely', 'Ny Ando', '4:12', true, true],
+      ['Rivotra avaratra', 'Hery & Lova', '3:48', false, true],
+      ['Tany manga', 'Ny Ando', '5:01'],
+      ['Morning commute (live)', 'Studio Ambohidahy', '6:22'],
+      ['Fitia tsy miova', 'Mialy R.', '3:30', false, true],
+      ['Démo guitare #2', 'Dossier · Recordings', '—', false, false, true],
+      ['Hira fanantenana', 'Hery & Lova', '4:40'],
+      ['Ranonorana', 'Mialy R.', '3:05'],
+      ['Sahabo', 'Ny Ando', '4:58'],
+    ].map(([t, a, d, cur, fav, missing]) => ({
+      t, a, d, cur: !!cur, fav: !!fav, missing: !!missing, ok: !missing,
+      col: cur ? '#FF9166' : '#F5F7FA', op: missing ? 0.72 : 1,
+    }));
+    return {
+      showNotes: this.props.showNotes ?? true,
+      tracks,
+      tracksLight: tracks.map(t => ({ ...t, t: t.missing ? 'Guitar demo #2' : t.t, a: t.missing ? 'Folder · Recordings' : t.a, col: t.cur ? '#C2410C' : '#101820' })),
+      videos: [
+        { t: 'Sintel', m: 'MKV · 1080p', d: '14:48', res: true, p: '35%' },
+        { t: 'Cours de guitare #4', m: 'MP4 · 720p', d: '26:02', res: true, p: '72%' },
+        { t: 'Tears of Steel', m: 'MP4 · 1080p', d: '12:14' },
+        { t: 'Big Buck Bunny', m: 'MP4 · 1080p', d: '9:56', res: true, p: '12%' },
+        { t: 'Anniversaire Mialy', m: 'MP4 · Camera', d: '3:21' },
+        { t: 'Conférence 2026', m: 'WebM · 720p', d: '48:10', res: true, p: '54%' },
+      ],
+      albums: [
+        { n: 'Mazava', a: 'Ny Ando', c: 11 }, { n: 'Rivotra', a: 'Hery & Lova', c: 9 },
+        { n: 'Fitia', a: 'Mialy R.', c: 12 }, { n: 'Tany', a: 'Ny Ando', c: 9 },
+        { n: 'Album inconnu', a: 'Artistes divers', c: 23 }, { n: 'Live 2022', a: 'Ny Ando', c: 7 },
+      ],
+      artistTracks: [
+        ['Lalan-kely', 'Mazava', '4:12', true], ['Tany manga', 'Tany', '5:01'],
+        ['Sahabo', 'Mazava', '4:58'], ['Ranomasina', 'Tany', '3:44'],
+      ].map(([t, al, d, cur], i) => ({ t, al, d, n: cur ? '▶' : String(i + 1), nc: cur ? '#FF9166' : '#64748B', col: cur ? '#FF9166' : '#F5F7FA' })),
+      formats: [
+        { q: '1080p', d: 'MP4 · H.264 · AAC', s: '372 Mo', on: true },
+        { q: '720p', d: 'MP4 · H.264 · AAC', s: '198 Mo' },
+        { q: '480p', d: 'MP4 · H.264 · AAC', s: '104 Mo' },
+        { q: '360p', d: 'WebM · VP9 · Opus', s: '61 Mo' },
+      ].map(f => ({ ...f, on: !!f.on, off: !f.on })),
+      downloads: [
+        { t: 'Tears of Steel', f: 'MP4 1080p', p: '62%', c: T, c2: T, i: 'downloading', s: 'Téléchargement', r: '62 % · 1 min', a: 'pause' },
+        { t: 'Rivotra avaratra', f: 'MP3 320', p: '100%', c: T, c2: T, i: 'autorenew', s: 'Conversion MP3 · étape 2/2', r: '', a: 'close' },
+        { t: 'Cours de guitare #5', f: 'MP4 720p', p: '34%', c: D, c2: D, i: 'wifi_off', s: 'Connexion perdue · nouvel essai 8 s', r: 'reprise 34 %', a: 'refresh' },
+        { t: 'Big Buck Bunny', f: 'MP4 1080p', p: '18%', c: P, c2: W, i: 'pause_circle', s: 'En pause', r: '18 %', a: 'play_arrow' },
+        { t: 'Sintel', f: 'MKV 1080p', p: '0%', c: P, c2: M, i: 'wifi', s: 'En attente du Wi-Fi', r: '412 Mo', a: 'more_vert' },
+      ],
+      playlists: [
+        { n: 'Trajet du matin', c: 12, d: '47 min' },
+        { n: 'Concentration', c: 28, d: '1 h 52' },
+        { n: 'Soirée famille', c: 19, d: '1 h 10' },
+        { n: 'Importée · roadtrip.m3u', c: 31, d: '2 manquants' },
+      ],
+      queue: [
+        ['Lalan-kely', 'Ny Ando', true],
+        ['Rivotra avaratra', 'Hery & Lova'],
+        ['Fitia tsy miova', 'Mialy R.'],
+        ['Tany manga', 'Ny Ando'],
+        ['Hira fanantenana', 'Hery & Lova'],
+        ['Ranonorana', 'Mialy R.'],
+        ['Sahabo', 'Ny Ando'],
+        ['Morning commute (live)', 'Studio Ambohidahy'],
+        ['Rivotra atsimo', 'Hery & Lova'],
+      ].map(([t, a, cur]) => ({
+        t, a, col: cur ? '#FF9166' : '#F5F7FA', bg: cur ? '#3A2620' : 'transparent',
+        i: cur ? 'equalizer' : 'close', ic: cur ? '#FF9166' : '#64748B',
+      })),
+      bands: [
+        { f: '60', v: '+6', h: '80%' }, { f: '230', v: '+4', h: '70%' }, { f: '910', v: '0', h: '50%' },
+        { f: '3,6k', v: '-1', h: '45%' }, { f: '9k', v: '+2', h: '60%' }, { f: '14k', v: '+3', h: '65%' },
+      ],
+      settings: [
+        { i: 'play_circle', t: 'Reprendre où j\u2019en étais', d: 'Position mémorisée par média', on: true },
+        { i: 'headphones', t: 'Pause au retrait du casque', d: 'Pas de reprise automatique', on: true },
+        { i: 'gesture', t: 'Gestes vidéo', d: 'Luminosité, volume, double tap', on: true },
+        { i: 'blur_linear', t: 'Fondu entre titres', d: 'Désactivé par défaut', off: true },
+        { i: 'all_inclusive', t: 'Lecture sans blanc (gapless)', d: 'En étude · AND-12', later: true },
+      ].map(s => ({ ...s, on: !!s.on, off: !!s.off, later: !!s.later })),
+    };
+  }
+}
+</script>
+</body>
+</html>

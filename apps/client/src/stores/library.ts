@@ -1,6 +1,13 @@
 import { create } from 'zustand';
 import { backend } from '../services/backend';
-import type { LibraryOverview, MediaKind, MediaRecord, MediaSort } from '../services/types';
+import type {
+  GroupBy,
+  LibraryOverview,
+  MediaKind,
+  MediaRecord,
+  MediaSort,
+  MediaTags,
+} from '../services/types';
 import { usePlayer } from './player';
 import { useUi } from './ui';
 
@@ -11,6 +18,8 @@ interface LibraryState {
   search: string;
   kind: MediaKind | null;
   sort: MediaSort;
+  /** Tracks of one album / artist / folder. */
+  group: { by: GroupBy; name: string } | null;
   items: MediaRecord[];
   total: number;
   overview: LibraryOverview | null;
@@ -22,9 +31,13 @@ interface LibraryState {
   setSearch: (search: string) => void;
   setKind: (kind: MediaKind | null) => void;
   setSort: (sort: MediaSort) => void;
+  /** Sets kind and group together (one query). */
+  show: (kind: MediaKind | null, group: { by: GroupBy; name: string } | null) => void;
   rename: (id: number, title: string) => Promise<boolean>;
   /** Deletes the file from disk. */
   remove: (id: number) => Promise<boolean>;
+  /** Saves edited tags (and writes them into the file when asked). */
+  updateTags: (id: number, tags: MediaTags, writeToFile: boolean) => Promise<boolean>;
   /** Removes from the library only; the file stays on disk. */
   removeFromLibrary: (id: number) => Promise<boolean>;
 }
@@ -51,6 +64,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
     search: '',
     kind: null,
     sort: 'added',
+    group: null,
     items: [],
     total: 0,
     overview: null,
@@ -64,10 +78,17 @@ export const useLibrary = create<LibraryState>((set, get) => {
 
     refresh: async () => {
       const seq = ++requestSeq;
-      const { search, kind, sort } = get();
+      const { search, kind, sort, group } = get();
       try {
         const [page, overview, recent] = await Promise.all([
-          backend.libraryQuery({ search, kind, sort }),
+          backend.libraryQuery({
+            search,
+            kind,
+            sort,
+            album: group?.by === 'album' ? group.name : null,
+            artist: group?.by === 'artist' ? group.name : null,
+            folder: group?.by === 'folder' ? group.name : null,
+          }),
           backend.libraryOverview(),
           backend.libraryQuery({ search: '', kind: null, sort: 'added', limit: 4 }),
         ]);
@@ -91,10 +112,28 @@ export const useLibrary = create<LibraryState>((set, get) => {
       set({ sort });
       void get().refresh();
     },
+    show: (kind, group) => {
+      const current = get();
+      if (current.kind === kind && current.group?.by === group?.by && current.group?.name === group?.name)
+        return;
+      set({ kind, group });
+      void get().refresh();
+    },
 
     rename: async (id, title) => {
       try {
         await backend.libraryRename(id, title);
+        await get().refresh();
+        return true;
+      } catch (e) {
+        report(e);
+        return false;
+      }
+    },
+    updateTags: async (id, tags, writeToFile) => {
+      try {
+        const updated = await backend.libraryUpdateTags(id, tags, writeToFile);
+        usePlayer.getState().refreshMedia(updated);
         await get().refresh();
         return true;
       } catch (e) {

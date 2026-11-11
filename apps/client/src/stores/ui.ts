@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { MediaRecord } from '../services/types';
+import type { GroupBy, MediaRecord } from '../services/types';
 
 export type Screen =
   | 'home'
@@ -15,8 +15,14 @@ export type Screen =
 
 /** Windows v2 navigation B: "Get" (download) and "Play" (listen & watch) spaces. */
 export type Space = 'get' | 'play';
-/** Library views of the Play space (others arrive with lot L06). */
-export type LibraryView = 'tracks' | 'videos';
+/** Library views of the Play space (playlists and favorites: COM-06, later). */
+export type LibraryView = 'tracks' | 'albums' | 'artists' | 'folders' | 'videos';
+
+/** An album, artist or folder opened from its grid. */
+export interface LibraryGroup {
+  by: GroupBy;
+  name: string;
+}
 
 const PLAY_SCREENS: Screen[] = ['library', 'player', 'now'];
 const GET_SCREENS: Screen[] = ['home', 'analysis', 'downloads', 'browser', 'torrents', 'history'];
@@ -54,6 +60,9 @@ interface UiState {
   screen: Screen;
   space: Space;
   libraryView: LibraryView;
+  libraryGroup: LibraryGroup | null;
+  /** Entry open in the tag editor (COM-07). */
+  tagEditor: MediaRecord | null;
   /** Right panel of "Now playing". */
   nowPanel: 'queue' | 'sound';
   sidebarCollapsed: boolean;
@@ -92,6 +101,8 @@ export const useUi = create<UiState>((set) => ({
   screen: 'home',
   space: 'get',
   libraryView: 'tracks',
+  libraryGroup: null,
+  tagEditor: null,
   nowPanel: 'queue',
   sidebarCollapsed: false,
   playerFullscreen: false,
@@ -105,7 +116,13 @@ export const useUi = create<UiState>((set) => ({
   browserRequest: null,
   librarySearchFocus: 0,
   go: (screen) =>
-    set((s) => ({ screen, confirm: null, removal: null, space: spaceOf(screen, s.space) })),
+    set((s) => ({
+      screen,
+      confirm: null,
+      removal: null,
+      tagEditor: null,
+      space: spaceOf(screen, s.space),
+    })),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),
   analyze: (url, tab) =>
     set((s) => ({

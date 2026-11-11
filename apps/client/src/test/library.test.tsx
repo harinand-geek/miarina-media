@@ -54,7 +54,7 @@ describe('library screen', () => {
     const user = userEvent.setup();
     await openLibrary('tracks');
     await waitFor(() => expect(useLibrary.getState().total).toBe(3));
-    await user.type(screen.getByRole('searchbox', { name: 'Search titles' }), 'gymno');
+    await user.type(screen.getByRole('searchbox', { name: 'Title, artist, album, folder' }), 'gymno');
     await waitFor(() =>
       expect(useLibrary.getState().items.map((m) => m.title)).toEqual(['Gymnopédie No. 1 — Satie']),
     );
@@ -144,6 +144,7 @@ describe('library screen', () => {
       'folder_openShow in folder',
       'content_copyCopy source link',
       'drive_file_rename_outlineRename',
+      'edit_noteEdit tags',
       'deleteRemove or delete…',
     ]);
     await user.keyboard('{Escape}');

@@ -47,9 +47,9 @@ const GET: NavItem[] = [
 
 const MUSIC: NavItem[] = [
   library('tracks', 'tracks', 'music_note'),
-  planned('lib:albums', 'albums', 'album'),
-  planned('lib:artists', 'artists', 'person'),
-  planned('lib:folders', 'folders', 'folder'),
+  library('albums', 'albums', 'album'),
+  library('artists', 'artists', 'person'),
+  library('folders', 'folders', 'folder'),
   planned('lib:playlists', 'playlists', 'queue_music'),
   planned('lib:favorites', 'favorites', 'favorite'),
 ];
