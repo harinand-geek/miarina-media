@@ -490,7 +490,7 @@ fn v7_adds_favorites_and_playlists_to_a_v6_database() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 8);
+    assert_eq!(storage.schema_version().unwrap(), 9);
     let page = storage.query_media(&MediaQuery::default()).unwrap();
     assert!(!page.items[0].favorite);
     assert!(

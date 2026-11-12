@@ -200,5 +200,18 @@ pub fn migrations() -> Migrations<'static> {
         // v8 — covers chosen by the user (COM-07): kept by scans, probes
         // and "Clear thumbnail cache".
         M::up("ALTER TABLE media ADD COLUMN cover_custom INTEGER NOT NULL DEFAULT 0;"),
+        // v9 — built-in browser history (NAV-03), local only.
+        M::up(
+            r#"
+        CREATE TABLE browser_history (
+            id         INTEGER PRIMARY KEY,
+            url        TEXT NOT NULL,
+            title      TEXT NOT NULL DEFAULT '',
+            visited_at INTEGER NOT NULL
+        );
+        CREATE INDEX browser_history_time ON browser_history (visited_at);
+        CREATE INDEX browser_history_url ON browser_history (url);
+        "#,
+        ),
     ])
 }

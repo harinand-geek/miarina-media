@@ -91,7 +91,14 @@ pub fn run() {
     let builder = tauri::Builder::default()
         .manage(updates::Updates::default())
         .plugin(tauri_plugin_dialog::init())
-        .plugin(tauri_plugin_opener::init());
+        // Its click script would run in every webview, browser pages
+        // included, and swallow their target=_blank links (the frontend has
+        // no opener permission anyway): Rust opens URLs itself.
+        .plugin(
+            tauri_plugin_opener::Builder::new()
+                .open_js_links_on_click(false)
+                .build(),
+        );
     #[cfg(target_os = "android")]
     let builder = builder
         .plugin(player::init())
@@ -388,6 +395,12 @@ pub fn run() {
             browser::browser_frame,
             browser::browser_favorites,
             browser::browser_favorite_toggle,
+            browser::browser_tab_new,
+            browser::browser_tab_close,
+            browser::browser_tab_select,
+            browser::browser_history,
+            browser::browser_history_delete,
+            browser::browser_history_clear,
             player::player_open,
             player::player_queue,
             player::player_skip,

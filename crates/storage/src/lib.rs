@@ -3,11 +3,13 @@
 //! Only metadata lives here: media bytes always stay on disk. Every state
 //! change is validated by [`media_core::TaskState`] before it is written.
 
+mod browser_history;
 mod media;
 mod migrations;
 mod playback;
 mod playlists;
 
+pub use browser_history::{VISITS_MAX, VISITS_PAGE_MAX, Visit};
 pub use media::{
     GroupBy, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats,
     MediaTags, NewMedia, fts_query,

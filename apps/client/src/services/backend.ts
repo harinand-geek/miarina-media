@@ -35,6 +35,7 @@ import type {
   StartRequest,
   StorageUsage,
   TaskRecord,
+  Visit,
   YtDlpUpdate,
 } from './types';
 
@@ -135,6 +136,15 @@ export interface Backend {
   /** Android: places or hides the native page view; may return a picture of the page. */
   browserFrame(frame: BrowserFrame): Promise<string | null>;
   browserFavorites(): Promise<Favorite[]>;
+  /** Windows: opens a tab (start page, an address, or the history tab). */
+  browserTabNew(options?: { kind?: 'history'; address?: string }): Promise<number>;
+  browserTabClose(id: number): Promise<void>;
+  /** Selects a tab, or the next (1) / previous (-1) one. */
+  browserTabSelect(target: { id?: number; step?: number }): Promise<void>;
+  /** Visited pages, newest first, matching `query` (title or address). */
+  browserHistory(query: string): Promise<Visit[]>;
+  browserHistoryDelete(id: number): Promise<void>;
+  browserHistoryClear(): Promise<number>;
   /** Stars or unstars a page; returns the new list. */
   browserFavoriteToggle(url: string, title: string): Promise<Favorite[]>;
   /** Shortcuts pressed while the web page had keyboard focus. */
@@ -302,6 +312,17 @@ class TauriBackend implements Backend {
     onEvent<BrowserSnapshot>('browser://state', listener);
   browserFrame = (frame: BrowserFrame) => call<string | null>('browser_frame', { ...frame });
   browserFavorites = () => call<Favorite[]>('browser_favorites');
+  browserTabNew = (options: { kind?: 'history'; address?: string } = {}) =>
+    call<number>('browser_tab_new', {
+      kind: options.kind ?? null,
+      address: options.address ?? null,
+    });
+  browserTabClose = (id: number) => call<void>('browser_tab_close', { id });
+  browserTabSelect = (target: { id?: number; step?: number }) =>
+    call<void>('browser_tab_select', { id: target.id ?? null, step: target.step ?? null });
+  browserHistory = (query: string) => call<Visit[]>('browser_history', { query, limit: null });
+  browserHistoryDelete = (id: number) => call<void>('browser_history_delete', { id });
+  browserHistoryClear = () => call<number>('browser_history_clear');
   browserFavoriteToggle = (url: string, title: string) =>
     call<Favorite[]>('browser_favorite_toggle', { url, title });
   onBrowserShortcut = (listener: (name: string) => void) =>

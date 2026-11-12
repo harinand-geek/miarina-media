@@ -10,6 +10,8 @@ import type {
   BackendSettings,
   BrowserAction,
   BrowserSnapshot,
+  BrowserTab,
+  BrowserTabKind,
   ComponentStatus,
   Favorite,
   GroupBy,
@@ -30,6 +32,7 @@ import type {
   StorageUsage,
   TaskRecord,
   TaskState,
+  Visit,
   YtDlpUpdate,
 } from '../services/types';
 import { ANALYZED, DOWNLOADS, HISTORY, LIBRARY, NO_MEDIA_HOSTS } from './fixtures';
@@ -784,8 +787,112 @@ export class MockBackend {
     if (action === 'home') this.setBrowser({ ...BROWSER_START });
   }
 
+  // Tabs and history (Windows): the mock keeps one snapshot per tab.
+  private tabs: { id: number; state: BrowserSnapshot; kind: BrowserTabKind }[] = [];
+  private activeTab = 0;
+  private nextTab = 0;
+  private visits: Visit[] = [];
+
+  private tabList(): BrowserTab[] {
+    return this.tabs.map((t) => {
+      const state = t.id === this.activeTab ? this.browser : t.state;
+      return {
+        id: t.id,
+        kind: t.kind === 'history' ? 'history' : state.startPage ? 'start' : 'web',
+        title: state.title,
+        url: state.url,
+        media: state.media.length,
+        loading: state.loading,
+        active: t.id === this.activeTab,
+      };
+    });
+  }
+
+  private ensureTabs() {
+    if (this.tabs.length) return;
+    this.tabs.push({ id: ++this.nextTab, state: this.browser, kind: 'start' });
+    this.activeTab = this.nextTab;
+  }
+
+  async browserTabNew(options: { kind?: 'history'; address?: string } = {}) {
+    this.ensureTabs();
+    if (options.kind === 'history') {
+      const existing = this.tabs.find((t) => t.kind === 'history');
+      if (existing) {
+        await this.browserTabSelect({ id: existing.id });
+        return existing.id;
+      }
+    }
+    if (this.tabs.length >= 12) {
+      throw Object.assign(new Error('At most 12 tabs can be open'), { code: 'too_many_tabs' });
+    }
+    this.tabs.find((t) => t.id === this.activeTab)!.state = this.browser;
+    const id = ++this.nextTab;
+    this.tabs.push({ id, state: { ...BROWSER_START }, kind: options.kind ?? 'start' });
+    this.activeTab = id;
+    this.setBrowser({ ...BROWSER_START });
+    if (options.address) await this.browserNavigate(options.address);
+    return id;
+  }
+
+  async browserTabSelect(target: { id?: number; step?: number }) {
+    this.ensureTabs();
+    const at = this.tabs.findIndex((t) => t.id === this.activeTab);
+    const next =
+      target.id ?? this.tabs[(at + (target.step ?? 0) + this.tabs.length) % this.tabs.length]!.id;
+    const tab = this.tabs.find((t) => t.id === next);
+    if (!tab) throw new Error('This tab is closed');
+    this.tabs[at]!.state = this.browser;
+    this.activeTab = next;
+    this.setBrowser(tab.state);
+  }
+
+  async browserTabClose(id: number) {
+    this.ensureTabs();
+    const at = this.tabs.findIndex((t) => t.id === id);
+    if (at < 0) return;
+    this.tabs.splice(at, 1);
+    if (!this.tabs.length)
+      this.tabs.push({ id: ++this.nextTab, state: { ...BROWSER_START }, kind: 'start' });
+    if (id === this.activeTab) {
+      const next = this.tabs[Math.min(at, this.tabs.length - 1)]!;
+      this.activeTab = next.id;
+      this.setBrowser(next.state);
+    } else {
+      this.setBrowser(this.browser);
+    }
+  }
+
+  async browserHistory(query: string) {
+    const q = query.trim().toLowerCase();
+    return this.visits.filter(
+      (v) => !q || v.title.toLowerCase().includes(q) || v.url.toLowerCase().includes(q),
+    );
+  }
+
+  async browserHistoryDelete(id: number) {
+    this.visits = this.visits.filter((v) => v.id !== id);
+  }
+
+  async browserHistoryClear() {
+    const n = this.visits.length;
+    this.visits = [];
+    return n;
+  }
+
+  /** Test helper: pages visited earlier. */
+  seedVisits(visits: Visit[]) {
+    this.visits = visits;
+  }
+
   async browserState() {
-    const state = this.browser;
+    this.ensureTabs();
+    const tab = this.tabs.find((t) => t.id === this.activeTab);
+    const state: BrowserSnapshot = {
+      ...this.browser,
+      kind: tab?.kind === 'history' ? 'history' : this.browser.startPage ? 'start' : 'web',
+      tabs: this.tabList(),
+    };
     // The floating button gesture is reported once (as on Android).
     if (state.fab) this.browser = { ...state, fab: null };
     return state;
@@ -838,6 +945,18 @@ export class MockBackend {
 
   private setBrowser(next: BrowserSnapshot) {
     this.browser = next;
+    const tab = this.tabs.find((t) => t.id === this.activeTab);
+    if (tab && !next.startPage) {
+      tab.kind = 'web';
+      if (!this.visits.some((v) => v.url === next.url)) {
+        this.visits.unshift({
+          id: this.visits.length + 1,
+          url: next.url,
+          title: next.title,
+          visitedAt: Date.now(),
+        });
+      }
+    }
     for (const listener of this.browserListeners) listener(next);
   }
 

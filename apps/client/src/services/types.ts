@@ -369,6 +369,28 @@ export interface DetectedMedia {
   via: 'network' | 'page';
 }
 
+/** Windows browser tab (NAV-02): a page, the start page or the history tab. */
+export type BrowserTabKind = 'start' | 'web' | 'history';
+
+export interface BrowserTab {
+  id: number;
+  kind: BrowserTabKind;
+  title: string;
+  url: string;
+  /** Media detected on the page (badge). */
+  media: number;
+  loading: boolean;
+  active: boolean;
+}
+
+/** A page visited in the built-in browser (NAV-03), stored on this device. */
+export interface Visit {
+  id: number;
+  url: string;
+  title: string;
+  visitedAt: number;
+}
+
 export interface BrowserSnapshot {
   url: string;
   title: string;
@@ -384,6 +406,9 @@ export interface BrowserSnapshot {
   streamPlayer: boolean;
   /** Android: page load progress, 0–100. */
   progress?: number;
+  /** Windows: what the selected tab shows, and every open tab. */
+  kind?: BrowserTabKind;
+  tabs?: BrowserTab[];
   /** Android: gesture on the native floating button since the last poll. */
   fab?: 'tap' | 'hold' | null;
 }

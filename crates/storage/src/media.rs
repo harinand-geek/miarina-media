@@ -769,7 +769,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            8
+            9
         );
     }
 

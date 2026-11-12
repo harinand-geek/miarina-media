@@ -84,11 +84,11 @@ describe('Windows shell', () => {
     expect(await screen.findByRole('heading', { name: 'History' })).toBeInTheDocument();
 
     await user.keyboard('{Control>}6{/Control}');
-    // The browser is a screen of the main window (same as on Android).
+    // The browser is a screen of the main window, with its tabs (Windows v2).
     expect(
       await screen.findByRole('heading', { name: 'Search or open a web page' }),
     ).toBeInTheDocument();
-    expect(screen.getByRole('navigation', { name: 'Browser' })).toBeInTheDocument();
+    expect(screen.getByRole('tablist', { name: 'Browser tabs' })).toBeInTheDocument();
   });
 
   it('toggles the sidebar with Ctrl+B', async () => {

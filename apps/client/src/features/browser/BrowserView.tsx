@@ -487,7 +487,7 @@ function AddressBar({
   );
 }
 
-function StartPage({
+export function StartPage({
   error,
   favorites,
   onOpen,

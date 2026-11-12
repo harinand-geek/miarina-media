@@ -5,6 +5,8 @@
 pub mod address;
 mod favorites;
 pub use favorites::*;
+mod history;
+pub use history::*;
 #[cfg_attr(desktop, allow(dead_code))]
 mod page_state;
 

@@ -179,3 +179,22 @@ pub fn browser_fab_size(_width: f64, _height: f64) {}
 pub fn browser_show_in_app(_screen: String) -> Result<(), CommandError> {
     Err(unavailable())
 }
+
+/// Android keeps one page for now (tabs grid: phase 2).
+#[tauri::command]
+pub async fn browser_tab_new(
+    _kind: Option<String>,
+    _address: Option<String>,
+) -> Result<u32, CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn browser_tab_close(_id: u32) -> Result<(), CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn browser_tab_select(_id: Option<u32>, _step: Option<i32>) -> Result<(), CommandError> {
+    Err(unavailable())
+}
