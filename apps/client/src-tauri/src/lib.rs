@@ -15,6 +15,8 @@ mod player;
 mod playlists;
 mod shared_storage;
 mod shell;
+#[cfg(all(windows, feature = "libvlc-spike"))]
+mod spike_libvlc;
 mod state;
 #[cfg(windows)]
 mod torrents;
@@ -203,6 +205,8 @@ pub fn run() {
             allow_media_dir(app.handle(), &download_dir);
             allow_media_dir(app.handle(), library.thumbnails_dir());
             allow_media_dir(app.handle(), &library.covers_dir());
+            #[cfg(all(windows, feature = "libvlc-spike"))]
+            spike_libvlc::maybe_start(app.handle());
             let known_dirs: Vec<PathBuf> = storage
                 .lock()
                 .map(|s| s.media_paths().unwrap_or_default())
