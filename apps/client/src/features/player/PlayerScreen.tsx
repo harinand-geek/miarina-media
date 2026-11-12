@@ -15,6 +15,7 @@ import { useUi } from '../../stores/ui';
 import { openLibrary } from '../../app/navigation';
 import { durationLabel, folderOf, formatLabel, qualityLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
+import { openFiles } from '../library/openMedia';
 import NowPlayingScreen from './NowPlayingScreen';
 import { PlayButton, VolumeControl } from './parts';
 import { formatRate, nextRate } from './playbackRate';
@@ -32,14 +33,19 @@ export default function PlayerScreen() {
           icon="play_circle"
           title={t('nothingPlaying')}
           action={
-            <Button
-              variant="primary"
-              size="sm"
-              className="h-9 text-[13px]"
-              onClick={() => openLibrary('videos')}
-            >
-              {t('openLibrary')}
-            </Button>
+            <div className="flex gap-2.5">
+              <Button size="sm" className="h-9 text-[13px]" onClick={() => void openFiles()}>
+                {t('openFiles')}
+              </Button>
+              <Button
+                variant="primary"
+                size="sm"
+                className="h-9 text-[13px]"
+                onClick={() => openLibrary('videos')}
+              >
+                {t('openLibrary')}
+              </Button>
+            </div>
           }
         >
           {t('nothingPlayingBody')}

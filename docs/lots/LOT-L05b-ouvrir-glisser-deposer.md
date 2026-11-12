@@ -1,0 +1,18 @@
+# Fiche LOT-L05b — Ouvrir des fichiers, importer un dossier, glisser-déposer (WIN-04)
+
+- Statut : Fait (bureau)
+- Exigence CDC : WIN-04 (ouvrir fichier / dossier, glisser-déposer ; Unicode, espaces, chemins longs dans les limites ; erreur d'accès claire)
+- Maquette : `design/design_handoff_windows_v2` écran 4 (bibliothèque : bouton « Importer un dossier » `create_new_folder` dans l'en-tête ; état vide « Votre bibliothèque est vide » avec « Importer un dossier » et « Coller un lien »)
+- Inclus :
+  - Bibliothèque : `add_opened` — fichiers ouverts exprès, dans l'ordre, indexés même s'ils avaient été retirés de la bibliothèque (la demande explicite l'emporte ; les analyses de dossier ne les ignorent plus ensuite), retrouvés s'ils étaient marqués introuvables ; non-médias ignorés ; 500 fichiers au plus par ouverture. Stockage : `forget_removed`.
+  - Commandes `library_open_files` (dialogue système, plusieurs fichiers, filtre des extensions audio / vidéo) et `library_import_folder` (dialogue de dossier, indexation avec les mêmes bornes que les analyses : profondeur 3, 50 000 fichiers) ; dossiers rendus lisibles par le protocole asset (lecteur WebView2 de secours) ; Android : « non disponible » (COM-08, phase mobile).
+  - Glisser-déposer : traité en Rust sur la vue principale (`RunEvent::WebviewEvent` / `DragDrop::Drop`), jamais sur une page du navigateur intégré ; fichiers ajoutés puis lus (vidéo → lecteur, audio → En lecture), dossiers importés (16 au plus) ; l'interface reçoit `app://opened`.
+  - Interface : « Importer un dossier » dans l'en-tête de la bibliothèque et dans l'état vide (texte de la maquette, propre au bureau) ; « Ouvrir des fichiers… » dans l'écran lecteur vide ; messages « N médias ajoutés à la bibliothèque », « Rien de nouveau : N médias déjà dans la bibliothèque », « Aucun fichier audio ou vidéo pris en charge » ; FR / EN.
+- Adaptations : « Ouvrir des fichiers… » n'a pas d'emplacement dans la maquette : placé dans l'état vide du lecteur, à côté de « Ouvrir la bibliothèque ». Le glisser-déposer de fichiers garde le gestionnaire natif de Tauri actif : sous Windows il empêche le glisser-déposer HTML à l'intérieur de la page (réordonner la file à la souris) ; Alt + ↑ / ↓ reste disponible (constat préexistant).
+- Tests : `cargo test -p library` (15, dont ouverture explicite après retrait) ; `vitest` 34 fichiers, 177 tests (nouveau `src/test/open-media.test.tsx` : import d'un dossier, ouverture depuis le lecteur vide, fichiers et dossiers déposés, dépôt sans média).
+- Recette native Windows (build release isolé, dialogues pilotés par leur fenêtre, sans clavier ni souris simulés) :
+  - « Ouvrir des fichiers » : `…\dossier avec espaces\été – 测试 ✓.mkv` choisi dans le dialogue système → indexé (titre « été – 测试 ✓ ») puis lu par libVLC (pistes « Français », « English », sous-titre intégré ; position jusqu'à 11,8 s sur 12) ;
+  - « Importer un dossier » (bouton de l'en-tête) : dossier de test avec un sous-dossier accentué et un `notes.txt` → les 2 vidéos ajoutées, le texte ignoré ;
+  - aucune fenêtre orpheline.
+- Incident de recette : un premier essai du dialogue de dossier a validé le dossier proposé par défaut (dans le profil de l'utilisateur) au lieu du dossier de test ; une vidéo de ce dossier est entrée dans la bibliothèque de **recette** (base isolée), aucun fichier modifié ; entrée retirée aussitôt. Le dialogue de dossier se pilote par son champ n° 1152.
+- Non testé : glisser-déposer réel (il faudrait déplacer la souris de l'utilisateur ; couvert par le test automatique de l'événement `app://opened`), chemins de plus de 260 caractères.

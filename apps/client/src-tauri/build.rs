@@ -75,6 +75,8 @@ const COMMANDS: &[&str] = &[
     "browser_history_clear",
     "library_set_favorite",
     "playlists_list",
+    "library_open_files",
+    "library_import_folder",
     "native_player_status",
     "native_player_open",
     "native_player_control",

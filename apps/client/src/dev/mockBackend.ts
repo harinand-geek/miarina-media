@@ -910,6 +910,19 @@ export class MockBackend {
 
   private favorites: Favorite[] = [];
 
+  // Opening files: the preview "opens" the first video of the library.
+  async libraryOpenFiles() {
+    return this.library.filter((m) => m.kind === 'video').slice(0, 1);
+  }
+
+  async libraryImportFolder() {
+    return { found: 3, added: 0, restored: 0 };
+  }
+
+  onOpened() {
+    return () => {};
+  }
+
   // The preview has no libVLC: the WebView player is used.
   async nativePlayerStatus() {
     return { available: false, version: null, reason: 'preview' };

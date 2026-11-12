@@ -11,6 +11,7 @@ mod m3u;
 #[cfg(target_os = "android")]
 mod media_tools;
 mod native_player;
+mod open_media;
 mod playback_state;
 mod player;
 mod playlists;
@@ -364,6 +365,8 @@ pub fn run() {
             commands::library_remove,
             playback_state::playback_load,
             playlists::library_set_favorite,
+            open_media::library_open_files,
+            open_media::library_import_folder,
             native_player::native_player_status,
             native_player::native_player_open,
             native_player::native_player_control,
@@ -430,6 +433,23 @@ pub fn run() {
         .expect("error while building Miarina Media");
 
     app.run(|handle, event| {
+        // WIN-04: files and folders dropped on the app (not on a page of
+        // the built-in browser).
+        #[cfg(desktop)]
+        if let RunEvent::WebviewEvent {
+            label,
+            event: tauri::WebviewEvent::DragDrop(tauri::DragDropEvent::Drop { paths, .. }),
+            ..
+        } = &event
+            && label == "main"
+        {
+            let library = handle.state::<AppState>().library.clone();
+            tauri::async_runtime::spawn(open_media::dropped(
+                handle.clone(),
+                library,
+                paths.clone(),
+            ));
+        }
         if let RunEvent::Exit = event {
             #[cfg(windows)]
             tauri::async_runtime::block_on(handle.state::<torrents::TorrentState>().shutdown());

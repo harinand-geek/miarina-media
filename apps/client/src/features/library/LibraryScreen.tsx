@@ -3,6 +3,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '../../components/Button';
 import { EmptyState, ThumbBadge } from '../../components/Feedback';
 import { Icon } from '../../components/Icon';
+import { importFolder } from './openMedia';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
 import type { GroupBy, MediaRecord, MediaSort } from '../../services/types';
@@ -215,6 +216,16 @@ export default function LibraryScreen() {
             }))}
           />
         )}
+        {!opened && (
+          <button
+            type="button"
+            onClick={() => void importFolder()}
+            className="flex h-9 items-center gap-1.5 rounded-sm border border-line-strong bg-surface2 px-3 text-[13px] font-semibold"
+          >
+            <Icon name="create_new_folder" size={18} />
+            {t('importFolder')}
+          </button>
+        )}
         {isVideos && (
           <div
             role="radiogroup"
@@ -254,17 +265,22 @@ export default function LibraryScreen() {
             icon={isVideos ? 'movie' : 'library_music'}
             title={t('emptyLibTitle')}
             action={
-              <Button
-                variant="primary"
-                size="sm"
-                className="h-9 text-[13px]"
-                onClick={() => go('home')}
-              >
-                {t('pasteLink')}
-              </Button>
+              <div className="flex gap-2.5">
+                <Button size="sm" className="h-9 text-[13px]" onClick={() => void importFolder()}>
+                  {t('importFolder')}
+                </Button>
+                <Button
+                  variant="primary"
+                  size="sm"
+                  className="h-9 text-[13px]"
+                  onClick={() => go('home')}
+                >
+                  {t('pasteLink')}
+                </Button>
+              </div>
             }
           >
-            {t('emptyLibBody')}
+            {t('emptyLibBodyDesktop')}
           </EmptyState>
         ))}
 

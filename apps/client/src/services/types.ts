@@ -369,6 +369,19 @@ export interface DetectedMedia {
   via: 'network' | 'page';
 }
 
+/** A folder indexed on purpose (WIN-04, "Import a folder"). */
+export interface FolderImport {
+  found: number;
+  added: number;
+  restored: number;
+}
+
+/** Files and folders dropped on the window. */
+export interface OpenedMedia {
+  media: MediaRecord[];
+  folders: FolderImport[];
+}
+
 /** Windows video engine (libVLC, decision 0005). */
 export interface NativePlayerStatus {
   available: boolean;

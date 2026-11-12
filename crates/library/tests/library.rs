@@ -596,3 +596,27 @@ fn removing_a_cover_deletes_only_our_picture() {
     h.library.remove_cover(id).unwrap();
     assert!(outside.exists());
 }
+
+#[test]
+fn opened_files_are_indexed_even_after_removal() {
+    let h = harness();
+    let song = h.root.join("song.wav");
+    write_wav(&song);
+    let notes = h.root.join("notes.txt");
+    std::fs::write(&notes, b"x").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let id = id_of(&h, &song);
+    h.library.remove(id).unwrap();
+    // A scan respects the removal; opening the file on purpose does not.
+    h.library.scan(&h.root).unwrap();
+    assert!(titles(&h).is_empty());
+
+    let opened = h
+        .library
+        .add_opened(&[notes.clone(), song.clone(), h.root.join("gone.mp3")])
+        .unwrap();
+    assert_eq!(opened.len(), 1, "only existing media files");
+    assert_eq!(opened[0].path, song.to_string_lossy());
+    h.library.scan(&h.root).unwrap();
+    assert_eq!(titles(&h).len(), 1, "no longer skipped by scans");
+}

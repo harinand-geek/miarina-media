@@ -41,6 +41,8 @@ pub enum LibraryError {
 }
 
 /// Covers are stored at most this large (longest edge).
+/// Files taken from one open or drop.
+pub const MAX_OPENED: usize = 500;
 const COVER_PX: u32 = 1000;
 /// Largest picture accepted as a cover.
 const COVER_SOURCE_MAX: u64 = 30 * 1024 * 1024;
@@ -481,6 +483,44 @@ impl Library {
             self.inner.wake.notify_one();
         }
         Ok(report)
+    }
+
+    /// Files the user opened on purpose (dialog, drag and drop), in the
+    /// given order: indexed even if removed from the library before, found
+    /// again if marked missing. Other files are ignored; at most
+    /// `MAX_OPENED` are taken.
+    pub fn add_opened(&self, paths: &[PathBuf]) -> Result<Vec<MediaRecord>, LibraryError> {
+        let storage = lock(&self.inner.storage);
+        let mut out = Vec::new();
+        for path in paths.iter().filter(|p| p.is_file()).take(MAX_OPENED) {
+            let Some(kind) = files::kind_for(path) else {
+                continue;
+            };
+            let key = path.to_string_lossy().into_owned();
+            storage.forget_removed(&key)?;
+            let record = storage.upsert_media(&NewMedia {
+                path: key,
+                title: files::title_for(path),
+                kind,
+                source_host: None,
+                source_url: None,
+                task_id: None,
+                size_bytes: std::fs::metadata(path).map(|m| m.len()).unwrap_or(0),
+            })?;
+            let record = if record.missing {
+                storage.set_media_missing(record.id, false)?;
+                storage.media(record.id)?
+            } else {
+                record
+            };
+            out.push(record);
+        }
+        drop(storage);
+        if !out.is_empty() {
+            (self.inner.on_change)();
+            self.inner.wake.notify_one();
+        }
+        Ok(out)
     }
 
     /// Checks that a library file still exists (lazy existence check).

@@ -81,6 +81,8 @@
     "allow-browser-history-clear",
     "allow-library-set-favorite",
     "allow-playlists-list",
+    "allow-library-open-files",
+    "allow-library-import-folder",
     "allow-native-player-status",
     "allow-native-player-open",
     "allow-native-player-control",

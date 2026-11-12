@@ -18,6 +18,7 @@ import type {
   CommandError,
   ComponentStatus,
   Favorite,
+  FolderImport,
   GroupBy,
   HistoryEntry,
   InstallProgress,
@@ -35,6 +36,7 @@ import type {
   NativePlayerStateEvent,
   NativePlayerStatus,
   NativePlayerTracksEvent,
+  OpenedMedia,
   ResourceMode,
   StartRequest,
   StorageUsage,
@@ -140,6 +142,12 @@ export interface Backend {
   /** Android: places or hides the native page view; may return a picture of the page. */
   browserFrame(frame: BrowserFrame): Promise<string | null>;
   browserFavorites(): Promise<Favorite[]>;
+  /** WIN-04: media picked in the system dialog join the library. */
+  libraryOpenFiles(): Promise<MediaRecord[]>;
+  /** Indexes a picked folder; `null` if canceled. */
+  libraryImportFolder(): Promise<FolderImport | null>;
+  /** Files and folders dropped on the window. */
+  onOpened(cb: (opened: OpenedMedia) => void): () => void;
   /** Windows: the libVLC engine (started on first call). */
   nativePlayerStatus(): Promise<NativePlayerStatus>;
   nativePlayerOpen(
@@ -335,6 +343,9 @@ class TauriBackend implements Backend {
     onEvent<BrowserSnapshot>('browser://state', listener);
   browserFrame = (frame: BrowserFrame) => call<string | null>('browser_frame', { ...frame });
   browserFavorites = () => call<Favorite[]>('browser_favorites');
+  libraryOpenFiles = () => call<MediaRecord[]>('library_open_files');
+  libraryImportFolder = () => call<FolderImport | null>('library_import_folder');
+  onOpened = (cb: (opened: OpenedMedia) => void) => onEvent<OpenedMedia>('app://opened', cb);
   nativePlayerStatus = () => call<NativePlayerStatus>('native_player_status');
   nativePlayerOpen = (id: number, startSecs: number, autoplay: boolean, instance: number) =>
     call<void>('native_player_open', { id, startSecs, autoplay, instance });

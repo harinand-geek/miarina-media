@@ -183,8 +183,15 @@ const fr = {
   noFolders: 'Aucun dossier de musique pour l’instant.',
   folderNote:
     'Les dossiers regroupent les titres déjà dans la bibliothèque. L’import de dossiers arrive avec COM-08.',
+  importFolder: 'Importer un dossier',
+  folderImported: '{n} médias ajoutés à la bibliothèque',
+  folderNothingNew: 'Rien de nouveau : {n} médias déjà dans la bibliothèque',
+  openFiles: 'Ouvrir des fichiers…',
+  dropNothing: 'Aucun fichier audio ou vidéo pris en charge',
   emptyLibTitle: 'Votre bibliothèque est vide',
   emptyLibBody: 'Les vidéos et la musique téléchargées apparaissent ici.',
+  emptyLibBodyDesktop:
+    'Téléchargez un média depuis un lien, ou importez un dossier de musique et de vidéos déjà présent sur ce PC.',
   pasteLink: 'Coller un lien',
   noMatch: 'Aucun élément ne correspond à « {q} ».',
   noItems: 'Aucun élément dans cette vue.',
@@ -909,8 +916,15 @@ const en: Record<MessageKey, string> = {
   noFolders: 'No music folders yet.',
   folderNote:
     'Folders group the tracks already in your library. Importing folders comes with COM-08.',
+  importFolder: 'Import a folder',
+  folderImported: '{n} media added to the library',
+  folderNothingNew: 'Nothing new: {n} media already in the library',
+  openFiles: 'Open files…',
+  dropNothing: 'No supported audio or video file',
   emptyLibTitle: 'Your library is empty',
   emptyLibBody: 'Downloaded videos and audio appear here.',
+  emptyLibBodyDesktop:
+    'Download media from a link, or import a folder of music and videos already on this PC.',
   pasteLink: 'Paste a link',
   noMatch: 'No items match “{q}”.',
   noItems: 'No items in this view.',

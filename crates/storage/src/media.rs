@@ -640,6 +640,13 @@ impl Storage {
         Ok(())
     }
 
+    /// The user opened this file again on purpose: scans no longer skip it.
+    pub fn forget_removed(&self, path: &str) -> Result<()> {
+        self.conn
+            .execute("DELETE FROM media_removed WHERE path = ?1", [path])?;
+        Ok(())
+    }
+
     /// Paths removed from the library by the user (skipped by scans).
     pub fn removed_media_paths(&self) -> Result<std::collections::HashSet<String>> {
         let mut stmt = self.conn.prepare("SELECT path FROM media_removed")?;
