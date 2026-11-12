@@ -1,6 +1,6 @@
 # Fiche LOT-L04 — Prototype libVLC (WIN-SPIKE)
 
-- Statut : prototype terminé ; décision `docs/decisions/0005-windows-player-engine.md` **proposée**, à accepter par le propriétaire avant L05
+- Statut : prototype terminé ; décision `docs/decisions/0005-windows-player-engine.md` **acceptée** le 2026-11-12 : L05 peut commencer
 - Exigences CDC : § 6 « Prototype obligatoire WIN-SPIKE », DEP-03 (licences des modules libVLC)
 - Livré :
   - `apps/client/src-tauri/src/spike_libvlc.rs` : prototype compilé seulement avec `--features libvlc-spike` et lancé seulement si `MIARINA_LIBVLC_SPIKE` désigne un dossier libVLC ; libVLC chargé dynamiquement (aucune bibliothèque liée, aucune dépendance Rust ajoutée ; la fonctionnalité active seulement des modules de la crate `windows` déjà présente) ; fenêtre vidéo enfant, scénario de mesures, résultats en JSON.

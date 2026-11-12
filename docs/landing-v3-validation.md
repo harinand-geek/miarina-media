@@ -1,5 +1,7 @@
 # Landing v3 — vérification du 28 octobre 2026
 
+> Note (2026-11-12) : les anciennes maquettes citées ici (`design/*.dc.html` v1, `design/design_handoff_landing_v3/`) ont été retirées du dépôt sur décision du propriétaire ; elles restent consultables dans l'historique git (`git show 63f712a:design/…`). Les maquettes en vigueur sont `design/design_handoff_windows_v2`, `design_handoff_android_v2` et `design_handoff_splash`.
+
 Référence : `design/design_handoff_landing_v3/README.md` et prototype autonome.
 Implémentation React pré-rendue, styles externes, polices existantes auto-hébergées.
 

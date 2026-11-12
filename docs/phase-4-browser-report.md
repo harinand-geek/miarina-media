@@ -1,5 +1,7 @@
 # Miarina Media — Rapport Phase 4, tranche 1 : navigateur intégré (Windows)
 
+> Note (2026-11-12) : les anciennes maquettes citées ici (`design/*.dc.html` v1, `design/design_handoff_landing_v3/`) ont été retirées du dépôt sur décision du propriétaire ; elles restent consultables dans l'historique git (`git show 63f712a:design/…`). Les maquettes en vigueur sont `design/design_handoff_windows_v2`, `design_handoff_android_v2` et `design_handoff_splash`.
+
 Date : 2026-10-14 · Statut : **tranche livrée (un onglet)** · Décision : `docs/decisions/0001-embedded-browser-p0.md` · Maquettes : `design/Miarina Media - Browser.dc.html` (D1, D2, B) · Spike : `docs/spikes/browser-windows.md`.
 
 Environnement : Windows 11 Pro 22000, Rust 1.99.0, Node 24.21, pnpm 12.11.2, WebView2 155, Tauri 2.12.3 **avec la feature `unstable`** (accord du 2026-10-14).

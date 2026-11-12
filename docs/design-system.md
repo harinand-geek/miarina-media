@@ -1,5 +1,7 @@
 # Miarina Media — Design System (extrait du handoff Claude Design)
 
+> Note (2026-11-12) : les anciennes maquettes citées ici (`design/*.dc.html` v1, `design/design_handoff_landing_v3/`) ont été retirées du dépôt sur décision du propriétaire ; elles restent consultables dans l'historique git (`git show 63f712a:design/…`). Les maquettes en vigueur sont `design/design_handoff_windows_v2`, `design_handoff_android_v2` et `design_handoff_splash`.
+
 > Source de vérité : `design/Miarina Media - Design System.dc.html` (v1.0), `design/Miarina Media - Windows.dc.html`, `design/Miarina Media - Android.dc.html`.
 > Ce document **transcrit** le design approuvé. Il n'invente rien ; les manques sont listés en §13.
 

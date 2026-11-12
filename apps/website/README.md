@@ -1,5 +1,7 @@
 # media.miarina.org — site de présentation
 
+> Note (2026-11-12) : les anciennes maquettes citées ici (`design/*.dc.html` v1, `design/design_handoff_landing_v3/`) ont été retirées du dépôt sur décision du propriétaire ; elles restent consultables dans l'historique git (`git show 63f712a:design/…`). Les maquettes en vigueur sont `design/design_handoff_windows_v2`, `design_handoff_android_v2` et `design_handoff_splash`.
+
 Site en React (Vite), d'après `design/Miarina Media - Landing.dc.html`. Le **contenu décrit ce que fait réellement la version publiée** (la maquette sert pour l'apparence, pas pour les promesses). Aucune ressource externe : polices et icônes auto-hébergées, aucune mesure d'audience.
 
 Les pages sont **pré-rendues au build** : chaque fichier HTML contient déjà tout le texte (lisible sans JavaScript, indexable), puis React prend le relais dans le navigateur. Pas de script ni de style en ligne : la CSP du vhost l'interdit (`docs/decisions/0003-website-react-prerender.md`).

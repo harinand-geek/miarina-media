@@ -1,6 +1,6 @@
 # 0005 — Moteur du lecteur Windows : libVLC (prototype WIN-SPIKE)
 
-Date : 2026-11-12 · Statut : **proposée** — à accepter par le propriétaire du produit avant L05 · Lot : L04
+Date : 2026-11-12 · Statut : **acceptée** le 2026-11-12 par le propriétaire du produit (option « libVLC » : fenêtre transparente au-dessus de la vidéo si son rendu est bon, sinon barres hors de l'image) · Lot : L04
 
 ## Question
 
