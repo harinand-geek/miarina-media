@@ -261,7 +261,7 @@ Source : `README.md` du handoff, `Miarina Media Windows v2.dc.html` (prototype c
 Règle : teal = télécharger / sélectionner / progresser / focus ; corail = lire. Un seul bouton plein de chaque accent par vue.
 
 ### Marque
-Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`components/Logo.tsx`, `assets/logo.svg`). Variante Windows avec liseré `#3A4D5E` dans la barre de titre (`<Logo outlined />`). Le jeu complet (PNG Windows, mipmaps Android, web) est dans `design/brand/miarina-media-logo/` ; les icônes d'installation (`src-tauri/icons`, mipmaps Android) ne sont pas encore remplacées : à faire avec la prochaine build, puis vérifier l'ICO multi-tailles.
+Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`components/Logo.tsx`, `assets/logo.svg`). Variante Windows avec liseré `#3A4D5E` dans la barre de titre (`<Logo outlined />`). Le jeu complet (PNG Windows, mipmaps Android, web) est dans `design/brand/miarina-media-logo/` ; les icônes d'installation sont remplacées depuis le 2026-11-12 : `src-tauri/icons` généré par `tauri icon` depuis `png/miarina-media-icon-1024.png` (ICO 16, 24, 32, 48, 64 et 256 px), bitmaps NSIS régénérés par `installer/generate-assets.ps1`, mipmaps Android du jeu de marque, icône adaptative Android (fond `#101820`, premier plan triangle corail + barres teal, couche monochrome blanche) en vecteurs dans `gen/android/.../res`.
 
 ### Adaptations techniques documentées
 - **Bandeau hors ligne** : le texte du prototype annonce « les téléchargements reprendront au retour du réseau ». Le moteur actuel fait des tentatives bornées puis échoue ; le texte est donc « réessaient quelques fois puis s'arrêtent » tant que la reprise automatique au retour réseau (DL-02, L01) n'existe pas.
