@@ -6,8 +6,10 @@ import { Icon } from '../../components/Icon';
 import { ProgressBar } from '../../components/ProgressBar';
 import { useT, type Lang, type MessageKey } from '../../i18n';
 import { backend } from '../../services/backend';
+import { torrents } from '../../services/torrents';
 import type { StorageUsage } from '../../services/types';
 import { formatBytes, isRunning, summarize, useDownloads } from '../../stores/downloads';
+import { isActive, usePlayer } from '../../stores/player';
 import {
   MAX_CONCURRENCY,
   MIN_CONCURRENCY,
@@ -16,11 +18,10 @@ import {
   type ThemePref,
 } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
-import { version } from '../../../package.json';
 import { BrowserExtension } from './BrowserExtension';
 import { MediaTools } from './MediaTools';
 import { SettingRow } from './SettingRow';
-import { useUpdates } from './useUpdates';
+import { useUpdates, type UpdateChannel } from './useUpdates';
 
 type Tab =
   | 'general'
@@ -144,10 +145,30 @@ const mib = (bytes: number, lang: Lang) =>
 function UpdatesTab() {
   const t = useT();
   const lang = useSettings((s) => s.lang);
-  const { phase, release, error, checked, check, download, install } = useUpdates();
+  const {
+    phase,
+    release,
+    error,
+    checked,
+    downloaded: onDisk,
+    installed,
+    prefs,
+    check,
+    download,
+    cancel,
+    install,
+    setPrefs,
+  } = useUpdates();
   const tasks = useDownloads((s) => s.tasks);
   const running = useMemo(() => summarize(tasks).active.filter(isRunning).length, [tasks]);
+  const converting = useMemo(
+    () => Object.values(tasks).some((x) => x.state === 'processing'),
+    [tasks],
+  );
+  const playing = usePlayer((s) => s.media !== null && isActive(s.state));
+  const [sharing, setSharing] = useState(false);
   const [downloaded, setDownloaded] = useState(0);
+  const ready = phase === 'ready' || phase === 'installing';
 
   useEffect(() => {
     if (phase !== 'downloading') return;
@@ -163,12 +184,36 @@ function UpdatesTab() {
     };
   }, [phase]);
 
+  // UPD-04: torrent sharing stops with the app; say so before installing.
+  useEffect(() => {
+    if (!ready) return;
+    let alive = true;
+    void torrents
+      .list()
+      .then(
+        (s) =>
+          alive &&
+          setSharing(s.enabled && s.rows.some((r) => r.phase !== 'paused' && r.phase !== 'error')),
+      )
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [ready]);
+
   const size = release ? mib(release.size, lang) : '';
+  const done = phase === 'downloading' ? downloaded : onDisk;
+  const channel = prefs.channel === 'beta' ? t('updBeta') : 'Stable';
   const notes = (release?.notes ?? '')
     .split('\n')
     .map((l) => l.replace(/^\s*[-•*]\s*/, '').trim())
     .filter(Boolean);
-  const ready = phase === 'ready' || phase === 'installing';
+  const warnings = [
+    running > 0 && t('updActive', { n: running }),
+    playing && t('updStopsPlayback'),
+    sharing && t('updStopsSharing'),
+    converting && t('updConverting'),
+  ].filter((w): w is string => Boolean(w));
 
   return (
     <>
@@ -190,11 +235,19 @@ function UpdatesTab() {
                     : t('updAvailable', { v: release.version })}
               </span>
               <span className="font-mono text-[12px] text-muted">
-                {t('updInstalled', { v: version, size })}
+                {t('updInstalled', { v: installed, channel, size })}
               </span>
             </div>
-            <span className="rounded-xs bg-surface2 px-2 py-[3px] text-[11.5px] font-semibold text-muted">
-              {t('updBadge')}
+            <span
+              className={`rounded-xs px-2 py-[3px] text-[11.5px] font-semibold ${
+                ready ? 'bg-accent-subtle text-chip-text' : 'bg-surface2 text-muted'
+              }`}
+            >
+              {ready
+                ? t('updBadgeReady')
+                : phase === 'downloading'
+                  ? t('updBadgeDownloading')
+                  : t('updBadge')}
             </span>
           </div>
           {notes.length > 0 && (
@@ -205,22 +258,34 @@ function UpdatesTab() {
             </ul>
           )}
           {phase === 'downloading' && (
-            <ProgressBar
-              value={release.size ? Math.min(100, (downloaded / release.size) * 100) : null}
-              label={t('updProgress')}
-            />
+            <div className="flex flex-col gap-1.5">
+              <ProgressBar
+                value={release.size ? Math.min(100, (done / release.size) * 100) : null}
+                label={t('updProgress')}
+              />
+              <span className="font-mono text-[12px] text-muted">
+                {t('updProgressText', { done: mib(done, lang), size })}
+              </span>
+            </div>
+          )}
+          {phase === 'available' && done > 0 && (
+            <span className="font-mono text-[12px] text-muted">
+              {t('updPartial', { done: mib(done, lang), size })}
+            </span>
           )}
           {ready && (
-            <span className="flex items-center gap-1.5 text-[12.5px] font-semibold text-chip-text">
-              <Icon name="verified" size={16} />
-              {t('updVerified')}
-            </span>
-          )}
-          {ready && running > 0 && (
-            <span className="flex items-start gap-2 text-[12.5px] text-muted">
-              <Icon name="info" size={16} className="shrink-0 text-warn" />
-              {t('updActive', { n: running })}
-            </span>
+            <div className="flex flex-col gap-1.5 text-[12.5px]">
+              <span className="flex items-center gap-1.5 font-semibold text-chip-text">
+                <Icon name="verified" size={16} />
+                {t('updVerified')}
+              </span>
+              {warnings.map((w) => (
+                <span key={w} className="flex items-start gap-1.5 font-semibold text-warn">
+                  <Icon name="warning" size={16} className="shrink-0" />
+                  {w}
+                </span>
+              ))}
+            </div>
           )}
           {error && (
             <p role="alert" className="m-0 text-[12.5px] text-danger">
@@ -234,18 +299,35 @@ function UpdatesTab() {
                 onClick={() => void download()}
                 className="h-10 rounded-sm bg-accent px-4 text-[13.5px] font-bold text-accent-ink hover:bg-accent-hover"
               >
-                {t('updDownload', { size })}
+                {done > 0 ? t('updResume') : t('updDownload', { size })}
+              </button>
+            )}
+            {phase === 'downloading' && (
+              <button type="button" onClick={() => void cancel()} className={SECONDARY}>
+                {t('cancel')}
               </button>
             )}
             {ready && (
-              <button
-                type="button"
-                disabled={phase === 'installing'}
-                onClick={() => void install()}
-                className="h-10 rounded-sm bg-accent px-4 text-[13.5px] font-bold text-accent-ink enabled:hover:bg-accent-hover disabled:opacity-60"
-              >
-                {phase === 'installing' ? t('updInstalling') : t('updInstall')}
-              </button>
+              <>
+                <button
+                  type="button"
+                  disabled={phase === 'installing' || converting}
+                  onClick={() => void install()}
+                  className="h-10 rounded-sm bg-accent px-4 text-[13.5px] font-bold text-accent-ink enabled:hover:bg-accent-hover disabled:opacity-60"
+                >
+                  {phase === 'installing' ? t('updInstalling') : t('updInstall')}
+                </button>
+                <button
+                  type="button"
+                  disabled={phase === 'installing'}
+                  onClick={() =>
+                    useUi.getState().pushToast({ tone: 'success', message: t('updKeptReady') })
+                  }
+                  className={SECONDARY}
+                >
+                  {t('updLater')}
+                </button>
+              </>
             )}
           </div>
           <span className="text-[12.5px] leading-[18px] text-muted">{t('updWindowsNote')}</span>
@@ -256,8 +338,8 @@ function UpdatesTab() {
             phase === 'checking'
               ? t('updChecking')
               : checked
-                ? t('updLatest', { v: version })
-                : t('versionLabel', { v: version })
+                ? t('updLatest', { v: installed })
+                : t('versionLabel', { v: installed })
           }
           description={t('updAutoCheck')}
         >
@@ -277,10 +359,22 @@ function UpdatesTab() {
         </SettingRow>
       )}
       <SettingRow label={t('updChannel')} description={t('updChannelDesc')}>
-        <Planned />
+        <Segmented<UpdateChannel>
+          label={t('updChannel')}
+          value={prefs.channel}
+          onChange={(c) => void setPrefs({ channel: c })}
+          options={[
+            { value: 'stable', label: 'Stable' },
+            { value: 'beta', label: t('updBeta') },
+          ]}
+        />
       </SettingRow>
       <SettingRow label={t('updAuto')} description={t('updAutoDesc')}>
-        <Planned />
+        <Toggle
+          label={t('updAuto')}
+          checked={prefs.autoDownload}
+          onChange={() => void setPrefs({ autoDownload: !prefs.autoDownload })}
+        />
       </SettingRow>
     </>
   );

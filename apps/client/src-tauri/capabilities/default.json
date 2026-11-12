@@ -5,6 +5,7 @@
   "windows": ["main"],
   "permissions": [
     "allow-app-update-progress", "allow-app-update-check", "allow-app-update-download", "allow-app-update-install",
+    "allow-app-update-status", "allow-app-update-cancel", "allow-app-update-prefs", "allow-app-update-set-prefs", "allow-app-update-auto-allowed",
     "allow-browser-inbox",
     "allow-browser-inbox-dismiss",
     "allow-browser-bridge-register",

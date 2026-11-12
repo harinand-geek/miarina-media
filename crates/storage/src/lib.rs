@@ -8,6 +8,7 @@ mod media;
 mod migrations;
 mod playback;
 mod playlists;
+mod upgrade;
 
 pub use browser_history::{VISITS_MAX, VISITS_PAGE_MAX, Visit};
 pub use media::{
@@ -20,6 +21,7 @@ pub use playback::{
 pub use playlists::{
     PLAYLIST_ITEMS_MAX, PLAYLIST_NAME_MAX, PLAYLISTS_MAX, Playlist, PlaylistSummary,
 };
+pub use upgrade::{BACKUPS_KEPT, Upgrade, latest_schema};
 
 use std::path::Path;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -45,6 +47,20 @@ pub enum StorageError {
     Settings(#[from] serde_json::Error),
     #[error("refused: {0}")]
     Invalid(String),
+    /// The database was written by a newer build (UPD-10): left untouched.
+    #[error("database schema {found} is newer than this version supports ({supported})")]
+    TooNew { found: i64, supported: i64 },
+    /// No copy could be taken, so the schema was not changed.
+    #[error("could not back up the database before upgrading it: {0}")]
+    Backup(String),
+    /// Migrations rolled back: the file keeps schema `from`.
+    #[error("upgrading the database from schema {from} to {to} failed: {reason}")]
+    UpgradeFailed {
+        from: i64,
+        to: i64,
+        backup: Option<std::path::PathBuf>,
+        reason: String,
+    },
 }
 
 pub type Result<T> = std::result::Result<T, StorageError>;

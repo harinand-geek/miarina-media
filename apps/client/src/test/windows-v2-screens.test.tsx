@@ -6,6 +6,7 @@ import { failureReason } from '../features/downloads/status';
 import { recentPlays } from '../features/player/recentPlays';
 import { t } from '../i18n';
 import { backend, resetMockBackend } from '../services/backend';
+import { useUpdates } from '../features/settings/useUpdates';
 import { useDownloads } from '../stores/downloads';
 import { resetPlayerForTests, usePlayer } from '../stores/player';
 import { useSettings } from '../stores/settings';
@@ -29,6 +30,7 @@ beforeEach(async () => {
   useUi.setState(useUi.getInitialState(), true);
   useDownloads.setState(useDownloads.getInitialState(), true);
   useSettings.setState(useSettings.getInitialState(), true);
+  useUpdates.setState(useUpdates.getInitialState(), true);
   await useSettings.getState().load();
   stopEvents = useDownloads.getState().init();
   await waitFor(() => expect(useDownloads.getState().ready).toBe(true));
@@ -222,6 +224,42 @@ describe('Windows v2 History', () => {
 });
 
 describe('Windows v2 Settings', () => {
+  it('shows the update card states of the mockup', async () => {
+    const user = userEvent.setup();
+    const release = { version: '0.1.8', notes: '- Faster library', size: 75_600_000 };
+    useUpdates.setState({ phase: 'downloading', release, downloaded: 0, error: '' });
+    useUi.setState({ screen: 'settings' });
+    render(<DesktopShell />);
+    const sections = await screen.findByRole('navigation', { name: 'Settings sections' });
+    await user.click(within(sections).getByRole('button', { name: /Updates/ }));
+    expect(screen.getByText('Downloading 0.1.8…')).toBeInTheDocument();
+    expect(screen.getByText(/verified at the end/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Cancel' })).toBeInTheDocument();
+    expect(screen.getByRole('radiogroup', { name: 'Channel' })).toBeInTheDocument();
+    expect(screen.getByRole('switch', { name: 'Download automatically' })).not.toBeChecked();
+
+    // Interrupted earlier: the bytes on disk are resumed.
+    act(() => useUpdates.setState({ phase: 'available', downloaded: 30_000_000 }));
+    expect(screen.getByRole('button', { name: 'Resume download' })).toBeInTheDocument();
+    expect(screen.getByText(/already downloaded/)).toBeInTheDocument();
+
+    // Ready: what installing would interrupt is said before the click.
+    act(() => useUpdates.setState({ phase: 'ready', downloaded: release.size }));
+    expect(screen.getByText('Signature and SHA-256 verified')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Install now' })).toBeEnabled();
+    await user.click(screen.getByRole('button', { name: 'Later' }));
+    expect(useUpdates.getState().phase).toBe('ready');
+
+    // A conversion would be lost: installing waits for it.
+    const tasks = useDownloads.getState().tasks;
+    const first = Object.values(tasks)[0]!;
+    act(() =>
+      useDownloads.setState({ tasks: { ...tasks, [first.id]: { ...first, state: 'processing' } } }),
+    );
+    expect(screen.getByText(/A conversion is running/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Install now' })).toBeDisabled();
+  });
+
   it('marks unbuilt settings as planned instead of faking them', async () => {
     const user = userEvent.setup();
     useUi.setState({ screen: 'settings' });

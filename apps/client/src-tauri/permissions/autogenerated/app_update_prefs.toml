@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-app-update-prefs"
+description = "Enables the app_update_prefs command without any pre-configured scope."
+commands.allow = ["app_update_prefs"]
+
+[[permission]]
+identifier = "deny-app-update-prefs"
+description = "Denies the app_update_prefs command without any pre-configured scope."
+commands.deny = ["app_update_prefs"]

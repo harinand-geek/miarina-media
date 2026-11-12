@@ -6,6 +6,7 @@ mod browser;
 #[cfg(windows)]
 mod browser_bridge;
 mod commands;
+mod data_guard;
 mod download_notifications;
 mod m3u;
 #[cfg(target_os = "android")]
@@ -29,7 +30,6 @@ use download_engine::components::Components;
 use download_engine::{HttpEngine, Manager, ManagerEvent, RetryPolicy, YtDlpEngine};
 use library::Library;
 use media_core::TaskState;
-use storage::Storage;
 use tauri::{AppHandle, Emitter, Manager as _, RunEvent};
 use tokio::sync::mpsc;
 
@@ -90,6 +90,15 @@ pub fn scan_library(library: &Library, dir: PathBuf) {
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let context = tauri::generate_context!();
+    // UPD-10: before any window exists (see `data_guard`).
+    #[cfg(windows)]
+    let early = data_guard::open_early(
+        &context.config().identifier,
+        &context.package_info().version.to_string(),
+    );
+    #[cfg(not(windows))]
+    let early: Option<data_guard::Opened> = None;
     let builder = tauri::Builder::default()
         .manage(updates::Updates::default())
         .plugin(tauri_plugin_dialog::init())
@@ -110,14 +119,19 @@ pub fn run() {
         .plugin(android_extractor::init())
         .plugin(browser::init());
     let app = builder
-        .setup(|app| {
+        .setup(move |app| {
             #[cfg(target_os = "android")]
             android_tls::init()?;
             let data_dir = app.path().app_data_dir()?;
             #[cfg(windows)]
             app.manage(torrents::TorrentState::default());
             std::fs::create_dir_all(&data_dir)?;
-            let storage = Arc::new(Mutex::new(Storage::open(&data_dir.join("miarina.db"))?));
+            // UPD-10: copy before migrating, never open a newer schema.
+            let (storage, _upgrade) = match early {
+                Some(opened) if opened.dir == data_dir => (opened.storage, opened.upgrade),
+                _ => data_guard::open(&data_dir, &app.package_info().version.to_string())?,
+            };
+            let storage = Arc::new(Mutex::new(storage));
             let app_download_dir = app
                 .path()
                 .video_dir()
@@ -202,6 +216,9 @@ pub fn run() {
             let settings = state.apply_limits();
             app.manage(state);
             app.manage(browser::BrowserState::default());
+            // UPD-03: a finished update download stays ready; leftovers of
+            // an installed or abandoned one are removed.
+            updates::restore(app.handle());
 
             // Media playback and thumbnails go through the asset protocol.
             let download_dir = PathBuf::from(&settings.download_dir);
@@ -309,6 +326,11 @@ pub fn run() {
             updates::app_update_check,
             updates::app_update_download,
             updates::app_update_install,
+            updates::app_update_status,
+            updates::app_update_cancel,
+            updates::app_update_prefs,
+            updates::app_update_set_prefs,
+            updates::app_update_auto_allowed,
             #[cfg(windows)]
             browser_bridge::browser_inbox,
             #[cfg(windows)]
@@ -430,7 +452,7 @@ pub fn run() {
             shell::app_take_launch,
             shell::app_read_clipboard,
         ])
-        .build(tauri::generate_context!())
+        .build(context)
         .expect("error while building Miarina Media");
 
     app.run(|handle, event| {

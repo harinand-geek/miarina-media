@@ -21,6 +21,10 @@ tempfile = "3.27.0"
 [features]
 # Opt-in until crash recovery and native application validation are complete.
 mdm-http = ["dep:miarina-mdm-adapter"]
+# Recette only (T-06): updates from a loopback server signed with a test key
+# (MIARINA_UPDATE_TEST_BASE, MIARINA_UPDATE_TEST_KEY at build time). Never
+# enabled for published builds.
+update-test-channel = []
 
 [dependencies]
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
@@ -49,10 +53,16 @@ miarina-mdm-adapter = { path = "../../../crates/mdm-adapter", optional = true }
 # tree through wry; pinned to the same versions.
 webview2-com = "=0.39.1"
 # Win32: keyboard state (browser shortcuts), the video window and loading
-# libVLC at run time (native player, decision 0005).
+# libVLC at run time (native player, decision 0005); display language and
+# message box when the database cannot be opened (UPD-10); network cost and
+# battery saver before an automatic update download (UPD-05).
 windows = { version = "=0.62.2", features = [
+    "Win32_Globalization",
     "Win32_Graphics_Gdi",
+    "Win32_Networking_NetworkListManager",
+    "Win32_System_Com",
     "Win32_System_LibraryLoader",
+    "Win32_System_Power",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
 ] }
