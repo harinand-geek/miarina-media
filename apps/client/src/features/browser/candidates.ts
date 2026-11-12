@@ -1,4 +1,5 @@
 import type { BrowserSnapshot, DetectedKind } from '../../services/types';
+import { t, type MessageKey } from '../../i18n';
 
 /** Something the user can download from the current page. */
 export interface Candidate {
@@ -11,15 +12,15 @@ export interface Candidate {
   sizeBytes: number | null;
 }
 
-const KIND_LABEL: Record<Candidate['kind'], string> = {
-  video: 'Video',
-  audio: 'Audio',
-  hls: 'Stream (HLS)',
-  dash: 'Stream (DASH)',
-  page: 'Page player',
+const KIND_LABEL: Record<Candidate['kind'], MessageKey> = {
+  video: 'kindVideo',
+  audio: 'kindAudio',
+  hls: 'kindHls',
+  dash: 'kindDash',
+  page: 'kindPage',
 };
 
-export const kindLabel = (kind: Candidate['kind']) => KIND_LABEL[kind];
+export const kindLabel = (kind: Candidate['kind']) => t(KIND_LABEL[kind]);
 
 export function hostOf(url: string) {
   try {

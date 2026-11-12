@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useUi, type Toast } from '../stores/ui';
 import { Icon } from './Icon';
+import { useT } from '../i18n';
 
 const TOAST_MS = 4000;
 
@@ -31,6 +32,7 @@ export function ToastHost({ position = 'desktop' }: { position?: keyof typeof PL
 }
 
 function ToastItem({ toast }: { toast: Toast }) {
+  const t = useT();
   const dismiss = useUi((s) => s.dismissToast);
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const persistent = toast.tone === 'error';
@@ -75,7 +77,7 @@ function ToastItem({ toast }: { toast: Toast }) {
       {persistent && (
         <button
           type="button"
-          aria-label="Dismiss"
+          aria-label={t('dismiss')}
           className="text-muted hover:text-fg"
           onClick={() => dismiss(toast.id)}
         >

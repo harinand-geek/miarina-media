@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { Translate } from '../../i18n';
+import { t as translateNow, type Translate } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { DownloadTask, HistoryEntry, MediaRecord } from '../../services/types';
 import {
@@ -147,4 +147,20 @@ export async function mediaOfDownload(entry: HistoryEntry): Promise<MediaRecord 
   } catch {
     return null;
   }
+}
+
+/** Status words in the interface language (tests, screen readers). */
+export function statusLabel(task: DownloadTask, now = Date.now()) {
+  return statusOf(task, translateNow, now).text;
+}
+
+/** Screen reader label, e.g. "Tears of Steel, 60 percent, 1 min left". */
+export function progressAriaLabel(task: DownloadTask) {
+  // Live announcements are throttled to 10 % steps (design system §8).
+  const n = Math.floor(percentOf(task) / 10) * 10;
+  if (task.state !== 'downloading' || task.etaSecs === null) {
+    return translateNow('progressAria', { title: task.title, n, status: statusLabel(task) });
+  }
+  const m = Math.max(1, Math.round(task.etaSecs / 60));
+  return translateNow('progressAriaEta', { title: task.title, n, m });
 }

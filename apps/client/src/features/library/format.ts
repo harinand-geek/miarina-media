@@ -1,11 +1,4 @@
-import type { MediaRecord, MediaSort } from '../../services/types';
-
-export const SORT_LABELS: Record<MediaSort, string> = {
-  added: 'Date added',
-  title: 'Title',
-  size: 'Size',
-  duration: 'Length',
-};
+import type { MediaRecord } from '../../services/types';
 
 /** `596` → `9:56`, `5744` → `1:35:44`. */
 export function durationLabel(secs: number | null | undefined) {
@@ -57,15 +50,4 @@ export function formatLabel(m: MediaRecord) {
 export function folderOf(path: string) {
   const i = Math.max(path.lastIndexOf('\\'), path.lastIndexOf('/'));
   return i > 0 ? path.slice(0, i) : path;
-}
-
-/** "2 h ago", "Yesterday", "10 Oct". */
-export function addedLabel(ts: number, now = Date.now()) {
-  const minutes = Math.round((now - ts) / 60_000);
-  if (minutes < 1) return 'Just now';
-  if (minutes < 60) return `${minutes} min ago`;
-  const hours = Math.round(minutes / 60);
-  if (hours < 24) return `${hours} h ago`;
-  if (hours < 48) return 'Yesterday';
-  return new Date(ts).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
 }

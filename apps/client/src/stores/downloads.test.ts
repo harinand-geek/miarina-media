@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import type { DownloadTask, TaskRecord } from '../services/types';
 import { isQueued, summarize, useDownloads } from './downloads';
-import { statusLabel } from '../features/downloads/format';
+import { statusLabel } from '../features/downloads/status';
 
 const MB = 1024 * 1024;
 

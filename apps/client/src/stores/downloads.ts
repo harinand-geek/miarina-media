@@ -201,12 +201,7 @@ export function summarize(tasks: Record<string, DownloadTask>) {
     /** Badge count: everything still to finish. */
     openCount: all.filter(isOpen).length,
     // Paused only when something is actually paused; nothing to show when idle.
-    speedLabel: speed > 0 ? formatSpeed(speed) : running.length || !active.length ? '—' : 'Paused',
-    stateLabel: running.length
-      ? `${running.length} downloading`
-      : active.length
-        ? 'All paused'
-        : 'Idle',
+    speedLabel: speed > 0 ? formatSpeed(speed) : '—',
     overallPercent: active.length
       ? Math.round(active.reduce((acc, t) => acc + percentOf(t), 0) / active.length)
       : 0,

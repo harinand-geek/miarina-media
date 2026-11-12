@@ -1,4 +1,5 @@
 import { Icon } from '../../components/Icon';
+import { useT } from '../../i18n';
 import type { LinkIssue } from './useLinkInput';
 
 /**
@@ -16,6 +17,7 @@ export function LinkIssueNote({
   onFix: () => void;
   compact?: boolean;
 }) {
+  const t = useT();
   if (issue.tone === 'hint') {
     return (
       <p
@@ -46,7 +48,7 @@ export function LinkIssueNote({
           className="flex h-8 shrink-0 items-center gap-1 rounded-sm bg-surface2 px-2.5 text-[12.5px] font-semibold text-fg hover:bg-overlay-border"
         >
           <Icon name="auto_fix_high" size={16} className="text-accent" />
-          Add https://
+          {t('addHttps')}
         </button>
       )}
     </div>

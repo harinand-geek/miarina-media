@@ -20,6 +20,10 @@ beforeAll(async () => {
     import('../features/library/LibraryScreen'),
     import('../features/player/PlayerScreen'),
     import('../features/player/NowPlayingScreen'),
+    import('../features/history/HistoryScreen'),
+    import('../features/settings/SettingsScreen'),
+    import('../features/browser/BrowserScreen'),
+    import('../features/torrents/TorrentsScreen'),
   ]);
 });
 

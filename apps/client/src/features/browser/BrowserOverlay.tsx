@@ -12,6 +12,7 @@ import { ComponentsPrompt } from '../analysis/ComponentsPrompt';
 import { defaultFormat, downloadTitle, useAnalysis } from '../analysis/useAnalysis';
 import { candidates, hostOf, kindLabel, mainCandidate, type Candidate } from './candidates';
 import { useBrowserState } from './useBrowserState';
+import { useT, type MessageKey } from '../../i18n';
 
 /** "Saved · Play" stays this long, then the button returns to "found" (design B). */
 const DONE_MS = 4000;
@@ -89,6 +90,7 @@ function DownloadFab({
   started: string[];
   onStarted: (ids: string[]) => void;
 }) {
+  const t = useT();
   const ref = useRef<HTMLDivElement>(null);
   const view = useFabView(started);
   const [busy, setBusy] = useState(false);
@@ -125,7 +127,7 @@ function DownloadFab({
         <button
           type="button"
           onClick={() => void backend.browserShowInApp('downloads')}
-          aria-label={`Downloading, ${Math.round(view.percent)} percent. Show downloads`}
+          aria-label={t('dlPercent', { n: Math.round(view.percent) })}
           className={`${pill} relative gap-2 overflow-hidden bg-bg pl-4 pr-[18px] text-fg`}
         >
           <Icon name="downloading" size={22} />
@@ -142,7 +144,7 @@ function DownloadFab({
           className={`${pill} gap-2 bg-accent-subtle pl-4 pr-[18px] text-chip-text`}
         >
           <Icon name="check_circle" size={22} />
-          Saved · Play
+          {t('savedPlay')}
         </button>
       ) : (
         <div className={`${pill} bg-accent text-accent-ink`}>
@@ -150,7 +152,7 @@ function DownloadFab({
             type="button"
             onClick={() => void quickDownload()}
             disabled={busy}
-            title="Download the main media in the default format"
+            title={t('quickDlTitle')}
             className="flex h-full items-center gap-2 rounded-l-[26px] pl-[18px] pr-4 hover:bg-accent-hover"
           >
             <Icon
@@ -158,13 +160,13 @@ function DownloadFab({
               size={22}
               className={busy ? 'animate-spin' : ''}
             />
-            {list.length > 1 ? `Download · ${list.length}` : 'Download'}
+            {list.length > 1 ? t('downloadCount', { n: list.length }) : t('downloadVerb')}
           </button>
           <span className="h-7 w-px bg-accent-ink/25" />
           <button
             type="button"
-            aria-label="Choose media and format"
-            title="Choose media and format · Ctrl+Shift+S"
+            aria-label={t('chooseMedia')}
+            title={`${t('chooseMedia')} · Ctrl+Shift+S`}
             onClick={() => void backend.browserSheet(true)}
             className="grid h-full w-11 place-items-center rounded-r-[26px] hover:bg-accent-hover"
           >
@@ -229,10 +231,10 @@ async function startCandidates(
 
 // ----------------------------------------------------------------- the sheet
 
-const GROUPS: { value: FormatGroup; label: string }[] = [
-  { value: 'video', label: 'Video' },
-  { value: 'audio', label: 'Audio only' },
-  { value: 'subtitles', label: 'Subtitles' },
+const GROUPS: { value: FormatGroup; label: MessageKey }[] = [
+  { value: 'video', label: 'fmtVideo' },
+  { value: 'audio', label: 'qAudio' },
+  { value: 'subtitles', label: 'fmtSubs' },
 ];
 
 function FormatSheet({
@@ -244,6 +246,7 @@ function FormatSheet({
   list: Candidate[];
   onStarted: (ids: string[]) => void;
 }) {
+  const t = useT();
   const [checked, setChecked] = useState<string[]>(() => {
     const main = mainCandidate(list);
     return main ? [main.id] : [];
@@ -311,15 +314,15 @@ function FormatSheet({
         <header className="flex items-start gap-3 pb-3 pl-[18px] pr-3 pt-4">
           <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
             <h2 id="sheet-title" className="m-0 text-[17px] font-bold">
-              Download from this page
+              {t('sheetTitle')}
             </h2>
             <span className="truncate font-mono text-[12px] text-muted">
-              {hostOf(state.url)} · {list.length} media found
+              {hostOf(state.url)} · {t('mediaFound', { n: list.length })}
             </span>
           </div>
           <button
             type="button"
-            aria-label="Close"
+            aria-label={t('close')}
             onClick={close}
             className="grid size-8 place-items-center rounded-sm text-muted hover:bg-line hover:text-fg"
           >
@@ -328,7 +331,7 @@ function FormatSheet({
         </header>
 
         <ul
-          aria-label="Media on this page"
+          aria-label={t('mediaOnPage')}
           className="m-0 flex max-h-[176px] list-none flex-col gap-1.5 overflow-auto px-3 py-0"
         >
           {list.map((c) => {
@@ -374,39 +377,29 @@ function FormatSheet({
 
         <div className="mx-[18px] mt-3.5">
           <Tabs
-            label="Format type"
+            label={t('formatType')}
             value={group}
             onChange={(g) => {
               setTab(g);
               setFormatId(null);
             }}
-            options={GROUPS}
+            options={GROUPS.map((g) => ({ value: g.value, label: t(g.label) }))}
           />
         </div>
         <div className="flex min-h-[120px] flex-col gap-1 overflow-auto px-3 py-2.5">
-          {!primary && (
-            <p className="m-0 px-1 py-4 text-[13px] text-muted">Select at least one item.</p>
-          )}
+          {!primary && <p className="m-0 px-1 py-4 text-[13px] text-muted">{t('selectOne')}</p>}
           {primary && analysis.status === 'loading' && (
             <div className="flex items-center gap-2.5 px-1 py-4 text-[13px] text-muted">
-              <ProgressBar
-                value={null}
-                height={3}
-                label="Reading available formats"
-                className="w-[120px]"
-              />
-              Reading available formats…
+              <ProgressBar value={null} height={3} label={t('stAnalyzing')} className="w-[120px]" />
+              {t('stAnalyzing')}
             </div>
           )}
           {primary && analysis.status === 'no_media' && (
             <div className="flex flex-col items-start gap-2 px-1 py-3 text-[13px]">
-              <span className="font-semibold text-danger">No downloadable media found</span>
-              <span className="text-muted">
-                {analysis.message ??
-                  'This item may be protected or need a login. Try another item on the page.'}
-              </span>
+              <span className="font-semibold text-danger">{t('noMediaTitle')}</span>
+              <span className="text-muted">{analysis.message ?? t('itemProtected')}</span>
               <Button size="sm" onClick={retry}>
-                Try again
+                {t('tryAgain')}
               </Button>
             </div>
           )}
@@ -418,15 +411,13 @@ function FormatSheet({
             />
           )}
           {info && group === 'subtitles' && (
-            <p className="m-0 px-1 py-4 text-[13px] text-muted">
-              Subtitle downloads arrive with the extractor engine.
-            </p>
+            <p className="m-0 px-1 py-4 text-[13px] text-muted">{t('subsPlanned')}</p>
           )}
           {info && group !== 'subtitles' && formats.length === 0 && (
-            <p className="m-0 px-1 py-4 text-[13px] text-muted">No formats in this group.</p>
+            <p className="m-0 px-1 py-4 text-[13px] text-muted">{t('noFormatsGroup')}</p>
           )}
           {info && group !== 'subtitles' && formats.length > 0 && (
-            <div role="radiogroup" aria-label="Quality" className="flex flex-col gap-1">
+            <div role="radiogroup" aria-label={t('quality')} className="flex flex-col gap-1">
               {formats.map((f) => {
                 const on = f.id === format?.id;
                 return (
@@ -446,7 +437,7 @@ function FormatSheet({
                         {f.quality}
                         {f.tag && (
                           <span className="ml-2 rounded-xs bg-accent-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-chip-text">
-                            {f.tag}
+                            {f.tag === 'Recommended' ? t('tagRecommended') : t('tagBest')}
                           </span>
                         )}
                       </span>
@@ -473,12 +464,12 @@ function FormatSheet({
               onClick={pickDownloadDir}
               className="font-semibold text-accent-strong hover:text-accent-hover"
             >
-              Change
+              {t('change')}
             </button>
           </div>
           <div className="flex gap-2">
             <Button className="flex-1" disabled={!canStart} onClick={() => void start(false)}>
-              Add to queue
+              {t('addToQueue')}
             </Button>
             <Button
               variant="primary"
@@ -487,7 +478,7 @@ function FormatSheet({
               disabled={!canStart}
               onClick={() => void start(true)}
             >
-              {selected.length > 1 ? `Download ${selected.length}` : 'Download'}
+              {selected.length > 1 ? t('downloadN', { n: selected.length }) : t('downloadVerb')}
               {sizeLabel}
             </Button>
           </div>

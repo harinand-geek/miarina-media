@@ -7,8 +7,15 @@ import type { DownloadTask, HistoryEntry } from '../../services/types';
 import { formatBytes, isRunning, useDownloads } from '../../stores/downloads';
 import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
-import { barTone, barValue, progressAriaLabel } from './format';
-import { mediaOfDownload, statusOf, useDownloadLists, waitsForSlot, type Status } from './status';
+import { barTone, barValue } from './format';
+import {
+  mediaOfDownload,
+  progressAriaLabel,
+  statusOf,
+  useDownloadLists,
+  waitsForSlot,
+  type Status,
+} from './status';
 import { useNow } from './useNow';
 
 type Tab = 'active' | 'done' | 'failed';

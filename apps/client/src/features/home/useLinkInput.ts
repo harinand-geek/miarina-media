@@ -1,6 +1,17 @@
 import { useCallback, useRef, useState } from 'react';
 import { invoke } from '@tauri-apps/api/core';
-import { LINK_ERROR_MESSAGES, checkLink, checkLinkLocally } from '../../services/link';
+import { t, type MessageKey } from '../../i18n';
+import { checkLink, checkLinkLocally } from '../../services/link';
+import type { LinkErrorCode } from '../../services/types';
+
+const LINK_ERRORS: Record<LinkErrorCode, MessageKey> = {
+  empty: 'linkEmpty',
+  too_long: 'linkTooLong',
+  malformed: 'linkMalformed',
+  unsupported_scheme: 'linkScheme',
+  missing_host: 'linkMalformed',
+  contains_credentials: 'linkCredentials',
+};
 import { detectPlatform, inTauri } from '../../services/platform';
 import { useUi } from '../../stores/ui';
 
@@ -60,7 +71,7 @@ export function useLinkInput() {
         }
         setIssue({
           tone: result.code === 'empty' ? 'hint' : 'warn',
-          message: fix ? 'This link is missing “https://”.' : LINK_ERROR_MESSAGES[result.code],
+          message: fix ? t('linkMissingHttps') : t(LINK_ERRORS[result.code]),
           fix,
         });
         inputRef.current?.focus();
@@ -90,14 +101,12 @@ export function useLinkInput() {
       ).trim();
       inputRef.current?.focus();
       if (text) change(text);
-      else setIssue({ tone: 'hint', message: 'The clipboard is empty. Copy a link first.' });
+      else setIssue({ tone: 'hint', message: t('clipboardEmpty') });
     } catch {
       inputRef.current?.focus();
       setIssue({
         tone: 'hint',
-        message: android
-          ? 'The clipboard could not be read. Long-press the field and choose Paste.'
-          : 'Clipboard access was refused. Press Ctrl+V in the field instead.',
+        message: android ? t('clipboardAndroid') : t('clipboardRefused'),
       });
     }
   }, [change]);

@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, type ReactNode } from 'react';
+import { useT } from '../i18n';
 import { useUi } from '../stores/ui';
 import { Button } from './Button';
 
@@ -7,6 +8,7 @@ import { Button } from './Button';
  * Esc and scrim choose the safe action; focus starts on the safe button.
  */
 export function ConfirmDialog() {
+  const t = useT();
   const confirm = useUi((s) => s.confirm);
   const close = useUi((s) => s.closeConfirm);
   const safeRef = useRef<HTMLButtonElement>(null);
@@ -67,7 +69,7 @@ export function ConfirmDialog() {
         </p>
         <div className="mt-3 flex justify-end gap-2">
           <Button ref={safeRef} onClick={close} className="h-[38px] text-[13px]">
-            Keep
+            {t('keep')}
           </Button>
           <Button
             variant="destructive"

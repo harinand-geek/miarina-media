@@ -25,18 +25,18 @@ export function MobileMediaSheet({
   const t = useT();
   const actions = useMediaActions();
   const items = [
-    !inPlayer && { icon: 'play_arrow', label: 'Play', run: () => actions.open(media) },
-    { icon: 'share', label: 'Share', run: () => actions.share(media) },
-    { icon: 'open_in_new', label: 'Open with…', run: () => actions.openWith(media) },
+    !inPlayer && { icon: 'play_arrow', label: t('play'), run: () => actions.open(media) },
+    { icon: 'share', label: t('share'), run: () => actions.share(media) },
+    { icon: 'open_in_new', label: t('openWith'), run: () => actions.openWith(media) },
     media.sourceUrl && {
       icon: 'content_copy',
-      label: 'Copy source link',
+      label: t('copySourceLink'),
       run: () => actions.copyLink(media),
     },
     // The player covers the screen: renaming and deleting happen from the lists.
     !inPlayer && {
       icon: 'drive_file_rename_outline',
-      label: 'Rename',
+      label: t('rename'),
       run: () => onRename(media),
     },
     !inPlayer && {

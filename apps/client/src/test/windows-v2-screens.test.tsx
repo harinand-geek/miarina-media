@@ -1,6 +1,6 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
 import { recentPlays } from '../features/player/recentPlays';
 import { resetMockBackend } from '../services/backend';
@@ -10,6 +10,15 @@ import { useSettings } from '../stores/settings';
 import { useUi } from '../stores/ui';
 
 let stopEvents: () => void = () => {};
+
+// Lazy screens: load them once so a busy parallel run does not time out.
+beforeAll(async () => {
+  await Promise.all([
+    import('../features/library/LibraryScreen'),
+    import('../features/history/HistoryScreen'),
+    import('../features/settings/SettingsScreen'),
+  ]);
+});
 
 beforeEach(async () => {
   localStorage.clear();
@@ -169,5 +178,24 @@ describe('Windows v2 Settings', () => {
     await user.click(screen.getByRole('radio', { name: 'Français' }));
     expect(useSettings.getState().lang).toBe('fr');
     expect(await screen.findByRole('heading', { name: 'Réglages' })).toBeInTheDocument();
+  });
+});
+
+describe('UX-01: French everywhere', () => {
+  it('shows link feedback, confirmations and progress in French', async () => {
+    const user = userEvent.setup();
+    useSettings.getState().setLang('fr');
+    render(<DesktopShell />);
+    await user.click(screen.getByRole('button', { name: 'Analyser' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Collez un lien à analyser.');
+
+    act(() => useUi.getState().go('downloads'));
+    expect(
+      await screen.findByRole('progressbar', { name: /^Tears of Steel, 60 %/ }),
+    ).toBeInTheDocument();
+    await user.click(screen.getAllByRole('button', { name: /^Annuler / })[0]!);
+    const dialog = screen.getByRole('alertdialog', { name: 'Annuler le téléchargement ?' });
+    expect(within(dialog).getByRole('button', { name: 'Conserver' })).toHaveFocus();
+    useSettings.getState().setLang('en');
   });
 });

@@ -5,6 +5,7 @@ import { ProgressBar } from '../../components/ProgressBar';
 import { backend } from '../../services/backend';
 import type { ComponentStatus, InstallProgress } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
+import { useT } from '../../i18n';
 
 interface ComponentsPromptProps {
   components: ComponentStatus[];
@@ -17,6 +18,7 @@ interface ComponentsPromptProps {
  * of the design handoff: built from design-system components only.
  */
 export function ComponentsPrompt({ components, onInstalled, onDismiss }: ComponentsPromptProps) {
+  const t = useT();
   const [progress, setProgress] = useState<Partial<Record<ComponentStatus['id'], InstallProgress>>>(
     {},
   );
@@ -37,7 +39,7 @@ export function ComponentsPrompt({ components, onInstalled, onDismiss }: Compone
 
   return (
     <section
-      aria-label="Media tools"
+      aria-label={t('mediaTools')}
       className="flex max-w-[560px] flex-col gap-4 rounded-lg border border-surface2 bg-surface p-6"
     >
       <div className="flex items-start gap-3">
@@ -45,12 +47,8 @@ export function ComponentsPrompt({ components, onInstalled, onDismiss }: Compone
           <Icon name="download" />
         </span>
         <div className="flex flex-col gap-1.5">
-          <h2 className="m-0 text-[15px] font-bold">This page needs the media tools</h2>
-          <p className="m-0 text-[13px] leading-normal text-muted">
-            Miarina Media reads web pages with yt-dlp and merges or converts files with FFmpeg. They
-            are downloaded once from their official releases and checked against a fixed SHA-256
-            fingerprint before use.
-          </p>
+          <h2 className="m-0 text-[15px] font-bold">{t('toolsNeeded')}</h2>
+          <p className="m-0 text-[13px] leading-normal text-muted">{t('toolsBody')}</p>
         </div>
       </div>
       <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -67,14 +65,14 @@ export function ComponentsPrompt({ components, onInstalled, onDismiss }: Compone
                 </span>
                 <span className="shrink-0 font-mono text-[12.5px] text-muted">
                   {p
-                    ? `${formatBytes(p.downloaded)} of ${formatBytes(p.total)}`
+                    ? t('bytesOf', { done: formatBytes(p.downloaded), total: formatBytes(p.total) })
                     : formatBytes(c.downloadBytes)}
                 </span>
               </div>
               {installing && (
                 <ProgressBar
                   value={p ? (p.downloaded / p.total) * 100 : 0}
-                  label={`${c.name} download`}
+                  label={t('toolDownload', { name: c.name })}
                 />
               )}
             </li>
@@ -88,7 +86,7 @@ export function ComponentsPrompt({ components, onInstalled, onDismiss }: Compone
       )}
       <div className="flex justify-end gap-2">
         <Button size="sm" className="h-9 text-[13px]" onClick={onDismiss} disabled={installing}>
-          Not now
+          {t('notNow')}
         </Button>
         <Button
           variant="primary"
@@ -98,7 +96,7 @@ export function ComponentsPrompt({ components, onInstalled, onDismiss }: Compone
           onClick={install}
           disabled={installing}
         >
-          {installing ? 'Downloading…' : `Download tools · ${formatBytes(total)}`}
+          {installing ? t('downloadingShort') : t('downloadTools', { size: formatBytes(total) })}
         </Button>
       </div>
     </section>

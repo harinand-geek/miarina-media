@@ -28,21 +28,26 @@ export function MediaContextMenu({
   const ref = useRef<HTMLDivElement>(null);
   const { media } = target;
   const items = [
-    { icon: 'play_arrow', label: 'Play', key: 'Enter', run: () => actions.open(media) },
+    { icon: 'play_arrow', label: t('play'), key: 'Enter', run: () => actions.open(media) },
     {
       icon: 'folder_open',
-      label: 'Show in folder',
+      label: t('showInFolder'),
       key: 'Ctrl E',
       run: () => actions.reveal(media),
     },
     {
       icon: 'content_copy',
-      label: 'Copy source link',
+      label: t('copySourceLink'),
       key: 'Ctrl C',
       run: () => actions.copyLink(media),
       disabled: !media.sourceUrl,
     },
-    { icon: 'drive_file_rename_outline', label: 'Rename', key: 'F2', run: () => onRename(media) },
+    {
+      icon: 'drive_file_rename_outline',
+      label: t('rename'),
+      key: 'F2',
+      run: () => onRename(media),
+    },
     {
       icon: 'edit_note',
       label: t('editTags'),
@@ -75,7 +80,7 @@ export function MediaContextMenu({
     <div
       ref={ref}
       role="menu"
-      aria-label={`Actions for ${media.title}`}
+      aria-label={t('actionsFor', { title: media.title })}
       onKeyDown={(e) => {
         const buttons = [
           ...(ref.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []),
@@ -116,6 +121,7 @@ export function MediaContextMenu({
  * dialog layout and the input component.
  */
 export function RenameDialog({ media, onClose }: { media: MediaRecord; onClose: () => void }) {
+  const t = useT();
   const [title, setTitle] = useState(media.title);
   const [saving, setSaving] = useState(false);
   const rename = useLibrary((s) => s.rename);
@@ -152,23 +158,20 @@ export function RenameDialog({ media, onClose }: { media: MediaRecord; onClose: 
         className="flex w-[420px] max-w-[calc(100%-32px)] animate-dialog-in flex-col gap-3 rounded-xl border border-line-strong bg-surface p-6 shadow-dialog"
       >
         <h2 id={titleId} className="m-0 text-[17px] font-bold">
-          Rename file
+          {t('renameTitle')}
         </h2>
         <input
           ref={inputRef}
           value={title}
           maxLength={200}
           onChange={(e) => setTitle(e.target.value)}
-          aria-label="New name"
+          aria-label={t('newName')}
           className="h-11 rounded-sm border border-line-strong bg-bg px-3 text-[13.5px] text-fg outline-none focus:border-accent focus:shadow-[0_0_0_3px_rgba(53,201,189,.18)]"
         />
-        <p className="m-0 text-[12.5px] text-muted">
-          The extension is kept. Unsafe characters are replaced and an existing file is never
-          overwritten.
-        </p>
+        <p className="m-0 text-[12.5px] text-muted">{t('renameHint')}</p>
         <div className="mt-1 flex justify-end gap-2">
           <Button type="button" onClick={onClose} className="h-[38px] text-[13px]">
-            Cancel
+            {t('cancel')}
           </Button>
           <Button
             type="submit"
@@ -176,7 +179,7 @@ export function RenameDialog({ media, onClose }: { media: MediaRecord; onClose: 
             disabled={saving}
             className="h-[38px] text-[13px]"
           >
-            Rename
+            {t('rename')}
           </Button>
         </div>
       </form>

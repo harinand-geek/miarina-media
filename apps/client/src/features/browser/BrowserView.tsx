@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
-import { useT } from '../../i18n';
+import { t as tNow, useT } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { BrowserSnapshot, Favorite } from '../../services/types';
 import { useUi, type AnalysisChoice } from '../../stores/ui';
@@ -99,12 +99,12 @@ export function BrowserView({
       if (await download(result.info, format, kind)) {
         pushToast({
           tone: 'success',
-          message: `Downloading · ${shortQuality(format)}`,
-          action: { label: 'View', run: onShowDownloads },
+          message: tNow('downloadingQ', { q: shortQuality(format) }),
+          action: { label: tNow('view'), run: onShowDownloads },
         });
       }
     } catch {
-      pushToast({ tone: 'error', message: 'This media cannot be downloaded directly.' });
+      pushToast({ tone: 'error', message: tNow('notDirect') });
     }
   }, [first, download, pushToast, onShowDownloads]);
 
@@ -154,9 +154,7 @@ export function BrowserView({
         setFavorites(list);
         pushToast({
           tone: 'success',
-          message: list.some((f) => f.url === state.url)
-            ? 'Added to favorites'
-            : 'Removed from favorites',
+          message: list.some((f) => f.url === state.url) ? t('favAdded') : t('favRemoved'),
         });
       })
       .catch(() => {});
@@ -235,7 +233,7 @@ export function BrowserView({
     setEditing(false);
     setError('');
     backend.browserNavigate(address).catch((e: unknown) => {
-      setError(e instanceof Error ? e.message : 'This address cannot be opened');
+      setError(e instanceof Error ? e.message : tNow('addressFailed'));
     });
   }, []);
 
@@ -246,7 +244,7 @@ export function BrowserView({
     if (!request) return;
     openInBrowser(null);
     backend.browserNavigate(request).catch((e: unknown) => {
-      setError(e instanceof Error ? e.message : 'This address cannot be opened');
+      setError(e instanceof Error ? e.message : tNow('addressFailed'));
     });
   }, [request, openInBrowser]);
 
@@ -265,7 +263,11 @@ export function BrowserView({
           onSubmit={open}
           onMedia={openSheet}
         />
-        <span role="img" aria-label={t('tabsCount', { n: 1 })} className="grid size-11 shrink-0 place-items-center">
+        <span
+          role="img"
+          aria-label={t('tabsCount', { n: 1 })}
+          className="grid size-11 shrink-0 place-items-center"
+        >
           <span className="grid size-6 place-items-center rounded-md border-2 border-fg text-[12px] font-extrabold">
             1
           </span>
@@ -319,7 +321,11 @@ export function BrowserView({
           disabled={!state.canGoForward}
           onClick={() => void backend.browserNav('forward')}
         />
-        <BarButton icon="home" label={t('startPage')} onClick={() => void backend.browserNav('home')} />
+        <BarButton
+          icon="home"
+          label={t('startPage')}
+          onClick={() => void backend.browserNav('home')}
+        />
         {/* Favorites are listed on the start page. */}
         <BarButton
           icon="bookmarks"
@@ -523,9 +529,7 @@ function StartPage({
         )}
         <StartShortcuts onOpen={onOpen} />
       </section>
-      <p className="m-0 mt-auto text-[12px] text-faint">
-        {t('legalHint')}
-      </p>
+      <p className="m-0 mt-auto text-[12px] text-faint">{t('legalHint')}</p>
     </main>
   );
 }

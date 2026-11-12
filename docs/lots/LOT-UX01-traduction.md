@@ -1,0 +1,9 @@
+# Fiche LOT-UX01 — Traduction FR/EN de tous les écrans
+
+- Statut : Fait (interface) ; messages venant du moteur Rust encore en anglais
+- Exigence CDC : UX-01 (toutes les chaînes passent par le catalogue FR/EN)
+- Méthode : recherche automatique des textes JSX, attributs (`label`, `aria-label`, `title`, `placeholder`) et messages littéraux dans `app`, `components`, `features`, `hooks`, `stores` ; il ne reste que des raccourcis clavier, des noms propres (Chrome, Edge, Miarina Media, Français / English) et des commentaires.
+- Migré dans ce lot : validation et presse-papiers du champ de lien, « Ajouter https:// », menu contextuel et renommage des médias (bureau et Android), en-têtes de la vue liste Vidéos, outils média (invite et Réglages), feuille « Enregistrer dans » Android, navigateur intégré (bouton flottant, feuille de formats, favoris, erreurs), toasts (téléchargement lancé, ajouté à la file, lien copié), types de médias détectés, bouton « Conserver » des confirmations, fermeture des toasts, libellés d'accessibilité de progression et états de téléchargement.
+- Nettoyage : helpers anglais devenus inutilisés retirés (`SORT_LABELS`, `addedLabel`, `doneLabel`, `statusTone`, `stateLabel`, `LINK_ERROR_MESSAGES`, clé `languageNote`) ; `statusLabel` et `progressAriaLabel` passent par le catalogue (`features/downloads/status.ts`).
+- Limites : les messages d'erreur rédigés par le moteur Rust (raisons d'échec, erreurs de commandes) et les données de démonstration de l'aperçu restent en anglais ; les unités de taille restent « MB / GB » comme dans la maquette.
+- Tests : `tsc`, `eslint`, `vitest run` (29 fichiers, 152 tests, deux exécutions complètes) ; nouveau test en français (validation de lien, progression, confirmation « Conserver ») ; préchargement des écrans chargés à la demande dans les tests de parcours pour éviter les dépassements de délai sous charge.

@@ -3,6 +3,7 @@ import { detectPlatform } from '../../services/platform';
 import type { MediaRecord } from '../../services/types';
 import { useUi } from '../../stores/ui';
 import { playFrom } from '../../app/navigation';
+import { t } from '../../i18n';
 
 /** Library actions shared by the grid, the list and keyboard shortcuts. */
 const desktop = detectPlatform() !== 'android';
@@ -22,7 +23,10 @@ export function useMediaActions() {
      */
     open: (media: MediaRecord, list?: MediaRecord[]) => {
       if (desktop) {
-        playFrom(media, list?.filter((m) => m.kind === media.kind && !m.missing));
+        playFrom(
+          media,
+          list?.filter((m) => m.kind === media.kind && !m.missing),
+        );
         return;
       }
       play(media);
@@ -34,12 +38,12 @@ export function useMediaActions() {
     openWith: (media: MediaRecord) => void backend.libraryOpenExternal(media.id).catch(report),
     copyLink: (media: MediaRecord) => {
       if (!media.sourceUrl) {
-        pushToast({ tone: 'error', message: 'This file has no source link.' });
+        pushToast({ tone: 'error', message: t('noSourceLink') });
         return;
       }
       navigator.clipboard
         ?.writeText(media.sourceUrl)
-        .then(() => pushToast({ tone: 'success', message: 'Source link copied' }))
+        .then(() => pushToast({ tone: 'success', message: t('linkCopied') }))
         .catch(report);
     },
     /** "Remove or delete" choice (COM-10): dialog on Windows, sheet on Android. */

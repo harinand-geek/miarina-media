@@ -5,11 +5,13 @@ import type { ComponentStatus } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
 import { SettingRow } from './SettingRow';
+import { useT } from '../../i18n';
 
 /** Status of yt-dlp and FFmpeg: shipped with the Windows installer
  * (decision 0002), downloaded on demand when missing (decision D3).
  * yt-dlp also updates itself, verified by its signature (daily check). */
 export function MediaTools() {
+  const t = useT();
   const [components, setComponents] = useState<ComponentStatus[]>([]);
   const [installing, setInstalling] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -34,8 +36,8 @@ export function MediaTools() {
           tone: 'success',
           message:
             result.status === 'updated'
-              ? `yt-dlp updated to ${result.version} · signature verified`
-              : `yt-dlp is up to date (${result.version})`,
+              ? t('ytdlpUpdated', { v: result.version })
+              : t('ytdlpLatest', { v: result.version }),
         });
         return refresh();
       })
@@ -51,7 +53,7 @@ export function MediaTools() {
       .installComponents(() => {})
       .then((status) => {
         setComponents(status);
-        pushToast({ tone: 'success', message: 'Media tools installed and verified' });
+        pushToast({ tone: 'success', message: t('toolsInstalled') });
       })
       .catch((e: unknown) =>
         pushToast({ tone: 'error', message: e instanceof Error ? e.message : String(e) }),
@@ -61,23 +63,23 @@ export function MediaTools() {
 
   return (
     <>
-      <h3 className="m-0 pt-7 text-heading font-bold">Media tools</h3>
+      <h3 className="m-0 pt-7 text-heading font-bold">{t('mediaTools')}</h3>
       {components.map((c) => (
         <SettingRow
           key={c.id}
           label={c.name}
           description={
             c.id === 'yt_dlp' && c.installed
-              ? `${c.version} · ${c.license} · updates automatically`
+              ? `${c.version} · ${c.license} · ${t('autoUpdated')}`
               : c.bundled
                 ? `${c.version} · ${c.license}`
-                : `${c.version} · ${c.license} · ${formatBytes(c.downloadBytes)} download`
+                : `${c.version} · ${c.license} · ${t('toDownload', { size: formatBytes(c.downloadBytes) })}`
           }
         >
           {c.installed ? (
             <span className="flex items-center gap-3">
               <span className="text-[12.5px] font-semibold text-accent-strong">
-                {c.bundled ? 'Included · verified' : 'Installed · verified'}
+                {c.bundled ? t('includedVerified') : t('installedVerified')}
               </span>
               {c.id === 'yt_dlp' && (
                 <Button
@@ -86,13 +88,13 @@ export function MediaTools() {
                   disabled={checking}
                   onClick={checkUpdates}
                 >
-                  {checking ? 'Checking…' : 'Check for updates'}
+                  {checking ? t('updChecking') : t('updCheck')}
                 </Button>
               )}
             </span>
           ) : (
             <Button size="sm" className="text-[12.5px]" disabled={installing} onClick={install}>
-              {installing ? 'Downloading…' : 'Download'}
+              {installing ? t('downloadingShort') : t('downloadVerb')}
             </Button>
           )}
         </SettingRow>

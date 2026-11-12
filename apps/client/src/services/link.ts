@@ -5,15 +5,6 @@ import type { LinkErrorCode } from './types';
 export type LinkCheck =
   { ok: true; url: string; host: string } | { ok: false; code: LinkErrorCode };
 
-export const LINK_ERROR_MESSAGES: Record<LinkErrorCode, string> = {
-  empty: 'Paste a link to analyze.',
-  too_long: 'This link is too long.',
-  malformed: 'This doesn’t look like a complete link. Check for a missing “https://”.',
-  unsupported_scheme: 'Only http and https links are supported.',
-  missing_host: 'This doesn’t look like a complete link. Check for a missing “https://”.',
-  contains_credentials: 'Links containing a user name or password are not accepted.',
-};
-
 /**
  * Validates a pasted link. Inside Tauri the Rust `media-core` rules are the
  * authority; the browser fallback only exists for UI development and tests.

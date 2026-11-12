@@ -64,8 +64,7 @@ export default function LibraryScreen() {
     useLibrary.getState().show(wantedKind, opened);
   }, [wantedKind, opened]);
 
-  const synced =
-    kind === wantedKind && group?.by === opened?.by && group?.name === opened?.name;
+  const synced = kind === wantedKind && group?.by === opened?.by && group?.name === opened?.name;
 
   // Library-wide count: hidden while searching, where it would not match.
   const count = search.trim()
@@ -114,7 +113,11 @@ export default function LibraryScreen() {
     if (shuffle) usePlayer.getState().setShuffle(true);
   };
 
-  const heading = opened ? (opened.by === 'folder' ? folderName(opened.name) : opened.name) : t(libraryView);
+  const heading = opened
+    ? opened.by === 'folder'
+      ? folderName(opened.name)
+      : opened.name
+    : t(libraryView);
 
   return (
     <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
@@ -297,12 +300,7 @@ export default function LibraryScreen() {
       )}
 
       {synced && items.length > 0 && isVideos && videoView === 'list' && (
-        <LibraryList
-          items={items}
-          scrollRef={scrollRef}
-          onOpen={open}
-          handlers={itemHandlers}
-        />
+        <LibraryList items={items} scrollRef={scrollRef} onOpen={open} handlers={itemHandlers} />
       )}
 
       {menu && (
@@ -327,6 +325,7 @@ function LibraryList({
     onKeyDown: (e: KeyboardEvent<HTMLElement>) => void;
   };
 }) {
+  const t = useT();
   const [body, setBody] = useState<HTMLDivElement | null>(null);
   // eslint-disable-next-line react-hooks/incompatible-library -- TanStack Virtual is not memoizable; the React Compiler is not used here.
   const virtualizer = useVirtualizer({
@@ -340,7 +339,7 @@ function LibraryList({
   return (
     <div
       role="table"
-      aria-label="Library items"
+      aria-label={t('libraryItems')}
       className="overflow-hidden rounded-lg border border-surface2"
     >
       <div
@@ -348,12 +347,12 @@ function LibraryList({
         className={`grid ${LIST_COLUMNS} h-9 items-center gap-4 bg-row px-4 text-[11.5px] font-semibold uppercase tracking-[0.04em] text-muted`}
       >
         <span role="columnheader" />
-        <span role="columnheader">Title</span>
-        <span role="columnheader">Source</span>
-        <span role="columnheader">Length</span>
-        <span role="columnheader">Quality</span>
+        <span role="columnheader">{t('colTitle')}</span>
+        <span role="columnheader">{t('colSource')}</span>
+        <span role="columnheader">{t('colLength')}</span>
+        <span role="columnheader">{t('colQuality')}</span>
         <span role="columnheader" className="text-right">
-          Size
+          {t('colSize')}
         </span>
       </div>
       <div ref={setBody} className="relative" style={{ height: virtualizer.getTotalSize() }}>

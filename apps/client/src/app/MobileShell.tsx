@@ -198,8 +198,8 @@ export function MobileShell() {
           else
             pushToast({
               tone: 'success',
-              message: 'Download started',
-              action: { label: 'View', run: () => setTab('downloads') },
+              message: t('dlStarted'),
+              action: { label: t('view'), run: () => setTab('downloads') },
             });
         }}
       />

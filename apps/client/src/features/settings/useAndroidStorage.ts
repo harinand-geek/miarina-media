@@ -1,6 +1,7 @@
 import { ANDROID_STORES } from '../../dev/fixtures';
 import { backend } from '../../services/backend';
 import { useSettings } from '../../stores/settings';
+import { t } from '../../i18n';
 
 /** `.../files/Movies/Miarina` → `Movies/Miarina`. */
 export function shortStoragePath(dir: string) {
@@ -30,7 +31,7 @@ export function useAndroidStorage(kind?: 'video' | 'audio') {
   const folders = dirs.filter(Boolean).map((d) => shortStoragePath(d!));
   return {
     icon: 'smartphone',
-    label: `${inAppStorage(downloadDir) ? 'App storage' : 'Internal storage'} · ${folders.join(' · ')}`,
+    label: `${inAppStorage(downloadDir) ? t('appStorage') : t('internalStorage')} · ${folders.join(' · ')}`,
     canChange: false,
   };
 }

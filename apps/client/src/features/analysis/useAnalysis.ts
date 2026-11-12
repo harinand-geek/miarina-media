@@ -3,6 +3,7 @@ import { backend } from '../../services/backend';
 import type { ComponentStatus, MediaFormat, MediaInfo } from '../../services/types';
 import { useDownloads } from '../../stores/downloads';
 import { useUi } from '../../stores/ui';
+import { t } from '../../i18n';
 
 export type AnalysisState =
   | { status: 'loading' }
@@ -99,8 +100,8 @@ export function useStartActions() {
     if (await request(info, format, kind, false)) {
       pushToast({
         tone: 'success',
-        message: `Added to queue · ${shortQuality(format)}`,
-        action: { label: 'View', run: () => go('downloads') },
+        message: t('addedToQueue', { q: shortQuality(format) }),
+        action: { label: t('view'), run: () => go('downloads') },
       });
     }
   };
