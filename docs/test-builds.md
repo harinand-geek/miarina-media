@@ -2,6 +2,19 @@
 
 Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
 
+## Windows 0.1.8 — 2026-11-12
+
+Sources : révision 9f9922c (archive `MiarinaMedia-0.1.8-source.tar.gz`, avec le sous-module Mister Download Manager). Windows seulement : le manifeste signé garde Android sur l’APK 0.1.7 déjà publié (même fichier, même empreinte).
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.1.8-x64-setup.exe | 95642632 | e90bc6e275bf8f0d8bdd955a56b11bed459bb03ec1a6406141297d96335a7d49 |
+| MiarinaMedia-0.1.8-source.tar.gz | 33964997 | e5bd088fcfebf440fc3a06095ba749059f97d787593c244367cc6c7b427e282a |
+
+Contenu : nouvelle interface Windows v2, bibliothèque musicale et playlists, lecteur libVLC 3.0.24 (280 modules, inventaire DEP-03 validé tel quel par le propriétaire) avec égaliseur, ouverture de fichiers et glisser-déposer, onglets et historique du navigateur, reprise de téléchargement vérifiée, mises à jour robustes (L09), logo 4d, textes français de l’installateur corrigés. Image dans l’image retirée avec le lecteur libVLC.
+
+Validation : tests Rust de l’espace de travail et 186 tests frontend, TypeScript, ESLint, clippy ; recette T-06 entre versions isolées (0.1.98 → 0.1.99 → 0.1.100, `docs/lots/LOT-L09-mises-a-jour.md`) ; endurance 60 min sans échec (L00) ; intégrité NSIS vérifiée avec 7-Zip (318 fichiers, exécutable 0.1.8). Publication : fichiers, puis site (sauvegarde préalable sur le serveur), puis manifeste signé en dernier ; signature publique, tailles et empreintes vérifiées en ligne. **Non testé** : installation de ce paquet exact et mise à jour réelle depuis la 0.1.7 installée (le parcours est celui de la 0.1.7), machine sans VLC, DPI ≠ 100 %. Installateur non signé avec Authenticode. Défaut connu mineur : bande verte en haut de l’image pour une vidéo VP9 de 854 × 364 (Sintel 480p de Wikimedia), absente en 854 × 480.
+
 ## Windows et Android 0.1.7 — 2026-11-10
 
 Sources : révision 0ccc620. Recherche automatique des nouvelles versions ; téléchargement et installation depuis les réglages sur action utilisateur. Une installation manuelle depuis la 0.1.6 est nécessaire.
