@@ -62,6 +62,9 @@ pub struct MediaRecord {
     pub disc_no: Option<u32>,
     /// Marked as a favorite (COM-06).
     pub favorite: bool,
+    /// The picture was chosen by the user (or removed on purpose): the
+    /// library never replaces it.
+    pub cover_custom: bool,
 }
 
 /// Editable tags of a library entry (COM-07). `None` = no value.
@@ -179,7 +182,7 @@ const MAX_SEARCH_TOKENS: usize = 8;
 
 pub(crate) const COLUMNS: &str = "id, path, title, kind, source_host, source_url, task_id, size_bytes, \
      duration_secs, width, height, video_codec, audio_codec, container, thumbnail, probed, \
-     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no, favorite";
+     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no, favorite, cover_custom";
 
 impl<'de> Deserialize<'de> for MediaKind {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
@@ -383,7 +386,8 @@ impl Storage {
         };
         let changed = self.conn.execute(
             "UPDATE media SET duration_secs = ?2, width = ?3, height = ?4, video_codec = ?5, \
-             audio_codec = ?6, container = ?7, kind = ?8, thumbnail = coalesce(?9, thumbnail), \
+             audio_codec = ?6, container = ?7, kind = ?8, \
+             thumbnail = CASE WHEN cover_custom = 1 THEN thumbnail ELSE coalesce(?9, thumbnail) END, \
              probed = 1 WHERE id = ?1",
             params![
                 id,
@@ -405,6 +409,16 @@ impl Storage {
         let changed = self.conn.execute(
             "UPDATE media SET thumbnail = ?2 WHERE id = ?1",
             params![id, thumbnail],
+        )?;
+        crate::ensure_found(changed, &id.to_string())
+    }
+
+    /// Sets a picture chosen by the user, or `None` for no picture at all;
+    /// either way the library no longer builds one (COM-07 covers).
+    pub fn set_media_cover(&self, id: i64, cover: Option<&str>) -> Result<()> {
+        let changed = self.conn.execute(
+            "UPDATE media SET thumbnail = ?2, cover_custom = 1 WHERE id = ?1",
+            params![id, cover],
         )?;
         crate::ensure_found(changed, &id.to_string())
     }
@@ -655,7 +669,8 @@ impl Storage {
     /// Forgets thumbnails (after the cache was cleared) so they are rebuilt.
     pub fn reset_thumbnails(&self) -> Result<usize> {
         Ok(self.conn.execute(
-            "UPDATE media SET thumbnail = NULL, probed = 0 WHERE thumbnail IS NOT NULL",
+            "UPDATE media SET thumbnail = NULL, probed = 0 \
+             WHERE thumbnail IS NOT NULL AND cover_custom = 0",
             [],
         )?)
     }
@@ -698,6 +713,7 @@ pub(crate) fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord
         track_no: opt_u32(24)?,
         disc_no: opt_u32(25)?,
         favorite: row.get(26)?,
+        cover_custom: row.get(27)?,
     }))
 }
 
@@ -753,7 +769,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            7
+            8
         );
     }
 
@@ -978,6 +994,44 @@ mod tests {
         assert_eq!(s.media_to_probe(10).unwrap().len(), 2);
         assert_eq!(s.reset_thumbnails().unwrap(), 1);
         assert_eq!(s.media_to_probe(10).unwrap().len(), 3);
+    }
+
+    #[test]
+    fn chosen_covers_survive_probes_and_cache_reset() {
+        let s = library();
+        let id = s.media_by_path("C:/V/sintel.webm").unwrap().unwrap().id;
+        s.set_media_cover(id, Some("covers/1.jpg")).unwrap();
+        let probe = MediaProbe {
+            has_video: true,
+            ..Default::default()
+        };
+        s.set_media_probe(id, &probe, Some("thumbs/new.jpg"))
+            .unwrap();
+        let m = s.media(id).unwrap();
+        assert_eq!(
+            (m.thumbnail.as_deref(), m.cover_custom),
+            (Some("covers/1.jpg"), true)
+        );
+        assert_eq!(
+            s.reset_thumbnails().unwrap(),
+            0,
+            "chosen covers are not cache"
+        );
+        assert_eq!(
+            s.media(id).unwrap().thumbnail.as_deref(),
+            Some("covers/1.jpg")
+        );
+
+        // Removed on purpose: the library does not put a frame back.
+        s.set_media_cover(id, None).unwrap();
+        s.set_media_probe(id, &probe, Some("thumbs/new.jpg"))
+            .unwrap();
+        let m = s.media(id).unwrap();
+        assert_eq!((m.thumbnail, m.cover_custom), (None, true));
+        assert!(matches!(
+            s.set_media_cover(9999, None),
+            Err(StorageError::NotFound(_))
+        ));
     }
 
     #[test]

@@ -516,3 +516,83 @@ fn video_tags_stay_in_the_library() {
     assert_eq!(saved.artist.as_deref(), Some("Ankorabe Sound"));
     assert_eq!(std::fs::read(&file).unwrap(), b"not really a video");
 }
+
+#[tokio::test]
+async fn covers_are_checked_before_ffmpeg_runs() {
+    let h = harness();
+    let song = h.root.join("song.wav");
+    write_wav(&song);
+    let clip = h.root.join("clip.mp4");
+    std::fs::write(&clip, b"not really a video").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let (song, clip) = (id_of(&h, &song), id_of(&h, &clip));
+
+    let text = h.root.join("notes.txt");
+    std::fs::write(&text, b"hello").unwrap();
+    let refused = |r: Result<storage::MediaRecord, library::LibraryError>| {
+        matches!(r, Err(library::LibraryError::Cover(_)))
+    };
+    assert!(
+        refused(h.library.cover_from_image(song, &text).await),
+        "not a picture"
+    );
+    let picture = h.root.join("cover.png");
+    std::fs::write(&picture, b"").unwrap();
+    assert!(
+        refused(h.library.cover_from_image(song, &picture).await),
+        "empty file"
+    );
+    std::fs::write(&picture, b"png").unwrap();
+    assert!(
+        refused(h.library.cover_from_image(song, &picture).await),
+        "FFmpeg is not installed here"
+    );
+    assert!(
+        refused(h.library.cover_from_frame(song, 1.0).await),
+        "audio has no frames"
+    );
+    assert!(
+        refused(h.library.cover_from_source(clip).await),
+        "not downloaded"
+    );
+    assert!(!h.library.has_source_thumbnail(clip));
+    assert!(
+        std::fs::read_dir(h.library.covers_dir()).map_or(true, |mut d| d.next().is_none()),
+        "nothing left behind"
+    );
+}
+
+#[test]
+fn removing_a_cover_deletes_only_our_picture() {
+    let h = harness();
+    let clip = h.root.join("clip.mp4");
+    std::fs::write(&clip, b"not really a video").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let id = id_of(&h, &clip);
+    let covers = h.library.covers_dir();
+    std::fs::create_dir_all(&covers).unwrap();
+    let chosen = covers.join(format!("{id}-1.jpg"));
+    std::fs::write(&chosen, b"jpeg").unwrap();
+    h.storage
+        .lock()
+        .unwrap()
+        .set_media_cover(id, Some(&chosen.to_string_lossy()))
+        .unwrap();
+
+    let before = h.changes.load(Ordering::SeqCst);
+    let record = h.library.remove_cover(id).unwrap();
+    assert_eq!((record.thumbnail, record.cover_custom), (None, true));
+    assert!(!chosen.exists(), "our cover is deleted");
+    assert!(h.changes.load(Ordering::SeqCst) > before, "the UI is told");
+
+    // A picture outside our folders (e.g. next to the media) is never deleted.
+    let outside = h.root.join("folder.jpg");
+    std::fs::write(&outside, b"jpeg").unwrap();
+    h.storage
+        .lock()
+        .unwrap()
+        .set_media_cover(id, Some(&outside.to_string_lossy()))
+        .unwrap();
+    h.library.remove_cover(id).unwrap();
+    assert!(outside.exists());
+}

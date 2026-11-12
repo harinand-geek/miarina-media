@@ -36,7 +36,15 @@ pub enum LibraryError {
     Tags(#[from] tags::TagWriteError),
     #[error("the file is no longer on disk")]
     Missing,
+    #[error("cover refused: {0}")]
+    Cover(&'static str),
 }
+
+/// Covers are stored at most this large (longest edge).
+const COVER_PX: u32 = 1000;
+/// Largest picture accepted as a cover.
+const COVER_SOURCE_MAX: u64 = 30 * 1024 * 1024;
+const COVER_EXTENSIONS: [&str; 6] = ["jpg", "jpeg", "png", "webp", "bmp", "gif"];
 
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -177,6 +185,151 @@ impl Library {
 
     pub fn thumbnails_dir(&self) -> &Path {
         &self.inner.thumbnails
+    }
+
+    /// Pictures chosen by the user (COM-07). Kept apart from the thumbnail
+    /// cache, which the user may clear.
+    pub fn covers_dir(&self) -> PathBuf {
+        self.inner.thumbnails.with_file_name("covers")
+    }
+
+    /// Deletes a picture this library made (generated thumbnail or chosen
+    /// cover); cached source pictures stay (tasks may still show them).
+    fn forget_picture(&self, picture: &Path) {
+        let own = (picture.starts_with(&self.inner.thumbnails)
+            && !picture.starts_with(self.source_thumbnails_dir()))
+            || picture.starts_with(self.covers_dir());
+        if own {
+            let _ = std::fs::remove_file(picture);
+        }
+    }
+
+    /// Stores `cover` (or no picture) as chosen by the user and deletes the
+    /// picture it replaces.
+    fn replace_cover(
+        &self,
+        record: &MediaRecord,
+        cover: Option<&Path>,
+    ) -> Result<MediaRecord, LibraryError> {
+        let storage = lock(&self.inner.storage);
+        let cover = cover.map(|c| c.to_string_lossy().into_owned());
+        if let Err(e) = storage.set_media_cover(record.id, cover.as_deref()) {
+            drop(storage);
+            if let Some(c) = &cover {
+                let _ = std::fs::remove_file(c);
+            }
+            return Err(e.into());
+        }
+        let updated = storage.media(record.id)?;
+        drop(storage);
+        if let Some(old) = &record.thumbnail
+            && cover.as_deref() != Some(old.as_str())
+        {
+            self.forget_picture(Path::new(old));
+        }
+        (self.inner.on_change)();
+        Ok(updated)
+    }
+
+    /// Converts `source` (a picture, or the frame at `at` seconds of a video)
+    /// into the entry's cover. Needs FFmpeg (desktop).
+    async fn make_cover(
+        &self,
+        record: &MediaRecord,
+        source: &Path,
+        at: Option<f64>,
+    ) -> Result<MediaRecord, LibraryError> {
+        let Some(Tools::Ffmpeg { ffmpeg, .. }) = self.tools() else {
+            return Err(LibraryError::Cover("FFmpeg is needed for covers"));
+        };
+        let dir = self.covers_dir();
+        std::fs::create_dir_all(&dir).map_err(io)?;
+        let out = dir.join(format!("{}-{}.jpg", record.id, storage::now_ms()));
+        let threads = lock(&self.inner.limits).ffmpeg_threads;
+        probe::jpeg(&ffmpeg, source, &out, at, COVER_PX, threads).await?;
+        self.replace_cover(record, Some(&out))
+    }
+
+    /// Cover from a picture file chosen by the user.
+    pub async fn cover_from_image(
+        &self,
+        id: i64,
+        image: &Path,
+    ) -> Result<MediaRecord, LibraryError> {
+        let record = lock(&self.inner.storage).media(id)?;
+        let ext = image
+            .extension()
+            .and_then(|e| e.to_str())
+            .map(str::to_ascii_lowercase)
+            .unwrap_or_default();
+        if !COVER_EXTENSIONS.contains(&ext.as_str()) {
+            return Err(LibraryError::Cover("not a supported picture"));
+        }
+        let size = std::fs::metadata(image).map_err(io)?.len();
+        if size == 0 || size > COVER_SOURCE_MAX {
+            return Err(LibraryError::Cover("picture too large"));
+        }
+        self.make_cover(&record, image, None).await
+    }
+
+    /// Cover from the thumbnail the source offered at download time.
+    pub async fn cover_from_source(&self, id: i64) -> Result<MediaRecord, LibraryError> {
+        // Scoped so the lock is not held across the await below.
+        let (record, source) = {
+            let storage = lock(&self.inner.storage);
+            let record = storage.media(id)?;
+            let source = record
+                .task_id
+                .as_deref()
+                .and_then(|task| storage.task(task).ok())
+                .and_then(|task| task.thumbnail)
+                .map(PathBuf::from);
+            (record, source)
+        };
+        let source = source
+            .filter(|s| self.is_source_thumbnail(s) && s.is_file())
+            .ok_or(LibraryError::Cover("the source gave no thumbnail"))?;
+        self.make_cover(&record, &source, None).await
+    }
+
+    /// Whether a source thumbnail is available for this entry.
+    pub fn has_source_thumbnail(&self, id: i64) -> bool {
+        let storage = lock(&self.inner.storage);
+        storage
+            .media(id)
+            .ok()
+            .and_then(|m| m.task_id)
+            .and_then(|task| storage.task(&task).ok())
+            .and_then(|task| task.thumbnail)
+            .is_some_and(|t| {
+                let t = PathBuf::from(t);
+                self.is_source_thumbnail(&t) && t.is_file()
+            })
+    }
+
+    /// Cover from the frame at `at` seconds of a video entry.
+    pub async fn cover_from_frame(&self, id: i64, at: f64) -> Result<MediaRecord, LibraryError> {
+        let record = lock(&self.inner.storage).media(id)?;
+        if record.kind != storage::MediaKind::Video {
+            return Err(LibraryError::Cover("only videos have frames"));
+        }
+        let path = PathBuf::from(&record.path);
+        if !path.is_file() {
+            return Err(LibraryError::Missing);
+        }
+        let end = record.duration_secs.unwrap_or(f64::MAX);
+        let at = if at.is_finite() {
+            at.clamp(0.0, (end - 0.5).max(0.0))
+        } else {
+            0.0
+        };
+        self.make_cover(&record, &path, Some(at)).await
+    }
+
+    /// No picture at all, on purpose (the library will not build one).
+    pub fn remove_cover(&self, id: i64) -> Result<MediaRecord, LibraryError> {
+        let record = lock(&self.inner.storage).media(id)?;
+        self.replace_cover(&record, None)
     }
 
     /// Source thumbnails cached at analysis time (see
@@ -375,12 +528,7 @@ impl Library {
         storage.remove_media(id)?;
         drop(storage);
         if let Some(thumb) = &record.thumbnail {
-            let thumb = Path::new(thumb);
-            if thumb.starts_with(&self.inner.thumbnails)
-                && !thumb.starts_with(self.source_thumbnails_dir())
-            {
-                let _ = std::fs::remove_file(thumb);
-            }
+            self.forget_picture(Path::new(thumb));
         }
         (self.inner.on_change)();
         Ok(())
@@ -398,7 +546,7 @@ impl Library {
             discard(Path::new(&record.path), trash)?;
         }
         if let Some(thumb) = &record.thumbnail {
-            let _ = std::fs::remove_file(thumb);
+            self.forget_picture(Path::new(thumb));
         }
         lock(&self.inner.storage).delete_media(id)?;
         (self.inner.on_change)();

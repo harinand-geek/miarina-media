@@ -1,7 +1,10 @@
 /// Application commands. Each one must be granted explicitly in
 /// `capabilities/default.json` (least privilege).
 const COMMANDS: &[&str] = &[
-    "app_update_progress", "app_update_check", "app_update_download", "app_update_install",
+    "app_update_progress",
+    "app_update_check",
+    "app_update_download",
+    "app_update_install",
     "browser_inbox",
     "browser_inbox_dismiss",
     "browser_bridge_register",
@@ -65,6 +68,11 @@ const COMMANDS: &[&str] = &[
     "browser_favorite_toggle",
     "library_set_favorite",
     "playlists_list",
+    "library_cover_pick",
+    "library_cover_source",
+    "library_cover_frame",
+    "library_cover_remove",
+    "library_has_source_cover",
     "playlist_get",
     "playlist_create",
     "playlist_rename",

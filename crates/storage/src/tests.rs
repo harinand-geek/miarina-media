@@ -490,9 +490,13 @@ fn v7_adds_favorites_and_playlists_to_a_v6_database() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 7);
+    assert_eq!(storage.schema_version().unwrap(), 8);
     let page = storage.query_media(&MediaQuery::default()).unwrap();
     assert!(!page.items[0].favorite);
+    assert!(
+        !page.items[0].cover_custom,
+        "v8: existing pictures stay cache"
+    );
     assert!(storage.playlists().unwrap().is_empty());
 }
 

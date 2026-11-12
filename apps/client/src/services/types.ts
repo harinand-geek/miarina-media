@@ -243,6 +243,8 @@ export interface MediaRecord {
   discNo?: number | null;
   /** Marked as a favorite (COM-06). */
   favorite?: boolean;
+  /** The picture was chosen (or removed) by the user (COM-07). */
+  coverCustom?: boolean;
 }
 
 /** `storage::PlaylistSummary` (COM-06). */

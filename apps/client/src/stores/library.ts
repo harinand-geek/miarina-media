@@ -48,7 +48,12 @@ interface LibraryState {
   updateTags: (id: number, tags: MediaTags, writeToFile: boolean) => Promise<boolean>;
   /** Removes from the library only; the file stays on disk. */
   removeFromLibrary: (id: number) => Promise<boolean>;
+  /** Changes the entry's cover (COM-07); `null` if canceled or refused. */
+  setCover: (id: number, cover: CoverChoice) => Promise<MediaRecord | null>;
 }
+
+export type CoverChoice =
+  { from: 'image' } | { from: 'source' } | { from: 'frame'; atSecs: number } | { from: 'none' };
 
 const REFRESH_DEBOUNCE_MS = 300;
 const SEARCH_DEBOUNCE_MS = 150;
@@ -170,6 +175,25 @@ export const useLibrary = create<LibraryState>((set, get) => {
       } catch (e) {
         report(e);
         return false;
+      }
+    },
+    setCover: async (id, cover) => {
+      try {
+        const updated =
+          cover.from === 'image'
+            ? await backend.libraryCoverPick(id)
+            : cover.from === 'source'
+              ? await backend.libraryCoverSource(id)
+              : cover.from === 'frame'
+                ? await backend.libraryCoverFrame(id, cover.atSecs)
+                : await backend.libraryCoverRemove(id);
+        if (!updated) return null;
+        set((s) => ({ items: s.items.map((m) => (m.id === updated.id ? updated : m)) }));
+        usePlayer.getState().refreshMedia(updated);
+        return updated;
+      } catch (e) {
+        report(e);
+        return null;
       }
     },
     removeFromLibrary: async (id) => {

@@ -3,22 +3,22 @@ mod android_extractor;
 #[cfg(target_os = "android")]
 mod android_tls;
 mod browser;
+#[cfg(windows)]
+mod browser_bridge;
 mod commands;
-mod updates;
 mod download_notifications;
+mod m3u;
 #[cfg(target_os = "android")]
 mod media_tools;
-mod m3u;
 mod playback_state;
-mod playlists;
 mod player;
+mod playlists;
 mod shared_storage;
 mod shell;
 mod state;
 #[cfg(windows)]
 mod torrents;
-#[cfg(windows)]
-mod browser_bridge;
+mod updates;
 
 use std::path::{Path, PathBuf};
 use std::sync::{Arc, Mutex};
@@ -195,6 +195,7 @@ pub fn run() {
             let download_dir = PathBuf::from(&settings.download_dir);
             allow_media_dir(app.handle(), &download_dir);
             allow_media_dir(app.handle(), library.thumbnails_dir());
+            allow_media_dir(app.handle(), &library.covers_dir());
             let known_dirs: Vec<PathBuf> = storage
                 .lock()
                 .map(|s| s.media_paths().unwrap_or_default())
@@ -292,7 +293,10 @@ pub fn run() {
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
-            updates::app_update_progress, updates::app_update_check, updates::app_update_download, updates::app_update_install,
+            updates::app_update_progress,
+            updates::app_update_check,
+            updates::app_update_download,
+            updates::app_update_install,
             #[cfg(windows)]
             browser_bridge::browser_inbox,
             #[cfg(windows)]
@@ -348,6 +352,11 @@ pub fn run() {
             commands::library_remove,
             playback_state::playback_load,
             playlists::library_set_favorite,
+            commands::library_cover_pick,
+            commands::library_cover_source,
+            commands::library_cover_frame,
+            commands::library_cover_remove,
+            commands::library_has_source_cover,
             playlists::playlists_list,
             playlists::playlist_get,
             playlists::playlist_create,

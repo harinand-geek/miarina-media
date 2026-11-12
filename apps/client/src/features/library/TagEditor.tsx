@@ -4,8 +4,11 @@ import { Icon } from '../../components/Icon';
 import { useT, type MessageKey } from '../../i18n';
 import { backend } from '../../services/backend';
 import type { MediaRecord, MediaTags } from '../../services/types';
-import { useLibrary } from '../../stores/library';
+import { useLibrary, type CoverChoice } from '../../stores/library';
+import { usePlayer } from '../../stores/player';
 import { useUi } from '../../stores/ui';
+import { savedPosition } from '../player/usePlayback';
+import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import { extensionOf, tagsFromFileName } from './tagNames';
 
@@ -68,6 +71,117 @@ const fromDraft = (d: Draft): MediaTags => ({
   trackNo: int(d.trackNo),
   discNo: int(d.discNo),
 });
+
+/**
+ * Where a video frame is captured: the playing position for the playing
+ * entry, else the saved one, else a tenth of the way in (the first frame
+ * is often black).
+ */
+function frameTime(media: MediaRecord) {
+  const player = usePlayer.getState();
+  const at = player.media?.id === media.id ? player.position : savedPosition(media.id);
+  return Math.floor(at > 0 ? at : (media.durationSecs ?? 0) / 10);
+}
+
+/** Cover picture and its actions (COM-07); applied at once, not on Save. */
+function CoverColumn({ media }: { media: MediaRecord }) {
+  const t = useT();
+  const isVideo = media.kind === 'video';
+  const [busy, setBusy] = useState(false);
+  const [hasSource, setHasSource] = useState(false);
+  const [frameAt] = useState(() => frameTime(media));
+
+  useEffect(() => {
+    let alive = true;
+    backend
+      .libraryHasSourceCover(media.id)
+      .then((has) => alive && setHasSource(has))
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [media.id]);
+
+  const apply = async (cover: CoverChoice) => {
+    setBusy(true);
+    const updated = await useLibrary.getState().setCover(media.id, cover);
+    setBusy(false);
+    if (!updated) return;
+    // Same key: the editor keeps its draft and shows the new picture.
+    useUi.setState({ tagEditor: updated });
+    useUi.getState().pushToast({
+      tone: 'success',
+      message: updated.thumbnail ? t('coverUpdated') : t('coverRemoved'),
+    });
+  };
+
+  const actions: {
+    icon: string;
+    label: string;
+    cover: CoverChoice;
+    disabled?: boolean;
+    title?: string;
+    danger?: boolean;
+  }[] = [
+    { icon: 'image', label: t('coverChoose'), cover: { from: 'image' } },
+    {
+      icon: 'cloud_download',
+      label: t('coverSource'),
+      cover: { from: 'source' },
+      disabled: !hasSource,
+      title: hasSource ? undefined : t('coverNoSource'),
+    },
+    ...(isVideo
+      ? [
+          {
+            icon: 'photo_camera',
+            label: t('coverFrame', { time: durationLabel(frameAt) }),
+            cover: { from: 'frame', atSecs: frameAt } as CoverChoice,
+          },
+        ]
+      : []),
+    ...(media.thumbnail
+      ? [{ icon: 'hide_image', label: t('coverRemove'), cover: { from: 'none' } as CoverChoice, danger: true }]
+      : []),
+  ];
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <MediaThumb
+        media={media}
+        className={`w-full rounded-lg border border-line-strong ${isVideo ? 'aspect-[2/3]' : 'aspect-square'}`}
+      >
+        {!media.thumbnail && (
+          <span className="absolute inset-x-3 bottom-3 text-center font-mono text-[10.5px] text-faint">
+            {t('coverNone')}
+          </span>
+        )}
+        {busy && (
+          <span role="status" className="absolute inset-0 grid place-items-center bg-scrim">
+            <Icon name="progress_activity" size={28} className="animate-spin text-fg" />
+            <span className="sr-only">{t('coverWorking')}</span>
+          </span>
+        )}
+      </MediaThumb>
+      {actions.map((a) => (
+        <button
+          key={a.icon}
+          type="button"
+          disabled={busy || a.disabled}
+          title={a.title}
+          onClick={() => void apply(a.cover)}
+          className={`flex h-[34px] items-center gap-2 rounded-sm border border-line-strong bg-surface px-2.5 text-left text-[12.5px] font-semibold disabled:opacity-50 ${
+            a.danger ? 'text-danger' : 'text-fg'
+          }`}
+        >
+          <Icon name={a.icon} size={17} />
+          {a.label}
+        </button>
+      ))}
+      <span className="text-[11.5px] leading-[1.45] text-muted">{t('coverNote')}</span>
+    </div>
+  );
+}
 
 export function TagEditor() {
   const media = useUi((s) => s.tagEditor);
@@ -200,13 +314,7 @@ function Editor({ media }: { media: MediaRecord }) {
         </div>
 
         <div className="grid min-h-0 flex-1 grid-cols-[220px_minmax(0,1fr)] gap-6 overflow-auto px-6 pb-5">
-          <div className="flex flex-col gap-2.5">
-            <MediaThumb
-              media={media}
-              className={`w-full rounded-lg border border-line-strong ${isVideo ? 'aspect-[2/3]' : 'aspect-square'}`}
-            />
-            <span className="text-[11.5px] leading-[1.45] text-muted">{t('coverPlanned')}</span>
-          </div>
+          <CoverColumn media={media} />
           {draft && original ? (
             <div className="grid grid-cols-2 content-start gap-x-3.5 gap-y-3">
               {fields.map((f) => {

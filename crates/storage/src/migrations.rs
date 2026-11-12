@@ -197,5 +197,8 @@ pub fn migrations() -> Migrations<'static> {
         CREATE INDEX playlist_items_media ON playlist_items (media_id);
         "#,
         ),
+        // v8 — covers chosen by the user (COM-07): kept by scans, probes
+        // and "Clear thumbnail cache".
+        M::up("ALTER TABLE media ADD COLUMN cover_custom INTEGER NOT NULL DEFAULT 0;"),
     ])
 }

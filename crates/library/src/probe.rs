@@ -130,9 +130,22 @@ pub async fn thumbnail(
     max_px: u32,
     threads: usize,
 ) -> Result<(), LibraryError> {
+    let at = duration.map(|d| (d * 0.1).min(30.0)).unwrap_or(1.0);
+    jpeg(ffmpeg, media, out, Some(at), max_px, threads).await
+}
+
+/// Writes a JPEG (longest edge at most `max_px`) from the frame at `at`
+/// seconds of a video, or from a picture file when `at` is `None`.
+pub async fn jpeg(
+    ffmpeg: &Path,
+    media: &Path,
+    out: &Path,
+    at: Option<f64>,
+    max_px: u32,
+    threads: usize,
+) -> Result<(), LibraryError> {
     ensure_absolute(media)?;
     ensure_absolute(out)?;
-    let at = duration.map(|d| (d * 0.1).min(30.0)).unwrap_or(1.0);
     let scale =
         format!("scale='if(gt(iw,ih),min({max_px},iw),-2)':'if(gt(iw,ih),-2,min({max_px},ih))'");
     let mut command = Command::new(ffmpeg);
@@ -145,9 +158,11 @@ pub async fn thumbnail(
             "-y",
             "-threads",
         ])
-        .arg(threads.max(1).to_string())
-        .arg("-ss")
-        .arg(format!("{at:.2}"))
+        .arg(threads.max(1).to_string());
+    if let Some(at) = at {
+        command.arg("-ss").arg(format!("{:.2}", at.max(0.0)));
+    }
+    command
         .arg("-i")
         .arg(media)
         .args(["-frames:v", "1", "-vf"])

@@ -126,6 +126,47 @@ describe('music library (L06)', () => {
       await screen.findByText('Tags saved in the library. File unchanged.'),
     ).toBeInTheDocument();
   });
+
+  it('changes a video cover at once and keeps the edited tags (COM-07)', async () => {
+    const user = userEvent.setup();
+    openView('videos');
+    const grid = await screen.findByRole('list', { name: /Library items/ }, { timeout: 3000 });
+    await user.pointer({ keys: '[MouseRight]', target: within(grid).getAllByRole('button')[0]! });
+    await user.click(screen.getByRole('menuitem', { name: /Edit tags/ }));
+    const dialog = await screen.findByRole('dialog', { name: 'Edit tags' });
+    const id = useUi.getState().tagEditor!.id;
+    const genre = within(dialog).getByRole('textbox', { name: 'Genre' });
+    await user.clear(genre);
+    await user.type(genre, 'Animation');
+
+    expect(within(dialog).getByText('No cover')).toBeInTheDocument();
+    expect(within(dialog).queryByRole('button', { name: 'Remove cover' })).toBeNull();
+    await user.click(within(dialog).getByRole('button', { name: /Capture frame at \d+:\d\d/ }));
+    expect(await screen.findByText('Cover updated')).toBeInTheDocument();
+    const thumb = () => useLibrary.getState().items.find((m) => m.id === id)?.thumbnail;
+    expect(thumb()).toMatch(/s\.jpg$/);
+    expect(within(dialog).queryByText('No cover')).toBeNull();
+
+    await user.click(within(dialog).getByRole('button', { name: 'Source thumbnail' }));
+    await waitFor(() => expect(thumb()).toMatch(/-2\.jpg$/));
+    await user.click(within(dialog).getByRole('button', { name: 'Remove cover' }));
+    expect(await screen.findByText('Cover removed')).toBeInTheDocument();
+    expect(thumb()).toBeNull();
+    expect(within(dialog).getByText('No cover')).toBeInTheDocument();
+    expect(genre).toHaveValue('Animation');
+  });
+
+  it('offers no frame capture for a track', async () => {
+    const user = userEvent.setup();
+    openView('tracks');
+    await waitFor(() => expect(useLibrary.getState().items.length).toBe(3));
+    const title = useLibrary.getState().items[0]!.title;
+    const row = screen.getAllByRole('row').find((r) => r.textContent?.includes(title))!;
+    await user.click(within(row).getByRole('button', { name: 'Edit tags' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Edit tags' });
+    expect(within(dialog).getByRole('button', { name: 'Choose an image…' })).toBeEnabled();
+    expect(within(dialog).queryByRole('button', { name: /Capture frame/ })).toBeNull();
+  });
 });
 
 describe('tags from a file name', () => {

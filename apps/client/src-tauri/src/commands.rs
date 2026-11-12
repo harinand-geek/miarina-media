@@ -863,7 +863,19 @@ fn library_error(err: library::LibraryError) -> CommandError {
             )
         }
         library::LibraryError::Tags(e) => CommandError::new("tags_write", e.to_string()),
+        library::LibraryError::Cover(reason) => CommandError::new("cover_refused", reason),
         other => CommandError::new("library", other.to_string()),
+    }
+}
+
+/// FFmpeg failures while making a cover mean the picture (or frame) could
+/// not be read.
+fn cover_error(err: library::LibraryError) -> CommandError {
+    match err {
+        library::LibraryError::Thumbnail(_) | library::LibraryError::Probe(_) => {
+            CommandError::new("cover_failed", "This picture could not be read.")
+        }
+        other => library_error(other),
     }
 }
 
@@ -918,6 +930,82 @@ pub async fn library_update_tags(
         .await
         .map_err(|e| CommandError::new("library", e.to_string()))?
         .map_err(library_error)
+}
+
+/// Cover from a picture the user picks in the system dialog (COM-07).
+/// `None` if the dialog is canceled.
+#[tauri::command]
+pub async fn library_cover_pick(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    id: i64,
+) -> CmdResult<Option<MediaRecord>> {
+    let Some(image) = pick_image(app).await? else {
+        return Ok(None);
+    };
+    let image = image
+        .into_path()
+        .map_err(|e| CommandError::new("invalid_file", e.to_string()))?;
+    let library = state.library.clone();
+    library
+        .cover_from_image(id, &image)
+        .await
+        .map(Some)
+        .map_err(cover_error)
+}
+
+/// Cover from the thumbnail the source offered at download time.
+#[tauri::command]
+pub async fn library_cover_source(state: State<'_, AppState>, id: i64) -> CmdResult<MediaRecord> {
+    let library = state.library.clone();
+    library.cover_from_source(id).await.map_err(cover_error)
+}
+
+/// Cover from the frame of a video at `at_secs`.
+#[tauri::command]
+pub async fn library_cover_frame(
+    state: State<'_, AppState>,
+    id: i64,
+    at_secs: f64,
+) -> CmdResult<MediaRecord> {
+    let library = state.library.clone();
+    library
+        .cover_from_frame(id, at_secs)
+        .await
+        .map_err(cover_error)
+}
+
+/// No picture at all for this entry.
+#[tauri::command]
+pub async fn library_cover_remove(state: State<'_, AppState>, id: i64) -> CmdResult<MediaRecord> {
+    state.library.remove_cover(id).map_err(library_error)
+}
+
+/// Whether the source gave a thumbnail usable as cover.
+#[tauri::command]
+pub async fn library_has_source_cover(state: State<'_, AppState>, id: i64) -> CmdResult<bool> {
+    Ok(state.library.has_source_thumbnail(id))
+}
+
+#[cfg(desktop)]
+async fn pick_image(app: AppHandle) -> CmdResult<Option<tauri_plugin_dialog::FilePath>> {
+    tauri::async_runtime::spawn_blocking(move || {
+        app.dialog()
+            .file()
+            .add_filter("Images", &["jpg", "jpeg", "png", "webp", "bmp", "gif"])
+            .blocking_pick_file()
+    })
+    .await
+    .map_err(|e| CommandError::new("dialog_failed", e.to_string()))
+}
+
+/// Android picks pictures through the platform picker (Phase 4).
+#[cfg(mobile)]
+async fn pick_image(_app: AppHandle) -> CmdResult<Option<tauri_plugin_dialog::FilePath>> {
+    Err(CommandError::new(
+        "unsupported_platform",
+        "Choosing a picture is not available on this platform yet",
+    ))
 }
 
 /// Albums, artists or folders of the music library.

@@ -78,6 +78,15 @@ export interface Backend {
   libraryUpdateTags(id: number, tags: MediaTags, writeToFile: boolean): Promise<MediaRecord>;
   libraryGroups(by: GroupBy): Promise<MediaGroup[]>;
   librarySetFavorite(id: number, favorite: boolean): Promise<MediaRecord>;
+  /** Cover from a picture picked in the system dialog; `null` if canceled (COM-07). */
+  libraryCoverPick(id: number): Promise<MediaRecord | null>;
+  /** Cover from the thumbnail the source offered at download time. */
+  libraryCoverSource(id: number): Promise<MediaRecord>;
+  /** Cover from the frame of a video at `atSecs`. */
+  libraryCoverFrame(id: number, atSecs: number): Promise<MediaRecord>;
+  /** No picture for this entry. */
+  libraryCoverRemove(id: number): Promise<MediaRecord>;
+  libraryHasSourceCover(id: number): Promise<boolean>;
   playlists(): Promise<PlaylistSummary[]>;
   playlistGet(id: number): Promise<Playlist>;
   playlistCreate(name: string, ids: number[]): Promise<PlaylistSummary>;
@@ -242,6 +251,12 @@ class TauriBackend implements Backend {
   libraryGroups = (by: GroupBy) => call<MediaGroup[]>('library_groups', { by });
   librarySetFavorite = (id: number, favorite: boolean) =>
     call<MediaRecord>('library_set_favorite', { id, favorite });
+  libraryCoverPick = (id: number) => call<MediaRecord | null>('library_cover_pick', { id });
+  libraryCoverSource = (id: number) => call<MediaRecord>('library_cover_source', { id });
+  libraryCoverFrame = (id: number, atSecs: number) =>
+    call<MediaRecord>('library_cover_frame', { id, atSecs });
+  libraryCoverRemove = (id: number) => call<MediaRecord>('library_cover_remove', { id });
+  libraryHasSourceCover = (id: number) => call<boolean>('library_has_source_cover', { id });
   playlists = () => call<PlaylistSummary[]>('playlists_list');
   playlistGet = (id: number) => call<Playlist>('playlist_get', { id });
   playlistCreate = (name: string, ids: number[]) =>

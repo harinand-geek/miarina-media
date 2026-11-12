@@ -536,6 +536,43 @@ export class MockBackend {
     list.updatedAt = Date.now() + this.nextList;
   }
 
+  // ------------------------------------------------------------- covers
+
+  private coverSeq = 0;
+
+  private setCover(id: number, thumbnail: string | null) {
+    const m = this.library.find((x) => x.id === id);
+    if (!m) throw new Error('This item is no longer in the library.');
+    const updated: MediaRecord = { ...m, thumbnail, coverCustom: true };
+    this.library = this.library.map((x) => (x.id === id ? updated : x));
+    this.libraryChanged();
+    return { ...updated };
+  }
+
+  /** The mock "picks" a picture without a dialog. */
+  async libraryCoverPick(id: number) {
+    return this.setCover(id, `mock://covers/${id}-${++this.coverSeq}.jpg`);
+  }
+
+  async libraryCoverSource(id: number) {
+    if (!(await this.libraryHasSourceCover(id))) throw new Error('the source gave no thumbnail');
+    return this.setCover(id, `mock://covers/${id}-${++this.coverSeq}.jpg`);
+  }
+
+  async libraryCoverFrame(id: number, atSecs: number) {
+    const m = await this.libraryGet(id);
+    if (m.kind !== 'video') throw new Error('only videos have frames');
+    return this.setCover(id, `mock://covers/${id}-${++this.coverSeq}-${Math.round(atSecs)}s.jpg`);
+  }
+
+  async libraryCoverRemove(id: number) {
+    return this.setCover(id, null);
+  }
+
+  async libraryHasSourceCover(id: number) {
+    return !!this.library.find((m) => m.id === id)?.sourceUrl;
+  }
+
   async librarySetFavorite(id: number, favorite: boolean) {
     const item = await this.libraryGet(id);
     const updated = { ...item, favorite };
