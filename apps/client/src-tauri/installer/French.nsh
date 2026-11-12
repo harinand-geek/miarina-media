@@ -1,4 +1,4 @@
-﻿; Textes français de l'installateur NSIS (remplacent ceux fournis par Tauri,
+; Textes français de l'installateur NSIS (remplacent ceux fournis par Tauri,
 ; qui contiennent des fautes : « Déja », « La version ancien de… »). Repris de
 ; target/release/nsis/x64/French.nsh (Tauri 2.12), corrigés.
 LangString addOrReinstall ${LANG_FRENCH} "Ajouter/Réinstaller un composant."
