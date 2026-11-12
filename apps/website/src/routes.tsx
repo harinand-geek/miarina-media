@@ -24,7 +24,7 @@ export const ROUTES: Route[] = [
     og: {
       title: 'Miarina Media',
       description: 'Vidéos et audio sur Windows et Android. Torrents et extension Chrome/Edge sur Windows.',
-      image: '/assets/img/windows-hero.jpg?v=013',
+      image: '/assets/img/windows-hero.jpg?v=018',
     },
   },
   {

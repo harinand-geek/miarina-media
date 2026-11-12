@@ -38,7 +38,10 @@ export function Home() {
     <LandingShell>
       <header id="top" className="v-hero">
         <div className="v-hero-copy">
-          <span className="v-pill">Préversion {RELEASE.version} · Windows &amp; Android · gratuit</span>
+          <span className="v-pill">
+            Windows {RELEASE.windows.version} · Android {RELEASE.android.version} · préversions
+            gratuites
+          </span>
           <h1>
             Your media.
             <br />
@@ -46,8 +49,9 @@ export function Home() {
           </h1>
           <p>
             Collez un lien, choisissez le format, gardez le fichier. Miarina Media télécharge vidéos
-            et audio, puis les range dans une bibliothèque sur votre appareil. Sur Windows, ajoutez
-            aussi des torrents et envoyez vos liens depuis Chrome ou Edge.
+            et audio, puis les range dans une bibliothèque sur votre appareil. Sur Windows, écoutez
+            et regardez-les dans le lecteur intégré : albums, playlists, pistes audio, sous-titres
+            et égaliseur. Ajoutez aussi des torrents et envoyez vos liens depuis Chrome ou Edge.
           </p>
           <Downloads />
         </div>
@@ -78,19 +82,20 @@ export function Home() {
             />
             <p>
               Sous Windows comme sous Android, tapez une adresse ou une recherche. Quand un média
-              compatible est détecté, un bouton de téléchargement apparaît. L’APK Android{' '}
-              {RELEASE.android.version} inclut l’extracteur et les outils nécessaires. Le parcours YouTube
-              a été validé sur émulateur lors d’une version précédente ; la version actuelle reste
-              à tester sur téléphone réel.
+              compatible est détecté, un bouton de téléchargement apparaît. Sous Windows, ouvrez
+              plusieurs onglets et retrouvez vos pages dans un historique local, que vous pouvez
+              effacer. L’APK Android {RELEASE.android.version} inclut l’extracteur et les outils
+              nécessaires. Le parcours YouTube a été validé sur émulateur lors d’une version
+              précédente ; la version actuelle reste à tester sur téléphone réel.
             </p>
           </div>
           <figure className="v-screenshot">
             <img
-              src="/assets/img/windows-browser.jpg?v=013"
+              src="/assets/img/windows-browser.jpg?v=018"
               width={1280}
               height={800}
               loading="lazy"
-              alt="Navigateur Windows sur Wikimedia Commons, avec bouton de téléchargement flottant"
+              alt="Navigateur Windows : deux onglets sur Wikimedia Commons, médias détectés dans la barre d’adresse"
             />
           </figure>
           <div className="v-chips">
@@ -99,6 +104,7 @@ export function Home() {
               'Bouton de téléchargement flottant',
               'Choix du format sans quitter la page',
               'Recherche et favoris',
+              'Onglets et historique (Windows)',
             ].map((t) => (
               <span key={t}>
                 <Icon name="check" />
@@ -107,7 +113,7 @@ export function Home() {
             ))}
             <span className="planned">
               <Icon name="schedule" />
-              Onglets et historique : à venir
+              Onglets et historique sur Android : à venir
             </span>
           </div>
         </div>
@@ -121,8 +127,8 @@ export function Home() {
             />
             <p className="v-body">
               Les formats dépendent de la source. Les conversions MP3 et FLAC sont disponibles sous
-              Windows. Sur Android, la conversion MP3 à 320 kbps a été vérifiée sur émulateur ;
-              les autres qualités restent à valider.
+              Windows. Sur Android, la conversion MP3 à 320 kbps a été vérifiée sur émulateur ; les
+              autres qualités restent à valider.
             </p>
           </div>
           <div className="v-spec">
@@ -152,11 +158,11 @@ export function Home() {
         <div className="v-container v-split">
           <figure className="v-screenshot">
             <img
-              src="/assets/img/windows-library.jpg"
+              src="/assets/img/windows-library.jpg?v=018"
               width={1280}
               height={800}
               loading="lazy"
-              alt="Bibliothèque Windows : médias libres classés avec miniatures et durées"
+              alt="Bibliothèque musicale Windows : albums d’œuvres libres avec leurs pochettes"
             />
           </figure>
           <div>
@@ -165,13 +171,16 @@ export function Home() {
               title="Tout ce que vous gardez, au même endroit."
             />
             <p className="v-body">
-              Les téléchargements vidéo et audio arrivent dans la bibliothèque. Les torrents ont
-              leur propre rubrique sous Windows. Sous
-              Windows, le lecteur intégré propose la vitesse, le plein écran, l’image dans l’image
-              et la reprise de lecture. Vos fichiers locaux se lisent hors ligne.
+              Les téléchargements vidéo et audio arrivent dans la bibliothèque, avec vos propres
+              fichiers si vous les ajoutez. Sous Windows, la musique se range par albums, artistes
+              et dossiers, avec pochettes, tags, playlists et favoris. Le lecteur intégré, fondé sur
+              libVLC, lit aussi des formats que Windows ne lit pas seul (MKV, HEVC, AVI…), avec
+              pistes audio, sous-titres, vitesse et égaliseur ; la lecture reprend où vous l’aviez
+              laissée. Tout se lit hors ligne.
             </p>
             <p className="v-body small">
-              Sur Android, le lecteur intégré propose la lecture, la vitesse et la reprise. Le plein
+              L’image dans l’image n’est plus proposée sous Windows avec ce lecteur. Sur Android
+              0.1.7, le lecteur intégré propose la lecture, la vitesse et la reprise ; le plein
               écran et l’image dans l’image restent à venir.
             </p>
           </div>

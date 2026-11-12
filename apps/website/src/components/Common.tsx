@@ -24,12 +24,13 @@ export function Icon({
 
 export function Logo({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-      <rect width="32" height="32" rx="8" fill="#35C9BD" />
-      <path d="M13 9.5v13l10-6.5z" fill="#101820" />
-      <rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#101820" />
-      <rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#101820" />
-      <rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#101820" />
+    <svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" className="logo">
+      {/* Logo 4d (design/brand): night tile, coral play, teal bars. */}
+      <rect x="0.5" y="0.5" width="31" height="31" rx="7.5" className="logo-tile" />
+      <path d="M13 9.5v13l10-6.5z" fill="#FF7A45" />
+      <rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD" />
+      <rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD" />
+      <rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD" />
     </svg>
   );
 }

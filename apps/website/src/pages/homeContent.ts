@@ -12,7 +12,32 @@ export const FEATURES = [
   [
     'download',
     'File de téléchargements',
-    'Mettez en pause et reprenez lorsque la source le permet. Les erreurs réseau temporaires font l’objet de tentatives limitées.',
+    'Mettez en pause et reprenez lorsque la source le permet. Sous Windows, la reprise est vérifiée, Miarina attend le retour du réseau et signale un disque plein ou un dossier inaccessible.',
+  ],
+  [
+    'library_music',
+    'Bibliothèque musicale',
+    'Sous Windows : albums, artistes, dossiers et recherche, éditeur de tags et pochettes (image, miniature de la source ou image tirée de la vidéo).',
+  ],
+  [
+    'queue_music',
+    'Playlists et favoris',
+    'Sous Windows : playlists, favoris, import et export M3U. La file de lecture, les positions et l’historique d’écoute sont conservés.',
+  ],
+  [
+    'graphic_eq',
+    'Lecteur et égaliseur',
+    'Le lecteur Windows s’appuie sur libVLC, fourni avec l’installateur : pistes audio, sous-titres SRT et VTT, vitesse, égaliseur à 6 bandes. Aucun VLC à installer.',
+  ],
+  [
+    'folder_open',
+    'Vos fichiers aussi',
+    'Sous Windows, ouvrez des fichiers, importez un dossier ou déposez-les sur la fenêtre : ils rejoignent la bibliothèque.',
+  ],
+  [
+    'system_update_alt',
+    'Mises à jour vérifiées',
+    'Signature et empreinte vérifiées, téléchargement qui reprend après une coupure, copie de la bibliothèque avant la mise à jour. Installation toujours à votre demande.',
   ],
   [
     'speed',
@@ -20,14 +45,20 @@ export const FEATURES = [
     'Réglez combien de téléchargements tournent en même temps, selon votre machine.',
   ],
   [
-    'video_library',
-    'Bibliothèque',
-    'Vos fichiers rangés par vidéo et audio, avec une recherche, des miniatures et la durée.',
+    'download',
+    'Torrents sur Windows',
+    'Ajoutez un torrent ou un lien magnet, choisissez les fichiers, réglez les débits et arrêtez le partage quand vous le souhaitez.',
   ],
-  ['contrast', 'Clair ou sombre', 'Thème sombre par défaut, thème clair et mode système.'],
-  ['download', 'Torrents sur Windows', 'Ajoutez un torrent ou un lien magnet, choisissez les fichiers, réglez les débits et arrêtez le partage quand vous le souhaitez.'],
-  ['link', 'Depuis Chrome ou Edge', 'L’extension Windows envoie les liens que vous choisissez vers Miarina, même lorsque l’application est fermée. Installation en mode développeur.'],
-  ['music_note', 'Audio sur Android', 'L’extracteur et les outils de conversion sont inclus dans l’APK. Le MP3 à 320 kbps a été vérifié sur émulateur.'],
+  [
+    'link',
+    'Depuis Chrome ou Edge',
+    'L’extension Windows envoie les liens que vous choisissez vers Miarina, même lorsque l’application est fermée. Installation en mode développeur.',
+  ],
+  [
+    'music_note',
+    'Audio sur Android',
+    'L’extracteur et les outils de conversion sont inclus dans l’APK. Le MP3 à 320 kbps a été vérifié sur émulateur.',
+  ],
 ] as const;
 
 export const FORMATS: { icon: string; title: string; rows: [string, string, boolean?][] }[] = [
@@ -52,14 +83,28 @@ export const FORMATS: { icon: string; title: string; rows: [string, string, bool
       ['Fichier original', 'lien direct'],
     ],
   },
-  { icon: 'closed_caption', title: 'Sous-titres', rows: [['SRT', 'Bientôt', true]] },
+  {
+    icon: 'closed_caption',
+    title: 'Sous-titres',
+    rows: [
+      ['SRT, VTT et pistes intégrées', 'lecture · Windows'],
+      ['Téléchargement des sous-titres', 'Bientôt', true],
+    ],
+  },
 ];
 
 export const FAQ: [string, string][] = [
-  ['Comment mettre à jour Miarina sans revenir sur le site ?', 'À partir de la version 0.1.7, Miarina recherche les nouvelles versions au démarrage et toutes les six heures lorsque l’interface est visible. Dans Réglages → Mises à jour de Miarina, téléchargez la version proposée puis choisissez Installer. Gardez l’application ouverte pendant le téléchargement. Windows ouvre son installateur ; Android demande une autorisation puis votre confirmation. Vos fichiers et réglages sont conservés. Depuis la 0.1.6, une première installation manuelle de la 0.1.7 est nécessaire.'],
   [
-    'Qu’apporte la version 0.1.6 ?',
-    'Sous Windows : torrents, liens magnet, sélection des fichiers et limites de débit, ainsi qu’une extension Chrome/Edge pour envoyer des liens. Windows et Android reçoivent aussi des corrections du nettoyage des fichiers temporaires et de la vérification du dossier de téléchargement. Les torrents et l’extension ne sont pas disponibles sur Android.',
+    'Comment mettre à jour Miarina sans revenir sur le site ?',
+    'Depuis la version 0.1.7, Miarina recherche les nouvelles versions au démarrage et toutes les six heures lorsque l’interface est visible. Dans Réglages → Mises à jour, téléchargez la version proposée puis choisissez Installer maintenant. Windows ouvre son installateur ; Android demande une autorisation puis votre confirmation. Vos fichiers, playlists et réglages sont conservés. À partir de la 0.1.8 sous Windows, le téléchargement peut être annulé et reprend où il s’était arrêté, même après une coupure ou un redémarrage ; l’installation attend la fin d’une conversion en cours, et la nouvelle version garde une copie de votre bibliothèque avant de la mettre à jour. Depuis la 0.1.6, une première installation manuelle de la 0.1.7 est nécessaire.',
+  ],
+  [
+    'Qu’apporte la version 0.1.8 ?',
+    'Elle concerne Windows : nouvelle interface, bibliothèque musicale (albums, artistes, dossiers, tags, pochettes), playlists et favoris, lecteur libVLC avec pistes audio, sous-titres et égaliseur, ouverture de vos propres fichiers, onglets et historique dans le navigateur, reprise de téléchargement vérifiée et mises à jour plus sûres. L’image dans l’image n’est plus proposée avec ce lecteur. Android reste pour l’instant en 0.1.7.',
+  ],
+  [
+    'Faut-il installer VLC ?',
+    'Non. Le lecteur Windows utilise libVLC 3.0.24, fourni avec l’installateur ; un VLC déjà installé n’est pas utilisé. C’est ce qui rend l’installateur plus gros qu’avant.',
   ],
   [
     'Comment connecter l’extension Chrome ou Edge ?',

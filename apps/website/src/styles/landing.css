@@ -3,8 +3,9 @@
   --accent-text: #35c9bd;
   --body2: #c9d4e0;
   --sel-bg: #16302f;
-  --logo-tile: #35c9bd;
-  --logo-glyph: #101820;
+  /* Logo 4d on a dark page: night tile with its border (brand, Windows variant). */
+  --logo-tile: #101820;
+  --logo-stroke: #3a4d5e;
   --shadow: rgba(0, 0, 0, 0.45);
 }
 html[data-theme='light'] {
@@ -24,7 +25,7 @@ html[data-theme='light'] {
   --planned: #a86f0a;
   --sel-bg: #eaf8f6;
   --logo-tile: #101820;
-  --logo-glyph: #35c9bd;
+  --logo-stroke: #101820;
   --shadow: rgba(16, 24, 32, 0.12);
 }
 @media (prefers-color-scheme: light) {
@@ -44,7 +45,7 @@ html[data-theme='light'] {
     --planned: #a86f0a;
     --sel-bg: #eaf8f6;
     --logo-tile: #101820;
-    --logo-glyph: #35c9bd;
+    --logo-stroke: #101820;
     --shadow: rgba(16, 24, 32, 0.12);
   }
 }
@@ -119,12 +120,10 @@ html[data-theme='light'] {
 .v-brand svg {
   flex: none;
 }
-.v-brand svg > rect:first-child {
+.logo .logo-tile {
   fill: var(--logo-tile);
-}
-.v-brand svg > path,
-.v-brand svg > rect:not(:first-child) {
-  fill: var(--logo-glyph);
+  stroke: var(--logo-stroke);
+  stroke-width: 1;
 }
 .v-sidebar nav {
   display: flex;

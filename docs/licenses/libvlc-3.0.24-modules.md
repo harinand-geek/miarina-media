@@ -59,6 +59,10 @@ Limites : une notice d'en-tête n'est pas une analyse juridique ; les bibliothè
 
 AOM (`aom`), ARCHIVE (`archive`), ARIBB24 (`aribsub`, `ts`), ARIBB25 (`aribcam`), AVCODEC / AVFORMAT / AVUTIL (`avcodec`, `postproc`), CACA (`caca`), DAV1D (`dav1d`), DVBPSI (`ts`), FLAC (`flac`), FONTCONFIG / FREETYPE / FRIBIDI / HARFBUZZ (`freetype`, `libass`), GCRYPT (`cdda`, `rtp`, `remoteosd`), GNUTLS (`gnutls`), KATE / TIGER (`kate`), LIBASS (`libass`), LIBCDDB (`cdda`), LIBVORBIS / OGG (`ogg`), LIBXML2 (`xml`), MAD (`mad`), MPG123 (`mpg123`), OGGSPOTS (`oggspots`), OPUS (`opus`), POSTPROC (`postproc`), SAMPLERATE (`samplerate`), SPATIALAUDIO (`spatialaudio`), SPEEX (`speex`), SPEEXDSP (`speex_resampler`), SWSCALE (`swscale`), TAGLIB (`taglib`), THEORA (`theora`), VORBIS (`vorbis`), VPX (`vpx`), ZVBI (`zvbi`). Le module `codec/libfaad_plugin.dll` (notice LGPL de ses propres sources) s'appuie sur la bibliothèque FAAD2, dont le projet amont publie sous GPL : à confirmer avec les sources des contribs.
 
+## Décision du propriétaire (2026-11-12)
+
+Publication de la 0.1.8 Windows **avec les 280 modules tels qu'inventoriés ci-dessus** (choix du propriétaire du produit, sans modification de l'ensemble livré). L'essai de l'installeur sur une machine sans VLC n'a pas été fait avant cette publication (voir la mesure plus bas). Les points 2 et 3 ci-dessous restent valables pour les versions suivantes.
+
 ## À décider avant publication (propriétaire du produit)
 
 1. Si l'ensemble livré convient tel quel au regard de la GPL-3.0-only de Miarina (notices relevées : LGPL-2.1+ et GPL-2.0+), ou s'il faut retirer des modules (la plupart des 17 ci-dessus ne servent pas à la lecture locale : journaux, statistiques, export de playlist, audioscrobbler, VOD RTSP, OSD distant ; `deinterlace` sert aux vidéos entrelacées).

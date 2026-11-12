@@ -26,15 +26,15 @@ export function Licences() {
           <a href="/downloads/MiarinaMedia-0.1.7-source.tar.gz">
             Archive du code de l’application 0.1.7
           </a>{' '}
-          — révision <code>0ccc620</code>, avec le sous-module Mister Download Manager,
-          sans les sources natives Android tierces manquantes.
+          — révision <code>0ccc620</code>, avec le sous-module Mister Download Manager, sans les
+          sources natives Android tierces manquantes.
         </p>
         <p>
           Les torrents Windows utilisent les composants de{' '}
-          <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>
-          {' '}(GPL-3.0-or-later, révision <code>46bb3bcd</code>) et librqbit.
-          Les attributions sont incluses dans l’installateur. L’extension Miarina pour
-          Chrome et Edge est fournie en mode développeur, avec son code source.
+          <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>{' '}
+          (GPL-3.0-or-later, révision <code>46bb3bcd</code>) et librqbit. Les attributions sont
+          incluses dans l’installateur. L’extension Miarina pour Chrome et Edge est fournie en mode
+          développeur, avec son code source.
         </p>
         <h2>Outils inclus dans l’installateur (Windows)</h2>
         <p>
@@ -62,6 +62,25 @@ export function Licences() {
             pour certains sites (YouTube). Source :{' '}
             <a href="https://github.com/quickjs-ng/quickjs">github.com/quickjs-ng/quickjs</a>.
           </li>
+          <li>
+            <strong>libVLC</strong> 3.0.24 (VideoLAN), depuis la version 0.1.8 — moteur du lecteur
+            Windows, chargé à l’exécution. Seuls les fichiers utiles à la lecture locale sont repris
+            de la publication officielle (<span className="mono">libvlc.dll</span>,{' '}
+            <span className="mono">libvlccore.dll</span> et une partie des modules) ;{' '}
+            <span className="mono">vlc.exe</span> et les interfaces de VLC ne sont pas inclus.
+            libvlc et libvlccore sont sous GNU LGPL 2.1 ou ultérieure ; les modules et les
+            bibliothèques qu’ils contiennent ont leurs propres licences, indiquées dans{' '}
+            <span className="mono">COPYING.txt</span> et <span className="mono">AUTHORS.txt</span>,
+            livrés dans le même dossier. Publication :{' '}
+            <a href="https://download.videolan.org/pub/videolan/vlc/3.0.24/win64/vlc-3.0.24-win64.zip">
+              vlc-3.0.24-win64.zip
+            </a>{' '}
+            ; sources :{' '}
+            <a href="https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz">
+              vlc-3.0.24.tar.xz
+            </a>{' '}
+            et <a href="https://www.videolan.org/vlc/download-sources.html">videolan.org</a>.
+          </li>
         </ul>
 
         <h2>Polices et icônes (application et site)</h2>
@@ -88,9 +107,11 @@ export function Licences() {
 
         <h2>Contenus des captures</h2>
         <p>
-          Les captures d’écran de ce site montrent des œuvres sous licence libre :{' '}
-          <em>Big Buck Bunny</em>, <em>Sintel</em> (Blender Foundation, CC BY 3.0) et une page de
-          Wikimedia Commons.
+          Les captures d’écran de ce site montrent des œuvres libres, téléchargées depuis Wikimedia
+          Commons avec l’application : <em>Big Buck Bunny</em> et <em>Sintel</em> (Blender
+          Foundation, CC BY 3.0) ; des enregistrements du domaine public ou sous CC0 de Mendelssohn
+          (<em>Le Songe d’une nuit d’été</em>, European Archive), Albinoni, Bach (Musopen) et Dvořák
+          ; des portraits du domaine public en pochettes ; et des pages de Wikimedia Commons.
         </p>
       </main>
       <Footer other={{ href: '/confidentialite.html', label: 'Confidentialité' }} />

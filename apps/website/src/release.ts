@@ -44,15 +44,30 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Navigateur : plusieurs onglets et historique',
-      'Android : essais sur téléphone réel et autres qualités audio',
+      'Android : la nouvelle interface, la bibliothèque musicale et les playlists de Windows',
       'Android : lecture audio en arrière-plan, plein écran et image dans l’image',
+      'Android : essais sur téléphone réel et autres qualités audio',
+    ],
+  },
+  {
+    name: '0.1.8 · Windows',
+    date: 'Préversion de test · 12 novembre 2026',
+    current: true,
+    items: [
+      'Nouvelle interface Windows : espaces Obtenir et Écouter, mini-lecteur, écrans revus, français et anglais complets, nouveau logo',
+      'Bibliothèque musicale : albums, artistes, dossiers, éditeur de tags et pochettes',
+      'Playlists, favoris, import et export M3U ; file de lecture, positions et historique d’écoute conservés',
+      'Lecteur libVLC intégré : MKV, HEVC, AVI et autres formats, pistes audio, sous-titres SRT et VTT avec décalage, égaliseur à 6 bandes ; image dans l’image retirée avec ce lecteur',
+      'Ouvrir des fichiers, importer un dossier, déposer des fichiers sur la fenêtre',
+      'Navigateur : plusieurs onglets et historique local',
+      'Téléchargements : reprise vérifiée, attente du retour du réseau, disque plein et dossier inaccessible signalés',
+      'Mises à jour : annulation et reprise du téléchargement, canal stable ou bêta, téléchargement automatique sur réseau non limité (désactivé par défaut), copie de la bibliothèque avant mise à jour',
+      'Installateur plus gros (libVLC inclus) ; Android reste en 0.1.7',
     ],
   },
   {
     name: '0.1.7 · Windows et Android',
     date: 'Préversion de test · 10 novembre 2026',
-    current: true,
     items: [
       'Recherche automatique de nouvelles versions et notification dans Miarina',
       'Téléchargement dans les réglages avec progression et vérification de la signature',
@@ -161,9 +176,22 @@ export const CHANGELOG: Release[] = [
 type Cell = boolean | 'soon' | string;
 
 export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
-  { feature: 'Recherche et téléchargement des mises à jour dans l’app', windows: true, android: true },
+  {
+    feature: 'Recherche et téléchargement des mises à jour dans l’app',
+    windows: true,
+    android: true,
+  },
+  {
+    feature: 'Mises à jour : reprise, canal bêta, copie de la bibliothèque',
+    windows: true,
+    android: 'soon',
+  },
   { feature: 'Torrents et liens magnet', windows: true, android: false },
-  { feature: 'Extension Chrome/Edge : envoi manuel de liens', windows: 'Mode développeur', android: false },
+  {
+    feature: 'Extension Chrome/Edge : envoi manuel de liens',
+    windows: 'Mode développeur',
+    android: false,
+  },
   { feature: 'Téléchargement par lien direct', windows: true, android: true },
   {
     feature: 'Pages de sites vidéo (via yt-dlp)',
@@ -173,10 +201,24 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Conversion en MP3', windows: true, android: '320 kbps testé sur émulateur' },
   { feature: 'File, pause et reprise selon la source', windows: true, android: true },
   { feature: 'Bibliothèque', windows: true, android: true },
-  { feature: 'Lecteur intégré', windows: true, android: true },
-  { feature: 'Image dans l’image', windows: true, android: 'soon' },
+  {
+    feature: 'Bibliothèque musicale : albums, artistes, dossiers, tags, pochettes',
+    windows: true,
+    android: 'soon',
+  },
+  { feature: 'Playlists, favoris, import et export M3U', windows: true, android: 'soon' },
+  { feature: 'Lecteur intégré', windows: 'libVLC', android: true },
+  { feature: 'Pistes audio et sous-titres SRT / VTT', windows: true, android: 'soon' },
+  { feature: 'Égaliseur', windows: true, android: 'soon' },
+  {
+    feature: 'Ouvrir des fichiers, importer un dossier, glisser-déposer',
+    windows: true,
+    android: false,
+  },
+  { feature: 'Image dans l’image', windows: false, android: 'soon' },
   { feature: 'Téléchargement en arrière-plan, notifications', windows: true, android: true },
   { feature: 'Navigateur intégré, recherche et favoris', windows: true, android: true },
+  { feature: 'Navigateur : onglets et historique', windows: true, android: 'soon' },
   {
     feature: 'Détection dans le navigateur',
     windows: 'Fichiers et pages',
