@@ -22,6 +22,11 @@ use crate::{EngineError, Progress, RetryPolicy, Stage};
 
 /// Minimum delay between two progress checkpoints written to SQLite.
 const CHECKPOINT_EVERY: Duration = Duration::from_secs(2);
+/// How often a task waiting for the network checks that it is back.
+const OFFLINE_POLL: Duration = Duration::from_secs(1);
+
+/// Tells whether the system has a network (`Some(false)`: none at all).
+pub type Connectivity = Arc<dyn Fn() -> Option<bool> + Send + Sync>;
 
 #[derive(Debug, Error)]
 pub enum ManagerError {
@@ -57,6 +62,9 @@ pub struct RetryNotice {
     pub retry: u32,
     pub in_secs: u64,
     pub reason: String,
+    /// No network at all: the task resumes when it is back, without
+    /// spending a retry.
+    pub offline: bool,
 }
 
 #[derive(Debug, Clone, Serialize)]
@@ -95,6 +103,7 @@ struct Inner {
     /// Folder for temporary files when they cannot sit next to the
     /// destination (Android shared storage only accepts media files).
     staging: Mutex<Option<PathBuf>>,
+    connectivity: Mutex<Connectivity>,
 }
 
 #[derive(Clone)]
@@ -136,8 +145,14 @@ impl Manager {
                 running: Mutex::new(HashMap::new()),
                 events,
                 staging: Mutex::new(None),
+                connectivity: Mutex::new(Arc::new(crate::net::has_route)),
             }),
         }
+    }
+
+    /// Replaces the network check (tests).
+    pub fn set_connectivity(&self, probe: Connectivity) {
+        *lock(&self.inner.connectivity) = probe;
     }
 
     /// Writes temporary files in `dir` instead of next to the destination;
@@ -286,6 +301,26 @@ impl Manager {
         Ok(())
     }
 
+    /// Starts a failed or paused task over from zero, dropping its partial
+    /// data: offered when a resume is not possible or not wanted (PAR-04).
+    pub fn restart(&self, id: &str) -> Result<(), ManagerError> {
+        let storage = lock(&self.inner.storage);
+        let task = storage.task(id)?;
+        let next = match task.state {
+            TaskState::Failed => TaskState::Queued,
+            TaskState::Paused => TaskState::Waiting,
+            other => return Err(ManagerError::InvalidAction(other)),
+        };
+        remove_part(&task);
+        storage.record_progress(id, 0, None)?;
+        storage.reset_attempts(id)?;
+        storage.set_error(id, None, None)?;
+        drop(storage);
+        self.transition(id, next)?;
+        self.schedule();
+        Ok(())
+    }
+
     pub fn move_task(&self, id: &str, index: usize) -> Result<(), ManagerError> {
         lock(&self.inner.storage).move_task(id, index)?;
         Ok(())
@@ -311,6 +346,12 @@ impl Manager {
     }
 
     // ------------------------------------------------------------ internals
+
+    /// No network at all (as far as the system can tell).
+    fn offline(&self) -> bool {
+        let probe = lock(&self.inner.connectivity).clone();
+        probe() == Some(false)
+    }
 
     fn signal(&self, id: &str, intent: Intent) -> bool {
         let running = lock(&self.inner.running);
@@ -425,6 +466,18 @@ impl Manager {
         let part = part_path(&work_dir, &task.file_name, &id);
         let _ = lock(&self.inner.storage).set_paths(&id, part.to_str(), None);
 
+        // A retry after "disk full" fails at once if space was not freed,
+        // instead of downloading again until the disk fills up.
+        let known = lock(&self.inner.storage).task(&id);
+        if let Ok(known) = known
+            && let Some(total) = known.total_bytes
+            && let Err(err) =
+                crate::fsops::ensure_space(&work_dir, total.saturating_sub(known.downloaded_bytes))
+        {
+            self.fail(&id, &err);
+            return;
+        }
+
         loop {
             if self.transition(&id, TaskState::Downloading).is_err() {
                 return;
@@ -447,6 +500,32 @@ impl Manager {
                     self.on_interrupted(&id, *lock(&intent));
                     return;
                 }
+                Err(err) if err.is_network() && self.offline() => {
+                    // No network at all: not an attempt. Wait until it is
+                    // back, then continue at once (from the partial data).
+                    if self.transition(&id, TaskState::Waiting).is_err() {
+                        return;
+                    }
+                    self.emit(ManagerEvent::Retrying(RetryNotice {
+                        id: id.clone(),
+                        retry: 0,
+                        in_secs: 0,
+                        reason: err.to_string(),
+                        offline: true,
+                    }));
+                    loop {
+                        tokio::select! {
+                            _ = cancel.cancelled() => {
+                                self.on_interrupted(&id, *lock(&intent));
+                                return;
+                            }
+                            _ = tokio::time::sleep(OFFLINE_POLL) => {}
+                        }
+                        if !self.offline() {
+                            break;
+                        }
+                    }
+                }
                 Err(err) if err.is_retryable() => {
                     let retries = lock(&self.inner.storage)
                         .increment_attempts(&id)
@@ -464,6 +543,7 @@ impl Manager {
                         retry: retries,
                         in_secs: delay.as_secs().max(1),
                         reason: err.to_string(),
+                        offline: false,
                     }));
                     tokio::select! {
                         _ = cancel.cancelled() => {
@@ -614,6 +694,7 @@ impl Manager {
 fn remove_part(task: &TaskRecord) {
     if let Some(part) = &task.part_path {
         let _ = std::fs::remove_file(part);
+        let _ = std::fs::remove_file(crate::http::identity_path(Path::new(part)));
         let _ = std::fs::remove_dir_all(crate::ytdlp::work_dir(Path::new(part)));
     }
 }

@@ -3,7 +3,7 @@ mod support;
 use std::sync::Mutex;
 use std::time::Duration;
 
-use download_engine::{DownloadJob, Engine, EngineError, HttpEngine, Progress};
+use download_engine::{DownloadJob, Engine, EngineError, HttpEngine, Progress, identity_path};
 use media_core::validate_media_url;
 use support::{Behavior, body, serve};
 use tokio_util::sync::CancellationToken;
@@ -60,8 +60,120 @@ async fn downloads_the_whole_file_and_finalizes() {
     assert_eq!((last.downloaded, last.total), (300_000, Some(300_000)));
 }
 
+/// A server cutting the first transfer after `cut` bytes.
+async fn cut_server(data: Vec<u8>, cut: usize, etag: Option<&str>) -> support::TestServer {
+    let behavior = Behavior {
+        support_ranges: true,
+        ..Default::default()
+    };
+    *behavior.cut_after.lock().unwrap() = Some(cut);
+    *behavior.etag.lock().unwrap() = etag.map(str::to_owned);
+    serve(data, behavior).await
+}
+
 #[tokio::test]
-async fn resumes_from_the_partial_file_with_a_range_request() {
+async fn resumes_with_if_range_when_the_file_is_unchanged() {
+    let data = body(200_000);
+    let server = cut_server(data.clone(), 70_000, Some("\"v1\"")).await;
+    let dir = tempfile::tempdir().unwrap();
+    let job = job(&server.url("/movie.mp4"), dir.path());
+    let engine = HttpEngine::new().unwrap();
+
+    assert!(run(&engine, &job).await.0.is_err());
+    let kept = std::fs::metadata(&job.part_path).unwrap().len();
+    assert!(identity_path(&job.part_path).exists());
+    let (result, progress) = run(&engine, &job).await;
+    let outcome = result.unwrap();
+    assert_eq!(server.ranges()[1], Some(format!("bytes={kept}-")));
+    assert_eq!(
+        server.behavior.if_ranges.lock().unwrap()[1].as_deref(),
+        Some("\"v1\"")
+    );
+    assert_eq!(progress.first().unwrap().downloaded, kept);
+    assert_eq!(std::fs::read(outcome.final_path).unwrap(), data);
+    assert!(
+        !identity_path(&job.part_path).exists(),
+        "identity cleaned up"
+    );
+}
+
+#[tokio::test]
+async fn a_changed_file_is_downloaded_again_never_appended() {
+    let data = body(200_000);
+    let server = cut_server(data, 70_000, Some("\"v1\"")).await;
+    let dir = tempfile::tempdir().unwrap();
+    let job = job(&server.url("/movie.mp4"), dir.path());
+    let engine = HttpEngine::new().unwrap();
+    assert!(run(&engine, &job).await.0.is_err());
+
+    // Same size, other bytes, other ETag: If-Range makes the server send
+    // the whole new file, which replaces the partial data.
+    let new: Vec<u8> = body(200_000).iter().map(|b| b ^ 0x5a).collect();
+    *server.behavior.replacement.lock().unwrap() = Some(new.clone());
+    *server.behavior.etag.lock().unwrap() = Some("\"v2\"".into());
+    let (result, _) = run(&engine, &job).await;
+    assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), new);
+}
+
+#[tokio::test]
+async fn a_changed_size_without_validator_restarts_from_zero() {
+    let data = body(200_000);
+    let server = cut_server(data, 70_000, None).await;
+    let dir = tempfile::tempdir().unwrap();
+    let job = job(&server.url("/movie.mp4"), dir.path());
+    let engine = HttpEngine::new().unwrap();
+    assert!(run(&engine, &job).await.0.is_err());
+
+    let new = body(260_000);
+    *server.behavior.replacement.lock().unwrap() = Some(new.clone());
+    let err = run(&engine, &job).await.0.unwrap_err();
+    assert!(err.is_retryable(), "{err:?}");
+    assert!(!job.part_path.exists(), "the stale part is dropped");
+    let (result, _) = run(&engine, &job).await;
+    assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), new);
+}
+
+#[tokio::test]
+async fn last_modified_is_sent_back_when_there_is_no_etag() {
+    let data = body(150_000);
+    let behavior = Behavior {
+        support_ranges: true,
+        last_modified: Some("Wed, 21 Oct 2026 07:28:00 GMT"),
+        ..Default::default()
+    };
+    *behavior.cut_after.lock().unwrap() = Some(40_000);
+    let server = serve(data.clone(), behavior).await;
+    let dir = tempfile::tempdir().unwrap();
+    let job = job(&server.url("/movie.mp4"), dir.path());
+    let engine = HttpEngine::new().unwrap();
+    assert!(run(&engine, &job).await.0.is_err());
+    let (result, _) = run(&engine, &job).await;
+    assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), data);
+    assert_eq!(
+        server.behavior.if_ranges.lock().unwrap()[1].as_deref(),
+        Some("Wed, 21 Oct 2026 07:28:00 GMT")
+    );
+}
+
+#[tokio::test]
+async fn weak_etags_are_not_sent_as_if_range() {
+    let data = body(150_000);
+    let server = cut_server(data.clone(), 40_000, Some("W/\"v1\"")).await;
+    let dir = tempfile::tempdir().unwrap();
+    let job = job(&server.url("/movie.mp4"), dir.path());
+    let engine = HttpEngine::new().unwrap();
+    assert!(run(&engine, &job).await.0.is_err());
+    let (result, _) = run(&engine, &job).await;
+    assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), data);
+    assert_eq!(server.behavior.if_ranges.lock().unwrap()[1], None);
+    assert!(
+        server.ranges()[1].is_some(),
+        "the size still allows a checked resume"
+    );
+}
+
+#[tokio::test]
+async fn a_partial_file_of_unknown_origin_starts_over() {
     let data = body(200_000);
     let server = serve(
         data.clone(),
@@ -73,13 +185,12 @@ async fn resumes_from_the_partial_file_with_a_range_request() {
     .await;
     let dir = tempfile::tempdir().unwrap();
     let job = job(&server.url("/movie.mp4"), dir.path());
-    std::fs::write(&job.part_path, &data[..80_000]).unwrap();
+    // Left by an older version: no identity file, so nothing to check.
+    std::fs::write(&job.part_path, b"bytes of who knows what").unwrap();
 
-    let (result, progress) = run(&HttpEngine::new().unwrap(), &job).await;
-    let outcome = result.unwrap();
-    assert_eq!(server.ranges(), vec![Some("bytes=80000-".to_owned())]);
-    assert_eq!(progress.first().unwrap().downloaded, 80_000);
-    assert_eq!(std::fs::read(outcome.final_path).unwrap(), data);
+    let (result, _) = run(&HttpEngine::new().unwrap(), &job).await;
+    assert_eq!(server.ranges(), vec![None]);
+    assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), data);
 }
 
 #[tokio::test]
@@ -121,8 +232,15 @@ async fn a_complete_partial_file_is_finalized_on_416() {
     let dir = tempfile::tempdir().unwrap();
     let job = job(&server.url("/movie.mp4"), dir.path());
     std::fs::write(&job.part_path, &data).unwrap();
+    std::fs::write(
+        identity_path(&job.part_path),
+        "total=50000
+",
+    )
+    .unwrap();
 
     let (result, _) = run(&HttpEngine::new().unwrap(), &job).await;
+    assert_eq!(server.ranges(), vec![Some("bytes=50000-".to_owned())]);
     assert_eq!(std::fs::read(result.unwrap().final_path).unwrap(), data);
 }
 

@@ -47,6 +47,8 @@ export interface Backend {
   resume(id: string): Promise<void>;
   cancel(id: string): Promise<void>;
   retry(id: string): Promise<void>;
+  /** Starts a failed or paused task over from zero, dropping its partial data. */
+  restart(id: string): Promise<void>;
   startNow(id: string): Promise<void>;
   move(id: string, index: number): Promise<void>;
   pauseAll(): Promise<void>;
@@ -208,6 +210,7 @@ class TauriBackend implements Backend {
   resume = (id: string) => call<void>('downloads_resume', { id });
   cancel = (id: string) => call<void>('downloads_cancel', { id });
   retry = (id: string) => call<void>('downloads_retry', { id });
+  restart = (id: string) => call<void>('downloads_restart', { id });
   startNow = (id: string) => call<void>('downloads_start_now', { id });
   move = (id: string, index: number) => call<void>('downloads_move', { id, index });
   pauseAll = () => call<void>('downloads_pause_all');

@@ -207,9 +207,11 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
             <span className="font-bold">
               {summary.running.length
                 ? t('sumRunning', { n: summary.running.length })
-                : summary.active.length
-                  ? t('sumPaused')
-                  : t('sumIdle')}
+                : summary.offline
+                  ? t('sumOffline')
+                  : summary.active.length
+                    ? t('sumPaused')
+                    : t('sumIdle')}
             </span>
             <span className="font-mono text-accent-strong">
               {summary.running.length ? summary.speedLabel : ''}

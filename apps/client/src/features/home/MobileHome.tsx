@@ -74,7 +74,11 @@ export function MobileHome({
   ];
 
   const downloadsTitle = [
-    summary.running.length ? t('sumRunning', { n: summary.running.length }) : t('sumPaused'),
+    summary.running.length
+      ? t('sumRunning', { n: summary.running.length })
+      : summary.offline
+        ? t('sumOffline')
+        : t('sumPaused'),
     summary.queued.length ? t('sumQueue', { n: summary.queued.length }) : null,
   ]
     .filter(Boolean)
@@ -200,7 +204,10 @@ export function MobileHome({
         </button>
       )}
 
-      <section aria-label={home.resume ? t('resumeTitle') : t('recentTitle')} className="flex flex-col gap-2.5">
+      <section
+        aria-label={home.resume ? t('resumeTitle') : t('recentTitle')}
+        className="flex flex-col gap-2.5"
+      >
         <div className="flex items-center justify-between">
           <h2 className="m-0 text-[15px] font-bold">
             {home.resume ? t('resumeTitle') : t('recentTitle')}
@@ -219,12 +226,17 @@ export function MobileHome({
         <ul className="-mx-4 m-0 flex list-none gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
           {home.items.map((item, i) => {
             const at = savedPosition(item.id);
-            const pct = home.resume && item.durationSecs ? Math.min(100, (at / item.durationSecs) * 100) : 0;
+            const pct =
+              home.resume && item.durationSecs ? Math.min(100, (at / item.durationSecs) * 100) : 0;
             return (
               <li key={item.id} className="flex w-[168px] shrink-0 flex-col gap-1.5">
                 <button
                   type="button"
-                  onClick={() => useMobilePlayback.getState().start(item, home.items, home.resume ? t('resumeTitle') : t('recentTitle'))}
+                  onClick={() =>
+                    useMobilePlayback
+                      .getState()
+                      .start(item, home.items, home.resume ? t('resumeTitle') : t('recentTitle'))
+                  }
                   onContextMenu={(e) => {
                     e.preventDefault();
                     actionsSheet.open(item);
@@ -234,7 +246,10 @@ export function MobileHome({
                 >
                   <MediaThumb media={item} className="h-[94px] w-full rounded-[10px]">
                     {pct > 0 && (
-                      <span className="absolute inset-x-0 bottom-0 h-[3px] bg-line" aria-hidden="true">
+                      <span
+                        className="absolute inset-x-0 bottom-0 h-[3px] bg-line"
+                        aria-hidden="true"
+                      >
                         <span className="block h-full bg-coral" style={{ width: `${pct}%` }} />
                       </span>
                     )}

@@ -20,6 +20,7 @@ import { useUi } from '../../stores/ui';
 import { playFrom } from '../../app/navigation';
 import { barTone, barValue } from './format';
 import {
+  failureReason,
   mediaOfDownload,
   progressAriaLabel,
   statusOf,
@@ -162,7 +163,7 @@ const TaskRow = memo(function TaskRow({
   queuedIds: string[];
 }) {
   const t = useT();
-  const { pause, resume, cancel, retry, startNow } = useDownloads.getState();
+  const { pause, resume, cancel, retry, restart, startNow } = useDownloads.getState();
   // Re-render every second while a retry countdown is shown.
   const now = useNow(task.retry ? 1000 : null);
   const status = statusOf(task, t, now, true);
@@ -233,6 +234,17 @@ const TaskRow = memo(function TaskRow({
       }
       actions={[
         main,
+        // Partial data kept: a resume is tried first; starting over is a
+        // separate, explicit choice (PAR-04).
+        ...(task.state === 'failed' && task.downloadedBytes > 0
+          ? [
+              {
+                icon: 'restart_alt',
+                label: t('actRestart', { title: task.title }),
+                run: () => restart(task.id),
+              },
+            ]
+          : []),
         { icon: 'folder_open', label: t('openFolder'), run: openDownloadFolder },
         close,
       ]}
@@ -305,7 +317,7 @@ function FailedHistoryRow({ entry }: { entry: HistoryEntry }) {
       format={entry.formatLabel}
       status={{
         icon: 'error',
-        text: entry.reason ?? t('stFailed'),
+        text: failureReason(entry.reason, t) ?? t('stFailed'),
         tone: 'text-danger',
         detail: '',
       }}

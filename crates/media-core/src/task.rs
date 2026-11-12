@@ -80,7 +80,9 @@ impl TaskState {
             (self, to),
             (Queued, Analyzing | Waiting | Failed | Canceled)
                 | (Analyzing, Waiting | Failed | Canceled)
-                | (Waiting, Downloading | Paused | Canceled)
+                // Waiting -> Failed: refused before any transfer (destination
+                // not writable, not enough space).
+                | (Waiting, Downloading | Paused | Failed | Canceled)
                 // Downloading -> Waiting is a bounded retry after a transient error.
                 | (Downloading, Processing | Completed | Paused | Waiting | Failed | Canceled)
                 | (Paused, Waiting | Canceled)
@@ -169,6 +171,12 @@ mod tests {
         );
         assert!(Processing.transition(Paused).is_err());
         assert!(Failed.transition(Downloading).is_err());
+        assert!(Waiting.transition(Completed).is_err());
+    }
+
+    #[test]
+    fn a_task_can_fail_before_its_transfer_starts() {
+        assert_eq!(Waiting.transition(Failed), Ok(Failed));
     }
 
     #[test]

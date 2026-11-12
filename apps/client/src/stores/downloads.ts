@@ -24,6 +24,7 @@ interface DownloadsState {
   resume: (id: string) => void;
   cancel: (id: string) => void;
   retry: (id: string) => void;
+  restart: (id: string) => void;
   startNow: (id: string) => void;
   move: (id: string, index: number) => void;
   pauseAll: () => void;
@@ -111,11 +112,14 @@ export const useDownloads = create<DownloadsState>((set, get) => ({
           return { tasks: rest };
         }
         case 'retrying': {
-          const { id, inSecs, reason } = event.payload;
+          const { id, inSecs, reason, offline } = event.payload;
           const task = s.tasks[id];
           if (!task) return s;
           return {
-            tasks: { ...s.tasks, [id]: { ...task, retry: { inSecs, reason, at: Date.now() } } },
+            tasks: {
+              ...s.tasks,
+              [id]: { ...task, retry: { inSecs, reason, at: Date.now(), offline: !!offline } },
+            },
           };
         }
         case 'history':
@@ -141,6 +145,7 @@ export const useDownloads = create<DownloadsState>((set, get) => ({
   resume: (id) => run(() => backend.resume(id)),
   cancel: (id) => run(() => backend.cancel(id)),
   retry: (id) => run(() => backend.retry(id)),
+  restart: (id) => run(() => backend.restart(id)),
   startNow: (id) => run(() => backend.startNow(id)),
   move: (id, index) => run(() => backend.move(id, index)),
   pauseAll: () => run(() => backend.pauseAll()),
@@ -200,6 +205,8 @@ export function summarize(tasks: Record<string, DownloadTask>) {
     queued,
     /** Badge count: everything still to finish. */
     openCount: all.filter(isOpen).length,
+    /** Waiting for the network to come back (PAR-04). */
+    offline: all.some((t) => !!t.retry?.offline),
     // Paused only when something is actually paused; nothing to show when idle.
     speedLabel: speed > 0 ? formatSpeed(speed) : '—',
     overallPercent: active.length

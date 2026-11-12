@@ -490,8 +490,19 @@ fn classify<'a>(lines: impl Iterator<Item = &'a str>) -> EngineError {
             reason: "this website is not supported".into(),
         };
     }
-    if lower.contains("no space left") || lower.contains("disk full") {
+    // Python on Windows: "[WinError 112] There is not enough space on the disk".
+    if lower.contains("no space left")
+        || lower.contains("disk full")
+        || lower.contains("not enough space on the disk")
+        || lower.contains("winerror 112")
+    {
         return EngineError::DiskFull;
+    }
+    if lower.contains("permission denied")
+        || lower.contains("access is denied")
+        || lower.contains("winerror 5]")
+    {
+        return EngineError::AccessDenied;
     }
     if [
         "timed out",
@@ -697,6 +708,18 @@ mod tests {
         assert_eq!(
             e("ERROR: [Errno 28] No space left on device"),
             EngineError::DiskFull
+        );
+        assert_eq!(
+            e("ERROR: unable to write data: [WinError 112] There is not enough space on the disk"),
+            EngineError::DiskFull
+        );
+        assert_eq!(
+            e("ERROR: unable to open for writing: [Errno 13] Permission denied: 'out.part'"),
+            EngineError::AccessDenied
+        );
+        assert_eq!(
+            e("ERROR: [WinError 5] Access is denied: 'out.part'"),
+            EngineError::AccessDenied
         );
     }
 

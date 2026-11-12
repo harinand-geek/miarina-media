@@ -149,7 +149,7 @@ export function mockLimits(mode: ResourceMode, userDownloads: number): Limits {
 const TRANSITIONS: Record<TaskState, TaskState[]> = {
   queued: ['analyzing', 'waiting', 'failed', 'canceled'],
   analyzing: ['waiting', 'failed', 'canceled'],
-  waiting: ['downloading', 'paused', 'canceled'],
+  waiting: ['downloading', 'paused', 'failed', 'canceled'],
   downloading: ['processing', 'completed', 'paused', 'waiting', 'failed', 'canceled'],
   paused: ['waiting', 'canceled'],
   processing: ['completed', 'failed', 'canceled'],
@@ -306,6 +306,13 @@ export class MockBackend {
 
   async retry(id: string) {
     this.transition(id, 'queued');
+    this.schedule();
+  }
+
+  async restart(id: string) {
+    const t = this.get(id);
+    t.downloadedBytes = 0;
+    this.transition(id, t.state === 'paused' ? 'waiting' : 'queued');
     this.schedule();
   }
 

@@ -1,14 +1,14 @@
 //! Direct HTTP(S) downloads of media files.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::time::{Duration, Instant};
 
 use futures_util::FutureExt;
 use futures_util::future::BoxFuture;
 use media_core::ValidatedUrl;
 use reqwest::header::{
-    ACCEPT_RANGES, CONTENT_DISPOSITION, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE, HeaderMap,
-    RANGE,
+    ACCEPT_RANGES, CONTENT_DISPOSITION, CONTENT_LENGTH, CONTENT_RANGE, CONTENT_TYPE, ETAG,
+    HeaderMap, IF_RANGE, LAST_MODIFIED, RANGE,
 };
 use reqwest::{Client, Response, StatusCode};
 use serde::Serialize;
@@ -36,6 +36,94 @@ pub struct DirectMedia {
     pub content_type: Option<String>,
     pub total_bytes: Option<u64>,
     pub supports_resume: bool,
+}
+
+/// What a partial file was downloaded from, kept next to it (`.id`) so a
+/// resume only ever appends bytes of the same remote file (DL-02).
+#[derive(Debug, Clone, PartialEq, Default)]
+struct Identity {
+    /// Strong ETag, else Last-Modified: sent back as `If-Range`.
+    validator: Option<String>,
+    total: Option<u64>,
+}
+
+/// Longest identity file read back (it is a few dozen bytes).
+const IDENTITY_MAX: u64 = 1024;
+
+/// Identity file of a partial download.
+pub fn identity_path(part: &Path) -> PathBuf {
+    let mut name = part.as_os_str().to_owned();
+    name.push(".id");
+    PathBuf::from(name)
+}
+
+/// A header value that can be sent back as is.
+fn plain_value(v: &str) -> Option<String> {
+    let v = v.trim();
+    (!v.is_empty() && v.len() <= 256 && v.bytes().all(|b| (0x20..0x7f).contains(&b)))
+        .then(|| v.to_owned())
+}
+
+impl Identity {
+    fn of(headers: &HeaderMap, total: Option<u64>) -> Self {
+        // A weak ETag cannot be used with If-Range (RFC 9110, 13.1.5).
+        let etag = header_str(headers, ETAG)
+            .and_then(plain_value)
+            .filter(|e| e.starts_with('"'));
+        let modified = header_str(headers, LAST_MODIFIED).and_then(plain_value);
+        Self {
+            validator: etag.or(modified),
+            total,
+        }
+    }
+
+    /// Something to check the remote file against.
+    fn is_checkable(&self) -> bool {
+        self.validator.is_some() || self.total.is_some()
+    }
+
+    fn etag(&self) -> Option<&str> {
+        self.validator.as_deref().filter(|v| v.starts_with('"'))
+    }
+
+    async fn load(part: &Path) -> Option<Self> {
+        let path = identity_path(part);
+        if tokio::fs::metadata(&path).await.ok()?.len() > IDENTITY_MAX {
+            return None;
+        }
+        let text = tokio::fs::read_to_string(&path).await.ok()?;
+        let mut identity = Self::default();
+        for line in text.lines() {
+            if let Some(v) = line.strip_prefix("total=") {
+                identity.total = Some(v.trim().parse().ok()?);
+            } else if let Some(v) = line.strip_prefix("validator=") {
+                identity.validator = Some(plain_value(v)?);
+            }
+        }
+        identity.is_checkable().then_some(identity)
+    }
+
+    async fn save(&self, part: &Path) -> Result<(), EngineError> {
+        let mut text = String::new();
+        if let Some(total) = self.total {
+            text.push_str(&format!("total={total}\n"));
+        }
+        if let Some(v) = &self.validator {
+            text.push_str(&format!("validator={v}\n"));
+        }
+        tokio::fs::write(identity_path(part), text)
+            .await
+            .map_err(EngineError::from_io)
+    }
+}
+
+/// Drops a partial file and its identity: the next attempt starts over.
+async fn forget_part(part: &Path) -> Result<(), EngineError> {
+    let _ = tokio::fs::remove_file(identity_path(part)).await;
+    match tokio::fs::remove_file(part).await {
+        Err(e) if e.kind() != std::io::ErrorKind::NotFound => Err(EngineError::from_io(e)),
+        _ => Ok(()),
+    }
 }
 
 #[derive(Clone)]
@@ -100,14 +188,29 @@ impl HttpEngine {
         progress: ProgressFn<'_>,
         cancel: CancellationToken,
     ) -> Result<Outcome, EngineError> {
-        let existing = tokio::fs::metadata(&job.part_path)
+        let mut existing = tokio::fs::metadata(&job.part_path)
             .await
             .map(|m| m.len())
             .unwrap_or(0);
+        let identity = if existing > 0 {
+            Identity::load(&job.part_path).await
+        } else {
+            None
+        };
+        if existing > 0 && identity.is_none() {
+            // Bytes of unknown origin (older version, lost identity): they
+            // cannot be checked, so they are never continued.
+            forget_part(&job.part_path).await?;
+            existing = 0;
+        }
 
         let mut request = self.client.get(job.url.as_str());
         if existing > 0 {
             request = request.header(RANGE, format!("bytes={existing}-"));
+            // The server sends the whole file instead if it changed.
+            if let Some(validator) = identity.as_ref().and_then(|i| i.validator.as_deref()) {
+                request = request.header(IF_RANGE, validator);
+            }
         }
         let response = tokio::select! {
             _ = cancel.cancelled() => return Err(EngineError::Canceled),
@@ -116,31 +219,53 @@ impl HttpEngine {
 
         let status = response.status();
         let headers = response.headers().clone();
+        let known = identity.unwrap_or_default();
         let (offset, total, supports_resume) = match status {
             StatusCode::PARTIAL_CONTENT if existing > 0 => {
                 if content_range_start(&headers) != Some(existing) {
                     return Err(EngineError::network("unexpected Content-Range from server"));
                 }
-                (existing, content_range_total(&headers), true)
+                let total = content_range_total(&headers);
+                if changed(&known, total, &headers) {
+                    forget_part(&job.part_path).await?;
+                    return Err(EngineError::network(
+                        "the remote file changed; restarting from the beginning",
+                    ));
+                }
+                (existing, total, true)
             }
             StatusCode::RANGE_NOT_SATISFIABLE if existing > 0 => {
                 // Either the part is already complete, or the remote file
                 // changed: restart from zero in the latter case.
-                if content_range_total(&headers) == Some(existing) {
+                let total = content_range_total(&headers);
+                if total == Some(existing) && !changed(&known, total, &headers) {
                     let final_path =
                         finalize_no_clobber(&job.part_path, &job.dest_dir, &job.file_name)?;
+                    let _ = tokio::fs::remove_file(identity_path(&job.part_path)).await;
                     return Ok(Outcome {
                         final_path,
                         bytes: existing,
                         supports_resume: true,
                     });
                 }
-                tokio::fs::remove_file(&job.part_path)
-                    .await
-                    .map_err(EngineError::from_io)?;
-                return Err(EngineError::network("remote file changed, restarting"));
+                forget_part(&job.part_path).await?;
+                return Err(EngineError::network(
+                    "the remote file changed; restarting from the beginning",
+                ));
             }
-            s if s.is_success() => (0, content_length(&headers), accepts_ranges(&headers)),
+            s if s.is_success() => {
+                // A fresh start (or the server refused to continue): note
+                // what this file is before writing a byte of it.
+                let total = content_length(&headers);
+                let identity = Identity::of(&headers, total);
+                let resumable = accepts_ranges(&headers) && identity.is_checkable();
+                if resumable {
+                    identity.save(&job.part_path).await?;
+                } else {
+                    let _ = tokio::fs::remove_file(identity_path(&job.part_path)).await;
+                }
+                (0, total, resumable)
+            }
             s => return Err(EngineError::Http { status: s.as_u16() }),
         };
 
@@ -189,12 +314,23 @@ impl HttpEngine {
         }
 
         let final_path = finalize_no_clobber(&job.part_path, &job.dest_dir, &job.file_name)?;
+        let _ = tokio::fs::remove_file(identity_path(&job.part_path)).await;
         Ok(Outcome {
             final_path,
             bytes: downloaded,
             supports_resume,
         })
     }
+}
+
+/// The partial answer is not about the file the partial data came from.
+fn changed(known: &Identity, total: Option<u64>, headers: &HeaderMap) -> bool {
+    let size_changed = matches!((known.total, total), (Some(a), Some(b)) if a != b);
+    let etag_changed = match (known.etag(), header_str(headers, ETAG)) {
+        (Some(a), Some(b)) => a != b.trim(),
+        _ => false,
+    };
+    size_changed || etag_changed
 }
 
 #[allow(clippy::too_many_arguments)]

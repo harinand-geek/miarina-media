@@ -48,6 +48,9 @@ export function statusOf(task: DownloadTask, t: Translate, now: number, wide = f
     task.supportsResume && task.downloadedBytes > 0
       ? t('stResumeAt', { n: Math.floor(percentOf(task)) })
       : '';
+  if (task.retry?.offline) {
+    return { icon: 'wifi_off', text: t('stOffline'), tone: 'text-warn', detail: resumeAt };
+  }
   if (task.retry) {
     return {
       icon: 'wifi_off',
@@ -85,16 +88,17 @@ export function statusOf(task: DownloadTask, t: Translate, now: number, wide = f
         tone: 'text-warn',
         detail: wide && task.totalBytes ? formatBytes(task.totalBytes) : pct(task),
       };
-    case 'failed':
+    case 'failed': {
+      const disk = task.errorCode === 'disk_full' || task.errorCode === 'insufficient_space';
+      const denied = task.errorCode === 'access_denied';
+      const hint = disk ? t('stDiskFullHint') : denied ? t('stAccessDeniedHint') : '';
       return {
         icon: 'error',
-        text:
-          task.errorCode === 'disk_full' || task.errorCode === 'insufficient_space'
-            ? t('stDiskFull')
-            : t('stFailed'),
+        text: disk ? t('stDiskFull') : denied ? t('stAccessDenied') : t('stFailed'),
         tone: 'text-danger',
-        detail: resumeAt,
+        detail: [resumeAt, hint].filter(Boolean).join(' · '),
       };
+    }
     case 'analyzing':
       return { icon: 'hourglass_empty', text: t('stAnalyzing'), tone: 'text-muted', detail: '' };
     default:
@@ -105,6 +109,18 @@ export function statusOf(task: DownloadTask, t: Translate, now: number, wide = f
         detail: task.totalBytes ? formatBytes(task.totalBytes) : '',
       };
   }
+}
+
+/**
+ * Reason of a failed download in the user's language when the engine
+ * failure is a known one (the stored reason is the engine's English text).
+ */
+export function failureReason(reason: string | null | undefined, t: Translate) {
+  if (!reason) return null;
+  if (reason.startsWith('the disk is full')) return t('whyDiskFull');
+  if (reason.startsWith('not enough free space')) return t('whyNoSpace');
+  if (reason.startsWith('the destination folder cannot be written to')) return t('whyDenied');
+  return reason;
 }
 
 /** Queued or waiting for a slot: the main action starts it now. */

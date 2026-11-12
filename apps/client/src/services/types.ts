@@ -92,8 +92,11 @@ export interface TaskRecord {
 export interface DownloadTask extends TaskRecord {
   bytesPerSec: number;
   etaSecs: number | null;
-  /** Set while waiting for an automatic retry. */
-  retry?: { inSecs: number; reason: string; at: number };
+  /**
+   * Set while waiting for an automatic retry; `offline`: no network at all,
+   * the task goes on by itself when it is back (no retry spent).
+   */
+  retry?: { inSecs: number; reason: string; at: number; offline?: boolean };
 }
 
 export interface ProgressPayload {
@@ -129,7 +132,10 @@ export type BackendEvent =
   | { type: 'progress'; payload: ProgressPayload }
   | { type: 'task'; payload: TaskRecord }
   | { type: 'removed'; payload: { id: string } }
-  | { type: 'retrying'; payload: { id: string; retry: number; inSecs: number; reason: string } }
+  | {
+      type: 'retrying';
+      payload: { id: string; retry: number; inSecs: number; reason: string; offline?: boolean };
+    }
   | { type: 'history'; payload: HistoryEntry };
 
 export type ResourceMode = 'eco' | 'balanced' | 'performance';

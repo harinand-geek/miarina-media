@@ -22,6 +22,14 @@ pub struct Behavior {
     pub cut_after: Mutex<Option<usize>>,
     /// Delay between 16 KiB chunks.
     pub chunk_delay: Duration,
+    /// ETag sent with every answer; `If-Range` must match it.
+    pub etag: Mutex<Option<String>>,
+    /// Last-Modified sent with every answer (used when there is no ETag).
+    pub last_modified: Option<&'static str>,
+    /// Served instead of the body once set (the remote file changed).
+    pub replacement: Mutex<Option<Vec<u8>>>,
+    /// If-Range header of each request, in order.
+    pub if_ranges: Mutex<Vec<Option<String>>>,
 }
 
 pub struct TestServer {
@@ -113,6 +121,30 @@ async fn handle(
         })
         .map(|v| v.trim().to_owned());
     requests.lock().unwrap().push(range.clone());
+    let if_range = head
+        .lines()
+        .find_map(|l| {
+            l.strip_prefix("if-range: ")
+                .or_else(|| l.strip_prefix("If-Range: "))
+        })
+        .map(|v| v.trim().to_owned());
+    behavior.if_ranges.lock().unwrap().push(if_range.clone());
+    let replaced = behavior.replacement.lock().unwrap().clone();
+    let body: &[u8] = replaced.as_deref().unwrap_or(body);
+    let etag = behavior.etag.lock().unwrap().clone();
+    let validator = etag.clone().or(behavior.last_modified.map(str::to_owned));
+    // If-Range: the range only applies to the same representation.
+    let range = match (&if_range, &validator) {
+        (Some(sent), Some(current)) if sent != current => None,
+        _ => range,
+    };
+    let mut validators = String::new();
+    if let Some(etag) = &etag {
+        validators.push_str(&format!("etag: {etag}\r\n"));
+    }
+    if let Some(lm) = behavior.last_modified {
+        validators.push_str(&format!("last-modified: {lm}\r\n"));
+    }
 
     let content_type = if behavior.content_type.is_empty() {
         "video/mp4"
@@ -168,7 +200,7 @@ async fn handle(
         ""
     };
     let head = format!(
-        "HTTP/1.1 {status}\r\ncontent-type: {content_type}\r\ncontent-length: {}\r\n{accept}{extra}connection: close\r\n\r\n",
+        "HTTP/1.1 {status}\r\ncontent-type: {content_type}\r\ncontent-length: {}\r\n{accept}{validators}{extra}connection: close\r\n\r\n",
         slice.len()
     );
     socket.write_all(head.as_bytes()).await?;

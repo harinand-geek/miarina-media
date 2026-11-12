@@ -1,9 +1,11 @@
 import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeAll, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
+import { failureReason } from '../features/downloads/status';
 import { recentPlays } from '../features/player/recentPlays';
-import { resetMockBackend } from '../services/backend';
+import { t } from '../i18n';
+import { backend, resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
 import { resetPlayerForTests, usePlayer } from '../stores/player';
 import { useSettings } from '../stores/settings';
@@ -110,6 +112,69 @@ describe('Windows v2 Downloads', () => {
     expect(
       screen.getByRole('button', { name: 'Cannot pause while preparing the file' }),
     ).toBeDisabled();
+  });
+
+  it('says when downloads wait for the network (PAR-04)', () => {
+    // No network: nothing transfers, every started task waits for it.
+    const offline = Object.values(useDownloads.getState().tasks).map((x) =>
+      x.state === 'downloading'
+        ? {
+            ...x,
+            state: 'waiting' as const,
+            retry: { inSecs: 0, reason: 'network', at: Date.now(), offline: true },
+          }
+        : x,
+    );
+    useDownloads.setState({ tasks: Object.fromEntries(offline.map((x) => [x.id, x])) });
+    const waiting = offline.filter((x) => x.retry?.offline).length;
+    useUi.setState({ screen: 'downloads' });
+    render(<DesktopShell />);
+    // On the row and in the sidebar card.
+    expect(screen.getAllByText('Paused · offline').length).toBe(waiting + 1);
+  });
+
+  it('explains disk and folder failures and offers to start over (DL-04)', async () => {
+    const user = userEvent.setup();
+    const restart = vi.spyOn(backend, 'restart');
+    const tasks = useDownloads.getState().tasks;
+    useDownloads.setState({
+      tasks: {
+        ...tasks,
+        d3: {
+          ...tasks.d3!,
+          state: 'failed',
+          errorCode: 'access_denied',
+          supportsResume: true,
+          downloadedBytes: 1000,
+          totalBytes: 4000,
+        },
+      },
+    });
+    useUi.setState({ screen: 'downloads' });
+    render(<DesktopShell />);
+    await user.click(screen.getByRole('radio', { name: /^Failed/ }));
+    expect(screen.getByText('Failed · folder not writable')).toBeInTheDocument();
+    expect(
+      screen.getByText('resumes at 25 % · choose another folder in Settings'),
+    ).toBeInTheDocument();
+    const title = tasks.d3!.title;
+    await user.click(
+      screen.getByRole('button', { name: `Start ${title} over from the beginning` }),
+    );
+    expect(restart).toHaveBeenCalledWith('d3');
+    restart.mockRestore();
+  });
+
+  it('words known engine failures in the user language', () => {
+    expect(failureReason('not enough free space (1 bytes needed, 0 available)', t)).toBe(
+      'Not enough disk space for this file',
+    );
+    expect(failureReason('the destination folder cannot be written to', t)).toBe(
+      'Destination folder is not writable',
+    );
+    expect(failureReason('Live streams are not supported', t)).toBe(
+      'Live streams are not supported',
+    );
   });
 });
 

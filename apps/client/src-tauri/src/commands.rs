@@ -688,6 +688,13 @@ pub async fn downloads_retry(state: State<'_, AppState>, id: String) -> CmdResul
     Ok(state.manager.retry(&id)?)
 }
 
+/// Starts a failed or paused task over from zero (its partial data is
+/// dropped): offered when a resume is not possible or not wanted.
+#[tauri::command]
+pub async fn downloads_restart(state: State<'_, AppState>, id: String) -> CmdResult<()> {
+    Ok(state.manager.restart(&id)?)
+}
+
 #[tauri::command]
 pub async fn downloads_start_now(state: State<'_, AppState>, id: String) -> CmdResult<()> {
     Ok(state.manager.start_now(&id)?)

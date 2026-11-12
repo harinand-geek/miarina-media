@@ -24,6 +24,7 @@ const COMMANDS: &[&str] = &[
     "downloads_resume",
     "downloads_cancel",
     "downloads_retry",
+    "downloads_restart",
     "downloads_start_now",
     "downloads_move",
     "downloads_pause_all",

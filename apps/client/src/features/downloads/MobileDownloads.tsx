@@ -9,6 +9,7 @@ import { useLibrary } from '../../stores/library';
 import { useUi } from '../../stores/ui';
 import { barTone, barValue } from './format';
 import {
+  failureReason,
   mediaOfDownload,
   progressAriaLabel,
   statusOf,
@@ -221,7 +222,7 @@ export function MobileDownloads() {
               thumbnail={null}
               status={{
                 icon: 'error',
-                text: h.reason ?? t('stFailed'),
+                text: failureReason(h.reason, t) ?? t('stFailed'),
                 tone: 'text-danger',
                 detail: '',
               }}

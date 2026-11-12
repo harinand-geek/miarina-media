@@ -11,6 +11,7 @@ import { useUi } from '../../stores/ui';
 import { playFrom } from '../../app/navigation';
 import { durationLabel } from '../library/format';
 import { clearPlayHistory, usePlayHistory, type PlayEntry } from '../player/recentPlays';
+import { failureReason } from '../downloads/status';
 import { useNow } from '../downloads/useNow';
 import { groupByDay } from './grouping';
 
@@ -159,7 +160,7 @@ function DownloadRow({ entry }: { entry: HistoryEntry }) {
         .join(' · ')
     : entry.status === 'failed'
       ? entry.reason
-        ? t('failedBecause', { reason: entry.reason })
+        ? t('failedBecause', { reason: failureReason(entry.reason, t)! })
         : t('stFailed')
       : `${t('stCanceled')} · ${entry.sourceHost}`;
 

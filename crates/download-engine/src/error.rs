@@ -16,6 +16,8 @@ pub enum EngineError {
     DiskFull,
     #[error("not enough free space ({needed} bytes needed, {available} available)")]
     InsufficientSpace { needed: u64, available: u64 },
+    #[error("the destination folder cannot be written to")]
+    AccessDenied,
     #[error("file system error: {message}")]
     Io { message: String },
     #[error("canceled")]
@@ -34,6 +36,11 @@ impl EngineError {
         }
     }
 
+    /// A transport failure (no HTTP answer): the network may be gone.
+    pub fn is_network(&self) -> bool {
+        matches!(self, Self::Network { .. })
+    }
+
     /// Stable code persisted with failed tasks.
     pub fn code(&self) -> &'static str {
         match self {
@@ -42,6 +49,7 @@ impl EngineError {
             Self::NotMedia => "not_media",
             Self::DiskFull => "disk_full",
             Self::InsufficientSpace { .. } => "insufficient_space",
+            Self::AccessDenied => "access_denied",
             Self::Io { .. } => "io",
             Self::Canceled => "canceled",
             Self::Unsupported { .. } => "unsupported",
@@ -67,6 +75,8 @@ impl EngineError {
     pub(crate) fn from_io(err: std::io::Error) -> Self {
         if is_disk_full(&err) {
             Self::DiskFull
+        } else if err.kind() == std::io::ErrorKind::PermissionDenied {
+            Self::AccessDenied
         } else {
             Self::Io {
                 message: err.to_string(),
@@ -115,6 +125,18 @@ mod tests {
         assert_eq!(
             EngineError::from_io(std::io::Error::from_raw_os_error(112)),
             EngineError::DiskFull
+        );
+    }
+
+    #[test]
+    fn access_denied_is_its_own_case() {
+        let err = std::io::Error::from(std::io::ErrorKind::PermissionDenied);
+        let err = EngineError::from_io(err);
+        assert_eq!((err.code(), err.is_retryable()), ("access_denied", false));
+        #[cfg(windows)]
+        assert_eq!(
+            EngineError::from_io(std::io::Error::from_raw_os_error(5)),
+            EngineError::AccessDenied
         );
     }
 }

@@ -32,6 +32,7 @@
     "allow-downloads-resume",
     "allow-downloads-cancel",
     "allow-downloads-retry",
+    "allow-downloads-restart",
     "allow-downloads-start-now",
     "allow-downloads-move",
     "allow-downloads-pause-all",
