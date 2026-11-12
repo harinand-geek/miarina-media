@@ -21,6 +21,7 @@ const FIXED_KEYS = [
   'mm:lang',
   'mm:resume',
   'mm:mobile:rate',
+  'mm:eq:v1',
 ];
 const IMPORTED = 'meta:imported';
 const FLUSH_MS = 1000;

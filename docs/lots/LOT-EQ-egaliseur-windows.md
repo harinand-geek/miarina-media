@@ -1,0 +1,10 @@
+# Fiche LOT-EQ — Égaliseur (Windows, libVLC)
+
+- Statut : Fait (bureau) ; Android : inchangé (« branché plus tard sur le lecteur natif Android »)
+- Maquette : `design/design_handoff_windows_v2` écran 6, onglet « Son » (interrupteur corail 38 × 22, préréglages Neutre / Basses / Voix / Rock / Classique, 6 bandes 60–14k, note « Les fichiers ne sont jamais modifiés… ») et puce « Égaliseur · Rock » / « Égaliseur off » sous les commandes d'« En lecture »
+- Inclus :
+  - Moteur (`native_player.rs`) : égaliseur libVLC (`libvlc_audio_equalizer_*`, `libvlc_media_player_set_equalizer`) ; les 10 bandes de libVLC reçoivent un gain interpolé (échelle logarithmique) entre les 6 bandes de la maquette ; appliqué au fichier en cours et à chaque fichier suivant ; commande `native_player_equalizer` (6 gains, ±12 dB, ou aucun) + permission.
+  - Interface (`equalizer.ts`, `EqualizerSection.tsx`) : interrupteur, préréglages (valeurs de la maquette converties en dB), bandes réglables par curseurs verticaux accessibles (pas de 0,5 dB, valeur lue en dB), réglage « Personnalisé » dès qu'une bande est touchée, puce d'« En lecture » à jour ; réglage mémorisé (`mm:eq:v1`, clé durable recopiée en SQLite) et renvoyé au moteur à chaque changement de moteur ; sans libVLC : désactivé avec explication (le son est restitué sans modification) ; FR / EN.
+- Tests : test Rust d'interpolation des bandes ; `vitest` 35 fichiers, 179 tests (nouveau `src/test/equalizer.test.tsx` : interrupteur, préréglage Rock envoyé au moteur, bande modifiée → personnalisé, réglage mémorisé, extinction, désactivé sans libVLC).
+- Recette native Windows : lecture d'un MP3 par libVLC, égaliseur activé puis « Rock » : réglage enregistré, puce « Égaliseur · Rock », lecture continue sans erreur ; onglet Son conforme à la maquette. Démarrage mesuré au passage : 300 ms entre le double-clic sur un titre et la lecture (reprise à la position mémorisée).
+- Non vérifié : l'effet audible (la recette n'écoute pas le son ; à confirmer à l'oreille).

@@ -87,6 +87,7 @@
     "allow-native-player-open",
     "allow-native-player-control",
     "allow-native-player-volume",
+    "allow-native-player-equalizer",
     "allow-native-player-add-subtitle",
     "allow-native-player-frame",
     "allow-library-cover-pick",

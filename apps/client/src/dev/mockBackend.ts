@@ -934,6 +934,8 @@ export class MockBackend {
 
   async nativePlayerVolume() {}
 
+  async nativePlayerEqualizer() {}
+
   async nativePlayerAddSubtitle() {
     return false;
   }

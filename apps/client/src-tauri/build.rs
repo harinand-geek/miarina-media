@@ -81,6 +81,7 @@ const COMMANDS: &[&str] = &[
     "native_player_open",
     "native_player_control",
     "native_player_volume",
+    "native_player_equalizer",
     "native_player_add_subtitle",
     "native_player_frame",
     "library_cover_pick",

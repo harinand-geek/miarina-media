@@ -11,6 +11,7 @@ import {
   type PlayerError,
 } from '../../stores/player';
 import { useUi } from '../../stores/ui';
+import { useEqualizer } from './equalizer';
 import { createNativeEngine } from './nativeEngine';
 import { RESUME_MARGIN_SECS, savePosition } from './usePlayback';
 
@@ -198,6 +199,7 @@ export function PlayerHost() {
         native = createNativeEngine();
         unbind();
         unbind = swapEngine(engine, native.engine);
+        useEqualizer.getState().push();
       })
       .catch(() => {});
 

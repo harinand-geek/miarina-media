@@ -158,6 +158,7 @@ export interface Backend {
   ): Promise<void>;
   nativePlayerControl(action: NativePlayerAction, value?: number): Promise<void>;
   nativePlayerVolume(volume: number, muted: boolean): Promise<void>;
+  nativePlayerEqualizer(gains: number[] | null): Promise<void>;
   /** Picks a subtitle file in the system dialog; `false` if canceled. */
   nativePlayerAddSubtitle(): Promise<boolean>;
   nativePlayerFrame(
@@ -354,6 +355,8 @@ class TauriBackend implements Backend {
   nativePlayerVolume = (volume: number, muted: boolean) =>
     call<void>('native_player_volume', { volume, muted });
   nativePlayerAddSubtitle = () => call<boolean>('native_player_add_subtitle');
+  nativePlayerEqualizer = (gains: number[] | null) =>
+    call<void>('native_player_equalizer', { gains });
   nativePlayerFrame = (
     frame: { x: number; y: number; width: number; height: number },
     visible: boolean,

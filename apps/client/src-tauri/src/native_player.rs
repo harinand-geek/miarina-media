@@ -223,6 +223,34 @@ pub async fn native_player_add_subtitle(
     }
 }
 
+/// Equalizer gains in dB at 60, 230, 910, 3.6k, 7k and 14k Hz (Windows v2
+/// design), or `None` to turn it off. Files are never modified.
+#[tauri::command]
+pub async fn native_player_equalizer(
+    app: AppHandle,
+    player: State<'_, NativePlayer>,
+    gains: Option<Vec<f64>>,
+) -> CmdResult<()> {
+    let gains = match gains {
+        None => None,
+        Some(g) if g.len() == 6 && g.iter().all(|v| v.is_finite()) => {
+            let mut out = [0f32; 6];
+            for (o, v) in out.iter_mut().zip(g) {
+                *o = v.clamp(-12.0, 12.0) as f32;
+            }
+            Some(out)
+        }
+        Some(_) => return Err(CommandError::new("invalid_equalizer", "Six gains expected")),
+    };
+    #[cfg(windows)]
+    return player.send(&app, imp::Cmd::Equalizer(gains));
+    #[cfg(not(windows))]
+    {
+        let _ = (app, player, gains);
+        Err(unavailable())
+    }
+}
+
 /// Places the picture (logical px of the main window), or hides it.
 #[tauri::command]
 #[allow(clippy::too_many_arguments)]
@@ -321,6 +349,12 @@ mod imp {
         add_slave: unsafe extern "C" fn(Player, c_int, *const c_char, bool) -> c_int,
         mouse_input: unsafe extern "C" fn(Player, c_uint),
         key_input: unsafe extern "C" fn(Player, c_uint),
+        eq_new: unsafe extern "C" fn() -> *mut c_void,
+        eq_release: unsafe extern "C" fn(*mut c_void),
+        eq_set_amp: unsafe extern "C" fn(*mut c_void, f32, c_uint) -> c_int,
+        eq_band_count: unsafe extern "C" fn() -> c_uint,
+        eq_band_frequency: unsafe extern "C" fn(c_uint) -> f32,
+        set_equalizer: unsafe extern "C" fn(Player, *mut c_void) -> c_int,
     }
 
     unsafe fn sym<T>(lib: HMODULE, name: &str) -> Result<T, String> {
@@ -368,6 +402,12 @@ mod imp {
                     add_slave: sym(lib, "libvlc_media_player_add_slave")?,
                     mouse_input: sym(lib, "libvlc_video_set_mouse_input")?,
                     key_input: sym(lib, "libvlc_video_set_key_input")?,
+                    eq_new: sym(lib, "libvlc_audio_equalizer_new")?,
+                    eq_release: sym(lib, "libvlc_audio_equalizer_release")?,
+                    eq_set_amp: sym(lib, "libvlc_audio_equalizer_set_amp_at_index")?,
+                    eq_band_count: sym(lib, "libvlc_audio_equalizer_get_band_count")?,
+                    eq_band_frequency: sym(lib, "libvlc_audio_equalizer_get_band_frequency")?,
+                    set_equalizer: sym(lib, "libvlc_media_player_set_equalizer")?,
                 })
             }
         }
@@ -413,6 +453,47 @@ mod imp {
         Subtitle(i32),
         SubtitleDelay(i64),
         AddSubtitle(PathBuf),
+        /// Gains in dB at `EQ_BANDS`, or `None` for no equalizer.
+        Equalizer(Option<[f32; 6]>),
+    }
+
+    /// Bands of the Windows v2 equalizer (Hz); libVLC's own bands get gains
+    /// interpolated between them on a log scale.
+    pub const EQ_BANDS: [f32; 6] = [60.0, 230.0, 910.0, 3600.0, 7000.0, 14000.0];
+
+    pub(super) fn gain_at(freq: f32, gains: &[f32; 6]) -> f32 {
+        let x = freq.max(1.0).log10();
+        let xs = EQ_BANDS.map(|f| f.log10());
+        if x <= xs[0] {
+            return gains[0];
+        }
+        for i in 0..5 {
+            if x <= xs[i + 1] {
+                let t = (x - xs[i]) / (xs[i + 1] - xs[i]);
+                return gains[i] + t * (gains[i + 1] - gains[i]);
+            }
+        }
+        gains[5]
+    }
+
+    /// Gives the equalizer (or none) to a player; libVLC copies it.
+    fn apply_equalizer(vlc: &Vlc, mp: Player, gains: Option<&[f32; 6]>) {
+        unsafe {
+            let Some(gains) = gains else {
+                (vlc.set_equalizer)(mp, std::ptr::null_mut());
+                return;
+            };
+            let eq = (vlc.eq_new)();
+            if eq.is_null() {
+                return;
+            }
+            for band in 0..(vlc.eq_band_count)() {
+                let gain = gain_at((vlc.eq_band_frequency)(band), gains).clamp(-20.0, 20.0);
+                (vlc.eq_set_amp)(eq, gain, band);
+            }
+            (vlc.set_equalizer)(mp, eq);
+            (vlc.eq_release)(eq);
+        }
     }
 
     /// The picture's window (isize: HWND is not Send).
@@ -599,6 +680,8 @@ mod imp {
         delay: i64,
         /// Volume, mute and rate last given to this file.
         applied: Option<(f64, bool, f32)>,
+        /// Equalizer version last given to this file.
+        eq_applied: u64,
     }
 
     fn state_name(s: c_int) -> &'static str {
@@ -652,6 +735,9 @@ mod imp {
         let mut current: Option<Current> = None;
         let mut volume = (1.0f64, false);
         let mut rate = 1.0f32;
+        let mut equalizer: Option<[f32; 6]> = None;
+        // Starts at 1 so that a new file always gets the current setting.
+        let mut eq_version = 1u64;
         let emit_state = |app: &AppHandle, e: &StateEvent| {
             let _ = app.emit_to("main", STATE_EVENT, e.clone());
         };
@@ -721,6 +807,7 @@ mod imp {
                             started: Instant::now(),
                             delay: 0,
                             applied: None,
+                            eq_applied: 0,
                         });
                     }
                     Cmd::Stop => {
@@ -740,6 +827,10 @@ mod imp {
                         }
                     }
                     Cmd::Volume(v, muted) => volume = (v, muted),
+                    Cmd::Equalizer(gains) => {
+                        equalizer = gains;
+                        eq_version += 1;
+                    }
                     Cmd::Rate(r) => rate = r,
                     other => {
                         if let Some(c) = current.as_mut() {
@@ -765,6 +856,10 @@ mod imp {
                         (vlc.set_rate)(c.mp, rate);
                     }
                     c.applied = Some(wanted);
+                }
+                if c.eq_applied != eq_version {
+                    apply_equalizer(&vlc, c.mp, equalizer.as_ref());
+                    c.eq_applied = eq_version;
                 }
             }
             if s == 3 {
@@ -845,7 +940,11 @@ mod imp {
                     let c_uri = CString::new(uri).unwrap_or_default();
                     (vlc.add_slave)(c.mp, 0, c_uri.as_ptr(), true);
                 }
-                Cmd::Open { .. } | Cmd::Stop | Cmd::Volume(..) | Cmd::Rate(_) => {}
+                Cmd::Open { .. }
+                | Cmd::Stop
+                | Cmd::Volume(..)
+                | Cmd::Rate(_)
+                | Cmd::Equalizer(_) => {}
             }
         }
     }
@@ -896,6 +995,12 @@ mod imp {
                 PathBuf::from(r"\\server\share\libvlc")
             );
             assert_eq!(plain_path(Path::new(r"C:\x")), PathBuf::from(r"C:\x"));
+            let gains = [6.0, 4.0, 0.0, -1.0, 0.0, 2.0];
+            assert_eq!(gain_at(30.0, &gains), 6.0);
+            assert_eq!(gain_at(230.0, &gains), 4.0);
+            assert_eq!(gain_at(16_000.0, &gains), 2.0);
+            let mid = gain_at(117.5, &gains);
+            assert!(mid < 6.0 && mid > 4.0, "{mid}");
             assert_eq!(state_name(3), "playing");
             assert_eq!(state_name(1), "loading");
             assert_eq!(state_name(7), "error");

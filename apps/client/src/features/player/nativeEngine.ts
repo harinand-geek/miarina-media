@@ -82,6 +82,7 @@ export function createNativeEngine() {
     setSubtitle: (id) => control('subtitle', id),
     addSubtitle: () => backend.nativePlayerAddSubtitle().catch(() => false),
     setSubtitleDelay: (ms) => control('subtitleDelay', ms),
+    setEqualizer: (gains) => void backend.nativePlayerEqualizer(gains).catch(() => {}),
   };
 
   return {

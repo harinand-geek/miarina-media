@@ -49,6 +49,8 @@ export interface PlayerEngine {
   setSubtitle?: (id: number) => void;
   addSubtitle?: () => Promise<boolean>;
   setSubtitleDelay?: (ms: number) => void;
+  /** Gains in dB at the equalizer bands, or null for none. */
+  setEqualizer?: (gains: number[] | null) => void;
 }
 
 export interface PlayerTracks {
@@ -136,6 +138,14 @@ export function bindEngine(next: PlayerEngine) {
     if (engine === next) engine = null;
   };
 }
+
+/** Equalizer → engine (native engine only; others ignore it). */
+export function applyEqualizer(gains: number[] | null) {
+  engine?.setEqualizer?.(gains);
+}
+
+/** The engine can apply an equalizer (Windows with libVLC). */
+export const engineHasEqualizer = () => !!engine?.setEqualizer;
 
 /**
  * Switches engine with a file loaded (e.g. libVLC found after start): the

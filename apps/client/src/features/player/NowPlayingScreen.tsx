@@ -12,6 +12,8 @@ import { MediaThumb } from '../library/MediaThumb';
 import { mediaByline } from './byline';
 import { PlayButton } from './parts';
 import { PLAYBACK_RATES, formatRate } from './playbackRate';
+import { equalizerLabel, useEqualizer } from './equalizer';
+import { EqualizerSection } from './EqualizerSection';
 import { SeekBar } from './SeekBar';
 
 const SLEEP_CHOICES = ['off', 15, 30, 60, 'end'] as const;
@@ -73,6 +75,9 @@ function Stage() {
   const repeat = usePlayer((s) => s.repeat);
   const rate = usePlayer((s) => s.rate);
   const sleep = usePlayer((s) => s.sleep);
+  // The equalizer chip follows its setting.
+  useEqualizer((s) => s.enabled);
+  useEqualizer((s) => s.preset);
   const { toggle, previous, next, seek, setShuffle, cycleRepeat, retry } = usePlayer.getState();
   const openSound = () => useUi.setState({ nowPanel: 'sound' });
 
@@ -80,7 +85,7 @@ function Stage() {
     repeat === 'off' ? t('repeatOff') : repeat === 'all' ? t('repeatAll') : t('repeatOne');
   const chips = [
     { icon: 'speed', label: formatRate(rate) },
-    { icon: 'equalizer', label: `${t('eq')} · ${t('planned')}` },
+    { icon: 'equalizer', label: equalizerLabel(t) },
     {
       icon: 'bedtime',
       label: sleep.mode === 'off' ? t('timer') : sleepLabel(sleepChoice(sleep), t),
@@ -377,31 +382,7 @@ function SoundPanel() {
 
   return (
     <div className="flex flex-1 flex-col gap-[22px] overflow-auto p-5">
-      <section className="flex flex-col gap-3" aria-labelledby="eq-head">
-        <div className="flex items-center justify-between">
-          <span id="eq-head" className="text-[14px] font-bold">
-            {t('eq')}
-          </span>
-          <span className="rounded-xs border border-planned-border bg-planned-bg px-1.5 py-0.5 font-mono text-[10.5px] font-bold text-warn">
-            {t('planned')}
-          </span>
-        </div>
-        <div
-          aria-hidden="true"
-          className="flex h-[140px] items-end justify-between rounded-lg border border-line bg-bg px-2 pt-3 opacity-45"
-        >
-          {['60', '230', '910', '3.6k', '7k', '14k'].map((f) => (
-            <div key={f} className="flex h-full flex-col items-center justify-end gap-1.5 pb-2">
-              <div className="relative w-1.5 flex-1 rounded-[3px] bg-line">
-                <div className="absolute inset-x-0 bottom-0 h-1/2 rounded-[3px] bg-coral-subtle" />
-                <div className="absolute -left-[5px] bottom-1/2 -mb-2 h-4 w-4 rounded-full border-[3px] border-bg bg-coral" />
-              </div>
-              <span className="font-mono text-[10.5px] text-muted">{f}</span>
-            </div>
-          ))}
-        </div>
-        <span className="text-[12px] text-muted">{t('eqPlanned')}</span>
-      </section>
+      <EqualizerSection />
 
       <section className="flex flex-col gap-2.5" aria-labelledby="speed-head">
         <span id="speed-head" className="text-[14px] font-bold">

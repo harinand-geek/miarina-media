@@ -371,6 +371,7 @@ pub fn run() {
             native_player::native_player_open,
             native_player::native_player_control,
             native_player::native_player_volume,
+            native_player::native_player_equalizer,
             native_player::native_player_add_subtitle,
             native_player::native_player_frame,
             commands::library_cover_pick,
