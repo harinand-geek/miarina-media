@@ -44,7 +44,12 @@ export function TitleBar() {
             <PlannedBadge label="PREVIEW" />
           </span>
         )}
-        <button type="button" aria-label={t('minimize')} className={WINDOW_BUTTON} onClick={minimizeWindow}>
+        <button
+          type="button"
+          aria-label={t('minimize')}
+          className={WINDOW_BUTTON}
+          onClick={minimizeWindow}
+        >
           <Icon name="remove" size={16} />
         </button>
         <button

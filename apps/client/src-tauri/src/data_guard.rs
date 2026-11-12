@@ -61,7 +61,8 @@ pub fn open(data_dir: &Path, version: &str) -> Result<(Storage, Upgrade), Storag
     result
 }
 
-/// Text shown when the database cannot be opened.
+/// Text shown when the database cannot be opened (Windows message box).
+#[cfg_attr(not(windows), allow(dead_code))]
 pub fn message(e: &StorageError, db: &Path, version: &str, french: bool) -> String {
     let db = db.display();
     match (e, french) {

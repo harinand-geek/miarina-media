@@ -16,8 +16,29 @@ class MainActivity : TauriActivity() {
     // Launch screen until the interface has rendered (AppShellPlugin.ready),
     // so the user never sees an empty dark window. Capped in case the page fails.
     val launched = SystemClock.uptimeMillis()
-    installSplashScreen().setKeepOnScreenCondition {
+    val splash = installSplashScreen()
+    splash.setKeepOnScreenCondition {
       !AppShellPlugin.ready && SystemClock.uptimeMillis() - launched < SPLASH_MAX_MS
+    }
+    // Exit: 300 ms fade over Home, already rendered underneath
+    // (design_handoff_splash). With system animations off, it just goes.
+    splash.setOnExitAnimationListener { provider ->
+      // Settings value rather than areAnimatorsEnabled(): minSdk is 24.
+      val animated = android.provider.Settings.Global.getFloat(
+        contentResolver,
+        android.provider.Settings.Global.ANIMATOR_DURATION_SCALE,
+        1f,
+      ) > 0f
+      if (!animated) {
+        provider.remove()
+        return@setOnExitAnimationListener
+      }
+      provider.view.animate()
+        .alpha(0f)
+        .setDuration(SPLASH_EXIT_MS)
+        .setInterpolator(android.view.animation.PathInterpolator(0.3f, 0f, 1f, 1f))
+        .withEndAction { provider.remove() }
+        .start()
     }
     // Dark-first design: light status/navigation bar icons on the app background.
     enableEdgeToEdge(
@@ -50,5 +71,6 @@ class MainActivity : TauriActivity() {
 
   private companion object {
     const val SPLASH_MAX_MS = 3_000L
+    const val SPLASH_EXIT_MS = 300L
   }
 }

@@ -1,7 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { Logo } from '../../components/Logo';
+import { flyLogoFromSplash, takeLaunch } from '../../app/launch';
 import { ProgressBar } from '../../components/ProgressBar';
 import { useT } from '../../i18n';
 import { backend } from '../../services/backend';
@@ -58,6 +59,12 @@ export function MobileHome({
   onOpenSettings: () => void;
 }) {
   const t = useT();
+  // Cold start only: the end of the splash, once (design_handoff_splash).
+  const [launch] = useState(() => takeLaunch('home'));
+  const logoRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    if (launch && logoRef.current) flyLogoFromSplash(logoRef.current, 26);
+  }, [launch]);
   const { url, issue, inputRef, change, submit, paste, applyFix } = useLinkInput();
   const tasks = useDownloads((s) => s.tasks);
   const summary = useMemo(() => summarize(tasks), [tasks]);
@@ -87,8 +94,15 @@ export function MobileHome({
   return (
     <div className="flex flex-1 flex-col gap-5 overflow-auto px-4 pb-4 pt-1">
       <header className="flex h-12 shrink-0 items-center gap-2.5">
-        <Logo size={26} />
-        <span className="flex-1 text-[18px] font-extrabold tracking-[-0.01em]">Miarina Media</span>
+        <span ref={logoRef} className="grid shrink-0 place-items-center">
+          <Logo size={26} />
+        </span>
+        <span
+          className={`flex-1 text-[18px] font-extrabold tracking-[-0.01em] ${launch ? 'animate-launch-rise' : ''}`}
+          style={launch ? { animationDelay: '300ms' } : undefined}
+        >
+          Miarina Media
+        </span>
         <button
           type="button"
           aria-label={t('searchLibrary')}
@@ -111,7 +125,8 @@ export function MobileHome({
       </header>
 
       <form
-        className="flex flex-col gap-3 rounded-2xl bg-surface p-4"
+        className={`flex flex-col gap-3 rounded-2xl bg-surface p-4 ${launch ? 'animate-launch-rise' : ''}`}
+        style={launch ? { animationDelay: '140ms' } : undefined}
         onSubmit={(e) => {
           e.preventDefault();
           void submit();
@@ -152,7 +167,10 @@ export function MobileHome({
         <span className="text-center text-[12px] text-muted">{t('shareHint')}</span>
       </form>
 
-      <div className="grid grid-cols-4 gap-2">
+      <div
+        className={`grid grid-cols-4 gap-2 ${launch ? 'animate-launch-rise' : ''}`}
+        style={launch ? { animationDelay: '200ms' } : undefined}
+      >
         {quick.map((q) => (
           <button
             key={q.icon}
@@ -206,7 +224,8 @@ export function MobileHome({
 
       <section
         aria-label={home.resume ? t('resumeTitle') : t('recentTitle')}
-        className="flex flex-col gap-2.5"
+        className={`flex flex-col gap-2.5 ${launch ? 'animate-launch-rise' : ''}`}
+        style={launch ? { animationDelay: '260ms' } : undefined}
       >
         <div className="flex items-center justify-between">
           <h2 className="m-0 text-[15px] font-bold">

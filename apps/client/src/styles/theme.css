@@ -191,6 +191,9 @@
   --animate-fade-in: fade-in 160ms var(--ease-standard);
   --animate-skeleton: skeleton 1.2s ease-in-out infinite;
   --animate-indeterminate: indeterminate 1.4s var(--ease-standard) infinite;
+  /* Android cold start, after the splash (design_handoff_splash). */
+  --animate-launch-rise: screen-in 380ms var(--ease-standard) both;
+  --animate-launch-nav: nav-in 360ms var(--ease-standard) 220ms both;
 
   @keyframes screen-in {
     from {
@@ -214,6 +217,11 @@
     from {
       opacity: 0;
       transform: translateX(12px);
+    }
+  }
+  @keyframes nav-in {
+    from {
+      transform: translateY(100%);
     }
   }
   @keyframes fade-in {

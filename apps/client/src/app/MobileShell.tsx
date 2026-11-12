@@ -4,6 +4,7 @@ import { ConfirmDialog } from '../components/Overlay';
 import { MobileRemoveSheet } from '../features/library/MobileRemoveSheet';
 import { ToastHost } from '../components/ToastHost';
 import { MobileHome } from '../features/home/MobileHome';
+import { takeLaunch } from './launch';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
 import { MobileMusic } from '../features/library/MobileMusic';
 import { MobileVideos } from '../features/library/MobileVideos';
@@ -44,6 +45,8 @@ const TABS: { id: MobileTab; label: MessageKey; icon: string; play?: boolean }[]
 export function MobileShell() {
   const t = useT();
   const [tab, setTab] = useState<MobileTab>('home');
+  // The bottom bar slides up once, with Home, after a cold start.
+  const [launchNav] = useState(() => takeLaunch('nav'));
   const [miniSlot, setMiniSlot] = useState<HTMLDivElement | null>(null);
   const playerExpanded = useUi((s) => s.nowPlaying !== null && s.mobilePlayerExpanded);
   const session = useMobilePlayback((s) => s.session);
@@ -151,7 +154,7 @@ export function MobileShell() {
       <nav
         aria-label={t('navLabel')}
         hidden={tab === 'browser'}
-        className="flex h-[72px] shrink-0 border-t border-divider bg-sidebar px-1"
+        className={`flex h-[72px] shrink-0 border-t border-divider bg-sidebar px-1 ${launchNav ? 'animate-launch-nav' : ''}`}
       >
         {TABS.map((item) => {
           const on = item.id === tab;

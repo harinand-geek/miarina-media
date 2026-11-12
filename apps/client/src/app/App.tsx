@@ -28,5 +28,10 @@ export function App() {
     };
   }, []);
 
-  return <><UpdateMonitor />{platform === 'android' ? <MobileShell /> : <DesktopShell />}</>;
+  return (
+    <>
+      <UpdateMonitor />
+      {platform === 'android' ? <MobileShell /> : <DesktopShell />}
+    </>
+  );
 }
