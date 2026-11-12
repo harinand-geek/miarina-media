@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.7',
+  version: '0.1.8',
   windows: {
-    version: '0.1.7',
-    name: 'MiarinaMedia-0.1.7-x64-setup.exe',
-    size: '70,2 Mio',
-    sha256: 'f083a6ee5aa85bedd8d131ce97864342c905866bcbe3d3b7fe53c0472c00a767',
+    version: '0.1.8',
+    name: 'MiarinaMedia-0.1.8-x64-setup.exe',
+    size: '91,2 Mio',
+    sha256: 'e90bc6e275bf8f0d8bdd955a56b11bed459bb03ec1a6406141297d96335a7d49',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.7',
