@@ -16,7 +16,15 @@ export type Screen =
 /** Windows v2 navigation B: "Get" (download) and "Play" (listen & watch) spaces. */
 export type Space = 'get' | 'play';
 /** Library views of the Play space (playlists and favorites: COM-06, later). */
-export type LibraryView = 'tracks' | 'albums' | 'artists' | 'folders' | 'videos';
+export type PlaylistDialog =
+  /** New playlist, filled with `ids` (empty, or the play queue). */
+  | { kind: 'create'; ids: number[] }
+  | { kind: 'rename'; id: number; name: string }
+  /** Choose a playlist (or a new one) for `ids`. */
+  | { kind: 'add'; ids: number[] };
+
+export type LibraryView =
+  'tracks' | 'albums' | 'artists' | 'folders' | 'playlists' | 'favorites' | 'videos';
 
 /** An album, artist or folder opened from its grid. */
 export interface LibraryGroup {
@@ -61,6 +69,8 @@ interface UiState {
   space: Space;
   libraryView: LibraryView;
   libraryGroup: LibraryGroup | null;
+  /** Opened playlist (Playlists view), or null for the list. */
+  openPlaylist: number | null;
   /** Entry open in the tag editor (COM-07). */
   tagEditor: MediaRecord | null;
   /** Right panel of "Now playing". */
@@ -71,6 +81,8 @@ interface UiState {
   confirm: ConfirmRequest | null;
   /** Desktop "Remove or delete" dialog target (COM-10). */
   removal: MediaRecord | null;
+  /** Playlist dialogs (COM-06): name a new one, rename, or add entries. */
+  playlistDialog: PlaylistDialog | null;
   /** URL waiting to be analyzed (Home → Analysis, Android sheet). */
   pendingUrl: string;
   analysisTab: 'video' | 'audio' | 'subtitles';
@@ -104,6 +116,7 @@ export const useUi = create<UiState>((set) => ({
   space: 'get',
   libraryView: 'tracks',
   libraryGroup: null,
+  openPlaylist: null,
   tagEditor: null,
   nowPanel: 'queue',
   sidebarCollapsed: false,
@@ -111,6 +124,7 @@ export const useUi = create<UiState>((set) => ({
   toasts: [],
   confirm: null,
   removal: null,
+  playlistDialog: null,
   pendingUrl: '',
   analysisTab: 'video',
   analysisChoices: [],
@@ -124,6 +138,7 @@ export const useUi = create<UiState>((set) => ({
       confirm: null,
       removal: null,
       tagEditor: null,
+      playlistDialog: null,
       space: spaceOf(screen, s.space),
     })),
   toggleSidebar: () => set((s) => ({ sidebarCollapsed: !s.sidebarCollapsed })),

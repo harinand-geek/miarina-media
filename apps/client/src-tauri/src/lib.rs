@@ -8,7 +8,9 @@ mod updates;
 mod download_notifications;
 #[cfg(target_os = "android")]
 mod media_tools;
+mod m3u;
 mod playback_state;
+mod playlists;
 mod player;
 mod shared_storage;
 mod shell;
@@ -345,6 +347,17 @@ pub fn run() {
             commands::library_groups,
             commands::library_remove,
             playback_state::playback_load,
+            playlists::library_set_favorite,
+            playlists::playlists_list,
+            playlists::playlist_get,
+            playlists::playlist_create,
+            playlists::playlist_rename,
+            playlists::playlist_delete,
+            playlists::playlist_add,
+            playlists::playlist_remove,
+            playlists::playlist_move,
+            playlists::playlist_import,
+            playlists::playlist_export,
             playback_state::playback_write,
             commands::library_delete,
             commands::library_reveal,

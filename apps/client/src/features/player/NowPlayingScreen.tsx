@@ -17,10 +17,13 @@ import { SeekBar } from './SeekBar';
 const SLEEP_CHOICES = ['off', 15, 30, 60, 'end'] as const;
 
 const sleepLabel = (choice: 'off' | 'end' | number, t: Translate) =>
-  choice === 'off' ? t('sleepOff') : choice === 'end' ? t('sleepEnd') : t('sleepMinutes', { n: choice });
+  choice === 'off'
+    ? t('sleepOff')
+    : choice === 'end'
+      ? t('sleepEnd')
+      : t('sleepMinutes', { n: choice });
 
-const sleepChoice = (sleep: SleepTimer) =>
-  sleep.mode === 'minutes' ? sleep.minutes : sleep.mode;
+const sleepChoice = (sleep: SleepTimer) => (sleep.mode === 'minutes' ? sleep.minutes : sleep.mode);
 
 /** "En lecture" (Windows v2 screen 6): cover, transport, queue and sound. */
 export default function NowPlayingScreen() {
@@ -78,7 +81,10 @@ function Stage() {
   const chips = [
     { icon: 'speed', label: formatRate(rate) },
     { icon: 'equalizer', label: `${t('eq')} · ${t('planned')}` },
-    { icon: 'bedtime', label: sleep.mode === 'off' ? t('timer') : sleepLabel(sleepChoice(sleep), t) },
+    {
+      icon: 'bedtime',
+      label: sleep.mode === 'off' ? t('timer') : sleepLabel(sleepChoice(sleep), t),
+    },
   ];
 
   return (
@@ -88,7 +94,9 @@ function Stage() {
         className="aspect-square w-[min(340px,40vh)] shrink-0 rounded-[14px] border border-line shadow-[0_24px_64px_rgba(0,0,0,0.3)]"
       />
       <div className="flex flex-col items-center gap-1.5 text-center">
-        <h1 className="m-0 text-[26px] font-extrabold leading-8 tracking-[-0.02em]">{media.title}</h1>
+        <h1 className="m-0 text-[26px] font-extrabold leading-8 tracking-[-0.02em]">
+          {media.title}
+        </h1>
         <span className="text-[14px] text-muted">{mediaByline(media, t)}</span>
       </div>
       {failed && (
@@ -194,7 +202,9 @@ function SidePanel() {
             aria-selected={panel === tab.id}
             onClick={() => useUi.setState({ nowPanel: tab.id })}
             className={`-mb-px h-12 border-b-2 text-[13.5px] font-semibold ${
-              panel === tab.id ? 'border-accent text-fg' : 'border-transparent text-muted hover:text-fg'
+              panel === tab.id
+                ? 'border-accent text-fg'
+                : 'border-transparent text-muted hover:text-fg'
             }`}
           >
             {tab.label}
@@ -245,8 +255,14 @@ function QueuePanel() {
         <span className="block px-2.5 py-2 text-[11px] font-bold uppercase tracking-[0.06em] text-faint">
           {t('upNext')}
         </span>
-        {queue.length === 0 && <p className="m-0 px-2.5 text-[12.5px] text-muted">{t('queueEmpty')}</p>}
-        <ol aria-label={t('queue')} title={t('dragHint')} className="m-0 flex list-none flex-col p-0">
+        {queue.length === 0 && (
+          <p className="m-0 px-2.5 text-[12.5px] text-muted">{t('queueEmpty')}</p>
+        )}
+        <ol
+          aria-label={t('queue')}
+          title={t('dragHint')}
+          className="m-0 flex list-none flex-col p-0"
+        >
           {queue.map((m, i) => {
             const on = i === index;
             return (
@@ -279,7 +295,10 @@ function QueuePanel() {
                   onClick={() => playAt(i)}
                   className="flex min-w-0 flex-1 items-center gap-2.5 text-left"
                 >
-                  <MediaThumb media={m} className="grid h-9 w-9 shrink-0 place-items-center rounded-xs">
+                  <MediaThumb
+                    media={m}
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-xs"
+                  >
                     {on && playing && (
                       <span className="absolute inset-0 grid place-items-center bg-black/45">
                         <Icon name="equalizer" size={18} className="text-coral" />
@@ -287,13 +306,17 @@ function QueuePanel() {
                     )}
                   </MediaThumb>
                   <span className="flex min-w-0 flex-1 flex-col">
-                    <span className={`truncate text-[13px] font-bold ${on ? 'text-coral-strong' : ''}`}>
+                    <span
+                      className={`truncate text-[13px] font-bold ${on ? 'text-coral-strong' : ''}`}
+                    >
                       {m.title}
                     </span>
                     <span className="truncate text-[12px] text-muted">{mediaByline(m, t)}</span>
                   </span>
                 </button>
-                <span className="font-mono text-[11.5px] text-muted">{durationLabel(m.durationSecs)}</span>
+                <span className="font-mono text-[11.5px] text-muted">
+                  {durationLabel(m.durationSecs)}
+                </span>
                 <IconButton
                   icon="close"
                   label={t('removeFromQueue')}
@@ -311,14 +334,16 @@ function QueuePanel() {
       <div className="flex gap-2 border-t border-line px-5 py-3.5">
         <button
           type="button"
-          disabled
-          title={t('plannedHint')}
-          className="flex h-[34px] flex-1 items-center justify-center gap-2 rounded-sm border border-line-strong bg-surface2 text-[12.5px] font-semibold opacity-60"
+          disabled={queue.length === 0}
+          onClick={() =>
+            useUi.setState({
+              playlistDialog: { kind: 'create', ids: queue.map((m) => m.id) },
+            })
+          }
+          className="flex h-[34px] flex-1 items-center justify-center gap-2 rounded-sm border border-line-strong bg-surface2 text-[12.5px] font-semibold enabled:hover:bg-secondary-hover disabled:opacity-50"
         >
+          <Icon name="playlist_add" size={17} />
           {t('saveAsPlaylist')}
-          <span className="rounded-xs border border-planned-border bg-planned-bg px-1 font-mono text-[9.5px] font-bold text-warn">
-            {t('planned')}
-          </span>
         </button>
         <button
           type="button"

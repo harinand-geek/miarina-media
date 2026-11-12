@@ -17,6 +17,7 @@ import { GroupsView } from './GroupsView';
 import { MediaContextMenu, RenameDialog, type MenuTarget } from './MediaActions';
 import { useMediaActions } from './useMediaActions';
 import { MediaThumb } from './MediaThumb';
+import { PlaylistsView } from './PlaylistsView';
 import { TracksTable } from './TracksTable';
 
 const LIST_COLUMNS = 'grid-cols-[56px_minmax(0,1fr)_180px_80px_90px_90px]';
@@ -60,16 +61,22 @@ export default function LibraryScreen() {
   }, [focusRequest]);
 
   // The navigation (view and opened group) decides what the store lists.
+  const onlyFavorites = libraryView === 'favorites';
   useEffect(() => {
-    useLibrary.getState().show(wantedKind, opened);
-  }, [wantedKind, opened]);
+    useLibrary.getState().show(wantedKind, opened, onlyFavorites);
+  }, [wantedKind, opened, onlyFavorites]);
+  const favorites = useLibrary((s) => s.favorites);
 
-  const synced = kind === wantedKind && group?.by === opened?.by && group?.name === opened?.name;
+  const synced =
+    kind === wantedKind &&
+    group?.by === opened?.by &&
+    group?.name === opened?.name &&
+    favorites === onlyFavorites;
 
   // Library-wide count: hidden while searching, where it would not match.
   const count = search.trim()
     ? undefined
-    : opened
+    : opened || onlyFavorites
       ? total
       : isVideos
         ? overview?.stats.videoCount
@@ -118,6 +125,14 @@ export default function LibraryScreen() {
       ? folderName(opened.name)
       : opened.name
     : t(libraryView);
+
+  if (libraryView === 'playlists') {
+    return (
+      <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
+        <PlaylistsView scrollRef={scrollRef} />
+      </div>
+    );
+  }
 
   return (
     <div ref={scrollRef} className="relative flex flex-1 flex-col gap-5 overflow-auto px-10 py-7">
@@ -228,7 +243,11 @@ export default function LibraryScreen() {
 
       {!showGroups &&
         empty &&
-        (filtered || opened ? (
+        (onlyFavorites && !filtered ? (
+          <EmptyState icon="favorite" title={t('favoritesEmptyTitle')}>
+            {t('favoritesEmptyBody')}
+          </EmptyState>
+        ) : filtered || opened ? (
           <EmptyState>{filtered ? t('noMatch', { q: search.trim() }) : t('noItems')}</EmptyState>
         ) : (
           <EmptyState

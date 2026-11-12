@@ -241,6 +241,34 @@ export interface MediaRecord {
   genre?: string | null;
   trackNo?: number | null;
   discNo?: number | null;
+  /** Marked as a favorite (COM-06). */
+  favorite?: boolean;
+}
+
+/** `storage::PlaylistSummary` (COM-06). */
+export interface PlaylistSummary {
+  id: number;
+  name: string;
+  count: number;
+  durationSecs: number;
+  /** Up to four thumbnails for the cover mosaic. */
+  covers: string[];
+  updatedAt: number;
+}
+
+/** `storage::Playlist`: entries in order, missing files included. */
+export interface Playlist {
+  id: number;
+  name: string;
+  items: MediaRecord[];
+}
+
+/** Result of an M3U import (COM-11). */
+export interface PlaylistImport {
+  playlist: PlaylistSummary;
+  added: number;
+  /** Entries not in the library, or web addresses (never fetched). */
+  skipped: number;
 }
 
 /** `storage::MediaTags` (tag editor, COM-07). */
@@ -278,6 +306,8 @@ export interface MediaQuery {
   album?: string | null;
   artist?: string | null;
   folder?: string | null;
+  /** Favorites only. */
+  favorites?: boolean;
   sort: MediaSort;
   offset?: number;
   limit?: number;

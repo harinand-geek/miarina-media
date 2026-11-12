@@ -60,6 +60,8 @@ pub struct MediaRecord {
     pub genre: Option<String>,
     pub track_no: Option<u32>,
     pub disc_no: Option<u32>,
+    /// Marked as a favorite (COM-06).
+    pub favorite: bool,
 }
 
 /// Editable tags of a library entry (COM-07). `None` = no value.
@@ -146,6 +148,8 @@ pub struct MediaQuery {
     pub album: Option<String>,
     pub artist: Option<String>,
     pub folder: Option<String>,
+    /// Favorites only (COM-06).
+    pub favorites: bool,
     pub sort: MediaSort,
     pub offset: u32,
     pub limit: u32,
@@ -173,9 +177,9 @@ pub struct MediaStats {
 pub const MEDIA_PAGE_MAX: u32 = 10_000;
 const MAX_SEARCH_TOKENS: usize = 8;
 
-const COLUMNS: &str = "id, path, title, kind, source_host, source_url, task_id, size_bytes, \
+pub(crate) const COLUMNS: &str = "id, path, title, kind, source_host, source_url, task_id, size_bytes, \
      duration_secs, width, height, video_codec, audio_codec, container, thumbnail, probed, \
-     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no";
+     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no, favorite";
 
 impl<'de> Deserialize<'de> for MediaKind {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
@@ -277,6 +281,9 @@ impl Storage {
                 .push("(m.artist = ? COLLATE NOCASE OR m.album_artist = ? COLLATE NOCASE)".into());
             values.push(Value::Text(artist.clone()));
             values.push(Value::Text(artist.clone()));
+        }
+        if query.favorites {
+            conditions.push("m.favorite = 1".into());
         }
         if let Some(folder) = &query.folder {
             conditions.push("(m.path LIKE ? ESCAPE '!' OR m.path LIKE ? ESCAPE '!')".into());
@@ -654,7 +661,7 @@ impl Storage {
     }
 }
 
-fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord>> {
+pub(crate) fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord>> {
     let kind: String = row.get(3)?;
     let Some(kind) = MediaKind::parse(&kind) else {
         return Ok(Err(StorageError::Corrupted("media.kind")));
@@ -690,6 +697,7 @@ fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord>> {
         genre: row.get(23)?,
         track_no: opt_u32(24)?,
         disc_no: opt_u32(25)?,
+        favorite: row.get(26)?,
     }))
 }
 
@@ -745,7 +753,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            6
+            7
         );
     }
 

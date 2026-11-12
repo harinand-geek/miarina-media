@@ -1,0 +1,15 @@
+# Fiche LOT-COM06 — Playlists, favoris et M3U (Windows)
+
+- Statut : Fait (bureau) ; écrans Android Playlists / Favoris encore PRÉVU (phase mobile)
+- Exigences CDC : COM-06 (playlists et favoris persistants), COM-11 (import / export M3U), COM-03 (enregistrer la file en playlist)
+- Maquette : `design/design_handoff_windows_v2` écran 4 (vues Playlists et Favoris, cœur dans le tableau Titres) et écran 6 (« Enregistrer en playlist »)
+- Inclus :
+  - Migration SQLite v7 : colonne `media.favorite`, tables `playlists` et `playlist_items` (ordre, doublons permis comme en M3U). Un média retiré ou supprimé de la bibliothèque quitte ses playlists (clé étrangère en cascade) ; supprimer une playlist ne touche à aucun fichier. Bornes : 1 000 playlists, 5 000 entrées par playlist, nom de 120 caractères.
+  - Commandes Tauri : favori, liste, détail, créer, renommer, supprimer, ajouter, retirer, déplacer, importer et exporter en M3U (+ permissions).
+  - M3U : lecture des chemins absolus, relatifs et `file:///` (UTF-8, BOM accepté, 2 Mio au plus) ; seules les entrées déjà dans la bibliothèque sont ajoutées, les adresses web et fichiers inconnus sont comptés, jamais téléchargés. Export en M3U8 étendu (`#EXTINF`, chemins absolus), écrit à côté puis renommé (pas de fichier à moitié écrit). Les fichiers sont choisis par les dialogues système, jamais par un chemin venant de la page.
+  - Interface bureau : vues Favoris (tableau Titres filtré) et Playlists (grille avec mosaïque de 4 pochettes, carte « Nouvelle playlist », Importer M3U), détail d'une playlist (Tout lire, Lecture aléatoire, Renommer, Exporter M3U, Supprimer ; Alt + ↑/↓ pour l'ordre, Suppr pour retirer), cœur corail dans le tableau Titres, menu ⋯ « Ajouter aux favoris » et « Ajouter à une playlist… », « Enregistrer en playlist » actif dans En lecture.
+- Adaptations : la maquette n'a pas d'écran de détail de playlist ni de dialogues de nom / choix : construits avec le tableau Titres et le gabarit du dialogue de renommage ; « Exporter M3U » est dans le détail de la playlist (il faut savoir laquelle exporter).
+- Tests : `cargo test -p storage` (37, dont v6 → v7, favoris, cycle de vie d'une playlist, média retiré, recherche par chemin), tests M3U (lecture, export) ; `vitest` 31 fichiers, 160 tests (nouveau `src/test/playlists.test.tsx` : cœur et vue Favoris, création, ajout, ordre, retrait, export, suppression, ajout depuis le menu, import, file enregistrée en playlist) ; captures FR conformes à la maquette.
+- Recette native Windows (build release isolé) : migration v6 → v7 ; favori marqué et filtré ; playlist créée avec 5 titres, déplacement et retrait dans le bon ordre ; nom vide et liste de 6 000 entrées refusés (`invalid_playlist`) ; un titre retiré de la bibliothèque quitte la playlist, le fichier reste sur le disque ; écran de détail en français conforme.
+- Non testé : dialogues système d'import / export dans l'application réelle (non pilotables automatiquement), fichiers M3U de logiciels tiers.
+- Retour arrière : revert ; colonnes et tables v7 ignorées par l'ancien code.

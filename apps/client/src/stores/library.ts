@@ -20,6 +20,8 @@ interface LibraryState {
   sort: MediaSort;
   /** Tracks of one album / artist / folder. */
   group: { by: GroupBy; name: string } | null;
+  /** Favorites only (COM-06). */
+  favorites: boolean;
   items: MediaRecord[];
   total: number;
   overview: LibraryOverview | null;
@@ -32,7 +34,13 @@ interface LibraryState {
   setKind: (kind: MediaKind | null) => void;
   setSort: (sort: MediaSort) => void;
   /** Sets kind and group together (one query). */
-  show: (kind: MediaKind | null, group: { by: GroupBy; name: string } | null) => void;
+  show: (
+    kind: MediaKind | null,
+    group: { by: GroupBy; name: string } | null,
+    favorites?: boolean,
+  ) => void;
+  /** Marks or unmarks a favorite; lists and the player follow. */
+  toggleFavorite: (media: MediaRecord) => Promise<void>;
   rename: (id: number, title: string) => Promise<boolean>;
   /** Deletes the file from disk. */
   remove: (id: number) => Promise<boolean>;
@@ -65,6 +73,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
     kind: null,
     sort: 'added',
     group: null,
+    favorites: false,
     items: [],
     total: 0,
     overview: null,
@@ -78,7 +87,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
 
     refresh: async () => {
       const seq = ++requestSeq;
-      const { search, kind, sort, group } = get();
+      const { search, kind, sort, group, favorites } = get();
       try {
         const [page, overview, recent] = await Promise.all([
           backend.libraryQuery({
@@ -88,6 +97,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
             album: group?.by === 'album' ? group.name : null,
             artist: group?.by === 'artist' ? group.name : null,
             folder: group?.by === 'folder' ? group.name : null,
+            favorites,
           }),
           backend.libraryOverview(),
           backend.libraryQuery({ search: '', kind: null, sort: 'added', limit: 4 }),
@@ -112,12 +122,33 @@ export const useLibrary = create<LibraryState>((set, get) => {
       set({ sort });
       void get().refresh();
     },
-    show: (kind, group) => {
+    show: (kind, group, favorites = false) => {
       const current = get();
-      if (current.kind === kind && current.group?.by === group?.by && current.group?.name === group?.name)
+      if (
+        current.kind === kind &&
+        current.group?.by === group?.by &&
+        current.group?.name === group?.name &&
+        current.favorites === favorites
+      )
         return;
-      set({ kind, group });
+      set({ kind, group, favorites });
       void get().refresh();
+    },
+
+    toggleFavorite: async (media) => {
+      try {
+        const updated = await backend.librarySetFavorite(media.id, !media.favorite);
+        set((s) => ({
+          items:
+            s.favorites && !updated.favorite
+              ? s.items.filter((m) => m.id !== updated.id)
+              : s.items.map((m) => (m.id === updated.id ? updated : m)),
+          total: s.favorites && !updated.favorite ? Math.max(0, s.total - 1) : s.total,
+        }));
+        usePlayer.getState().refreshMedia(updated);
+      } catch (e) {
+        report(e);
+      }
     },
 
     rename: async (id, title) => {

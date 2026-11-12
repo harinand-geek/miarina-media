@@ -18,6 +18,9 @@ import type {
   LibraryOverview,
   Limits,
   MediaGroup,
+  Playlist,
+  PlaylistImport,
+  PlaylistSummary,
   MediaPage,
   MediaQuery,
   MediaRecord,
@@ -406,6 +409,7 @@ export class MockBackend {
         (!query.album || same(m.album, query.album)) &&
         (!query.artist || same(m.artist, query.artist) || same(m.albumArtist, query.artist)) &&
         (!query.folder || folderOf(m.path).startsWith(query.folder)) &&
+        (!query.favorites || m.favorite) &&
         words.every((w) =>
           text(m)
             .split(/[^\p{L}\p{N}]+/u)
@@ -501,6 +505,111 @@ export class MockBackend {
     this.library = this.library.map((x) => (x.id === id ? updated : x));
     this.libraryChanged();
     return updated;
+  }
+
+  // ------------------------------------------------- favorites, playlists
+
+  private lists: { id: number; name: string; ids: number[]; updatedAt: number }[] = [];
+  private nextList = 1;
+
+  private summary(list: { id: number; name: string; ids: number[]; updatedAt: number }) {
+    const items = list.ids
+      .map((id) => this.library.find((m) => m.id === id))
+      .filter((m): m is MediaRecord => !!m);
+    return {
+      id: list.id,
+      name: list.name,
+      count: items.length,
+      durationSecs: items.reduce((acc, m) => acc + (m.durationSecs ?? 0), 0),
+      covers: items.flatMap((m) => (m.thumbnail ? [m.thumbnail] : [])).slice(0, 4),
+      updatedAt: list.updatedAt,
+    };
+  }
+
+  private list(id: number) {
+    const list = this.lists.find((l) => l.id === id);
+    if (!list) throw new Error('This playlist no longer exists.');
+    return list;
+  }
+
+  private touch(list: { updatedAt: number }) {
+    list.updatedAt = Date.now() + this.nextList;
+  }
+
+  async librarySetFavorite(id: number, favorite: boolean) {
+    const item = await this.libraryGet(id);
+    const updated = { ...item, favorite };
+    this.library = this.library.map((m) => (m.id === id ? updated : m));
+    return { ...updated };
+  }
+
+  async playlists(): Promise<PlaylistSummary[]> {
+    return [...this.lists].sort((a, b) => b.updatedAt - a.updatedAt).map((l) => this.summary(l));
+  }
+
+  async playlistGet(id: number): Promise<Playlist> {
+    const list = this.list(id);
+    const items = list.ids
+      .map((i) => this.library.find((m) => m.id === i))
+      .filter((m): m is MediaRecord => !!m)
+      .map((m) => ({ ...m }));
+    return { id, name: list.name, items };
+  }
+
+  async playlistCreate(name: string, ids: number[]) {
+    const clean = name.trim();
+    if (!clean) throw new Error('A playlist needs a name.');
+    const list = {
+      id: this.nextList++,
+      name: clean.slice(0, 120),
+      ids: ids.filter((id) => this.library.some((m) => m.id === id)),
+      updatedAt: 0,
+    };
+    this.touch(list);
+    this.lists.push(list);
+    return this.summary(list);
+  }
+
+  async playlistRename(id: number, name: string) {
+    const list = this.list(id);
+    if (!name.trim()) throw new Error('A playlist needs a name.');
+    list.name = name.trim().slice(0, 120);
+    this.touch(list);
+  }
+
+  async playlistDelete(id: number) {
+    this.list(id);
+    this.lists = this.lists.filter((l) => l.id !== id);
+  }
+
+  async playlistAdd(id: number, ids: number[]) {
+    const list = this.list(id);
+    list.ids.push(...ids.filter((i) => this.library.some((m) => m.id === i)));
+    this.touch(list);
+  }
+
+  async playlistRemove(id: number, index: number) {
+    const list = this.list(id);
+    list.ids.splice(index, 1);
+    this.touch(list);
+  }
+
+  async playlistMove(id: number, from: number, to: number) {
+    const list = this.list(id);
+    const [item] = list.ids.splice(from, 1);
+    if (item !== undefined) list.ids.splice(to, 0, item);
+    this.touch(list);
+  }
+
+  /** Preview: pretends an M3U listed the audio items and one unknown file. */
+  async playlistImport(): Promise<PlaylistImport> {
+    const ids = this.library.filter((m) => m.kind === 'audio').map((m) => m.id);
+    const playlist = await this.playlistCreate('Imported', ids);
+    return { playlist, added: ids.length, skipped: 1 };
+  }
+
+  async playlistExport(id: number) {
+    return ['C:', 'Users', 'Rina', 'Music', `${this.list(id).name}.m3u8`].join('\\');
   }
 
   async libraryGroups(by: GroupBy): Promise<MediaGroup[]> {

@@ -22,7 +22,7 @@ export function openSection(id: Screen) {
 
 /** Play space: music views list audio, Videos lists video. */
 export function openLibrary(view: LibraryView) {
-  useUi.setState({ libraryView: view, libraryGroup: null });
+  useUi.setState({ libraryView: view, libraryGroup: null, openPlaylist: null });
   useUi.getState().go('library');
   useLibrary.getState().show(view === 'videos' ? 'video' : 'audio', null);
 }

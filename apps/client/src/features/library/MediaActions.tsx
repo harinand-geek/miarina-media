@@ -14,21 +14,46 @@ export interface MenuTarget {
 }
 
 /** Positioned context menu (design system §5, items 34 px, shortcuts). */
+interface MenuItem {
+  icon: string;
+  label: string;
+  key: string;
+  run: () => void;
+  disabled?: boolean;
+  danger?: boolean;
+}
+
 export function MediaContextMenu({
   target,
   onClose,
   onRename,
+  extra = [],
 }: {
   target: MenuTarget;
   onClose: () => void;
   onRename: (media: MediaRecord) => void;
+  /** Entries specific to the list (e.g. playlist order). */
+  extra?: MenuItem[];
 }) {
   const t = useT();
   const actions = useMediaActions();
   const ref = useRef<HTMLDivElement>(null);
   const { media } = target;
-  const items = [
+  const items: MenuItem[] = [
     { icon: 'play_arrow', label: t('play'), key: 'Enter', run: () => actions.open(media) },
+    {
+      icon: 'favorite',
+      label: media.favorite ? t('removeFavorite') : t('addFavorite'),
+      key: '',
+      run: () => void useLibrary.getState().toggleFavorite(media),
+    },
+    {
+      icon: 'playlist_add',
+      label: t('addToPlaylist'),
+      key: '',
+      run: () => useUi.setState({ playlistDialog: { kind: 'add', ids: [media.id] } }),
+    },
+    ...extra,
     {
       icon: 'folder_open',
       label: t('showInFolder'),

@@ -6,6 +6,7 @@
 mod media;
 mod migrations;
 mod playback;
+mod playlists;
 
 pub use media::{
     GroupBy, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats,
@@ -13,6 +14,9 @@ pub use media::{
 };
 pub use playback::{
     PLAYBACK_IMPORTED, PLAYBACK_ROWS_MAX, PLAYBACK_VALUE_MAX, is_playback_key, position_key,
+};
+pub use playlists::{
+    PLAYLIST_ITEMS_MAX, PLAYLIST_NAME_MAX, PLAYLISTS_MAX, Playlist, PlaylistSummary,
 };
 
 use std::path::Path;

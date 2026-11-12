@@ -30,12 +30,6 @@ const library = (view: LibraryView, label: MessageKey, icon: string): NavItem =>
   icon,
   go: () => openLibrary(view),
 });
-const planned = (id: string, label: MessageKey, icon: string): NavItem => ({
-  id,
-  label,
-  icon,
-  planned: true,
-});
 
 const GET: NavItem[] = [
   section('home', 'home', 'home'),
@@ -50,8 +44,8 @@ const MUSIC: NavItem[] = [
   library('albums', 'albums', 'album'),
   library('artists', 'artists', 'person'),
   library('folders', 'folders', 'folder'),
-  planned('lib:playlists', 'playlists', 'queue_music'),
-  planned('lib:favorites', 'favorites', 'favorite'),
+  library('playlists', 'playlists', 'queue_music'),
+  library('favorites', 'favorites', 'favorite'),
 ];
 const VIDEO: NavItem[] = [library('videos', 'videos', 'movie')];
 
@@ -177,7 +171,9 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
           {GET.map((item) =>
             renderItem(item, {
               badge:
-                item.id === 'downloads' && summary.openCount ? String(summary.openCount) : undefined,
+                item.id === 'downloads' && summary.openCount
+                  ? String(summary.openCount)
+                  : undefined,
             }),
           )}
         </div>

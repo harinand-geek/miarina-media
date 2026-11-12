@@ -6,6 +6,7 @@ import { HomeScreen } from '../features/home/HomeScreen';
 import { AnalysisScreen } from '../features/analysis/AnalysisScreen';
 import { DownloadsScreen } from '../features/downloads/DownloadsScreen';
 import { RemoveDialog } from '../features/library/RemoveDialog';
+import { PlaylistDialogs } from '../features/library/PlaylistDialogs';
 import { TagEditor } from '../features/library/TagEditor';
 import { MiniPlayer } from '../features/player/MiniPlayer';
 import { PlayerHost } from '../features/player/PlayerHost';
@@ -97,6 +98,7 @@ export function DesktopShell() {
             <ConfirmDialog />
             <RemoveDialog />
             <TagEditor />
+            <PlaylistDialogs />
           </main>
           {showMini && <MiniPlayer />}
           <ToastHost

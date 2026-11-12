@@ -4,10 +4,11 @@ import { IconButton } from '../../components/Button';
 import { Icon } from '../../components/Icon';
 import { useT } from '../../i18n';
 import type { MediaRecord } from '../../services/types';
+import { useLibrary } from '../../stores/library';
 import { isActive, usePlayer } from '../../stores/player';
 import { durationLabel } from './format';
 
-const COLUMNS = 'grid-cols-[44px_minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_64px_72px]';
+const COLUMNS = 'grid-cols-[44px_minmax(0,2fr)_minmax(0,1.3fr)_minmax(0,1.3fr)_64px_104px]';
 
 interface Handlers {
   onContextMenu: (e: MouseEvent) => void;
@@ -23,6 +24,7 @@ export function TracksTable({
   onMore,
   handlers,
   showTrackNo = false,
+  positionKeys = false,
 }: {
   items: MediaRecord[];
   scrollRef: RefObject<HTMLDivElement | null>;
@@ -32,6 +34,8 @@ export function TracksTable({
   handlers: (m: MediaRecord) => Handlers;
   /** Album view: the first column shows the track number. */
   showTrackNo?: boolean;
+  /** Playlists may list a media twice: rows are keyed by position. */
+  positionKeys?: boolean;
 }) {
   const t = useT();
   const currentId = usePlayer((s) => s.media?.id);
@@ -47,7 +51,11 @@ export function TracksTable({
   });
 
   return (
-    <div role="table" aria-label={t('tracks')} className="overflow-hidden rounded-lg border border-line">
+    <div
+      role="table"
+      aria-label={t('tracks')}
+      className="overflow-hidden rounded-lg border border-line"
+    >
       <div
         role="row"
         className={`grid ${COLUMNS} h-9 items-center gap-4 bg-row px-3 text-[11.5px] font-bold uppercase tracking-[0.04em] text-faint`}
@@ -68,7 +76,7 @@ export function TracksTable({
           const { onContextMenu, onKeyDown } = handlers(m);
           return (
             <div
-              key={m.id}
+              key={positionKeys ? `${row.index}:${m.id}` : m.id}
               role="row"
               tabIndex={0}
               aria-current={on ? 'true' : undefined}
@@ -118,6 +126,24 @@ export function TracksTable({
                 {durationLabel(m.durationSecs)}
               </span>
               <span role="cell" className="flex justify-end">
+                <IconButton
+                  icon="favorite"
+                  fill={!!m.favorite}
+                  label={
+                    m.favorite
+                      ? t('unfavorite', { title: m.title })
+                      : t('favorite', { title: m.title })
+                  }
+                  aria-pressed={!!m.favorite}
+                  size={32}
+                  tabIndex={-1}
+                  onClick={() => void useLibrary.getState().toggleFavorite(m)}
+                  className={
+                    m.favorite
+                      ? '!text-coral'
+                      : 'opacity-0 group-focus-within:opacity-100 group-hover:opacity-100'
+                  }
+                />
                 <IconButton
                   icon="edit_note"
                   label={t('editTags')}

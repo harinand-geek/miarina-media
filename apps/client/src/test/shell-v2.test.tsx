@@ -54,8 +54,8 @@ describe('Windows v2 shell — navigation B', () => {
     await user.click(within(spaces).getByRole('radio', { name: 'Play' }));
     expect(await screen.findByRole('heading', { name: /Tracks/ })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Torrents' })).toBeNull();
-    // Future views are shown but never presented as available (CDC UX-06).
-    expect(screen.getByRole('button', { name: /Playlists/ })).toBeDisabled();
+    // Playlists and Favorites are real now (COM-06).
+    expect(screen.getByRole('button', { name: /Playlists/ })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Albums' })).toBeEnabled();
     expect(screen.getByRole('button', { name: 'Videos' })).toBeEnabled();
   });
@@ -121,7 +121,9 @@ describe('Windows v2 shell — mini-player and Now playing (COM-05)', () => {
     const queue = await screen.findByRole('list', { name: 'Queue' });
     expect(within(queue).getAllByRole('listitem')).toHaveLength(3);
     await user.click(screen.getByRole('button', { name: 'Clear queue' }));
-    expect(within(screen.getByRole('list', { name: 'Queue' })).getAllByRole('listitem')).toHaveLength(1);
+    expect(
+      within(screen.getByRole('list', { name: 'Queue' })).getAllByRole('listitem'),
+    ).toHaveLength(1);
     expect(usePlayer.getState().media?.id).toBe(2);
     expect(screen.getByText('Queue cleared. No file deleted.')).toBeInTheDocument();
   });

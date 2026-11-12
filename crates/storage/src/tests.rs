@@ -384,7 +384,7 @@ fn v6_keeps_a_v5_database_and_starts_empty() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 6);
+    assert!(storage.schema_version().unwrap() >= 6);
     assert_eq!(storage.media_stats().unwrap().count, 1);
     assert!(storage.playback_entries().unwrap().is_empty());
 }
@@ -459,4 +459,114 @@ fn removing_a_media_forgets_its_resume_position() {
         .unwrap();
     storage.remove_media(id).unwrap();
     assert!(storage.playback_value(&position_key(id)).unwrap().is_none());
+}
+
+fn audio(storage: &Storage, path: &str, title: &str) -> MediaRecord {
+    storage
+        .upsert_media(&NewMedia {
+            path: path.into(),
+            title: title.into(),
+            kind: MediaKind::Audio,
+            source_host: None,
+            source_url: None,
+            task_id: None,
+            size_bytes: 3,
+        })
+        .unwrap()
+}
+
+#[test]
+fn v7_adds_favorites_and_playlists_to_a_v6_database() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 6).unwrap();
+        conn.execute(
+            "INSERT INTO media (path, title, kind, size_bytes, added_at, modified_at) \
+             VALUES ('C:/M/a.mp3', 'A', 'audio', 1, 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 7);
+    let page = storage.query_media(&MediaQuery::default()).unwrap();
+    assert!(!page.items[0].favorite);
+    assert!(storage.playlists().unwrap().is_empty());
+}
+
+#[test]
+fn favorites_are_marked_and_filtered() {
+    let storage = Storage::open_in_memory().unwrap();
+    let a = audio(&storage, "C:/M/a.mp3", "A");
+    audio(&storage, "C:/M/b.mp3", "B");
+    storage.set_favorite(a.id, true).unwrap();
+    let favorites = storage
+        .query_media(&MediaQuery {
+            favorites: true,
+            ..Default::default()
+        })
+        .unwrap();
+    assert_eq!(favorites.total, 1);
+    assert!(favorites.items[0].favorite);
+    assert!(storage.set_favorite(9999, true).is_err());
+}
+
+#[test]
+fn playlists_keep_order_and_follow_the_library() {
+    let storage = Storage::open_in_memory().unwrap();
+    let a = audio(&storage, "C:/M/a.mp3", "A");
+    let b = audio(&storage, "C:/M/b.mp3", "B");
+    let c = audio(&storage, "C:/M/c.mp3", "C");
+    let list = storage
+        .create_playlist("  Matin\n calme ", &[a.id, b.id, 4242, c.id, a.id])
+        .unwrap();
+    assert_eq!(list.name, "Matin calme");
+    assert_eq!(list.count, 4, "unknown ids are skipped, repeats kept");
+
+    storage.move_in_playlist(list.id, 3, 0).unwrap();
+    storage.remove_from_playlist(list.id, 1).unwrap();
+    let titles = |s: &Storage| {
+        s.playlist(list.id)
+            .unwrap()
+            .items
+            .iter()
+            .map(|m| m.title.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(titles(&storage), ["A", "B", "C"]);
+
+    storage.add_to_playlist(list.id, &[b.id]).unwrap();
+    storage.remove_media(b.id).unwrap();
+    assert_eq!(
+        titles(&storage),
+        ["A", "C"],
+        "removed media leave playlists"
+    );
+
+    storage.rename_playlist(list.id, "Soir").unwrap();
+    assert!(storage.rename_playlist(list.id, "   ").is_err());
+    assert_eq!(storage.playlists().unwrap()[0].name, "Soir");
+    storage.delete_playlist(list.id).unwrap();
+    assert!(storage.playlist(list.id).is_err());
+    assert_eq!(
+        storage.media_stats().unwrap().count,
+        2,
+        "files stay in the library"
+    );
+}
+
+#[test]
+fn media_is_found_by_path_ignoring_case() {
+    let storage = Storage::open_in_memory().unwrap();
+    let a = audio(&storage, "C:/Music/Hira.mp3", "Hira");
+    assert_eq!(
+        storage.media_id_by_path("c:/music/hira.MP3").unwrap(),
+        Some(a.id)
+    );
+    assert_eq!(
+        storage.media_id_by_path("C:/Music/other.mp3").unwrap(),
+        None
+    );
 }

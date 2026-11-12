@@ -175,5 +175,27 @@ pub fn migrations() -> Migrations<'static> {
         );
         "#,
         ),
+        // v7 — favorites and playlists (COM-06, COM-11). Playlist items
+        // follow their media: removed from the library, gone from playlists.
+        M::up(
+            r#"
+        ALTER TABLE media ADD COLUMN favorite INTEGER NOT NULL DEFAULT 0;
+        CREATE INDEX media_favorite ON media (favorite) WHERE favorite = 1;
+        CREATE TABLE playlists (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            name       TEXT NOT NULL,
+            created_at INTEGER NOT NULL,
+            updated_at INTEGER NOT NULL
+        );
+        CREATE TABLE playlist_items (
+            id          INTEGER PRIMARY KEY AUTOINCREMENT,
+            playlist_id INTEGER NOT NULL REFERENCES playlists (id) ON DELETE CASCADE,
+            media_id    INTEGER NOT NULL REFERENCES media (id) ON DELETE CASCADE,
+            position    INTEGER NOT NULL
+        );
+        CREATE INDEX playlist_items_order ON playlist_items (playlist_id, position);
+        CREATE INDEX playlist_items_media ON playlist_items (media_id);
+        "#,
+        ),
     ])
 }

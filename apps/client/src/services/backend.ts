@@ -23,6 +23,9 @@ import type {
   InstallProgress,
   LibraryOverview,
   MediaGroup,
+  Playlist,
+  PlaylistImport,
+  PlaylistSummary,
   MediaInfo,
   MediaPage,
   MediaQuery,
@@ -74,6 +77,19 @@ export interface Backend {
   libraryTags(id: number): Promise<MediaTags>;
   libraryUpdateTags(id: number, tags: MediaTags, writeToFile: boolean): Promise<MediaRecord>;
   libraryGroups(by: GroupBy): Promise<MediaGroup[]>;
+  librarySetFavorite(id: number, favorite: boolean): Promise<MediaRecord>;
+  playlists(): Promise<PlaylistSummary[]>;
+  playlistGet(id: number): Promise<Playlist>;
+  playlistCreate(name: string, ids: number[]): Promise<PlaylistSummary>;
+  playlistRename(id: number, name: string): Promise<void>;
+  playlistDelete(id: number): Promise<void>;
+  playlistAdd(id: number, ids: number[]): Promise<void>;
+  playlistRemove(id: number, index: number): Promise<void>;
+  playlistMove(id: number, from: number, to: number): Promise<void>;
+  /** System file dialog; `null` when canceled. */
+  playlistImport(): Promise<PlaylistImport | null>;
+  /** System save dialog; the saved path, or `null` when canceled. */
+  playlistExport(id: number): Promise<string | null>;
   /** Forgets the entry; the file stays on disk and scans skip it (COM-10). */
   libraryRemove(id: number): Promise<void>;
   libraryDelete(id: number): Promise<void>;
@@ -224,6 +240,20 @@ class TauriBackend implements Backend {
   libraryUpdateTags = (id: number, tags: MediaTags, writeToFile: boolean) =>
     call<MediaRecord>('library_update_tags', { id, tags, writeToFile });
   libraryGroups = (by: GroupBy) => call<MediaGroup[]>('library_groups', { by });
+  librarySetFavorite = (id: number, favorite: boolean) =>
+    call<MediaRecord>('library_set_favorite', { id, favorite });
+  playlists = () => call<PlaylistSummary[]>('playlists_list');
+  playlistGet = (id: number) => call<Playlist>('playlist_get', { id });
+  playlistCreate = (name: string, ids: number[]) =>
+    call<PlaylistSummary>('playlist_create', { name, ids });
+  playlistRename = (id: number, name: string) => call<void>('playlist_rename', { id, name });
+  playlistDelete = (id: number) => call<void>('playlist_delete', { id });
+  playlistAdd = (id: number, ids: number[]) => call<void>('playlist_add', { id, ids });
+  playlistRemove = (id: number, index: number) => call<void>('playlist_remove', { id, index });
+  playlistMove = (id: number, from: number, to: number) =>
+    call<void>('playlist_move', { id, from, to });
+  playlistImport = () => call<PlaylistImport | null>('playlist_import');
+  playlistExport = (id: number) => call<string | null>('playlist_export', { id });
   libraryRemove = (id: number) => call<void>('library_remove', { id });
   libraryDelete = (id: number) => call<void>('library_delete', { id });
   libraryReveal = (id: number) => call<void>('library_reveal', { id });
