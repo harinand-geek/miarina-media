@@ -746,8 +746,21 @@ mod imp {
             (vlc.player_release)(c.mp);
         };
 
+        // State is read every 250 ms, and every 20 ms for a short while
+        // after a command so play / pause / seek show at once (L00 measured
+        // the 250 ms step as the whole response time).
+        let mut quick_until = Instant::now();
         loop {
-            match rx.recv_timeout(Duration::from_millis(250)) {
+            let step = if Instant::now() < quick_until {
+                Duration::from_millis(20)
+            } else {
+                Duration::from_millis(250)
+            };
+            let received = rx.recv_timeout(step);
+            if received.is_ok() {
+                quick_until = Instant::now() + Duration::from_millis(600);
+            }
+            match received {
                 Ok(cmd) => match cmd {
                     Cmd::Open {
                         path,

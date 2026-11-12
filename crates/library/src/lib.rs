@@ -440,43 +440,52 @@ impl Library {
         let found = files::media_files(root);
         let storage = lock(&self.inner.storage);
         let known = storage.media_paths()?;
+        let by_path: std::collections::HashMap<&str, (i64, bool)> = known
+            .iter()
+            .map(|(id, path, missing)| (path.as_str(), (*id, *missing)))
+            .collect();
         let removed = storage.removed_media_paths()?;
-        let mut report = ScanReport::default();
-        for path in &found {
-            let key = path.to_string_lossy();
-            if removed.contains(key.as_ref()) {
-                continue;
-            }
-            match known.iter().find(|(_, p, _)| *p == key) {
-                Some((id, _, true)) => {
-                    storage.set_media_missing(*id, false)?;
-                    report.restored += 1;
+        // One transaction: 10 000 new files took 30 s with one commit each
+        // (L00 measurement).
+        let report = storage.with_batch(|storage| {
+            let mut report = ScanReport::default();
+            for path in &found {
+                let key = path.to_string_lossy();
+                if removed.contains(key.as_ref()) {
+                    continue;
                 }
-                Some(_) => {}
-                None => {
-                    let Some(kind) = files::kind_for(path) else {
-                        continue;
-                    };
-                    storage.upsert_media(&NewMedia {
-                        path: key.into_owned(),
-                        title: files::title_for(path),
-                        kind,
-                        source_host: None,
-                        source_url: None,
-                        task_id: None,
-                        size_bytes: std::fs::metadata(path).map(|m| m.len()).unwrap_or(0),
-                    })?;
-                    report.added += 1;
+                match by_path.get(key.as_ref()) {
+                    Some((id, true)) => {
+                        storage.set_media_missing(*id, false)?;
+                        report.restored += 1;
+                    }
+                    Some(_) => {}
+                    None => {
+                        let Some(kind) = files::kind_for(path) else {
+                            continue;
+                        };
+                        storage.upsert_media(&NewMedia {
+                            path: key.into_owned(),
+                            title: files::title_for(path),
+                            kind,
+                            source_host: None,
+                            source_url: None,
+                            task_id: None,
+                            size_bytes: std::fs::metadata(path).map(|m| m.len()).unwrap_or(0),
+                        })?;
+                        report.added += 1;
+                    }
                 }
             }
-        }
-        // Files of this folder the library knew but that are gone.
-        for (id, path, missing) in &known {
-            if !missing && Path::new(path).starts_with(root) && !Path::new(path).exists() {
-                storage.set_media_missing(*id, true)?;
-                report.missing += 1;
+            // Files of this folder the library knew but that are gone.
+            for (id, path, missing) in &known {
+                if !missing && Path::new(path).starts_with(root) && !Path::new(path).exists() {
+                    storage.set_media_missing(*id, true)?;
+                    report.missing += 1;
+                }
             }
-        }
+            Ok(report)
+        })?;
         drop(storage);
         if report != ScanReport::default() {
             (self.inner.on_change)();

@@ -620,3 +620,18 @@ fn opened_files_are_indexed_even_after_removal() {
     h.library.scan(&h.root).unwrap();
     assert_eq!(titles(&h).len(), 1, "no longer skipped by scans");
 }
+
+#[test]
+fn a_large_folder_is_indexed_quickly() {
+    let h = harness();
+    for i in 0..2000 {
+        std::fs::write(h.root.join(format!("clip {i}.mp4")), b"x").unwrap();
+    }
+    let started = std::time::Instant::now();
+    let report = h.library.scan(&h.root).unwrap();
+    assert_eq!(report.added, 2000);
+    // One transaction (was one commit per file); generous for debug builds.
+    assert!(started.elapsed().as_secs() < 20, "{:?}", started.elapsed());
+    // A second scan finds them all known (hash lookup, no new rows).
+    assert_eq!(h.library.scan(&h.root).unwrap().added, 0);
+}

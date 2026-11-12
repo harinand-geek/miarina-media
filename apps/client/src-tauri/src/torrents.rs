@@ -107,16 +107,17 @@ pub async fn torrents_enable(
         let limits: (u64, u64) = data.storage().setting(LIMITS)?.unwrap_or((0, 0));
         let session = Torrents::start(config).await.map_err(error)?;
         for record in saved_records {
-            if record.sequential && session.has(&record.hash) {
-                if let Err(e) = session.set_order(
+            if record.sequential
+                && session.has(&record.hash)
+                && let Err(e) = session.set_order(
                     &record.hash,
                     mdm_torrent::PieceOrder::InOrder {
                         first_and_last_first: false,
                     },
-                ) {
-                    session.stop().await;
-                    return Err(error(e));
-                }
+                )
+            {
+                session.stop().await;
+                return Err(error(e));
             }
         }
         session.set_download_limit(Some(limits.0));

@@ -35,9 +35,26 @@ Même machine, build release. Fenêtre principale + fenêtre navigateur ouvertes
 | WebView2 (11 processus, les deux fenêtres) | ~558 Mo privés : navigateur 65, GPU 97, renderers 156 (page) + 59 + 55 + 51 + 31, utilitaires ~41 | somme des `msedgewebview2.exe` de l'app |
 | Coût propre au navigateur | environ +370 Mo privés par rapport à la fenêtre principale seule (~190 Mo en Phase 3), page visitée comprise | différence ; sites lourds (YouTube) inclus |
 
+## L00 — référence (2026-11-12)
+
+Même machine (Core i5-8300H 4 cœurs / 8 fils, 16 Go, SSD, Intel UHD 630 + GTX 1050 Ti), Windows 11 Pro 10.0.22000, WebView2 157, 2 écrans 1920 × 1080 à 100 %. Build release de recette (`tauri build --no-bundle`, identifiant isolé), moteur de lecture **libVLC 3.0.24** (décision 0005), son coupé pendant les mesures. Mesures relevées dans l'application par son port de débogage (événements du moteur), corpus décrit dans `docs/lots/LOT-L00-reference.md`.
+
+| Mesure | Résultat | Méthode |
+|---|---|---|
+| Premier son / image, froid | médiane ~390 ms, max 1 117 ms (10 démarrages) | premier fichier après le démarrage de l'application : commande d'ouverture → premier état « lecture » avec une position > 0 ; fichiers MP3, MKV 1080p, MP4 1080p 5 min en alternance |
+| Premier son / image, chaud | p50 458 ms, p95 500 ms, max 1 119 ms (20 essais) | idem, application déjà lancée, 4 fichiers en alternance |
+| Play / pause | p95 26 ms, max 26 ms (30 actions) | commande → état « pause » / « lecture » rapporté par le moteur ; **257 ms avant correctif** (état relevé toutes les 250 ms ; maintenant toutes les 20 ms pendant 600 ms après une commande) |
+| Seek | p95 416 ms (20 positions) | fichier 5 min 1080p : commande → position rapportée à moins d'1 s de la cible |
+| Recherche 10 000 médias | p95 8,1–8,9 ms, max 11,7 ms (50 frappes) | `cargo run --release -p storage --example search_bench` : base sur disque, titres / artistes / albums réalistes, première page (100) à chaque frappe |
+| Indexation de 10 000 entrées | **3,2 s** (30,4 s avant regroupement en une transaction) | même exemple ; l'analyse de dossier de la bibliothèque écrit maintenant en une transaction et retrouve les chemins connus par table de hachage |
+| Mémoire, processus principal (libVLC inclus) | ~223–230 Mo privés pendant les lectures, **31 Mo** 30 s après l'arrêt, 43 Mo après 20 cycles de plus | 20 ouvertures / fermetures (5 fichiers) puis 30 s de repos, `PrivateMemorySize64` |
+| Mémoire, WebView2 (6 processus) | ~157–161 Mo privés, stable sur les mêmes cycles | somme des `msedgewebview2.exe` du profil de recette |
+| Taille de l'installeur Windows | **91,2 Mio** (95 607 326 octets) contre 70,2 Mio pour 0.1.7 publié (73 603 463 octets) : **+21 Mio** | NSIS, `tauri build` ; l'écart vient de libVLC (78 Mo sur disque, 280 modules) |
+| Taille installée des outils | FFmpeg 138 Mo, libVLC 78 Mo, yt-dlp 18 Mo, QuickJS 3 Mo, exécutable 17,3 Mo | `tools/` à côté de l'exécutable |
+
 ## Non mesuré à ce stade
 
 - CPU et RAM pendant un téléchargement actif et pendant une conversion FFmpeg.
 - Effet mesuré des modes Eco / Performance (les limites appliquées sont testées, leur coût réel ne l'est pas).
-- Machine modeste (2 cœurs / 4 Go), écran haute densité, disque dur mécanique.
+- Machine modeste (2 cœurs / 4 Go), écran haute densité (150 / 200 %), disque dur mécanique, machine sans VLC installé.
 - Android : rien.

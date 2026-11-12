@@ -201,6 +201,16 @@ impl Storage {
         Ok(Self { conn })
     }
 
+    /// Runs `f` in one transaction: many writes then cost one commit
+    /// instead of one each (indexing a large folder). Rolled back if `f`
+    /// fails.
+    pub fn with_batch<R>(&self, f: impl FnOnce(&Self) -> Result<R>) -> Result<R> {
+        let tx = self.conn.unchecked_transaction()?;
+        let out = f(self)?;
+        tx.commit()?;
+        Ok(out)
+    }
+
     /// Current schema version (number of applied migrations).
     pub fn schema_version(&self) -> Result<i64> {
         Ok(self
