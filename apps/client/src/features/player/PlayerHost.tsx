@@ -4,11 +4,14 @@ import {
   bindEngine,
   reportEnded,
   reportEngine,
+  swapEngine,
   usePlayer,
   type EngineReport,
   type PlayerEngine,
   type PlayerError,
 } from '../../stores/player';
+import { useUi } from '../../stores/ui';
+import { createNativeEngine } from './nativeEngine';
 import { RESUME_MARGIN_SECS, savePosition } from './usePlayback';
 
 /** Kept in the DOM but out of sight while no screen shows the picture. */
@@ -38,17 +41,23 @@ function errorKind(code: number | undefined): PlayerError['kind'] {
 }
 
 /**
- * The desktop playback engine: a single media element mounted once by the
- * shell, so playback continues across screens without restart or double
- * sound (COM-05). The video screen registers a surface element; the picture
- * is placed over it. Streams through the asset protocol (range requests,
- * nothing buffered in memory). Without a file (browser preview) a simulated
- * clock keeps the UI usable.
+ * The desktop playback engine, mounted once by the shell so playback
+ * continues across screens without restart or double sound (COM-05). The
+ * video screen registers a surface element; the picture is placed over it.
+ *
+ * Windows with libVLC shipped (decision 0005): libVLC plays, its picture is
+ * a native window placed over the surface (hidden while a dialog covers
+ * it). Otherwise a single media element streams through the asset protocol
+ * (range requests, nothing buffered in memory); without a file (browser
+ * preview) a simulated clock keeps the UI usable.
  */
 export function PlayerHost() {
   const ref = useRef<HTMLVideoElement>(null);
   const kind = usePlayer((s) => s.media?.kind);
   const surface = usePlayer((s) => s.surface);
+  const nativeVideo = usePlayer((s) => s.nativeVideo);
+  const failed = usePlayer((s) => s.state === 'error');
+  const covered = useUi((s) => !!s.confirm || !!s.tagEditor || !!s.removal || !!s.playlistDialog);
   const [box, setBox] = useState<CSSProperties | null>(null);
   const showPicture = !!surface && kind === 'video';
 
@@ -178,7 +187,19 @@ export function PlayerHost() {
         el.load();
       },
     };
-    const unbind = bindEngine(engine);
+    let unbind = bindEngine(engine);
+    // libVLC when shipped (Windows); it takes over a file already loaded.
+    let native: ReturnType<typeof createNativeEngine> | null = null;
+    let alive = true;
+    void backend
+      .nativePlayerStatus()
+      .then((status) => {
+        if (!alive || !status.available) return;
+        native = createNativeEngine();
+        unbind();
+        unbind = swapEngine(engine, native.engine);
+      })
+      .catch(() => {});
 
     const keep = () => {
       const s = usePlayer.getState();
@@ -189,8 +210,11 @@ export function PlayerHost() {
     window.addEventListener('pagehide', keep);
 
     return () => {
+      alive = false;
       keep();
       unbind();
+      native?.engine.stop();
+      native?.dispose();
       simHalt();
       window.removeEventListener('pagehide', keep);
       el.removeEventListener('loadedmetadata', onMetadata);
@@ -205,11 +229,37 @@ export function PlayerHost() {
     };
   }, []);
 
+  // Native picture: a window placed over the surface (window coordinates).
+  useLayoutEffect(() => {
+    if (!nativeVideo) return;
+    const visible = showPicture && !covered && !failed;
+    if (!visible || !surface) {
+      void backend.nativePlayerFrame({ x: 0, y: 0, width: 0, height: 0 }, false).catch(() => {});
+      return;
+    }
+    const place = () => {
+      const r = surface.getBoundingClientRect();
+      void backend
+        .nativePlayerFrame({ x: r.left, y: r.top, width: r.width, height: r.height }, true)
+        .catch(() => {});
+    };
+    place();
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(place);
+    observer?.observe(surface);
+    window.addEventListener('resize', place);
+    document.addEventListener('animationend', place, true);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', place);
+      document.removeEventListener('animationend', place, true);
+    };
+  }, [nativeVideo, showPicture, surface, covered, failed]);
+
   // Place the picture over the video screen's surface.
   useLayoutEffect(() => {
     const el = ref.current;
     const parent = el?.parentElement;
-    if (!showPicture || !surface || !el || !parent) {
+    if (nativeVideo || !showPicture || !surface || !el || !parent) {
       setBox(null);
       return;
     }
@@ -236,7 +286,7 @@ export function PlayerHost() {
       window.removeEventListener('resize', measure);
       document.removeEventListener('animationend', measure, true);
     };
-  }, [showPicture, surface]);
+  }, [showPicture, surface, nativeVideo]);
 
   return (
     <video

@@ -910,6 +910,35 @@ export class MockBackend {
 
   private favorites: Favorite[] = [];
 
+  // The preview has no libVLC: the WebView player is used.
+  async nativePlayerStatus() {
+    return { available: false, version: null, reason: 'preview' };
+  }
+
+  async nativePlayerOpen() {}
+
+  async nativePlayerControl() {}
+
+  async nativePlayerVolume() {}
+
+  async nativePlayerAddSubtitle() {
+    return false;
+  }
+
+  async nativePlayerFrame() {}
+
+  onNativePlayerState() {
+    return () => {};
+  }
+
+  onNativePlayerTracks() {
+    return () => {};
+  }
+
+  onNativePlayerClick() {
+    return () => {};
+  }
+
   async browserFavorites() {
     return this.favorites;
   }

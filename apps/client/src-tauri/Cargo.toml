@@ -21,15 +21,6 @@ tempfile = "3.27.0"
 [features]
 # Opt-in until crash recovery and native application validation are complete.
 mdm-http = ["dep:miarina-mdm-adapter"]
-# WIN-SPIKE prototype (lot L04): libVLC in the main window, measured. Never
-# enabled in releases; see docs/decisions/0005-windows-player-engine.md.
-libvlc-spike = [
-    "windows/Win32_Graphics_Gdi",
-    "windows/Win32_System_LibraryLoader",
-    "windows/Win32_System_ProcessStatus",
-    "windows/Win32_System_Threading",
-    "windows/Win32_UI_WindowsAndMessaging",
-]
 
 [dependencies]
 reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
@@ -57,7 +48,14 @@ miarina-mdm-adapter = { path = "../../../crates/mdm-adapter", optional = true }
 # Browser media detection through native WebView2 events. Already in the
 # tree through wry; pinned to the same versions.
 webview2-com = "=0.39.1"
-windows = { version = "=0.62.2", features = ["Win32_UI_Input_KeyboardAndMouse"] }
+# Win32: keyboard state (browser shortcuts), the video window and loading
+# libVLC at run time (native player, decision 0005).
+windows = { version = "=0.62.2", features = [
+    "Win32_Graphics_Gdi",
+    "Win32_System_LibraryLoader",
+    "Win32_UI_Input_KeyboardAndMouse",
+    "Win32_UI_WindowsAndMessaging",
+] }
 
 [target.'cfg(target_os = "android")'.dependencies]
 # TLS on Android uses the system trust store (rustls-platform-verifier needs

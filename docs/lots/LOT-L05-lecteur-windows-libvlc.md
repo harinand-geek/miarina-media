@@ -1,0 +1,27 @@
+# Fiche LOT-L05 — Lecteur Windows natif : libVLC, pistes audio et sous-titres
+
+- Statut : Fait (tranche principale) ; restent pour la suite du lot : ouvrir un fichier / dossier et glisser-déposer (WIN-04), vérification sur une machine sans VLC installé, inventaire des licences des modules avant publication (DEP-03)
+- Exigences CDC : WIN-01 (lecture intégrée sans VLC installé), WIN-02 (erreurs distinguées), WIN-05 (pistes audio et sous-titres internes), WIN-06 (sous-titres externes, délai), WIN-10 (vitesses), WIN-11 (raccourcis, inchangés) ; décision 0005 acceptée
+- Maquette : `design/design_handoff_windows_v2` écran 7 (lecteur vidéo)
+- Inclus :
+  - Livraison : composant `libvlc` épinglé (archive officielle VideoLAN 3.0.24, 82,8 Mo, SHA-256 publié par VideoLAN et vérifié), dépaqueté en arborescence (`Archive::Tree`, chemins `..` / lecteurs / racines refusés) avec seulement ce que la lecture locale utilise (282 bibliothèques, 78 Mo) ; préparé par `fetch_tools` avant chaque build Windows, cache des modules régénéré par le `vlc-cache-gen.exe` de la même archive (chemin absolu, cache vide refusé), générateur retiré ; ajouté aux ressources de l'installeur (`tools/libvlc/`) ; notice `THIRD-PARTY-TOOLS.txt` complétée (licence, version, archive, sources). Jamais téléchargé à la demande : sans lui, le lecteur WebView2 reste utilisé.
+  - Moteur (`src-tauri/src/native_player.rs`) : libVLC chargé à l'exécution depuis le dossier livré (chemin `\\?\` ramené à sa forme simple : libVLC n'y trouve pas ses modules) ; un fil dédié possède libVLC (aucun appel sur le fil de l'interface) ; une fenêtre vidéo enfant créée cachée et toujours donnée à libVLC (aucune fenêtre VLC séparée) ; clics et double-clics renvoyés à l'interface (lecture / pause, plein écran), focus clavier rendu à l'interface ; état, position, durée et pistes envoyés en événements ; volume, sourdine et vitesse appliqués à chaque fichier ; commandes `native_player_status/open/control/volume/add_subtitle/frame` (+ permissions) ; `open` prend un identifiant de la bibliothèque, jamais un chemin venant de la page.
+  - WIN-02 : fichier illisible ou disparu → « Le fichier n'a pas pu être lu » (erreur d'accès), format refusé par libVLC → « non pris en charge » ; la fenêtre vidéo est masquée pour laisser voir le bandeau.
+  - Interface : moteur choisi au démarrage (libVLC s'il est livré, sinon WebView2) ; un fichier déjà chargé passe au nouveau moteur à la même position ; en mode natif, l'en-tête (retour, titre, format) est au-dessus de l'image et non superposé ; l'image est masquée quand un dialogue la recouvre (confirmation, tags, retrait, playlists) ; bouton CC actif : section « Pistes » du panneau latéral (audio, sous-titres internes, « Désactivés », « Ajouter un fichier de sous-titres… » par le dialogue système, décalage ±0,1 s avec remise à zéro) ; image dans l'image indisponible avec libVLC ; FR / EN.
+  - Prototype L04 retiré de l'arborescence (consultable au commit `63f712a`).
+- Adaptations :
+  - Pas de commandes superposées à l'image : la fenêtre transparente possédée (décision 0005) n'a pas été vérifiée à l'œil ; l'en-tête passe au-dessus de l'image, les pistes dans le panneau latéral.
+  - Le sous-titre voisin portant le même nom que la vidéo est chargé automatiquement par libVLC (il apparaît comme une piste de plus).
+  - Les noms de pistes sont ceux de libVLC (« Français - [French] », « Track 1 ») ; la piste « Disable » de libVLC est remplacée par « Désactivés ».
+- Tests : `cargo test -p download-engine` (dont composant libVLC : sélection des modules, archive en arborescence et refus des chemins qui sortent), test du moteur (URI de sous-titres, chemins `\\?\`, états) ; `vitest` 33 fichiers, 174 tests (nouveau `src/test/native-player.test.tsx` : états libVLC → lecteur, événements d'un fichier précédent ignorés, pistes « Disable » écartées, panneau Pistes, décalage cumulé, ajout de sous-titres, message quand le moteur manque) ; clippy sans nouvel avertissement.
+- Recette native Windows (build release isolé, libVLC livré par `fetch_tools`) :
+  - `native_player_status` : libVLC 3.0.24 disponible ; premier essai en échec, causes trouvées et corrigées : cache des modules vide (chemin relatif donné à `vlc-cache-gen`), puis chemin `\\?\` ;
+  - MKV H.264 avec 2 pistes audio et sous-titres : pistes « Français », « English », sous-titre intégré et SRT voisin listés ; passage à l'anglais, sous-titre intégré accentué affiché (« Été à Antananarivo — sous-titre intégré »), image 16:9 bien cadrée ; pause (position figée), reprise, −10 s ;
+  - AVI MPEG-4 et HEVC (non lus par WebView2) : lus dans la zone vidéo ;
+  - H.264 4K 60 Mbit/s : lue en temps réel (position +1 s par seconde pendant 10 s, pas de gel) ;
+  - clic sur l'image (message envoyé à la fenêtre vidéo) : pause puis lecture ;
+  - fichier disparu : erreur d'accès affichée, image masquée ;
+  - sans `tools/libvlc` : lecteur WebView2 utilisé, aucune fenêtre vidéo créée, bouton CC expliquant pourquoi ;
+  - aucune fenêtre orpheline.
+- Non testé : double-clic et plein écran (ils auraient mis la fenêtre de recette en plein écran sur l'écran de l'utilisateur ; la logique de plein écran n'a pas changé, l'image suit la zone vidéo), machine sans VLC installé, DPI ≠ 100 %, ajout d'un sous-titre externe par le dialogue système dans l'application réelle (testé par le test automatique et en L04 par la commande libVLC), installeur complet.
+- Taille : +78 Mo sur disque (environ +35 Mo compressés mesurés en L04) dans l'installeur Windows.

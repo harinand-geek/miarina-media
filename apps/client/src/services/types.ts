@@ -369,6 +369,36 @@ export interface DetectedMedia {
   via: 'network' | 'page';
 }
 
+/** Windows video engine (libVLC, decision 0005). */
+export interface NativePlayerStatus {
+  available: boolean;
+  version: string | null;
+  reason: string | null;
+}
+
+export interface PlayerTrack {
+  id: number;
+  name: string;
+}
+
+export interface NativePlayerStateEvent {
+  instance: number;
+  state: 'loading' | 'playing' | 'paused' | 'ended' | 'error' | 'idle';
+  position: number;
+  duration: number;
+  error: 'read' | 'unsupported' | null;
+}
+
+export interface NativePlayerTracksEvent {
+  instance: number;
+  audio: PlayerTrack[];
+  subtitles: PlayerTrack[];
+  audioId: number;
+  subtitleId: number;
+  /** Milliseconds. */
+  subtitleDelay: number;
+}
+
 /** Windows browser tab (NAV-02): a page, the start page or the history tab. */
 export type BrowserTabKind = 'start' | 'web' | 'history';
 
@@ -433,4 +463,7 @@ export interface BrowserFrame {
 }
 
 export type BrowserAction = 'back' | 'forward' | 'reload' | 'stop' | 'home';
+
+export type NativePlayerAction =
+  'play' | 'pause' | 'stop' | 'seek' | 'rate' | 'audioTrack' | 'subtitle' | 'subtitleDelay';
 export type AppScreenRequest = 'downloads' | 'library' | 'player';

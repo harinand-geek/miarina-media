@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-native-player-control"
+description = "Enables the native_player_control command without any pre-configured scope."
+commands.allow = ["native_player_control"]
+
+[[permission]]
+identifier = "deny-native-player-control"
+description = "Denies the native_player_control command without any pre-configured scope."
+commands.deny = ["native_player_control"]

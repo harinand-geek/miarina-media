@@ -10,6 +10,7 @@ import { setFullscreen } from '../../services/window';
 import type { MediaRecord } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
 import { isActive, usePlayer, type PlayerError } from '../../stores/player';
+import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
 import { openLibrary } from '../../app/navigation';
 import { durationLabel, folderOf, formatLabel, qualityLabel } from '../library/format';
@@ -18,6 +19,7 @@ import NowPlayingScreen from './NowPlayingScreen';
 import { PlayButton, VolumeControl } from './parts';
 import { formatRate, nextRate } from './playbackRate';
 import { SeekBar } from './SeekBar';
+import { TracksPanel } from './TracksPanel';
 
 /** Video player (Windows v2 screen 7). Audio plays on "Now playing". */
 export default function PlayerScreen() {
@@ -64,7 +66,9 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   const duration = usePlayer((s) => s.duration);
   const buffered = usePlayer((s) => s.buffered);
   const playing = usePlayer((s) => isActive(s.state));
-  const error = usePlayer((s) => (s.state === 'error' ? s.error ?? { kind: 'unknown' as const } : null));
+  const error = usePlayer((s) =>
+    s.state === 'error' ? (s.error ?? { kind: 'unknown' as const }) : null,
+  );
   const rate = usePlayer((s) => s.rate);
   const queue = usePlayer((s) => s.queue);
   const index = usePlayer((s) => s.index);
@@ -76,9 +80,14 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   const changingFullscreen = useRef(false);
   const wide = useMediaQuery('(min-width: 1280px)');
   const [panelOpen, setPanelOpen] = useState(false);
-  const showPanel = !fullscreen && (wide || panelOpen);
-  const pipSupported = typeof document !== 'undefined' && document.pictureInPictureEnabled === true;
-  const hasFile = !!backend.mediaUrl(item.path);
+  const [tracksOpen, setTracksOpen] = useState(false);
+  const nativeVideo = usePlayer((s) => s.nativeVideo);
+  const hasTracks = usePlayer((s) => !!s.tracks);
+  const lang = useSettings((s) => s.lang);
+  const showPanel = (tracksOpen && hasTracks) || (!fullscreen && (wide || panelOpen));
+  const pipSupported =
+    !nativeVideo && typeof document !== 'undefined' && document.pictureInPictureEnabled === true;
+  const hasFile = nativeVideo || !!backend.mediaUrl(item.path);
   const upNext = queue.slice(index + 1, index + 6);
 
   const toggleFullscreen = async (on = !fullscreen) => {
@@ -107,6 +116,19 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
     };
   }, [setSurface]);
 
+  // Native picture (libVLC): clicks on it arrive as events.
+  const toggleFullscreenRef = useRef(toggleFullscreen);
+  useEffect(() => {
+    toggleFullscreenRef.current = toggleFullscreen;
+  });
+  useEffect(() => {
+    if (!nativeVideo) return;
+    return backend.onNativePlayerClick((kind) => {
+      if (kind === 'dblclick') void toggleFullscreenRef.current();
+      else usePlayer.getState().toggle();
+    });
+  }, [nativeVideo]);
+
   const openExternal = () =>
     backend
       .libraryOpenExternal(item.id)
@@ -132,6 +154,23 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   return (
     <div className="flex min-h-0 flex-1">
       <div className="flex min-w-0 flex-1 flex-col text-[#F5F7FA]">
+        {/* A native picture (libVLC) covers what is drawn under it: the
+            title stays above the picture instead of over it. */}
+        {nativeVideo && (
+          <div className="flex h-12 shrink-0 items-center gap-3 bg-[#0B1117] px-5">
+            {!fullscreen && (
+              <IconButton
+                icon="arrow_back"
+                label={t('back')}
+                iconSize={22}
+                onClick={() => openLibrary('videos')}
+                className="!text-[#F5F7FA] hover:!bg-white/10"
+              />
+            )}
+            <span className="truncate text-[15px] font-bold">{item.title}</span>
+            <span className="truncate font-mono text-[11.5px] text-[#94A3B8]">{tech}</span>
+          </div>
+        )}
         {/* Transparent stage: the engine's picture (PlayerHost) sits under it. */}
         <div className="relative min-h-0 flex-1 overflow-hidden">
           <div
@@ -146,7 +185,10 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
               {t('videoPreview')}
             </span>
           )}
-          <div className="absolute inset-x-0 top-0 flex h-16 items-center gap-3 bg-gradient-to-b from-black/60 to-transparent px-5">
+          <div
+            hidden={nativeVideo}
+            className="absolute inset-x-0 top-0 flex h-16 items-center gap-3 bg-gradient-to-b from-black/60 to-transparent px-5"
+          >
             {!fullscreen && (
               <IconButton
                 icon="arrow_back"
@@ -192,7 +234,14 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             <span>{durationLabel(duration)}</span>
           </div>
           <div className="flex items-center gap-1 [&_button:disabled]:opacity-40 [&_button:not(.bg-coral)]:text-[#F5F7FA] [&_button:not(.bg-coral):enabled:hover]:bg-[#243545]">
-            <PlayButton size={44} iconSize={28} playing={playing} onClick={toggle} t={t} className="mr-1.5" />
+            <PlayButton
+              size={44}
+              iconSize={28}
+              playing={playing}
+              onClick={toggle}
+              t={t}
+              className="mr-1.5"
+            />
             <IconButton
               icon="skip_previous"
               label={t('previous')}
@@ -201,8 +250,20 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
               iconSize={22}
               onClick={previous}
             />
-            <IconButton icon="replay_10" label={t('back10')} size={40} iconSize={22} onClick={() => skip(-10)} />
-            <IconButton icon="forward_10" label={t('forward10')} size={40} iconSize={22} onClick={() => skip(10)} />
+            <IconButton
+              icon="replay_10"
+              label={t('back10')}
+              size={40}
+              iconSize={22}
+              onClick={() => skip(-10)}
+            />
+            <IconButton
+              icon="forward_10"
+              label={t('forward10')}
+              size={40}
+              iconSize={22}
+              onClick={() => skip(10)}
+            />
             <IconButton
               icon="skip_next"
               label={t('next')}
@@ -216,10 +277,12 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             <span className="flex-1" />
             <IconButton
               icon="closed_caption"
-              label={t('tracksPlanned')}
+              label={hasTracks ? t('tracksButton') : t('tracksUnavailable')}
+              aria-pressed={hasTracks ? tracksOpen : undefined}
               size={40}
               iconSize={22}
-              disabled
+              disabled={!hasTracks}
+              onClick={() => setTracksOpen((o) => !o)}
             />
             <button
               type="button"
@@ -237,7 +300,9 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
               iconSize={22}
               disabled={!pipSupported || !hasFile}
               onClick={() => {
-                const video = document.querySelector<HTMLVideoElement>('[data-testid="player-engine"]');
+                const video = document.querySelector<HTMLVideoElement>(
+                  '[data-testid="player-engine"]',
+                );
                 void video?.requestPictureInPicture?.().catch(() => {});
               }}
             />
@@ -267,6 +332,7 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
           aria-label={t('detailsPanel')}
           className="flex w-[300px] shrink-0 flex-col overflow-auto border-l border-divider bg-bg"
         >
+          <TracksPanel lang={lang} />
           <div className="flex flex-col gap-2.5 border-b border-divider p-[18px]">
             <span className="text-overline font-bold uppercase tracking-[0.06em] text-muted">
               {t('file')}
@@ -294,7 +360,9 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             <span className="px-2 pb-2 text-overline font-bold uppercase tracking-[0.06em] text-muted">
               {t('upNext')}
             </span>
-            {upNext.length === 0 && <p className="m-0 px-2 text-[12.5px] text-muted">{t('queueEmpty')}</p>}
+            {upNext.length === 0 && (
+              <p className="m-0 px-2 text-[12.5px] text-muted">{t('queueEmpty')}</p>
+            )}
             {upNext.map((u, i) => (
               <button
                 key={u.id}

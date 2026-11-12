@@ -12,6 +12,7 @@
       "tools/yt-dlp/": "tools/yt-dlp/",
       "tools/ffmpeg/": "tools/ffmpeg/",
       "tools/quickjs/": "tools/quickjs/",
+      "tools/libvlc/": "tools/libvlc/",
       "resources/THIRD-PARTY-TOOLS.txt": "tools/THIRD-PARTY-TOOLS.txt",
       "resources/LGPL-3.0.txt": "tools/LGPL-3.0.txt",
       "resources/GPL-3.0.txt": "tools/GPL-3.0.txt",

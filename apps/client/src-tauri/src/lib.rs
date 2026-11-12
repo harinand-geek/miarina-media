@@ -10,13 +10,12 @@ mod download_notifications;
 mod m3u;
 #[cfg(target_os = "android")]
 mod media_tools;
+mod native_player;
 mod playback_state;
 mod player;
 mod playlists;
 mod shared_storage;
 mod shell;
-#[cfg(all(windows, feature = "libvlc-spike"))]
-mod spike_libvlc;
 mod state;
 #[cfg(windows)]
 mod torrents;
@@ -152,6 +151,9 @@ pub fn run() {
             if let Ok(resources) = app.path().resource_dir() {
                 components = components.with_bundled(resources.join("tools"));
             }
+            // Video engine of the Windows player (decision 0005), started on
+            // first use; without it the WebView2 player is used.
+            app.manage(native_player::NativePlayer::new(components.libvlc_dir()));
             let ytdlp = YtDlpEngine::new(components.clone());
             let handle = app.handle().clone();
             let library = Library::new(
@@ -205,8 +207,6 @@ pub fn run() {
             allow_media_dir(app.handle(), &download_dir);
             allow_media_dir(app.handle(), library.thumbnails_dir());
             allow_media_dir(app.handle(), &library.covers_dir());
-            #[cfg(all(windows, feature = "libvlc-spike"))]
-            spike_libvlc::maybe_start(app.handle());
             let known_dirs: Vec<PathBuf> = storage
                 .lock()
                 .map(|s| s.media_paths().unwrap_or_default())
@@ -364,6 +364,12 @@ pub fn run() {
             commands::library_remove,
             playback_state::playback_load,
             playlists::library_set_favorite,
+            native_player::native_player_status,
+            native_player::native_player_open,
+            native_player::native_player_control,
+            native_player::native_player_volume,
+            native_player::native_player_add_subtitle,
+            native_player::native_player_frame,
             commands::library_cover_pick,
             commands::library_cover_source,
             commands::library_cover_frame,

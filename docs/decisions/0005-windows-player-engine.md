@@ -8,7 +8,7 @@ Le lecteur Windows utilise la balise `<video>` de WebView2 (Chromium). Le CDC (�
 
 ## Ce qui a été fait
 
-Prototype mesuré dans l'application elle-même (`apps/client/src-tauri/src/spike_libvlc.rs`, compilé seulement avec la fonctionnalité Cargo `libvlc-spike`, jamais dans une version publiée) :
+Prototype mesuré dans l'application elle-même (`apps/client/src-tauri/src/spike_libvlc.rs`, compilé seulement avec la fonctionnalité Cargo `libvlc-spike`, jamais dans une version publiée ; retiré de l'arborescence en L05, consultable au commit `63f712a`) :
 
 - libVLC **chargé dynamiquement** (`LoadLibraryExW` + `GetProcAddress`, aucune bibliothèque liée au build, aucune nouvelle dépendance Rust) depuis un dossier quelconque : celui de l'application en production ;
 - une **fenêtre enfant native** (`WS_CHILD`) dans la fenêtre principale reçoit la vidéo (`libvlc_media_player_set_hwnd`), souris et clavier laissés à l'application ;

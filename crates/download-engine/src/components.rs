@@ -24,6 +24,9 @@ pub enum ComponentId {
     /// JavaScript runtime yt-dlp needs for YouTube's challenges.
     #[serde(rename = "quickjs")]
     QuickJs,
+    /// Video engine of the Windows player (decision 0005).
+    #[serde(rename = "libvlc")]
+    LibVlc,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -32,6 +35,12 @@ enum Archive {
     Executable { file_name: &'static str },
     /// A zip; files whose name matches are taken from its `bin/` folder.
     Zip { wanted: fn(&str) -> bool },
+    /// A zip whose files under `prefix` keep their relative folders when
+    /// `keep` accepts that relative path (`plugins/codec/x.dll`).
+    Tree {
+        prefix: &'static str,
+        keep: fn(&str) -> bool,
+    },
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -96,6 +105,59 @@ pub const QUICKJS: ComponentSpec = ComponentSpec {
 
 pub const ALL: [ComponentSpec; 3] = [YTDLP, FFMPEG, QUICKJS];
 
+/// libVLC 3 for the Windows player (decision 0005): shipped with the
+/// installer only (never downloaded on demand: the WebView2 player is the
+/// fallback). Only what local playback needs is kept.
+pub const LIBVLC: ComponentSpec = ComponentSpec {
+    id: ComponentId::LibVlc,
+    name: "libVLC",
+    version: "3.0.24",
+    license: "LGPL-2.1-or-later (libvlc, libvlccore); modules under their own licenses (COPYING.txt)",
+    url: "https://download.videolan.org/pub/videolan/vlc/3.0.24/win64/vlc-3.0.24-win64.zip",
+    sha256: "fcf30850371ad10c9373cc4f0f4501e7dee49e3e9ae9f20c72fb2661a1ca6323",
+    download_bytes: 82_765_861,
+    archive: Archive::Tree {
+        prefix: "vlc-3.0.24/",
+        keep: libvlc_keep,
+    },
+    main_file: "libvlc.dll",
+};
+
+/// Module folders local playback does not use (interfaces, streaming out,
+/// muxers, scripting, visualizations, network discovery, video walls).
+const LIBVLC_DROPPED_FOLDERS: [&str; 9] = [
+    "gui",
+    "access_output",
+    "stream_out",
+    "mux",
+    "lua",
+    "visualization",
+    "services_discovery",
+    "control",
+    "video_splitter",
+];
+/// Encoders and capture / disc / broadcast inputs, by file name.
+const LIBVLC_DROPPED_NAMES: [&str; 21] = [
+    "x264", "x265", "shine", "twolame", "qsv", "vpx_enc", "srt", "rist", "vnc", "dcp", "dvb",
+    "sftp", "smb", "nfs", "rdp", "dshow", "screen", "bluray", "dvdnav", "dvdread", "decklink",
+];
+
+fn libvlc_keep(rel: &str) -> bool {
+    match rel.split('/').collect::<Vec<_>>().as_slice() {
+        [file] => matches!(
+            *file,
+            "libvlc.dll" | "libvlccore.dll" | "vlc-cache-gen.exe" | "COPYING.txt" | "AUTHORS.txt"
+        ),
+        ["plugins", folder, file] => {
+            let lower = file.to_ascii_lowercase();
+            lower.ends_with(".dll")
+                && !LIBVLC_DROPPED_FOLDERS.contains(folder)
+                && !LIBVLC_DROPPED_NAMES.iter().any(|n| lower.contains(n))
+        }
+        _ => false,
+    }
+}
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ComponentStatus {
@@ -147,6 +209,7 @@ impl Components {
             ComponentId::YtDlp => "yt-dlp",
             ComponentId::Ffmpeg => "ffmpeg",
             ComponentId::QuickJs => "quickjs",
+            ComponentId::LibVlc => "libvlc",
         };
         root.join(id).join(&spec.sha256[..16])
     }
@@ -190,6 +253,13 @@ impl Components {
     /// Directory to pass as `--ffmpeg-location`.
     pub fn ffmpeg_dir(&self) -> Option<PathBuf> {
         self.path(&FFMPEG)
+            .and_then(|p| p.parent().map(Path::to_path_buf))
+    }
+
+    /// Folder holding `libvlc.dll`, `libvlccore.dll` and `plugins/`, when
+    /// shipped with the application.
+    pub fn libvlc_dir(&self) -> Option<PathBuf> {
+        self.path(&LIBVLC)
             .and_then(|p| p.parent().map(Path::to_path_buf))
     }
 
@@ -367,6 +437,41 @@ fn unpack(spec: &ComponentSpec, archive: &Path, dest: &Path) -> Result<(), Engin
             }
             Ok(())
         }
+        Archive::Tree { prefix, keep } => {
+            let file = std::fs::File::open(archive).map_err(EngineError::from_io)?;
+            let mut zip = zip::ZipArchive::new(file).map_err(|e| EngineError::Io {
+                message: e.to_string(),
+            })?;
+            for i in 0..zip.len() {
+                let mut entry = zip.by_index(i).map_err(|e| EngineError::Io {
+                    message: e.to_string(),
+                })?;
+                if !entry.is_file() {
+                    continue;
+                }
+                let name = entry.name().replace('\\', "/");
+                let Some(rel) = name.strip_prefix(prefix) else {
+                    continue;
+                };
+                // Only plain relative names: never `..`, roots or drives.
+                let safe = !rel.is_empty()
+                    && rel.split('/').all(|part| {
+                        !part.is_empty() && part != "." && part != ".." && !part.contains(':')
+                    });
+                if !safe || !keep(rel) {
+                    continue;
+                }
+                let target = rel
+                    .split('/')
+                    .fold(dest.to_path_buf(), |p, part| p.join(part));
+                if let Some(parent) = target.parent() {
+                    std::fs::create_dir_all(parent).map_err(EngineError::from_io)?;
+                }
+                let mut out = std::fs::File::create(&target).map_err(EngineError::from_io)?;
+                std::io::copy(&mut entry, &mut out).map_err(EngineError::from_io)?;
+            }
+            Ok(())
+        }
     }
 }
 
@@ -378,6 +483,53 @@ mod tests {
     #[test]
     fn hex_encoding() {
         assert_eq!(hex(&[0x00, 0xab, 0xff]), "00abff");
+    }
+
+    #[test]
+    fn libvlc_keeps_playback_modules_only() {
+        assert!(libvlc_keep("libvlc.dll"));
+        assert!(libvlc_keep("COPYING.txt"));
+        assert!(libvlc_keep("plugins/codec/libavcodec_plugin.dll"));
+        assert!(libvlc_keep("plugins/video_output/libdirect3d11_plugin.dll"));
+        assert!(!libvlc_keep("vlc.exe"));
+        assert!(!libvlc_keep("plugins/gui/libqt_plugin.dll"));
+        assert!(!libvlc_keep("plugins/codec/libx265_plugin.dll"));
+        assert!(!libvlc_keep("plugins/access/libaccess_srt_plugin.dll"));
+        assert!(!libvlc_keep("plugins/codec/sub/x.dll"));
+        assert!(!libvlc_keep("lua/intf/http.lua"));
+        assert_eq!(LIBVLC.sha256.len(), 64);
+        assert!(LIBVLC.url.starts_with("https://download.videolan.org/"));
+    }
+
+    #[test]
+    fn tree_archives_keep_folders_and_refuse_escapes() {
+        let dir = tempfile::tempdir().unwrap();
+        let archive = dir.path().join("a.zip");
+        {
+            let mut zip = zip::ZipWriter::new(std::fs::File::create(&archive).unwrap());
+            let opts = zip::write::SimpleFileOptions::default();
+            for (name, body) in [
+                ("vlc-3.0.24/libvlc.dll", "dll"),
+                ("vlc-3.0.24/plugins/codec/libavcodec_plugin.dll", "codec"),
+                ("vlc-3.0.24/plugins/gui/libqt_plugin.dll", "qt"),
+                ("vlc-3.0.24/plugins/../../evil.dll", "evil"),
+                ("other/libvlc.dll", "other"),
+            ] {
+                zip.start_file(name, opts).unwrap();
+                zip.write_all(body.as_bytes()).unwrap();
+            }
+            zip.finish().unwrap();
+        }
+        let out = dir.path().join("out");
+        std::fs::create_dir_all(&out).unwrap();
+        unpack(&LIBVLC, &archive, &out).unwrap();
+        assert_eq!(
+            std::fs::read_to_string(out.join("libvlc.dll")).unwrap(),
+            "dll"
+        );
+        assert!(out.join("plugins/codec/libavcodec_plugin.dll").is_file());
+        assert!(!out.join("plugins/gui").exists());
+        assert!(!dir.path().join("evil.dll").exists());
     }
 
     #[test]

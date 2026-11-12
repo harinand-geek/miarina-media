@@ -31,6 +31,10 @@ import type {
   MediaQuery,
   MediaRecord,
   MediaTags,
+  NativePlayerAction,
+  NativePlayerStateEvent,
+  NativePlayerStatus,
+  NativePlayerTracksEvent,
   ResourceMode,
   StartRequest,
   StorageUsage,
@@ -136,6 +140,25 @@ export interface Backend {
   /** Android: places or hides the native page view; may return a picture of the page. */
   browserFrame(frame: BrowserFrame): Promise<string | null>;
   browserFavorites(): Promise<Favorite[]>;
+  /** Windows: the libVLC engine (started on first call). */
+  nativePlayerStatus(): Promise<NativePlayerStatus>;
+  nativePlayerOpen(
+    id: number,
+    startSecs: number,
+    autoplay: boolean,
+    instance: number,
+  ): Promise<void>;
+  nativePlayerControl(action: NativePlayerAction, value?: number): Promise<void>;
+  nativePlayerVolume(volume: number, muted: boolean): Promise<void>;
+  /** Picks a subtitle file in the system dialog; `false` if canceled. */
+  nativePlayerAddSubtitle(): Promise<boolean>;
+  nativePlayerFrame(
+    frame: { x: number; y: number; width: number; height: number },
+    visible: boolean,
+  ): Promise<void>;
+  onNativePlayerState(cb: (e: NativePlayerStateEvent) => void): () => void;
+  onNativePlayerTracks(cb: (e: NativePlayerTracksEvent) => void): () => void;
+  onNativePlayerClick(cb: (kind: 'click' | 'dblclick') => void): () => void;
   /** Windows: opens a tab (start page, an address, or the history tab). */
   browserTabNew(options?: { kind?: 'history'; address?: string }): Promise<number>;
   browserTabClose(id: number): Promise<void>;
@@ -312,6 +335,24 @@ class TauriBackend implements Backend {
     onEvent<BrowserSnapshot>('browser://state', listener);
   browserFrame = (frame: BrowserFrame) => call<string | null>('browser_frame', { ...frame });
   browserFavorites = () => call<Favorite[]>('browser_favorites');
+  nativePlayerStatus = () => call<NativePlayerStatus>('native_player_status');
+  nativePlayerOpen = (id: number, startSecs: number, autoplay: boolean, instance: number) =>
+    call<void>('native_player_open', { id, startSecs, autoplay, instance });
+  nativePlayerControl = (action: NativePlayerAction, value?: number) =>
+    call<void>('native_player_control', { action, value: value ?? null });
+  nativePlayerVolume = (volume: number, muted: boolean) =>
+    call<void>('native_player_volume', { volume, muted });
+  nativePlayerAddSubtitle = () => call<boolean>('native_player_add_subtitle');
+  nativePlayerFrame = (
+    frame: { x: number; y: number; width: number; height: number },
+    visible: boolean,
+  ) => call<void>('native_player_frame', { ...frame, visible });
+  onNativePlayerState = (cb: (e: NativePlayerStateEvent) => void) =>
+    onEvent<NativePlayerStateEvent>('native-player://state', cb);
+  onNativePlayerTracks = (cb: (e: NativePlayerTracksEvent) => void) =>
+    onEvent<NativePlayerTracksEvent>('native-player://tracks', cb);
+  onNativePlayerClick = (cb: (kind: 'click' | 'dblclick') => void) =>
+    onEvent<'click' | 'dblclick'>('native-player://click', cb);
   browserTabNew = (options: { kind?: 'history'; address?: string } = {}) =>
     call<number>('browser_tab_new', {
       kind: options.kind ?? null,

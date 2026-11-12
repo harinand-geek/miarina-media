@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 import { notePlayed, noteStopped } from '../features/player/recentPlays';
 import { savePosition, savedPosition } from '../features/player/usePlayback';
-import type { MediaRecord } from '../services/types';
+import type { MediaRecord, PlayerTrack } from '../services/types';
 import { durableSet } from '../services/durableState';
 
 /**
@@ -34,6 +34,8 @@ export const RESTART_THRESHOLD_SECS = 3;
 
 /** What the engine (PlayerHost) implements. */
 export interface PlayerEngine {
+  /** The picture is a native window placed over the video screen. */
+  native?: boolean;
   load: (media: MediaRecord, instance: number, startAt: number, autoplay: boolean) => void;
   play: () => void;
   pause: () => void;
@@ -42,6 +44,20 @@ export interface PlayerEngine {
   setRate: (rate: number) => void;
   /** Releases the file; the queue is kept. */
   stop: () => void;
+  /** Native engine only (WIN-05, WIN-06). */
+  setAudioTrack?: (id: number) => void;
+  setSubtitle?: (id: number) => void;
+  addSubtitle?: () => Promise<boolean>;
+  setSubtitleDelay?: (ms: number) => void;
+}
+
+export interface PlayerTracks {
+  audio: PlayerTrack[];
+  subtitles: PlayerTrack[];
+  audioId: number;
+  subtitleId: number;
+  /** Milliseconds; positive shows subtitles later. */
+  subtitleDelay: number;
 }
 
 /** What the engine reports, tagged with the instance it was loaded for. */
@@ -70,6 +86,10 @@ interface PlayerStore {
   sleep: SleepTimer;
   /** Element of the video screen where the picture is placed. */
   surface: HTMLElement | null;
+  /** Audio tracks and subtitles of the file (native engine), else null. */
+  tracks: PlayerTracks | null;
+  /** The current engine draws the picture in a native window. */
+  nativeVideo: boolean;
 
   playMedia: (media: MediaRecord, queue?: MediaRecord[]) => void;
   playAt: (index: number) => void;
@@ -98,6 +118,10 @@ interface PlayerStore {
   forget: (id: number) => void;
   retry: () => void;
   setSurface: (el: HTMLElement | null) => void;
+  setAudioTrack: (id: number) => void;
+  setSubtitle: (id: number) => void;
+  addSubtitle: () => Promise<boolean>;
+  setSubtitleDelay: (ms: number) => void;
 }
 
 let engine: PlayerEngine | null = null;
@@ -107,9 +131,28 @@ let onSleepEnded: (() => void) | null = null;
 
 export function bindEngine(next: PlayerEngine) {
   engine = next;
+  usePlayer.setState({ nativeVideo: !!next.native, tracks: null });
   return () => {
     if (engine === next) engine = null;
   };
+}
+
+/**
+ * Switches engine with a file loaded (e.g. libVLC found after start): the
+ * new engine takes the same file at the same position.
+ */
+export function swapEngine(previous: PlayerEngine | null, next: PlayerEngine) {
+  previous?.stop();
+  const unbind = bindEngine(next);
+  const s = usePlayer.getState();
+  if (s.media && s.state !== 'idle') {
+    const instance = s.instance + 1;
+    usePlayer.setState({ instance, state: 'loading', error: null });
+    next.load(s.media, instance, s.position, isActive(s.state));
+    next.setVolume(s.volume, s.muted);
+    next.setRate(s.rate);
+  }
+  return unbind;
 }
 
 export function onSleepTimerEnded(cb: (() => void) | null) {
@@ -186,6 +229,8 @@ export function initialPlayerState() {
     repeat: saved.repeat ?? ('off' as RepeatMode),
     sleep: { mode: 'off' } as SleepTimer,
     surface: null,
+    tracks: null,
+    nativeVideo: false,
   };
 }
 
@@ -467,6 +512,24 @@ export const usePlayer = create<PlayerStore>((set, get) => {
     },
 
     setSurface: (surface) => set({ surface }),
+    // Shown at once; the engine's next tracks report confirms it (two
+    // quick clicks on the delay then add up).
+    setAudioTrack: (id) => {
+      const tracks = get().tracks;
+      if (tracks) set({ tracks: { ...tracks, audioId: id } });
+      engine?.setAudioTrack?.(id);
+    },
+    setSubtitle: (id) => {
+      const tracks = get().tracks;
+      if (tracks) set({ tracks: { ...tracks, subtitleId: id } });
+      engine?.setSubtitle?.(id);
+    },
+    addSubtitle: async () => (await engine?.addSubtitle?.()) ?? false,
+    setSubtitleDelay: (ms) => {
+      const tracks = get().tracks;
+      if (tracks) set({ tracks: { ...tracks, subtitleDelay: ms } });
+      engine?.setSubtitleDelay?.(ms);
+    },
   };
 });
 
@@ -560,5 +623,5 @@ export function resetPlayerForTests() {
   } catch {
     // ignore
   }
-  usePlayer.setState({ ...initialPlayerState() });
+  usePlayer.setState({ ...initialPlayerState(), tracks: null, nativeVideo: false });
 }

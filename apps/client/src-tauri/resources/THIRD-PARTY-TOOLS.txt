@@ -1,8 +1,9 @@
 Miarina Media - third-party tools shipped in this folder
 =========================================================
 
-Miarina Media runs these programs as separate processes. They are not
-modified and not linked with Miarina Media. Each file was taken from the
+Miarina Media runs yt-dlp, FFmpeg and QuickJS-NG as separate processes;
+the video player loads libVLC at run time (dynamic loading, nothing is linked
+at build time). None of them is modified. Each file was taken from the
 official release below and checked against a pinned SHA-256 digest before
 being packaged.
 
@@ -32,8 +33,22 @@ QuickJS-NG 0.17.0  (tools/quickjs/)
   Source:  https://github.com/quickjs-ng/quickjs
   File SHA-256: 2aeabf0092c3262d6b2609824418f7dd7ed1f1df939f73b2b15645230cac0d77
 
-You may replace the FFmpeg DLLs in tools/ffmpeg/ with your own compatible
-build of the same FFmpeg version, as the LGPL allows. Note that Miarina Media
+libVLC 3.0.24  (tools/libvlc/)
+  Video engine of the Windows player. Only the files local playback needs
+  are kept from the official build (libvlc.dll, libvlccore.dll and part of
+  plugins/); vlc.exe and the VLC interfaces are not included.
+  License: libvlc and libvlccore are under the GNU Lesser General Public
+  License, version 2.1 or later. The modules and the libraries they contain
+  are under their own licenses: see COPYING.txt and AUTHORS.txt shipped in
+  the same folder.
+  Release: https://download.videolan.org/pub/videolan/vlc/3.0.24/win64/vlc-3.0.24-win64.zip
+  Source:  https://download.videolan.org/pub/videolan/vlc/3.0.24/vlc-3.0.24.tar.xz
+           https://www.videolan.org/vlc/download-sources.html
+  Archive SHA-256: fcf30850371ad10c9373cc4f0f4501e7dee49e3e9ae9f20c72fb2661a1ca6323
+
+You may replace the FFmpeg DLLs in tools/ffmpeg/, or the libVLC files in
+tools/libvlc/, with your own compatible build of the same version, as the
+LGPL allows. Note that Miarina Media
 only uses the folder whose name matches the pinned digest.
 
 Questions: https://media.miarina.org
