@@ -1,6 +1,6 @@
 # Fiche LOT-L09 — Mises à jour robustes (Windows)
 
-- Statut : fait pour Windows, un essai réel restant (schéma plus récent sur 0.1.100) ; Android (UPD-06) et Authenticode (UPD-09) hors lot
+- Statut : fait et recetté pour Windows ; Android (UPD-06) et Authenticode (UPD-09) hors lot
 - Exigences CDC : § 9 UPD-01 à UPD-05, UPD-07, UPD-08, UPD-10 ; test T-06
 - Protocole et limites : `docs/app-updates.md`
 
@@ -47,13 +47,14 @@ Correctifs issus de la recette, compilés dans **0.1.100** :
 
 | Correctif | Vérification |
 |---|---|
-| Base refusée : message affiché avant la création de l'application (Windows), repli dans `setup` depuis un autre fil | tests Rust ; **essai réel du schéma 10 sur 0.1.100 encore à faire** (l'application de recette était en cours d'utilisation) |
+| Base refusée : message affiché avant la création de l'application (Windows), repli dans `setup` depuis un autre fil | 0.1.100, base passée au schéma 10 : seule fenêtre du processus, la boîte « Cette bibliothèque a été mise à jour par une version plus récente de Miarina Media : la version 0.1.100 ne peut pas l'ouvrir sans risque (schéma 10, cette version s'arrête au schéma 9). Vos données n'ont pas été modifiées… » ; après OK le processus se termine, aucun plantage enregistré, base identique (même empreinte SHA-256, schéma 10, aucune copie) ; remise au schéma 9 : l'application s'ouvre normalement |
 | Coupure réseau : code `update_network` et message « Connexion au serveur de mises à jour perdue. Réessayez : un téléchargement reprend là où il s'est arrêté. » au lieu du texte de la bibliothèque HTTP | 0.1.100, serveur arrêté : la vérification renvoie `update_network` ; affichage couvert par le test du store |
 
 Mise à jour 0.1.99 → 0.1.100 par l'interface : trouvée (comparaison numérique 0.1.100 > 0.1.99), téléchargée, vérifiée, installée ; 0.1.100 rapporte sa version, ne trouve rien de plus récent, cache nettoyé, données identiques (schéma 9, 28 médias, playlist et positions). Pendant ce second passage, le pilote de l'installateur n'a vu aucun changement de page pendant 4 minutes après « déjà installé » puis l'installation s'est terminée : cause non établie (désinstallation de l'ancienne version plus longue, ou interaction dans la fenêtre).
 
 ## Points ouverts
 
-- Essai réel « schéma plus récent » sur 0.1.100 (message sans fenêtre).
+- Versions de recette désinstallées après l'essai (désinstallation silencieuse : dossier, raccourcis et entrée de désinstallation supprimés ; données de recette conservées).
+
 - Textes français de l'installateur fournis par Tauri fautifs (« La version ancien de … est installée », « Déja installé ») : fichier de langue NSIS personnalisé à prévoir.
 - Android : UPD-06 (service de premier plan, règles réseau, écran de migration du handoff splash) ; Authenticode : UPD-09.
