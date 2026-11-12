@@ -33,7 +33,7 @@ Généré avec FFmpeg (aucun média tiers) ; commandes dans `docs/decisions/0005
 | Seek local (20 positions, fichier 5 min 1080p) | p95 ≤ 1 s | p95 416 ms | atteint |
 | Recherche 10 000 médias (à chaque frappe) | p95 ≤ 500 ms | p95 8,9 ms, max 11,7 ms | atteint |
 | Mémoire (20 ouvertures / fermetures puis repos) | pas de croissance persistante | processus principal : 223 → 230 Mo pendant les lectures, **31 Mo** au repos, 43 Mo après 20 cycles de plus ; WebView2 stable ~158 Mo | atteint |
-| Endurance 60 min | aucun crash / blocage | voir `docs/performance.md` | voir résultat |
+| Endurance 60 min | aucun crash / blocage | arrêt du processus à 50 min (897 actions sans échec avant), sans rapport de plantage ni vidage : fermeture normale probable, cause non établie ; mémoire du processus principal en hausse (médiane 114 → 652 Mo), libérée après arrêt dans l'essai de 100 ouvertures (48 Mo) | **non validé**, à refaire |
 | Taille de l'installeur | écart mesuré et justifié | 91,2 Mio contre 70,2 Mio pour 0.1.7 : +21 Mio, dû à libVLC (lecture native, décision 0005) | mesuré |
 
 ## Défauts et limites prioritaires (état au 2026-11-12)
@@ -45,5 +45,6 @@ Généré avec FFmpeg (aucun média tiers) ; commandes dans `docs/decisions/0005
 | — | Corrigé pendant L00 : indexation lente des gros dossiers (10 000 entrées en 30 s, une écriture SQLite par fichier et recherche linéaire des chemins connus) → 3,2 s (une transaction, table de hachage) | fait |
 | P2 | Glisser-déposer HTML dans la page désactivé sous Windows par le gestionnaire natif de dépôt de fichiers (réordonner la file à la souris) ; Alt + ↑ / ↓ disponible | à étudier (dépôt natif ciblé) |
 | P2 | Commandes du lecteur hors de l'image (fenêtre transparente possédée non vérifiée à l'œil) | à vérifier par le propriétaire |
+| P2 | Mémoire du processus principal croissante pendant l'endurance (médiane 114 → 652 Mo en 50 min avec seeks, changements de piste et pauses) ; pas de croissance sur 100 ouvertures seules | à étudier (endurance à refaire avec sortie d'erreur capturée) |
 | P3 | Messages d'erreur du moteur non traduits quand ils ne sont pas reconnus | au fil des lots |
 | — | Corrigé pendant L00 : play / pause répondait en 257 ms (relevé d'état libVLC toutes les 250 ms) → 26 ms (relevé toutes les 20 ms pendant 600 ms après une commande) | fait |
