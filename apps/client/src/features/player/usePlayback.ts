@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { usePlaybackClock } from '../../hooks/usePlaybackClock';
 import { backend } from '../../services/backend';
 import type { MediaRecord } from '../../services/types';
+import { durableRemove, durableSet } from '../../services/durableState';
 
 const POSITION_KEY = (id: number) => `mm:position:${id}`;
 /** Positions this close to the start or the end are not worth resuming. */
@@ -30,9 +31,9 @@ export function savedPosition(id: number): number {
 export function savePosition(id: number, time: number, duration: number) {
   try {
     if (time < RESUME_MARGIN_SECS || duration - time < RESUME_MARGIN_SECS) {
-      localStorage.removeItem(POSITION_KEY(id));
+      durableRemove(POSITION_KEY(id));
     } else {
-      localStorage.setItem(POSITION_KEY(id), String(Math.floor(time)));
+      durableSet(POSITION_KEY(id), String(Math.floor(time)));
     }
   } catch {
     // Storage unavailable: resuming is a convenience only.

@@ -164,5 +164,16 @@ pub fn migrations() -> Migrations<'static> {
         INSERT INTO media_fts(media_fts) VALUES ('rebuild');
         "#,
         ),
+        // v6 — durable playback state (L02, COM-03/04/13): queues, resume
+        // positions and play history survive a lost WebView profile.
+        M::up(
+            r#"
+        CREATE TABLE playback_state (
+            key        TEXT PRIMARY KEY,
+            value      TEXT NOT NULL,
+            updated_at INTEGER NOT NULL
+        );
+        "#,
+        ),
     ])
 }

@@ -62,7 +62,7 @@ impl From<UrlError> for CommandError {
     }
 }
 
-type CmdResult<T> = Result<T, CommandError>;
+pub(crate) type CmdResult<T> = Result<T, CommandError>;
 
 // Component downloads/automatic updates still use Windows artifacts only.
 const EXTRACTOR_AVAILABLE: bool = cfg!(windows);

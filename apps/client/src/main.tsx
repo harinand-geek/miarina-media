@@ -2,8 +2,13 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { invoke } from '@tauri-apps/api/core';
 import './styles/load';
-import { App } from './app/App';
+import { hydrateDurableState } from './services/durableState';
 import { detectPlatform, inTauri } from './services/platform';
+
+// Playback state comes back from SQLite before any store reads it (L02);
+// the app modules are loaded only after that.
+await hydrateDurableState();
+const { App } = await import('./app/App');
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

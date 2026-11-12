@@ -353,7 +353,7 @@ fn v5_adds_tags_and_keeps_search_of_a_v4_database() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 5);
+    assert!(storage.schema_version().unwrap() >= 5);
     let found = storage
         .query_media(&MediaQuery {
             search: "rivo".into(),
@@ -367,4 +367,96 @@ fn v5_adds_tags_and_keeps_search_of_a_v4_database() {
         1,
         "tags read later"
     );
+}
+
+#[test]
+fn v6_keeps_a_v5_database_and_starts_empty() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 5).unwrap();
+        conn.execute(
+            "INSERT INTO media (path, title, kind, size_bytes, added_at, modified_at) \
+             VALUES ('C:/M/a.mp3', 'A', 'audio', 1, 1, 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(storage.schema_version().unwrap(), 6);
+    assert_eq!(storage.media_stats().unwrap().count, 1);
+    assert!(storage.playback_entries().unwrap().is_empty());
+}
+
+#[test]
+fn playback_state_is_written_atomically_and_survives_reopening() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let storage = Storage::open(&path).unwrap();
+        storage
+            .write_playback(&[
+                ("mm:position:7".into(), Some("75".into())),
+                ("mm:player:v1".into(), Some("{\"queue\":[]}".into())),
+            ])
+            .unwrap();
+        // One refused key: nothing from this batch is written.
+        assert!(
+            storage
+                .write_playback(&[
+                    ("mm:position:8".into(), Some("12".into())),
+                    ("mm:sidebar".into(), Some("open".into())),
+                ])
+                .is_err()
+        );
+        storage
+            .write_playback(&[("mm:player:v1".into(), None)])
+            .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert_eq!(
+        storage.playback_entries().unwrap(),
+        vec![("mm:position:7".to_string(), "75".to_string())]
+    );
+}
+
+#[test]
+fn playback_keys_and_sizes_are_bounded() {
+    assert!(is_playback_key("mm:position:42"));
+    assert!(is_playback_key(PLAYBACK_IMPORTED));
+    assert!(is_playback_key("mm:lang"));
+    assert!(!is_playback_key("mm:sidebar"));
+    assert!(!is_playback_key("mm:position:"));
+    assert!(!is_playback_key("mm:position:4a"));
+    assert!(!is_playback_key("../etc"));
+    let storage = Storage::open_in_memory().unwrap();
+    let big = "x".repeat(PLAYBACK_VALUE_MAX + 1);
+    assert!(
+        storage
+            .write_playback(&[("mm:player:v1".into(), Some(big))])
+            .is_err()
+    );
+}
+
+#[test]
+fn removing_a_media_forgets_its_resume_position() {
+    let storage = Storage::open_in_memory().unwrap();
+    let id = storage
+        .upsert_media(&NewMedia {
+            path: "C:/M/b.mp3".into(),
+            title: "B".into(),
+            kind: MediaKind::Audio,
+            source_host: None,
+            source_url: None,
+            task_id: None,
+            size_bytes: 3,
+        })
+        .unwrap()
+        .id;
+    storage
+        .write_playback(&[(position_key(id), Some("30".into()))])
+        .unwrap();
+    storage.remove_media(id).unwrap();
+    assert!(storage.playback_value(&position_key(id)).unwrap().is_none());
 }

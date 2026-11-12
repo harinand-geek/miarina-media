@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { notePlayed, noteStopped } from '../features/player/recentPlays';
 import { savePosition, savedPosition } from '../features/player/usePlayback';
 import type { MediaRecord } from '../services/types';
+import { durableSet } from '../services/durableState';
 
 /**
  * Desktop player contract (CDC COM-01, §11 "Contrat lecteur"). One engine
@@ -527,7 +528,7 @@ usePlayer.subscribe((s, prev) => {
     muted: s.muted,
   };
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    durableSet(STORAGE_KEY, JSON.stringify(data));
   } catch {
     // Storage full or unavailable: the queue lives for this session only.
   }

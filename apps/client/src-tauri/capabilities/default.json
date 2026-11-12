@@ -72,6 +72,8 @@
     "allow-browser-frame",
     "allow-browser-favorites",
     "allow-browser-favorite-toggle",
+    "allow-playback-load",
+    "allow-playback-write",
     "allow-player-open",
     "allow-player-queue",
     "allow-player-skip",

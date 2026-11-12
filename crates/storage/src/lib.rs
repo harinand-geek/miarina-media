@@ -5,10 +5,14 @@
 
 mod media;
 mod migrations;
+mod playback;
 
 pub use media::{
     GroupBy, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats,
     MediaTags, NewMedia, fts_query,
+};
+pub use playback::{
+    PLAYBACK_IMPORTED, PLAYBACK_ROWS_MAX, PLAYBACK_VALUE_MAX, is_playback_key, position_key,
 };
 
 use std::path::Path;
@@ -33,6 +37,8 @@ pub enum StorageError {
     Corrupted(&'static str),
     #[error("invalid settings value: {0}")]
     Settings(#[from] serde_json::Error),
+    #[error("refused: {0}")]
+    Invalid(String),
 }
 
 pub type Result<T> = std::result::Result<T, StorageError>;

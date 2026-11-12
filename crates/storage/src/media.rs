@@ -588,6 +588,10 @@ impl Storage {
 
     pub fn delete_media(&self, id: i64) -> Result<()> {
         let changed = self.conn.execute("DELETE FROM media WHERE id = ?1", [id])?;
+        self.conn.execute(
+            "DELETE FROM playback_state WHERE key = ?1",
+            [crate::position_key(id)],
+        )?;
         crate::ensure_found(changed, &id.to_string())
     }
 
@@ -606,6 +610,11 @@ impl Storage {
             params![path, now_ms()],
         )?;
         tx.execute("DELETE FROM media WHERE id = ?1", [id])?;
+        // Its resume position is meaningless now.
+        tx.execute(
+            "DELETE FROM playback_state WHERE key = ?1",
+            [crate::position_key(id)],
+        )?;
         tx.commit()?;
         Ok(())
     }
@@ -736,7 +745,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            5
+            6
         );
     }
 

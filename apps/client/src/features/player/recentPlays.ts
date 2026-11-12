@@ -1,5 +1,6 @@
 import { useSyncExternalStore } from 'react';
 import type { MediaKind, MediaRecord } from '../../services/types';
+import { durableSet } from '../../services/durableState';
 
 /**
  * Local play history (CDC COM-13, Windows v2 History › Plays), separate
@@ -55,7 +56,7 @@ function write(entries: PlayEntry[]) {
   cache = entries.slice(0, MAX);
   try {
     cacheRaw = JSON.stringify(cache);
-    localStorage.setItem(KEY, cacheRaw);
+    durableSet(KEY, cacheRaw);
   } catch {
     // Storage unavailable: the history lives for this session only.
   }

@@ -8,6 +8,7 @@ mod updates;
 mod download_notifications;
 #[cfg(target_os = "android")]
 mod media_tools;
+mod playback_state;
 mod player;
 mod shared_storage;
 mod shell;
@@ -343,6 +344,8 @@ pub fn run() {
             commands::library_update_tags,
             commands::library_groups,
             commands::library_remove,
+            playback_state::playback_load,
+            playback_state::playback_write,
             commands::library_delete,
             commands::library_reveal,
             commands::library_rescan,

@@ -63,6 +63,8 @@ const COMMANDS: &[&str] = &[
     "browser_frame",
     "browser_favorites",
     "browser_favorite_toggle",
+    "playback_load",
+    "playback_write",
     "player_open",
     "player_queue",
     "player_skip",

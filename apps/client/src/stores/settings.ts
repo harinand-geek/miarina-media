@@ -5,6 +5,7 @@ import type { BackendSettings, Limits, ResourceMode } from '../services/types';
 import type { Lang } from '../i18n';
 import { RESUME_KEY, resumeEnabled } from '../features/player/usePlayback';
 import { useUi } from './ui';
+import { durableSet } from '../services/durableState';
 
 const LANG_KEY = 'mm:lang';
 
@@ -140,19 +141,11 @@ export const useSettings = create<SettingsState>((set, get) => ({
   },
   setTheme: (theme) => set({ theme }),
   setLang: (lang) => {
-    try {
-      localStorage.setItem(LANG_KEY, lang);
-    } catch {
-      // Not persisted: applies to this session only.
-    }
+    durableSet(LANG_KEY, lang);
     set({ lang });
   },
   setResumePlayback: (resumePlayback) => {
-    try {
-      localStorage.setItem(RESUME_KEY, resumePlayback ? '1' : '0');
-    } catch {
-      // Not persisted: applies to this session only.
-    }
+    durableSet(RESUME_KEY, resumePlayback ? '1' : '0');
     set({ resumePlayback });
   },
   setDensity: (density) => set({ density }),

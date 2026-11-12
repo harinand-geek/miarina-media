@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import type { MediaRecord } from '../services/types';
 import type { RepeatMode, SleepTimer } from './player';
 import { useUi } from './ui';
+import { durableRemove, durableSet } from '../services/durableState';
 
 /**
  * Android play queue, modes and sound settings (Android v2 screens 07–09).
@@ -190,11 +191,7 @@ export const useMobilePlayback = create<MobilePlaybackState>((set, get) => ({
 
   setRate: (rate) => {
     const r = (MOBILE_RATES as readonly number[]).includes(rate) ? rate : 1;
-    try {
-      localStorage.setItem(RATE_KEY, String(r));
-    } catch {
-      // Not persisted: applies to this session.
-    }
+    durableSet(RATE_KEY, String(r));
     set({ rate: r });
   },
 
@@ -279,16 +276,12 @@ export function savedSession(): SavedSession | null {
 function persist() {
   const item = useUi.getState().nowPlaying;
   const { queue, source, repeat } = useMobilePlayback.getState();
-  try {
-    if (!item || !queue.length) localStorage.removeItem(SESSION_KEY);
-    else
-      localStorage.setItem(
-        SESSION_KEY,
-        JSON.stringify({ queue, currentId: item.id, source, repeat } satisfies SavedSession),
-      );
-  } catch {
-    // Storage full or unavailable: nothing is restored after a restart.
-  }
+  if (!item || !queue.length) durableRemove(SESSION_KEY);
+  else
+    durableSet(
+      SESSION_KEY,
+      JSON.stringify({ queue, currentId: item.id, source, repeat } satisfies SavedSession),
+    );
 }
 
 useMobilePlayback.subscribe((s, prev) => {
