@@ -16,7 +16,9 @@ Trois tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 
 
 ## Avant de commencer
 
-Noter : modèle, version d'Android, constructeur (surcouche), batterie au départ. Avoir dans le téléphone : quelques MP3, une vidéo, idéalement un MKV avec deux pistes audio et un fichier `.srt` (par exemple `mkv multipistes.mkv` et `mkv multipistes.srt` du corpus de référence, voir `docs/lots/LOT-L00-reference.md`), copiés dans Téléchargements ou Films.
+Noter : modèle, version d'Android, constructeur (surcouche), batterie au départ.
+
+Médias : la bibliothèque Android ne montre que les fichiers **téléchargés par Miarina Media** (`Music/Miarina`, `Movies/Miarina`). Des fichiers copiés depuis le PC ou une autre app n'y apparaissent pas, même dans ces dossiers : la lecture des fichiers locaux du téléphone (MediaStore, AND-06) n'est pas encore faite. Avant la recette, télécharger dans l'app quelques titres audio et une vidéo. Le fichier `.srt` peut, lui, être copié n'importe où : il est choisi avec le sélecteur Android. Le changement de piste audio (étape 3.5) demande une vidéo multipiste téléchargée ; s'il n'y en a pas, noter l'étape « non testée ».
 
 ## 1. Démarrage (splash)
 
