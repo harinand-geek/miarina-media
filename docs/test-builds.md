@@ -2,6 +2,24 @@
 
 Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
 
+## Windows et Android 0.1.9 — préparée le 2026-11-13, pas encore publiée
+
+Sources : révision `5f36cda` (code de l’application identique à `01fdf35`, seul le site diffère), archive `MiarinaMedia-0.1.9-source.tar.gz` avec le sous-module Mister Download Manager (`46bb3bcd`). Android passe de 0.1.7 à 0.1.9 (versionCode 1009).
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.1.9-x64-setup.exe | 95673997 | 728f3da58c54f6f686eb3ce3ae8d5dfc9720088f64a74e36639057166c1e6c6e |
+| MiarinaMedia-0.1.9.apk | 134546044 | bbfdf3dcf9c31d62d709b4c98cb2f7272f4111ae9bc8de529e717e7634845585 |
+| MiarinaMedia-0.1.9-source.tar.gz | 34163076 | 5a2d2906ef72b78dfdb08877fcc86a99a0f91f27e0332aeb30cfc5941b77a402 |
+
+Préparé dans `builds/` (non versionné) : les trois fichiers, `SHA256SUMS-0.1.9`, `release-0.1.9.json`, `update-notes-0.1.9.txt`, le manifeste signé `stable-0.1.9.json` (clé de publication, canal stable), `upload-release-0.1.9.ps1` et `publish-0.1.9.sh` (étapes `files`, `site`, `manifest`). Rien n’est envoyé sur le serveur.
+
+Validation : 210 tests frontend, tests Rust de l’espace de travail, TypeScript, ESLint, clippy, rustfmt. Windows : paquet NSIS vérifié avec 7-Zip (318 fichiers, yt-dlp, FFmpeg, QuickJS-NG et libVLC présents), `miarina-media.exe` en version 0.1.9. Android : signature v2 avec le certificat habituel (`11de8715…6479e1`), versionCode 1009, ARM64 et x86_64, permissions `READ_MEDIA_AUDIO`, `READ_MEDIA_VIDEO`, `READ_EXTERNAL_STORAGE` (≤ Android 12). Cet APK exact installé sur l’émulateur Android 15 : démarrage, accès aux médias du téléphone (un fichier copié par adb apparaît après autorisation), lecture d’un MP3 avec pochette. **Non testé** : ces paquets exacts sur téléphone réel et sur une machine Windows propre, mise à jour réelle depuis 0.1.7 / 0.1.8.
+
+Défaut connu trouvé pendant la capture : sur Android, « Lecture depuis » garde la langue du moment où la lecture a commencé (la source de la file est enregistrée déjà traduite) ; corrigé au prochain lancement de lecture.
+
+Site : landing v4 (`design_handoff_landing_v4`), français `/` et anglais `/en/`. Capture Android tirée de l’application 0.1.9 réelle sur émulateur ; captures Windows de l’application 0.1.8 réelle, interface identique en 0.1.9 (vérifié avec l’application 0.1.9 de recette).
+
 ## Windows 0.1.8 — 2026-11-12
 
 Sources : révision 9f9922c (archive `MiarinaMedia-0.1.8-source.tar.gz`, avec le sous-module Mister Download Manager). Windows seulement : le manifeste signé garde Android sur l’APK 0.1.7 déjà publié (même fichier, même empreinte).
