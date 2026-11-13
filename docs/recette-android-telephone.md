@@ -4,7 +4,7 @@ Trois tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 
 
 ## APK de test
 
-`builds/test/MiarinaMedia-android-test-f596bc1.apk` (dossier local, non versionné), construit le 2026-11-13 depuis la révision `f596bc1`.
+`builds/test/MiarinaMedia-android-test-and12.apk` (arm64, révision `d897182`, déjà installé sur le Redmi Note 10 Pro le 2026-11-13 à 12:14). Version précédente pour les autres téléphones : `builds/test/MiarinaMedia-android-test-f596bc1.apk` (universel, construit depuis `f596bc1`, sans AND-06 ni les points du § 6).
 
 - Taille : 134 478 644 octets.
 - SHA-256 : `c268ecbcde07117925548c6d4d2d9b8ea796ed264a61840cac41a7ceafa9642d`
@@ -61,6 +61,16 @@ Réglages › Thème : Clair, Langue : English. Relancer l'app : le thème clair
 6. Refus : Paramètres Android › Applications › Miarina Media › Autorisations › Musique et audio › Refuser ; revenir dans l'app : la carte revient avec « Ouvrir les réglages » ; autoriser depuis les réglages puis revenir : la carte disparaît.
 7. Ajouter un MP3 dans le téléphone (par l'app Fichiers ou par câble), relancer l'app : il apparaît.
 
+## 6. Playlists, favoris, égaliseur, réglages (2026-11-13)
+
+1. Titres › ⋮ › « Ajouter aux favoris » : cœur corail sur la ligne ; onglet Favoris : le titre y est ; ⋮ › « Retirer des favoris » le retire.
+2. Playlists › « + Nouvelle playlist », nommer ; Titres › ⋮ › « Ajouter à une playlist… » ; ouvrir la playlist : Tout lire, Aléatoire, ✕ retire un titre, ⋮ › Renommer / Supprimer (confirmation ; les fichiers restent).
+3. En lecture › File › « Enregistrer en playlist » : la playlist contient toute la file.
+4. Écouter quelques titres, puis Playlists › Récents (dernier écouté en haut) et Plus écoutés (« N écoutes »).
+5. En lecture › Son : activer l'égaliseur, préréglage « Basses » puis « Voix » : le son change nettement ; bouger une bande : « Personnalisé » ; « Réinitialiser » ; couper l'égaliseur : son d'origine. Relancer l'app : réglage conservé. Si l'appareil n'a pas d'égaliseur, un texte l'explique.
+6. Réglages › Lecture › « Pause au retrait du casque » désactivé : débrancher le casque, la musique continue (sur le haut-parleur) ; réactivé : pause.
+7. Lecture sans blanc : un album continu en MP3 (encodé LAME), M4A ou FLAC : pas de silence entre deux pistes.
+
 ## Résultats
 
 | Étape | OK / défaut | Remarque (modèle, version, capture si défaut) |
@@ -70,3 +80,4 @@ Réglages › Thème : Clair, Langue : English. Relancer l'app : le thème clair
 | 3 Vidéo plein écran | | |
 | 4 Clair / anglais | | |
 | 5 Musique du téléphone | | |
+| 6 Playlists, égaliseur, réglages | | |
