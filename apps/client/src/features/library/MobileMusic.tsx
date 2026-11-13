@@ -17,7 +17,7 @@ import { useMobileMediaSheet } from './useMobileMediaSheet';
 type MusicView = 'tracks' | 'playlists' | 'albums' | 'artists' | 'folders' | 'favorites';
 
 const VIEWS: { id: MusicView; label: MessageKey; by?: GroupBy; planned?: boolean }[] = [
-  { id: 'tracks', label: 'tracks' },
+  { id: 'tracks', label: 'songs' },
   { id: 'playlists', label: 'playlists', planned: true },
   { id: 'albums', label: 'albums', by: 'album' },
   { id: 'artists', label: 'artists', by: 'artist' },
@@ -41,7 +41,7 @@ const shuffled = <T,>(items: T[]) => {
   return out;
 };
 
-const tracksLabel = (n: number, t: Translate) => (n === 1 ? t('oneTrack') : t('tracksCount', { n }));
+const tracksLabel = (n: number, t: Translate) => (n === 1 ? t('oneSong') : t('songsCount', { n }));
 const lastSegment = (path: string) => path.split(/[\\/]/).filter(Boolean).pop() ?? path;
 
 /** Plays `items` from `start` with the rest as the Android queue. */
@@ -161,7 +161,7 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
           disabled={!list.length}
           onClick={() => {
             const order = shuffled(list);
-            playList(order, order[0], t('tracks'));
+            playList(order, order[0], t('songs'));
           }}
           className="flex h-10 items-center gap-2 rounded-full bg-coral pl-3 pr-4 text-[14px] font-extrabold text-coral-ink disabled:opacity-50"
         >
@@ -196,7 +196,7 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
           {search.trim() ? t('noMatch', { q: search.trim() }) : t('emptyLibBody')}
         </p>
       )}
-      <TrackList items={list} scroller={scroller} source={t('tracks')} />
+      <TrackList items={list} scroller={scroller} source={t('songs')} />
     </>
   );
 }
@@ -223,7 +223,7 @@ function TrackList({
   return (
     <>
       <VirtualGrid
-        label={t('tracks')}
+        label={t('songs')}
         items={items}
         scrollRef={{ current: scroller }}
         columns={1}
@@ -445,7 +445,10 @@ function GroupPage({
   const list = useMemo(() => (synced ? items : []), [synced, items]);
   const total = list.reduce((sum, m) => sum + (m.durationSecs ?? 0), 0);
   const albums = useMemo(() => {
-    const map = new Map<string, { name: string; year: number | null; count: number; cover: MediaRecord }>();
+    const map = new Map<
+      string,
+      { name: string; year: number | null; count: number; cover: MediaRecord }
+    >();
     for (const m of list) {
       if (!m.album) continue;
       const key = m.album.toLowerCase();
@@ -455,14 +458,16 @@ function GroupPage({
     }
     return [...map.values()];
   }, [list]);
-  const back: MessageKey = group.by === 'album' ? 'albums' : group.by === 'artist' ? 'artists' : 'folders';
+  const back: MessageKey =
+    group.by === 'album' ? 'albums' : group.by === 'artist' ? 'artists' : 'folders';
   const title = group.by === 'folder' ? lastSegment(group.name) : group.name;
   const source = t(
     group.by === 'album' ? 'sourceAlbum' : group.by === 'artist' ? 'sourceArtist' : 'sourceFolder',
     { name: title },
   );
   const stats = [
-    group.by === 'artist' && (albums.length === 1 ? t('oneAlbum') : t('albumsCount', { n: albums.length })),
+    group.by === 'artist' &&
+      (albums.length === 1 ? t('oneAlbum') : t('albumsCount', { n: albums.length })),
     tracksLabel(list.length, t),
     total > 0 && durationLabel(total),
   ]
@@ -490,7 +495,11 @@ function GroupPage({
             <span
               className={`hatch grid h-28 w-28 shrink-0 place-items-center ${group.by === 'artist' ? 'rounded-full' : 'rounded-xl'}`}
             >
-              <Icon name={group.by === 'artist' ? 'person' : 'folder'} size={44} className="text-faint-icon" />
+              <Icon
+                name={group.by === 'artist' ? 'person' : 'folder'}
+                size={44}
+                className="text-faint-icon"
+              />
             </span>
           )}
           <div className="flex min-w-0 flex-1 flex-col gap-1">
@@ -539,7 +548,7 @@ function GroupPage({
             </div>
           </>
         )}
-        <h2 className="m-0 text-[15px] font-bold">{t('tracks')}</h2>
+        <h2 className="m-0 text-[15px] font-bold">{t('songs')}</h2>
         <TrackList
           items={list}
           scroller={scroller}

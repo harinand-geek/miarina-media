@@ -18,6 +18,17 @@ import { useUi } from './ui';
 import { durableSet } from '../services/durableState';
 
 const LANG_KEY = 'mm:lang';
+const THEME_KEY = 'mm:theme';
+
+/** Theme chosen in Settings, kept across launches (default: dark). */
+function initialTheme(): ThemePref {
+  try {
+    const saved = localStorage.getItem(THEME_KEY);
+    return saved === 'light' || saved === 'system' ? saved : 'dark';
+  } catch {
+    return 'dark';
+  }
+}
 
 /** English until every screen reads the catalog (CDC UX-01: no mixed screens by default). */
 function initialLang(): Lang {
@@ -48,8 +59,9 @@ interface SettingsState {
   lang: Lang;
   /** Resume each media where it stopped (persisted locally). */
   resumePlayback: boolean;
-  // UI preferences (not persisted yet).
+  /** Persisted locally (`mm:theme`). */
   theme: ThemePref;
+  // UI preferences (not persisted yet).
   density: Density;
   reduceMotion: boolean;
   /** Android destination: internal storage or SD card (SAF in Phase 4). */
@@ -108,7 +120,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   lang: initialLang(),
   resumePlayback: resumeEnabled(),
   videoGestures: gesturesEnabled(),
-  theme: 'dark',
+  theme: initialTheme(),
   density: 'comfortable',
   reduceMotion: false,
   androidStore: 'int',
@@ -153,7 +165,10 @@ export const useSettings = create<SettingsState>((set, get) => ({
       })
       .catch(report);
   },
-  setTheme: (theme) => set({ theme }),
+  setTheme: (theme) => {
+    durableSet(THEME_KEY, theme);
+    set({ theme });
+  },
   setLang: (lang) => {
     durableSet(LANG_KEY, lang);
     set({ lang });

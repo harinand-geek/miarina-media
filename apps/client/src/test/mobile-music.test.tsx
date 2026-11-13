@@ -37,10 +37,13 @@ describe('Android v2 Music', () => {
   it('lists tracks with a shuffle that fills the queue', async () => {
     const user = await openTab(/Music/);
     const tabs = screen.getByRole('tablist', { name: 'Music' });
-    expect(within(tabs).getByRole('tab', { name: 'Tracks' })).toHaveAttribute('aria-selected', 'true');
+    expect(within(tabs).getByRole('tab', { name: 'Songs' })).toHaveAttribute(
+      'aria-selected',
+      'true',
+    );
     expect(within(tabs).getByRole('tab', { name: 'Playlists' })).toBeDisabled();
     expect(within(tabs).getByRole('tab', { name: 'Favorites' })).toBeDisabled();
-    expect(await screen.findByText('3 tracks')).toBeInTheDocument();
+    expect(await screen.findByText('3 songs')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
     expect(useMobilePlayback.getState().queue).toHaveLength(3);
@@ -52,14 +55,12 @@ describe('Android v2 Music', () => {
     await user.click(screen.getByRole('tab', { name: 'Artists' }));
     await user.click(await screen.findByRole('button', { name: 'Erik Satie' }));
     expect(await screen.findByRole('heading', { name: 'Erik Satie' })).toBeInTheDocument();
-    await waitFor(() => expect(screen.getByText(/1 album · 1 track/)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/1 album · 1 song/)).toBeInTheDocument());
 
     await user.click(screen.getByRole('button', { name: 'Back' }));
     await user.click(screen.getByRole('tab', { name: 'Albums' }));
     await user.click(await screen.findByRole('button', { name: 'Musopen Piano' }));
-    await waitFor(() =>
-      expect(useLibrary.getState().items.map((m) => m.trackNo)).toEqual([1, 2]),
-    );
+    await waitFor(() => expect(useLibrary.getState().items.map((m) => m.trackNo)).toEqual([1, 2]));
     await user.click(screen.getByRole('button', { name: /Play all/ }));
     expect(useUi.getState().nowPlaying?.title).toBe('Gymnopédie No. 1 — Satie');
     expect(useMobilePlayback.getState().queue.map((m) => m.trackNo)).toEqual([1, 2]);
@@ -69,7 +70,11 @@ describe('Android v2 Music', () => {
     const mini = screen.getByRole('region', { name: 'Now playing' });
     await user.click(within(mini).getByRole('button', { name: 'Next' }));
     expect(useUi.getState().nowPlaying?.title).toBe('Clair de Lune — Debussy');
-    expect(within(screen.getByRole('region', { name: 'Now playing' })).getByRole('button', { name: 'Next' })).toBeDisabled();
+    expect(
+      within(screen.getByRole('region', { name: 'Now playing' })).getByRole('button', {
+        name: 'Next',
+      }),
+    ).toBeDisabled();
   });
 
   it('plays an album straight from its cover', async () => {

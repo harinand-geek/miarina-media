@@ -38,6 +38,8 @@
   --mm-audio: 143 179 217; /* #8FB3D9 */
   --mm-hatch-a: 34 51 63; /* #22333F */
   --mm-hatch-b: 28 44 55; /* #1C2C37 */
+  --mm-planned: 232 176 75; /* #E8B04B */
+  --mm-planned-ink: 26 18 4; /* #1A1204 */
   --mm-planned-bg: 43 38 22; /* #2B2616 */
   --mm-planned-border: 74 63 31; /* #4A3F1F */
   /* Windows v2: coral is the "play" accent (design_handoff_windows_v2). */
@@ -81,6 +83,9 @@
   --mm-audio: 62 110 158;
   --mm-hatch-a: 228 233 238;
   --mm-hatch-b: 238 242 245;
+  /* Light (Android v2 screen 17): warning #A86F0A on #FBF1DC. */
+  --mm-planned: 168 111 10;
+  --mm-planned-ink: 251 241 220;
   --mm-planned-bg: 255 246 224;
   --mm-planned-border: 240 221 176;
   --mm-coral-strong: 194 65 12; /* #C2410C */
@@ -119,8 +124,8 @@
   --color-destructive: #e05a5a;
   --color-destructive-hover: #ea6b6b;
   --color-destructive-press: #c94b4b;
-  --color-planned: #e8b04b;
-  --color-planned-ink: #1a1204;
+  --color-planned: rgb(var(--mm-planned));
+  --color-planned-ink: rgb(var(--mm-planned-ink));
   --color-coral: #ff7a45;
   --color-coral-hover: #ff9166;
   --color-coral-press: #e8642e;

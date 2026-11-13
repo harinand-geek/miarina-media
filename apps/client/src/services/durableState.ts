@@ -19,6 +19,7 @@ const FIXED_KEYS = [
   'mm:playHistory:v1',
   // Small preferences that must not reset with the WebView profile.
   'mm:lang',
+  'mm:theme',
   'mm:resume',
   'mm:mobile:rate',
   'mm:eq:v1',

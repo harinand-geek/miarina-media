@@ -19,6 +19,7 @@ const FIXED_KEYS: &[&str] = &[
     "mm:mobile:session:v1",
     "mm:playHistory:v1",
     "mm:lang",
+    "mm:theme",
     "mm:resume",
     "mm:mobile:rate",
     "mm:eq:v1",

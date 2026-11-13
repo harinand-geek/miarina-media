@@ -125,7 +125,7 @@ export function MobileHome({
       </header>
 
       <form
-        className={`flex flex-col gap-3 rounded-2xl bg-surface p-4 ${launch ? 'animate-launch-rise' : ''}`}
+        className={`flex flex-col gap-3 rounded-[16px] bg-surface p-4 ${launch ? 'animate-launch-rise' : ''}`}
         style={launch ? { animationDelay: '140ms' } : undefined}
         onSubmit={(e) => {
           e.preventDefault();
@@ -181,7 +181,7 @@ export function MobileHome({
             className="flex flex-col items-center gap-2 text-[12px] font-semibold text-fg disabled:text-muted"
           >
             <span
-              className={`relative grid h-[52px] w-[52px] place-items-center rounded-2xl bg-surface ${q.planned ? 'text-faint' : 'text-accent-strong'}`}
+              className={`relative grid h-[52px] w-[52px] place-items-center rounded-[16px] bg-surface ${q.planned ? 'text-faint in-data-[theme=light]:bg-surface2' : 'text-accent-strong in-data-[theme=light]:bg-accent-subtle'}`}
             >
               <Icon name={q.icon} size={24} />
               {q.planned && (
@@ -199,7 +199,7 @@ export function MobileHome({
         <button
           type="button"
           onClick={() => onNavigate('downloads')}
-          className="flex flex-col gap-2.5 rounded-2xl bg-surface p-3.5 text-left"
+          className="flex flex-col gap-2.5 rounded-[16px] bg-surface p-3.5 text-left"
         >
           <span className="flex w-full justify-between gap-3 text-[13px]">
             <span className="truncate font-bold">{downloadsTitle}</span>
