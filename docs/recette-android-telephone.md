@@ -1,16 +1,17 @@
 # Recette Android sur téléphone réel — tâches en revue (2026-11-13)
 
-Trois tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 Audio Android durable**, **splash screen et écrans de démarrage**, **lecteur vidéo paysage (écran 13, L07)**. L'émulateur ne permet pas de les valider (Bluetooth, appels, verrouillage, gestes au doigt, restrictions des constructeurs, mémoire).
+Sept tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 Audio Android durable**, **splash screen et écrans de démarrage**, **lecteur vidéo paysage (écran 13, L07)**, **médias locaux du téléphone (AND-06)**, **Playlists et Favoris (écran 06)**, **égaliseur (écran 09)**, **réglages de lecture**. L'émulateur ne permet pas de les valider (Bluetooth, appels, verrouillage, gestes au doigt, restrictions des constructeurs, mémoire).
 
 ## APK de test
 
-`builds/test/MiarinaMedia-android-test-and12.apk` (arm64, révision `d897182`, déjà installé sur le Redmi Note 10 Pro le 2026-11-13 à 12:14). Version précédente pour les autres téléphones : `builds/test/MiarinaMedia-android-test-f596bc1.apk` (universel, construit depuis `f596bc1`, sans AND-06 ni les points du § 6).
+À utiliser : `builds/test/MiarinaMedia-android-test-and12.apk` (dossier local, non versionné), construit le 2026-11-13 depuis la révision `d897182`, déjà installé sur le Redmi Note 10 Pro (Android 13 / MIUI 14) à 12:14.
 
-- Taille : 134 478 644 octets.
-- SHA-256 : `c268ecbcde07117925548c6d4d2d9b8ea796ed264a61840cac41a7ceafa9642d`
-- Universel ARM64 + x86_64. Certificat de signature identique à celui de la 0.1.7 publiée (SHA-256 `11de8715…6479e1`, vérifié avec apksigner) : s'installe par-dessus, données conservées.
-- Remplace `MiarinaMedia-0.1.7-L03-arm64-test.apk` du 2026-11-11, plus ancien.
-- Contrôlé sur l'émulateur (Android 15) : installation par-dessus l'app existante, démarrage en 3,7 s sans plantage ; dans ce build optimisé, lecture vidéo, pistes, niveaux volume / luminosité, plein écran aller-retour et fermeture répondent. Non contrôlés sur l'émulateur : sélecteur de sous-titres, image dans l'image, et tout ce qui suit.
+- ARM64 seulement (téléphones ; pas l'émulateur x86_64). Taille : 70 257 236 octets.
+- SHA-256 : `35a9c353647584f894b49559da14e438de01770d3d546f5db3a3105a95aaad1c`
+- Certificat de signature identique à celui de la 0.1.7 publiée (SHA-256 `11de8715…6479e1`, vérifié avec apksigner) : s'installe par-dessus, données conservées.
+- Contrôlé avant installation : tests Rust et frontend, clippy, ESLint, TypeScript, compilation Android sans nouvel avertissement. Pas encore d'essai à l'écran sur le téléphone.
+
+Version précédente : `builds/test/MiarinaMedia-android-test-f596bc1.apk` (universel ARM64 + x86_64, 134 478 644 octets, SHA-256 `c268ecbc…a9642d`, sans AND-06 ni le § 6) ; contrôlée sur l'émulateur Android 15 (installation, démarrage en 3,7 s, lecture vidéo, pistes, niveaux, plein écran). `MiarinaMedia-0.1.7-L03-arm64-test.apk` du 2026-11-11 est plus ancien.
 - La version Android reste **0.1.7** (code 1007, fixée dans `tauri.android.conf.json`) : c'est un build de test qui contient le code plus récent sous le même numéro. **Ne pas publier** ce fichier ; Réglages › À propos affiche 0.1.7, ce n'est pas une erreur.
 - Installation : copier l'APK sur le téléphone, l'ouvrir, autoriser l'installation depuis cette source si Android le demande.
 
