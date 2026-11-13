@@ -104,6 +104,11 @@ class SelectTrackArgs {
 }
 
 @InvokeArg
+class HeadsetArgs {
+  var pause: Boolean = true
+}
+
+@InvokeArg
 class EqualizerArgs {
   var enabled: Boolean = false
   /** Six gains in dB (validated by Rust). */
@@ -657,7 +662,16 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
     invoke.resolve(JSObject().put("value", audio.getStreamVolume(AudioManager.STREAM_MUSIC).toDouble() / max))
   }
 
-  /** AND-09: equalizer settings; applied now and whenever the player restarts. */
+  /** AND-03 setting: pause on "becoming noisy"; kept for the next player too. */
+  @Command
+  fun headset(invoke: Invoke) {
+    val pause = invoke.parseArgs(HeadsetArgs::class.java).pause
+    PlaybackService.pauseOnNoisy = pause
+    PlaybackService.current?.setHandleAudioBecomingNoisy(pause)
+    invoke.resolve()
+  }
+
+  /** AND-10: equalizer settings; applied now and whenever the player restarts. */
   @Command
   fun equalizer(invoke: Invoke) {
     val args = invoke.parseArgs(EqualizerArgs::class.java)

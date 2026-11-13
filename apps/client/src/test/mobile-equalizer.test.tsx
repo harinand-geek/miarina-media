@@ -42,7 +42,7 @@ beforeEach(() => {
   native.calls = [];
 });
 
-describe('Android equalizer (AND-09)', () => {
+describe('Android equalizer (AND-10)', () => {
   it('turns on, applies presets and bands to the playback service, and is kept', async () => {
     const user = userEvent.setup();
     render(<MobileEqualizer />);

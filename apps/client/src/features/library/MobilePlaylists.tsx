@@ -1,13 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Icon } from '../../components/Icon';
 import { LocalThumb } from '../../components/LocalThumb';
 import { Menu } from '../../components/Menu';
 import { BottomSheet } from '../../components/Overlay';
 import { useT, type Translate } from '../../i18n';
+import { backend } from '../../services/backend';
 import type { MediaRecord, PlaylistSummary } from '../../services/types';
 import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { usePlaylists } from '../../stores/playlists';
 import { useUi } from '../../stores/ui';
+import { usePlayHistory } from '../player/recentPlays';
+import { autoListIds, type AutoList } from './autoLists';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 
@@ -46,16 +49,18 @@ function Mosaic({ covers, className }: { covers: string[]; className: string }) 
 const newPlaylist = () => useUi.setState({ playlistDialog: { kind: 'create', ids: [] } });
 
 /**
- * Android v2 Music › Playlists (screen 06, COM-06): automatic tiles, the
- * user's playlists, a new playlist. Recent / most played and M3U stay
- * planned on Android.
+ * Android v2 Music › Playlists (screen 06, COM-06): automatic tiles
+ * (favorites, recent and most played from the local play history), the
+ * user's playlists, a new playlist. M3U stays planned on Android.
  */
 export function PlaylistsTab({
   onFavorites,
   onOpen,
+  onAuto,
 }: {
   onFavorites: () => void;
   onOpen: (id: number) => void;
+  onAuto: (list: AutoList) => void;
 }) {
   const t = useT();
   const { list, ready } = usePlaylists();
@@ -65,9 +70,9 @@ export function PlaylistsTab({
   }, []);
 
   const auto = [
-    { icon: 'favorite', label: t('favorites'), run: onFavorites },
-    { icon: 'history', label: t('recentPlays') },
-    { icon: 'trending_up', label: t('mostPlayed') },
+    { icon: 'favorite', label: t('favorites'), run: onFavorites, fav: true },
+    { icon: 'history', label: t('recentPlays'), run: () => onAuto('recent'), fav: false },
+    { icon: 'trending_up', label: t('mostPlayed'), run: () => onAuto('most'), fav: false },
   ];
 
   return (
@@ -77,27 +82,18 @@ export function PlaylistsTab({
           <button
             key={a.label}
             type="button"
-            disabled={!a.run}
             onClick={a.run}
-            aria-label={a.run ? a.label : t('plannedNamed', { name: a.label })}
-            className={`relative flex h-[88px] flex-col justify-between rounded-[14px] p-3 text-left ${
-              a.run ? 'bg-coral-subtle' : 'bg-surface'
+            className={`flex h-[88px] flex-col justify-between rounded-[14px] p-3 text-left ${
+              a.fav ? 'bg-coral-subtle' : 'bg-surface'
             }`}
           >
             <Icon
               name={a.icon}
               size={24}
-              fill={!!a.run}
-              className={a.run ? 'text-coral-strong' : 'text-faint'}
+              fill={a.fav}
+              className={a.fav ? 'text-coral-strong' : 'text-muted'}
             />
-            <span className={`text-[13.5px] font-bold ${a.run ? '' : 'text-faint'}`}>
-              {a.label}
-            </span>
-            {!a.run && (
-              <span className="absolute right-2 top-2 rounded-xs bg-planned-ink px-1 py-px font-mono text-[9px] font-bold text-planned">
-                {t('planned')}
-              </span>
-            )}
+            <span className="text-[13.5px] font-bold">{a.label}</span>
           </button>
         ))}
       </div>
@@ -354,6 +350,137 @@ export function PlaylistPage({ id, onBack }: { id: number; onBack: () => void })
           </button>
         </div>
       </BottomSheet>
+    </>
+  );
+}
+
+/** Recent / most played songs (screen 06 automatic tiles), from the local play history. */
+export function AutoListPage({ list, onBack }: { list: AutoList; onBack: () => void }) {
+  const t = useT();
+  const history = usePlayHistory();
+  const ids = useMemo(() => autoListIds(history, list), [history, list]);
+  const counts = useMemo(() => {
+    const map = new Map<number, number>();
+    for (const e of history) if (e.kind === 'audio') map.set(e.id, (map.get(e.id) ?? 0) + 1);
+    return map;
+  }, [history]);
+  const [items, setItems] = useState<MediaRecord[] | null>(null);
+  const currentId = useUi((s) => s.nowPlaying?.id);
+  const key = ids.join(',');
+
+  useEffect(() => {
+    let alive = true;
+    // Entries removed from the library since are skipped.
+    void Promise.all(
+      key
+        .split(',')
+        .filter(Boolean)
+        .map((id) => backend.libraryGet(Number(id)).catch(() => null)),
+    ).then((found) => {
+      if (alive) setItems(found.filter((m): m is MediaRecord => !!m && !m.missing));
+    });
+    return () => {
+      alive = false;
+    };
+  }, [key]);
+
+  const title = list === 'recent' ? t('recentPlays') : t('mostPlayed');
+  const shown = items ?? [];
+
+  return (
+    <>
+      <div className="flex h-14 shrink-0 items-center gap-1 px-2">
+        <button
+          type="button"
+          aria-label={t('back')}
+          onClick={onBack}
+          className="grid h-12 w-12 place-items-center"
+        >
+          <Icon name="arrow_back" size={24} />
+        </button>
+        <span className="flex-1 text-[13px] font-semibold text-muted">{t('playlists')}</span>
+      </div>
+      <div className="flex flex-col gap-4 px-4 pb-4">
+        <div className="flex items-center gap-4">
+          <span className="grid h-28 w-28 shrink-0 place-items-center rounded-xl bg-surface">
+            <Icon
+              name={list === 'recent' ? 'history' : 'trending_up'}
+              size={44}
+              className="text-muted"
+            />
+          </span>
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <h1 className="m-0 text-[24px] font-extrabold leading-7 tracking-[-0.01em]">{title}</h1>
+            <span className="text-[13px] text-muted">{songs(shown.length, t)}</span>
+          </div>
+        </div>
+        <div className="flex gap-2.5">
+          <button
+            type="button"
+            disabled={!shown.length}
+            onClick={() => play(shown, undefined, title)}
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full bg-coral text-[14.5px] font-extrabold text-coral-ink disabled:opacity-50"
+          >
+            <Icon name="play_arrow" size={22} fill />
+            {t('playAll')}
+          </button>
+          <button
+            type="button"
+            disabled={!shown.length}
+            onClick={() => {
+              const order = shuffled(shown);
+              play(order, order[0], title);
+            }}
+            className="flex h-12 flex-1 items-center justify-center gap-2 rounded-full border border-line-strong bg-surface2 text-[14px] font-semibold disabled:opacity-50"
+          >
+            <Icon name="shuffle" size={20} />
+            {t('shuffle')}
+          </button>
+        </div>
+        {items && shown.length === 0 && (
+          <p className="m-0 py-8 text-center text-[13.5px] text-muted">{t('noPlaysYet')}</p>
+        )}
+        <ol aria-label={title} className="m-0 flex list-none flex-col p-0">
+          {shown.map((m) => {
+            const on = m.id === currentId;
+            return (
+              <li key={m.id} className="flex h-16 items-center">
+                <button
+                  type="button"
+                  onClick={() => play(shown, m, title)}
+                  aria-label={t('playTitle', { title: m.title })}
+                  className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                >
+                  <MediaThumb media={m} className="h-12 w-12 rounded-lg">
+                    {on && (
+                      <span className="absolute inset-0 grid place-items-center rounded-lg bg-[rgb(16_24_32/0.6)] text-coral-strong">
+                        <Icon name="equalizer" size={24} />
+                      </span>
+                    )}
+                  </MediaThumb>
+                  <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span
+                      className={`truncate text-[14.5px] font-bold ${on ? 'text-coral-strong' : ''}`}
+                    >
+                      {m.title}
+                    </span>
+                    <span className="truncate text-[12.5px] text-muted">
+                      {[
+                        m.artist,
+                        list === 'most'
+                          ? t('playsCount', { n: counts.get(m.id) ?? 0 })
+                          : durationLabel(m.durationSecs),
+                      ]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  </span>
+                </button>
+              </li>
+            );
+          })}
+        </ol>
+      </div>
     </>
   );
 }

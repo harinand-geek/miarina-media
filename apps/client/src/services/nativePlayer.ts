@@ -82,11 +82,13 @@ export const nativePlayer = {
   level: (kind: 'brightness' | 'volume', value?: number) =>
     invoke<number>('player_level', { kind, value: value ?? null }),
   /**
-   * AND-09: equalizer gains (dB, six bands) on the playback service; answers
+   * AND-10: equalizer gains (dB, six bands) on the playback service; answers
    * whether the device supports it (`null` before the first playback).
    */
   equalizer: (enabled: boolean, gains: number[]) =>
     invoke<boolean | null>('player_equalizer', { enabled, gains }),
+  /** AND-03: pause when headphones are unplugged / Bluetooth disconnects. */
+  headset: (pause: boolean) => invoke<void>('player_headset', { pause }),
   /** AND-08: enters picture-in-picture (`enter`) or asks if it is supported. */
   pip: (enter: boolean) => invoke<boolean>('player_pip', { enter }),
   /** Picture-in-picture entered / left. */

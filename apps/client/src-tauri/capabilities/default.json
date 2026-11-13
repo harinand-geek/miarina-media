@@ -118,7 +118,7 @@
     "allow-player-rate",
     "allow-player-surface",
     "allow-player-close",
-    "allow-player-fullscreen", "allow-player-tracks", "allow-player-select-track", "allow-player-pick-subtitle", "allow-player-level", "allow-player-equalizer", "allow-player-pip",
+    "allow-player-fullscreen", "allow-player-tracks", "allow-player-select-track", "allow-player-pick-subtitle", "allow-player-level", "allow-player-equalizer", "allow-player-headset", "allow-player-pip",
     "allow-app-ready",
     "allow-app-take-launch",
     "allow-app-read-clipboard",

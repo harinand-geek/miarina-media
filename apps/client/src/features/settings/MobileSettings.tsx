@@ -294,7 +294,14 @@ export function MobileSettings({
             icon="headphones"
             label={t('headsetSetting')}
             value={t('headsetSettingDesc')}
-            control={<Planned />}
+            control={
+              <Toggle
+                size="mobile"
+                label={t('headsetSetting')}
+                checked={s.headsetPause}
+                onChange={() => s.setHeadsetPause(!s.headsetPause)}
+              />
+            }
           />
           <Row
             icon="gesture"
@@ -319,7 +326,11 @@ export function MobileSettings({
             icon="all_inclusive"
             label={t('gaplessSetting')}
             value={t('gaplessSettingDesc')}
-            control={<Planned />}
+            control={
+              <span className="shrink-0 rounded-xs bg-accent-subtle px-1.5 py-0.5 font-mono text-[10px] font-bold text-accent-strong">
+                {t('alwaysOn')}
+              </span>
+            }
           />
         </Group>
 

@@ -12,7 +12,8 @@ import { useUi } from '../../stores/ui';
 import { DeviceMediaCard } from './DeviceMediaCard';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
-import { PlaylistPage, PlaylistsTab } from './MobilePlaylists';
+import type { AutoList } from './autoLists';
+import { AutoListPage, PlaylistPage, PlaylistsTab } from './MobilePlaylists';
 import { useGroups } from './useGroups';
 import { useMobileMediaSheet } from './useMobileMediaSheet';
 
@@ -57,6 +58,7 @@ export function MobileMusic() {
   const [view, setView] = useState<MusicView>('tracks');
   const [opened, setOpened] = useState<{ by: GroupBy; name: string } | null>(null);
   const [playlist, setPlaylist] = useState<number | null>(null);
+  const [auto, setAuto] = useState<AutoList | null>(null);
   const [searching, setSearching] = useState(false);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const { search, setSearch } = useLibrary();
@@ -65,6 +67,14 @@ export function MobileMusic() {
   useEffect(() => {
     useLibrary.getState().show('audio', opened, view === 'favorites');
   }, [opened, view]);
+
+  if (auto) {
+    return (
+      <div className="relative flex flex-1 flex-col overflow-auto">
+        <AutoListPage list={auto} onBack={() => setAuto(null)} />
+      </div>
+    );
+  }
 
   if (playlist !== null) {
     return (
@@ -149,7 +159,11 @@ export function MobileMusic() {
       </div>
       <div className="flex flex-1 flex-col px-4 pt-3.5">
         {view === 'playlists' ? (
-          <PlaylistsTab onFavorites={() => setView('favorites')} onOpen={setPlaylist} />
+          <PlaylistsTab
+            onFavorites={() => setView('favorites')}
+            onOpen={setPlaylist}
+            onAuto={setAuto}
+          />
         ) : by ? (
           <Groups by={by} onOpen={(name) => setOpened({ by, name })} scroller={scroller} />
         ) : (

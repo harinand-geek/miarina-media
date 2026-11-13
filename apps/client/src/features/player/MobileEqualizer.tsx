@@ -10,7 +10,7 @@ const percent = (db: number) => ((db + EQ_MAX_DB) / (2 * EQ_MAX_DB)) * 100;
 const signed = (db: number) => (db > 0 ? `+${db}` : String(db));
 
 /**
- * Android v2 screen 09, equalizer (AND-09): switch, reset, presets and six
+ * Android v2 screen 09, equalizer (AND-10): switch, reset, presets and six
  * vertical bands, applied by the system equalizer to what plays (files are
  * never modified). Replaced by an explanation when the device has none.
  * Same settings as the Windows equalizer (`mm:eq:v1`).

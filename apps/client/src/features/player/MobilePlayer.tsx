@@ -17,6 +17,7 @@ import { MobileMiniPlayer } from './MobileMiniPlayer';
 import { MobileVideoFullscreen } from './MobileVideoFullscreen';
 import { LyricsSheet, QueueSheet, SoundSheet } from './MobilePlayerSheets';
 import { rateLabel } from './playbackRate';
+import { notePlayed, noteStopped } from './recentPlays';
 import { SeekBar } from './SeekBar';
 import { useNativePlayback, type NativePlayback } from './useNativePlayback';
 import { usePlayback, type Playback } from './usePlayback';
@@ -69,6 +70,15 @@ export function MobilePlayer({
   useEffect(() => {
     latest.current = p;
   });
+
+  // Play history (COM-13): Music › Recent / Most played, Home "Continue".
+  const playing = p.playing;
+  const wasPlaying = useRef(false);
+  useEffect(() => {
+    if (playing) notePlayed(item);
+    else if (wasPlaying.current) noteStopped(item.id, latest.current.time);
+    wasPlaying.current = playing;
+  }, [playing, item]);
 
   // Persisted speed (AND-09), applied once the engine knows the media.
   const ready = p.duration > 0;

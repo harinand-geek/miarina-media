@@ -161,7 +161,7 @@ pub fn check_level(kind: &str, value: Option<f64>) -> Result<(&str, Option<f64>)
     }
 }
 
-/// Equalizer bands sent by the page (AND-09): the six gains of the shared
+/// Equalizer bands sent by the page (AND-10): the six gains of the shared
 /// model, in dB.
 pub const EQ_BANDS: usize = 6;
 /// Largest boost or cut accepted, in dB.

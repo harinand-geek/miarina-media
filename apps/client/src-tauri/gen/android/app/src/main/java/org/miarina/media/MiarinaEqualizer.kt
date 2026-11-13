@@ -5,7 +5,7 @@ import kotlin.math.ln
 import kotlin.math.roundToInt
 
 /**
- * Android equalizer (AND-09) on the audio session of the playback service:
+ * Android equalizer (AND-10) on the audio session of the playback service:
  * applied to what plays, files are never modified. The page sends the six
  * gains of the shared model (dB, design screen 09: 60, 230, 910, 3,6k, 9k,
  * 14k Hz); each band of the device gets the gain interpolated at its centre

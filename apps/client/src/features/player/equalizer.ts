@@ -81,7 +81,7 @@ export const useEqualizer = create<EqualizerState>((set, get) => {
     push: () => {
       const { enabled, gains } = get();
       applyEqualizer(enabled ? gains : null);
-      // Android: the system equalizer of the playback service (AND-09).
+      // Android: the system equalizer of the playback service (AND-10).
       if (nativePlayback()) {
         void nativePlayer
           .equalizer(enabled, gains)

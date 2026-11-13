@@ -8,6 +8,7 @@ import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
 import { useMobilePlayback } from '../stores/mobilePlayback';
 import { usePlaylists } from '../stores/playlists';
+import { autoListIds } from '../features/library/autoLists';
 import { useUi } from '../stores/ui';
 
 let stop: () => void = () => {};
@@ -110,7 +111,6 @@ describe('Android v2 Music › Favorites and Playlists', () => {
     const user = await openTab(/Music/);
     expect(await screen.findByText('3 songs')).toBeInTheDocument();
     await user.click(screen.getByRole('tab', { name: 'Playlists' }));
-    expect(screen.getByRole('button', { name: 'Recent (planned)' })).toBeDisabled();
     await user.click(await screen.findByRole('button', { name: 'New playlist' }));
     let dialog = screen.getByRole('dialog');
     await user.type(within(dialog).getByRole('textbox', { name: 'Playlist name' }), 'Road');
@@ -157,6 +157,54 @@ describe('Android v2 Music › Favorites and Playlists', () => {
     await user.type(within(dialog).getByRole('textbox', { name: 'Playlist name' }), 'Mix');
     await user.click(within(dialog).getByRole('button', { name: 'Create' }));
     await waitFor(() => expect(usePlaylists.getState().list[0]?.count).toBe(3));
+  });
+});
+
+describe('Android v2 Music › Recent and Most played', () => {
+  it('lists the songs of the play history, most played first', async () => {
+    const songs = useLibrary.getState().items.filter((m) => m.kind === 'audio');
+    const [a, b] = [songs[0]!, songs[1]!];
+    const entry = (m: typeof a, at: number) => ({
+      id: m.id,
+      title: m.title,
+      kind: 'audio',
+      at,
+      position: 0,
+      duration: 0,
+    });
+    // Newest first: b once (latest), then a twice.
+    localStorage.setItem(
+      'mm:playHistory:v1',
+      JSON.stringify([entry(b, 3), entry(a, 2), entry(a, 1)]),
+    );
+    expect(autoListIds(JSON.parse(localStorage.getItem('mm:playHistory:v1')!), 'recent')).toEqual([
+      b.id,
+      a.id,
+    ]);
+
+    const user = await openTab(/Music/);
+    await user.click(screen.getByRole('tab', { name: 'Playlists' }));
+    await user.click(screen.getByRole('button', { name: 'Most played' }));
+    const list = await screen.findByRole('list', { name: 'Most played' });
+    await waitFor(() => expect(within(list).getAllByRole('button')).toHaveLength(2));
+    expect(within(list).getAllByRole('button')[0]).toHaveAccessibleName(`Play ${a.title}`);
+    expect(within(list).getByText(/2 plays/)).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Back' }));
+    await user.click(screen.getByRole('button', { name: 'Recent' }));
+    const recent = await screen.findByRole('list', { name: 'Recent' });
+    await waitFor(() =>
+      expect(within(recent).getAllByRole('button')[0]).toHaveAccessibleName(`Play ${b.title}`),
+    );
+    await user.click(screen.getByRole('button', { name: /Play all/ }));
+    expect(useMobilePlayback.getState().queue.map((m) => m.id)).toEqual([b.id, a.id]);
+  });
+
+  it('says when nothing was played yet', async () => {
+    const user = await openTab(/Music/);
+    await user.click(screen.getByRole('tab', { name: 'Playlists' }));
+    await user.click(screen.getByRole('button', { name: 'Recent' }));
+    expect(await screen.findByText(/Nothing played yet/)).toBeInTheDocument();
   });
 });
 

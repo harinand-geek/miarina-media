@@ -6,16 +6,20 @@ import type { Lang } from '../i18n';
 import { RESUME_KEY, resumeEnabled } from '../features/player/usePlayback';
 
 export const GESTURES_KEY = 'mm:gestures';
+export const HEADSET_KEY = 'mm:headset';
 
-function gesturesEnabled(): boolean {
+/** On unless turned off ('0'). */
+function flagOn(key: string): boolean {
   try {
-    return localStorage.getItem(GESTURES_KEY) !== '0';
+    return localStorage.getItem(key) !== '0';
   } catch {
     return true;
   }
 }
+const gesturesEnabled = () => flagOn(GESTURES_KEY);
 import { useUi } from './ui';
 import { durableSet } from '../services/durableState';
+import { nativePlayback, nativePlayer } from '../services/nativePlayer';
 
 const LANG_KEY = 'mm:lang';
 const THEME_KEY = 'mm:theme';
@@ -85,6 +89,9 @@ interface SettingsState {
   /** Android video gestures: brightness, volume, double tap (AND-14). */
   videoGestures: boolean;
   setVideoGestures: (on: boolean) => void;
+  /** Android: pause when headphones are unplugged or Bluetooth disconnects. */
+  headsetPause: boolean;
+  setHeadsetPause: (on: boolean) => void;
   setDensity: (density: Density) => void;
   setReduceMotion: (on: boolean) => void;
   setAndroidStore: (store: 'int' | 'sd') => void;
@@ -120,6 +127,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   lang: initialLang(),
   resumePlayback: resumeEnabled(),
   videoGestures: gesturesEnabled(),
+  headsetPause: flagOn(HEADSET_KEY),
   theme: initialTheme(),
   density: 'comfortable',
   reduceMotion: false,
@@ -180,6 +188,11 @@ export const useSettings = create<SettingsState>((set, get) => ({
   setVideoGestures: (videoGestures) => {
     durableSet(GESTURES_KEY, videoGestures ? '1' : '0');
     set({ videoGestures });
+  },
+  setHeadsetPause: (headsetPause) => {
+    durableSet(HEADSET_KEY, headsetPause ? '1' : '0');
+    set({ headsetPause });
+    if (nativePlayback()) void nativePlayer.headset(headsetPause).catch(() => {});
   },
   setDensity: (density) => set({ density }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),

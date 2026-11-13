@@ -43,7 +43,9 @@ describe('Android v2 Settings (12)', () => {
     const user = await openSettings();
     const card = screen.getByRole('region', { name: '0.1.8 is ready' });
     expect(within(card).getByText('Signature and SHA-256 verified')).toBeInTheDocument();
-    expect(within(card).getByText(/active download\(s\): interrupted during the install/)).toBeInTheDocument();
+    expect(
+      within(card).getByText(/active download\(s\): interrupted during the install/),
+    ).toBeInTheDocument();
     expect(within(card).getByRole('button', { name: 'Install now' })).toBeEnabled();
     await user.click(within(card).getByRole('button', { name: 'Later' }));
     expect(screen.queryByRole('region', { name: '0.1.8 is ready' })).toBeNull();
@@ -66,13 +68,22 @@ describe('Android v2 Settings (12)', () => {
     expect(savedPosition(1)).toBe(0);
     expect(localStorage.getItem('mm:position:1')).toBe('42');
     const playback = screen.getByRole('region', { name: 'PLAYBACK' });
-    // Video gestures are real since L07 (fullscreen player); 3 rows stay planned.
-    expect(within(playback).getAllByText('PLANNED')).toHaveLength(3);
+    // Gestures (L07) and headset pause are real, gapless is always on; only
+    // crossfade stays planned (AND-12, off by default).
+    expect(within(playback).getAllByText('PLANNED')).toHaveLength(1);
+    expect(within(playback).getByText('ON')).toBeInTheDocument();
     const gestures = within(playback).getByRole('switch', { name: 'Video gestures' });
     expect(gestures).toBeChecked();
     await user.click(gestures);
     expect(useSettings.getState().videoGestures).toBe(false);
     expect(localStorage.getItem('mm:gestures')).toBe('0');
+    const headset = within(playback).getByRole('switch', {
+      name: 'Pause when headphones are unplugged',
+    });
+    expect(headset).toBeChecked();
+    await user.click(headset);
+    expect(useSettings.getState().headsetPause).toBe(false);
+    expect(localStorage.getItem('mm:headset')).toBe('0');
   });
 
   it('switches the language from Settings', async () => {

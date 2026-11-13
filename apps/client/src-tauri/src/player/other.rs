@@ -108,6 +108,11 @@ pub async fn player_equalizer(
 }
 
 #[tauri::command]
+pub async fn player_headset(_pause: bool) -> Result<(), CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
 pub async fn player_pip(_enter: bool) -> Result<bool, CommandError> {
     Err(unavailable())
 }

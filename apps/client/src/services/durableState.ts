@@ -24,6 +24,7 @@ const FIXED_KEYS = [
   'mm:mobile:rate',
   'mm:eq:v1',
   'mm:gestures',
+  'mm:headset',
 ];
 const IMPORTED = 'meta:imported';
 const FLUSH_MS = 1000;

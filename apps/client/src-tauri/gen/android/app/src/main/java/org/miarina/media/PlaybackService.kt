@@ -30,7 +30,7 @@ class PlaybackService : MediaSessionService() {
           .build(),
         /* handleAudioFocus = */ true,
       )
-      .setHandleAudioBecomingNoisy(true)
+      .setHandleAudioBecomingNoisy(pauseOnNoisy)
       // Keeps the CPU awake for local files while playing with the screen off.
       .setWakeMode(C.WAKE_MODE_LOCAL)
       .build()
@@ -43,7 +43,7 @@ class PlaybackService : MediaSessionService() {
     )
     session = MediaSession.Builder(this, player).setSessionActivity(openApp).build()
     current = player
-    // AND-09: the equalizer follows the player's audio session.
+    // AND-10: the equalizer follows the player's audio session.
     MiarinaEqualizer.attach(player.audioSessionId)
     player.addListener(object : Player.Listener {
       override fun onAudioSessionIdChanged(audioSessionId: Int) {
@@ -79,5 +79,9 @@ class PlaybackService : MediaSessionService() {
      * session: a sideloaded subtitle file (NativePlayerPlugin, same process).
      */
     var current: ExoPlayer? = null
+
+    /** AND-03 setting: pause when headphones are unplugged (on by default). */
+    @Volatile
+    var pauseOnNoisy = true
   }
 }

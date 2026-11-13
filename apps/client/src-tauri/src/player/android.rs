@@ -282,7 +282,7 @@ pub async fn player_level(
     Ok(out["value"].as_f64().unwrap_or(0.0))
 }
 
-/// AND-09: Android equalizer on the player's audio session. Returns whether
+/// AND-10: Android equalizer on the player's audio session. Returns whether
 /// the device supports it (`None` until the player has started once).
 #[tauri::command]
 pub async fn player_equalizer(
@@ -298,6 +298,18 @@ pub async fn player_equalizer(
         )
         .await?;
     Ok(out["supported"].as_bool())
+}
+
+/// AND-03: pause when headphones are unplugged or Bluetooth disconnects.
+#[tauri::command]
+pub async fn player_headset(
+    player: State<'_, NativePlayer>,
+    pause: bool,
+) -> Result<(), CommandError> {
+    let _: serde_json::Value = player
+        .call("headset", serde_json::json!({ "pause": pause }))
+        .await?;
+    Ok(())
 }
 
 /// AND-08: picture-in-picture; `false` when the device cannot.
