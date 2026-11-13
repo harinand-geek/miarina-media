@@ -66,7 +66,13 @@ describe('Android v2 Settings (12)', () => {
     expect(savedPosition(1)).toBe(0);
     expect(localStorage.getItem('mm:position:1')).toBe('42');
     const playback = screen.getByRole('region', { name: 'PLAYBACK' });
-    expect(within(playback).getAllByText('PLANNED')).toHaveLength(4);
+    // Video gestures are real since L07 (fullscreen player); 3 rows stay planned.
+    expect(within(playback).getAllByText('PLANNED')).toHaveLength(3);
+    const gestures = within(playback).getByRole('switch', { name: 'Video gestures' });
+    expect(gestures).toBeChecked();
+    await user.click(gestures);
+    expect(useSettings.getState().videoGestures).toBe(false);
+    expect(localStorage.getItem('mm:gestures')).toBe('0');
   });
 
   it('switches the language from Settings', async () => {

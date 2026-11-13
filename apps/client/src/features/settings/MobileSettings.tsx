@@ -300,7 +300,14 @@ export function MobileSettings({
             icon="gesture"
             label={t('gesturesSetting')}
             value={t('gesturesSettingDesc')}
-            control={<Planned />}
+            control={
+              <Toggle
+                size="mobile"
+                label={t('gesturesSetting')}
+                checked={s.videoGestures}
+                onChange={() => s.setVideoGestures(!s.videoGestures)}
+              />
+            }
           />
           <Row
             icon="blur_linear"

@@ -1,4 +1,4 @@
-import { invoke } from '@tauri-apps/api/core';
+import { addPluginListener, invoke, type PluginListener } from '@tauri-apps/api/core';
 import { detectPlatform, inTauri } from './platform';
 
 /**
@@ -31,6 +31,25 @@ export interface SurfaceRect {
   visible: boolean;
 }
 
+/** AND-13: a track of the current file (`id` = "group:track"). */
+export interface NativeTrack {
+  id: string;
+  label: string | null;
+  language: string | null;
+  codec: string | null;
+  selected: boolean;
+}
+
+export interface NativeTracks {
+  audio: NativeTrack[];
+  text: NativeTrack[];
+  textOff: boolean;
+  /** e.g. "H.264 1080p" */
+  video: string | null;
+  /** e.g. "AAC 2.0" */
+  sound: string | null;
+}
+
 export const nativePlayer = {
   /**
    * Opens a play queue (library ids) at `index`; resolves `true` when that
@@ -50,4 +69,21 @@ export const nativePlayer = {
   setRate: (rate: number) => invoke<void>('player_rate', { rate }),
   setSurface: (rect: SurfaceRect) => invoke<void>('player_surface', { rect }),
   close: () => invoke<NativePlayerStatus>('player_close'),
+  /** AND-07: immersive fullscreen (landscape unless `landscape` is false). */
+  fullscreen: (on: boolean, landscape = true) =>
+    invoke<void>('player_fullscreen', { on, landscape }),
+  tracks: () => invoke<NativeTracks>('player_tracks'),
+  /** `id: null` turns subtitles off. */
+  selectTrack: (kind: 'audio' | 'text', id: string | null) =>
+    invoke<void>('player_select_track', { kind, id }),
+  /** System file picker; `added: false` when canceled. */
+  pickSubtitle: () => invoke<{ added: boolean; name?: string }>('player_pick_subtitle'),
+  /** Brightness (this window) or media volume, 0..1; no value reads it. */
+  level: (kind: 'brightness' | 'volume', value?: number) =>
+    invoke<number>('player_level', { kind, value: value ?? null }),
+  /** AND-08: enters picture-in-picture (`enter`) or asks if it is supported. */
+  pip: (enter: boolean) => invoke<boolean>('player_pip', { enter }),
+  /** Picture-in-picture entered / left. */
+  onPip: (handler: (active: boolean) => void): Promise<PluginListener> =>
+    addPluginListener<{ active: boolean }>('native-player', 'pip', (e) => handler(e.active)),
 };

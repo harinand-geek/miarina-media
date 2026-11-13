@@ -22,6 +22,7 @@ const FIXED_KEYS: &[&str] = &[
     "mm:resume",
     "mm:mobile:rate",
     "mm:eq:v1",
+    "mm:gestures",
     PLAYBACK_IMPORTED,
 ];
 

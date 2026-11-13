@@ -4,6 +4,16 @@ import { backend } from '../services/backend';
 import type { BackendSettings, Limits, ResourceMode } from '../services/types';
 import type { Lang } from '../i18n';
 import { RESUME_KEY, resumeEnabled } from '../features/player/usePlayback';
+
+export const GESTURES_KEY = 'mm:gestures';
+
+function gesturesEnabled(): boolean {
+  try {
+    return localStorage.getItem(GESTURES_KEY) !== '0';
+  } catch {
+    return true;
+  }
+}
 import { useUi } from './ui';
 import { durableSet } from '../services/durableState';
 
@@ -60,6 +70,9 @@ interface SettingsState {
   setTheme: (theme: ThemePref) => void;
   setLang: (lang: Lang) => void;
   setResumePlayback: (on: boolean) => void;
+  /** Android video gestures: brightness, volume, double tap (AND-14). */
+  videoGestures: boolean;
+  setVideoGestures: (on: boolean) => void;
   setDensity: (density: Density) => void;
   setReduceMotion: (on: boolean) => void;
   setAndroidStore: (store: 'int' | 'sd') => void;
@@ -94,6 +107,7 @@ export const useSettings = create<SettingsState>((set, get) => ({
   loaded: false,
   lang: initialLang(),
   resumePlayback: resumeEnabled(),
+  videoGestures: gesturesEnabled(),
   theme: 'dark',
   density: 'comfortable',
   reduceMotion: false,
@@ -147,6 +161,10 @@ export const useSettings = create<SettingsState>((set, get) => ({
   setResumePlayback: (resumePlayback) => {
     durableSet(RESUME_KEY, resumePlayback ? '1' : '0');
     set({ resumePlayback });
+  },
+  setVideoGestures: (videoGestures) => {
+    durableSet(GESTURES_KEY, videoGestures ? '1' : '0');
+    set({ videoGestures });
   },
   setDensity: (density) => set({ density }),
   setReduceMotion: (reduceMotion) => set({ reduceMotion }),

@@ -70,3 +70,35 @@ pub async fn player_surface(_rect: SurfaceRect) -> Result<(), CommandError> {
 pub async fn player_close() -> Result<PlayerStatus, CommandError> {
     Err(unavailable())
 }
+
+#[tauri::command]
+pub async fn player_fullscreen(_on: bool, _landscape: bool) -> Result<(), CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_tracks() -> Result<serde_json::Value, CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_select_track(kind: String, id: Option<String>) -> Result<(), CommandError> {
+    super::check_track(&kind, id)?;
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_pick_subtitle() -> Result<serde_json::Value, CommandError> {
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_level(kind: String, value: Option<f64>) -> Result<f64, CommandError> {
+    super::check_level(&kind, value)?;
+    Err(unavailable())
+}
+
+#[tauri::command]
+pub async fn player_pip(_enter: bool) -> Result<bool, CommandError> {
+    Err(unavailable())
+}

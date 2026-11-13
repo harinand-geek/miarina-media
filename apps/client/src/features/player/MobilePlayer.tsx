@@ -14,6 +14,7 @@ import { useMobileMediaSheet } from '../library/useMobileMediaSheet';
 import { useNow } from '../downloads/useNow';
 import { mediaByline } from './byline';
 import { MobileMiniPlayer } from './MobileMiniPlayer';
+import { MobileVideoFullscreen } from './MobileVideoFullscreen';
 import { LyricsSheet, QueueSheet, SoundSheet } from './MobilePlayerSheets';
 import { rateLabel } from './playbackRate';
 import { SeekBar } from './SeekBar';
@@ -55,6 +56,8 @@ export function MobilePlayer({
   const audio = item.kind === 'audio';
   const actionsSheet = useMobileMediaSheet({ inPlayer: true });
   const [sheet, setSheet] = useState<Sheet>(null);
+  /** Screen 13: native landscape fullscreen (Android app only). */
+  const [fullscreen, setFullscreen] = useState(false);
   const { queue, source, shuffle, repeat, rate, sleep, setShuffle, cycleRepeat } =
     useMobilePlayback();
   const at = queue.findIndex((m) => m.id === item.id);
@@ -155,7 +158,9 @@ export function MobilePlayer({
     },
   ];
   // Lyrics and the equalizer are music settings.
-  const access = audio ? accessItems : accessItems.filter((a) => a.id !== 'eq' && a.id !== 'lyrics');
+  const access = audio
+    ? accessItems
+    : accessItems.filter((a) => a.id !== 'eq' && a.id !== 'lyrics');
 
   return (
     <>
@@ -230,7 +235,19 @@ export function MobilePlayer({
           <div className="relative grid aspect-video place-items-center bg-black font-mono text-[11px] text-[#64748B]">
             {NATIVE ? (
               // Minimized: no surface, the native picture is hidden (sound goes on).
-              expanded && <div ref={attachSurface} className="absolute inset-0 bg-black" />
+              expanded && (
+                <>
+                  <div ref={attachSurface} className="absolute inset-0 bg-black" />
+                  <button
+                    type="button"
+                    aria-label={t('fsEnter')}
+                    onClick={() => setFullscreen(true)}
+                    className="absolute bottom-2 right-2 z-10 grid h-11 w-11 place-items-center rounded-full bg-black/55 text-[#F5F7FA]"
+                  >
+                    <Icon name="fullscreen" size={24} />
+                  </button>
+                </>
+              )
             ) : p.src ? (
               <video
                 ref={attachMedia}
@@ -260,9 +277,7 @@ export function MobilePlayer({
             className="mx-4 mt-4 flex items-center gap-3 rounded-[14px] border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[14px]"
           >
             <Icon name="error" fill className="shrink-0 text-[#F07070]" />
-            <span className="flex-1">
-              {t('errUnsupported', { format: formatLabel(item) })}
-            </span>
+            <span className="flex-1">{t('errUnsupported', { format: formatLabel(item) })}</span>
           </div>
         )}
 
@@ -293,7 +308,9 @@ export function MobilePlayer({
             className={`relative grid h-12 w-12 place-items-center ${shuffle ? 'text-coral-strong' : 'text-[#94A3B8]'}`}
           >
             <Icon name="shuffle" size={24} />
-            {shuffle && <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-coral-strong" />}
+            {shuffle && (
+              <span className="absolute bottom-1.5 h-1 w-1 rounded-full bg-coral-strong" />
+            )}
           </button>
           <button
             type="button"
@@ -358,6 +375,9 @@ export function MobilePlayer({
           ))}
         </div>
         {actionsSheet.sheet}
+        {NATIVE && !audio && expanded && fullscreen && (
+          <MobileVideoFullscreen item={item} p={p} onExit={() => setFullscreen(false)} />
+        )}
         {sheet === 'queue' && (
           <QueueSheet onClose={() => setSheet(null)} time={p.time} duration={p.duration} />
         )}

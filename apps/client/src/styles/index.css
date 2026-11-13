@@ -101,3 +101,16 @@
   animation: none !important;
   transform: translateX(117%);
 }
+
+/*
+ * Android fullscreen video (screen 13): the native picture is drawn behind
+ * the WebView, so the page is transparent and only the overlay (portalled
+ * into <body>) is visible.
+ */
+html[data-video-fullscreen],
+html[data-video-fullscreen] body {
+  background: transparent !important;
+}
+html[data-video-fullscreen] #root {
+  visibility: hidden;
+}

@@ -64,13 +64,26 @@ class MainActivity : TauriActivity() {
       )
       // The keyboard is handled by the WebView (adjustResize).
       val ime = insets.getInsets(WindowInsetsCompat.Type.ime())
-      view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+      if (immersive) {
+        // Fullscreen video (screen 13): edge to edge, cutout included.
+        view.setPadding(0, 0, 0, 0)
+      } else {
+        view.setPadding(bars.left, bars.top, bars.right, maxOf(bars.bottom, ime.bottom))
+      }
       WindowInsetsCompat.CONSUMED
     }
   }
 
-  private companion object {
-    const val SPLASH_MAX_MS = 3_000L
-    const val SPLASH_EXIT_MS = 300L
+  override fun onPictureInPictureModeChanged(isInPictureInPictureMode: Boolean, newConfig: android.content.res.Configuration) {
+    super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    NativePlayerPlugin.instance?.onPictureInPicture(isInPictureInPictureMode)
+  }
+
+  companion object {
+    private const val SPLASH_MAX_MS = 3_000L
+    private const val SPLASH_EXIT_MS = 300L
+
+    /** Set by NativePlayerPlugin while the video is fullscreen. */
+    var immersive = false
   }
 }

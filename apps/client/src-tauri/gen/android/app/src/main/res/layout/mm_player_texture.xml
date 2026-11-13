@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Native video view (NativePlayerPlugin): a TextureView follows the view
+     order, so in fullscreen it can sit behind the transparent WebView and
+     the React controls (Android v2 screen 13) are drawn over the picture.
+     Subtitles are drawn by the PlayerView itself. -->
+<androidx.media3.ui.PlayerView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#000000"
+    app:surface_type="texture_view"
+    app:use_controller="false"
+    app:shutter_background_color="#000000" />

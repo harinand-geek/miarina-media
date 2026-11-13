@@ -122,6 +122,45 @@ pub fn to_ms(secs: f64) -> Result<i64, CommandError> {
     }
 }
 
+/// Track kind and id ("group:track", small numbers) for `player_select_track`;
+/// only subtitles can be turned off (`None`).
+pub fn check_track(kind: &str, id: Option<String>) -> Result<(&str, Option<String>), CommandError> {
+    let invalid = || CommandError::new("invalid_request", "invalid track");
+    let kind = match kind {
+        "audio" | "text" => kind,
+        _ => return Err(invalid()),
+    };
+    match id {
+        None if kind == "text" => Ok((kind, None)),
+        None => Err(invalid()),
+        Some(id) => {
+            let parts: Vec<&str> = id.split(':').collect();
+            let numbers = parts.len() == 2
+                && parts.iter().all(|p| {
+                    !p.is_empty() && p.len() <= 4 && p.bytes().all(|b| b.is_ascii_digit())
+                });
+            if numbers {
+                Ok((kind, Some(id)))
+            } else {
+                Err(invalid())
+            }
+        }
+    }
+}
+
+/// Gesture level kind and value (0..1) for `player_level`.
+pub fn check_level(kind: &str, value: Option<f64>) -> Result<(&str, Option<f64>), CommandError> {
+    let invalid = || CommandError::new("invalid_request", "invalid level");
+    let kind = match kind {
+        "brightness" | "volume" => kind,
+        _ => return Err(invalid()),
+    };
+    match value {
+        Some(v) if !(v.is_finite() && (0.0..=1.0).contains(&v)) => Err(invalid()),
+        v => Ok((kind, v)),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -181,5 +220,21 @@ mod tests {
         let status: PlayerStatus =
             serde_json::from_str(r#"{"open":true,"index":2,"mediaId":17}"#).unwrap();
         assert_eq!((status.index, status.media_id), (Some(2), Some(17)));
+    }
+
+    #[test]
+    fn tracks_and_levels_are_checked() {
+        assert!(check_track("audio", Some("1:0".into())).is_ok());
+        assert!(check_track("text", None).is_ok());
+        assert!(check_track("audio", None).is_err());
+        assert!(check_track("video", Some("1:0".into())).is_err());
+        for bad in ["1", "a:b", "1:2:3", ":1", "99999:1", "1:-1"] {
+            assert!(check_track("text", Some(bad.into())).is_err(), "{bad}");
+        }
+        assert!(check_level("volume", Some(0.5)).is_ok());
+        assert!(check_level("brightness", None).is_ok());
+        assert!(check_level("volume", Some(1.5)).is_err());
+        assert!(check_level("volume", Some(f64::NAN)).is_err());
+        assert!(check_level("zoom", Some(0.5)).is_err());
     }
 }

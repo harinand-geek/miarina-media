@@ -224,3 +224,74 @@ pub async fn player_close(player: State<'_, NativePlayer>) -> Result<PlayerStatu
     status.open = false;
     Ok(status)
 }
+
+/// AND-07: immersive fullscreen, landscape or portrait.
+#[tauri::command]
+pub async fn player_fullscreen(
+    player: State<'_, NativePlayer>,
+    on: bool,
+    landscape: bool,
+) -> Result<(), CommandError> {
+    player
+        .run(
+            "setFullscreen",
+            serde_json::json!({ "on": on, "landscape": landscape }),
+        )
+        .await
+}
+
+/// AND-13: audio and subtitle tracks of the current file.
+#[tauri::command]
+pub async fn player_tracks(
+    player: State<'_, NativePlayer>,
+) -> Result<serde_json::Value, CommandError> {
+    player.call("tracks", ()).await
+}
+
+#[tauri::command]
+pub async fn player_select_track(
+    player: State<'_, NativePlayer>,
+    kind: String,
+    id: Option<String>,
+) -> Result<(), CommandError> {
+    let (kind, id) = super::check_track(&kind, id)?;
+    player
+        .run("selectTrack", serde_json::json!({ "kind": kind, "id": id }))
+        .await
+}
+
+/// AND-13: lets the user pick a SRT / WebVTT file (system picker).
+#[tauri::command]
+pub async fn player_pick_subtitle(
+    player: State<'_, NativePlayer>,
+) -> Result<serde_json::Value, CommandError> {
+    player.call("pickSubtitle", ()).await
+}
+
+/// AND-14: screen brightness or media volume, 0..1 (`None` reads it).
+#[tauri::command]
+pub async fn player_level(
+    player: State<'_, NativePlayer>,
+    kind: String,
+    value: Option<f64>,
+) -> Result<f64, CommandError> {
+    let (kind, value) = super::check_level(&kind, value)?;
+    let out: serde_json::Value = player
+        .call("level", serde_json::json!({ "kind": kind, "value": value }))
+        .await?;
+    Ok(out["value"].as_f64().unwrap_or(0.0))
+}
+
+/// AND-08: picture-in-picture; `false` when the device cannot.
+#[tauri::command]
+pub async fn player_pip(
+    player: State<'_, NativePlayer>,
+    enter: bool,
+) -> Result<bool, CommandError> {
+    let out: serde_json::Value = player
+        .call(if enter { "enterPip" } else { "pipSupported" }, ())
+        .await?;
+    Ok(out[if enter { "entered" } else { "supported" }]
+        .as_bool()
+        .unwrap_or(false))
+}

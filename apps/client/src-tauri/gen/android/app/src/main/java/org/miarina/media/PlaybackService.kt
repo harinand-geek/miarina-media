@@ -41,6 +41,7 @@ class PlaybackService : MediaSessionService() {
       PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
     session = MediaSession.Builder(this, player).setSessionActivity(openApp).build()
+    current = player
   }
 
   override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
@@ -54,11 +55,20 @@ class PlaybackService : MediaSessionService() {
   }
 
   override fun onDestroy() {
+    current = null
     session?.run {
       player.release()
       release()
     }
     session = null
     super.onDestroy()
+  }
+
+  companion object {
+    /**
+     * The player itself, for changes a MediaController does not carry to the
+     * session: a sideloaded subtitle file (NativePlayerPlugin, same process).
+     */
+    var current: ExoPlayer? = null
   }
 }

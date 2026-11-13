@@ -1,14 +1,31 @@
 package org.miarina.media
 
 import android.app.Activity
+import android.app.PictureInPictureParams
 import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.content.pm.PackageManager
 import android.graphics.Color
+import android.media.AudioManager
 import android.net.Uri
-import android.view.SurfaceView
+import android.os.Build
+import android.provider.OpenableColumns
+import android.util.Rational
+import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.WebView
+import androidx.activity.result.ActivityResult
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.media3.common.Format
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.TrackSelectionOverride
+import androidx.media3.ui.CaptionStyleCompat
 import androidx.media3.common.C
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MediaMetadata
@@ -18,6 +35,7 @@ import androidx.media3.common.Player
 import androidx.media3.session.MediaController
 import androidx.media3.session.SessionToken
 import androidx.media3.ui.PlayerView
+import app.tauri.annotation.ActivityCallback
 import app.tauri.annotation.Command
 import app.tauri.annotation.InvokeArg
 import app.tauri.annotation.TauriPlugin
@@ -72,6 +90,26 @@ class RateArgs {
   var rate: Float = 1f
 }
 
+@InvokeArg
+class FullscreenArgs {
+  var on: Boolean = false
+  var landscape: Boolean = true
+}
+
+@InvokeArg
+class SelectTrackArgs {
+  var kind: String = "audio"
+  /** "group:track" from [NativePlayerPlugin.tracks]; null turns subtitles off. */
+  var id: String? = null
+}
+
+@InvokeArg
+class LevelArgs {
+  var kind: String = "volume"
+  /** 0..1; null only reads the current level. */
+  var value: Double? = null
+}
+
 /** Video area in CSS pixels, relative to the WebView viewport. */
 @InvokeArg
 class SurfaceArgs {
@@ -100,6 +138,8 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
   private var controller: MediaController? = null
   private var surface: PlayerView? = null
   private var error: String? = null
+  /** Screen 13: the picture fills the screen behind the transparent page. */
+  private var fullscreen = false
 
   private val listener = object : Player.Listener {
     override fun onPlayerError(e: PlaybackException) {
@@ -115,6 +155,12 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
 
   override fun load(webView: WebView) {
     this.webView = webView
+    instance = this
+  }
+
+  /** Picture-in-picture entered or left (MainActivity): the page hides its controls. */
+  fun onPictureInPicture(active: Boolean) {
+    trigger("pip", JSObject().put("active", active))
   }
 
   /** Runs [block] once the service is connected (the first call starts it). */
@@ -279,11 +325,65 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
     invoke.resolve()
   }
 
+  /** The video view, created once (TextureView, see mm_player_texture.xml). */
+  private fun videoView(container: ViewGroup): PlayerView =
+    surface ?: (LayoutInflater.from(activity)
+      .inflate(R.layout.mm_player_texture, container, false) as PlayerView).also {
+      // Subtitles as in the design: 20/600 on a dark rounded box.
+      it.subtitleView?.setStyle(
+        CaptionStyleCompat(
+          Color.WHITE,
+          Color.argb(166, 0, 0, 0),
+          Color.TRANSPARENT,
+          CaptionStyleCompat.EDGE_TYPE_NONE,
+          Color.TRANSPARENT,
+          null,
+        ),
+      )
+      surface = it
+    }
+
+  /**
+   * Portrait player: the view is drawn above the page in the given box.
+   * Fullscreen: it fills the screen behind the transparent page.
+   */
+  private fun place(view: PlayerView, container: ViewGroup, web: WebView, args: SurfaceArgs?) {
+    val behind = fullscreen
+    val index = container.indexOfChild(view)
+    val webIndex = container.indexOfChild(web)
+    if (index < 0 || (behind && index > webIndex) || (!behind && index < webIndex)) {
+      if (index >= 0) container.removeView(view)
+      if (behind) container.addView(view, container.indexOfChild(web)) else container.addView(view)
+    }
+    if (behind) {
+      view.layoutParams = view.layoutParams.also {
+        it.width = ViewGroup.LayoutParams.MATCH_PARENT
+        it.height = ViewGroup.LayoutParams.MATCH_PARENT
+      }
+      view.translationX = 0f
+      view.translationY = 0f
+    } else if (args != null) {
+      // CSS pixels are density-independent pixels in the WebView, positioned
+      // from the WebView's own place in the shared parent.
+      val density = activity.resources.displayMetrics.density
+      view.layoutParams = view.layoutParams.also {
+        it.width = (args.width * density).toInt()
+        it.height = (args.height * density).toInt()
+      }
+      view.translationX = web.left - container.paddingLeft + args.x.toFloat() * density
+      view.translationY = web.top - container.paddingTop + args.y.toFloat() * density
+    }
+    web.setBackgroundColor(if (behind) Color.TRANSPARENT else ContextCompat.getColor(activity, R.color.mm_bg))
+  }
+
   @Command
   fun setSurface(invoke: Invoke) {
     val args = invoke.parseArgs(SurfaceArgs::class.java)
     val c = controller
-    if (c == null || !currentIsVideo() || !args.visible || args.width <= 0 || args.height <= 0) {
+    val wanted = fullscreen || (args.visible && args.width > 0 && args.height > 0)
+    // In fullscreen (and picture-in-picture, where the page reports itself
+    // hidden) the picture stays: only leaving fullscreen hides it.
+    if (c == null || !currentIsVideo() || !wanted) {
       surface?.visibility = View.GONE
       invoke.resolve()
       return
@@ -294,27 +394,289 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
       invoke.reject("The page view is not ready")
       return
     }
-    val view = surface ?: PlayerView(activity).also {
-      it.useController = false
-      it.setShutterBackgroundColor(Color.BLACK)
-      it.setBackgroundColor(Color.BLACK)
-      // Above the WebView, which is drawn in the same window.
-      (it.videoSurfaceView as? SurfaceView)?.setZOrderMediaOverlay(true)
-      container.addView(it)
-      surface = it
-    }
+    val view = videoView(container)
     view.player = c
-    // CSS pixels are density-independent pixels in the WebView, positioned
-    // from the WebView's own place in the shared parent.
-    val density = activity.resources.displayMetrics.density
-    view.layoutParams = view.layoutParams.also {
-      it.width = (args.width * density).toInt()
-      it.height = (args.height * density).toInt()
-    }
-    view.translationX = web.left - container.paddingLeft + args.x.toFloat() * density
-    view.translationY = web.top - container.paddingTop + args.y.toFloat() * density
+    place(view, container, web, args)
     view.visibility = View.VISIBLE
     invoke.resolve()
+  }
+
+  /** AND-07: immersive, landscape (or portrait) fullscreen; Back is the page's. */
+  @Command
+  fun setFullscreen(invoke: Invoke) {
+    val args = invoke.parseArgs(FullscreenArgs::class.java)
+    val window = activity.window
+    val insets = WindowCompat.getInsetsController(window, window.decorView)
+    fullscreen = args.on
+    MainActivity.immersive = args.on
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+      window.attributes = window.attributes.also {
+        it.layoutInDisplayCutoutMode = if (args.on) {
+          android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES
+        } else {
+          android.view.WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT
+        }
+      }
+    }
+    activity.findViewById<View>(android.R.id.content)?.let { androidx.core.view.ViewCompat.requestApplyInsets(it) }
+    if (args.on) {
+      insets.systemBarsBehavior = WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+      insets.hide(WindowInsetsCompat.Type.systemBars())
+      activity.requestedOrientation = if (args.landscape) {
+        ActivityInfo.SCREEN_ORIENTATION_SENSOR_LANDSCAPE
+      } else {
+        ActivityInfo.SCREEN_ORIENTATION_SENSOR_PORTRAIT
+      }
+    } else {
+      insets.show(WindowInsetsCompat.Type.systemBars())
+      activity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
+      // Brightness set by the gesture only applies to the video.
+      window.attributes = window.attributes.also { it.screenBrightness = -1f }
+    }
+    val web = webView
+    val container = web?.parent as? ViewGroup
+    val view = surface
+    if (web != null && container != null && view != null) place(view, container, web, null)
+    if (web != null && !args.on) web.setBackgroundColor(ContextCompat.getColor(activity, R.color.mm_bg))
+    invoke.resolve()
+  }
+
+  private fun codecName(mime: String?): String? = when (mime) {
+    MimeTypes.VIDEO_H264 -> "H.264"
+    MimeTypes.VIDEO_H265 -> "H.265"
+    MimeTypes.VIDEO_VP9 -> "VP9"
+    MimeTypes.VIDEO_VP8 -> "VP8"
+    MimeTypes.VIDEO_AV1 -> "AV1"
+    MimeTypes.VIDEO_MP4V -> "MPEG-4"
+    MimeTypes.AUDIO_AAC -> "AAC"
+    MimeTypes.AUDIO_OPUS -> "Opus"
+    MimeTypes.AUDIO_VORBIS -> "Vorbis"
+    MimeTypes.AUDIO_MPEG -> "MP3"
+    MimeTypes.AUDIO_FLAC -> "FLAC"
+    MimeTypes.AUDIO_AC3 -> "AC-3"
+    MimeTypes.AUDIO_E_AC3 -> "E-AC-3"
+    MimeTypes.APPLICATION_SUBRIP -> "SRT"
+    MimeTypes.TEXT_VTT -> "VTT"
+    MimeTypes.TEXT_SSA -> "SSA"
+    // Sideloaded files parsed during extraction: no useful codec name.
+    MimeTypes.APPLICATION_MEDIA3_CUES -> null
+    else -> mime?.substringAfter('/')?.uppercase()
+  }
+
+  private fun channels(n: Int): String? = when (n) {
+    Format.NO_VALUE -> null
+    1 -> "1.0"
+    2 -> "2.0"
+    6 -> "5.1"
+    8 -> "7.1"
+    else -> "$n ch"
+  }
+
+  /** AND-13: audio and subtitle tracks of the current file, plus a technical summary. */
+  @Command
+  fun tracks(invoke: Invoke) {
+    val c = controller
+    val result = JSObject()
+    val audio = org.json.JSONArray()
+    val text = org.json.JSONArray()
+    var video: String? = null
+    var sound: String? = null
+    var textOn = false
+    c?.currentTracks?.groups?.forEachIndexed { gi, group ->
+      for (ti in 0 until group.length) {
+        if (!group.isTrackSupported(ti)) continue
+        val f = group.getTrackFormat(ti)
+        val selected = group.isTrackSelected(ti)
+        when (group.type) {
+          C.TRACK_TYPE_VIDEO -> if (selected || video == null) {
+            video = listOfNotNull(codecName(f.sampleMimeType), if (f.height > 0) "${f.height}p" else null)
+              .joinToString(" ")
+          }
+          C.TRACK_TYPE_AUDIO -> {
+            val codec = listOfNotNull(codecName(f.sampleMimeType), channels(f.channelCount)).joinToString(" ")
+            if (selected) sound = codec
+            audio.put(
+              JSObject()
+                .put("id", "$gi:$ti")
+                .put("label", f.label ?: f.language)
+                .put("language", f.language)
+                .put("codec", codec)
+                .put("selected", selected),
+            )
+          }
+          C.TRACK_TYPE_TEXT -> {
+            if (selected) textOn = true
+            text.put(
+              JSObject()
+                .put("id", "$gi:$ti")
+                .put("label", f.label ?: f.language)
+                .put("language", f.language)
+                .put("codec", codecName(f.sampleMimeType))
+                .put("selected", selected),
+            )
+          }
+        }
+      }
+    }
+    result.put("audio", audio)
+    result.put("text", text)
+    result.put("textOff", !textOn)
+    result.put("video", video)
+    result.put("sound", sound)
+    invoke.resolve(result)
+  }
+
+  @Command
+  fun selectTrack(invoke: Invoke) {
+    val args = invoke.parseArgs(SelectTrackArgs::class.java)
+    val c = controller ?: return invoke.reject("Nothing is playing")
+    val type = if (args.kind == "text") C.TRACK_TYPE_TEXT else C.TRACK_TYPE_AUDIO
+    val builder = c.trackSelectionParameters.buildUpon()
+    val id = args.id
+    if (id == null) {
+      if (type != C.TRACK_TYPE_TEXT) return invoke.reject("An audio track is required")
+      builder.setTrackTypeDisabled(C.TRACK_TYPE_TEXT, true)
+    } else {
+      val parts = id.split(':').mapNotNull { it.toIntOrNull() }
+      val group = parts.getOrNull(0)?.let { c.currentTracks.groups.getOrNull(it) }
+      val track = parts.getOrNull(1)
+      if (group == null || track == null || group.type != type || track !in 0 until group.length) {
+        return invoke.reject("This track is no longer available")
+      }
+      builder.setTrackTypeDisabled(type, false)
+      builder.setOverrideForType(TrackSelectionOverride(group.mediaTrackGroup, track))
+    }
+    c.trackSelectionParameters = builder.build()
+    invoke.resolve()
+  }
+
+  /** AND-13: a SRT or WebVTT file picked by the user, added to the current video. */
+  @Command
+  fun pickSubtitle(invoke: Invoke) {
+    if (controller?.currentMediaItem == null) return invoke.reject("Nothing is playing")
+    val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+      .addCategory(Intent.CATEGORY_OPENABLE)
+      .setType("*/*")
+    startActivityForResult(invoke, intent, "subtitlePicked")
+  }
+
+  @ActivityCallback
+  fun subtitlePicked(invoke: Invoke, result: ActivityResult) {
+    val uri = result.data?.data
+    if (result.resultCode != Activity.RESULT_OK || uri == null) {
+      invoke.resolve(JSObject().put("added", false))
+      return
+    }
+    val name = activity.contentResolver.query(uri, arrayOf(OpenableColumns.DISPLAY_NAME), null, null, null)
+      ?.use { if (it.moveToFirst()) it.getString(0) else null }
+      ?: uri.lastPathSegment
+      ?: ""
+    // The content decides (pickers do not always give the file name);
+    // the document type and the name are the fallback.
+    var readError: String? = null
+    val head = try {
+      activity.contentResolver.openInputStream(uri)?.use { stream ->
+        val buffer = ByteArray(4096)
+        val n = stream.read(buffer)
+        if (n > 0) String(buffer, 0, n, Charsets.UTF_8) else ""
+      } ?: ""
+    } catch (e: Exception) {
+      readError = e.javaClass.simpleName
+      ""
+    }
+    val type = activity.contentResolver.getType(uri)
+    val ext = name.substringAfterLast('.', "").lowercase()
+    val mime = when {
+      head.removePrefix(BOM).trimStart().startsWith("WEBVTT") -> MimeTypes.TEXT_VTT
+      SRT_TIMING.containsMatchIn(head) -> MimeTypes.APPLICATION_SUBRIP
+      head.isEmpty() && (ext == "vtt" || type == MimeTypes.TEXT_VTT) -> MimeTypes.TEXT_VTT
+      head.isEmpty() && (ext == "srt" || type == MimeTypes.APPLICATION_SUBRIP) -> MimeTypes.APPLICATION_SUBRIP
+      else -> return invoke.reject(
+        "unsupported_subtitle (name=$name, type=$type, read=${head.length}, error=$readError)",
+      )
+    }
+    // Directly on the service's player: the subtitle configuration of a
+    // replaced item does not reach the session through the controller.
+    val c = PlaybackService.current ?: return invoke.reject("Nothing is playing")
+    val item = c.currentMediaItem ?: return invoke.reject("Nothing is playing")
+    val config = MediaItem.SubtitleConfiguration.Builder(uri)
+      .setMimeType(mime)
+      .setLabel(name)
+      .setSelectionFlags(C.SELECTION_FLAG_DEFAULT)
+      .build()
+    val existing = item.localConfiguration?.subtitleConfigurations ?: emptyList()
+    val position = c.currentPosition
+    val playing = c.playWhenReady
+    // replaceMediaItem() keeps the loaded source when the URI does not change
+    // (the subtitle would be ignored): the new item goes after the current
+    // one, playback moves to it at the same position, the old one is removed.
+    val index = c.currentMediaItemIndex
+    c.addMediaItem(index + 1, item.buildUpon().setSubtitleConfigurations(existing + config).build())
+    c.seekTo(index + 1, position)
+    c.removeMediaItem(index)
+    c.playWhenReady = playing
+    c.trackSelectionParameters = c.trackSelectionParameters.buildUpon()
+      .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, false)
+      .build()
+    invoke.resolve(JSObject().put("added", true).put("name", name))
+  }
+
+  /** AND-14 gestures: screen brightness (this window only) or media volume, 0..1. */
+  @Command
+  fun level(invoke: Invoke) {
+    val args = invoke.parseArgs(LevelArgs::class.java)
+    val value = args.value?.coerceIn(0.0, 1.0)
+    if (args.kind == "brightness") {
+      val window = activity.window
+      if (value != null) {
+        window.attributes = window.attributes.also { it.screenBrightness = value.toFloat().coerceAtLeast(0.01f) }
+      }
+      var current = window.attributes.screenBrightness
+      if (current < 0f) {
+        current = android.provider.Settings.System.getInt(
+          activity.contentResolver,
+          android.provider.Settings.System.SCREEN_BRIGHTNESS,
+          128,
+        ) / 255f
+      }
+      invoke.resolve(JSObject().put("value", current.toDouble()))
+      return
+    }
+    val audio = activity.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+    val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
+    if (value != null) {
+      audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(value * max).toInt(), 0)
+    }
+    invoke.resolve(JSObject().put("value", audio.getStreamVolume(AudioManager.STREAM_MUSIC).toDouble() / max))
+  }
+
+  /** AND-08: picture-in-picture when the device supports it (Android 8+). */
+  @Command
+  fun enterPip(invoke: Invoke) {
+    val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+      activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    if (!supported || !currentIsVideo()) {
+      invoke.resolve(JSObject().put("entered", false))
+      return
+    }
+    val size = controller?.videoSize
+    val ratio = if (size != null && size.width > 0 && size.height > 0) {
+      (size.width.toFloat() / size.height).coerceIn(1 / 2.39f, 2.39f)
+    } else {
+      16f / 9f
+    }
+    val params = PictureInPictureParams.Builder()
+      .setAspectRatio(Rational((ratio * 1000).toInt(), 1000))
+      .build()
+    invoke.resolve(JSObject().put("entered", activity.enterPictureInPictureMode(params)))
+  }
+
+  /** Whether picture-in-picture can be offered at all. */
+  @Command
+  fun pipSupported(invoke: Invoke) {
+    val supported = Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+      activity.packageManager.hasSystemFeature(PackageManager.FEATURE_PICTURE_IN_PICTURE)
+    invoke.resolve(JSObject().put("supported", supported))
   }
 
   /** Stops playback and empties the queue; the service then leaves the foreground. */
@@ -332,12 +694,14 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
     invoke.resolve(result)
   }
 
-  /** Video stops when the app leaves the screen; audio keeps playing. */
+  /** Video stops when the app leaves the screen (not for picture-in-picture); audio keeps playing. */
   override fun onPause() {
-    if (currentIsVideo()) controller?.pause()
+    val pip = Build.VERSION.SDK_INT >= Build.VERSION_CODES.N && activity.isInPictureInPictureMode
+    if (currentIsVideo() && !pip) controller?.pause()
   }
 
   override fun onDestroy() {
+    if (instance === this) instance = null
     hideSurface()
     controller?.removeListener(listener)
     controllerFuture?.let { MediaController.releaseFuture(it) }
@@ -351,5 +715,16 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
       (it.parent as? ViewGroup)?.removeView(it)
     }
     surface = null
+  }
+
+  companion object {
+    /** "00:00:01,000 --> 00:00:04,000": a SubRip cue. */
+    private val SRT_TIMING = Regex("""\d{1,2}:\d{2}:\d{2},\d{3}\s*-->""")
+
+    /** Byte order mark that may precede "WEBVTT". */
+    private const val BOM = "\uFEFF"
+
+    /** For MainActivity's picture-in-picture callback. */
+    var instance: NativePlayerPlugin? = null
   }
 }
