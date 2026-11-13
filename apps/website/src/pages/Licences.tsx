@@ -12,7 +12,7 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
-        <h2>Applications Windows 0.1.8 et Android 0.1.7</h2>
+        <h2>Applications Windows et Android 0.1.9</h2>
         <p>
           Le code MIARINA des applications Windows et Android est sous GPL-3.0-only. Les sources de
           l’application et les instructions de compilation sont dans le{' '}
@@ -23,11 +23,15 @@ export function Licences() {
           seul un ensemble complet de ces sources.
         </p>
         <p>
+          <a href="/downloads/MiarinaMedia-0.1.9-source.tar.gz">
+            Archive du code de l’application 0.1.9
+          </a>{' '}
+          — révision <code>5f36cda</code> (Windows et Android 0.1.9), avec le sous-module Mister
+          Download Manager.{' '}
           <a href="/downloads/MiarinaMedia-0.1.8-source.tar.gz">
             Archive du code de l’application 0.1.8
           </a>{' '}
-          — révision <code>9f9922c</code> (Windows 0.1.8), avec le sous-module Mister Download
-          Manager.{' '}
+          — révision <code>9f9922c</code> (Windows 0.1.8).{' '}
           <a href="/downloads/MiarinaMedia-0.1.7-source.tar.gz">
             Archive du code de l’application 0.1.7
           </a>{' '}
@@ -112,10 +116,11 @@ export function Licences() {
 
         <h2>Contenus des captures</h2>
         <p>
-          Les captures d’écran de ce site montrent des œuvres libres, téléchargées depuis Wikimedia
-          Commons avec l’application : <em>Big Buck Bunny</em> et <em>Sintel</em> (Blender
-          Foundation, CC BY 3.0) ; des enregistrements du domaine public ou sous CC0 de Mendelssohn
-          (<em>Le Songe d’une nuit d’été</em>, European Archive), Albinoni, Bach (Musopen) et Dvořák
+          Les captures d’écran de ce site montrent des œuvres libres, téléchargées avec
+          l’application depuis Wikimedia Commons et la chaîne de la Blender Foundation :{' '}
+          <em>Big Buck Bunny</em> et <em>Sintel</em> (Blender Foundation, CC BY 3.0) ; des
+          enregistrements du domaine public ou sous CC0 de Mendelssohn (
+          <em>Le Songe d’une nuit d’été</em>, European Archive), Albinoni, Bach (Musopen) et Dvořák
           ; des portraits du domaine public en pochettes ; et des pages de Wikimedia Commons.
         </p>
       </main>

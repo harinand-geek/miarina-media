@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miarina Media</title>
+<link rel="stylesheet" href="_ds/nocturne-3da4a017-665e-440a-a0ad-5792c1054df0/styles.css">
+<script src="_ds/nocturne-3da4a017-665e-440a-a0ad-5792c1054df0/_ds_bundle.js"></script>
+<script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
+<style>
+@font-face { font-family: "Manrope"; src: url("assets/fonts/manrope.woff2") format("woff2"); font-weight: 200 800; font-display: swap; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #101820; text-wrap: pretty; }
+a { color: #35C9BD; }
+a:hover { color: oklch(0.8 0.11 185); }
+a { color: var(--color-accent); }
+a:hover { color: var(--color-accent-400); }
+@keyframes mmBar { from { transform: translateX(-9px); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes mmPlay { 0% { transform: scale(.4); opacity: 0; } 70% { transform: scale(1.08); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+@keyframes mmFlow { 0% { transform: translateX(-7px); opacity: 0; } 25% { transform: none; opacity: 1; } 70% { transform: none; opacity: 1; } 100% { transform: translateX(5px); opacity: 0; } }
+@keyframes mmPulse { 0%, 55% { transform: scale(1); } 70% { transform: scale(1.1); } 85%, 100% { transform: scale(1); } }
+@keyframes mmEq { from { transform: scaleY(.18); } to { transform: scaleY(1); } }
+@keyframes mmCaret { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; } }
+</style>
+</helmet>
+
+<div style="--color-bg: #101820; --color-surface: #182530; --color-accent: #35C9BD; --color-accent-100: oklch(0.97 0.03 185); --color-accent-200: oklch(0.93 0.06 185); --color-accent-300: oklch(0.87 0.09 185); --color-accent-400: oklch(0.8 0.11 185); --color-accent-500: oklch(0.72 0.12 185); --color-accent-600: oklch(0.6 0.1 185); --color-accent-700: oklch(0.48 0.08 185); --color-accent-800: oklch(0.36 0.06 188); --color-accent-900: oklch(0.27 0.045 190); --mm-play: #FF7A45; --mm-play-300: oklch(0.86 0.08 45); --mm-play-900: oklch(0.3 0.06 40); min-height: 100vh; color: var(--color-text); font-family: var(--font-body); background: radial-gradient(1200px 720px at 82% -160px, color-mix(in srgb, var(--color-accent-900) 75%, transparent), transparent 60%), radial-gradient(1100px 800px at -10% 100%, color-mix(in srgb, black 30%, transparent), transparent 55%), var(--color-bg);">
+
+  <nav style="position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: clamp(10px, 2vw, 22px); padding: 12px clamp(20px, 5vw, 72px); background: color-mix(in srgb, var(--color-bg) 78%, transparent); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);">
+    <a href="#top" onMouseEnter="{{ replayLogo }}" style="display: flex; align-items: center; gap: 10px; margin-right: auto; color: var(--color-text); text-decoration: none;">
+      {{ navLogo }}
+      <span style="font-family: Manrope, var(--font-heading); font-weight: 800; font-size: 17px; letter-spacing: -0.02em;">Miarina Media</span>
+    </a>
+    <sc-if value="{{ wide }}" hint-placeholder-val="{{ true }}">
+      <div style="display: flex; align-items: center; gap: 22px; font-size: 14px;">
+        <a href="#obtenir" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.navGet }}</a>
+        <a href="#ecouter" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.navListen }}</a>
+        <a href="#bibliotheque" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.navLibrary }}</a>
+        <a href="#versions" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.navVersions }}</a>
+      </div>
+    </sc-if>
+    <div role="group" aria-label="Langue" style="display: flex; border: 1px solid var(--color-divider); border-radius: var(--radius-md); overflow: hidden;">
+      <button type="button" onClick="{{ setFr }}" aria-pressed="{{ isFr }}" style="font: inherit; font-size: 12px; letter-spacing: 0.04em; padding: 5px 9px; border: 0; cursor: pointer; background: transparent; color: {{ frColor }}; box-shadow: {{ frRing }};">FR</button>
+      <button type="button" onClick="{{ setEn }}" aria-pressed="{{ isEn }}" style="font: inherit; font-size: 12px; letter-spacing: 0.04em; padding: 5px 9px; border: 0; border-left: 1px solid var(--color-divider); cursor: pointer; background: transparent; color: {{ enColor }}; box-shadow: {{ enRing }};">EN</button>
+    </div>
+    <a href="#telecharger" class="btn btn-primary" aria-label="{{ t.navCta }}" style="text-decoration: none;"><i class="ph ph-download-simple" style="font-size: 16px;"></i><sc-if value="{{ roomy }}" hint-placeholder-val="{{ true }}"><span>{{ t.navCta }}</span></sc-if></a>
+  </nav>
+
+  <header id="top" style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 9vw, 120px) clamp(20px, 5vw, 72px) clamp(72px, 9vw, 128px); display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: clamp(40px, 6vw, 88px); align-items: center;">
+    <div data-reveal="0">
+      <h1 style="font-size: clamp(44px, 6.2vw, 84px); line-height: 1.04; letter-spacing: -0.03em; margin: 0 0 0 -0.04em; font-weight: 500;">
+        <span style="display: block;">{{ t.h1a }}</span>
+        <span style="display: block; color: var(--color-neutral-400);">{{ t.h1b }}</span>
+      </h1>
+      <p style="font-size: 17px; line-height: 28px; max-width: 54ch; margin: 30px 0 0; color: color-mix(in srgb, var(--color-text) 82%, transparent);">{{ t.sub }}</p>
+      <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 30px;">
+        <a href="#telecharger" class="btn btn-primary" style="text-decoration: none; padding: 10px 16px; font-size: 15px;"><i class="ph ph-windows-logo" style="font-size: 18px;"></i>{{ t.ctaWin }}</a>
+        <a href="#telecharger" class="btn btn-secondary" style="text-decoration: none; padding: 10px 16px; font-size: 15px;"><i class="ph ph-android-logo" style="font-size: 18px;"></i>{{ t.ctaAnd }}</a>
+      </div>
+      <p style="margin: 16px 0 0; font-size: 12.5px; color: var(--color-neutral-500); font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace;">{{ t.heroMeta }}</p>
+    </div>
+
+    <div data-reveal="120" style="position: relative; width: 100%; max-width: 540px; justify-self: {{ heroAlign }};">
+      <div style="position: absolute; inset: -12% -8% -14% -8%; background: radial-gradient(closest-side, color-mix(in srgb, var(--color-accent-700) 38%, transparent), transparent); pointer-events: none;"></div>
+      <div aria-hidden="true" style="position: relative; border-radius: var(--radius-lg); background: color-mix(in srgb, var(--color-surface) 92%, var(--color-bg)); box-shadow: var(--shadow-md); overflow: hidden;">
+        <div style="display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid var(--color-neutral-800);">
+          {{ tinyLogo }}
+          <span style="font-family: Manrope, var(--font-heading); font-weight: 800; font-size: 13px;">Miarina Media</span>
+          <div style="margin-left: auto; display: flex; gap: 2px; padding: 2px; border-radius: var(--radius-md); background: var(--color-bg);">
+            <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; border-radius: 6px; transition: all .35s; color: {{ d.getTabColor }}; background: {{ d.getTabBg }};"><i class="ph ph-download-simple"></i>{{ t.tabGet }}</span>
+            <span style="display: flex; align-items: center; gap: 5px; font-size: 12px; padding: 4px 10px; border-radius: 6px; transition: all .35s; color: {{ d.listenTabColor }}; background: {{ d.listenTabBg }};"><i class="ph ph-music-notes"></i>{{ t.tabListen }}</span>
+          </div>
+        </div>
+
+        <div style="position: relative; height: 356px;">
+          <div style="position: absolute; inset: 0; padding: 18px; display: flex; flex-direction: column; gap: 14px; transition: opacity .5s, transform .5s; opacity: {{ d.getOp }}; transform: {{ d.getTf }};">
+            <div style="display: flex; gap: 8px;">
+              <div style="flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: var(--radius-md); background: var(--color-bg); border: 1px solid {{ d.fieldBorder }}; transition: border-color .3s;">
+                <i class="ph ph-link-simple" style="color: var(--color-neutral-500); flex: none;"></i>
+                <span style="font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: rtl; text-align: left;">{{ d.typed }}</span>
+                <span style="width: 1px; height: 14px; flex: none; background: var(--color-accent); animation: mmCaret 1s steps(1) infinite; opacity: {{ d.caretOp }};"></span>
+              </div>
+              <span style="flex: none; display: flex; align-items: center; padding: 0 12px; border-radius: var(--radius-md); font-size: 12.5px; border: 1px solid var(--color-accent); color: var(--color-accent); transition: background .2s; background: {{ d.analyzeBg }};">{{ d.analyzeLabel }}</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 4px; transition: opacity .45s, transform .45s; opacity: {{ d.fmtOp }}; transform: {{ d.fmtTf }};">
+              <span style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500); margin-bottom: 4px;">Big Buck Bunny · 10:35</span>
+              <sc-for list="{{ d.formats }}" as="f" hint-placeholder-count="3">
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: var(--radius-md); font-size: 13px; transition: background .3s, box-shadow .3s; background: {{ f.bg }}; box-shadow: {{ f.ring }};">
+                  <i class="{{ f.icon }}" style="color: var(--color-neutral-400);"></i>
+                  <span>{{ f.label }}</span>
+                  <span style="margin-left: auto; font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--color-neutral-500);">{{ f.meta }}</span>
+                </div>
+              </sc-for>
+            </div>
+
+            <div style="margin-top: auto; display: flex; flex-direction: column; gap: 8px; transition: opacity .4s; opacity: {{ d.dlOp }};">
+              <div style="display: flex; font-size: 12.5px;">
+                <span>{{ t.demoFile }}</span>
+                <span style="margin-left: auto; font-family: ui-monospace, Menlo, monospace; color: var(--color-accent-300);">{{ d.pctLabel }}</span>
+              </div>
+              <div style="height: 3px; border-radius: 2px; background: var(--color-neutral-800); overflow: hidden;">
+                <div style="height: 100%; background: var(--color-accent); width: {{ d.barW }};"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="position: absolute; inset: 0; display: flex; flex-direction: column; transition: opacity .55s, transform .55s; opacity: {{ d.listenOp }}; transform: {{ d.listenTf }};">
+            <div style="padding: 18px 18px 0; flex: 1;">
+              <span style="font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-neutral-500);">{{ t.demoRecent }}</span>
+              <div style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 10px;">
+                <div style="display: flex; flex-direction: column; gap: 6px; transition: opacity .5s .25s, transform .5s .25s; opacity: {{ d.newOp }}; transform: {{ d.newTf }};">
+                  <div style="aspect-ratio: 1; border-radius: 6px; background: url('assets/windows-library.jpg') 20.39% 98.68% / 2909.09% auto; box-shadow: 0 0 0 1px var(--color-accent);"></div>
+                  <span style="font-size: 11.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">Big Buck Bunny</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div style="aspect-ratio: 1; border-radius: 6px; background: url('assets/windows-library.jpg') 24.82% 20.32% / 711.11% auto;"></div>
+                  <span style="font-size: 11.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-neutral-400);">Albinoni</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div style="aspect-ratio: 1; border-radius: 6px; background: url('assets/windows-library.jpg') 42.73% 20.32% / 711.11% auto;"></div>
+                  <span style="font-size: 11.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-neutral-400);">Mendelssohn</span>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                  <div style="aspect-ratio: 1; border-radius: 6px; background: url('assets/windows-library.jpg') 78.45% 20.32% / 711.11% auto;"></div>
+                  <span style="font-size: 11.5px; line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; color: var(--color-neutral-400);">Bach</span>
+                </div>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; margin-top: 18px; font-size: 12.5px; color: var(--color-neutral-400);">
+                <i class="ph ph-check" style="color: var(--color-accent);"></i>{{ t.demoSaved }}
+              </div>
+            </div>
+            <div style="height: 2px; background: var(--color-neutral-800);">
+              <div style="height: 100%; background: var(--mm-play); width: {{ d.playW }};"></div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 16px;">
+              <div style="width: 40px; height: 40px; flex: none; border-radius: 6px; background: url('assets/windows-library.jpg') 20.39% 98.68% / 2909.09% auto;"></div>
+              <div style="min-width: 0; display: flex; flex-direction: column; white-space: nowrap; overflow: hidden;">
+                <span style="font-size: 13.5px; font-weight: 500; overflow: hidden; text-overflow: ellipsis;">Big Buck Bunny</span>
+                <span style="font-size: 11.5px; color: var(--color-neutral-500);">upload.wikimedia.org</span>
+              </div>
+              <div style="margin-left: auto; flex: none; display: flex; align-items: center; gap: 12px;">
+                <sc-if value="{{ roomy }}" hint-placeholder-val="{{ true }}">
+                  {{ eq }}
+                  <span style="font-family: ui-monospace, Menlo, monospace; font-size: 11.5px; color: var(--color-neutral-400);">{{ d.timeLabel }}</span>
+                  <i class="ph ph-skip-back" style="font-size: 16px; color: var(--color-neutral-400);"></i>
+                </sc-if>
+                <span style="width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--mm-play); color: var(--mm-play); display: grid; place-items: center;"><i class="ph-fill ph-pause" style="font-size: 14px;"></i></span>
+                <i class="ph ph-skip-forward" style="font-size: 16px; color: var(--color-neutral-400);"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 14px; justify-content: center;">
+        <sc-for list="{{ d.steps }}" as="s" hint-placeholder-count="3">
+          <span style="font-size: 11.5px; letter-spacing: 0.04em; padding: 3px 9px; border-radius: 6px; transition: color .3s, background .3s; color: {{ s.color }}; background: {{ s.bg }};">{{ s.label }}</span>
+        </sc-for>
+      </div>
+    </div>
+  </header>
+
+  <div style="height: 1px; max-width: 1240px; margin: 0 auto; background: linear-gradient(to right, transparent, var(--color-divider) 48px calc(100% - 48px), transparent);"></div>
+
+  <section id="fonctions" style="max-width: 1240px; margin: 0 auto; padding: clamp(64px, 8vw, 112px) clamp(20px, 5vw, 72px) clamp(32px, 4vw, 56px);">
+    <div data-reveal="0" style="display: flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">
+      <span style="width: 32px; height: 1px; background: var(--color-accent);"></span>{{ t.featKicker }}
+    </div>
+    <h2 data-reveal="60" style="font-size: clamp(28px, 3.6vw, 46px); line-height: 1.1; letter-spacing: -0.02em; margin: 22px 0 0; max-width: 20ch;">{{ t.featTitle }}</h2>
+    <div style="display: flex; flex-wrap: wrap; gap: 48px clamp(32px, 5vw, 80px); margin-top: clamp(40px, 5vw, 64px);">
+      <sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+        <div id="{{ g.id }}" data-reveal="0" style="flex: 1 1 360px; min-width: 0; scroll-margin-top: 80px;">
+          <div style="display: flex; align-items: baseline; gap: 12px; padding-bottom: 18px;">
+            <span style="font-family: ui-monospace, Menlo, monospace; font-size: 13px; color: {{ g.tone }};">{{ g.num }}</span>
+            <h3 style="font-size: 28px; letter-spacing: -0.02em; margin: 0; display: flex; align-items: center; gap: 10px;"><i class="{{ g.icon }}" style="font-size: 24px; color: {{ g.tone }};"></i>{{ g.title }}</h3>
+          </div>
+          <p style="margin: 0 0 8px; font-size: 15px; line-height: 24px; color: var(--color-neutral-400); max-width: 46ch;">{{ g.lead }}</p>
+          <sc-for list="{{ g.items }}" as="it" hint-placeholder-count="4">
+            <div style="display: flex; flex-direction: column; gap: 6px; padding: 18px 0; background: linear-gradient(to right, transparent, var(--color-neutral-800) 48px calc(100% - 48px), transparent) no-repeat top / 100% 1px;">
+              <h4 style="margin: 0; font-size: 17px; line-height: 24px; letter-spacing: -0.01em;">{{ it.title }}</h4>
+              <p style="margin: 0; font-size: 14.5px; line-height: 23px; color: color-mix(in srgb, var(--color-text) 72%, transparent);">{{ it.text }}</p>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </section>
+
+  <section id="bibliotheque" style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) clamp(20px, 5vw, 72px); overflow-x: clip; scroll-margin-top: 40px;">
+    <div style="display: flex; flex-wrap: wrap; gap: 24px clamp(32px, 6vw, 96px); align-items: flex-end;">
+      <div style="flex: 1 1 min(420px, 100%);">
+        <div data-reveal="0" style="display: flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">
+          <span style="width: 32px; height: 1px; background: var(--color-accent);"></span>{{ t.libKicker }}
+        </div>
+        <h2 data-reveal="60" style="font-size: clamp(30px, 3.6vw, 46px); line-height: 1.1; letter-spacing: -0.02em; margin: 22px 0 0; max-width: 18ch;">{{ t.libTitle }}</h2>
+      </div>
+      <p data-reveal="120" style="flex: 1 1 min(380px, 100%); margin: 0; font-size: 15.5px; line-height: 26px; color: color-mix(in srgb, var(--color-text) 78%, transparent);">{{ t.libBody }}</p>
+    </div>
+
+    <div style="display: flex; flex-wrap: {{ sv.tabWrap }}; overflow-x: auto; scrollbar-width: none; gap: 6px; margin: 44px calc(-1 * clamp(20px, 5vw, 72px)) 0; padding: 0 clamp(20px, 5vw, 72px);" role="tablist">
+      <sc-for list="{{ shots }}" as="s" hint-placeholder-count="3">
+        <button type="button" role="tab" aria-selected="{{ s.active }}" onClick="{{ s.onClick }}" style="position: relative; flex: none; white-space: nowrap; font: inherit; font-size: 13.5px; cursor: pointer; display: flex; align-items: center; gap: 8px; padding: 9px 14px 11px; border: 1px solid var(--color-divider); border-radius: var(--radius-md); background: transparent; overflow: hidden; color: {{ s.color }};" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);">
+          <i class="{{ s.icon }}" style="font-size: 16px;"></i>{{ s.label }}
+          <span style="position: absolute; left: 0; bottom: 0; height: 2px; background: {{ s.tone }}; width: {{ s.barW }};"></span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div data-reveal="0" style="position: relative; margin-top: 18px; padding-right: {{ sv.padR }};">
+      <div style="position: relative; aspect-ratio: 16 / 10; border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-md); background: var(--color-surface);">
+        <img src="assets/windows-library.jpg" alt="Bibliothèque musicale Windows : albums d’œuvres libres avec leurs pochettes" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .7s, transform 1.2s; opacity: {{ sv.libOp }}; transform: {{ sv.libTf }};">
+        <img src="assets/windows-hero.jpg" alt="Lecteur Windows : Albinoni en lecture, égaliseur, vitesse et minuteur" style="position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .7s, transform 1.2s; opacity: {{ sv.heroOp }}; transform: {{ sv.heroTf }};">
+      </div>
+      <div style="position: absolute; right: 0; bottom: -7%; width: {{ sv.phoneW }}; aspect-ratio: 540 / 1200; border-radius: clamp(12px, 2vw, 26px); overflow: hidden; box-shadow: var(--shadow-lg); transition: transform .8s cubic-bezier(.2, .8, .2, 1), opacity .6s, filter .6s; transform: {{ sv.phoneTf }}; opacity: {{ sv.phoneOp }}; filter: {{ sv.phoneFilter }};">
+        <img src="assets/android-home.jpg" alt="Accueil Android : coller un lien et l’analyser" style="width: 100%; height: 100%; object-fit: cover;">
+      </div>
+    </div>
+    <p style="margin: clamp(36px, 5vw, 56px) 0 0; max-width: 62ch; font-size: 14.5px; line-height: 24px; color: var(--color-neutral-400); min-height: 48px;">{{ sv.caption }}</p>
+  </section>
+
+  <div style="height: 1px; max-width: 1240px; margin: 0 auto; background: linear-gradient(to right, transparent, var(--color-divider) 48px calc(100% - 48px), transparent);"></div>
+
+  <section id="telecharger" style="max-width: 1240px; margin: 0 auto; padding: clamp(56px, 8vw, 104px) clamp(20px, 5vw, 72px); scroll-margin-top: 40px; display: flex; flex-wrap: wrap; gap: 40px clamp(32px, 6vw, 96px);">
+    <div data-reveal="0" style="flex: 1 1 300px; max-width: 400px; display: flex; flex-direction: column; gap: 22px;">
+      {{ bigLogo }}
+      <h2 style="font-size: clamp(30px, 3.6vw, 46px); line-height: 1.1; letter-spacing: -0.02em; margin: 0;">{{ t.dlTitle }}</h2>
+      <p style="margin: 0; font-size: 15px; line-height: 25px; color: var(--color-neutral-400);">{{ t.dlLead }}</p>
+    </div>
+    <div style="flex: 999 1 min(520px, 100%); min-width: 0; align-self: center;">
+      <sc-for list="{{ downloads }}" as="dl" hint-placeholder-count="2">
+        <div data-reveal="60" style="display: flex; flex-wrap: wrap; align-items: center; gap: 16px 28px; padding: 26px 0; background: linear-gradient(to right, transparent, var(--color-neutral-700) 48px calc(100% - 48px), transparent) no-repeat bottom / 100% 1px;">
+          <i class="{{ dl.icon }}" style="font-size: 30px; color: var(--color-neutral-300);"></i>
+          <div style="flex: 1 1 220px; display: flex; flex-direction: column; gap: 4px; min-width: 0;">
+            <span style="font-size: 19px; font-weight: 500;">{{ dl.title }}</span>
+            <span style="font-size: 13px; color: var(--color-neutral-400);">{{ dl.req }}</span>
+            <span style="font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace; font-size: 11.5px; color: var(--color-neutral-500); overflow-wrap: anywhere;">{{ dl.file }} · SHA-256 {{ dl.hash }}</span>
+          </div>
+          <a href="{{ dl.href }}" class="btn btn-primary" style="text-decoration: none; padding: 10px 16px; font-size: 14.5px;"><i class="ph ph-download-simple" style="font-size: 17px;"></i>{{ dl.cta }}</a>
+        </div>
+      </sc-for>
+      <p style="margin: 22px 0 0; font-size: 13px; line-height: 21px; color: var(--color-neutral-500);">{{ t.dlNote }}</p>
+    </div>
+  </section>
+
+  <section id="versions" style="max-width: 1240px; margin: 0 auto; padding: 0 clamp(20px, 5vw, 72px) clamp(64px, 8vw, 104px); scroll-margin-top: 40px;">
+    <div style="display: flex; flex-wrap: wrap; align-items: flex-end; gap: 12px 32px; margin-bottom: 28px;">
+      <div style="flex: 1 1 320px;">
+        <div data-reveal="0" style="display: flex; align-items: center; gap: 14px; font-size: 13px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-accent);">
+          <span style="width: 32px; height: 1px; background: var(--color-accent);"></span>{{ t.verKicker }}
+        </div>
+        <h2 data-reveal="60" style="font-size: clamp(26px, 3vw, 36px); line-height: 1.1; letter-spacing: -0.02em; margin: 18px 0 0;">{{ t.verTitle }}</h2>
+      </div>
+      <sc-if value="{{ isEn }}" hint-placeholder-val="{{ false }}">
+        <span style="font-size: 13px; color: var(--color-neutral-500);">Release notes are written in French.</span>
+      </sc-if>
+    </div>
+    <div data-reveal="0" style="display: flex; flex-wrap: wrap; gap: 20px clamp(24px, 4vw, 56px); border-radius: var(--radius-lg); background: color-mix(in srgb, var(--color-surface) 60%, transparent); box-shadow: var(--shadow-sm); padding: clamp(14px, 2vw, 22px);">
+      <div role="tablist" aria-label="{{ t.verKicker }}" style="flex: 1 1 260px; max-width: {{ vl.listMax }}; display: flex; flex-direction: {{ vl.dir }}; gap: 4px; overflow: auto; max-height: {{ vl.listH }}; scrollbar-width: thin; scrollbar-color: var(--color-neutral-800) transparent; -webkit-mask-image: {{ vl.mask }}; mask-image: {{ vl.mask }}; padding-bottom: 4px;">
+        <sc-for list="{{ vl.items }}" as="v" hint-placeholder-count="6">
+          <button type="button" role="tab" aria-selected="{{ v.active }}" onClick="{{ v.onClick }}" style="flex: none; font: inherit; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 0; border-radius: var(--radius-md); white-space: nowrap; color: {{ v.color }}; background: {{ v.bg }};" style-hover="background: color-mix(in srgb, var(--color-text) 6%, transparent);">
+            <span style="width: 7px; height: 7px; border-radius: 50%; flex: none; background: {{ v.dot }}; box-shadow: {{ v.dotRing }};"></span>
+            <span style="font-family: ui-monospace, 'JetBrains Mono', Menlo, monospace; font-size: 13px;">{{ v.version }}</span>
+            <span style="font-size: 12px; color: var(--color-neutral-500);">{{ v.short }}</span>
+          </button>
+        </sc-for>
+      </div>
+      <div role="tabpanel" style="flex: 999 1 380px; min-width: 0; padding: 6px 4px;">
+        <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px;">
+          <h3 style="margin: 0; font-size: 22px; letter-spacing: -0.01em;">{{ vd.name }}</h3>
+          <sc-if value="{{ vd.isCurrent }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent">{{ t.verCurrent }}</span></sc-if>
+          <sc-if value="{{ vd.isPlanned }}" hint-placeholder-val="{{ false }}"><span class="tag tag-neutral">{{ t.verPlanned }}</span></sc-if>
+        </div>
+        <p style="margin: 6px 0 16px; font-size: 13px; color: var(--color-neutral-500);">{{ vd.date }}</p>
+        <ul style="margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 10px;">
+          <sc-for list="{{ vd.items }}" as="li" hint-placeholder-count="5">
+            <li style="display: flex; gap: 12px; font-size: 14.5px; line-height: 22px; color: color-mix(in srgb, var(--color-text) 82%, transparent);"><span style="flex: none; width: 10px; height: 1px; margin-top: 11px; background: var(--color-accent);"></span><span>{{ li.text }}</span></li>
+          </sc-for>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <footer style="max-width: 1240px; margin: 0 auto; padding: 28px clamp(20px, 5vw, 72px) 40px; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 28px; font-size: 13px; color: var(--color-neutral-500);">
+    <span style="flex: 1 1 360px;">{{ t.legal }}</span>
+    <div style="display: flex; gap: 20px;">
+      <a href="/confidentialite.html" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.privacy }}</a>
+      <a href="/licences.html" style="color: var(--color-neutral-300); text-decoration: none;" style-hover="color: var(--color-accent);">{{ t.licences }}</a>
+    </div>
+    <span>© 2026 MIARINA</span>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const URL_TXT = 'commons.wikimedia.org/wiki/File:Big_Buck_Bunny_4K.webm';
+const LOOP = 14;
+const LOG = [
+  ['Prochaines', 'En préparation', 'planned', ['Android : essais sur téléphone réel (Bluetooth, appels, écran verrouillé) et autres qualités audio', 'Android : onglets et historique du navigateur, import et export M3U', 'Fondu entre les titres (désactivé par défaut)']],
+  ['0.1.9 · Windows et Android', 'Préversion de test · 13 novembre 2026', 'current', ['Android : nouvelle interface (Accueil, Navigateur, Téléchargements, Musique, Vidéos), écran de démarrage animé, thème clair et anglais', 'Android : vrai lecteur de musique — albums, artistes, dossiers, playlists, favoris, titres récents et plus écoutés, file enregistrable en playlist', 'Android : musique et vidéos déjà présentes sur le téléphone, avec votre autorisation et en lecture seule', 'Android : lecture qui continue écran éteint, commandes de l’écran verrouillé, du casque et de la notification ; pause au retrait du casque (réglable)', 'Android : égaliseur du téléphone avec préréglages, vitesse, minuteur, paroles locales', 'Android : vidéo en plein écran paysage, gestes luminosité et volume, pistes audio, sous-titres SRT et VTT, image dans l’image', 'Android : vérifié sur émulateur ; essais sur téléphone réel en cours', 'Windows : le thème choisi est conservé, badge PRÉVU lisible en thème clair, refus de suppression signalé clairement']],
+  ['0.1.8 · Windows', 'Préversion de test · 12 novembre 2026', '', ['Nouvelle interface Windows : espaces Obtenir et Écouter, mini-lecteur, écrans revus, français et anglais complets, nouveau logo', 'Bibliothèque musicale : albums, artistes, dossiers, éditeur de tags et pochettes', 'Playlists, favoris, import et export M3U ; file de lecture, positions et historique d’écoute conservés', 'Lecteur libVLC intégré : MKV, HEVC, AVI et autres formats, pistes audio, sous-titres SRT et VTT avec décalage, égaliseur à 6 bandes ; image dans l’image retirée avec ce lecteur', 'Ouvrir des fichiers, importer un dossier, déposer des fichiers sur la fenêtre', 'Navigateur : plusieurs onglets et historique local', 'Téléchargements : reprise vérifiée, attente du retour du réseau, disque plein et dossier inaccessible signalés', 'Mises à jour : annulation et reprise du téléchargement, canal stable ou bêta, téléchargement automatique sur réseau non limité (désactivé par défaut), copie de la bibliothèque avant mise à jour', 'Installateur plus gros (libVLC inclus) ; Android reste en 0.1.7']],
+  ['0.1.7 · Windows et Android', 'Préversion de test · 10 novembre 2026', '', ['Recherche automatique de nouvelles versions et notification dans Miarina', 'Téléchargement dans les réglages avec progression et vérification de la signature', 'Installation depuis l’application : installateur Windows ou confirmation système Android', 'Une installation manuelle de la 0.1.7 active ce parcours pour les prochaines versions']],
+  ['0.1.6 · Windows et Android', 'Préversion de test · 9 novembre 2026', '', ['Windows : torrents et magnets, sélection des fichiers, pause/reprise, limites de débit et arrêt du partage', 'Windows : extension Chrome/Edge en mode développeur pour envoyer manuellement des liens vers une boîte de réception locale', 'Windows et Android : protection du nettoyage des fichiers temporaires et du contrôle du dossier de téléchargement', 'Tests automatisés et transfert torrent local validés ; essais sur téléphone réel et connexion de l’extension dans un navigateur encore à effectuer']],
+  ['0.1.5 · Windows', 'Préversion de test · 31 octobre 2026', '', ['Plein écran du lecteur : barres de navigation masquées, retour avec Échap', 'Lecture interrompue : bouton Réessayer à la position courante et message adapté à l’erreur', 'Surface vidéo défaillante masquée sur fond sombre', 'Protection contre les doubles clics au lancement des téléchargements']],
+  ['0.1.5 · Android', 'Préversion de test · 29 octobre 2026', '', ['Extracteur et outils de conversion intégrés à l’APK', 'Parcours YouTube testé sur émulateur : analyse, téléchargement vidéo et lecture locale', 'Protection contre les doubles clics lors du lancement et textes de progression corrigés', 'Logo discret pour les médias sans miniature', 'MP3 320 kbps vérifié sur émulateur ; téléphone physique et autres débits encore à tester']],
+  ['0.1.4 · Android', 'Préversion de test · 28 octobre 2026', '', ['Extracteur et outils de conversion intégrés à l’APK', 'Parcours YouTube et lecture locale testés sur émulateur', 'Logo discret pour les médias sans miniature']],
+  ['0.1.4 · Windows', 'Préversion de test · 28 octobre 2026', '', ['Installateur aux couleurs de Miarina Media, en français et en anglais', 'Logo discret pour les médias sans miniature', 'Lecteur : position sauvegardée en quittant une vidéo et fond animé suspendu lorsque la page est masquée', 'Téléchargements : lecture mémoire bornée et exclusion des fragments intermédiaires lors de la finalisation']],
+  ['0.1.3', 'Préversion de test · 18 octobre 2026', '', ['Android : navigateur intégré, avec recherche, raccourcis et bouton de téléchargement quand la page contient un fichier vidéo ou audio', 'Windows : le navigateur s’ouvre dans la fenêtre principale, avec la même présentation que sur Android', 'Windows et Android : favoris dans le navigateur (étoile dans la barre d’adresse)', 'Windows et Android : des mots tapés dans le champ de l’accueil lancent une recherche dans le navigateur', 'Windows et Android : la meilleure copie jusqu’à 1080p est proposée en premier quand une page en contient plusieurs', 'Lecteur : fond flou tiré de la vidéo en cours, ou de la pochette pour l’audio']],
+  ['0.1.2', 'Préversion de test · 18 octobre 2026', '', ['Windows : correction des téléchargements dont le titre contient des accents', 'Windows : yt-dlp se met à jour tout seul (une fois par jour au plus, signature vérifiée)', 'Android : lecteur intégré, miniatures et durées', 'Android : fichiers dans Films et Musique, visibles dans la galerie (Android 11+)', 'Android : téléchargements en arrière-plan avec notification (Pause, Annuler) et « Téléchargement terminé »', 'Android : partager un lien vers l’app, partager ou ouvrir un fichier avec une autre app', 'Android : nouvelle icône et écran de démarrage']],
+  ['0.1.1', 'Préversion de test · 17 octobre 2026', '', ['Windows : yt-dlp, FFmpeg et QuickJS-NG inclus dans l’installateur, plus rien à télécharger au premier usage', 'Windows : téléchargements YouTube plus rapides', 'Windows : MP3 en 320, 256, 192 ou 128 kbps, et FLAC', 'Windows : miniature affichée dès l’analyse et pendant le téléchargement', 'Windows et Android : message plus clair quand un lien est incomplet, avec ajout de « https:// » en un geste']],
+  ['0.1.0', 'Préversion de test · 14 octobre 2026', '', ['Première préversion Windows et Android', 'Analyse de lien, choix du format, file de téléchargements avec reprise', 'Windows : pages de sites vidéo (yt-dlp), conversion MP3, bibliothèque avec miniatures, lecteur, navigateur intégré']],
+];
+const SHORT_EN = { 'Windows et Android': 'Windows & Android', 'En préparation': 'In progress' };
+
+const T = {
+  fr: {
+    navGet: 'Obtenir', navListen: 'Écouter', navLibrary: 'Bibliothèque', navVersions: 'Versions', navCta: 'Télécharger',
+    verKicker: 'Journal des versions', verTitle: 'Ce qui a changé, version par version.', verCurrent: 'Actuelle', verPlanned: 'Prévu', next: 'Prochaines',
+    h1a: 'Téléchargez une fois.', h1b: 'Écoutez hors ligne.',
+    sub: 'Collez un lien, choisissez le format, gardez le fichier. Miarina Media range vidéos et musique dans une bibliothèque sur votre appareil et les lit dans son propre lecteur : albums, playlists, pistes audio, sous-titres et égaliseur. Sur Windows et Android.',
+    ctaWin: 'Télécharger pour Windows', ctaAnd: 'Android (APK)',
+    heroMeta: 'Windows 0.1.8 · Android 0.1.7 · préversions gratuites',
+    tabGet: 'Obtenir', tabListen: 'Écouter',
+    analyze: 'Analyser', analyzing: 'Analyse…',
+    demoFile: 'big_buck_bunny.mp3', demoRecent: 'Ajoutés récemment', size: '24,8 Mo',
+    demoSaved: 'Enregistré dans Musique/Miarina',
+    steps: ['Lien', 'Format', 'Fichier', 'Lecture'],
+    fmt: [['ph ph-film-strip', 'Vidéo · MP4 1080p', 'H.264'], ['ph ph-music-note', 'Audio · MP3 320 kbps', '24,8 Mo'], ['ph ph-waveform', 'Audio · FLAC', 'conversion']],
+    featKicker: 'Fonctionnalités', featTitle: 'Deux espaces, une seule application.',
+    groups: [
+      { id: 'obtenir', num: '01', icon: 'ph ph-download-simple', title: 'Obtenir', lead: 'Du lien au fichier : analyse, choix du format, file de téléchargements.', items: [
+        ['Collez un lien', 'Miarina Media lit l’adresse et vous montre ce qui peut être téléchargé.'],
+        ['Choisissez le format', 'Qualité vidéo ou audio seul, avec la taille affichée lorsqu’elle est fournie ou estimable.'],
+        ['File de téléchargements', 'Mettez en pause et reprenez lorsque la source le permet. Sous Windows, la reprise est vérifiée, Miarina attend le retour du réseau et signale un disque plein ou un dossier inaccessible.'],
+        ['Torrents sur Windows', 'Ajoutez un torrent ou un lien magnet, choisissez les fichiers, réglez les débits et arrêtez le partage quand vous le souhaitez.'],
+        ['Depuis Chrome ou Edge', 'L’extension Windows envoie les liens que vous choisissez vers Miarina, même lorsque l’application est fermée. Installation en mode développeur.'],
+      ] },
+      { id: 'ecouter', num: '02', icon: 'ph ph-music-notes', title: 'Écouter', lead: 'Un vrai lecteur pour ce que vous gardez, et pour la musique déjà présente sur l’appareil.', items: [
+        ['Bibliothèque musicale', 'Sous Windows et Android : albums, artistes, dossiers et recherche, avec les pochettes des fichiers. Sous Windows, éditeur de tags et choix de pochette.'],
+        ['Playlists et favoris', 'Playlists, favoris, file de lecture enregistrable en playlist. Sur Android, titres récents et plus écoutés ; sous Windows, import et export M3U.'],
+        ['Lecteur et égaliseur', 'Sous Windows, libVLC est fourni avec l’installateur : pistes audio, sous-titres SRT et VTT, vitesse, égaliseur à 6 bandes. Sous Android, la musique continue écran éteint, avec les commandes de l’écran verrouillé et du casque Bluetooth.'],
+        ['Vos fichiers aussi', 'Sous Windows, ouvrez des fichiers, importez un dossier ou déposez-les sur la fenêtre. Sous Android, autorisez l’accès à la musique et aux vidéos du téléphone : elles rejoignent la bibliothèque, en lecture seule.'],
+      ] },
+    ],
+    libKicker: 'Bibliothèque et lecteur', libTitle: 'Tout ce que vous gardez, au même endroit.',
+    libBody: 'Les téléchargements vidéo et audio arrivent dans la bibliothèque, avec vos propres fichiers si vous les ajoutez. La musique se range par albums, artistes et dossiers, avec pochettes, playlists et favoris. Tout se lit hors ligne.',
+    shots: [
+      ['ph ph-vinyl-record', 'Windows · Albums', 'Bibliothèque Windows : albums, artistes, dossiers et playlists, avec les pochettes des fichiers et un éditeur de tags.'],
+      ['ph ph-play-circle', 'Windows · En lecture', 'Le lecteur libVLC lit aussi MKV, HEVC et AVI, avec pistes audio, sous-titres, vitesse, égaliseur et minuteur. La lecture reprend où vous l’aviez laissée.'],
+      ['ph ph-android-logo', 'Android', 'Sur Android, la musique continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.'],
+    ],
+    dlTitle: 'Télécharger Miarina Media', dlLead: 'Gratuit, sans publicité, sans compte. L’application n’envoie ni statistiques d’usage ni rapports de plantage.',
+    dl: [
+      { icon: 'ph ph-windows-logo', title: 'Windows 0.1.8', req: 'Windows 10 / 11 · 64 bits · 91,2 Mio', file: 'MiarinaMedia-0.1.8-x64-setup.exe', hash: 'e90bc6e2…5a7d49', href: '/downloads/MiarinaMedia-0.1.8-x64-setup.exe?v=e90bc6e2', cta: 'Installateur .exe' },
+      { icon: 'ph ph-android-logo', title: 'Android 0.1.7', req: 'Android 7.0 et plus · 126,8 Mio', file: 'MiarinaMedia-0.1.7.apk', hash: 'b9a04fba…8eba23', href: '/downloads/MiarinaMedia-0.1.7.apk?v=b9a04fba', cta: 'Fichier .apk' },
+    ],
+    dlNote: 'Préversions non signées : Windows SmartScreen peut afficher un avertissement. Comparez l’empreinte SHA-256 avant d’installer.',
+    legal: 'Téléchargez uniquement les contenus dont vous détenez les droits ou dont la licence l’autorise.',
+    privacy: 'Confidentialité', licences: 'Licences',
+  },
+  en: {
+    navGet: 'Get', navListen: 'Listen', navLibrary: 'Library', navVersions: 'Releases', navCta: 'Download',
+    verKicker: 'Release notes', verTitle: 'What changed, release by release.', verCurrent: 'Current', verPlanned: 'Planned', next: 'Upcoming',
+    h1a: 'Download once.', h1b: 'Listen offline.',
+    sub: 'Paste a link, pick a format, keep the file. Miarina Media files your videos and music in a library on your device and plays them in its own player: albums, playlists, audio tracks, subtitles and equalizer. On Windows and Android.',
+    ctaWin: 'Download for Windows', ctaAnd: 'Android (APK)',
+    heroMeta: 'Windows 0.1.8 · Android 0.1.7 · free previews',
+    tabGet: 'Get', tabListen: 'Listen',
+    analyze: 'Analyze', analyzing: 'Analyzing…',
+    demoFile: 'big_buck_bunny.mp3', demoRecent: 'Recently added', size: '24.8 MB',
+    demoSaved: 'Saved to Music/Miarina',
+    steps: ['Link', 'Format', 'File', 'Play'],
+    fmt: [['ph ph-film-strip', 'Video · MP4 1080p', 'H.264'], ['ph ph-music-note', 'Audio · MP3 320 kbps', '24.8 MB'], ['ph ph-waveform', 'Audio · FLAC', 'conversion']],
+    featKicker: 'Features', featTitle: 'Two spaces, one app.',
+    groups: [
+      { id: 'obtenir', num: '01', icon: 'ph ph-download-simple', title: 'Get', lead: 'From link to file: analysis, format choice, download queue.', items: [
+        ['Paste a link', 'Miarina Media reads the address and shows you what can be downloaded.'],
+        ['Pick the format', 'Video quality or audio only, with the size shown when the source provides or allows an estimate.'],
+        ['Download queue', 'Pause and resume when the source allows it. On Windows, resume is verified, Miarina waits for the network to return and flags a full disk or an unreachable folder.'],
+        ['Torrents on Windows', 'Add a torrent or magnet link, pick the files, set the rates and stop seeding whenever you want.'],
+        ['From Chrome or Edge', 'The Windows extension sends the links you choose to Miarina, even when the app is closed. Installed in developer mode.'],
+      ] },
+      { id: 'ecouter', num: '02', icon: 'ph ph-music-notes', title: 'Listen', lead: 'A real player for what you keep, and for the music already on your device.', items: [
+        ['Music library', 'On Windows and Android: albums, artists, folders and search, with the files’ cover art. On Windows, a tag editor and cover picker.'],
+        ['Playlists and favourites', 'Playlists, favourites, a play queue you can save as a playlist. On Android, recent and most played; on Windows, M3U import and export.'],
+        ['Player and equalizer', 'On Windows, libVLC ships with the installer: audio tracks, SRT and VTT subtitles, speed, 6-band equalizer. On Android, music keeps playing with the screen off, with lock-screen and Bluetooth headset controls.'],
+        ['Your files too', 'On Windows, open files, import a folder or drop them on the window. On Android, allow access to the phone’s music and videos: they join the library, read-only.'],
+      ] },
+    ],
+    libKicker: 'Library and player', libTitle: 'Everything you keep, in one place.',
+    libBody: 'Video and audio downloads land in the library, along with your own files if you add them. Music is sorted by album, artist and folder, with cover art, playlists and favourites. Everything plays offline.',
+    shots: [
+      ['ph ph-vinyl-record', 'Windows · Albums', 'Windows library: albums, artists, folders and playlists, with the files’ cover art and a tag editor.'],
+      ['ph ph-play-circle', 'Windows · Now playing', 'The libVLC player also handles MKV, HEVC and AVI, with audio tracks, subtitles, speed, equalizer and sleep timer. Playback resumes where you left off.'],
+      ['ph ph-android-logo', 'Android', 'On Android, music keeps playing with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.'],
+    ],
+    dlTitle: 'Download Miarina Media', dlLead: 'Free, no ads, no account. The app sends no usage statistics and no crash reports.',
+    dl: [
+      { icon: 'ph ph-windows-logo', title: 'Windows 0.1.8', req: 'Windows 10 / 11 · 64-bit · 91.2 MiB', file: 'MiarinaMedia-0.1.8-x64-setup.exe', hash: 'e90bc6e2…5a7d49', href: '/downloads/MiarinaMedia-0.1.8-x64-setup.exe?v=e90bc6e2', cta: '.exe installer' },
+      { icon: 'ph ph-android-logo', title: 'Android 0.1.7', req: 'Android 7.0 or later · 126.8 MiB', file: 'MiarinaMedia-0.1.7.apk', hash: 'b9a04fba…8eba23', href: '/downloads/MiarinaMedia-0.1.7.apk?v=b9a04fba', cta: '.apk file' },
+    ],
+    dlNote: 'Unsigned previews: Windows SmartScreen may show a warning. Compare the SHA-256 fingerprint before installing.',
+    legal: 'Only download content you hold the rights to or whose licence allows it.',
+    privacy: 'Privacy', licences: 'Licences',
+  },
+};
+
+const h = React.createElement;
+const BARS = [[6, 10.5, 4], [4, 14.75, 6], [6, 19, 4]];
+function Logo(size, mode, key) {
+  const bars = BARS.map(([x, y, w], i) => h('rect', {
+    key: i, x, y, width: w, height: 2.5, rx: 1.25, fill: '#35C9BD',
+    style: mode === 'intro' ? { animation: `mmBar .55s cubic-bezier(.2,.8,.2,1) ${0.08 + i * 0.1}s both` }
+      : mode === 'loop' ? { animation: `mmFlow 2.8s ease-in-out ${i * 0.16}s infinite` } : null,
+  }));
+  const play = h('path', {
+    d: 'M13 9.5v13l10-6.5z', fill: '#FF7A45',
+    style: mode === 'intro' ? { transformBox: 'fill-box', transformOrigin: 'center', animation: 'mmPlay .6s cubic-bezier(.2,.8,.2,1) .45s both' }
+      : mode === 'loop' ? { transformBox: 'fill-box', transformOrigin: 'center', animation: 'mmPulse 2.8s ease-in-out infinite' } : null,
+  });
+  return h('svg', { key, width: size, height: size, viewBox: '0 0 32 32', 'aria-hidden': true, style: { display: 'block', flex: 'none' } },
+    h('rect', { width: 32, height: 32, rx: 8, fill: '#182530' }), bars, play);
+}
+
+class Component extends DCLogic {
+  state = { lang: 'fr', t: 0, shot: 0, shotT: 0, logoKey: 0, wide: true, vw: 1280, ver: 1 };
+
+  componentDidMount() {
+    try { const s = localStorage.getItem('miarina-landing-lang'); if (s === 'en' || s === 'fr') this.setState({ lang: s }); } catch (e) {}
+    this.reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (this.reduced) this.setState({ t: 10 });
+    const onResize = () => this.setState({ wide: innerWidth >= 860, vw: innerWidth });
+    onResize();
+    addEventListener('resize', onResize);
+    this.cleanup = [() => removeEventListener('resize', onResize)];
+    let last = performance.now();
+    this.timer = setInterval(() => {
+      if (this.reduced) return;
+      const now = performance.now(); const dt = (now - last) / 1000; last = now;
+      this.setState(s => {
+        let shotT = s.shotT + dt, shot = s.shot;
+        if (shotT > 6) { shotT = 0; shot = (shot + 1) % 3; }
+        return { t: (s.t + dt) % LOOP, shotT, shot };
+      });
+    }, 60);
+    this.cleanup.push(() => clearInterval(this.timer));
+    const els = [...document.querySelectorAll('[data-reveal]')];
+    if (!this.reduced && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver(entries => entries.forEach(e => {
+        if (!e.isIntersecting) return;
+        const el = e.target;
+        el.style.opacity = '1'; el.style.transform = 'none';
+        io.unobserve(el);
+      }), { rootMargin: '0px 0px -8% 0px' });
+      els.forEach(el => {
+        const d = +el.getAttribute('data-reveal') || 0;
+        el.style.transition = `opacity .8s cubic-bezier(.2,.8,.2,1) ${d}ms, transform .8s cubic-bezier(.2,.8,.2,1) ${d}ms`;
+        el.style.opacity = '0'; el.style.transform = 'translateY(18px)';
+        io.observe(el);
+      });
+      this.cleanup.push(() => io.disconnect());
+    }
+  }
+  componentWillUnmount() { (this.cleanup || []).forEach(f => f()); }
+
+  setLang(lang) { this.setState({ lang }); try { localStorage.setItem('miarina-landing-lang', lang); } catch (e) {} }
+
+  demo(tx) {
+    const t = this.state.t;
+    const clamp = v => Math.max(0, Math.min(1, v));
+    const typeP = clamp(t / 2.6);
+    const analyzing = t >= 2.6 && t < 3.3;
+    const fmtShown = t >= 3.3 && t < 8;
+    const sel = t >= 4.5 ? 1 : 0;
+    const dlP = clamp((t - 5.4) / 2.4);
+    const listen = t >= 8.2;
+    const playT = Math.max(0, t - 8.2);
+    const sec = 310 + Math.floor(playT);
+    const mm = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+    const step = listen ? 3 : t >= 5.4 ? 2 : t >= 3.3 ? 1 : 0;
+    const on = 'var(--color-text)', off = 'var(--color-neutral-500)';
+    return {
+      getTabColor: listen ? off : 'var(--color-accent-300)', getTabBg: listen ? 'transparent' : 'color-mix(in srgb, var(--color-accent) 16%, transparent)',
+      listenTabColor: listen ? 'var(--mm-play-300)' : off, listenTabBg: listen ? 'color-mix(in srgb, var(--mm-play) 16%, transparent)' : 'transparent',
+      getOp: listen ? 0 : 1, getTf: listen ? 'translateX(-24px)' : 'none',
+      listenOp: listen ? 1 : 0, listenTf: listen ? 'none' : 'translateX(24px)',
+      typed: URL_TXT.slice(0, Math.round(typeP * URL_TXT.length)) || '\u200b',
+      caretOp: t < 2.6 ? 1 : 0,
+      fieldBorder: t < 2.6 ? 'var(--color-accent-700)' : 'var(--color-neutral-800)',
+      analyzeLabel: analyzing ? tx.analyzing : tx.analyze,
+      analyzeBg: analyzing ? 'color-mix(in srgb, var(--color-accent) 18%, transparent)' : 'transparent',
+      fmtOp: fmtShown ? 1 : 0, fmtTf: fmtShown ? 'none' : 'translateY(8px)',
+      formats: tx.fmt.map(([icon, label, meta], i) => ({
+        icon, label, meta,
+        bg: i === sel && fmtShown ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
+        ring: i === sel && fmtShown ? 'inset 0 0 0 1px var(--color-accent)' : 'inset 0 0 0 1px var(--color-neutral-800)',
+      })),
+      dlOp: t >= 5.4 ? 1 : 0,
+      barW: `${(dlP * 100).toFixed(1)}%`,
+      pctLabel: dlP >= 1 ? tx.size : `${Math.round(dlP * 100)} %`,
+      newOp: listen ? 1 : 0, newTf: listen ? 'none' : 'translateY(10px) scale(.94)',
+      timeLabel: `${mm(sec)} / 10:35`,
+      playW: `${((sec / 635) * 100).toFixed(2)}%`,
+      steps: tx.steps.map((label, i) => ({
+        label,
+        color: i === step ? (i === 3 ? 'var(--mm-play-300)' : 'var(--color-accent-200)') : i < step ? 'var(--color-neutral-400)' : 'var(--color-neutral-600)',
+        bg: i === step ? (i === 3 ? 'var(--mm-play-900)' : 'var(--color-accent-900)') : 'transparent',
+      })),
+      playing: listen,
+    };
+  }
+
+  renderVals() {
+    const { lang, shot, shotT, logoKey, wide, vw, ver } = this.state;
+    const tx = T[lang];
+    const d = this.demo(tx);
+    const roomy = vw >= 520, twoCol = vw >= 980;
+    const en = lang === 'en';
+    const enDate = s => s.replace('Préversion de test', 'Test preview').replace('En préparation', 'In progress')
+      .replace(/(\d+) (octobre|novembre) (\d+)/, (m, d, mo, y) => d + ' ' + (mo === 'octobre' ? 'October' : 'November') + ' ' + y);
+    const sel = LOG[ver];
+    const fade = 'linear-gradient(to bottom, #000 82%, transparent)';
+    const fadeX = 'linear-gradient(to right, #000 88%, transparent)';
+    const vl = {
+      dir: twoCol ? 'column' : 'row',
+      listMax: twoCol ? '300px' : '100%',
+      listH: twoCol ? '380px' : 'none',
+      mask: twoCol ? fade : fadeX,
+      items: LOG.map(([name, date, kind], i) => {
+        const [vname, plat] = name.split(' · ');
+        const dshort = date.split(' · ').pop();
+        const active = i === ver;
+        return {
+          version: kind === 'planned' ? tx.next : vname,
+          short: twoCol ? (en ? (SHORT_EN[plat] || plat || enDate(dshort)) : (plat || dshort)) : '',
+          active,
+          color: active ? 'var(--color-text)' : 'var(--color-neutral-400)',
+          bg: active ? 'color-mix(in srgb, var(--color-accent) 12%, transparent)' : 'transparent',
+          dot: kind === 'current' ? 'var(--color-accent)' : kind === 'planned' ? 'transparent' : 'var(--color-neutral-700)',
+          dotRing: kind === 'planned' ? 'inset 0 0 0 1px var(--color-neutral-500)' : 'none',
+          onClick: () => this.setState({ ver: i }),
+        };
+      }),
+    };
+    const vd = {
+      name: sel[2] === 'planned' ? tx.next : (en ? sel[0].replace('Windows et Android', 'Windows & Android') : sel[0]),
+      date: en ? enDate(sel[1]) : sel[1],
+      isCurrent: sel[2] === 'current', isPlanned: sel[2] === 'planned',
+      items: sel[3].map(text => ({ text })),
+    };
+    const eq = h('span', { style: { display: 'flex', gap: 2, alignItems: 'flex-end', height: 14 } },
+      [0.9, 0.62, 1.1, 0.75].map((dur, i) => h('i', { key: i, style: {
+        width: 3, height: '100%', borderRadius: 1, background: 'var(--mm-play)', transformOrigin: 'bottom',
+        animation: `mmEq ${dur}s ease-in-out ${-i * 0.3}s infinite alternate`, animationPlayState: d.playing ? 'running' : 'paused',
+      } })));
+    const accentOn = 'var(--color-accent)';
+    return {
+      t: tx, d, eq, wide, roomy, vl, vd, heroAlign: twoCol ? 'end' : 'start',
+      navLogo: Logo(26, 'intro', 'nav' + logoKey),
+      tinyLogo: Logo(18, null, 'tiny'),
+      bigLogo: Logo(56, 'loop', 'big'),
+      replayLogo: () => this.setState(s => ({ logoKey: s.logoKey + 1 })),
+      isFr: lang === 'fr', isEn: lang === 'en',
+      frColor: lang === 'fr' ? accentOn : 'var(--color-neutral-400)',
+      enColor: lang === 'en' ? accentOn : 'var(--color-neutral-400)',
+      frRing: lang === 'fr' ? 'inset 0 0 0 1px var(--color-accent)' : 'none',
+      enRing: lang === 'en' ? 'inset 0 0 0 1px var(--color-accent)' : 'none',
+      setFr: () => this.setLang('fr'), setEn: () => this.setLang('en'),
+      groups: tx.groups.map((g, gi) => ({ ...g, tone: gi === 1 ? 'var(--mm-play)' : 'var(--color-accent)', items: g.items.map(([title, text]) => ({ title, text })) })),
+      shots: tx.shots.map(([icon, label], i) => ({
+        icon, label, active: i === shot, tone: i === 1 ? 'var(--mm-play)' : 'var(--color-accent)',
+        color: i === shot ? 'var(--color-text)' : 'var(--color-neutral-400)',
+        barW: i === shot ? `${Math.min(100, (shotT / 6) * 100).toFixed(1)}%` : '0%',
+        onClick: () => this.setState({ shot: i, shotT: 0 }),
+      })),
+      sv: {
+        libOp: shot === 0 ? 1 : shot === 2 ? 0.4 : 0,
+        libTf: shot === 0 ? 'scale(1)' : 'scale(1.03)',
+        heroOp: shot === 1 ? 1 : 0,
+        heroTf: shot === 1 ? 'scale(1)' : 'scale(1.03)',
+        phoneTf: shot === 2 ? 'translateY(-6%) scale(1.12)' : 'translateY(0) scale(.94)',
+        phoneOp: shot === 2 ? 1 : 0.9,
+        phoneFilter: shot === 2 ? 'none' : 'brightness(.7)',
+        caption: tx.shots[shot][2],
+        phoneW: roomy ? '22%' : '30%', padR: roomy ? '9%' : '14%', tabWrap: roomy ? 'wrap' : 'nowrap',
+      },
+      downloads: tx.dl,
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -40,11 +40,12 @@ export function Confidentialite() {
             automatique de code d’extraction à l’exécution.
           </li>
           <li>
-            <strong>Mise à jour de l’application :</strong> Miarina consulte media.miarina.org au démarrage
-            et toutes les six heures lorsque l’interface est visible, ainsi que sur demande dans les réglages.
-            Le serveur reçoit les données normales de connexion, dont l’adresse IP. Le manifeste est signé ;
-            le téléchargement et l’installation nécessitent votre action. Android demande l’autorisation
-            d’installer une mise à jour depuis Miarina, puis une confirmation système.
+            <strong>Mise à jour de l’application :</strong> Miarina consulte media.miarina.org au
+            démarrage et toutes les six heures lorsque l’interface est visible, ainsi que sur
+            demande dans les réglages. Le serveur reçoit les données normales de connexion, dont
+            l’adresse IP. Le manifeste est signé ; le téléchargement et l’installation nécessitent
+            votre action. Android demande l’autorisation d’installer une mise à jour depuis Miarina,
+            puis une confirmation système.
           </li>
           <li>
             <strong>Mise à jour de yt-dlp (Windows) :</strong> au plus une fois par jour,
@@ -70,10 +71,10 @@ export function Confidentialite() {
           </li>
           <li>
             <strong>Torrents (Windows) :</strong> après activation de la session, l’application
-            contacte des pairs, trackers et nœuds DHT. Votre adresse IP et les identifiants
-            des torrents sont visibles par ces participants. Les morceaux téléchargés peuvent
-            être partagés, y compris après la fin du téléchargement. Pause ou « Stop all torrents
-            and sharing » arrête ce partage. Les données de reprise restent sur votre appareil.
+            contacte des pairs, trackers et nœuds DHT. Votre adresse IP et les identifiants des
+            torrents sont visibles par ces participants. Les morceaux téléchargés peuvent être
+            partagés, y compris après la fin du téléchargement. Pause ou « Stop all torrents and
+            sharing » arrête ce partage. Les données de reprise restent sur votre appareil.
           </li>
           <li>
             <strong>Extension Chrome/Edge :</strong> elle transmet uniquement les liens que vous

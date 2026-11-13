@@ -35,6 +35,29 @@ export function Logo({ size }: { size: number }) {
   );
 }
 
+/**
+ * Logo v2.0 for the landing page (design_handoff_landing_v4): night tile,
+ * teal bars, coral play. `intro` plays once (top bar), `loop` keeps the bars
+ * flowing into the play (download section). Animations are CSS classes.
+ */
+export function MotionLogo({ size, mode }: { size: number; mode?: 'intro' | 'loop' }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      aria-hidden="true"
+      className={mode ? `mlogo mlogo-${mode}` : 'mlogo'}
+    >
+      <rect width="32" height="32" rx="8" fill="#182530" />
+      <rect className="mlogo-bar" x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD" />
+      <rect className="mlogo-bar" x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD" />
+      <rect className="mlogo-bar" x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD" />
+      <path className="mlogo-play" d="M13 9.5v13l10-6.5z" fill="#FF7A45" />
+    </svg>
+  );
+}
+
 /** `home`: in-page anchors; otherwise links back to the home page. */
 export function TopBar({ home }: { home: boolean }) {
   const to = (anchor: string) => (home ? `#${anchor}` : `/#${anchor}`);
@@ -46,10 +69,10 @@ export function TopBar({ home }: { home: boolean }) {
           <span>Miarina Media</span>
         </a>
         <div className="topbar-links">
-          <a href={to('fonctions')}>Fonctionnalités</a>
-          {home && <a href="#navigateur">Navigateur</a>}
-          <a href={to('plateformes')}>Plateformes</a>
-          <a href={to('faq')}>FAQ</a>
+          <a href={to('obtenir')}>Obtenir</a>
+          <a href={to('ecouter')}>Écouter</a>
+          <a href={to('bibliotheque')}>Bibliothèque</a>
+          <a href={to('versions')}>Versions</a>
         </div>
         <a href={to('telecharger')} className="btn-small">
           <Icon name="download" />

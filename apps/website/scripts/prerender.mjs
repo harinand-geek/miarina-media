@@ -1,6 +1,6 @@
 // Writes one static HTML file per route into dist/, from the client build's
 // index.html and the server bundle. Runs after both `vite build` steps.
-import { readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const root = fileURLToPath(new URL('..', import.meta.url));
@@ -16,11 +16,16 @@ for (const path of paths) {
   const preloads = rendered.html.match(/^(<link [^>]*\/>)*/)[0];
   const html = rendered.html.slice(preloads.length);
   const head = preloads ? `${rendered.head}\n    ${preloads.replace(/\/></g, '/>\n    <')}` : rendered.head;
-  const page = template.replace('<!--head-->', () => head).replace('<!--app-->', () => html);
+  const page = template
+    .replace('<html lang="fr">', () => `<html lang="${rendered.lang}">`)
+    .replace('<!--head-->', () => head)
+    .replace('<!--app-->', () => html);
   if (page.includes('<!--head-->') || page.includes('<!--app-->')) {
     throw new Error(`placeholders left in ${path}`);
   }
-  const file = path === '/' ? 'index.html' : path.slice(1);
+  // `/en/` → en/index.html (served as a directory index).
+  const file = path.endsWith('/') ? `${path.slice(1)}index.html` : path.slice(1);
+  await mkdir(`${dist}${file}`.replace(/[^/]+$/, ''), { recursive: true });
   await writeFile(`${dist}${file}`, page);
   console.log(`prerendered ${path} -> dist/${file}`);
 }

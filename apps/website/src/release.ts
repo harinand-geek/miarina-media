@@ -11,18 +11,18 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.8',
+  version: '0.1.9',
   windows: {
-    version: '0.1.8',
-    name: 'MiarinaMedia-0.1.8-x64-setup.exe',
+    version: '0.1.9',
+    name: 'MiarinaMedia-0.1.9-x64-setup.exe',
     size: '91,2 Mio',
-    sha256: 'e90bc6e275bf8f0d8bdd955a56b11bed459bb03ec1a6406141297d96335a7d49',
+    sha256: '728f3da58c54f6f686eb3ce3ae8d5dfc9720088f64a74e36639057166c1e6c6e',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.7',
-    name: 'MiarinaMedia-0.1.7.apk',
-    size: '126,8 Mio',
-    sha256: 'b9a04fba921bffa60eca104adc219af25de2814aaf1507a52ca7a9b85c8eba23',
+    version: '0.1.9',
+    name: 'MiarinaMedia-0.1.9.apk',
+    size: '128,3 Mio',
+    sha256: 'bbfdf3dcf9c31d62d709b4c98cb2f7272f4111ae9bc8de529e717e7634845585',
   } satisfies ReleaseFile,
 };
 
