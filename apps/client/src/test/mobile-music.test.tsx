@@ -7,6 +7,7 @@ import { useDownloads } from '../stores/downloads';
 import { useLibrary } from '../stores/library';
 import { useSettings } from '../stores/settings';
 import { useMobilePlayback } from '../stores/mobilePlayback';
+import { usePlaylists } from '../stores/playlists';
 import { useUi } from '../stores/ui';
 
 let stop: () => void = () => {};
@@ -18,6 +19,7 @@ beforeEach(async () => {
   useDownloads.setState(useDownloads.getInitialState(), true);
   useLibrary.setState(useLibrary.getInitialState(), true);
   useSettings.setState(useSettings.getInitialState(), true);
+  usePlaylists.setState(usePlaylists.getInitialState(), true);
   stop = useLibrary.getState().init();
   await waitFor(() => expect(useLibrary.getState().ready).toBe(true));
 });
@@ -41,8 +43,8 @@ describe('Android v2 Music', () => {
       'aria-selected',
       'true',
     );
-    expect(within(tabs).getByRole('tab', { name: 'Playlists' })).toBeDisabled();
-    expect(within(tabs).getByRole('tab', { name: 'Favorites' })).toBeDisabled();
+    expect(within(tabs).getByRole('tab', { name: 'Playlists' })).toBeEnabled();
+    expect(within(tabs).getByRole('tab', { name: 'Favorites' })).toBeEnabled();
     expect(await screen.findByText('3 songs')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
@@ -84,6 +86,77 @@ describe('Android v2 Music', () => {
     await waitFor(() =>
       expect(useUi.getState().nowPlaying?.title).toBe('Voyager Golden Record — Sounds of Earth'),
     );
+  });
+});
+
+describe('Android v2 Music › Favorites and Playlists', () => {
+  it('marks a favorite from the ⋮ sheet and lists it in Favorites', async () => {
+    const user = await openTab(/Music/);
+    expect(await screen.findByText('3 songs')).toBeInTheDocument();
+    await user.click(screen.getAllByRole('button', { name: 'More actions' })[0]!);
+    await user.click(screen.getByRole('button', { name: 'Add to favorites' }));
+    await waitFor(() =>
+      expect(useLibrary.getState().items.filter((m) => m.favorite)).toHaveLength(1),
+    );
+
+    await user.click(screen.getByRole('tab', { name: 'Favorites' }));
+    expect(await screen.findByText('1 song')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'More actions' }));
+    await user.click(screen.getByRole('button', { name: 'Remove from favorites' }));
+    expect(await screen.findByText('No favorites yet')).toBeInTheDocument();
+  });
+
+  it('creates a playlist, adds a song, plays it, removes it and deletes the playlist', async () => {
+    const user = await openTab(/Music/);
+    expect(await screen.findByText('3 songs')).toBeInTheDocument();
+    await user.click(screen.getByRole('tab', { name: 'Playlists' }));
+    expect(screen.getByRole('button', { name: 'Recent (planned)' })).toBeDisabled();
+    await user.click(await screen.findByRole('button', { name: 'New playlist' }));
+    let dialog = screen.getByRole('dialog');
+    await user.type(within(dialog).getByRole('textbox', { name: 'Playlist name' }), 'Road');
+    await user.click(within(dialog).getByRole('button', { name: 'Create' }));
+    expect(await screen.findByText('My playlists · 1')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('tab', { name: 'Songs' }));
+    await user.click((await screen.findAllByRole('button', { name: 'More actions' }))[0]!);
+    await user.click(screen.getByRole('button', { name: 'Add to playlist…' }));
+    dialog = await screen.findByRole('dialog');
+    await waitFor(() =>
+      expect(within(dialog).getByRole('radio', { name: /Road/ })).toHaveAttribute(
+        'aria-checked',
+        'true',
+      ),
+    );
+    await user.click(within(dialog).getByRole('button', { name: 'Add' }));
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+
+    await user.click(screen.getByRole('tab', { name: 'Playlists' }));
+    await user.click(await screen.findByRole('button', { name: /Road/ }));
+    expect(await screen.findByRole('heading', { name: 'Road' })).toBeInTheDocument();
+    await user.click(await screen.findByRole('button', { name: /Play all/ }));
+    expect(useMobilePlayback.getState().queue).toHaveLength(1);
+    act(() => useUi.setState({ mobilePlayerExpanded: false }));
+
+    await user.click(screen.getByRole('button', { name: /^Remove from playlist/ }));
+    expect(await screen.findByText('Empty playlist')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Playlist actions' }));
+    await user.click(screen.getByRole('menuitem', { name: /Delete playlist/ }));
+    const sheet = screen.getByRole('dialog', { name: 'Delete “Road”?' });
+    await user.click(within(sheet).getByRole('button', { name: 'Delete playlist' }));
+    expect(await screen.findByText('My playlists · 0')).toBeInTheDocument();
+  });
+
+  it('saves the play queue as a playlist', async () => {
+    const user = await openTab(/Music/);
+    expect(await screen.findByText('3 songs')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
+    await user.click(await screen.findByRole('button', { name: /Queue/ }));
+    await user.click(screen.getByRole('button', { name: 'Save as playlist' }));
+    const dialog = screen.getByRole('dialog', { name: 'New playlist' });
+    await user.type(within(dialog).getByRole('textbox', { name: 'Playlist name' }), 'Mix');
+    await user.click(within(dialog).getByRole('button', { name: 'Create' }));
+    await waitFor(() => expect(usePlaylists.getState().list[0]?.count).toBe(3));
   });
 });
 

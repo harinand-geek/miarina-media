@@ -12,6 +12,7 @@ import { useUi } from '../../stores/ui';
 import { DeviceMediaCard } from './DeviceMediaCard';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
+import { PlaylistPage, PlaylistsTab } from './MobilePlaylists';
 import { useGroups } from './useGroups';
 import { useMobileMediaSheet } from './useMobileMediaSheet';
 
@@ -19,11 +20,11 @@ type MusicView = 'tracks' | 'playlists' | 'albums' | 'artists' | 'folders' | 'fa
 
 const VIEWS: { id: MusicView; label: MessageKey; by?: GroupBy; planned?: boolean }[] = [
   { id: 'tracks', label: 'songs' },
-  { id: 'playlists', label: 'playlists', planned: true },
+  { id: 'playlists', label: 'playlists' },
   { id: 'albums', label: 'albums', by: 'album' },
   { id: 'artists', label: 'artists', by: 'artist' },
   { id: 'folders', label: 'folders', by: 'folder' },
-  { id: 'favorites', label: 'favorites', planned: true },
+  { id: 'favorites', label: 'favorites' },
 ];
 
 const SORTS: Record<MediaSort, MessageKey> = {
@@ -55,14 +56,23 @@ export function MobileMusic() {
   const t = useT();
   const [view, setView] = useState<MusicView>('tracks');
   const [opened, setOpened] = useState<{ by: GroupBy; name: string } | null>(null);
+  const [playlist, setPlaylist] = useState<number | null>(null);
   const [searching, setSearching] = useState(false);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const { search, setSearch } = useLibrary();
   const by = VIEWS.find((v) => v.id === view)?.by ?? null;
 
   useEffect(() => {
-    useLibrary.getState().show('audio', opened);
-  }, [opened]);
+    useLibrary.getState().show('audio', opened, view === 'favorites');
+  }, [opened, view]);
+
+  if (playlist !== null) {
+    return (
+      <div className="relative flex flex-1 flex-col overflow-auto">
+        <PlaylistPage id={playlist} onBack={() => setPlaylist(null)} />
+      </div>
+    );
+  }
 
   if (opened) {
     return (
@@ -138,32 +148,43 @@ export function MobileMusic() {
         </div>
       </div>
       <div className="flex flex-1 flex-col px-4 pt-3.5">
-        {by ? (
+        {view === 'playlists' ? (
+          <PlaylistsTab onFavorites={() => setView('favorites')} onOpen={setPlaylist} />
+        ) : by ? (
           <Groups by={by} onOpen={(name) => setOpened({ by, name })} scroller={scroller} />
         ) : (
-          <Tracks scroller={scroller} />
+          <Tracks scroller={scroller} favorites={view === 'favorites'} />
         )}
       </div>
     </div>
   );
 }
 
-function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
+function Tracks({
+  scroller,
+  favorites,
+}: {
+  scroller: HTMLDivElement | null;
+  favorites: boolean;
+}) {
   const t = useT();
   const { items, sort, ready, search } = useLibrary();
-  const synced = useLibrary((s) => s.kind === 'audio' && s.group === null);
+  const synced = useLibrary(
+    (s) => s.kind === 'audio' && s.group === null && s.favorites === favorites,
+  );
   const list = synced ? items : [];
+  const source = favorites ? t('favorites') : t('songs');
 
   return (
     <>
-      <DeviceMediaCard />
+      {!favorites && <DeviceMediaCard />}
       <div className="flex items-center gap-2.5 pb-1">
         <button
           type="button"
           disabled={!list.length}
           onClick={() => {
             const order = shuffled(list);
-            playList(order, order[0], t('songs'));
+            playList(order, order[0], source);
           }}
           className="flex h-10 items-center gap-2 rounded-full bg-coral pl-3 pr-4 text-[14px] font-extrabold text-coral-ink disabled:opacity-50"
         >
@@ -195,10 +216,19 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
       </div>
       {ready && synced && list.length === 0 && (
         <p className="py-10 text-center text-[13.5px] text-muted">
-          {search.trim() ? t('noMatch', { q: search.trim() }) : t('emptyLibBody')}
+          {search.trim() ? (
+            t('noMatch', { q: search.trim() })
+          ) : favorites ? (
+            <>
+              <span className="block text-[15px] font-bold text-fg">{t('favoritesEmptyTitle')}</span>
+              {t('favoritesEmptyBody')}
+            </>
+          ) : (
+            t('emptyLibBody')
+          )}
         </p>
       )}
-      <TrackList items={list} scroller={scroller} source={t('songs')} />
+      <TrackList items={list} scroller={scroller} source={source} />
     </>
   );
 }
@@ -274,6 +304,14 @@ function TrackList({
                       .join(' · ')}
                   </span>
                 </span>
+                {m.favorite && (
+                  <Icon
+                    name="favorite"
+                    size={20}
+                    fill
+                    className="shrink-0 text-coral-hover"
+                  />
+                )}
               </button>
               <button
                 type="button"

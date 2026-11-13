@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Overlay';
 import { MobileRemoveSheet } from '../features/library/MobileRemoveSheet';
+import { PlaylistDialogs } from '../features/library/PlaylistDialogs';
 import { ToastHost } from '../components/ToastHost';
 import { MobileHome } from '../features/home/MobileHome';
 import { takeLaunch } from './launch';
@@ -67,13 +68,18 @@ export function MobileShell() {
   // Back closes the top panel, then goes back in the browser page, then
   // returns Home; on Home it leaves the app.
   // A minimized player keeps playing: Back never stops it.
-  useAndroidBack(removalOpen || playerExpanded || settingsOpen || tab !== 'home', () => {
-    if (removalOpen) useUi.getState().askRemoval(null);
-    else if (playerExpanded) useUi.setState({ mobilePlayerExpanded: false });
-    else if (settingsOpen) setSettingsOpen(false);
-    else if (tab === 'browser' && !sheetOpen && browserBack.current?.()) return;
-    else setTab('home');
-  });
+  const playlistDialog = useUi((s) => s.playlistDialog !== null);
+  useAndroidBack(
+    playlistDialog || removalOpen || playerExpanded || settingsOpen || tab !== 'home',
+    () => {
+      if (playlistDialog) useUi.setState({ playlistDialog: null });
+      else if (removalOpen) useUi.getState().askRemoval(null);
+      else if (playerExpanded) useUi.setState({ mobilePlayerExpanded: false });
+      else if (settingsOpen) setSettingsOpen(false);
+      else if (tab === 'browser' && !sheetOpen && browserBack.current?.()) return;
+      else setTab('home');
+    },
+  );
   // A link shared from another app opens its analysis on Home; a tapped
   // "Download complete" notification plays the file.
   const analyze = useUi((s) => s.analyze);
@@ -219,6 +225,7 @@ export function MobileShell() {
       <ToastHost position={tab === 'browser' ? 'browser' : 'mobile'} />
       <ConfirmDialog />
       <MobileRemoveSheet />
+      <PlaylistDialogs />
     </div>
   );
 }

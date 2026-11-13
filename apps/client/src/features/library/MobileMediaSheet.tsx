@@ -3,6 +3,8 @@ import { BottomSheet } from '../../components/Overlay';
 import { useT } from '../../i18n';
 import type { MediaRecord } from '../../services/types';
 import { formatBytes } from '../../stores/downloads';
+import { useLibrary } from '../../stores/library';
+import { useUi } from '../../stores/ui';
 import { qualityLabel } from './format';
 import { useMediaActions } from './useMediaActions';
 
@@ -26,6 +28,16 @@ export function MobileMediaSheet({
   const actions = useMediaActions();
   const items = [
     !inPlayer && { icon: 'play_arrow', label: t('play'), run: () => actions.open(media) },
+    media.kind === 'audio' && {
+      icon: 'favorite',
+      label: media.favorite ? t('removeFavorite') : t('addFavorite'),
+      run: () => void useLibrary.getState().toggleFavorite(media),
+    },
+    media.kind === 'audio' && {
+      icon: 'playlist_add',
+      label: t('addToPlaylist'),
+      run: () => useUi.setState({ playlistDialog: { kind: 'add', ids: [media.id] } }),
+    },
     { icon: 'share', label: t('share'), run: () => actions.share(media) },
     { icon: 'open_in_new', label: t('openWith'), run: () => actions.openWith(media) },
     media.sourceUrl && {

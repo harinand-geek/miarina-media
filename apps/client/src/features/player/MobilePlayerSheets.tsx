@@ -145,9 +145,11 @@ export function QueueSheet({
       <div className="-mx-4 flex gap-2.5 border-t border-line-strong px-4 pt-3">
         <button
           type="button"
-          disabled
-          title={t('plannedHint')}
-          className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-full border border-line-strong bg-surface text-[13.5px] font-semibold opacity-50"
+          disabled={queue.length === 0}
+          onClick={() =>
+            useUi.setState({ playlistDialog: { kind: 'create', ids: queue.map((m) => m.id) } })
+          }
+          className="flex h-12 flex-1 items-center justify-center gap-1.5 rounded-full border border-line-strong bg-surface text-[13.5px] font-semibold disabled:opacity-50"
         >
           <Icon name="playlist_add" size={20} />
           {t('saveAsPlaylist')}
