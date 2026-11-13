@@ -18,7 +18,7 @@ Trois tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 
 
 Noter : modèle, version d'Android, constructeur (surcouche), batterie au départ.
 
-Médias : la bibliothèque Android ne montre que les fichiers **téléchargés par Miarina Media** (`Music/Miarina`, `Movies/Miarina`). Des fichiers copiés depuis le PC ou une autre app n'y apparaissent pas, même dans ces dossiers : la lecture des fichiers locaux du téléphone (MediaStore, AND-06) n'est pas encore faite. Avant la recette, télécharger dans l'app quelques titres audio et une vidéo. Le fichier `.srt` peut, lui, être copié n'importe où : il est choisi avec le sélecteur Android. Le changement de piste audio (étape 3.5) demande une vidéo multipiste téléchargée ; s'il n'y en a pas, noter l'étape « non testée ».
+Médias : avec la nouvelle version (AND-06, § 5), la musique et les vidéos déjà présentes sur le téléphone apparaissent après « Autoriser l'accès » dans Musique. Le fichier `.srt` peut être copié n'importe où : il est choisi avec le sélecteur Android. Pour le changement de piste audio (étape 3.5), copier une vidéo multipiste (par exemple `mkv multipistes.mkv` du corpus de référence, voir `docs/lots/LOT-L00-reference.md`) dans Films ou Téléchargements.
 
 ## 1. Démarrage (splash)
 
@@ -51,6 +51,16 @@ Médias : la bibliothèque Android ne montre que les fichiers **téléchargés p
 
 Réglages › Thème : Clair, Langue : English. Relancer l'app : le thème clair et l'anglais sont conservés ; Accueil et Musique conformes aux écrans 17–18 de la maquette.
 
+## 5. Musique du téléphone (AND-06)
+
+1. Musique › Titres : la carte « Musique du téléphone » apparaît ; « Autoriser l'accès » : Android demande « Musique et audio » puis « Vidéos ». Accepter : la carte disparaît, les titres du téléphone arrivent dans Titres, Albums, Artistes, Dossiers ; les vidéos dans Vidéos.
+2. Pas de sonneries ni de sons de notification dans la liste ; les pochettes et artistes s'affichent quand les fichiers en ont.
+3. Lire un titre du téléphone : lecture, écran verrouillé et notification comme pour un téléchargement.
+4. ⋮ › Retirer de la bibliothèque : le titre disparaît et ne revient pas après relance ; le fichier reste dans le téléphone.
+5. ⋮ › Supprimer le fichier sur un titre du téléphone : message « Android ne permet pas… » (attendu), rien n'est supprimé.
+6. Refus : Paramètres Android › Applications › Miarina Media › Autorisations › Musique et audio › Refuser ; revenir dans l'app : la carte revient avec « Ouvrir les réglages » ; autoriser depuis les réglages puis revenir : la carte disparaît.
+7. Ajouter un MP3 dans le téléphone (par l'app Fichiers ou par câble), relancer l'app : il apparaît.
+
 ## Résultats
 
 | Étape | OK / défaut | Remarque (modèle, version, capture si défaut) |
@@ -59,3 +69,4 @@ Réglages › Thème : Clair, Langue : English. Relancer l'app : le thème clair
 | 2 Audio durable | | |
 | 3 Vidéo plein écran | | |
 | 4 Clair / anglais | | |
+| 5 Musique du téléphone | | |

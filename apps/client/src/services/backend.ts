@@ -8,6 +8,7 @@ import { MockBackend } from '../dev/mockBackend';
 import { checkLink } from './link';
 import { inTauri } from './platform';
 import type {
+  DeviceAccess,
   AnalyzeResult,
   AppScreenRequest,
   BackendEvent,
@@ -117,6 +118,14 @@ export interface Backend {
   /** Android share sheet for a library file. */
   libraryShare(id: number): Promise<void>;
   libraryRescan(): Promise<void>;
+  /** Android: read access to the phone's own music and videos (AND-06). */
+  deviceMediaAccess(): Promise<DeviceAccess>;
+  /** Android: system permission dialogs, then indexing of the phone's media. */
+  deviceMediaRequest(): Promise<DeviceAccess>;
+  /** Android: indexes the phone's media again (with access only). */
+  deviceMediaSync(): Promise<DeviceAccess>;
+  /** Android: the app's page in the system settings. */
+  deviceMediaSettings(): Promise<void>;
   /** Opens the download folder in the file manager. */
   openDownloadFolder(): Promise<void>;
   onLibraryChanged(listener: () => void): () => void;
@@ -323,6 +332,10 @@ class TauriBackend implements Backend {
   libraryRescan = async () => {
     await call('library_rescan');
   };
+  deviceMediaAccess = () => call<DeviceAccess>('device_media_access');
+  deviceMediaRequest = () => call<DeviceAccess>('device_media_request');
+  deviceMediaSync = () => call<DeviceAccess>('device_media_sync');
+  deviceMediaSettings = () => call<void>('device_media_settings');
   onLibraryChanged = (listener: () => void) => onEvent<null>('library://changed', listener);
   mediaUrl = (path: string) => convertFileSrc(path);
   storageUsage = () => call<StorageUsage>('storage_usage');

@@ -4,6 +4,7 @@
 
 import { checkLink } from '../services/link';
 import type {
+  DeviceAccess,
   AnalyzeResult,
   AppScreenRequest,
   BackendEvent,
@@ -718,6 +719,20 @@ export class MockBackend {
   }
 
   async libraryRescan() {}
+
+  async deviceMediaAccess(): Promise<DeviceAccess> {
+    return { audio: 'unsupported', video: 'unsupported' };
+  }
+
+  async deviceMediaRequest(): Promise<DeviceAccess> {
+    return this.deviceMediaAccess();
+  }
+
+  async deviceMediaSync(): Promise<DeviceAccess> {
+    return this.deviceMediaAccess();
+  }
+
+  async deviceMediaSettings() {}
 
   async openDownloadFolder() {
     throw new Error('Opening folders is only available in the desktop app.');

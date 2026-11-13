@@ -863,6 +863,10 @@ fn library_error(err: library::LibraryError) -> CommandError {
         library::LibraryError::Missing => {
             CommandError::new("file_missing", "The file is no longer on disk.")
         }
+        library::LibraryError::NotAllowed => CommandError::new(
+            "delete_not_allowed",
+            "The system does not allow deleting this file. Remove it from the library instead.",
+        ),
         library::LibraryError::Tags(library::tags::TagWriteError::Unsupported) => {
             CommandError::new(
                 "tags_unsupported",

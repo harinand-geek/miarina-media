@@ -1,0 +1,11 @@
+# Automatically generated - DO NOT EDIT!
+
+[[permission]]
+identifier = "allow-device-media-settings"
+description = "Enables the device_media_settings command without any pre-configured scope."
+commands.allow = ["device_media_settings"]
+
+[[permission]]
+identifier = "deny-device-media-settings"
+description = "Denies the device_media_settings command without any pre-configured scope."
+commands.deny = ["device_media_settings"]

@@ -635,3 +635,56 @@ fn a_large_folder_is_indexed_quickly() {
     // A second scan finds them all known (hash lookup, no new rows).
     assert_eq!(h.library.scan(&h.root).unwrap().added, 0);
 }
+
+#[test]
+fn listed_files_are_indexed_and_vanished_ones_marked_missing() {
+    let h = harness();
+    let phone = h.root.join("..").join("Phone");
+    std::fs::create_dir_all(&phone).unwrap();
+    let song = phone.join("Song.mp3");
+    let clip = phone.join("Clip.mp4");
+    let removed = phone.join("Removed.mp3");
+    for f in [&song, &clip, &removed] {
+        std::fs::write(f, b"x").unwrap();
+    }
+    // A downloaded file of the app's own folder, not in the platform list.
+    let own = h.root.join("Own.mp3");
+    std::fs::write(&own, b"x").unwrap();
+    h.library.scan(&h.root).unwrap();
+
+    let listed = vec![
+        song.clone(),
+        song.clone(),
+        clip.clone(),
+        removed.clone(),
+        phone.join("gone.mp3"),
+        phone.join("notes.txt"),
+        PathBuf::from("relative.mp3"),
+    ];
+    let report = h.library.sync_listed(&listed).unwrap();
+    assert_eq!((report.added, report.missing), (3, 0));
+    assert_eq!(titles(&h), ["Clip", "Own", "Removed", "Song"]);
+
+    // Removed from the library: never added back by later lists.
+    let removed_id = id_of(&h, &removed);
+    h.library.remove(removed_id).unwrap();
+    assert_eq!(h.library.sync_listed(&listed).unwrap(), Default::default());
+
+    // The song is deleted on the phone: missing; the own file, absent from
+    // the list but present, is kept.
+    std::fs::remove_file(&song).unwrap();
+    let report = h.library.sync_listed(std::slice::from_ref(&clip)).unwrap();
+    assert_eq!((report.added, report.missing), (0, 1));
+    assert_eq!(titles(&h), ["Clip", "Own"]);
+
+    // Back on the phone: restored.
+    std::fs::write(&song, b"x").unwrap();
+    assert_eq!(
+        h.library
+            .sync_listed(&[song.clone(), clip])
+            .unwrap()
+            .restored,
+        1
+    );
+    assert_eq!(titles(&h), ["Clip", "Own", "Song"]);
+}

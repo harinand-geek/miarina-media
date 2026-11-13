@@ -7,6 +7,7 @@ mod browser;
 mod browser_bridge;
 mod commands;
 mod data_guard;
+mod device_media;
 mod download_notifications;
 mod m3u;
 #[cfg(target_os = "android")]
@@ -115,6 +116,7 @@ pub fn run() {
         .plugin(player::init())
         .plugin(shell::init())
         .plugin(media_tools::init())
+        .plugin(device_media::init())
         .plugin(download_notifications::init())
         .plugin(android_extractor::init())
         .plugin(browser::init());
@@ -254,6 +256,18 @@ pub fn run() {
             .filter(|d| *d == download_dir || d.is_dir())
             {
                 scan_library(&library, dir);
+            }
+            // Android: music and videos already on the phone, when access
+            // was granted before (AND-06). Never asks at startup.
+            #[cfg(target_os = "android")]
+            {
+                let handle = app.handle().clone();
+                let library = library.clone();
+                tauri::async_runtime::spawn(async move {
+                    if let Err(err) = device_media::sync(&handle, library).await {
+                        eprintln!("phone media index failed: {}", err.message);
+                    }
+                });
             }
 
             // Android: finished downloads in shared folders are published to
@@ -415,6 +429,10 @@ pub fn run() {
             commands::library_delete,
             commands::library_reveal,
             commands::library_rescan,
+            device_media::device_media_access,
+            device_media::device_media_request,
+            device_media::device_media_sync,
+            device_media::device_media_settings,
             commands::library_open_external,
             commands::library_share,
             commands::downloads_open_folder,

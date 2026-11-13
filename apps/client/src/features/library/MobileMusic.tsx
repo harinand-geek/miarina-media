@@ -9,6 +9,7 @@ import type { GroupBy, MediaGroup, MediaRecord, MediaSort } from '../../services
 import { useLibrary } from '../../stores/library';
 import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { useUi } from '../../stores/ui';
+import { DeviceMediaCard } from './DeviceMediaCard';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import { useGroups } from './useGroups';
@@ -155,6 +156,7 @@ function Tracks({ scroller }: { scroller: HTMLDivElement | null }) {
 
   return (
     <>
+      <DeviceMediaCard />
       <div className="flex items-center gap-2.5 pb-1">
         <button
           type="button"

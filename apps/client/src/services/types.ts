@@ -346,6 +346,16 @@ export interface LibraryOverview {
   downloadDir: string;
 }
 
+/**
+ * Android read access to the phone's media (AND-06): `granted`, `denied`
+ * (only the system settings can change it), `prompt` /
+ * `prompt-with-rationale`, or `unsupported` (desktop, preview).
+ */
+export interface DeviceAccess {
+  audio: string;
+  video: string;
+}
+
 export interface StorageUsage {
   downloadDir: string;
   disk: DiskSpace | null;

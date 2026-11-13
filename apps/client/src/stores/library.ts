@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { t } from '../i18n';
 import { backend } from '../services/backend';
 import type {
   GroupBy,
@@ -59,6 +60,8 @@ const REFRESH_DEBOUNCE_MS = 300;
 const SEARCH_DEBOUNCE_MS = 150;
 let requestSeq = 0;
 let timer: ReturnType<typeof setTimeout> | undefined;
+
+const codeOf = (e: unknown) => (typeof e === 'object' && e && 'code' in e ? String(e.code) : '');
 
 function report(error: unknown) {
   useUi.getState().pushToast({
@@ -216,7 +219,7 @@ export const useLibrary = create<LibraryState>((set, get) => {
         await get().refresh();
         return true;
       } catch (e) {
-        report(e);
+        report(codeOf(e) === 'delete_not_allowed' ? new Error(t('deleteNotAllowed')) : e);
         return false;
       }
     },

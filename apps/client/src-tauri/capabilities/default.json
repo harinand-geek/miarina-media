@@ -59,7 +59,7 @@
     "allow-library-remove",
     "allow-library-delete",
     "allow-library-reveal",
-    "allow-library-rescan",
+    "allow-library-rescan", "allow-device-media-access", "allow-device-media-request", "allow-device-media-sync", "allow-device-media-settings",
     "allow-storage-usage",
     "allow-storage-clear-thumbnails",
     "allow-storage-clean-temp",

@@ -36,6 +36,10 @@ pub enum LibraryError {
     Tags(#[from] tags::TagWriteError),
     #[error("the file is no longer on disk")]
     Missing,
+    /// The system refuses to delete the file (Android: media of another
+    /// app or copied from a computer, AND-06).
+    #[error("the system does not allow deleting this file")]
+    NotAllowed,
     #[error("cover refused: {0}")]
     Cover(&'static str),
 }
@@ -43,6 +47,8 @@ pub enum LibraryError {
 /// Covers are stored at most this large (longest edge).
 /// Files taken from one open or drop.
 pub const MAX_OPENED: usize = 500;
+/// Bound on the files taken from a platform media list.
+pub const MAX_LISTED: usize = 20_000;
 const COVER_PX: u32 = 1000;
 /// Largest picture accepted as a cover.
 const COVER_SOURCE_MAX: u64 = 30 * 1024 * 1024;
@@ -140,6 +146,7 @@ fn discard(path: &Path, use_trash: bool) -> Result<(), LibraryError> {
     match std::fs::remove_file(path) {
         Ok(()) => Ok(()),
         Err(e) if e.kind() == std::io::ErrorKind::NotFound => Ok(()),
+        Err(e) if e.kind() == std::io::ErrorKind::PermissionDenied => Err(LibraryError::NotAllowed),
         Err(e) => Err(io(e)),
     }
 }
@@ -438,6 +445,34 @@ impl Library {
     /// blocking task.
     pub fn scan(&self, root: &Path) -> Result<ScanReport, LibraryError> {
         let found = files::media_files(root);
+        self.index(&found, |path| path.starts_with(root))
+    }
+
+    /// Indexes media files listed by the platform (Android media index,
+    /// AND-06), at most `MAX_LISTED`. Entries the list no longer names are
+    /// marked missing only when their file is gone: the app's own folders
+    /// are scanned separately. Removed entries are not added back (COM-10).
+    pub fn sync_listed(&self, listed: &[PathBuf]) -> Result<ScanReport, LibraryError> {
+        let mut seen = std::collections::HashSet::new();
+        let found: Vec<PathBuf> = listed
+            .iter()
+            .filter(|p| p.is_absolute() && files::kind_for(p).is_some() && seen.insert(p.as_path()))
+            .filter(|p| p.is_file())
+            .take(MAX_LISTED)
+            .cloned()
+            .collect();
+        let named: std::collections::HashSet<&Path> = found.iter().map(PathBuf::as_path).collect();
+        self.index(&found, |path| !named.contains(path))
+    }
+
+    /// Adds `found`, restores the ones marked missing, and marks missing the
+    /// known entries that `may_be_gone` selects and whose file no longer
+    /// exists. One transaction.
+    fn index(
+        &self,
+        found: &[PathBuf],
+        may_be_gone: impl Fn(&Path) -> bool,
+    ) -> Result<ScanReport, LibraryError> {
         let storage = lock(&self.inner.storage);
         let known = storage.media_paths()?;
         let by_path: std::collections::HashMap<&str, (i64, bool)> = known
@@ -449,7 +484,7 @@ impl Library {
         // (L00 measurement).
         let report = storage.with_batch(|storage| {
             let mut report = ScanReport::default();
-            for path in &found {
+            for path in found {
                 let key = path.to_string_lossy();
                 if removed.contains(key.as_ref()) {
                     continue;
@@ -477,9 +512,10 @@ impl Library {
                     }
                 }
             }
-            // Files of this folder the library knew but that are gone.
+            // Files the library knew in this scope but that are gone.
             for (id, path, missing) in &known {
-                if !missing && Path::new(path).starts_with(root) && !Path::new(path).exists() {
+                let path = Path::new(path);
+                if !missing && may_be_gone(path) && !path.exists() {
                     storage.set_media_missing(*id, true)?;
                     report.missing += 1;
                 }
