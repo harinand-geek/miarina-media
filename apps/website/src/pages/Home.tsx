@@ -190,6 +190,44 @@ export function Home() {
           </div>
         </div>
       </section>
+      <section id="android" className="v-section">
+        <div className="v-container v-split v-android">
+          <div>
+            <Heading label="Sur Android" title="Un vrai lecteur de musique dans la poche." />
+            <p className="v-body">
+              Avec Android {RELEASE.android.version}, vos téléchargements et, si vous l’autorisez,
+              la musique déjà présente sur le téléphone se rangent par albums, artistes et dossiers.
+              Playlists, favoris, titres récents et plus écoutés ; la musique continue écran éteint,
+              avec les commandes de l’écran verrouillé et du casque. Égaliseur du téléphone, vitesse
+              et minuteur dans la feuille Son.
+            </p>
+            <p className="v-body small">
+              Captures de l’interface Android avec des titres de démonstration. Vérifié sur
+              émulateur ; essais sur téléphone réel en cours.
+            </p>
+          </div>
+          <div className="v-phones">
+            <figure className="v-screenshot">
+              <img
+                src="/assets/img/android-player.jpg?v=019"
+                width={780}
+                height={1688}
+                loading="lazy"
+                alt="Android : écran En lecture, avec le titre, la progression et les commandes"
+              />
+            </figure>
+            <figure className="v-screenshot">
+              <img
+                src="/assets/img/android-sound.jpg?v=019"
+                width={780}
+                height={1688}
+                loading="lazy"
+                alt="Android : feuille Son avec l’égaliseur à six bandes réglé sur Basses, la vitesse et le minuteur"
+              />
+            </figure>
+          </div>
+        </div>
+      </section>
       <section id="confidentialite" className="v-section">
         <div className="v-container">
           <Heading
