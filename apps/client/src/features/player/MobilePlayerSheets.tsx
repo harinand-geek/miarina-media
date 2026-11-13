@@ -11,6 +11,7 @@ import { useUi } from '../../stores/ui';
 import { durationLabel } from '../library/format';
 import { MediaThumb } from '../library/MediaThumb';
 import { mediaByline } from './byline';
+import { MobileEqualizer } from './MobileEqualizer';
 import { rateLabel } from './playbackRate';
 
 const ROW = 60;
@@ -177,7 +178,7 @@ const SLEEP_CHOICES = ['off', 15, 30, 60, 'end'] as const;
 const sleepChipLabel = (c: (typeof SLEEP_CHOICES)[number], t: Translate) =>
   c === 'off' ? t('sleepOff') : c === 'end' ? t('sleepEnd') : t('sleepMinutes', { n: c });
 
-/** Android v2 screen 09: equalizer (explained until native), speed, sleep timer. */
+/** Android v2 screen 09: equalizer, speed, sleep timer. */
 export function SoundSheet({ media, onClose }: { media: MediaRecord; onClose: () => void }) {
   const t = useT();
   const lang = useSettings((s) => s.lang);
@@ -187,17 +188,7 @@ export function SoundSheet({ media, onClose }: { media: MediaRecord; onClose: ()
 
   return (
     <BottomSheet open onClose={onClose} label={t('sound')} elevated>
-      <section aria-labelledby="m-eq" className="flex flex-col gap-2.5">
-        <div className="flex items-center gap-3">
-          <h2 id="m-eq" className="m-0 flex-1 text-[18px] font-extrabold">
-            {t('eq')}
-          </h2>
-          <span className="rounded-xs border border-planned-border bg-planned-bg px-1.5 py-0.5 font-mono text-[10.5px] font-bold text-warn">
-            {t('planned')}
-          </span>
-        </div>
-        <p className="m-0 text-[13px] leading-[19px] text-muted">{t('eqUnavailable')}</p>
-      </section>
+      <MobileEqualizer />
       <div className="h-px bg-line-strong" />
       <section aria-labelledby="m-speed" className="flex flex-col gap-2.5">
         <h2 id="m-speed" className="m-0 text-[14px] font-bold">

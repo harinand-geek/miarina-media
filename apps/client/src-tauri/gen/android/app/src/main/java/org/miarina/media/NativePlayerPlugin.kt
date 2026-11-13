@@ -104,6 +104,13 @@ class SelectTrackArgs {
 }
 
 @InvokeArg
+class EqualizerArgs {
+  var enabled: Boolean = false
+  /** Six gains in dB (validated by Rust). */
+  var gains: List<Double> = emptyList()
+}
+
+@InvokeArg
 class LevelArgs {
   var kind: String = "volume"
   /** 0..1; null only reads the current level. */
@@ -648,6 +655,16 @@ class NativePlayerPlugin(private val activity: Activity) : Plugin(activity) {
       audio.setStreamVolume(AudioManager.STREAM_MUSIC, Math.round(value * max).toInt(), 0)
     }
     invoke.resolve(JSObject().put("value", audio.getStreamVolume(AudioManager.STREAM_MUSIC).toDouble() / max))
+  }
+
+  /** AND-09: equalizer settings; applied now and whenever the player restarts. */
+  @Command
+  fun equalizer(invoke: Invoke) {
+    val args = invoke.parseArgs(EqualizerArgs::class.java)
+    MiarinaEqualizer.set(args.enabled, args.gains)
+    val out = JSObject()
+    MiarinaEqualizer.supported?.let { out.put("supported", it) }
+    invoke.resolve(out)
   }
 
   /** AND-08: picture-in-picture when the device supports it (Android 8+). */

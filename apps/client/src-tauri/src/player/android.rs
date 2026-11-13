@@ -282,6 +282,24 @@ pub async fn player_level(
     Ok(out["value"].as_f64().unwrap_or(0.0))
 }
 
+/// AND-09: Android equalizer on the player's audio session. Returns whether
+/// the device supports it (`None` until the player has started once).
+#[tauri::command]
+pub async fn player_equalizer(
+    player: State<'_, NativePlayer>,
+    enabled: bool,
+    gains: Vec<f64>,
+) -> Result<Option<bool>, CommandError> {
+    super::check_equalizer(&gains)?;
+    let out: serde_json::Value = player
+        .call(
+            "equalizer",
+            serde_json::json!({ "enabled": enabled, "gains": gains }),
+        )
+        .await?;
+    Ok(out["supported"].as_bool())
+}
+
 /// AND-08: picture-in-picture; `false` when the device cannot.
 #[tauri::command]
 pub async fn player_pip(

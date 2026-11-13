@@ -76,7 +76,7 @@ describe('Android v2 Now playing (07)', () => {
     const player = openPlayer();
     await user.click(within(player).getByRole('button', { name: /^Speed/ }));
     const sheet = screen.getByRole('dialog', { name: 'Sound' });
-    expect(within(sheet).getByText(/equalizer will be wired/)).toBeInTheDocument();
+    expect(within(sheet).getByRole('switch', { name: 'Turn the equalizer on' })).toBeInTheDocument();
     await user.click(within(sheet).getByRole('radio', { name: '1.25×' }));
     expect(useMobilePlayback.getState().rate).toBe(1.25);
     expect(localStorage.getItem('mm:mobile:rate')).toBe('1.25');

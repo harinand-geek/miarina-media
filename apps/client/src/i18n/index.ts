@@ -296,7 +296,7 @@ const fr = {
   clearNote: 'Vider la file ne supprime aucun fichier.',
   reset: 'Réinitialiser',
   eqUnavailable:
-    'L’égaliseur sera branché sur le lecteur natif Android (lots L03/L07). Le son est restitué sans modification.',
+    'Cet appareil ne propose pas d’égaliseur pour la lecture. Le son est restitué sans modification.',
   sleepIn: 'La musique s’arrêtera dans {time}. L’app reste ouverte.',
   sleepAtEnd: 'La musique s’arrêtera à la fin de « {title} ». L’app reste ouverte.',
   moveHandle: 'Déplacer {title}',
@@ -1079,7 +1079,7 @@ const en: Record<MessageKey, string> = {
   clearNote: 'Clearing the queue deletes no file.',
   reset: 'Reset',
   eqUnavailable:
-    'The equalizer will be wired to the Android native player (lots L03/L07). Sound currently plays unaltered.',
+    'This device offers no equalizer for playback. Sound plays unaltered.',
   sleepIn: 'Music stops in {time}. The app stays open.',
   sleepAtEnd: 'Music stops after “{title}”. The app stays open.',
   moveHandle: 'Move {title}',

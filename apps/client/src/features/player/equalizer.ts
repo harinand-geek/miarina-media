@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { MessageKey, Translate } from '../../i18n';
 import { durableSet } from '../../services/durableState';
+import { nativePlayback, nativePlayer } from '../../services/nativePlayer';
 import { applyEqualizer } from '../../stores/player';
 
 /** Bands of the Windows v2 design (Hz labels). */
@@ -47,6 +48,8 @@ function load(): Saved {
 }
 
 interface EqualizerState extends Saved {
+  /** Android: whether the device has an equalizer (`null` until known). */
+  supported: boolean | null;
   setEnabled: (on: boolean) => void;
   setPreset: (preset: EqPreset) => void;
   setGain: (band: number, db: number) => void;
@@ -67,6 +70,7 @@ export const useEqualizer = create<EqualizerState>((set, get) => {
   };
   return {
     ...load(),
+    supported: null,
     setEnabled: (enabled) => commit({ enabled }),
     setPreset: (preset) => commit({ preset, gains: [...EQ_PRESETS[preset]], enabled: true }),
     setGain: (band, db) => {
@@ -77,6 +81,13 @@ export const useEqualizer = create<EqualizerState>((set, get) => {
     push: () => {
       const { enabled, gains } = get();
       applyEqualizer(enabled ? gains : null);
+      // Android: the system equalizer of the playback service (AND-09).
+      if (nativePlayback()) {
+        void nativePlayer
+          .equalizer(enabled, gains)
+          .then((supported) => supported !== null && set({ supported }))
+          .catch(() => {});
+      }
     },
   };
 });

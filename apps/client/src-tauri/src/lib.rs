@@ -471,6 +471,7 @@ pub fn run() {
             player::player_select_track,
             player::player_pick_subtitle,
             player::player_level,
+            player::player_equalizer,
             player::player_pip,
             shell::app_ready,
             shell::app_take_launch,

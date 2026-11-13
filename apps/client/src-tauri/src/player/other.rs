@@ -99,6 +99,15 @@ pub async fn player_level(kind: String, value: Option<f64>) -> Result<f64, Comma
 }
 
 #[tauri::command]
+pub async fn player_equalizer(
+    _enabled: bool,
+    gains: Vec<f64>,
+) -> Result<Option<bool>, CommandError> {
+    super::check_equalizer(&gains)?;
+    Err(unavailable())
+}
+
+#[tauri::command]
 pub async fn player_pip(_enter: bool) -> Result<bool, CommandError> {
     Err(unavailable())
 }

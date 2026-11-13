@@ -19,6 +19,7 @@ import { AnalysisSheet } from '../features/analysis/AnalysisSheet';
 import { StorageSheet } from '../features/analysis/StorageSheet';
 import { MobilePlayer } from '../features/player/MobilePlayer';
 import { restoreMobileSession } from '../features/player/restoreSession';
+import { useEqualizer } from '../features/player/equalizer';
 import { summarize, useDownloads } from '../stores/downloads';
 import { useT, type MessageKey } from '../i18n';
 import { nativePlayback } from '../services/nativePlayer';
@@ -55,6 +56,8 @@ export function MobileShell() {
   // Android app: bring back the last queue (or follow music still playing).
   useEffect(() => {
     if (NATIVE_PLAYER) void restoreMobileSession();
+    // The saved equalizer applies from the first track (AND-09).
+    if (NATIVE_PLAYER) useEqualizer.getState().push();
   }, []);
   const [storageOpen, setStorageOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);

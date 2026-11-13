@@ -125,6 +125,7 @@ const COMMANDS: &[&str] = &[
     "player_select_track",
     "player_pick_subtitle",
     "player_level",
+    "player_equalizer",
     "player_pip",
     "app_ready",
     "app_take_launch",

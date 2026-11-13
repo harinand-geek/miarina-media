@@ -161,9 +161,37 @@ pub fn check_level(kind: &str, value: Option<f64>) -> Result<(&str, Option<f64>)
     }
 }
 
+/// Equalizer bands sent by the page (AND-09): the six gains of the shared
+/// model, in dB.
+pub const EQ_BANDS: usize = 6;
+/// Largest boost or cut accepted, in dB.
+pub const EQ_MAX_DB: f64 = 12.0;
+
+/// Six finite gains within ±`EQ_MAX_DB`.
+pub fn check_equalizer(gains: &[f64]) -> Result<(), CommandError> {
+    if gains.len() == EQ_BANDS
+        && gains
+            .iter()
+            .all(|g| g.is_finite() && (-EQ_MAX_DB..=EQ_MAX_DB).contains(g))
+    {
+        Ok(())
+    } else {
+        Err(CommandError::new("invalid_request", "invalid equalizer"))
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn equalizer_gains_are_bounded() {
+        assert!(check_equalizer(&[0.0, 3.5, -12.0, 12.0, 0.0, -1.0]).is_ok());
+        assert!(check_equalizer(&[0.0; 5]).is_err());
+        assert!(check_equalizer(&[0.0; 7]).is_err());
+        assert!(check_equalizer(&[0.0, 0.0, 0.0, 0.0, 0.0, 12.5]).is_err());
+        assert!(check_equalizer(&[0.0, 0.0, 0.0, 0.0, 0.0, f64::NAN]).is_err());
+    }
 
     #[test]
     fn inputs_from_the_page_are_bounded() {
