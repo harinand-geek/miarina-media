@@ -2,7 +2,7 @@
 
 Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
 
-## Windows et Android 0.1.9 — préparée le 2026-11-13, pas encore publiée
+## Windows et Android 0.1.9 — 2026-11-13
 
 Sources : révision `5f36cda` (code de l’application identique à `01fdf35`, seul le site diffère), archive `MiarinaMedia-0.1.9-source.tar.gz` avec le sous-module Mister Download Manager (`46bb3bcd`). Android passe de 0.1.7 à 0.1.9 (versionCode 1009).
 
@@ -12,7 +12,9 @@ Sources : révision `5f36cda` (code de l’application identique à `01fdf35`, s
 | MiarinaMedia-0.1.9.apk | 134546044 | bbfdf3dcf9c31d62d709b4c98cb2f7272f4111ae9bc8de529e717e7634845585 |
 | MiarinaMedia-0.1.9-source.tar.gz | 34163076 | 5a2d2906ef72b78dfdb08877fcc86a99a0f91f27e0332aeb30cfc5941b77a402 |
 
-Préparé dans `builds/` (non versionné) : les trois fichiers, `SHA256SUMS-0.1.9`, `release-0.1.9.json`, `update-notes-0.1.9.txt`, le manifeste signé `stable-0.1.9.json` (clé de publication, canal stable), `upload-release-0.1.9.ps1` et `publish-0.1.9.sh` (étapes `files`, `site`, `manifest`). Rien n’est envoyé sur le serveur.
+Préparé dans `builds/` (non versionné) : les trois fichiers, `SHA256SUMS-0.1.9`, `release-0.1.9.json`, `update-notes-0.1.9.txt`, le manifeste signé `stable-0.1.9.json` (clé de publication, canal stable), `upload-release-0.1.9.ps1` et `publish-0.1.9.sh` (étapes `files`, `site`, `manifest`).
+
+Publication le 2026-11-13 : envoi par morceaux vérifiés, fichiers puis site (sauvegarde du site précédent sur le serveur : `/root/miarina-site-before-0.1.9-20261113-115936.tar.gz`) puis manifeste en dernier. Vérifié en ligne : `/` et `/en/` (redirection de `/en`), pages Licences et Confidentialité, en-tête CSP inchangé, tailles des trois fichiers, `verify-app-update.mjs` sur le manifeste local puis sur `https://media.miarina.org/updates/stable.json` (signature, tailles et SHA-256). Page chargée dans un navigateur sans tête : images, police d’icônes, démo et apparitions fonctionnent, aucune violation de CSP par le site ; seul le script d’analyse injecté par Cloudflare (`beacon.min.js`) est bloqué par la CSP (réglage Cloudflare, rien n’est envoyé).
 
 Validation : 210 tests frontend, tests Rust de l’espace de travail, TypeScript, ESLint, clippy, rustfmt. Windows : paquet NSIS vérifié avec 7-Zip (318 fichiers, yt-dlp, FFmpeg, QuickJS-NG et libVLC présents), `miarina-media.exe` en version 0.1.9. Android : signature v2 avec le certificat habituel (`11de8715…6479e1`), versionCode 1009, ARM64 et x86_64, permissions `READ_MEDIA_AUDIO`, `READ_MEDIA_VIDEO`, `READ_EXTERNAL_STORAGE` (≤ Android 12). Cet APK exact installé sur l’émulateur Android 15 : démarrage, accès aux médias du téléphone (un fichier copié par adb apparaît après autorisation), lecture d’un MP3 avec pochette. **Non testé** : ces paquets exacts sur téléphone réel et sur une machine Windows propre, mise à jour réelle depuis 0.1.7 / 0.1.8.
 
