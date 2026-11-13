@@ -49,9 +49,11 @@ export function Home() {
           </h1>
           <p>
             Collez un lien, choisissez le format, gardez le fichier. Miarina Media télécharge vidéos
-            et audio, puis les range dans une bibliothèque sur votre appareil. Sur Windows, écoutez
-            et regardez-les dans le lecteur intégré : albums, playlists, pistes audio, sous-titres
-            et égaliseur. Ajoutez aussi des torrents et envoyez vos liens depuis Chrome ou Edge.
+            et audio, puis les range dans une bibliothèque sur votre appareil. Sur Windows comme sur
+            Android, écoutez et regardez-les dans le lecteur intégré : albums, playlists, pistes
+            audio, sous-titres et égaliseur. Sur Android, votre musique déjà présente sur le
+            téléphone s’y ajoute. Sous Windows, ajoutez aussi des torrents et envoyez vos liens
+            depuis Chrome ou Edge.
           </p>
           <Downloads />
         </div>
@@ -172,16 +174,18 @@ export function Home() {
             />
             <p className="v-body">
               Les téléchargements vidéo et audio arrivent dans la bibliothèque, avec vos propres
-              fichiers si vous les ajoutez. Sous Windows, la musique se range par albums, artistes
-              et dossiers, avec pochettes, tags, playlists et favoris. Le lecteur intégré, fondé sur
+              fichiers si vous les ajoutez. La musique se range par albums, artistes et dossiers,
+              avec pochettes, playlists et favoris. Sous Windows, le lecteur intégré, fondé sur
               libVLC, lit aussi des formats que Windows ne lit pas seul (MKV, HEVC, AVI…), avec
               pistes audio, sous-titres, vitesse et égaliseur ; la lecture reprend où vous l’aviez
               laissée. Tout se lit hors ligne.
             </p>
             <p className="v-body small">
               L’image dans l’image n’est plus proposée sous Windows avec ce lecteur. Sur Android
-              0.1.7, le lecteur intégré propose la lecture, la vitesse et la reprise ; le plein
-              écran et l’image dans l’image restent à venir.
+              {RELEASE.android.version}, la musique continue écran éteint (écran verrouillé, casque
+              Bluetooth), avec égaliseur, minuteur et vitesse ; les vidéos passent en plein écran
+              paysage avec pistes, sous-titres et image dans l’image. Vérifié sur émulateur, essais
+              sur téléphone réel en cours.
             </p>
           </div>
         </div>

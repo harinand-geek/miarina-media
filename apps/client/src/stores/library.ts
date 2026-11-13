@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { t } from '../i18n';
 import { backend } from '../services/backend';
+import { detectPlatform } from '../services/platform';
 import type {
   GroupBy,
   LibraryOverview,
@@ -219,7 +220,10 @@ export const useLibrary = create<LibraryState>((set, get) => {
         await get().refresh();
         return true;
       } catch (e) {
-        report(codeOf(e) === 'delete_not_allowed' ? new Error(t('deleteNotAllowed')) : e);
+        const denied = codeOf(e) === 'delete_not_allowed';
+        const message =
+          detectPlatform() === 'android' ? 'deleteNotAllowed' : 'deleteNotAllowedDesktop';
+        report(denied ? new Error(t(message)) : e);
         return false;
       }
     },

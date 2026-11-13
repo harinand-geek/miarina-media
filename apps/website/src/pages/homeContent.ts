@@ -17,22 +17,22 @@ export const FEATURES = [
   [
     'library_music',
     'Bibliothèque musicale',
-    'Sous Windows : albums, artistes, dossiers et recherche, éditeur de tags et pochettes (image, miniature de la source ou image tirée de la vidéo).',
+    'Sous Windows et Android : albums, artistes, dossiers et recherche, avec les pochettes des fichiers. Sous Windows, éditeur de tags et choix de pochette (image, miniature de la source ou image tirée de la vidéo).',
   ],
   [
     'queue_music',
     'Playlists et favoris',
-    'Sous Windows : playlists, favoris, import et export M3U. La file de lecture, les positions et l’historique d’écoute sont conservés.',
+    'Sous Windows et Android : playlists, favoris, file de lecture enregistrable en playlist. Sur Android, titres récents et plus écoutés ; sous Windows, import et export M3U. La file, les positions et l’historique d’écoute sont conservés.',
   ],
   [
     'graphic_eq',
     'Lecteur et égaliseur',
-    'Le lecteur Windows s’appuie sur libVLC, fourni avec l’installateur : pistes audio, sous-titres SRT et VTT, vitesse, égaliseur à 6 bandes. Aucun VLC à installer.',
+    'Sous Windows, le lecteur s’appuie sur libVLC, fourni avec l’installateur : pistes audio, sous-titres SRT et VTT, vitesse, égaliseur à 6 bandes. Aucun VLC à installer. Sous Android, la musique continue écran éteint, avec les commandes de l’écran verrouillé et du casque Bluetooth ; égaliseur du téléphone, vidéo en plein écran paysage et image dans l’image.',
   ],
   [
     'folder_open',
     'Vos fichiers aussi',
-    'Sous Windows, ouvrez des fichiers, importez un dossier ou déposez-les sur la fenêtre : ils rejoignent la bibliothèque.',
+    'Sous Windows, ouvrez des fichiers, importez un dossier ou déposez-les sur la fenêtre. Sous Android, autorisez l’accès à la musique et aux vidéos du téléphone : elles rejoignent la bibliothèque, en lecture seule.',
   ],
   [
     'system_update_alt',
@@ -87,7 +87,7 @@ export const FORMATS: { icon: string; title: string; rows: [string, string, bool
     icon: 'closed_caption',
     title: 'Sous-titres',
     rows: [
-      ['SRT, VTT et pistes intégrées', 'lecture · Windows'],
+      ['SRT, VTT et pistes intégrées', 'lecture · Windows et Android'],
       ['Téléchargement des sous-titres', 'Bientôt', true],
     ],
   },
@@ -99,8 +99,8 @@ export const FAQ: [string, string][] = [
     'Depuis la version 0.1.7, Miarina recherche les nouvelles versions au démarrage et toutes les six heures lorsque l’interface est visible. Dans Réglages → Mises à jour, téléchargez la version proposée puis choisissez Installer maintenant. Windows ouvre son installateur ; Android demande une autorisation puis votre confirmation. Vos fichiers, playlists et réglages sont conservés. À partir de la 0.1.8 sous Windows, le téléchargement peut être annulé et reprend où il s’était arrêté, même après une coupure ou un redémarrage ; l’installation attend la fin d’une conversion en cours, et la nouvelle version garde une copie de votre bibliothèque avant de la mettre à jour. Depuis la 0.1.6, une première installation manuelle de la 0.1.7 est nécessaire.',
   ],
   [
-    'Qu’apporte la version 0.1.8 ?',
-    'Elle concerne Windows : nouvelle interface, bibliothèque musicale (albums, artistes, dossiers, tags, pochettes), playlists et favoris, lecteur libVLC avec pistes audio, sous-titres et égaliseur, ouverture de vos propres fichiers, onglets et historique dans le navigateur, reprise de téléchargement vérifiée et mises à jour plus sûres. L’image dans l’image n’est plus proposée avec ce lecteur. Android reste pour l’instant en 0.1.7.',
+    'Qu’apporte la version 0.1.9 ?',
+    'Surtout Android, qui passe de la 0.1.7 à la 0.1.9 : nouvelle interface, vrai lecteur de musique (bibliothèque par albums, artistes et dossiers, playlists, favoris, titres récents et plus écoutés, égaliseur), accès à la musique et aux vidéos déjà présentes sur le téléphone, lecture qui continue écran éteint, vidéo en plein écran paysage avec pistes, sous-titres et image dans l’image, thème clair et anglais. Ces fonctions ont été vérifiées sur émulateur ; les essais sur téléphone réel sont en cours. Sous Windows, peu de changements : le thème choisi est conservé entre deux lancements et un fichier que Windows refuse de supprimer est signalé clairement.',
   ],
   [
     'Faut-il installer VLC ?',
@@ -137,6 +137,10 @@ export const FAQ: [string, string][] = [
   [
     'Pourquoi Windows affiche-t-il un avertissement ?',
     'Cette préversion n’est pas encore signée numériquement, donc Windows SmartScreen peut afficher « Windows a protégé votre ordinateur ». Comparez l’empreinte SHA-256 du fichier avec celle indiquée sur cette page, puis choisissez « Informations complémentaires » et « Exécuter quand même ».',
+  ],
+  [
+    'Comment Android accède-t-il à ma musique ?',
+    'Dans Musique, la carte « Musique du téléphone » demande l’autorisation d’Android (« Musique et audio », puis « Vidéos »). Miarina lit alors la liste des titres et vidéos du téléphone, mémoire interne et carte SD, sans les copier, déplacer ni modifier ; les sonneries et sons de notification sont ignorés. Vous pouvez refuser : l’application garde ses propres téléchargements. Android ne laisse pas Miarina supprimer un fichier d’une autre application : retirez-le de la bibliothèque ou supprimez-le avec l’app Fichiers.',
   ],
   [
     'Comment installer l’APK sur Android ?',
