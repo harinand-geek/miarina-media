@@ -11,18 +11,18 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.9',
+  version: '0.1.11',
   windows: {
-    version: '0.1.9',
-    name: 'MiarinaMedia-0.1.9-x64-setup.exe',
+    version: '0.1.11',
+    name: 'MiarinaMedia-0.1.11-x64-setup.exe',
     size: '91,2 Mio',
-    sha256: '728f3da58c54f6f686eb3ce3ae8d5dfc9720088f64a74e36639057166c1e6c6e',
+    sha256: '0e912bc1605184bf4c58db934ef560b169e980f9804cd19fc4380ece0f2222b7',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.9',
-    name: 'MiarinaMedia-0.1.9.apk',
-    size: '128,3 Mio',
-    sha256: 'bbfdf3dcf9c31d62d709b4c98cb2f7272f4111ae9bc8de529e717e7634845585',
+    version: '0.1.11',
+    name: 'MiarinaMedia-0.1.11.apk',
+    size: '64,0 Mio',
+    sha256: '7d88ca7857cb8835959db368fb11b476dc1f87d3b7f2b35f90cc81b58150b76a',
   } satisfies ReleaseFile,
 };
 
@@ -50,9 +50,30 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.1.11 · Windows et Android',
+    date: 'Préversion de test · 15 novembre 2026',
+    current: true,
+    items: [
+      'Le lecteur d’abord : l’application s’ouvre sur la musique ; Android : barre Musique, Vidéos, Téléchargements ; Windows : espace Écouter en premier',
+      'Une seule recherche : titres et vidéos de l’appareil d’abord, puis YouTube ou le web, liens collés analysés ; logos des sites',
+      'Android : navigateur ouvert depuis la recherche ; en-tête qui s’efface en descendant et revient en remontant ; grand lecteur qui se réduit en mini-lecteur d’un glissement vers le bas',
+      'Formes arrondies, cartes de bibliothèque et animations plus fluides, aux couleurs de Miarina',
+      'Écran d’attente pendant l’analyse d’un lien : ce qui se passe, temps écoulé et astuces',
+      'Windows : pages du navigateur au thème de l’application (clair ou sombre)',
+      'Android : bouton plein écran des vidéos toujours visible ; APK plus léger, pour téléphones 64 bits (ARM)',
+    ],
+  },
+  {
+    name: '0.1.10 · Windows',
+    date: 'Préversion de test · 14 novembre 2026',
+    items: [
+      'Lecteur vidéo : bandeau du titre, commandes, volume et progression adaptés au mode clair. Android reste en 0.1.9.',
+    ],
+  },
+  {
     name: '0.1.9 · Windows et Android',
     date: 'Préversion de test · 13 novembre 2026',
-    current: true,
+
     items: [
       'Android : nouvelle interface (Accueil, Navigateur, Téléchargements, Musique, Vidéos), écran de démarrage animé, thème clair et anglais',
       'Android : vrai lecteur de musique — albums, artistes, dossiers, playlists, favoris, titres récents et plus écoutés, file enregistrable en playlist',
@@ -260,5 +281,9 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Partager ou ouvrir un fichier avec une autre app', windows: false, android: true },
   { feature: 'Fichiers visibles dans la galerie (Android 11+)', windows: false, android: true },
   { feature: 'Raccourcis clavier', windows: true, android: false },
-  { feature: 'Configuration minimale', windows: 'Windows 10 · 64 bits', android: 'Android 7.0' },
+  {
+    feature: 'Configuration minimale',
+    windows: 'Windows 10 · 64 bits',
+    android: 'Android 7.0 · 64 bits (ARM)',
+  },
 ];

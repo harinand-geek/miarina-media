@@ -2,6 +2,30 @@
 
 Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
 
+## Windows et Android 0.1.11 — 2026-11-15
+
+Décision 0006 : le lecteur d'abord, recherche unique (logos des sites), style arrondi, en-tête « retour rapide » et lecteur qui se réduit au glissement (Android), écran d'attente de l'analyse, pages du navigateur au thème de l'app (Windows). Android passe de 0.1.9 à 0.1.11 (versionCode 1011) et n'est plus publié qu'en **ARM64** (téléphones 64 bits) : 64,0 Mio au lieu de 128,3 Mio pour l'APK universel ; yt-dlp n'y est plus qu'en un exemplaire (même version 2026.08.19).
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.1.11-x64-setup.exe | 95677569 | 0e912bc1605184bf4c58db934ef560b169e980f9804cd19fc4380ece0f2222b7 |
+| MiarinaMedia-0.1.11.apk | 67089532 | 7d88ca7857cb8835959db368fb11b476dc1f87d3b7f2b35f90cc81b58150b76a |
+
+Validation : 220 tests frontend, TypeScript, ESLint ; 246 tests Rust de l'espace de travail ; paquet NSIS vérifié avec 7-Zip (318 fichiers, exécutable 0.1.11) ; APK signé avec le certificat habituel (`11de8715…6479e1`), versionCode 1011, `arm64-v8a`. Cet APK exact installé par adb sur le Redmi Note 10 Pro (Android 13 / MIUI 14) par-dessus la build de test : démarrage sans plantage, version 0.1.11 affichée par le système. La build de test Windows équivalente (même code, version 0.1.10) a été installée et lancée sur ce PC. **Non testé** : téléchargement YouTube/MP3 sur téléphone après le changement de nom de la ressource yt-dlp, installation de ces paquets exacts sur une machine Windows propre, mise à jour réelle depuis la 0.1.9/0.1.10 par l'app. Installateur non signé Authenticode.
+
+## Windows 0.1.10 — 2026-11-14
+
+Correction du thème clair du lecteur vidéo : titre, commandes, volume, progression et erreurs suivent les tokens du thème. Android reste en 0.1.9.
+
+- Installateur : `MiarinaMedia-0.1.10-x64-setup.exe`, 95 677 520 octets ; SHA-256 `50b5f101dcdfd4e6c804003e7108684168d4a1f950aae6870bbfd610764d1b7e`.
+- Sources : `MiarinaMedia-0.1.10-source.tar.gz`, SHA-256 `9a9385752c0a019595f806877af392b8de59f74fc901263d0c417b6171246e86`. Instantané des fichiers suivis de l’arbre de travail, base `f00511f935421b8879ad920a3ef3e090f92fb141`, incluant correctif et version ; sous-module MDM `46bb3bcd`. Notice dans `builds/RELEASE-SOURCE-0.1.10.txt`. Clés privées et sauvegarde locale exclues.
+
+Validation : build Windows release/NSIS réussi, intégrité des 318 fichiers vérifiée par 7-Zip, binaire 0.1.10. TypeScript, ESLint complet et 210 tests frontend réussis avec un worker. Le premier passage parallèle sous charge avait rencontré trois délais de tests et quatre délais de démarrage de workers, absents au passage séquentiel. Styles compilés clair/sombre contrôlés. Installation réelle par-dessus 0.1.8 sur ce PC (retour 0), copie préalable de la base ; bibliothèque et lecture libVLC vérifiées. Contrôle visuel à 1280 × 800 : titre et commandes clairs et lisibles. Lecteur laissé en pause. Pas de nouveau build Android, de test sur Windows propre ni de relance de la suite Rust pour ce correctif CSS. Installateur non signé Authenticode.
+
+Site compilé et publié après sauvegarde `/root/miarina-site-before-0.1.10-20261114-194023.tar.gz`. Pages `/`, `/en/`, licences et confidentialité : HTTP 200 ; liens 0.1.10 présents. Installateur public vérifié par téléchargement complet et SHA-256.
+
+Manifeste stable signé publié en dernier ; `verify-app-update.mjs` réussi avant publication sur le manifeste local, puis après publication sur `https://media.miarina.org/updates/stable.json` (signature, versions, tailles et SHA-256 Windows 0.1.10 / Android 0.1.9). Neuf ressources du site contrôlées HTTP OK. Exécutable installé identique à celui extrait du paquet NSIS (SHA-256 `b331a4897b45267ab4835d2206bb301ab014e130ff116645da31bfe3cca88695`).
+
 ## Windows et Android 0.1.9 — 2026-11-13
 
 Sources : révision `5f36cda` (code de l’application identique à `01fdf35`, seul le site diffère), archive `MiarinaMedia-0.1.9-source.tar.gz` avec le sous-module Mister Download Manager (`46bb3bcd`). Android passe de 0.1.7 à 0.1.9 (versionCode 1009).
