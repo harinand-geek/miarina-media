@@ -27,8 +27,9 @@
   --color-neutral-700: #595d6c;
   --color-neutral-800: #3f424d;
   --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
-  --radius-md: 8px;
-  --radius-lg: 14px;
+  /* 0.1.11: rounder shapes, as in the app. */
+  --radius-md: 16px;
+  --radius-lg: 24px;
   --shadow-sm: 0 0 0 1px #3f424d;
   --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
   --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0, 0, 0, 0.65);
@@ -81,31 +82,53 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 10px 16px;
+  padding: 11px 20px;
   border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   font: inherit;
   font-size: 15px;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.2;
   color: var(--color-text);
   background: transparent;
   text-decoration: none;
   cursor: pointer;
+  transition:
+    transform 0.2s var(--ease),
+    background-color 0.2s var(--ease),
+    box-shadow 0.2s var(--ease),
+    color 0.2s var(--ease);
+}
+.lp .btn:hover {
+  transform: translateY(-1px);
+}
+.lp .btn:active {
+  transform: scale(0.97);
 }
 .lp .btn .icon {
   font-size: 18px;
 }
+/* Filled, as the app's main actions. */
 .lp .btn-primary {
-  color: var(--color-accent);
+  color: #0b1a1e;
+  background: var(--color-accent);
   border-color: var(--color-accent);
 }
 .lp .btn-primary:hover {
-  color: var(--color-accent);
-  background: color-mix(in srgb, var(--color-accent) 12%, transparent);
+  color: #0b1a1e;
+  background: var(--color-accent-400);
+  box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
 .lp .btn-primary:active {
-  background: color-mix(in srgb, var(--color-accent) 22%, transparent);
+  background: var(--color-accent);
+}
+@media (prefers-reduced-motion: reduce) {
+  .lp .btn,
+  .lp .btn:hover,
+  .lp .btn:active {
+    transition: none;
+    transform: none;
+  }
 }
 .lp .btn-secondary {
   border-color: var(--color-divider);
@@ -124,7 +147,7 @@
   font-size: 11px;
   letter-spacing: 0.02em;
   padding: 3px 10px;
-  border-radius: 6px;
+  border-radius: 999px;
 }
 .lp .tag-accent {
   background: var(--color-accent-800);
@@ -330,7 +353,7 @@
 .lp-lang {
   display: flex;
   border: 1px solid var(--color-divider);
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   overflow: hidden;
 }
 .lp .lp-lang a {
@@ -344,8 +367,8 @@
   border-left: 1px solid var(--color-divider);
 }
 .lp .lp-lang a[aria-current] {
-  color: var(--color-accent);
-  box-shadow: inset 0 0 0 1px var(--color-accent);
+  color: var(--color-accent-100);
+  background: var(--color-accent-800);
 }
 .lp .lp-cta {
   padding: 8px 14px;
@@ -447,7 +470,7 @@
   gap: 5px;
   font-size: 12px;
   padding: 4px 10px;
-  border-radius: 6px;
+  border-radius: 12px;
   color: var(--color-neutral-500);
   transition:
     color 0.35s,
@@ -678,8 +701,8 @@
 .hd-cover {
   display: block;
   aspect-ratio: 1;
-  border-radius: 6px;
-  background-image: url('/assets/img/windows-library.jpg?v=019');
+  border-radius: 12px;
+  background-image: url('/assets/img/demo-covers.jpg?v=019');
   background-repeat: no-repeat;
   background-size: 711.11% auto;
 }
@@ -807,7 +830,7 @@
   font-size: 11.5px;
   letter-spacing: 0.04em;
   padding: 3px 9px;
-  border-radius: 6px;
+  border-radius: 12px;
   color: var(--color-neutral-600);
   transition:
     color 0.3s,
@@ -883,6 +906,14 @@
   flex: 1 1 360px;
   min-width: 0;
   scroll-margin-top: 80px;
+  /* 0.1.11: a rounded card, as the app's library cards. */
+  padding: clamp(22px, 3vw, 32px);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tone) 14%, transparent);
+  transition:
+    transform 0.3s var(--ease),
+    box-shadow 0.3s var(--ease);
   --tone: var(--color-accent);
 }
 .lp-group[data-tone='play'] {
@@ -984,9 +1015,9 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 14px 11px;
+  padding: 9px 16px 11px;
   border: 1px solid var(--color-divider);
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   background: transparent;
   overflow: hidden;
   color: var(--color-neutral-400);
@@ -1118,14 +1149,38 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 16px 28px;
-  padding: 26px 0;
-  background: linear-gradient(
-      to right,
-      transparent,
-      var(--color-neutral-700) 48px calc(100% - 48px),
-      transparent
-    )
-    no-repeat bottom / 100% 1px;
+  padding: 22px clamp(20px, 3vw, 30px);
+  margin-bottom: 14px;
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--color-surface) 78%, transparent);
+  box-shadow: inset 0 0 0 1px var(--color-divider);
+  transition:
+    box-shadow 0.3s var(--ease),
+    transform 0.3s var(--ease);
+}
+/* The visitor's platform (Windows on a computer, Android on a phone). */
+.lp-dl-row.is-suggested {
+  box-shadow:
+    inset 0 0 0 1.5px var(--color-accent),
+    0 18px 40px -22px color-mix(in srgb, var(--color-accent) 60%, transparent);
+}
+.lp-dl-row:not(.is-suggested) .btn-primary {
+  color: var(--color-text);
+  background: transparent;
+  border-color: var(--color-divider);
+}
+.lp-dl-row:not(.is-suggested) .btn-primary:hover {
+  background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  box-shadow: none;
+}
+.lp-dl-badge {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  color: var(--color-accent-100);
+  background: var(--color-accent-800);
 }
 .lp-dl-icon {
   font-size: 30px;
@@ -1215,9 +1270,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 9px 12px;
+  padding: 9px 14px;
   border: 0;
-  border-radius: var(--radius-md);
+  border-radius: 999px;
   white-space: nowrap;
   color: var(--color-neutral-400);
   background: transparent;

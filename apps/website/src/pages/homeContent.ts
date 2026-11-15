@@ -54,6 +54,8 @@ export interface LandingText {
   dlWindowsCta: string;
   dlAndroidCta: string;
   dlNote: string;
+  /** Badge on the visitor's platform. */
+  dlSuggested: string;
   verKicker: string;
   verTitle: string;
   verCurrent: string;
@@ -111,6 +113,10 @@ export const LANDING: Record<Lang, LandingText> = {
           [
             'Collez un lien',
             'Miarina Media lit l’adresse et vous montre ce qui peut être téléchargé.',
+          ],
+          [
+            'Une seule recherche',
+            'Tapez un titre : Miarina cherche d’abord sur votre appareil, puis propose YouTube ou le web dans son navigateur intégré.',
           ],
           [
             'Choisissez le format',
@@ -174,19 +180,20 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'android',
         'Android',
-        'Sur Android, la musique continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image. Vérifié sur émulateur, essais sur téléphone réel en cours.',
+        'Sur Android, Miarina s’ouvre sur votre musique : titres, playlists, dossiers, artistes et albums. La lecture continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.',
       ],
     ],
     shotAlts: [
       'Bibliothèque musicale Windows : albums d’œuvres libres avec leurs pochettes',
       'Lecteur Windows : un album en lecture, avec égaliseur, vitesse et minuteur',
-      'Android : écran En lecture de Miarina Media',
+      'Android : la musique de Miarina Media, titres et onglets',
     ],
     dlTitle: 'Télécharger Miarina Media',
     dlLead:
       'Gratuit, sans publicité, sans compte. L’application n’envoie ni statistiques d’usage ni rapports de plantage.',
     dlWindowsReq: 'Windows 10 / 11 · 64 bits',
-    dlAndroidReq: 'Android 7.0 et plus',
+    dlAndroidReq: 'Android 7.0 et plus · 64 bits (ARM)',
+    dlSuggested: 'Pour cet appareil',
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
@@ -242,6 +249,10 @@ export const LANDING: Record<Lang, LandingText> = {
         lead: 'From link to file: analysis, format choice, download queue.',
         items: [
           ['Paste a link', 'Miarina Media reads the address and shows you what can be downloaded.'],
+          [
+            'One search',
+            'Type a title: Miarina looks on your device first, then offers YouTube or the web in its built-in browser.',
+          ],
           [
             'Pick the format',
             'Video quality or audio only, with the size shown when the source provides or allows an estimate.',
@@ -304,18 +315,19 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'android',
         'Android',
-        'On Android, music keeps playing with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture. Verified on the emulator; real-phone testing in progress.',
+        'On Android, Miarina opens on your music: songs, playlists, folders, artists and albums. Playback continues with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.',
       ],
     ],
     shotAlts: [
       'Windows music library: albums of freely licensed works with their covers',
       'Windows player: an album playing, with equalizer, speed and sleep timer',
-      'Android: the Now playing screen of Miarina Media',
+      'Android: Miarina Media’s music, songs and tabs',
     ],
     dlTitle: 'Download Miarina Media',
     dlLead: 'Free, no ads, no account. The app sends no usage statistics and no crash reports.',
     dlWindowsReq: 'Windows 10 / 11 · 64-bit',
-    dlAndroidReq: 'Android 7.0 or later',
+    dlAndroidReq: 'Android 7.0 or later · 64-bit (ARM)',
+    dlSuggested: 'For this device',
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:

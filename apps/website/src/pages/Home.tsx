@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Icon, MotionLogo } from '../components/Common';
 import { HeroDemo } from '../components/HeroDemo';
 import { Showcase } from '../components/Showcase';
@@ -34,26 +34,50 @@ function useReveal() {
   }, []);
 }
 
+type Platform = 'windows' | 'android';
+
+/**
+ * The visitor's platform: Android on an Android phone or tablet, Windows
+ * otherwise. The pre-rendered page says Windows; a phone switches once the
+ * script runs (nothing is sent anywhere, the user agent is read locally).
+ */
+function useSuggestedPlatform(): Platform {
+  const [platform, setPlatform] = useState<Platform>('windows');
+  useEffect(() => {
+    if (/android/i.test(navigator.userAgent)) setPlatform('android');
+  }, []);
+  return platform;
+}
+
 /** Landing page (design_handoff_landing_v4), French at `/`, English at `/en/`. */
 export function Home({ lang = 'fr' }: { lang?: Lang }) {
   const t = LANDING[lang];
   useReveal();
-  const downloads = [
+  const suggested = useSuggestedPlatform();
+  const all = [
     {
+      id: 'windows' as const,
       icon: 'desktop_windows',
       platform: 'Windows',
       file: RELEASE.windows,
       req: t.dlWindowsReq,
       cta: t.dlWindowsCta,
+      hero: t.ctaWindows,
     },
     {
+      id: 'android' as const,
       icon: 'android',
       platform: 'Android',
       file: RELEASE.android,
       req: t.dlAndroidReq,
       cta: t.dlAndroidCta,
+      hero: t.ctaAndroid,
     },
   ];
+  // The visitor's platform first, and highlighted.
+  const downloads = [...all].sort(
+    (a, b) => Number(b.id === suggested) - Number(a.id === suggested),
+  );
 
   return (
     <div className="lp" lang={lang}>
@@ -90,14 +114,17 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
           </h1>
           <p className="lp-sub">{t.sub}</p>
           <div className="lp-hero-cta">
-            <a href={downloadUrl(RELEASE.windows)} className="btn btn-primary" download>
-              <Icon name="desktop_windows" />
-              {t.ctaWindows}
-            </a>
-            <a href={downloadUrl(RELEASE.android)} className="btn btn-secondary" download>
-              <Icon name="android" />
-              {t.ctaAndroid}
-            </a>
+            {downloads.map((d) => (
+              <a
+                key={d.id}
+                href={downloadUrl(d.file)}
+                className={d.id === suggested ? 'btn btn-primary' : 'btn btn-secondary'}
+                download
+              >
+                <Icon name={d.icon} />
+                {d.hero}
+              </a>
+            ))}
           </div>
           <p className="lp-meta">{t.heroMeta(RELEASE.windows.version, RELEASE.android.version)}</p>
         </div>
@@ -170,11 +197,16 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
         </div>
         <div className="lp-dl-list">
           {downloads.map((d) => (
-            <div key={d.platform} className="lp-dl-row" data-reveal="60">
+            <div
+              key={d.platform}
+              className={d.id === suggested ? 'lp-dl-row is-suggested' : 'lp-dl-row'}
+              data-reveal="60"
+            >
               <Icon name={d.icon} className="lp-dl-icon" />
               <div className="lp-dl-info">
                 <span className="lp-dl-title">
-                  {d.platform} {d.file.version}
+                  {d.platform} {d.file.version}{' '}
+                  {d.id === suggested && <span className="lp-dl-badge">{t.dlSuggested}</span>}
                 </span>
                 <span className="lp-dl-req">
                   {d.req} · {d.file.size}
