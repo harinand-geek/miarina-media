@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { Button } from '../../components/Button';
 import { RadioDot } from '../../components/Controls';
-import { DelayedSkeletons, Skeleton } from '../../components/Feedback';
 import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
 import { BottomSheet } from '../../components/Overlay';
 import { useT } from '../../i18n';
 import type { MediaInfo } from '../../services/types';
 import { useUi } from '../../stores/ui';
+import { AnalysisWaiting } from './AnalysisWaiting';
 import { ComponentsPrompt } from './ComponentsPrompt';
 import { NoMediaFound } from './NoMediaFound';
 import { defaultFormat, useAnalysis, useStartActions } from './useAnalysis';
@@ -59,15 +59,7 @@ export function AnalysisSheet({ onOpenStorage, onStarted }: AnalysisSheetProps) 
           })}
         </div>
       )}
-      {state.status === 'loading' && (
-        <div className="flex flex-col gap-3 pb-6 pt-2" aria-busy="true">
-          <DelayedSkeletons>
-            <Skeleton className="aspect-video rounded-[12px]" />
-            <Skeleton className="h-4 w-[70%]" />
-          </DelayedSkeletons>
-          <span className="text-[13px] text-muted">{t('stAnalyzing')}</span>
-        </div>
-      )}
+      {state.status === 'loading' && <AnalysisWaiting key={url} url={url} />}
       {state.status === 'no_media' && <NoMediaFound onRetry={retry} reason={state.message} />}
       {state.status === 'needs_components' && (
         <ComponentsPrompt

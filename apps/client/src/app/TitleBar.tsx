@@ -1,10 +1,10 @@
 import { Icon } from '../components/Icon';
-import { Kbd, PlannedBadge } from '../components/Feedback';
+import { PlannedBadge } from '../components/Feedback';
 import { Logo } from '../components/Logo';
+import { DesktopSearch } from '../features/search/DesktopSearch';
 import { useT } from '../i18n';
 import { backend } from '../services/backend';
 import { closeWindow, minimizeWindow, toggleMaximizeWindow } from '../services/window';
-import { useUi } from '../stores/ui';
 
 const WINDOW_BUTTON =
   'grid h-10 w-[46px] place-items-center text-muted transition-colors duration-[80ms] hover:bg-surface hover:text-fg';
@@ -12,7 +12,6 @@ const WINDOW_BUTTON =
 /** Custom 40 px title bar (decorations are disabled in tauri.conf.json). */
 export function TitleBar() {
   const t = useT();
-  const focusSearch = useUi((s) => s.focusLibrarySearch);
   return (
     <header
       data-tauri-drag-region
@@ -28,15 +27,7 @@ export function TitleBar() {
         </span>
       </div>
       <div data-tauri-drag-region className="flex flex-1 justify-center">
-        <button
-          type="button"
-          onClick={focusSearch}
-          className="flex h-7 w-[420px] max-w-full cursor-text items-center gap-2 rounded-sm border border-line bg-surface px-2.5 text-[12.5px] text-muted"
-        >
-          <Icon name="search" size={16} />
-          <span className="flex-1 truncate text-left">{t('searchAll')}</span>
-          <Kbd>Ctrl K</Kbd>
-        </button>
+        <DesktopSearch />
       </div>
       <div className="flex w-[232px] items-center justify-end">
         {backend.kind === 'mock' && (

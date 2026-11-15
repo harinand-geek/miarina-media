@@ -50,8 +50,13 @@ describe('Android v2 formats sheet (03)', () => {
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     const start = vi.spyOn(useDownloads.getState(), 'start');
     render(<MobileShell />);
+    await user.click(within(nav()).getByRole('button', { name: /Téléch/ }));
     await user.type(screen.getByLabelText('Coller un lien'), 'https://mango.blender.org/download/');
     await user.click(screen.getByRole('button', { name: 'Analyser le lien' }));
+    // While the link is read, the sheet says what happens and for how long.
+    expect(screen.getByText('Préparation de votre fichier')).toBeInTheDocument();
+    expect(screen.getByText('Lecture du lien sur mango.blender.org…')).toBeInTheDocument();
+    expect(screen.getByText('ASTUCE')).toBeInTheDocument();
     await act(() => vi.advanceTimersByTimeAsync(1000));
     const sheet = screen.getByRole('dialog', { name: 'Analyser le lien' });
     const types = within(sheet).getByRole('radiogroup', { name: 'Type de format' });
@@ -62,7 +67,11 @@ describe('Android v2 formats sheet (03)', () => {
     expect(within(types).getByRole('radio', { name: 'Audio seul' })).toBeChecked();
     expect(within(sheet).getByText('Enregistrer dans')).toBeInTheDocument();
     await user.click(within(sheet).getByRole('button', { name: 'À la file' }));
-    await waitFor(() => expect(start).toHaveBeenCalledWith(expect.objectContaining({ startNow: false, kind: 'audio' })));
+    await waitFor(() =>
+      expect(start).toHaveBeenCalledWith(
+        expect.objectContaining({ startNow: false, kind: 'audio' }),
+      ),
+    );
   });
 });
 
@@ -70,8 +79,11 @@ describe('Android v2 browser (02)', () => {
   it('speaks French and keeps the way back to Miarina', async () => {
     const user = userEvent.setup();
     render(<MobileShell />);
-    await user.click(within(nav()).getByRole('button', { name: /Navigateur/ }));
-    expect(screen.getByRole('heading', { name: 'Rechercher ou ouvrir une page web' })).toBeInTheDocument();
+    await user.click(within(nav()).getByRole('button', { name: /Téléch/ }));
+    await user.click(screen.getByRole('button', { name: 'Navigateur' }));
+    expect(
+      screen.getByRole('heading', { name: 'Rechercher ou ouvrir une page web' }),
+    ).toBeInTheDocument();
     const bar = screen.getByRole('navigation', { name: 'Navigateur' });
     expect(within(bar).getByRole('button', { name: 'Favoris' })).toBeEnabled();
     await user.click(within(bar).getByRole('button', { name: 'Retour à Miarina Media' }));

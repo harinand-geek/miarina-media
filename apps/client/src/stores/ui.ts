@@ -94,6 +94,10 @@ interface UiState {
   /** Search or address for the browser to open (Home field → browser). */
   browserRequest: string | null;
   librarySearchFocus: number;
+  /** Windows title bar search: focus requests (Ctrl+K) and its open panel. */
+  searchFocus: number;
+  searchOpen: boolean;
+  focusSearch: () => void;
   go: (screen: Screen) => void;
   toggleSidebar: () => void;
   analyze: (url: string, tab?: UiState['analysisTab']) => void;
@@ -112,8 +116,9 @@ interface UiState {
 }
 
 export const useUi = create<UiState>((set) => ({
-  screen: 'home',
-  space: 'get',
+  // Decision 0006 (Windows too): the app opens on the player side, Music › Tracks.
+  screen: 'library',
+  space: 'play',
   libraryView: 'tracks',
   libraryGroup: null,
   openPlaylist: null,
@@ -132,6 +137,9 @@ export const useUi = create<UiState>((set) => ({
   mobilePlayerExpanded: false,
   browserRequest: null,
   librarySearchFocus: 0,
+  searchFocus: 0,
+  searchOpen: false,
+  focusSearch: () => set((s) => ({ searchFocus: s.searchFocus + 1 })),
   go: (screen) =>
     set((s) => ({
       screen,

@@ -22,7 +22,9 @@ export function MiniPlayer() {
   const playing = usePlayer((s) => isActive(s.state));
   const failed = usePlayer((s) => s.state === 'error');
   const hasPrev = usePlayer((s) => s.queue.length > 0);
-  const hasNext = usePlayer((s) => s.index + 1 < s.queue.length || (s.repeat === 'all' && s.queue.length > 1));
+  const hasNext = usePlayer(
+    (s) => s.index + 1 < s.queue.length || (s.repeat === 'all' && s.queue.length > 1),
+  );
   const go = useUi((s) => s.go);
   if (!media) return null;
 
@@ -33,18 +35,19 @@ export function MiniPlayer() {
   return (
     <section
       aria-label={t('nowPlaying')}
-      className="relative flex h-[68px] shrink-0 items-center gap-4 border-t border-divider bg-sidebar px-5"
+      // Decision 0006: a floating rounded card (Lark-like), progress along its bottom edge.
+      className="relative mx-3 mb-3 flex h-[68px] shrink-0 items-center gap-4 overflow-hidden rounded-[22px] border border-line bg-sidebar pl-3 pr-5 shadow-[0_8px_28px_rgb(0_0_0/0.28)]"
     >
-      <div className="absolute inset-x-0 -top-px h-0.5 bg-line" aria-hidden="true">
-        <div className="h-full bg-coral" style={{ width: `${pct}%` }} />
+      <div className="absolute inset-x-6 bottom-0 h-[3px] rounded-full bg-line" aria-hidden="true">
+        <div className="h-full rounded-full bg-coral" style={{ width: `${pct}%` }} />
       </div>
       <button
         type="button"
         onClick={expand}
         title={t('expand')}
-        className="flex w-[300px] min-w-0 items-center gap-3 rounded-sm text-left"
+        className="flex w-[300px] min-w-0 items-center gap-3 rounded-[14px] text-left"
       >
-        <MediaThumb media={media} className="h-11 w-11 shrink-0 rounded-sm" />
+        <MediaThumb media={media} className="h-12 w-12 shrink-0 rounded-[12px]" />
         <span className="flex min-w-0 flex-col">
           <span className="truncate text-[13.5px] font-bold">{media.title}</span>
           <span className="flex items-center gap-1 truncate text-[12px] text-muted">

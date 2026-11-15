@@ -41,6 +41,9 @@ beforeEach(async () => {
 afterEach(() => stopEvents());
 
 describe('Windows shell', () => {
+  // These flows start from Home (the app itself opens on Play, decision 0006).
+  beforeEach(() => useUi.setState({ screen: 'home', space: 'get' }));
+
   it('hides app navigation in player fullscreen and restores it on Escape', async () => {
     const user = userEvent.setup();
     useUi.setState({ screen: 'player' });
@@ -159,7 +162,8 @@ describe('Windows shell', () => {
       screen.getByRole('textbox', { name: 'Media link' }),
       'https://mango.blender.org/download/{Enter}',
     );
-    expect(screen.getByText('Reading formats…')).toBeInTheDocument();
+    expect(screen.getByText('Getting your file ready')).toBeInTheDocument();
+    expect(screen.getByText('Reading the link on mango.blender.org…')).toBeInTheDocument();
 
     await act(() => vi.advanceTimersByTimeAsync(1000));
     expect(screen.getByRole('heading', { name: 'Tears of Steel' })).toBeInTheDocument();
@@ -266,12 +270,12 @@ describe('Android shell', () => {
     render(<MobileShell />);
     expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).not.toBeInTheDocument();
     const nav = screen.getByRole('navigation', { name: 'Main' });
-    expect(within(nav).getAllByRole('button')).toHaveLength(5);
+    expect(within(nav).getAllByRole('button')).toHaveLength(3);
     await user.click(within(nav).getByRole('button', { name: /Downloads/ }));
     expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
   });
 
-  it('follows the M5 navigation: Browser tab, Settings from Home', async () => {
+  it('follows decision 0006: player first, browser from Downloads, Settings from Music', async () => {
     const user = userEvent.setup();
     render(<MobileShell />);
     const nav = screen.getByRole('navigation', { name: 'Main' });
@@ -280,19 +284,17 @@ describe('Android shell', () => {
         .getAllByRole('button')
         // Labels only: the Downloads badge adds a count.
         .map((b) => b.textContent?.replace(/\d+/g, '')),
-    ).toEqual([
-      'homeHome',
-      'travel_exploreBrowser',
-      'downloadDownloads',
-      'library_musicMusic',
-      'video_libraryVideos',
-    ]);
-    await user.click(within(nav).getByRole('button', { name: /Browser/ }));
+    ).toEqual(['library_musicMusic', 'video_libraryVideos', 'downloadDownloads']);
+    await user.click(within(nav).getByRole('button', { name: /Downloads/ }));
+    await user.click(screen.getByRole('button', { name: 'Browser' }));
     // Design M1: the browser bar replaces the main navigation.
     expect(screen.getByRole('heading', { name: 'Search or open a web page' })).toBeInTheDocument();
     expect(nav).not.toBeVisible();
     await user.click(screen.getByRole('button', { name: 'Back to Miarina Media' }));
     expect(nav).toBeVisible();
+    // Back to the tab the browser was opened from.
+    expect(screen.getByRole('heading', { name: 'Downloads' })).toBeInTheDocument();
+    await user.click(within(nav).getByRole('button', { name: /Music/ }));
     await user.click(screen.getByRole('button', { name: 'Settings' }));
     expect(screen.getByRole('heading', { name: 'Settings' })).toBeInTheDocument();
     await user.click(screen.getByRole('button', { name: 'Back' }));
@@ -305,9 +307,10 @@ describe('Android shell', () => {
     render(<MobileShell />);
     await user.click(
       within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
-        name: /Browser/,
+        name: /Downloads/,
       }),
     );
+    await user.click(screen.getByRole('button', { name: 'Browser' }));
     await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
     await user.type(
       screen.getByRole('textbox', { name: 'Search or type a web address' }),
@@ -334,9 +337,10 @@ describe('Android shell', () => {
     render(<MobileShell />);
     await user.click(
       within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
-        name: /Browser/,
+        name: /Downloads/,
       }),
     );
+    await user.click(screen.getByRole('button', { name: 'Browser' }));
     await user.click(screen.getByRole('button', { name: 'Search or type a web address' }));
     await user.type(
       screen.getByRole('textbox', { name: 'Search or type a web address' }),
@@ -349,6 +353,11 @@ describe('Android shell', () => {
     vi.useFakeTimers({ shouldAdvanceTime: true });
     const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime });
     render(<MobileShell />);
+    await user.click(
+      within(screen.getByRole('navigation', { name: 'Main' })).getByRole('button', {
+        name: /Downloads/,
+      }),
+    );
     await user.type(screen.getByLabelText('Paste a link'), 'https://mango.blender.org/download/');
     await user.click(screen.getByRole('button', { name: 'Analyze link' }));
     await act(() => vi.advanceTimersByTimeAsync(1000));

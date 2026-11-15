@@ -39,6 +39,9 @@ beforeEach(async () => {
 afterEach(() => stopEvents());
 
 describe('Windows v2 Home', () => {
+  // Home tests start there (the app itself opens on Play, decision 0006).
+  beforeEach(() => useUi.setState({ screen: 'home', space: 'get' }));
+
   it('continues unfinished media the user played last', async () => {
     const user = userEvent.setup();
     // Sintel (mock id 2, 14:48) was left at 5:00; Big Buck Bunny was finished.
@@ -288,6 +291,7 @@ describe('UX-01: French everywhere', () => {
   it('shows link feedback, confirmations and progress in French', async () => {
     const user = userEvent.setup();
     useSettings.getState().setLang('fr');
+    useUi.setState({ screen: 'home', space: 'get' });
     render(<DesktopShell />);
     await user.click(screen.getByRole('button', { name: 'Analyser' }));
     expect(screen.getByRole('status')).toHaveTextContent('Collez un lien à analyser.');

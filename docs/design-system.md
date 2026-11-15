@@ -277,3 +277,19 @@ Logo « 4d » : tuile `#101820`, triangle play corail, trois barres teal (`compo
 ## 17. Splash Android — handoff `design/design_handoff_splash` (reçu le 2026-11-11)
 
 Splash système AndroidX avec logo 4d animé (AVD 1000 ms : barres teal en cascade puis triangle corail), fond `#101820`, branding « Miarina Media » / « MIARINA », sortie en fondu 300 ms ; écran React « Mise à jour de votre bibliothèque » (> 400 ms de migration) et « Le démarrage prend plus de temps » (> 3 s). Fait le 2026-11-12 (sauf l'écran de migration, voir la fiche du lot) : `drawable/splash_icon.xml` (logo 4d sur tuile `#182530`, état final, Android 7–11 et repli), `drawable/splash_icon_animated.xml` (AVD), `interpolator/mm_standard.xml`, `splash_branding.png` en 5 densités (rendu Manrope), thèmes `values` et `values-v31`, fondu de sortie dans `MainActivity.kt`, continuité côté React (`app/launch.ts`, `MobileHome`, barre du bas) et avis de démarrage long (`public/boot-slow.js`).
+
+### Lecteur Windows : correction du mode clair (2026-11-14)
+
+Sur demande du propriétaire, le bandeau natif et les commandes de PlayerScreen
+utilisent player-chrome : #0B1117 en sombre, #EDF1F4 (sidebar) en clair. Textes,
+icônes, volume, progression et erreurs suivent les tokens du thème. Le titre
+superposé à la vidéo garde son contraste clair ; la surface vidéo reste indépendante.
+
+## 18. Formes arrondies et « lecteur d'abord » — décision 0006 (2026-11-15)
+
+Sur demande du propriétaire (référence fonctionnelle : captures de Lark Player ; on garde le logo et les couleurs Miarina, on ne reprend que le style) :
+
+- **Rayons** : `--radius-sm` 6 → 8, `--radius-md` 8 → 12, `--radius-lg` 10 → 14, `--radius-xl` 14 → 18 (`xs` 4 et `2xl` 24 inchangés). Les valeurs « radius N » des tableaux ci-dessus restent celles du handoff ; l'app suit les nouveaux jetons.
+- **Android** : barre Musique · Vidéos · Téléch. ; en-tête logo + « Miarina Media » ; sous-onglets en pilules corail ; cartes de bibliothèque 100 px, rayon 22 ; mini-lecteur 76 px, rayon 22 ; Paramètres groupés en cartes rayon 22 ; recherche plein écran avec les logos des sites (Simple Icons, CC0) ; grand lecteur qui se transforme en mini-lecteur au glissement.
+- **Windows** : ouverture sur Écouter › Titres, sélecteur « Écouter | Obtenir » en pilules ; éléments du menu latéral en pilules 40 px ; recherche de la barre de titre en champ arrondi avec panneau 560 px, rayon 22 ; mini-lecteur flottant (marge 12, rayon 22, ombre) ; carte de résumé des téléchargements rayon 18.
+- **Attente d'analyse** (les deux plateformes) : `AnalysisWaiting` — icône animée, site, secondes écoulées, barre indéterminée, message selon le temps, astuce changeant toutes les 5 s ; aucune durée ni progression inventée.

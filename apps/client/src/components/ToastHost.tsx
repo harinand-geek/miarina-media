@@ -8,7 +8,8 @@ const TOAST_MS = 4000;
 const PLACES = {
   desktop: 'bottom-5 right-5',
   // Windows v2: toasts clear the 68 px mini-player.
-  aboveMiniPlayer: 'bottom-[84px] right-5',
+  // Floating mini-player: 68 px + 12 px margin (decision 0006).
+  aboveMiniPlayer: 'bottom-[96px] right-5',
   mobile: 'inset-x-4 bottom-24',
   // Browser: the page is a native view drawn above the app, so the toast
   // goes over the browser bar, one at a time.

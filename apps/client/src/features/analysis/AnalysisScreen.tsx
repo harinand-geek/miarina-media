@@ -1,12 +1,12 @@
 import { useState, type ReactNode } from 'react';
-import { DelayedSkeletons, Skeleton, ThumbBadge } from '../../components/Feedback';
+import { ThumbBadge } from '../../components/Feedback';
 import { LocalThumb } from '../../components/LocalThumb';
 import { Icon } from '../../components/Icon';
-import { ProgressBar } from '../../components/ProgressBar';
 import { useT, type MessageKey } from '../../i18n';
 import type { FormatGroup, MediaFormat, MediaInfo } from '../../services/types';
 import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
+import { AnalysisWaiting } from './AnalysisWaiting';
 import { ComponentsPrompt } from './ComponentsPrompt';
 import { NoMediaFound } from './NoMediaFound';
 import { defaultFormat, useAnalysis, useStartActions } from './useAnalysis';
@@ -35,7 +35,12 @@ export function AnalysisScreen() {
   if (state.status === 'ready') return <AnalysisResult info={state.info} />;
   return (
     <Scroll>
-      {state.status === 'loading' && <AnalysisSkeleton />}
+      {state.status === 'loading' && (
+        // Same honest wait as Android (decision 0006): what happens, how long, a tip.
+        <div className="w-full max-w-[640px]">
+          <AnalysisWaiting key={url} url={url} />
+        </div>
+      )}
       {state.status === 'no_media' && (
         <NoMediaFound
           onRetry={retry}
@@ -69,35 +74,6 @@ function Scroll({ children }: { children: ReactNode }) {
         {t('back')}
       </button>
       {children}
-    </div>
-  );
-}
-
-function AnalysisSkeleton() {
-  const t = useT();
-  return (
-    <div className="flex flex-col gap-5" aria-busy="true">
-      <div className="flex items-center gap-5">
-        <DelayedSkeletons>
-          <Skeleton className="aspect-video w-56 shrink-0 rounded-lg" />
-        </DelayedSkeletons>
-        <div className="flex flex-1 flex-col gap-2.5">
-          <DelayedSkeletons>
-            <Skeleton className="h-6 w-[50%]" />
-          </DelayedSkeletons>
-          <div className="flex items-center gap-2.5 text-[13px] text-muted">
-            <ProgressBar value={null} height={3} label={t('stAnalyzing')} className="w-[120px]" />
-            {t('stAnalyzing')}
-          </div>
-        </div>
-      </div>
-      <div className="flex max-w-[880px] flex-col gap-2">
-        <DelayedSkeletons>
-          <Skeleton className="h-14 rounded-lg" />
-          <Skeleton className="h-14 rounded-lg" />
-          <Skeleton className="h-14 rounded-lg" />
-        </DelayedSkeletons>
-      </div>
     </div>
   );
 }

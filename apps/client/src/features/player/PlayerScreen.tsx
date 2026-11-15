@@ -159,22 +159,22 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
 
   return (
     <div className="flex min-h-0 flex-1">
-      <div className="flex min-w-0 flex-1 flex-col text-[#F5F7FA]">
+      <div className="flex min-w-0 flex-1 flex-col text-fg">
         {/* A native picture (libVLC) covers what is drawn under it: the
             title stays above the picture instead of over it. */}
         {nativeVideo && (
-          <div className="flex h-12 shrink-0 items-center gap-3 bg-[#0B1117] px-5">
+          <div className="flex h-12 shrink-0 items-center gap-3 bg-player-chrome px-5">
             {!fullscreen && (
               <IconButton
                 icon="arrow_back"
                 label={t('back')}
                 iconSize={22}
                 onClick={() => openLibrary('videos')}
-                className="!text-[#F5F7FA] hover:!bg-white/10"
+                className="!text-fg hover:!bg-line"
               />
             )}
             <span className="truncate text-[15px] font-bold">{item.title}</span>
-            <span className="truncate font-mono text-[11.5px] text-[#94A3B8]">{tech}</span>
+            <span className="truncate font-mono text-[11.5px] text-muted">{tech}</span>
           </div>
         )}
         {/* Transparent stage: the engine's picture (PlayerHost) sits under it. */}
@@ -187,13 +187,13 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             className="absolute inset-0"
           />
           {!hasFile && (
-            <span className="pointer-events-none absolute inset-0 grid place-items-center font-mono text-[12px] font-medium text-[#3A4D5E]">
+            <span className="pointer-events-none absolute inset-0 grid place-items-center font-mono text-[12px] font-medium text-faint">
               {t('videoPreview')}
             </span>
           )}
           <div
             hidden={nativeVideo}
-            className="absolute inset-x-0 top-0 flex h-16 items-center gap-3 bg-gradient-to-b from-black/60 to-transparent px-5"
+            className="absolute inset-x-0 top-0 flex h-16 items-center gap-3 bg-gradient-to-b from-black/60 to-transparent px-5 text-[#F5F7FA]"
           >
             {!fullscreen && (
               <IconButton
@@ -210,21 +210,21 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
           {error && (
             <div
               role="alert"
-              className="absolute inset-x-0 bottom-6 mx-auto flex w-fit max-w-[90%] items-center gap-3 rounded-lg border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[13px]"
+              className="absolute inset-x-0 bottom-6 mx-auto flex w-fit max-w-[90%] items-center gap-3 rounded-lg border border-overlay-border bg-surface2 px-4 py-3 text-[13px]"
             >
-              <Icon name="error" fill className="text-[#F07070]" />
+              <Icon name="error" fill className="text-danger" />
               <span>{t(errorKey(error), { format: formatLabel(item) })}</span>
-              <button type="button" onClick={retry} className="font-bold text-accent">
+              <button type="button" onClick={retry} className="font-bold text-accent-strong">
                 {t('retry')}
               </button>
-              <button type="button" onClick={openExternal} className="font-bold text-accent">
+              <button type="button" onClick={openExternal} className="font-bold text-accent-strong">
                 {t('openExternal')}
               </button>
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-2 border-t border-[#1B2935] bg-[#0B1117] px-5 pb-3.5 pt-2.5 [--mm-border:36_53_69] [--mm-faint-icon:58_77_94]">
-          <div className="flex items-center gap-3 font-mono text-[12px] text-[#94A3B8] tabular">
+        <div className="flex flex-col gap-2 border-t border-divider bg-player-chrome px-5 pb-3.5 pt-2.5">
+          <div className="flex items-center gap-3 font-mono text-[12px] text-muted tabular">
             <span>{formatClock(position)}</span>
             <div className="flex-1">
               <SeekBar
@@ -239,7 +239,7 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             </div>
             <span>{durationLabel(duration)}</span>
           </div>
-          <div className="flex items-center gap-1 [&_button:disabled]:opacity-40 [&_button:not(.bg-coral)]:text-[#F5F7FA] [&_button:not(.bg-coral):enabled:hover]:bg-[#243545]">
+          <div className="flex items-center gap-1 [&_button:disabled]:opacity-40 [&_button:not(.bg-coral)]:text-fg [&_button:not(.bg-coral):enabled:hover]:bg-line">
             <PlayButton
               size={44}
               iconSize={28}
@@ -279,7 +279,7 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
               disabled={index + 1 >= queue.length}
               onClick={next}
             />
-            <VolumeControl t={t} width={90} dark />
+            <VolumeControl t={t} width={90} />
             <span className="flex-1" />
             <IconButton
               icon="closed_caption"

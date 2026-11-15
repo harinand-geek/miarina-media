@@ -12,6 +12,7 @@ import { useUi } from '../../stores/ui';
 import { usePlayHistory } from '../player/recentPlays';
 import { autoListIds, type AutoList } from './autoLists';
 import { durationLabel } from './format';
+import { LibraryCard } from './LibraryCard';
 import { MediaThumb } from './MediaThumb';
 
 const songs = (n: number, t: Translate) => (n === 1 ? t('oneSong') : t('songsCount', { n }));
@@ -83,7 +84,7 @@ export function PlaylistsTab({
             key={a.label}
             type="button"
             onClick={a.run}
-            className={`flex h-[88px] flex-col justify-between rounded-[14px] p-3 text-left ${
+            className={`flex h-[92px] flex-col justify-between rounded-[22px] p-3.5 text-left ${
               a.fav ? 'bg-coral-subtle' : 'bg-surface'
             }`}
           >
@@ -111,17 +112,15 @@ export function PlaylistsTab({
         </button>
       </div>
 
-      <ul aria-label={t('playlists')} className="m-0 flex list-none flex-col gap-1 p-0">
+      <ul aria-label={t('playlists')} className="m-0 flex list-none flex-col gap-3 p-0">
         <li>
           <button
             type="button"
             onClick={newPlaylist}
-            className="flex h-16 w-full items-center gap-3 text-left"
+            className="flex h-[100px] w-full flex-col items-center justify-center gap-1.5 rounded-[22px] bg-surface text-muted active:bg-surface2"
           >
-            <span className="grid h-14 w-14 place-items-center rounded-[10px] border-2 border-dashed border-faint-icon text-muted">
-              <Icon name="add" size={26} />
-            </span>
-            <span className="text-[14.5px] font-bold">{t('newPlaylist')}</span>
+            <Icon name="add" size={30} />
+            <span className="text-[14.5px] font-semibold">{t('newPlaylist')}</span>
           </button>
         </li>
         {list.map((p) => (
@@ -139,25 +138,16 @@ function PlaylistRow({ playlist, onOpen }: { playlist: PlaylistSummary; onOpen: 
   const t = useT();
   return (
     <li>
-      <button
-        type="button"
-        onClick={onOpen}
-        className="flex h-16 w-full items-center gap-3 text-left"
-      >
-        <Mosaic covers={playlist.covers} className="h-14 w-14 shrink-0 rounded-[10px]" />
-        <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="truncate text-[14.5px] font-bold">{playlist.name}</span>
-          <span className="truncate text-[12.5px] text-muted">
-            {[
-              songs(playlist.count, t),
-              playlist.durationSecs > 0 && durationLabel(playlist.durationSecs),
-            ]
-              .filter(Boolean)
-              .join(' · ')}
-          </span>
-        </span>
-        <Icon name="chevron_right" size={22} className="text-muted" />
-      </button>
+      <LibraryCard
+        cover={<Mosaic covers={playlist.covers} className="h-full w-full rounded-[18px]" />}
+        title={playlist.name}
+        lines={[
+          songs(playlist.count, t),
+          playlist.durationSecs > 0 && durationLabel(playlist.durationSecs),
+        ]}
+        count={playlist.count}
+        onOpen={onOpen}
+      />
     </li>
   );
 }

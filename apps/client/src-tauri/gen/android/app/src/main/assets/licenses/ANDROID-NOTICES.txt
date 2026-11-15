@@ -15,7 +15,7 @@ No in-app download of extractor updates is enabled for this integration.
 Runtime updates are delivered with a new signed APK.
 
 The application replaces the library's older yt-dlp script with yt-dlp
-2026.08.19, packaged as res/raw/miarina_ytdlp (standalone Python archive).
+2026.08.19, packaged as res/raw/ytdlp (standalone Python archive).
 Source and license: https://github.com/yt-dlp/yt-dlp/tree/2026.08.19
 Release archive SHA-256:
 1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6

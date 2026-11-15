@@ -72,7 +72,8 @@ export function useGlobalShortcuts() {
         useUi.getState().toggleSidebar();
       } else if (key === 'k') {
         e.preventDefault();
-        useUi.getState().focusLibrarySearch();
+        // Decision 0006: one search for the library, the web and links.
+        useUi.getState().focusSearch();
       } else if (key === 'p') {
         e.preventDefault();
         const downloads = useDownloads.getState();

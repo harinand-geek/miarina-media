@@ -39,10 +39,13 @@ function Row({
       {control}
     </>
   );
-  const cls = 'flex min-h-[60px] w-full items-center gap-3.5 border-b border-divider py-2';
+  // Rows sit in a rounded group card (decision 0006, Lark-like style).
+  const cls =
+    'flex min-h-[64px] w-full items-center gap-3.5 border-b border-divider py-2 last:border-b-0';
   return onTap ? (
     <button type="button" onClick={onTap} className={cls}>
       {content}
+      {!control && <Icon name="chevron_right" size={22} className="shrink-0 text-muted" />}
     </button>
   ) : (
     <div className={cls}>{content}</div>
@@ -51,9 +54,9 @@ function Row({
 
 function Group({ title, children }: { title: string; children: ReactNode }) {
   return (
-    <section aria-label={title} className="flex flex-col">
-      <h2 className="m-0 pb-1 text-[11.5px] font-bold tracking-[0.06em] text-faint">{title}</h2>
-      {children}
+    <section aria-label={title} className="flex flex-col gap-2">
+      <h2 className="m-0 px-1 text-[11.5px] font-bold tracking-[0.06em] text-faint">{title}</h2>
+      <div className="flex flex-col rounded-[22px] bg-surface px-4">{children}</div>
     </section>
   );
 }
@@ -230,12 +233,14 @@ export function MobileSettings({
           type="button"
           aria-label={t('back')}
           onClick={onBack}
-          className="grid h-12 w-12 place-items-center rounded-full"
+          className="grid h-11 w-11 place-items-center rounded-full bg-surface"
         >
           <Icon name="arrow_back" size={24} />
         </button>
-        <h1 className="m-0 text-[20px] font-extrabold">{t('settings')}</h1>
       </div>
+      <h1 className="m-0 px-5 pb-4 text-[32px] font-extrabold tracking-[-0.02em]">
+        {t('settings')}
+      </h1>
       <div className="flex flex-col gap-[18px] px-4 pt-1">
         <UpdateCard />
 

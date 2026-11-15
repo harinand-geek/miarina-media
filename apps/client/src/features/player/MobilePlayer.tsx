@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Icon } from '../../components/Icon';
 import { formatClock } from '../../hooks/usePlaybackClock';
@@ -21,6 +21,7 @@ import { notePlayed, noteStopped } from './recentPlays';
 import { SeekBar } from './SeekBar';
 import { useNativePlayback, type NativePlayback } from './useNativePlayback';
 import { usePlayback, type Playback } from './usePlayback';
+import { useSwipeDown } from './useSwipeDown';
 
 const ROUND = 'grid place-items-center text-[#F5F7FA]';
 
@@ -54,6 +55,12 @@ export function MobilePlayer({
   const attachSurface = 'attachSurface' in p ? p.attachSurface : undefined;
   const expanded = useUi((s) => s.mobilePlayerExpanded);
   const setExpanded = (mobilePlayerExpanded: boolean) => useUi.setState({ mobilePlayerExpanded });
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const collapse = useCallback(() => useUi.setState({ mobilePlayerExpanded: false }), []);
+  const swipe = useSwipeDown(dialogRef, collapse, {
+    open: expanded,
+    follow: item.kind === 'audio',
+  });
   const audio = item.kind === 'audio';
   const actionsSheet = useMobileMediaSheet({ inPlayer: true });
   const [sheet, setSheet] = useState<Sheet>(null);
@@ -189,11 +196,15 @@ export function MobilePlayer({
           miniSlot,
         )}
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
         aria-label={`Now playing: ${item.title}`}
         hidden={!expanded}
-        className={`absolute inset-0 z-40 flex animate-sheet-in flex-col text-[#F5F7FA] [--mm-border:245_247_250_/_0.18] ${
+        className={`absolute inset-0 z-40 flex flex-col overflow-hidden text-[#F5F7FA] will-change-transform [--mm-border:245_247_250_/_0.18] ${
+          // Audio opens from the mini-player (useSwipeDown); video slides in.
+          audio ? '' : 'animate-sheet-in'
+        } ${
           audio
             ? item.thumbnail
               ? 'bg-[linear-gradient(180deg,#2A2320_0%,#141C24_45%,#0A0F14_100%)]'
@@ -201,11 +212,34 @@ export function MobilePlayer({
             : 'bg-[#0A0F14]'
         }`}
       >
-        <div className="flex h-14 shrink-0 items-center px-1">
+        {/* The mini-player row the sheet turns into while dragged down (decision 0006). */}
+        <div
+          data-swipe-mini
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-x-0 top-0 flex h-[76px] items-center gap-3 bg-surface2 pl-[84px] pr-4 text-fg opacity-0"
+        >
+          <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+            <span className="truncate text-[15px] font-bold">{item.title}</span>
+            <span className="truncate text-[12.5px] text-muted">{mediaByline(item, t)}</span>
+          </span>
+          <span className="grid h-12 w-12 place-items-center rounded-full border-2 border-coral-strong text-coral-strong">
+            <Icon name={p.playing ? 'pause' : 'play_arrow'} size={28} fill />
+          </span>
+        </div>
+        {/* Drag down to minimize: the grab line, the top bar and the artwork. */}
+        <div
+          {...swipe.dragZone}
+          data-swipe-fade
+          className="flex shrink-0 justify-center pt-2"
+          aria-hidden="true"
+        >
+          <span className="h-1 w-10 rounded-full bg-[rgb(245_247_250/0.28)]" />
+        </div>
+        <div {...swipe.dragZone} data-swipe-fade className="flex h-14 shrink-0 items-center px-1">
           <button
             type="button"
             aria-label={t('minimizePlayer')}
-            onClick={() => setExpanded(false)}
+            onClick={swipe.minimize}
             className={`${ROUND} h-12 w-12`}
           >
             <Icon name="keyboard_arrow_down" size={28} />
@@ -230,11 +264,13 @@ export function MobilePlayer({
 
         {audio ? (
           <>
-            <MediaThumb
-              media={item}
-              className="mx-9 mt-5 aspect-square shrink-0 rounded-[20px] shadow-dialog"
-            />
-            <div className="flex flex-col gap-1 px-6 pt-7">
+            <div {...swipe.dragZone} data-swipe-art className="relative z-10 mx-9 mt-3 shrink-0">
+              <MediaThumb
+                media={item}
+                className="aspect-square w-full rounded-[24px] shadow-dialog"
+              />
+            </div>
+            <div data-swipe-fade className="flex flex-col gap-1 px-6 pt-7">
               <span className="truncate text-[24px] font-extrabold tracking-[-0.01em]">
                 {item.title}
               </span>
@@ -245,18 +281,17 @@ export function MobilePlayer({
           <div className="relative grid aspect-video place-items-center bg-black font-mono text-[11px] text-[#64748B]">
             {NATIVE ? (
               // Minimized: no surface, the native picture is hidden (sound goes on).
+              // Nothing of the page goes over this box: the native picture is
+              // drawn above the page there (the fullscreen button sits below).
+              // The native view takes no touch: a tap on the picture lands here
+              // and opens the fullscreen (the button below says it in words).
               expanded && (
-                <>
-                  <div ref={attachSurface} className="absolute inset-0 bg-black" />
-                  <button
-                    type="button"
-                    aria-label={t('fsEnter')}
-                    onClick={() => setFullscreen(true)}
-                    className="absolute bottom-2 right-2 z-10 grid h-11 w-11 place-items-center rounded-full bg-black/55 text-[#F5F7FA]"
-                  >
-                    <Icon name="fullscreen" size={24} />
-                  </button>
-                </>
+                <div
+                  ref={attachSurface}
+                  aria-hidden="true"
+                  onClick={() => setFullscreen(true)}
+                  className="absolute inset-0 bg-black"
+                />
               )
             ) : p.src ? (
               <video
@@ -274,16 +309,30 @@ export function MobilePlayer({
         {audio && p.src && !NATIVE && <audio ref={attachMedia} src={p.src} preload="metadata" />}
 
         {!audio && (
-          <div className="flex flex-col gap-1 px-6 pt-6">
-            <span className="text-[20px] font-bold tracking-[-0.01em]">{item.title}</span>
-            <span className="text-[14px] text-[#94A3B8]">
-              {[item.sourceHost, qualityLabel(item)].filter(Boolean).join(' · ')}
-            </span>
+          <div className="flex items-start gap-3 pl-6 pr-4 pt-5">
+            <div className="flex min-w-0 flex-1 flex-col gap-1">
+              <span className="text-[20px] font-bold tracking-[-0.01em]">{item.title}</span>
+              <span className="text-[14px] text-[#94A3B8]">
+                {[item.sourceHost, qualityLabel(item)].filter(Boolean).join(' · ')}
+              </span>
+            </div>
+            {NATIVE && (
+              // Below the picture, never under the native view (it was hidden there).
+              <button
+                type="button"
+                aria-label={t('fsEnter')}
+                onClick={() => setFullscreen(true)}
+                className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-[rgb(245_247_250/0.1)] text-[#F5F7FA] active:bg-[rgb(245_247_250/0.18)]"
+              >
+                <Icon name="fullscreen" size={26} />
+              </button>
+            )}
           </div>
         )}
         {p.error && (
           <div
             role="alert"
+            data-swipe-fade
             className="mx-4 mt-4 flex items-center gap-3 rounded-[14px] border border-[#2F4558] bg-[#1F2F3B] px-4 py-3 text-[14px]"
           >
             <Icon name="error" fill className="shrink-0 text-[#F07070]" />
@@ -291,7 +340,7 @@ export function MobilePlayer({
           </div>
         )}
 
-        <div className="flex flex-col gap-2 px-6 pt-5">
+        <div data-swipe-fade className="flex flex-col gap-2 px-6 pt-5">
           <SeekBar
             time={p.time}
             duration={p.duration}
@@ -309,7 +358,7 @@ export function MobilePlayer({
           </div>
         </div>
 
-        <div className="flex items-center justify-between px-5 pt-3">
+        <div data-swipe-fade className="flex items-center justify-between px-5 pt-3">
           <button
             type="button"
             aria-label={t('shuffle')}
@@ -362,7 +411,7 @@ export function MobilePlayer({
         </div>
 
         <div className="flex-1" />
-        <div className="flex justify-around px-3 pb-3">
+        <div data-swipe-fade className="flex justify-around px-3 pb-3">
           {access.map((a) => (
             <button
               key={a.id}

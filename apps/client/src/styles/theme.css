@@ -25,6 +25,7 @@
   --mm-danger: 240 112 112; /* #F07070 */
 
   /* derived */
+  --mm-player-chrome: 11 17 23; /* #0B1117 */
   --mm-divider: 27 41 53; /* #1B2935 */
   --mm-row: 20 31 40; /* #141F28 */
   --mm-card-hover: 27 42 54; /* #1B2A36 */
@@ -70,6 +71,7 @@
   --mm-danger: 201 60 60; /* #C93C3C */
 
   /* derived — light values pending design review */
+  --mm-player-chrome: 237 241 244; /* light sidebar surface */
   --mm-divider: 227 232 237;
   --mm-row: 241 244 247;
   --mm-card-hover: 243 246 248;
@@ -149,7 +151,7 @@
   --color-planned-bg: rgb(var(--mm-planned-bg));
   --color-planned-border: rgb(var(--mm-planned-border));
   --color-player: #070b0f;
-  --color-player-chrome: #0d141b;
+  --color-player-chrome: rgb(var(--mm-player-chrome));
   --color-window-close: #c8423b;
   --color-scrim: rgb(5 9 13 / 0.62);
 
@@ -175,11 +177,12 @@
   --text-mono: 12.5px;
   --text-mono--line-height: 18px;
 
+  /* Decision 0006 (2026-11-15): rounder, Lark-like shapes in Miarina colors. */
   --radius-xs: 4px;
-  --radius-sm: 6px;
-  --radius-md: 8px;
-  --radius-lg: 10px;
-  --radius-xl: 14px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 14px;
+  --radius-xl: 18px;
   --radius-2xl: 24px;
 
   --shadow-menu: 0 12px 32px rgba(0, 0, 0, 0.4);

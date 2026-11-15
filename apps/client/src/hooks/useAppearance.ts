@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { setWindowTheme } from '../services/window';
 import { useSettings } from '../stores/settings';
 import { useMediaQuery } from './useMediaQuery';
 
@@ -20,6 +21,12 @@ export function useAppearance() {
   useEffect(() => {
     document.documentElement.dataset.theme = resolved;
   }, [resolved]);
+
+  // Browser pages (WebView2) take the window theme: give it the app's choice,
+  // or none to follow the system (a light app showed dark pages).
+  useEffect(() => {
+    void setWindowTheme(theme === 'system' ? null : theme).catch(() => {});
+  }, [theme]);
 
   useEffect(() => {
     if (reduced) document.documentElement.dataset.motion = 'reduced';

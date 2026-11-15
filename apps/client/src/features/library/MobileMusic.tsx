@@ -1,5 +1,8 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { flyLogoFromSplash, takeLaunch } from '../../app/launch';
 import { Icon } from '../../components/Icon';
+import { Logo } from '../../components/Logo';
+import { useUpdates } from '../settings/useUpdates';
 import { LocalThumb } from '../../components/LocalThumb';
 import { Menu } from '../../components/Menu';
 import { VirtualGrid } from '../../components/VirtualGrid';
@@ -10,6 +13,7 @@ import { useLibrary } from '../../stores/library';
 import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { useUi } from '../../stores/ui';
 import { DeviceMediaCard } from './DeviceMediaCard';
+import { BrandHeader, LibraryCard, PillTabs, StickyBar } from './LibraryCard';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import type { AutoList } from './autoLists';
@@ -19,12 +23,12 @@ import { useMobileMediaSheet } from './useMobileMediaSheet';
 
 type MusicView = 'tracks' | 'playlists' | 'albums' | 'artists' | 'folders' | 'favorites';
 
-const VIEWS: { id: MusicView; label: MessageKey; by?: GroupBy; planned?: boolean }[] = [
+const VIEWS: { id: MusicView; label: MessageKey; by?: GroupBy }[] = [
   { id: 'tracks', label: 'songs' },
   { id: 'playlists', label: 'playlists' },
-  { id: 'albums', label: 'albums', by: 'album' },
-  { id: 'artists', label: 'artists', by: 'artist' },
   { id: 'folders', label: 'folders', by: 'folder' },
+  { id: 'artists', label: 'artists', by: 'artist' },
+  { id: 'albums', label: 'albums', by: 'album' },
   { id: 'favorites', label: 'favorites' },
 ];
 
@@ -52,16 +56,35 @@ function playList(items: MediaRecord[], start: MediaRecord | undefined, source: 
   if (start) useMobilePlayback.getState().start(start, items, source);
 }
 
-/** Android v2 Music (screens 05, 15, 16): tracks, albums, artists, folders. */
-export function MobileMusic() {
+/**
+ * Android v2 Music (screens 05, 15, 16): tracks, albums, artists, folders.
+ * First tab and launch screen since decision 0006, so it carries the logo
+ * (end of the splash) and the way to Settings.
+ */
+export function MobileMusic({
+  onOpenSettings,
+  onSearch,
+  onGetMusic,
+}: {
+  onOpenSettings: () => void;
+  /** Opens the shared search (library, YouTube, links). */
+  onSearch: () => void;
+  /** Empty library: go to the Downloads tab. */
+  onGetMusic: () => void;
+}) {
   const t = useT();
+  // Cold start only: the splash logo lands here, once (design_handoff_splash).
+  const [launch] = useState(() => takeLaunch('home'));
+  const logoRef = useRef<HTMLSpanElement>(null);
+  useLayoutEffect(() => {
+    if (launch && logoRef.current) flyLogoFromSplash(logoRef.current, 26);
+  }, [launch]);
+  const updateWaiting = useUpdates((s) => s.phase === 'available' || s.phase === 'ready');
   const [view, setView] = useState<MusicView>('tracks');
   const [opened, setOpened] = useState<{ by: GroupBy; name: string } | null>(null);
   const [playlist, setPlaylist] = useState<number | null>(null);
   const [auto, setAuto] = useState<AutoList | null>(null);
-  const [searching, setSearching] = useState(false);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
-  const { search, setSearch } = useLibrary();
   const by = VIEWS.find((v) => v.id === view)?.by ?? null;
 
   useEffect(() => {
@@ -94,70 +117,41 @@ export function MobileMusic() {
 
   return (
     <div ref={setScroller} className="relative flex flex-1 flex-col overflow-auto">
-      <div className="flex shrink-0 flex-col gap-2.5 px-4 pt-1">
-        <div className="flex h-12 items-center gap-1">
-          <h1 className="m-0 flex-1 text-[22px] font-extrabold tracking-[-0.01em]">
-            {t('tabMusic')}
-          </h1>
+      <div className="shrink-0 px-4 pt-1">
+        <BrandHeader title={t('tabMusic')} logoRef={logoRef} logo={<Logo size={28} />}>
           <button
             type="button"
             aria-label={t('mSearch')}
-            aria-pressed={searching}
-            onClick={() => setSearching((s) => !s)}
+            onClick={onSearch}
             className="grid h-11 w-11 place-items-center"
           >
-            <Icon name="search" size={24} />
+            <Icon name="search" size={25} />
           </button>
           <button
             type="button"
-            disabled
-            aria-label={t('importFolderPlanned')}
-            title={t('importFolderPlanned')}
-            className="grid h-11 w-11 place-items-center opacity-40"
+            aria-label={
+              updateWaiting ? `${t('settings')} — ${t('updateAvailable')}` : t('settings')
+            }
+            onClick={onOpenSettings}
+            className="relative grid h-11 w-11 place-items-center"
           >
-            <Icon name="create_new_folder" size={24} />
+            <Icon name="settings" size={25} />
+            {updateWaiting && (
+              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent" />
+            )}
           </button>
-        </div>
-        {searching && (
-          <label className="flex h-12 items-center gap-2.5 rounded-3xl bg-surface px-4">
-            <Icon name="search" size={20} className="text-muted" />
-            <input
-              type="search"
-              autoFocus
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder={t('librarySearch')}
-              aria-label={t('librarySearch')}
-              className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-fg outline-none focus-visible:outline-none"
-            />
-          </label>
-        )}
-        <div
-          role="tablist"
-          aria-label={t('tabMusic')}
-          className="-mx-4 flex gap-[22px] overflow-x-auto border-b border-divider px-4 [scrollbar-width:none]"
-        >
-          {VIEWS.map((v) => (
-            <button
-              key={v.id}
-              type="button"
-              role="tab"
-              aria-selected={view === v.id}
-              disabled={v.planned}
-              title={v.planned ? t('plannedHint') : undefined}
-              onClick={() => setView(v.id)}
-              className={`-mb-px shrink-0 border-b-2 py-2.5 text-[14px] disabled:opacity-45 ${
-                view === v.id
-                  ? 'border-coral font-bold text-fg'
-                  : 'border-transparent font-semibold text-muted'
-              }`}
-            >
-              {t(v.label)}
-            </button>
-          ))}
-        </div>
+        </BrandHeader>
       </div>
-      <div className="flex flex-1 flex-col px-4 pt-3.5">
+      {/* Lark-like: the header scrolls away, the tabs stay on top. */}
+      <StickyBar>
+        <PillTabs
+          label={t('tabMusic')}
+          items={VIEWS.map((v) => ({ id: v.id, label: t(v.label) }))}
+          value={view}
+          onChange={setView}
+        />
+      </StickyBar>
+      <div key={view} className="flex flex-1 animate-screen-in flex-col px-4 pt-2">
         {view === 'playlists' ? (
           <PlaylistsTab
             onFavorites={() => setView('favorites')}
@@ -167,7 +161,7 @@ export function MobileMusic() {
         ) : by ? (
           <Groups by={by} onOpen={(name) => setOpened({ by, name })} scroller={scroller} />
         ) : (
-          <Tracks scroller={scroller} favorites={view === 'favorites'} />
+          <Tracks scroller={scroller} favorites={view === 'favorites'} onGetMusic={onGetMusic} />
         )}
       </div>
     </div>
@@ -177,9 +171,11 @@ export function MobileMusic() {
 function Tracks({
   scroller,
   favorites,
+  onGetMusic,
 }: {
   scroller: HTMLDivElement | null;
   favorites: boolean;
+  onGetMusic: () => void;
 }) {
   const t = useT();
   const { items, sort, ready, search } = useLibrary();
@@ -192,19 +188,8 @@ function Tracks({
   return (
     <>
       {!favorites && <DeviceMediaCard />}
+      {/* No shuffle button here: shuffle lives in the player (as in Lark). */}
       <div className="flex items-center gap-2.5 pb-1">
-        <button
-          type="button"
-          disabled={!list.length}
-          onClick={() => {
-            const order = shuffled(list);
-            playList(order, order[0], source);
-          }}
-          className="flex h-10 items-center gap-2 rounded-full bg-coral pl-3 pr-4 text-[14px] font-extrabold text-coral-ink disabled:opacity-50"
-        >
-          <Icon name="shuffle" size={20} />
-          {t('shufflePlay')}
-        </button>
         <span className="flex-1 text-[13px] text-muted">{tracksLabel(list.length, t)}</span>
         <Menu
           label={t('sort')}
@@ -228,19 +213,39 @@ function Tracks({
           }))}
         />
       </div>
-      {ready && synced && list.length === 0 && (
-        <p className="py-10 text-center text-[13.5px] text-muted">
-          {search.trim() ? (
-            t('noMatch', { q: search.trim() })
-          ) : favorites ? (
-            <>
-              <span className="block text-[15px] font-bold text-fg">{t('favoritesEmptyTitle')}</span>
-              {t('favoritesEmptyBody')}
-            </>
-          ) : (
-            t('emptyLibBody')
-          )}
-        </p>
+      {ready && synced && list.length === 0 && !search.trim() && !favorites ? (
+        // Nothing to listen to: one tap to the Downloads tab (decision 0006),
+        // no automatic jump.
+        <div className="flex flex-col items-center gap-2 px-6 py-10 text-center">
+          <Icon name="library_music" size={40} className="text-faint-icon" />
+          <span className="text-[15px] font-bold">{t('musicEmptyTitle')}</span>
+          <span className="text-[13.5px] text-muted">{t('musicEmptyBody')}</span>
+          <button
+            type="button"
+            onClick={onGetMusic}
+            className="mt-2 flex h-11 items-center gap-2 rounded-full bg-accent px-5 text-[14px] font-extrabold text-accent-ink"
+          >
+            <Icon name="download" size={20} />
+            {t('musicEmptyAction')}
+          </button>
+        </div>
+      ) : (
+        ready &&
+        synced &&
+        list.length === 0 && (
+          <p className="py-10 text-center text-[13.5px] text-muted">
+            {search.trim() ? (
+              t('noMatch', { q: search.trim() })
+            ) : (
+              <>
+                <span className="block text-[15px] font-bold text-fg">
+                  {t('favoritesEmptyTitle')}
+                </span>
+                {t('favoritesEmptyBody')}
+              </>
+            )}
+          </p>
+        )
       )}
       <TrackList items={list} scroller={scroller} source={source} />
     </>
@@ -275,12 +280,12 @@ function TrackList({
         columns={1}
         columnGap={0}
         rowGap={0}
-        rowHeight={() => (numbered ? 56 : 64)}
+        rowHeight={() => (numbered ? 56 : 72)}
         getKey={(m) => String(m.id)}
         renderItem={(m) => {
           const on = m.id === currentId;
           return (
-            <div className={`flex items-center gap-3 ${numbered ? 'h-14' : 'h-16'}`}>
+            <div className={`flex items-center gap-3.5 ${numbered ? 'h-14' : 'h-[72px]'}`}>
               <button
                 type="button"
                 onClick={() => playList(items, m, source)}
@@ -289,7 +294,7 @@ function TrackList({
                   actionsSheet.open(m);
                 }}
                 aria-label={t('playTitle', { title: m.title })}
-                className="flex min-w-0 flex-1 items-center gap-3 text-left"
+                className="flex min-w-0 flex-1 items-center gap-3 rounded-[16px] text-left transition-transform duration-150 active:scale-[0.98]"
               >
                 {numbered ? (
                   <span
@@ -298,33 +303,28 @@ function TrackList({
                     {on ? '▶' : (m.trackNo ?? '·')}
                   </span>
                 ) : (
-                  <MediaThumb media={m} className="h-12 w-12 rounded-lg">
+                  <MediaThumb media={m} className="h-14 w-14 rounded-[14px]">
                     {on && (
-                      <span className="absolute inset-0 grid place-items-center rounded-lg bg-[rgb(16_24_32/0.6)] text-coral-strong">
-                        <Icon name="equalizer" size={24} />
+                      <span className="absolute inset-0 grid place-items-center rounded-[14px] bg-[rgb(16_24_32/0.6)] text-coral-strong">
+                        <Icon name="equalizer" size={26} />
                       </span>
                     )}
                   </MediaThumb>
                 )}
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="flex min-w-0 flex-1 flex-col gap-1">
                   <span
-                    className={`truncate text-[14.5px] font-bold ${on ? 'text-coral-strong' : ''}`}
+                    className={`truncate text-[15.5px] font-bold ${on ? 'text-coral-strong' : ''}`}
                   >
                     {m.title}
                   </span>
-                  <span className="truncate text-[12.5px] text-muted">
+                  <span className="truncate text-[13px] text-muted">
                     {[secondary === 'album' ? m.album : m.artist, durationLabel(m.durationSecs)]
                       .filter(Boolean)
                       .join(' · ')}
                   </span>
                 </span>
                 {m.favorite && (
-                  <Icon
-                    name="favorite"
-                    size={20}
-                    fill
-                    className="shrink-0 text-coral-hover"
-                  />
+                  <Icon name="favorite" size={20} fill className="shrink-0 text-coral-hover" />
                 )}
               </button>
               <button
@@ -366,7 +366,7 @@ function Groups({
     );
   }
   const count = (
-    <div className="flex items-center justify-between pb-3.5 text-[13px] text-muted">
+    <div className="flex items-center justify-between pb-3 text-[13px] text-muted">
       <span>
         {by === 'album'
           ? groups.length === 1
@@ -374,112 +374,95 @@ function Groups({
             : t('albumsCount', { n: groups.length })
           : `${groups.length}`}
       </span>
-      <span className="flex items-center gap-1 font-semibold">
-        <Icon name="sort" size={18} />
-        {t('sortAZ')}
-      </span>
+      {by === 'folder' ? (
+        <button
+          type="button"
+          disabled
+          aria-label={t('importFolderPlanned')}
+          title={t('importFolderPlanned')}
+          className="flex h-8 items-center gap-1.5 rounded-full bg-surface px-3 font-semibold opacity-50"
+        >
+          <Icon name="create_new_folder" size={18} />
+          {t('planned')}
+        </button>
+      ) : (
+        <span className="flex items-center gap-1 font-semibold">
+          <Icon name="sort" size={18} />
+          {t('sortAZ')}
+        </span>
+      )}
     </div>
   );
 
-  if (by === 'folder') {
-    return (
-      <>
-        {count}
-        <ul aria-label={t('folders')} className="m-0 flex list-none flex-col gap-2 p-0">
-          {groups.map((g) => (
-            <li key={g.name}>
-              <button
-                type="button"
-                onClick={() => onOpen(g.name)}
-                className="flex min-h-16 w-full items-center gap-3 rounded-xl bg-surface px-3.5 text-left active:bg-surface2"
-              >
-                <Icon name="folder" size={24} className="text-muted" />
-                <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-                  <span className="truncate text-[14.5px] font-bold">{lastSegment(g.name)}</span>
-                  <span className="truncate font-mono text-[11.5px] text-muted">{g.name}</span>
-                </span>
-                <span className="text-[12.5px] text-muted">{g.count}</span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      </>
-    );
-  }
-
-  const round = by === 'artist';
+  // Lark-like cards in one column (decision 0006): cover, name, details, count.
   return (
     <>
       {count}
       <VirtualGrid
-        label={by === 'album' ? t('albums') : t('artists')}
+        label={by === 'album' ? t('albums') : by === 'artist' ? t('artists') : t('folders')}
         items={groups}
         scrollRef={{ current: scroller }}
-        columns={2}
-        columnGap={12}
-        rowGap={16}
-        rowHeight={(w) => w + 8 + 40}
+        columns={1}
+        columnGap={0}
+        rowGap={12}
+        rowHeight={() => 100}
         getKey={(g) => g.name}
-        renderItem={(g) => (
-          <GroupCard group={g} round={round} onOpen={() => onOpen(g.name)} by={by} />
-        )}
+        renderItem={(g) => <GroupCard group={g} by={by} onOpen={() => onOpen(g.name)} />}
       />
     </>
   );
 }
 
-function GroupCard({
-  group,
-  round,
-  by,
-  onOpen,
-}: {
-  group: MediaGroup;
-  round: boolean;
-  by: GroupBy;
-  onOpen: () => void;
-}) {
+function GroupCard({ group, by, onOpen }: { group: MediaGroup; by: GroupBy; onOpen: () => void }) {
   const t = useT();
   const albums = Number(group.detail ?? 0);
-  return (
-    <div className={`flex flex-col gap-2 ${round ? 'items-center text-center' : ''}`}>
-      <div className="relative w-full">
-        <button type="button" onClick={onOpen} aria-label={group.name} className="block w-full">
-          <LocalThumb
-            path={round ? null : group.thumbnail}
-            kind="audio"
-            className={`aspect-square w-full ${round ? 'rounded-full' : 'rounded-xl'}`}
-          >
-            {round && <Icon name="person" size={44} className="relative text-faint-icon" />}
-          </LocalThumb>
-        </button>
-        {by === 'album' && (
-          <button
-            type="button"
-            aria-label={t('playTitle', { title: group.name })}
-            onClick={() =>
-              void backend
-                .libraryQuery({ search: '', kind: 'audio', sort: 'added', album: group.name })
-                .then((page) =>
-                  playList(page.items, page.items[0], t('sourceAlbum', { name: group.name })),
-                )
-                .catch(() => {})
-            }
-            className="absolute bottom-2 right-2 grid h-9 w-9 place-items-center rounded-full bg-[rgb(16_24_32/0.85)] text-coral-strong"
-          >
-            <Icon name="play_arrow" size={22} fill />
-          </button>
-        )}
-      </div>
-      <span className={`flex w-full flex-col gap-px ${round ? 'items-center' : ''}`}>
-        <span className="w-full truncate text-[14px] font-bold">{group.name}</span>
-        <span className="w-full truncate text-[12.5px] text-muted">
-          {by === 'album'
-            ? `${group.detail ?? '—'} · ${tracksLabel(group.count, t)}`
-            : `${albums === 1 ? t('oneAlbum') : t('albumsCount', { n: albums })} · ${tracksLabel(group.count, t)}`}
-        </span>
+  const length = group.durationSecs > 0 ? durationLabel(group.durationSecs) : null;
+  const cover =
+    by === 'folder' ? (
+      <span className="grid h-full w-full place-items-center rounded-[18px] bg-accent-subtle text-chip-text">
+        <Icon name="folder" size={40} fill />
       </span>
-    </div>
+    ) : (
+      <LocalThumb
+        path={group.thumbnail}
+        kind="audio"
+        className={`h-full w-full ${by === 'artist' ? 'rounded-full' : 'rounded-[18px]'}`}
+      >
+        {by === 'artist' && !group.thumbnail && (
+          <Icon name="person" size={36} className="relative text-faint-icon" />
+        )}
+      </LocalThumb>
+    );
+  const lines =
+    by === 'album'
+      ? [group.detail, [group.year, length].filter(Boolean).join(' · ')]
+      : by === 'artist'
+        ? [albums === 1 ? t('oneAlbum') : t('albumsCount', { n: albums }), length]
+        : [group.name, length];
+  return (
+    <LibraryCard
+      cover={cover}
+      title={by === 'folder' ? lastSegment(group.name) : group.name}
+      label={group.name}
+      lines={lines}
+      count={group.count}
+      onOpen={onOpen}
+      action={
+        by === 'album'
+          ? {
+              icon: <Icon name="play_arrow" size={24} fill />,
+              label: t('playTitle', { title: group.name }),
+              run: () =>
+                void backend
+                  .libraryQuery({ search: '', kind: 'audio', sort: 'added', album: group.name })
+                  .then((page) =>
+                    playList(page.items, page.items[0], t('sourceAlbum', { name: group.name })),
+                  )
+                  .catch(() => {}),
+            }
+          : undefined
+      }
+    />
   );
 }
 

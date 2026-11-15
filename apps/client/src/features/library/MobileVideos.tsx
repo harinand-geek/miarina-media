@@ -9,6 +9,9 @@ import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { savedPosition } from '../player/usePlayback';
 import { durationLabel, folderOf, qualityLabel } from './format';
 import { MediaThumb } from './MediaThumb';
+import { ResumeShelf } from './ResumeShelf';
+import { BrandHeader, StickyBar } from './LibraryCard';
+import { Logo } from '../../components/Logo';
 import { useMobileMediaSheet } from './useMobileMediaSheet';
 
 type Filter = { kind: 'all' } | { kind: 'progress' } | { kind: 'folder'; path: string };
@@ -17,12 +20,11 @@ const lastSegment = (path: string) => path.split(/[\\/]/).filter(Boolean).pop() 
 const extension = (path: string) => path.split('.').pop()?.toUpperCase() ?? '';
 
 /** Android v2 Videos (screen 14): filters, 2-column grid, resume bar. */
-export function MobileVideos() {
+export function MobileVideos({ onSearch }: { onSearch: () => void }) {
   const t = useT();
-  const { items, ready, search, setSearch } = useLibrary();
+  const { items, ready, search } = useLibrary();
   const synced = useLibrary((s) => s.kind === 'video' && s.group === null);
   const [filter, setFilter] = useState<Filter>({ kind: 'all' });
-  const [searching, setSearching] = useState(false);
   const [asList, setAsList] = useState(false);
   const [scroller, setScroller] = useState<HTMLDivElement | null>(null);
   const actionsSheet = useMobileMediaSheet();
@@ -52,10 +54,8 @@ export function MobileVideos() {
       role="radio"
       aria-checked={on}
       onClick={onClick}
-      className={`h-[34px] shrink-0 rounded-full border px-3 text-[12.5px] ${
-        on
-          ? 'border-chip-border bg-accent-subtle font-bold text-chip-text'
-          : 'border-line-strong font-semibold text-muted'
+      className={`h-10 shrink-0 rounded-full px-4 text-[14px] transition-[color,background-color,transform] duration-200 active:scale-95 ${
+        on ? 'bg-coral font-bold text-coral-ink' : 'bg-surface font-semibold text-muted'
       }`}
     >
       {label}
@@ -63,17 +63,18 @@ export function MobileVideos() {
   );
 
   return (
-    <div ref={setScroller} className="relative flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3 pt-1">
-      <div className="flex h-12 items-center gap-1">
-        <h1 className="m-0 flex-1 text-[22px] font-extrabold tracking-[-0.01em]">{t('tabVideos')}</h1>
+    <div
+      ref={setScroller}
+      className="relative flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3 pt-1"
+    >
+      <BrandHeader title={t('tabVideos')} logo={<Logo size={28} />}>
         <button
           type="button"
           aria-label={t('mSearch')}
-          aria-pressed={searching}
-          onClick={() => setSearching((s) => !s)}
+          onClick={onSearch}
           className="grid h-11 w-11 place-items-center"
         >
-          <Icon name="search" size={24} />
+          <Icon name="search" size={25} />
         </button>
         <button
           type="button"
@@ -83,44 +84,38 @@ export function MobileVideos() {
         >
           <Icon name={asList ? 'grid_view' : 'view_list'} size={24} />
         </button>
-      </div>
-      {searching && (
-        <label className="flex h-12 items-center gap-2.5 rounded-3xl bg-surface px-4">
-          <Icon name="search" size={20} className="text-muted" />
-          <input
-            type="search"
-            autoFocus
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder={t('librarySearch')}
-            aria-label={t('librarySearch')}
-            className="min-w-0 flex-1 bg-transparent text-[15px] font-medium text-fg outline-none focus-visible:outline-none"
-          />
-        </label>
-      )}
-      <div
-        role="radiogroup"
-        aria-label={t('tabVideos')}
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
-      >
-        {chip(filter.kind === 'all', t('allVideos', { n: all.length }), () => setFilter({ kind: 'all' }), 'all')}
-        {inProgress.length > 0 &&
-          chip(
-            filter.kind === 'progress',
-            t('inProgress', { n: inProgress.length }),
-            () => setFilter({ kind: 'progress' }),
-            'progress',
+      </BrandHeader>
+      <StickyBar inset>
+        <div
+          role="radiogroup"
+          aria-label={t('tabVideos')}
+          className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
+        >
+          {chip(
+            filter.kind === 'all',
+            t('allVideos', { n: all.length }),
+            () => setFilter({ kind: 'all' }),
+            'all',
           )}
-        {folders.length > 1 &&
-          folders.map((path) =>
+          {inProgress.length > 0 &&
             chip(
-              filter.kind === 'folder' && filter.path === path,
-              lastSegment(path),
-              () => setFilter({ kind: 'folder', path }),
-              path,
-            ),
-          )}
-      </div>
+              filter.kind === 'progress',
+              t('inProgress', { n: inProgress.length }),
+              () => setFilter({ kind: 'progress' }),
+              'progress',
+            )}
+          {folders.length > 1 &&
+            folders.map((path) =>
+              chip(
+                filter.kind === 'folder' && filter.path === path,
+                lastSegment(path),
+                () => setFilter({ kind: 'folder', path }),
+                path,
+              ),
+            )}
+        </div>
+      </StickyBar>
+      {filter.kind === 'all' && <ResumeShelf />}
       {ready && synced && shown.length === 0 && (
         <p className="py-10 text-center text-[13.5px] text-muted">
           {search.trim() ? t('noMatch', { q: search.trim() }) : t('noItems')}
@@ -141,7 +136,11 @@ export function MobileVideos() {
           const thumb = (
             <MediaThumb
               media={m}
-              className={asList ? 'aspect-video h-[72px] rounded-[10px]' : 'aspect-video w-full rounded-[10px]'}
+              className={
+                asList
+                  ? 'aspect-video h-[72px] rounded-[14px]'
+                  : 'aspect-video w-full rounded-[18px]'
+              }
             >
               {m.durationSecs != null && (
                 <span className="absolute bottom-2 right-1.5 rounded-xs bg-[rgb(5_9_13/0.8)] px-[5px] py-px font-mono text-[10.5px] font-bold">

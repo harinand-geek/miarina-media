@@ -17,7 +17,9 @@ permissions, remote extraction service or user credentials are introduced.
 
 The Python extractor is separately pinned to yt-dlp 2026.08.19, matching the
 existing Windows pin, instead of the library's bundled 2025.11.12. Its release
-archive is stored at `app/src/main/res/raw/miarina_ytdlp` in the Android project.
+archive is stored at `app/src/main/res/raw/ytdlp` in the Android project (named
+`miarina_ytdlp` until 2026-11-15; the shared name now overrides the library's own
+copy, so the APK carries one yt-dlp instead of two, about 3 MB less).
 SHA-256 `1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6`
 matches the repository's signed release checksum fixture. APK initialization
 atomically replaces the installed script with this bundled version.

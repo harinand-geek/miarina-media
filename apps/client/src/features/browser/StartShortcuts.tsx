@@ -1,3 +1,5 @@
+import { BrandMark } from '../search/SiteTiles';
+import { brandOf } from '../search/sites';
 import { SHORTCUTS } from './shortcuts';
 
 interface Site {
@@ -6,8 +8,9 @@ interface Site {
 }
 
 /**
- * Start page shortcuts. Not in the handoff: letter tiles like the M4
- * favorites grid (no remote icons are loaded, the app CSP forbids them).
+ * Start page shortcuts. Known sites show their own mark (inlined, decision
+ * 0006); others keep the letter tile of the M4 favorites grid (no remote
+ * icons are loaded, the app CSP forbids them).
  */
 export function StartShortcuts({
   onOpen,
@@ -27,23 +30,30 @@ export function StartShortcuts({
         columns === 8 ? 'max-w-[720px] grid-cols-8' : 'grid-cols-4'
       }`}
     >
-      {sites.map((site) => (
-        <li key={site.address}>
-          <button
-            type="button"
-            onClick={() => onOpen(site.address)}
-            className="flex w-full flex-col items-center gap-2 rounded-lg py-1 text-center hover:bg-card-hover focus-visible:bg-card-hover"
-          >
-            <span
-              aria-hidden="true"
-              className="grid h-12 w-12 place-items-center rounded-full bg-surface2 text-[18px] font-bold text-accent"
+      {sites.map((site) => {
+        const brand = brandOf(site.address);
+        return (
+          <li key={site.address}>
+            <button
+              type="button"
+              onClick={() => onOpen(site.address)}
+              className="flex w-full flex-col items-center gap-2 rounded-2xl py-1.5 text-center transition-transform duration-150 hover:bg-card-hover focus-visible:bg-card-hover active:scale-95"
             >
-              {site.name[0]}
-            </span>
-            <span className="w-full truncate text-[12px] text-muted">{site.name}</span>
-          </button>
-        </li>
-      ))}
+              {brand ? (
+                <BrandMark site={brand} size={48} />
+              ) : (
+                <span
+                  aria-hidden="true"
+                  className="grid h-12 w-12 place-items-center rounded-full bg-surface2 text-[18px] font-bold text-accent"
+                >
+                  {site.name[0]}
+                </span>
+              )}
+              <span className="w-full truncate text-[12px] text-muted">{site.name}</span>
+            </button>
+          </li>
+        );
+      })}
     </ul>
   );
 }

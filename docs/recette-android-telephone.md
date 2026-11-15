@@ -2,9 +2,21 @@
 
 Sept tâches Flow attendent un essai sur un téléphone ARM64 physique : **L03 Audio Android durable**, **splash screen et écrans de démarrage**, **lecteur vidéo paysage (écran 13, L07)**, **médias locaux du téléphone (AND-06)**, **Playlists et Favoris (écran 06)**, **égaliseur (écran 09)**, **réglages de lecture**. L'émulateur ne permet pas de les valider (Bluetooth, appels, verrouillage, gestes au doigt, restrictions des constructeurs, mémoire).
 
-## APK de test
+## APK de test — navigation « lecteur d'abord » (2026-11-15)
 
-À utiliser : `builds/test/MiarinaMedia-android-test-and12.apk` (dossier local, non versionné), construit le 2026-11-13 depuis la révision `d897182`, déjà installé sur le Redmi Note 10 Pro (Android 13 / MIUI 14) à 12:14.
+À utiliser : `builds/test/MiarinaMedia-android-test-lark.apk` (non versionné), construit le 2026-11-15 depuis `f00511f` + modifications non commitées de la décision [0006](decisions/0006-android-player-first.md), réinstallé par adb sur le Redmi Note 10 Pro à 16:10 (2e version : morphing lecteur ↔ mini-lecteur, glisser le mini-lecteur vers le haut, vrais logos des sites dans la recherche, bouton plein écran vidéo sous l'image et appui sur l'image, réduction vidéo immédiate, écran d'attente de l'analyse). Premier essai (15:48) : retours pris en compte.
+
+- ARM64 seulement, 70 258 796 octets, SHA-256 `9ebecdb532c1186dd60b82928d19f87f0fb3127c17167a841c3cfa8ed8bf5ef6`.
+- **3e version, réinstallée à 17:12** : menu collant en haut (Musique, Vidéos), bouton « Lecture aléatoire » retiré de Titres, animations d'appui et de changement d'onglet, arrondis plus marqués, vrais logos sur la page de départ du navigateur, une seule copie de yt-dlp (même version 2026.08.19). 67 089 176 octets (−3 Mo), SHA-256 `ee83a9a46f1fe5189739424d3aa14386bfe937dbc1758eaea8ffe803332a3871`. **À vérifier en priorité** : analyser un lien YouTube et télécharger en MP3 (contrôle que yt-dlp et FFmpeg se préparent bien avec le nouveau nom de ressource).
+
+Windows (même jour) : `builds/test/MiarinaMedia-0.1.10-x64-setup-test.exe`, 95 685 900 octets, SHA-256 `cc021b194cc821faf9578d03b054d62e80b7435aae725f42ad4dd32e9f2f04b7`, installé en silencieux par-dessus la 0.1.10 locale sur ce PC à 17:05 et lancé. Ouverture sur Écouter, recherche Ctrl K, arrondis, mini-lecteur flottant, écran d'attente, pages du navigateur au thème de l'app (clair/sombre).
+- versionCode 1009, version affichée 0.1.9 (build de test, **ne pas publier**) ; certificat `11de8715…6479e1` vérifié avec apksigner, installé par-dessus la 0.1.9.
+- Contrôlé : 217 tests frontend, TypeScript, ESLint ; sur le téléphone, démarrage sans plantage ni erreur JavaScript dans logcat. Aucune capture d'écran faite.
+- À essayer : ouverture sur Musique ; barre Musique · Vidéos · Téléch. ; loupe (sites, résultats du téléphone, Entrée sans résultat → YouTube, coller un lien) ; navigateur et retour à l'onglet d'origine ; carte « Coller un lien » dans Téléchargements ; « Reprendre » en tête de Vidéos ; cartes Dossiers / Artistes / Albums / Playlists ; mini-lecteur ; **glisser le grand lecteur vers le bas** (suivi du doigt, fluidité, petit mouvement = tap) ; Paramètres groupés ; mode Éco (réduction sans animation).
+
+## APK de test précédent
+
+Précédent : `builds/test/MiarinaMedia-android-test-and12.apk` (dossier local, non versionné), construit le 2026-11-13 depuis la révision `d897182`, déjà installé sur le Redmi Note 10 Pro (Android 13 / MIUI 14) à 12:14.
 
 - ARM64 seulement (téléphones ; pas l'émulateur x86_64). Taille : 70 257 236 octets.
 - SHA-256 : `35a9c353647584f894b49559da14e438de01770d3d546f5db3a3105a95aaad1c`

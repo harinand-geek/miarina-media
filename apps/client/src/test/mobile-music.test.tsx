@@ -37,7 +37,7 @@ async function openTab(name: RegExp) {
 }
 
 describe('Android v2 Music', () => {
-  it('lists tracks with a shuffle that fills the queue', async () => {
+  it('lists tracks; a tap plays the list as the queue (shuffle is in the player)', async () => {
     const user = await openTab(/Music/);
     const tabs = screen.getByRole('tablist', { name: 'Music' });
     expect(within(tabs).getByRole('tab', { name: 'Songs' })).toHaveAttribute(
@@ -47,8 +47,9 @@ describe('Android v2 Music', () => {
     expect(within(tabs).getByRole('tab', { name: 'Playlists' })).toBeEnabled();
     expect(within(tabs).getByRole('tab', { name: 'Favorites' })).toBeEnabled();
     expect(await screen.findByText('3 songs')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Shuffle play' })).toBeNull();
 
-    await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
+    await user.click(screen.getAllByRole('button', { name: /^Play / })[0]!);
     expect(useMobilePlayback.getState().queue).toHaveLength(3);
     expect(useUi.getState().nowPlaying).not.toBeNull();
   });
@@ -150,7 +151,7 @@ describe('Android v2 Music › Favorites and Playlists', () => {
   it('saves the play queue as a playlist', async () => {
     const user = await openTab(/Music/);
     expect(await screen.findByText('3 songs')).toBeInTheDocument();
-    await user.click(screen.getByRole('button', { name: 'Shuffle play' }));
+    await user.click(screen.getAllByRole('button', { name: /^Play / })[0]!);
     await user.click(await screen.findByRole('button', { name: /Queue/ }));
     await user.click(screen.getByRole('button', { name: 'Save as playlist' }));
     const dialog = screen.getByRole('dialog', { name: 'New playlist' });

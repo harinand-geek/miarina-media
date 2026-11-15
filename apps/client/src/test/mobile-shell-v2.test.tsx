@@ -1,4 +1,4 @@
-import { act, render, screen, waitFor, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { MobileShell } from '../app/MobileShell';
@@ -46,7 +46,7 @@ describe('Android v2 shell', () => {
     const labels = within(screen.getByRole('navigation', { name: 'Navigation principale' }))
       .getAllByRole('button')
       .map((b) => b.textContent?.replace(/^[a-z_]+/, '').replace(/\d+$/, ''));
-    expect(labels).toEqual(['Accueil', 'Navigateur', 'Téléch.', 'Musique', 'Vidéos']);
+    expect(labels).toEqual(['Musique', 'Vidéos', 'Téléch.']);
   });
 
   it('minimizes the player into the mini-player without stopping it', async () => {
@@ -71,6 +71,34 @@ describe('Android v2 shell', () => {
     expect(screen.queryByRole('region', { name: 'Now playing' })).toBeNull();
   });
 
+  it('minimizes the player when it is dragged down, and ignores a small move', () => {
+    render(<MobileShell />);
+    const media = useLibrary.getState().items.find((m) => m.kind === 'audio')!;
+    act(() => useUi.getState().play(media));
+    const player = screen.getByRole('dialog', { name: `Now playing: ${media.title}` });
+    const bar = within(player).getByRole('button', { name: 'Minimize player' }).parentElement!;
+
+    // Under the slop: a tap, not a drag.
+    fireEvent.pointerDown(bar, { button: 0, pointerId: 1, clientY: 100 });
+    fireEvent.pointerMove(bar, { pointerId: 1, clientY: 104 });
+    fireEvent.pointerUp(bar, { pointerId: 1, clientY: 104 });
+    expect(player).toBeVisible();
+
+    fireEvent.pointerDown(bar, { button: 0, pointerId: 2, clientY: 100 });
+    fireEvent.pointerMove(bar, { pointerId: 2, clientY: 180 });
+    fireEvent.pointerMove(bar, { pointerId: 2, clientY: 400 });
+    fireEvent.pointerUp(bar, { pointerId: 2, clientY: 400 });
+    expect(player).not.toBeVisible();
+    expect(useUi.getState().nowPlaying?.id).toBe(media.id);
+    expect(screen.getByRole('region', { name: 'Now playing' })).toBeInTheDocument();
+
+    // Vice versa: swiping the mini-player up opens the full player again.
+    const mini = screen.getByRole('region', { name: 'Now playing' });
+    fireEvent.pointerDown(mini, { button: 0, pointerId: 3, clientY: 700 });
+    fireEvent.pointerMove(mini, { pointerId: 3, clientY: 640 });
+    expect(player).toBeVisible();
+  });
+
   it('hides the mini-player with the browser and keeps playing', async () => {
     const user = userEvent.setup();
     render(<MobileShell />);
@@ -80,7 +108,8 @@ describe('Android v2 shell', () => {
       useUi.setState({ mobilePlayerExpanded: false });
     });
     expect(screen.getByRole('region', { name: 'Now playing' })).toBeInTheDocument();
-    await user.click(within(nav()).getByRole('button', { name: /Browser/ }));
+    await user.click(within(nav()).getByRole('button', { name: /Downloads/ }));
+    await user.click(screen.getByRole('button', { name: 'Browser' }));
     expect(screen.queryByRole('region', { name: 'Now playing' })).toBeNull();
     expect(useUi.getState().nowPlaying?.id).toBe(media.id);
   });

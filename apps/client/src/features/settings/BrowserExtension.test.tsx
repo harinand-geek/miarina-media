@@ -18,7 +18,8 @@ it('keeps received links for review and analyzes only after a click', async () =
   const user = userEvent.setup();
   render(<BrowserExtension />);
   await screen.findByText('https://example.com/video');
-  expect(useUi.getState().screen).toBe('home');
+  // Nothing is analyzed before the click.
+  expect(useUi.getState().screen).not.toBe('analysis');
   await user.click(screen.getByRole('button', { name: 'Analyze' }));
   expect(useUi.getState().pendingUrl).toBe('https://example.com/video');
   expect(invoke).not.toHaveBeenCalledWith('browser_inbox_dismiss', expect.anything());

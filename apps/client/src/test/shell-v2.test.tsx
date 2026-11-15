@@ -2,7 +2,7 @@ import { act, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { DesktopShell } from '../app/DesktopShell';
-import { resetMockBackend } from '../services/backend';
+import { backend, resetMockBackend } from '../services/backend';
 import type { MediaRecord } from '../services/types';
 import { useDownloads } from '../stores/downloads';
 import { resetPlayerForTests, usePlayer } from '../stores/player';
@@ -44,11 +44,20 @@ afterEach(() => {
 });
 
 describe('Windows v2 shell — navigation B', () => {
-  it('switches between the Get and Play spaces', async () => {
+  it('opens on Play (decision 0006) and switches between the Play and Get spaces', async () => {
     const user = userEvent.setup();
     render(<DesktopShell />);
     const spaces = screen.getByRole('radiogroup', { name: 'Space' });
-    expect(within(spaces).getByRole('radio', { name: 'Get' })).toBeChecked();
+    // Listening first: Play is the first space and the launch screen.
+    expect(
+      within(spaces)
+        .getAllByRole('radio')
+        .map((r) => r.textContent),
+    ).toEqual(['library_musicPlay', 'downloadGet']);
+    expect(within(spaces).getByRole('radio', { name: 'Play' })).toBeChecked();
+    expect(await screen.findByRole('heading', { name: /Tracks/ })).toBeInTheDocument();
+
+    await user.click(within(spaces).getByRole('radio', { name: 'Get' }));
     expect(screen.getByRole('button', { name: 'Torrents' })).toBeInTheDocument();
 
     await user.click(within(spaces).getByRole('radio', { name: 'Play' }));
@@ -62,12 +71,13 @@ describe('Windows v2 shell — navigation B', () => {
 
   it('reads the French catalog', () => {
     useSettings.setState({ lang: 'fr' });
+    useUi.setState({ screen: 'home', space: 'get' });
     render(<DesktopShell />);
     const spaces = screen.getByRole('radiogroup', { name: 'Espace' });
     expect(within(spaces).getByRole('radio', { name: 'Obtenir' })).toBeInTheDocument();
     expect(within(spaces).getByRole('radio', { name: 'Écouter' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Accueil' })).toBeInTheDocument();
-    expect(screen.getByText('Rechercher titres, vidéos, playlists…')).toBeInTheDocument();
+    expect(screen.getByRole('searchbox', { name: 'Musique, vidéo ou lien' })).toBeInTheDocument();
   });
 
   it('shows the offline banner from the network status', () => {
@@ -82,9 +92,49 @@ describe('Windows v2 shell — navigation B', () => {
   });
 });
 
+describe('Windows title bar search (decision 0006)', () => {
+  it('opens on Ctrl+K with the sites, then finds local media before the web', async () => {
+    const user = userEvent.setup();
+    render(<DesktopShell />);
+    await user.keyboard('{Control>}k{/Control}');
+    const field = screen.getByRole('searchbox', { name: 'Music, video or link' });
+    expect(field).toHaveFocus();
+    const sites = screen.getByRole('list', { name: 'Sites' });
+    expect(within(sites).getByRole('button', { name: 'YouTube' })).toBeInTheDocument();
+
+    const page = await backend.libraryQuery({ search: '', kind: 'audio', sort: 'added' });
+    const track = page.items[0]!;
+    await user.type(field, track.title);
+    const local = await screen.findByRole('region', { name: 'On this computer' });
+    await user.click(within(local).getByRole('button', { name: `Play ${track.title}` }));
+    expect(usePlayer.getState().media?.id).toBe(track.id);
+    expect(screen.queryByRole('list', { name: 'Sites' })).toBeNull();
+  });
+
+  it('searches YouTube in the built-in browser on Enter when nothing is local', async () => {
+    const user = userEvent.setup();
+    render(<DesktopShell />);
+    await user.click(screen.getByRole('searchbox', { name: 'Music, video or link' }));
+    await user.type(
+      screen.getByRole('searchbox', { name: 'Music, video or link' }),
+      'zz no such song',
+    );
+    await screen.findByText(
+      'Nothing on this computer for “zz no such song”. Enter searches YouTube.',
+    );
+    const asked: string[] = [];
+    const stop = useUi.subscribe((s) => s.browserRequest && asked.push(s.browserRequest));
+    await user.keyboard('{Enter}');
+    stop();
+    expect(asked).toContain('https://www.youtube.com/results?search_query=zz%20no%20such%20song');
+    expect(useUi.getState().screen).toBe('browser');
+  });
+});
+
 describe('Windows v2 shell — mini-player and Now playing (COM-05)', () => {
   it('keeps one playback across screens and expands without reloading', async () => {
     const user = userEvent.setup();
+    useUi.setState({ screen: 'home', space: 'get' });
     render(<DesktopShell />);
     act(() => usePlayer.getState().playMedia(track(1), [track(1), track(2)]));
     const mini = await screen.findByRole('region', { name: 'Now playing' });

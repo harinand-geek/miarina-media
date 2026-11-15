@@ -18,6 +18,7 @@ import {
   type Status,
 } from './status';
 import { useNow } from './useNow';
+import { LinkCard } from '../home/LinkCard';
 
 type Tab = 'active' | 'done' | 'failed';
 
@@ -83,8 +84,11 @@ function Row({
   );
 }
 
-/** Android v2 Downloads (screen 04). */
-export function MobileDownloads() {
+/**
+ * Android v2 Downloads (screen 04), last tab of the bar since decision 0006:
+ * the link card of the former Home comes first, then the three lists.
+ */
+export function MobileDownloads({ onBrowser }: { onBrowser: () => void }) {
   const t = useT();
   const [tab, setTab] = useState<Tab>('active');
   const { active: open, failedTasks, failedHistory, done, counts } = useDownloadLists();
@@ -185,6 +189,8 @@ export function MobileDownloads() {
           </button>
         )}
       </header>
+
+      <LinkCard onBrowser={onBrowser} />
 
       <div
         role="radiogroup"

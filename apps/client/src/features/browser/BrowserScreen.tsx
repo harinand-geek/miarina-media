@@ -8,5 +8,7 @@ import { DesktopBrowser } from './DesktopBrowser';
  */
 export default function BrowserScreen() {
   const confirmOpen = useUi((s) => s.confirm !== null);
-  return <DesktopBrowser covered={confirmOpen} />;
+  // The native page would hide the title bar search panel: step aside while it is open.
+  const searchOpen = useUi((s) => s.searchOpen);
+  return <DesktopBrowser covered={confirmOpen || searchOpen} />;
 }

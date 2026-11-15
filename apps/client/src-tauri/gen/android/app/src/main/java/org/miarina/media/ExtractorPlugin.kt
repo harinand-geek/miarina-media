@@ -27,9 +27,11 @@ class ExtractorPlugin(private val activity: Activity) : Plugin(activity) {
         val base = File(context.noBackupFilesDir, YoutubeDL.baseName)
         // Upstream only copies yt-dlp when absent. Always restore the APK's
         // version atomically so installing a newer APK actually updates it.
+        // Our pinned yt-dlp is `res/raw/ytdlp`: same name as the library's,
+        // so it replaces that copy in the APK (one 3 MB script, not two).
         val script = File(File(base, YoutubeDL.ytdlpDirName), YoutubeDL.ytdlpBin)
         val staged = File(script.parentFile, "packaged.tmp")
-        context.resources.openRawResource(R.raw.miarina_ytdlp).use { input ->
+        context.resources.openRawResource(R.raw.ytdlp).use { input ->
           staged.outputStream().use { output -> input.copyTo(output) }
         }
         android.system.Os.rename(staged.absolutePath, script.absolutePath)

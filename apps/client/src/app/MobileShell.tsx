@@ -1,14 +1,14 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Icon } from '../components/Icon';
 import { ConfirmDialog } from '../components/Overlay';
 import { MobileRemoveSheet } from '../features/library/MobileRemoveSheet';
 import { PlaylistDialogs } from '../features/library/PlaylistDialogs';
 import { ToastHost } from '../components/ToastHost';
-import { MobileHome } from '../features/home/MobileHome';
 import { takeLaunch } from './launch';
 import { MobileDownloads } from '../features/downloads/MobileDownloads';
 import { MobileMusic } from '../features/library/MobileMusic';
 import { MobileVideos } from '../features/library/MobileVideos';
+import { MobileSearch } from '../features/search/MobileSearch';
 import { MobileSettings } from '../features/settings/MobileSettings';
 import { BrowserView } from '../features/browser/BrowserView';
 import { browserBack } from '../features/browser/browserBack';
@@ -29,25 +29,41 @@ import { useUi } from '../stores/ui';
 
 const NATIVE_PLAYER = nativePlayback();
 
-export type MobileTab = 'home' | 'browser' | 'downloads' | 'music' | 'videos';
+export type MobileTab = 'browser' | 'downloads' | 'music' | 'videos';
 
-/** Android v2: teal tabs get media, coral tabs play it. */
+/** The launch tab, and where Back lands before leaving the app. */
+const FIRST_TAB: MobileTab = 'music';
+
+/**
+ * Android, decision 0006 (player first): coral tabs play media, the teal
+ * one gets it and comes last. The browser is not in the bar: it opens from
+ * the search (sites, "search on YouTube"), the Downloads card or a request.
+ */
 const TABS: { id: MobileTab; label: MessageKey; icon: string; play?: boolean }[] = [
-  { id: 'home', label: 'tabHome', icon: 'home' },
-  { id: 'browser', label: 'tabBrowser', icon: 'travel_explore' },
-  { id: 'downloads', label: 'tabDownloads', icon: 'download' },
   { id: 'music', label: 'tabMusic', icon: 'library_music', play: true },
   { id: 'videos', label: 'tabVideos', icon: 'video_library', play: true },
+  { id: 'downloads', label: 'tabDownloads', icon: 'download' },
 ];
 
 /**
- * Android shell: bottom navigation (Home, Browser, Downloads, Library —
- * design M5), Settings as a full page from Home, bottom sheets for analysis
- * and storage, full-screen player (design "Miarina Media - Android").
+ * Android shell: bottom navigation (Music, Videos, Downloads — decision
+ * 0006), one search page over the tabs, the browser as a hidden tab,
+ * Settings as a full page from Music, bottom sheets for analysis and
+ * storage, full-screen player (design "Miarina Media - Android").
  */
 export function MobileShell() {
   const t = useT();
-  const [tab, setTab] = useState<MobileTab>('home');
+  const [tab, setTabState] = useState<MobileTab>(FIRST_TAB);
+  const [searchOpen, setSearchOpen] = useState(false);
+  // The browser returns to the tab it was opened from.
+  const [beforeBrowser, setBeforeBrowser] = useState<MobileTab>(FIRST_TAB);
+  const tabRef = useRef(tab);
+  const setTab = useCallback((next: MobileTab) => {
+    if (next === 'browser' && tabRef.current !== 'browser') setBeforeBrowser(tabRef.current);
+    tabRef.current = next;
+    setTabState(next);
+    setSearchOpen(false);
+  }, []);
   // The bottom bar slides up once, with Home, after a cold start.
   const [launchNav] = useState(() => takeLaunch('nav'));
   const [miniSlot, setMiniSlot] = useState<HTMLDivElement | null>(null);
@@ -73,31 +89,38 @@ export function MobileShell() {
   const pushToast = useUi((s) => s.pushToast);
 
   // Back closes the top panel, then goes back in the browser page, then
-  // returns Home; on Home it leaves the app.
+  // returns to Music; on Music it leaves the app.
   // A minimized player keeps playing: Back never stops it.
   const playlistDialog = useUi((s) => s.playlistDialog !== null);
   useAndroidBack(
-    playlistDialog || removalOpen || playerExpanded || settingsOpen || tab !== 'home',
+    playlistDialog ||
+      removalOpen ||
+      playerExpanded ||
+      settingsOpen ||
+      searchOpen ||
+      tab !== FIRST_TAB,
     () => {
       if (playlistDialog) useUi.setState({ playlistDialog: null });
       else if (removalOpen) useUi.getState().askRemoval(null);
       else if (playerExpanded) useUi.setState({ mobilePlayerExpanded: false });
       else if (settingsOpen) setSettingsOpen(false);
+      else if (searchOpen) setSearchOpen(false);
       else if (tab === 'browser' && !sheetOpen && browserBack.current?.()) return;
-      else setTab('home');
+      else if (tab === 'browser') setTab(beforeBrowser);
+      else setTab(FIRST_TAB);
     },
   );
-  // A link shared from another app opens its analysis on Home; a tapped
-  // "Download complete" notification plays the file.
+  // A link shared from another app opens its analysis over Downloads; a
+  // tapped "Download complete" notification plays the file.
   const analyze = useUi((s) => s.analyze);
   const onLink = useCallback(
     (url: string) => {
       closePlayer(null);
       setSettingsOpen(false);
-      setTab('home');
+      setTab('downloads');
       analyze(url);
     },
-    [analyze, closePlayer],
+    [analyze, closePlayer, setTab],
   );
   const onPlayTask = useCallback(
     (taskId: string) => {
@@ -112,16 +135,16 @@ export function MobileShell() {
         })
         .catch(() => {});
     },
-    [closePlayer],
+    [closePlayer, setTab],
   );
   useLaunchRequests({ onLink, onPlayTask });
-  // A search typed on Home opens in the browser tab.
+  // A browser request (a typed search, a site shortcut) opens the browser tab.
   useEffect(
     () =>
       useUi.subscribe((s, prev) => {
         if (s.browserRequest && s.browserRequest !== prev.browserRequest) setTab('browser');
       }),
-    [],
+    [setTab],
   );
   const tasks = useDownloads((s) => s.tasks);
   const activeCount = useMemo(() => summarize(tasks).openCount, [tasks]);
@@ -129,9 +152,6 @@ export function MobileShell() {
   return (
     <div className="relative flex h-full flex-col overflow-hidden bg-bg">
       <div key={tab} className="flex min-h-0 flex-1 animate-screen-in flex-col">
-        {tab === 'home' && (
-          <MobileHome onNavigate={setTab} onOpenSettings={() => setSettingsOpen(true)} />
-        )}
         {tab === 'browser' && (
           <BrowserView
             covered={
@@ -142,15 +162,26 @@ export function MobileShell() {
               confirmOpen ||
               removalOpen
             }
-            onExit={() => setTab('home')}
+            onExit={() => setTab(beforeBrowser)}
             onOpenSettings={() => setSettingsOpen(true)}
             onShowDownloads={() => setTab('downloads')}
           />
         )}
-        {tab === 'downloads' && <MobileDownloads />}
-        {tab === 'music' && <MobileMusic />}
-        {tab === 'videos' && <MobileVideos />}
+        {tab === 'downloads' && <MobileDownloads onBrowser={() => setTab('browser')} />}
+        {tab === 'music' && (
+          <MobileMusic
+            onOpenSettings={() => setSettingsOpen(true)}
+            onSearch={() => setSearchOpen(true)}
+            onGetMusic={() => setTab('downloads')}
+          />
+        )}
+        {tab === 'videos' && <MobileVideos onSearch={() => setSearchOpen(true)} />}
       </div>
+      {searchOpen && (
+        <div className="absolute inset-0 z-30 flex animate-screen-in flex-col bg-bg">
+          <MobileSearch onClose={() => setSearchOpen(false)} />
+        </div>
+      )}
       {settingsOpen && (
         <div className="absolute inset-0 z-30 flex animate-screen-in flex-col bg-bg">
           <MobileSettings
@@ -190,9 +221,11 @@ export function MobileShell() {
                   name={item.icon}
                   size={24}
                   fill={on}
-                  className={
-                    on ? (item.play ? 'text-coral-strong' : 'text-chip-text') : 'text-muted'
-                  }
+                  className={`transition-transform duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] ${
+                    on
+                      ? `scale-110 ${item.play ? 'text-coral-strong' : 'text-chip-text'}`
+                      : 'scale-100 text-muted'
+                  }`}
                 />
                 {item.id === 'downloads' && activeCount > 0 && (
                   <span className="absolute right-1.5 top-0 grid h-4 min-w-4 place-items-center rounded-lg bg-accent px-1 text-[10px] font-extrabold text-accent-ink">

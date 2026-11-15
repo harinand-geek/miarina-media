@@ -12,7 +12,7 @@ Date : 2026-10-14 · Statut : **acceptée** (décision du propriétaire du produ
 2. **Spike de faisabilité avant toute implémentation** :
    - Windows : webview enfant Tauri (`unstable`) ou fenêtre dédiée ; isolation de la page visitée (aucun accès IPC), détection des médias, coût mémoire mesuré.
    - Android : WebView native via un plugin Kotlin ; interception des requêtes médias, cycle de vie, mémoire.
-3. **Navigation Android** : Home / Browser / Downloads / Library. Settings quitte la barre du bas (emplacement défini par la maquette).
+3. **Navigation Android** : Home / Browser / Downloads / Library. Settings quitte la barre du bas (emplacement défini par la maquette). *Remplacé le 2026-11-15 par [0006](0006-android-player-first.md) : Musique / Vidéos / Téléchargements, navigateur ouvert depuis la recherche.*
 4. **Écrans du navigateur** : fournis par le propriétaire sous forme de maquettes Claude Design ; pas d'implémentation visuelle avant leur réception.
 
 ## Conséquences

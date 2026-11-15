@@ -49,9 +49,10 @@ const MUSIC: NavItem[] = [
 ];
 const VIDEO: NavItem[] = [library('videos', 'videos', 'movie')];
 
+/** Decision 0006: listening first, getting media second. */
 const SPACES: { id: Space; label: MessageKey; icon: string; home: () => void }[] = [
-  { id: 'get', label: 'spaceGet', icon: 'download', home: () => openSection('home') },
   { id: 'play', label: 'spacePlay', icon: 'library_music', home: () => openLibrary('tracks') },
+  { id: 'get', label: 'spaceGet', icon: 'download', home: () => openSection('home') },
 ];
 
 export function Sidebar({ collapsed }: { collapsed: boolean }) {
@@ -86,7 +87,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         disabled={item.planned}
         title={item.planned ? `${label} — ${t('plannedHint')}` : label}
         aria-current={on ? 'page' : undefined}
-        className={`flex h-[38px] shrink-0 items-center gap-3 overflow-hidden whitespace-nowrap rounded-sm px-[13px] text-left text-[13.5px] font-semibold transition-colors duration-[80ms] enabled:hover:text-fg disabled:opacity-55 ${
+        className={`flex h-10 shrink-0 items-center gap-3 overflow-hidden whitespace-nowrap rounded-full px-[14px] text-left text-[13.5px] font-semibold transition-colors duration-[80ms] enabled:hover:bg-surface/60 enabled:hover:text-fg disabled:opacity-55 ${
           on ? 'bg-surface text-fg' : 'text-muted'
         }`}
       >
@@ -134,7 +135,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
       <div
         role="radiogroup"
         aria-label={t('spaces')}
-        className="mb-2.5 flex gap-0.5 rounded-md border border-line bg-bg p-[3px]"
+        className="mb-2.5 flex gap-0.5 rounded-full border border-line bg-bg p-[3px]"
       >
         {SPACES.map((sp) => {
           const on = space === sp.id;
@@ -149,7 +150,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
                 useUi.setState({ space: sp.id });
                 sp.home();
               }}
-              className={`flex h-[34px] min-w-0 flex-1 items-center justify-center gap-[5px] overflow-hidden whitespace-nowrap rounded-sm border px-1 text-[12px] font-bold transition-colors duration-150 ${
+              className={`flex h-[34px] min-w-0 flex-1 items-center justify-center gap-[5px] overflow-hidden whitespace-nowrap rounded-full border px-1 text-[12px] font-bold transition-colors duration-150 ${
                 on
                   ? 'border-line-strong bg-surface text-fg shadow-[0_1px_2px_rgba(0,0,0,0.12)]'
                   : 'border-transparent text-muted hover:text-fg'
@@ -201,7 +202,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         <button
           type="button"
           onClick={() => openSection('downloads')}
-          className="mb-1.5 flex flex-col gap-2 rounded-md border border-line bg-surface p-3 text-left"
+          className="mb-1.5 flex flex-col gap-2 rounded-[18px] border border-line bg-surface p-3.5 text-left"
         >
           <span className="flex w-full justify-between text-[12px]">
             <span className="font-bold">
@@ -233,7 +234,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         onClick={() => openSection('settings')}
         title={updateWaiting ? `${t('settings')} — ${t('updateAvailable')}` : t('settings')}
         aria-current={screen === 'settings' ? 'page' : undefined}
-        className={`flex h-[38px] items-center gap-3 overflow-hidden whitespace-nowrap rounded-sm px-[13px] text-[13.5px] font-semibold hover:text-fg ${
+        className={`flex h-10 items-center gap-3 overflow-hidden whitespace-nowrap rounded-full px-[14px] text-[13.5px] font-semibold hover:bg-surface/60 hover:text-fg ${
           screen === 'settings' ? 'bg-surface text-fg' : 'text-muted'
         }`}
       >
@@ -265,7 +266,7 @@ export function Sidebar({ collapsed }: { collapsed: boolean }) {
         onClick={toggle}
         title={`${collapsed ? t('expandSidebar') : t('collapseSidebar')} (Ctrl+B)`}
         aria-label={collapsed ? t('expandSidebar') : t('collapseSidebar')}
-        className="flex h-[34px] items-center gap-3 whitespace-nowrap rounded-sm px-[13px] text-[12.5px] font-medium text-muted hover:bg-surface hover:text-fg"
+        className="flex h-[34px] items-center gap-3 whitespace-nowrap rounded-full px-[14px] text-[12.5px] font-medium text-muted hover:bg-surface hover:text-fg"
       >
         <Icon name={collapsed ? 'left_panel_open' : 'left_panel_close'} />
         {!collapsed && (
