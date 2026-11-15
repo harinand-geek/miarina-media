@@ -1,6 +1,6 @@
 import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MobileShell } from '../app/MobileShell';
 import { resetMockBackend } from '../services/backend';
 import { useDownloads } from '../stores/downloads';
@@ -97,6 +97,31 @@ describe('Android v2 shell', () => {
     fireEvent.pointerDown(mini, { button: 0, pointerId: 3, clientY: 700 });
     fireEvent.pointerMove(mini, { pointerId: 3, clientY: 640 });
     expect(player).toBeVisible();
+  });
+
+  it('hides the header when scrolling down and brings it back on the way up', async () => {
+    // Frames run at once here (jsdom paints nothing).
+    vi.stubGlobal('requestAnimationFrame', (run: FrameRequestCallback) => {
+      run(0);
+      return 1;
+    });
+    render(<MobileShell />);
+    const search = screen.getByRole('button', { name: 'Search' });
+    const header = search.closest('[class*="px-4 pt-1"]') as HTMLElement;
+    const scroller = header.closest('.overflow-auto') as HTMLElement;
+    // jsdom has no layout: scrollTop is simulated.
+    const scrollTo = (y: number) => {
+      Object.defineProperty(scroller, 'scrollTop', { value: y, configurable: true });
+      fireEvent.scroll(scroller);
+    };
+    // setup.ts gives every element 800 px: scroll past the header first.
+    scrollTo(1400);
+    await waitFor(() => expect(header).toHaveAttribute('inert'));
+    // Still on the tabs while hidden.
+    expect(screen.getByRole('tablist', { name: 'Music' })).toBeInTheDocument();
+    scrollTo(1380);
+    await waitFor(() => expect(header).not.toHaveAttribute('inert'));
+    vi.unstubAllGlobals();
   });
 
   it('hides the mini-player with the browser and keeps playing', async () => {

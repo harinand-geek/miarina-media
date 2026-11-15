@@ -13,7 +13,7 @@ import { useLibrary } from '../../stores/library';
 import { useMobilePlayback } from '../../stores/mobilePlayback';
 import { useUi } from '../../stores/ui';
 import { DeviceMediaCard } from './DeviceMediaCard';
-import { BrandHeader, LibraryCard, PillTabs, StickyBar } from './LibraryCard';
+import { BrandHeader, CollapsingHeader, LibraryCard, PillTabs } from './LibraryCard';
 import { durationLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import type { AutoList } from './autoLists';
@@ -117,40 +117,43 @@ export function MobileMusic({
 
   return (
     <div ref={setScroller} className="relative flex flex-1 flex-col overflow-auto">
-      <div className="shrink-0 px-4 pt-1">
-        <BrandHeader title={t('tabMusic')} logoRef={logoRef} logo={<Logo size={28} />}>
-          <button
-            type="button"
-            aria-label={t('mSearch')}
-            onClick={onSearch}
-            className="grid h-11 w-11 place-items-center"
-          >
-            <Icon name="search" size={25} />
-          </button>
-          <button
-            type="button"
-            aria-label={
-              updateWaiting ? `${t('settings')} — ${t('updateAvailable')}` : t('settings')
-            }
-            onClick={onOpenSettings}
-            className="relative grid h-11 w-11 place-items-center"
-          >
-            <Icon name="settings" size={25} />
-            {updateWaiting && (
-              <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent" />
-            )}
-          </button>
-        </BrandHeader>
-      </div>
-      {/* Lark-like: the header scrolls away, the tabs stay on top. */}
-      <StickyBar>
-        <PillTabs
-          label={t('tabMusic')}
-          items={VIEWS.map((v) => ({ id: v.id, label: t(v.label) }))}
-          value={view}
-          onChange={setView}
-        />
-      </StickyBar>
+      {/* Lark-like: scrolling down keeps only the tabs, scrolling up brings the header back. */}
+      <CollapsingHeader
+        scroller={scroller}
+        header={
+          <BrandHeader title={t('tabMusic')} logoRef={logoRef} logo={<Logo size={28} />}>
+            <button
+              type="button"
+              aria-label={t('mSearch')}
+              onClick={onSearch}
+              className="grid h-11 w-11 place-items-center"
+            >
+              <Icon name="search" size={25} />
+            </button>
+            <button
+              type="button"
+              aria-label={
+                updateWaiting ? `${t('settings')} — ${t('updateAvailable')}` : t('settings')
+              }
+              onClick={onOpenSettings}
+              className="relative grid h-11 w-11 place-items-center"
+            >
+              <Icon name="settings" size={25} />
+              {updateWaiting && (
+                <span className="absolute right-2.5 top-2.5 h-2 w-2 rounded-full bg-accent" />
+              )}
+            </button>
+          </BrandHeader>
+        }
+        bar={
+          <PillTabs
+            label={t('tabMusic')}
+            items={VIEWS.map((v) => ({ id: v.id, label: t(v.label) }))}
+            value={view}
+            onChange={setView}
+          />
+        }
+      />
       <div key={view} className="flex flex-1 animate-screen-in flex-col px-4 pt-2">
         {view === 'playlists' ? (
           <PlaylistsTab

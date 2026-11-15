@@ -1,41 +1,89 @@
 import { useEffect, useRef, useState, type ReactNode, type Ref } from 'react';
 
+/** Scroll needed in one direction before the header changes (no flicker). */
+const SCROLL_SLOP = 6;
+
 /**
- * Lark-like sticky bar (decision 0006): put it as a direct child of the
- * scrolling element. What is above it scrolls away; it stays on top and,
- * once stuck, gains a soft shadow and blur (a sentinel line tells when).
+ * Lark-like "quick return" header (decision 0006). A direct child of the
+ * scrolling element, sticky on top: scrolling down slides the `header`
+ * (logo, search…) away and keeps the `bar` (tabs) on top; scrolling up,
+ * even deep in a long list, brings the header back at once. Once the list
+ * has moved it gains a soft shadow and blur.
  */
-export function StickyBar({
-  children,
+export function CollapsingHeader({
+  scroller,
+  header,
+  bar,
   inset = false,
 }: {
-  children: ReactNode;
+  scroller: HTMLElement | null;
+  header: ReactNode;
+  bar: ReactNode;
   /** The scroller already pads its sides: bleed to its edges. */
   inset?: boolean;
 }) {
-  const sentinel = useRef<HTMLSpanElement>(null);
-  const [stuck, setStuck] = useState(false);
+  const headerRef = useRef<HTMLDivElement>(null);
+  /** Header hidden, and how far the block slides up for it (its height). */
+  const [{ hidden, offset }, setSlide] = useState({ hidden: false, offset: 0 });
+  const [lifted, setLifted] = useState(false);
+
   useEffect(() => {
-    const el = sentinel.current;
-    if (!el || typeof IntersectionObserver === 'undefined') return;
-    const io = new IntersectionObserver(([entry]) => setStuck(!entry?.isIntersecting), {
-      root: el.parentElement,
-      threshold: 0,
-    });
-    io.observe(el);
-    return () => io.disconnect();
-  }, []);
+    if (!scroller) return;
+    let last = scroller.scrollTop;
+    let frame = 0;
+    let pending = false;
+    // One update per frame (a timer where frames are not available).
+    const nextFrame = (run: () => void) =>
+      typeof requestAnimationFrame === 'function'
+        ? requestAnimationFrame(run)
+        : window.setTimeout(run, 16);
+    const onScroll = () => {
+      if (pending) return;
+      pending = true;
+      frame = nextFrame(() => {
+        pending = false;
+        const y = scroller.scrollTop;
+        const headerHeight = headerRef.current?.offsetHeight ?? 0;
+        setLifted(y > 0);
+        const show = { hidden: false, offset: 0 };
+        if (y <= headerHeight) {
+          // Near the top: the header stays.
+          setSlide(show);
+          last = y;
+        } else if (y > last + SCROLL_SLOP) {
+          setSlide({ hidden: true, offset: headerHeight });
+          last = y;
+        } else if (y < last - SCROLL_SLOP) {
+          setSlide(show);
+          last = y;
+        }
+      });
+    };
+    scroller.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      scroller.removeEventListener('scroll', onScroll);
+      if (typeof cancelAnimationFrame === 'function') cancelAnimationFrame(frame);
+      window.clearTimeout(frame);
+    };
+  }, [scroller]);
+
   return (
-    <>
-      <span ref={sentinel} aria-hidden="true" className="block h-px shrink-0" />
+    <div
+      className={`sticky top-0 z-20 shrink-0 transition-[transform,background-color,box-shadow] duration-300 ease-[cubic-bezier(0.2,0.8,0.2,1)] ${inset ? '-mx-4' : ''} ${
+        lifted ? 'bg-bg/90 shadow-[0_10px_20px_-8px_rgb(0_0_0/0.45)] backdrop-blur-md' : 'bg-bg'
+      }`}
+      style={{ transform: hidden ? `translateY(-${offset}px)` : undefined }}
+    >
       <div
-        className={`sticky top-0 z-20 shrink-0 px-4 pb-1.5 pt-1.5 transition-[background-color,box-shadow] duration-200 ${inset ? '-mx-4' : ''} ${
-          stuck ? 'bg-bg/90 shadow-[0_10px_20px_-8px_rgb(0_0_0/0.45)] backdrop-blur-md' : 'bg-bg'
-        }`}
+        ref={headerRef}
+        // Hidden header: out of reach for focus and assistive technologies.
+        inert={hidden}
+        className={`px-4 pt-1 transition-opacity duration-200 ${hidden ? 'opacity-0' : 'opacity-100'}`}
       >
-        {children}
+        {header}
       </div>
-    </>
+      <div className="px-4 pb-1.5 pt-1">{bar}</div>
+    </div>
   );
 }
 

@@ -10,7 +10,7 @@ import { savedPosition } from '../player/usePlayback';
 import { durationLabel, folderOf, qualityLabel } from './format';
 import { MediaThumb } from './MediaThumb';
 import { ResumeShelf } from './ResumeShelf';
-import { BrandHeader, StickyBar } from './LibraryCard';
+import { BrandHeader, CollapsingHeader } from './LibraryCard';
 import { Logo } from '../../components/Logo';
 import { useMobileMediaSheet } from './useMobileMediaSheet';
 
@@ -65,56 +65,63 @@ export function MobileVideos({ onSearch }: { onSearch: () => void }) {
   return (
     <div
       ref={setScroller}
-      className="relative flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3 pt-1"
+      className="relative flex flex-1 flex-col gap-3.5 overflow-auto px-4 pb-3"
     >
-      <BrandHeader title={t('tabVideos')} logo={<Logo size={28} />}>
-        <button
-          type="button"
-          aria-label={t('mSearch')}
-          onClick={onSearch}
-          className="grid h-11 w-11 place-items-center"
-        >
-          <Icon name="search" size={25} />
-        </button>
-        <button
-          type="button"
-          aria-label={asList ? t('gridView') : t('listView')}
-          onClick={() => setAsList((l) => !l)}
-          className="grid h-11 w-11 place-items-center"
-        >
-          <Icon name={asList ? 'grid_view' : 'view_list'} size={24} />
-        </button>
-      </BrandHeader>
-      <StickyBar inset>
-        <div
-          role="radiogroup"
-          aria-label={t('tabVideos')}
-          className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
-        >
-          {chip(
-            filter.kind === 'all',
-            t('allVideos', { n: all.length }),
-            () => setFilter({ kind: 'all' }),
-            'all',
-          )}
-          {inProgress.length > 0 &&
-            chip(
-              filter.kind === 'progress',
-              t('inProgress', { n: inProgress.length }),
-              () => setFilter({ kind: 'progress' }),
-              'progress',
+      {/* Lark-like: scrolling down keeps only the filters, scrolling up brings the header back. */}
+      <CollapsingHeader
+        scroller={scroller}
+        inset
+        header={
+          <BrandHeader title={t('tabVideos')} logo={<Logo size={28} />}>
+            <button
+              type="button"
+              aria-label={t('mSearch')}
+              onClick={onSearch}
+              className="grid h-11 w-11 place-items-center"
+            >
+              <Icon name="search" size={25} />
+            </button>
+            <button
+              type="button"
+              aria-label={asList ? t('gridView') : t('listView')}
+              onClick={() => setAsList((l) => !l)}
+              className="grid h-11 w-11 place-items-center"
+            >
+              <Icon name={asList ? 'grid_view' : 'view_list'} size={24} />
+            </button>
+          </BrandHeader>
+        }
+        bar={
+          <div
+            role="radiogroup"
+            aria-label={t('tabVideos')}
+            className="-mx-4 flex gap-2 overflow-x-auto px-4 [scrollbar-width:none]"
+          >
+            {chip(
+              filter.kind === 'all',
+              t('allVideos', { n: all.length }),
+              () => setFilter({ kind: 'all' }),
+              'all',
             )}
-          {folders.length > 1 &&
-            folders.map((path) =>
+            {inProgress.length > 0 &&
               chip(
-                filter.kind === 'folder' && filter.path === path,
-                lastSegment(path),
-                () => setFilter({ kind: 'folder', path }),
-                path,
-              ),
-            )}
-        </div>
-      </StickyBar>
+                filter.kind === 'progress',
+                t('inProgress', { n: inProgress.length }),
+                () => setFilter({ kind: 'progress' }),
+                'progress',
+              )}
+            {folders.length > 1 &&
+              folders.map((path) =>
+                chip(
+                  filter.kind === 'folder' && filter.path === path,
+                  lastSegment(path),
+                  () => setFilter({ kind: 'folder', path }),
+                  path,
+                ),
+              )}
+          </div>
+        }
+      />
       {filter.kind === 'all' && <ResumeShelf />}
       {ready && synced && shown.length === 0 && (
         <p className="py-10 text-center text-[13.5px] text-muted">
