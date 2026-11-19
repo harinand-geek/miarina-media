@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#070B0F;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#35C9BD;text-decoration:none}a:hover{color:#4FD6CB;text-decoration:underline}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga'}
+button{font-family:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid #35C9BD;outline-offset:2px}
+</style>
+</helmet>
+
+<div style="padding:32px 40px 80px;display:flex;flex-direction:column;gap:20px;width:max-content;min-width:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;max-width:1280px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#94A3B8">Lot 2 · Windows · Musique — prototype cliquable</span>
+    <div style="flex:1"></div>
+    <a href="Lecteur Miarina - Design System.dc.html" style="font-size:13px;font-weight:600">Design system</a>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;max-width:1280px">
+    <sc-for list="{{ picker }}" as="p" hint-placeholder-count="10">
+      <button onClick="{{ p.go }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:0.7">{{ p.id }}</span>{{ p.label }}</button>
+    </sc-for>
+  </div>
+
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:1280px;height:800px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid #2A3D4E;box-shadow:0 30px 90px rgba(0,0,0,0.6);background:#101820;display:flex;flex-direction:column;position:relative" data-screen-label="Windows Musique">
+  <div style="height:40px;flex-shrink:0;display:flex;align-items:center;background:#0D141B;border-bottom:1px solid #1B2935">
+    <div style="width:232px;display:flex;align-items:center;gap:10px;padding:0 16px"><svg width="18" height="18" viewBox="0 0 32 32"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg><span style="font-size:13px;font-weight:800;letter-spacing:-0.01em">Miarina Media</span></div>
+    <div style="flex:1;display:flex;justify-content:center"><button onClick="{{ goSearch }}" style="width:420px;height:30px;border-radius:999px;background:#182530;border:1px solid {{ searchBd }};display:flex;align-items:center;gap:8px;padding:0 12px;color:#64748B;font-size:12.5px;text-align:left"><span class="ms" style="font-size:18px;color:{{ searchIc }}">search</span><span style="flex:1;color:{{ searchFg }}">{{ searchText }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid #2A3D4E;border-radius:4px;padding:0 5px">Ctrl K</span></button></div>
+    <div style="width:232px;display:flex;justify-content:flex-end;color:#94A3B8"><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:16px">remove</span></span><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:14px">crop_square</span></span><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:16px">close</span></span></div>
+  </div>
+  <div style="flex:1;display:flex;min-height:0">
+    <nav style="width:232px;flex-shrink:0;background:#0D141B;border-right:1px solid #1B2935;padding:12px 10px;display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;gap:2px;border:1px solid #243545;background:#101820;border-radius:999px;padding:3px;margin-bottom:10px">
+        <span style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;color:#94A3B8"><span class="ms" style="font-size:18px">download</span>Obtenir</span>
+        <span style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;background:#182530;border:1px solid #2A3D4E;border-radius:999px"><span class="ms" style="font-size:18px;color:#FF7A45">library_music</span>Écouter</span>
+      </div>
+      <sc-for list="{{ nav }}" as="it" hint-placeholder-count="12">
+        <sc-if value="{{ it.head }}" hint-placeholder-val="{{ false }}"><span style="padding:10px 13px 6px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">{{ it.label }}</span></sc-if>
+        <sc-if value="{{ it.item }}" hint-placeholder-val="{{ true }}"><button onClick="{{ it.go }}" style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-align:left;background:{{ it.bg }};color:{{ it.fg }};box-shadow:{{ it.sh }};opacity:{{ it.op }}"><span class="ms" style="font-size:20px;color:{{ it.ic }};font-variation-settings:'FILL' {{ it.fill }}">{{ it.icon }}</span><span style="flex:1">{{ it.label }}</span><span style="font-size:11.5px;color:#64748B">{{ it.count }}</span></button></sc-if>
+      </sc-for>
+      <div style="flex:1"></div>
+      <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;font-size:13.5px;font-weight:600;color:#94A3B8"><span class="ms" style="font-size:20px">settings</span>Réglages</div>
+    </nav>
+
+    <main style="flex:1;min-width:0;overflow:hidden;position:relative;display:flex;flex-direction:column">
+
+      <!-- ALBUMS -->
+      <sc-if value="{{ is.albums }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:16px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Albums</span><span style="font-size:13px;color:#94A3B8">212 albums · 2 418 titres · 164 Go</span></span><div style="flex:1"></div>
+            <span style="height:34px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:18px">sort</span>Ajoutés récemment<span class="ms" style="font-size:18px">expand_more</span></span>
+            <span style="display:flex;border:1px solid #243545;border-radius:999px;padding:2px;background:#0D141B"><span style="width:34px;height:28px;border-radius:999px;background:#182530;display:grid;place-items:center"><span class="ms" style="font-size:18px">grid_view</span></span><span style="width:34px;height:28px;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:18px">view_list</span></span></span>
+          </div>
+          <div style="display:flex;gap:8px"><sc-for list="{{ albumFilters }}" as="f" hint-placeholder-count="5"><span style="height:30px;padding:0 12px;border-radius:999px;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};display:flex;align-items:center;font-size:12.5px;font-weight:700">{{ f.l }}</span></sc-for></div>
+          <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:18px">
+            <sc-for list="{{ albums }}" as="a" hint-placeholder-count="10">
+              <button onClick="{{ a.open }}" style="display:flex;flex-direction:column;gap:9px;text-align:left;padding:8px;margin:-8px;border-radius:16px;background:{{ a.hbg }}">
+                <div style="aspect-ratio:1;border-radius:12px;background:repeating-linear-gradient(135deg,{{ a.c1 }} 0 6px,{{ a.c2 }} 6px 12px);box-shadow:0 10px 24px rgba(0,0,0,0.3);position:relative"><span style="position:absolute;right:8px;bottom:8px;width:38px;height:38px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:{{ a.playDisp }};place-items:center;box-shadow:0 6px 16px rgba(0,0,0,0.4)"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span></span></div>
+                <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13.5px;font-weight:700">{{ a.t }}</span><span style="font-size:12px;color:#94A3B8">{{ a.ar }} · {{ a.y }}</span></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ARTISTES -->
+      <sc-if value="{{ is.artists }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:22px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:16px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Artistes</span><span style="font-size:13px;color:#94A3B8">96 artistes · regroupés selon le tag « Artiste de l'album »</span></span><div style="flex:1"></div><span style="height:34px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:18px">sort_by_alpha</span>A → Z<span class="ms" style="font-size:18px">expand_more</span></span></div>
+          <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:22px 18px">
+            <sc-for list="{{ artists }}" as="a" hint-placeholder-count="12">
+              <button onClick="{{ a.open }}" style="display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center">
+                <div style="width:100%;aspect-ratio:1;border-radius:999px;background:repeating-linear-gradient(135deg,{{ a.c1 }} 0 6px,{{ a.c2 }} 6px 12px);box-shadow:0 10px 24px rgba(0,0,0,0.3)"></div>
+                <span style="display:flex;flex-direction:column;gap:1px"><span style="font-size:13.5px;font-weight:700">{{ a.n }}</span><span style="font-size:12px;color:#94A3B8">{{ a.s }}</span></span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- TITRES -->
+      <sc-if value="{{ is.tracks }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:14px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:12px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Titres</span><span style="font-size:13px;color:#94A3B8">2 418 titres · 7 j 4 h</span></span><div style="flex:1"></div>
+            <span style="height:34px;width:240px;border-radius:999px;background:#182530;border:1px solid #243545;display:flex;align-items:center;gap:8px;padding:0 12px;color:#64748B;font-size:13px"><span class="ms" style="font-size:18px">filter_list</span>Filtrer les titres</span>
+            <button onClick="{{ playAll }}" style="height:34px;padding:0 14px 0 10px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:4px;font-size:13px;font-weight:700"><span class="ms" style="font-size:20px;font-variation-settings:'FILL' 1">play_arrow</span>Tout lire</button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center"><sc-for list="{{ trackFilters }}" as="f" hint-placeholder-count="6"><span style="height:30px;padding:0 12px;border-radius:999px;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700">{{ f.l }}</span></sc-for><div style="flex:1"></div><span style="font-size:12.5px;color:#94A3B8">2 sélectionnés · <span style="color:#F5F7FA;font-weight:700">Lire ensuite</span> · <span style="color:#F5F7FA;font-weight:700">Ajouter à…</span></span></div>
+          <div style="display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:40px minmax(0,2fr) minmax(0,1.3fr) minmax(0,1.3fr) 110px 60px 36px;align-items:center;height:34px;padding:0 10px;border-bottom:1px solid #1B2935;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B"><span>#</span><span style="display:flex;align-items:center;gap:4px;color:#F5F7FA">Titre<span class="ms" style="font-size:14px">arrow_upward</span></span><span>Artiste</span><span>Album</span><span>Format</span><span style="text-align:right">Durée</span><span></span></div>
+            <sc-for list="{{ tracks }}" as="t" hint-placeholder-count="11">
+              <button onClick="{{ t.play }}" style="display:grid;grid-template-columns:40px minmax(0,2fr) minmax(0,1.3fr) minmax(0,1.3fr) 110px 60px 36px;align-items:center;height:44px;padding:0 10px;border-radius:10px;text-align:left;background:{{ t.bg }};opacity:{{ t.op }}">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ t.numFg }}"><span class="ms" style="font-size:16px;color:#FF9166;display:{{ t.eqD }}">graphic_eq</span><span style="display:{{ t.numD }}">{{ t.n }}</span></span>
+                <span style="display:flex;align-items:center;gap:10px;min-width:0"><span style="width:32px;height:32px;flex-shrink:0;border-radius:6px;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 4px,{{ t.c2 }} 4px 8px)"></span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700;color:{{ t.fg }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.t }}</span><span style="font-size:11.5px;color:#E8B04B;display:{{ t.warnD }}">Fichier introuvable · Localiser</span></span></span>
+                <span style="font-size:13px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.ar }}</span>
+                <span style="font-size:13px;color:#94A3B8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ t.al }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">{{ t.f }}</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;text-align:right">{{ t.d }}</span>
+                <span class="ms" style="font-size:18px;color:{{ t.hc }};text-align:right;font-variation-settings:'FILL' 1">favorite</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ALBUM DETAIL -->
+      <sc-if value="{{ is.album }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">
+          <div style="position:relative;padding:22px 32px 22px;overflow:hidden">
+            <div style="position:absolute;inset:-60px;background:repeating-linear-gradient(135deg,#4A3424 0 12px,#3E2C1F 12px 24px);filter:blur(40px);opacity:0.55"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,24,32,0.35) 0%,#101820 100%)"></div>
+            <div style="position:relative;display:flex;flex-direction:column;gap:16px">
+              <button onClick="{{ goAlbums }}" style="align-self:flex-start;display:flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:20px">chevron_left</span>Albums</button>
+              <div style="display:flex;gap:28px;align-items:flex-end">
+                <div style="width:200px;height:200px;flex-shrink:0;border-radius:14px;background:repeating-linear-gradient(135deg,#4A3424 0 8px,#422E20 8px 16px);box-shadow:0 24px 50px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06)"></div>
+                <div style="display:flex;flex-direction:column;gap:8px;flex:1;min-width:0">
+                  <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#C7D0DB">Album · Folk · 2024</span>
+                  <span style="font-size:40px;line-height:46px;font-weight:800;letter-spacing:-0.03em">Saisons de sel</span>
+                  <span style="font-size:14px;color:#C7D0DB"><button onClick="{{ goArtist }}" style="font-weight:800;color:#F5F7FA">Nafy Rakoto</button> · 9 titres · 41 min · <span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">FLAC 24/96</span></span>
+                  <div style="display:flex;align-items:center;gap:10px;padding-top:8px">
+                    <button onClick="{{ playAll }}" style="height:42px;padding:0 20px 0 14px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;box-shadow:0 8px 20px rgba(255,122,69,0.25)"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span>Lire</button>
+                    <span style="height:42px;padding:0 16px;border-radius:999px;background:rgba(245,247,250,0.08);border:1px solid rgba(245,247,250,0.14);display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px">shuffle</span>Aléatoire</span>
+                    <span style="width:42px;height:42px;border-radius:999px;background:rgba(245,247,250,0.08);display:grid;place-items:center;color:#FF9166"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">favorite</span></span>
+                    <span style="width:42px;height:42px;border-radius:999px;background:rgba(245,247,250,0.08);display:grid;place-items:center;color:#C7D0DB"><span class="ms" style="font-size:22px">edit_note</span></span>
+                    <span style="width:42px;height:42px;border-radius:999px;background:rgba(245,247,250,0.08);display:grid;place-items:center;color:#C7D0DB"><span class="ms" style="font-size:22px">more_horiz</span></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0 32px;display:flex;flex-direction:column">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;margin-bottom:8px;border-radius:12px;background:#2B2616;border:1px solid #4A3F1F;font-size:13px"><span class="ms" style="font-size:18px;color:#E8B04B">content_copy</span><span style="flex:1">2 titres existent aussi en MP3 192 kbit/s dans <span style="font-family:'JetBrains Mono',monospace;font-size:12px">D:\Téléchargements</span>. Seule la version FLAC est affichée.</span><span style="font-weight:700;color:#E8B04B">Gérer les doublons</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#E8B04B;color:#1A1204">P1</span></div>
+            <sc-for list="{{ albumTracks }}" as="t" hint-placeholder-count="8">
+              <button onClick="{{ t.play }}" style="display:grid;grid-template-columns:40px minmax(0,1fr) 60px 36px 36px;align-items:center;height:42px;padding:0 10px;border-radius:10px;text-align:left;background:{{ t.bg }};opacity:{{ t.op }}">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ t.numFg }}"><span class="ms" style="font-size:16px;color:#FF9166;display:{{ t.eqD }}">graphic_eq</span><span style="display:{{ t.numD }}">{{ t.n }}</span></span>
+                <span style="display:flex;align-items:baseline;gap:10px;min-width:0"><span style="font-size:13.5px;font-weight:700;color:{{ t.fg }}">{{ t.t }}</span><span style="font-size:12px;color:#94A3B8">{{ t.feat }}</span><span style="font-size:12px;font-weight:700;color:#E8B04B;display:{{ t.warnD }}">Introuvable · Localiser…</span></span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;text-align:right">{{ t.d }}</span>
+                <span class="ms" style="font-size:18px;color:{{ t.hc }};text-align:right;font-variation-settings:'FILL' 1">favorite</span>
+                <span class="ms" style="font-size:18px;color:#64748B;text-align:right">more_horiz</span>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ARTIST DETAIL -->
+      <sc-if value="{{ is.artist }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">
+          <div style="height:230px;flex-shrink:0;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#3A2B20 0 10px,#33261C 10px 20px)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,24,32,0) 30%,#101820 100%)"></div>
+            <span style="position:absolute;right:16px;top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(245,247,250,0.5)">image d'artiste (dossier ou pochette, facultative)</span>
+            <button onClick="{{ goArtists }}" style="position:absolute;left:28px;top:18px;display:flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:20px">chevron_left</span>Artistes</button>
+            <div style="position:absolute;left:32px;bottom:20px;right:32px;display:flex;align-items:flex-end;gap:16px">
+              <span style="display:flex;flex-direction:column;gap:4px;flex:1"><span style="font-size:44px;line-height:48px;font-weight:800;letter-spacing:-0.03em">Nafy Rakoto</span><span style="font-size:13.5px;color:#C7D0DB">3 albums · 31 titres · écouté 214 fois</span></span>
+              <button onClick="{{ playAll }}" style="height:42px;padding:0 20px 0 14px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span>Lire</button>
+              <span style="height:42px;padding:0 16px;border-radius:999px;background:rgba(245,247,250,0.1);display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px">shuffle</span>Aléatoire</span>
+            </div>
+          </div>
+          <div style="padding:8px 32px 0;display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:32px">
+            <div style="display:flex;flex-direction:column;gap:4px"><span style="font-size:17px;font-weight:800;padding-bottom:6px">Les plus écoutés</span>
+              <sc-for list="{{ topTracks }}" as="t" hint-placeholder-count="5">
+                <div style="display:grid;grid-template-columns:28px 40px minmax(0,1fr) 60px;align-items:center;gap:10px;height:50px;padding:0 6px;border-radius:10px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748B">{{ t.n }}</span><span style="width:40px;height:40px;border-radius:8px;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 5px,{{ t.c2 }} 5px 10px)"></span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ t.t }}</span><span style="font-size:12px;color:#94A3B8">{{ t.plays }}</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;text-align:right">{{ t.d }}</span></div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px"><span style="font-size:17px;font-weight:800">Albums</span>
+              <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px">
+                <sc-for list="{{ artistAlbums }}" as="a" hint-placeholder-count="3">
+                  <button onClick="{{ a.open }}" style="display:flex;flex-direction:column;gap:8px;text-align:left"><div style="aspect-ratio:1;border-radius:12px;background:repeating-linear-gradient(135deg,{{ a.c1 }} 0 6px,{{ a.c2 }} 6px 12px);box-shadow:0 10px 24px rgba(0,0,0,0.3)"></div><span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:700">{{ a.t }}</span><span style="font-size:12px;color:#94A3B8">{{ a.y }}</span></span></button>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- PLAYLISTS -->
+      <sc-if value="{{ is.playlists }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:300px minmax(0,1fr);overflow:hidden">
+          <div style="border-right:1px solid #1B2935;padding:22px 14px;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;justify-content:space-between;padding:0 8px 10px"><span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">Playlists</span><button onClick="{{ openCreate }}" style="height:32px;padding:0 12px 0 8px;border-radius:999px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700"><span class="ms" style="font-size:18px">add</span>Nouvelle</button></div>
+            <sc-for list="{{ playlists }}" as="p" hint-placeholder-count="6">
+              <div style="display:flex;align-items:center;gap:12px;height:56px;padding:0 8px;border-radius:12px;background:{{ p.bg }}"><span style="width:42px;height:42px;border-radius:10px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;flex-shrink:0"><span style="background:#22333F"></span><span style="background:#2A3F52"></span><span style="background:#3A2B20"></span><span style="background:#1C2C37"></span></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ p.n }}</span><span style="font-size:12px;color:#94A3B8">{{ p.s }}</span></span></div>
+            </sc-for>
+            <div style="flex:1"></div>
+            <div style="display:flex;gap:8px;padding:8px"><span style="flex:1;height:34px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:17px">file_open</span>Importer M3U</span><span style="flex:1;height:34px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:17px">ios_share</span>Exporter</span></div>
+          </div>
+          <div style="padding:22px 28px 0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+            <div style="display:flex;gap:20px;align-items:flex-end">
+              <span style="width:132px;height:132px;border-radius:14px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;flex-shrink:0;box-shadow:0 16px 36px rgba(0,0,0,0.4)"><span style="background:repeating-linear-gradient(135deg,#22333F 0 5px,#1C2C37 5px 10px)"></span><span style="background:repeating-linear-gradient(135deg,#2A3F52 0 5px,#22374A 5px 10px)"></span><span style="background:repeating-linear-gradient(135deg,#4A3424 0 5px,#422E20 5px 10px)"></span><span style="background:repeating-linear-gradient(135deg,#2E3A2A 0 5px,#273222 5px 10px)"></span></span>
+              <div style="display:flex;flex-direction:column;gap:6px;flex:1">
+                <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Playlist · modifiée il y a 2 min</span>
+                <span style="display:flex;align-items:center;gap:8px"><span style="font-size:30px;line-height:36px;font-weight:800;letter-spacing:-0.02em">Soirées calmes</span><span class="ms" style="font-size:20px;color:#94A3B8">edit</span></span>
+                <span style="font-size:13px;color:#94A3B8">24 titres · 1 h 38 · 1 titre introuvable</span>
+                <div style="display:flex;gap:8px;padding-top:6px"><button onClick="{{ playAll }}" style="height:38px;padding:0 18px 0 12px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">play_arrow</span>Lire</button><span style="height:38px;padding:0 14px;border-radius:999px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><span class="ms" style="font-size:18px">add</span>Ajouter des titres</span><span style="height:38px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:18px">sort</span>Ordre personnalisé</span></div>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ plTracks }}" as="t" hint-placeholder-count="7">
+                <div style="display:grid;grid-template-columns:28px 40px minmax(0,1fr) minmax(0,0.8fr) 56px 32px;align-items:center;gap:8px;height:48px;padding:0 6px;border-radius:10px;background:{{ t.bg }};outline:{{ t.ol }};outline-offset:-2px;box-shadow:{{ t.sh }};transform:{{ t.tf }}">
+                  <span class="ms" style="font-size:18px;color:#64748B">drag_indicator</span>
+                  <span style="width:36px;height:36px;border-radius:7px;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 4px,{{ t.c2 }} 4px 8px)"></span>
+                  <span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ t.t }}</span><span style="font-size:12px;color:{{ t.sc }}">{{ t.s }}</span></span>
+                  <span style="font-size:12.5px;color:#94A3B8">{{ t.al }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;text-align:right">{{ t.d }}</span>
+                  <span class="ms" style="font-size:18px;color:#64748B;text-align:right">close</span>
+                </div>
+              </sc-for>
+              <span style="padding:10px 0 0 34px;font-size:12px;color:#64748B">Glisser pour réordonner · Alt+↑/↓ au clavier · Suppr retire de la playlist (le fichier reste)</span>
+            </div>
+          </div>
+        </div>
+        <sc-if value="{{ createOpen }}" hint-placeholder-val="{{ false }}">
+          <div style="position:absolute;inset:0;background:rgba(5,9,13,0.62);display:grid;place-items:center;z-index:5">
+            <div style="width:460px;border-radius:18px;background:#1F2F3B;border:1px solid #2F4558;box-shadow:0 24px 64px rgba(0,0,0,0.5);padding:22px;display:flex;flex-direction:column;gap:16px">
+              <span style="font-size:18px;font-weight:800">Nouvelle playlist</span>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;font-weight:700;color:#C7D0DB">Nom</span><div style="height:40px;border-radius:10px;background:#182530;border:1px solid #35C9BD;box-shadow:0 0 0 3px rgba(53,201,189,0.16);display:flex;align-items:center;padding:0 12px;font-size:14px">Route du Sud<span style="display:inline-block;width:1px;height:18px;background:#F5F7FA;margin-left:1px"></span></div></div>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13.5px"><span class="ms" style="font-size:20px;color:#35C9BD;font-variation-settings:'FILL' 1">check_box</span>Ajouter les 12 titres de la file d'attente</label>
+              <label style="display:flex;align-items:center;gap:10px;font-size:13.5px;color:#94A3B8"><span class="ms" style="font-size:20px">check_box_outline_blank</span>Playlist intelligente (règles)<span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span></label>
+              <div style="display:flex;justify-content:flex-end;gap:8px"><button onClick="{{ closeCreate }}" style="height:36px;padding:0 16px;border-radius:999px;border:1px solid #2A3D4E;font-size:13.5px;font-weight:600">Annuler</button><button onClick="{{ closeCreate }}" style="height:36px;padding:0 16px;border-radius:999px;background:#35C9BD;color:#062320;font-size:13.5px;font-weight:700">Créer</button></div>
+            </div>
+          </div>
+        </sc-if>
+      </sc-if>
+
+      <!-- RECHERCHE -->
+      <sc-if value="{{ is.search }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:22px 32px 0;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+          <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:28px;font-weight:800;letter-spacing:-0.02em">« marée »</span><span style="font-size:13px;color:#94A3B8">23 résultats dans la bibliothèque locale</span></div>
+          <div style="display:flex;gap:8px"><sc-for list="{{ searchFilters }}" as="f" hint-placeholder-count="6"><span style="height:30px;padding:0 12px;border-radius:999px;border:1px solid {{ f.bd }};background:{{ f.bg }};color:{{ f.fg }};display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:700">{{ f.l }}<span style="font-family:'JetBrains Mono',monospace;font-size:11px;opacity:0.7">{{ f.n }}</span></span></sc-for></div>
+          <div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:28px">
+            <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:14px;font-weight:800">Meilleur résultat</span>
+              <div style="padding:18px;border-radius:18px;background:#182530;border:1px solid #1F2F3B;display:flex;flex-direction:column;gap:12px"><span style="width:96px;height:96px;border-radius:12px;background:repeating-linear-gradient(135deg,#4A3424 0 6px,#422E20 6px 12px);box-shadow:0 10px 24px rgba(0,0,0,0.35)"></span><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">Marée haute</span><span style="font-size:13px;color:#94A3B8">Titre · Nafy Rakoto · Saisons de sel</span></span><button onClick="{{ playAll }}" style="align-self:flex-start;height:38px;padding:0 16px 0 12px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">play_arrow</span>Lire</button></div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:18px">
+              <sc-for list="{{ searchGroups }}" as="g" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:2px">
+                  <span style="display:flex;align-items:center;gap:8px;font-size:14px;font-weight:800;padding-bottom:4px"><span class="ms" style="font-size:18px;color:#94A3B8">{{ g.icon }}</span>{{ g.name }}<span style="flex:1"></span><span style="font-size:12.5px;font-weight:600;color:#94A3B8">Tout voir ({{ g.n }})</span></span>
+                  <sc-for list="{{ g.items }}" as="r" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:12px;height:48px;padding:0 6px;border-radius:10px"><span style="width:40px;height:{{ r.h }};border-radius:{{ r.rad }};flex-shrink:0;background:repeating-linear-gradient(135deg,#22333F 0 4px,#1C2C37 4px 8px)"></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ r.t }}</span><span style="font-size:12px;color:#94A3B8">{{ r.s }}</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748B">{{ r.d }}</span></div>
+                  </sc-for>
+                </div>
+              </sc-for>
+              <span style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#64748B"><span class="ms" style="font-size:16px">info</span>Recherche dans les transcriptions<span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;border:1px dashed #64748B;color:#94A3B8">FUTUR</span></span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- EN LECTURE -->
+      <sc-if value="{{ is.now }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;inset:0;overflow:hidden">
+          <div style="position:absolute;inset:-80px;background:repeating-linear-gradient(135deg,#4A3424 0 14px,#3E2C1F 14px 28px);filter:blur(60px);opacity:0.8"></div>
+          <div style="position:absolute;inset:0;background:rgba(13,20,27,0.55)"></div>
+        </div>
+        <div style="position:relative;flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 420px">
+          <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:26px;padding:24px 40px">
+            <button onClick="{{ goAlbum }}" style="position:absolute;left:24px;top:18px;display:flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:#C7D0DB;height:32px;padding:0 12px 0 6px;border-radius:999px;background:rgba(245,247,250,0.08)"><span class="ms" style="font-size:20px">chevron_left</span>Saisons de sel</button>
+            <div style="width:360px;height:360px;border-radius:16px;background:repeating-linear-gradient(135deg,#5A3E2A 0 9px,#4A3322 9px 18px);box-shadow:0 40px 90px rgba(0,0,0,0.5),0 0 0 1px rgba(255,255,255,0.06);display:grid;place-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:rgba(245,247,250,0.5)">pochette 1:1</span></div>
+            <div style="width:360px;display:flex;align-items:flex-end;gap:10px"><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:26px;line-height:32px;font-weight:800;letter-spacing:-0.02em">Marée haute</span><span style="font-size:14.5px;color:#C7D0DB">Nafy Rakoto · Saisons de sel</span></span><span class="ms" style="font-size:24px;color:#FF9166;font-variation-settings:'FILL' 1">favorite</span></div>
+            <div style="display:flex;gap:8px"><sc-for list="{{ nowChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.go }}" style="height:30px;padding:0 12px;border-radius:999px;background:rgba(245,247,250,0.08);border:1px solid rgba(245,247,250,0.12);display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#E2E8F0"><span class="ms" style="font-size:16px">{{ c.icon }}</span>{{ c.l }}</button></sc-for></div>
+          </div>
+          <div style="margin:18px 20px 18px 0;border-radius:20px;background:rgba(13,20,27,0.55);border:1px solid rgba(245,247,250,0.08);display:flex;flex-direction:column;overflow:hidden">
+            <div style="display:flex;margin:12px;padding:3px;border-radius:999px;background:rgba(0,0,0,0.25)">
+              <sc-for list="{{ nowTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.go }}" style="flex:1;height:32px;border-radius:999px;font-size:13px;font-weight:700;background:{{ t.bg }};color:{{ t.fg }}">{{ t.l }}</button></sc-for>
+            </div>
+            <sc-if value="{{ tab.lyrics }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;padding:18px 30px;display:flex;flex-direction:column;gap:18px;overflow:hidden">
+                <sc-for list="{{ lyrics }}" as="l" hint-placeholder-count="7"><span style="font-size:26px;line-height:33px;font-weight:800;letter-spacing:-0.015em;color:{{ l.fg }};text-wrap:pretty">{{ l.text }}</span></sc-for>
+              </div>
+              <span style="padding:0 30px 16px;font-size:12px;color:#94A3B8;display:flex;align-items:center;gap:6px"><span class="ms" style="font-size:15px">description</span>marée-haute.lrc · clic sur une ligne pour y aller</span>
+            </sc-if>
+            <sc-if value="{{ tab.queue }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;padding:0 12px;display:flex;flex-direction:column;overflow:hidden">
+                <span style="padding:4px 8px 8px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#94A3B8">En cours</span>
+                <div style="display:flex;align-items:center;gap:12px;height:54px;padding:0 8px;border-radius:12px;background:rgba(245,247,250,0.08)"><span style="width:40px;height:40px;border-radius:8px;background:repeating-linear-gradient(135deg,#5A3E2A 0 4px,#4A3322 4px 8px);display:grid;place-items:center"><span class="ms" style="font-size:18px;color:#FF9166">graphic_eq</span></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700;color:#FF9166">Marée haute</span><span style="font-size:12px;color:#C7D0DB">Nafy Rakoto</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7D0DB">4:08</span></div>
+                <span style="padding:14px 8px 6px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#94A3B8;display:flex;justify-content:space-between"><span>À suivre · depuis Saisons de sel</span><span style="text-transform:none;letter-spacing:0;font-weight:600">Vider</span></span>
+                <sc-for list="{{ queue }}" as="q" hint-placeholder-count="6">
+                  <div style="display:flex;align-items:center;gap:10px;height:50px;padding:0 6px;border-radius:12px"><span class="ms" style="font-size:18px;color:#64748B">drag_indicator</span><span style="width:36px;height:36px;border-radius:7px;background:repeating-linear-gradient(135deg,{{ q.c1 }} 0 4px,{{ q.c2 }} 4px 8px)"></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ q.t }}</span><span style="font-size:12px;color:#C7D0DB">{{ q.s }}</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#C7D0DB">{{ q.d }}</span></div>
+                </sc-for>
+                <div style="margin:10px 6px 0;padding:12px;border-radius:14px;border:1px dashed rgba(245,247,250,0.2);display:flex;align-items:center;gap:10px"><span class="ms" style="font-size:20px;color:#FF9166">auto_awesome</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13px;font-weight:700">Continuer avec des titres proches</span><span style="font-size:12px;color:#C7D0DB">Smart Queue, calculée sur l'appareil</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#E8B04B;color:#1A1204">P1</span></div>
+              </div>
+              <div style="display:flex;gap:8px;padding:12px 18px 16px"><span style="flex:1;height:34px;border-radius:999px;background:rgba(245,247,250,0.1);display:flex;align-items:center;justify-content:center;gap:6px;font-size:12.5px;font-weight:700"><span class="ms" style="font-size:17px">playlist_add</span>Enregistrer en playlist</span></div>
+            </sc-if>
+            <sc-if value="{{ tab.sound }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;padding:6px 22px 18px;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+                <div style="display:flex;align-items:center;justify-content:space-between"><span style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800">Égaliseur</span><span style="font-size:12px;color:#C7D0DB">Appliqué à toute la lecture audio</span></span><button onClick="{{ toggleEq }}" style="width:44px;height:26px;border-radius:999px;background:{{ eqTrack }};position:relative"><span style="position:absolute;top:3px;left:{{ eqKnob }};width:20px;height:20px;border-radius:999px;background:#F5F7FA;box-shadow:0 1px 3px rgba(0,0,0,0.4)"></span></button></div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;opacity:{{ eqOp }}"><sc-for list="{{ presets }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.go }}" style="height:30px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-size:12.5px;font-weight:700">{{ p.l }}</button></sc-for></div>
+                <div style="display:grid;grid-template-columns:repeat(6,1fr);gap:8px;height:170px;opacity:{{ eqOp }}">
+                  <sc-for list="{{ bands }}" as="b" hint-placeholder-count="6">
+                    <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#C7D0DB">{{ b.db }}</span><div style="flex:1;width:4px;border-radius:999px;background:rgba(245,247,250,0.14);position:relative"><span style="position:absolute;left:-1px;width:6px;top:50%;height:1px;background:rgba(245,247,250,0.3)"></span><span style="position:absolute;left:-6px;top:{{ b.top }};width:16px;height:16px;border-radius:999px;background:#FF7A45;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></span></div><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#94A3B8">{{ b.f }}</span></div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px"><span style="font-size:14px;font-weight:800">Vitesse</span><div style="display:flex;border-radius:999px;background:rgba(0,0,0,0.25);padding:3px"><sc-for list="{{ rates }}" as="r" hint-placeholder-count="6"><span style="flex:1;height:28px;border-radius:999px;display:grid;place-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:{{ r.bg }};color:{{ r.fg }}">{{ r.l }}</span></sc-for></div></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;font-size:13.5px"><span style="display:flex;flex-direction:column"><span style="font-weight:700">Normalisation du volume</span><span style="font-size:12px;color:#C7D0DB">ReplayGain si présent</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#E8B04B;color:#1A1204">P1</span></div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+    </main>
+  </div>
+
+  <section style="height:80px;flex-shrink:0;display:grid;grid-template-columns:320px minmax(0,1fr) 320px;align-items:center;padding:0 20px 0 16px;background:#0B1117;border-top:1px solid #1B2935;position:relative">
+    <button onClick="{{ goNow }}" style="display:flex;align-items:center;gap:12px;min-width:0;text-align:left"><span style="width:52px;height:52px;border-radius:12px;background:repeating-linear-gradient(135deg,#4A3424 0 5px,#422E20 5px 10px);flex-shrink:0;box-shadow:0 6px 16px rgba(0,0,0,0.35)"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700">Marée haute</span><span style="font-size:12.5px;color:#94A3B8">Nafy Rakoto</span></span><span class="ms" style="font-size:20px;color:#FF9166;font-variation-settings:'FILL' 1;margin-left:6px">favorite</span></button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:18px;color:#94A3B8">
+        <span class="ms" style="font-size:20px">shuffle</span>
+        <span class="ms" style="font-size:28px;color:#F5F7FA;font-variation-settings:'FILL' 1">skip_previous</span>
+        <button onClick="{{ togglePlay }}" aria-label="Lecture / pause" style="width:44px;height:44px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center;box-shadow:0 6px 18px rgba(255,122,69,0.3)"><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></button>
+        <span class="ms" style="font-size:28px;color:#F5F7FA;font-variation-settings:'FILL' 1">skip_next</span>
+        <span class="ms" style="font-size:20px;color:#FF9166">repeat</span>
+      </div>
+      <div style="width:100%;max-width:520px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#94A3B8"><span>1:34</span><div style="flex:1;height:4px;border-radius:999px;background:#243545;position:relative"><div style="width:38%;height:100%;border-radius:999px;background:#FF7A45"></div><span style="position:absolute;left:calc(38% - 6px);top:-4px;width:12px;height:12px;border-radius:999px;background:#F5F7FA"></span></div><span>4:08</span></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:14px;color:#94A3B8">
+      <button onClick="{{ goLyrics }}" aria-label="Paroles"><span class="ms" style="font-size:20px">lyrics</span></button>
+      <button onClick="{{ goQueue }}" aria-label="File"><span class="ms" style="font-size:20px">queue_music</span></button>
+      <button onClick="{{ toggleCompact }}" aria-label="Mini-lecteur" title="Mini-lecteur (Ctrl M)"><span class="ms" style="font-size:20px">picture_in_picture_alt</span></button>
+      <span class="ms" style="font-size:20px">volume_up</span>
+      <div style="width:84px;height:4px;border-radius:999px;background:#243545"><div style="width:70%;height:100%;border-radius:999px;background:#F5F7FA"></div></div>
+    </div>
+  </section>
+
+  <sc-if value="{{ ctxOpen }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;left:520px;top:300px;width:250px;border-radius:14px;background:#1F2F3B;border:1px solid #2F4558;box-shadow:0 12px 32px rgba(0,0,0,0.45);padding:6px;display:flex;flex-direction:column;z-index:6">
+      <sc-for list="{{ ctxMenu }}" as="m" hint-placeholder-count="8">
+        <sc-if value="{{ m.sep }}" hint-placeholder-val="{{ false }}"><span style="height:1px;background:#2A3D4E;margin:4px 6px"></span></sc-if>
+        <sc-if value="{{ m.item }}" hint-placeholder-val="{{ true }}"><span style="height:34px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:8px;font-size:13px;font-weight:600;background:{{ m.bg }};color:{{ m.fg }}"><span class="ms" style="font-size:18px;color:{{ m.ic }}">{{ m.icon }}</span><span style="flex:1">{{ m.l }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#64748B">{{ m.k }}</span></span></sc-if>
+      </sc-for>
+    </div>
+  </sc-if>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:24px;width:360px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">{{ cur.id }}</span>
+    <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">{{ cur.label }}</span>
+    <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:20px;color:#C7D0DB">
+      <sc-for list="{{ cur.notes }}" as="n" hint-placeholder-count="4"><li>{{ n }}</li></sc-for>
+    </ul>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Mini-lecteur · fenêtre compacte (Ctrl M)</span>
+    <div style="width:340px;height:120px;border-radius:12px;overflow:hidden;border:1px solid #2A3D4E;box-shadow:0 20px 50px rgba(0,0,0,0.55),0 0 0 {{ compactRing }} #35C9BD;background:#0D141B;position:relative;display:flex">
+      <div style="width:120px;height:120px;flex-shrink:0;background:repeating-linear-gradient(135deg,#4A3424 0 6px,#422E20 6px 12px)"></div>
+      <div style="flex:1;padding:12px 14px 10px;display:flex;flex-direction:column;gap:6px;min-width:0">
+        <span style="display:flex;justify-content:space-between;align-items:flex-start"><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">Marée haute</span><span style="font-size:12px;color:#94A3B8">Nafy Rakoto</span></span><span style="display:flex;gap:6px;color:#64748B"><span class="ms" style="font-size:16px">push_pin</span><span class="ms" style="font-size:16px">open_in_full</span></span></span>
+        <div style="flex:1"></div>
+        <div style="height:3px;border-radius:999px;background:#243545"><div style="width:38%;height:100%;border-radius:999px;background:#FF7A45"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;color:#F5F7FA"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">skip_previous</span><span style="width:34px;height:34px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></span><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">skip_next</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">1:34</span></div>
+      </div>
+    </div>
+    <span style="font-size:12.5px;line-height:19px;color:#94A3B8">Fenêtre séparée 340 × 120, toujours au premier plan (épingle), redimensionnable jusqu'à 340 × 340 : la pochette passe alors au-dessus. La fenêtre principale est réduite et revient avec le bouton agrandir. Commandes aussi dans la miniature de la barre des tâches Windows (précédent, lecture, suivant).</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Menu contextuel</span>
+    <button onClick="{{ toggleCtx }}" style="align-self:flex-start;height:34px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;font-size:13px;font-weight:700">{{ ctxLabel }}</button>
+  </div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'albums', tab: 'lyrics', eq: true, preset: 'Voix', playing: true, createOpen: false, ctx: false, compact: false };
+  go = (screen) => () => this.setState({ screen, createOpen: false });
+  renderVals() {
+    const s = this.state;
+    const H = [['#22333F','#1C2C37'],['#2A3F52','#22374A'],['#4A3424','#422E20'],['#2E3A2A','#273222'],['#3A2B3A','#322532'],['#3A3520','#322E1B'],['#203A3A','#1B3232'],['#40302A','#382A24']];
+    const screens = [
+      ['W-M1a','albums','Albums',['Grille 5 colonnes à 1280 px (4 sous 1279, 6 dès 1440).','Survol ou focus : la carte se soulève et le bouton lire apparaît ; Entrée ouvre, Espace lit.','Filtres rapides par format et origine ; le tri est mémorisé par vue.','Glisser une pochette sur une playlist de la sidebar l\u2019y ajoute.']],
+      ['W-M1b','artists','Artistes',['Cercles : seule forme ronde de l\u2019app, réservée aux personnes.','Image d\u2019artiste lue depuis le dossier (artist.jpg) ou la première pochette ; aucune récupération réseau.','Regroupement sur « Artiste de l\u2019album » pour éviter les doublons de featuring.']],
+      ['W-M1c','tracks','Titres',['Tableau triable (clic sur l\u2019en-tête), colonnes redimensionnables et masquables.','Sélection multiple Ctrl/Maj + clic ; barre d\u2019actions contextuelle à droite des filtres.','Fichier introuvable : ligne atténuée et action Localiser ; jamais supprimé automatiquement.','Liste virtualisée pour 10 000 titres (exigence CDC).']],
+      ['W-M2a','album','Détail d\u2019album',['Fond issu de la pochette, flou et voilé, limité à l\u2019en-tête.','Doublons signalés une fois en tête de liste, avec un lien vers la gestion des doublons (P1).','Éditer les tags (edit_note) ouvre l\u2019éditeur existant de Miarina.','Clic sur l\u2019artiste : page artiste.']],
+      ['W-M2b','artist','Détail d\u2019artiste',['Image facultative, sinon fond hachuré neutre ; le nom reste lisible dans tous les cas.','« Les plus écoutés » vient de l\u2019historique local.','Albums triés par année, les plus récents en premier.']],
+      ['W-M5','playlists','Playlists',['Deux colonnes : liste des playlists et édition en place.','Réordonner par glisser ou Alt+↑/↓ ; la ligne en déplacement est surélevée.','Import et export M3U (P0) ; les playlists intelligentes sont P1.','Retirer d\u2019une playlist ne touche jamais au fichier.']],
+      ['W-02','search','Recherche',['Ctrl K depuis n\u2019importe où ; résultats groupés par type et par section.','Les filtres affichent leur nombre de résultats.','Recherche locale, insensible aux accents (« maree » trouve « marée »).','Recherche dans les transcriptions marquée FUTUR.']],
+      ['W-M3','now','En lecture',['Ouvert depuis la pochette de la barre de lecture (animation de la pochette, 320 ms).','Onglets Paroles / File / Son ; Ctrl L et Ctrl U ouvrent directement le bon onglet.','Paroles synchronisées .lrc : clic sur une ligne = aller à ce moment.','Son : égaliseur 6 bandes, préréglages, vitesse ; normalisation P1.']],
+    ];
+    const curRow = screens.find(x => x[1] === s.screen) || screens[0];
+    const cur = { id: curRow[0], label: curRow[2], notes: curRow[3] };
+    const picker = screens.map(([id, key, label]) => { const on = key === s.screen; return { id, label, go: this.go(key), bg: on ? '#182530' : 'transparent', bd: on ? '#35C9BD' : '#243545', fg: on ? '#F5F7FA' : '#94A3B8' }; });
+    const is = { albums: s.screen === 'albums', artists: s.screen === 'artists', tracks: s.screen === 'tracks', album: s.screen === 'album', artist: s.screen === 'artist', playlists: s.screen === 'playlists', search: s.screen === 'search', now: s.screen === 'now' };
+    const activeNav = { albums: 'albums', album: 'albums', artists: 'artists', artist: 'artists', tracks: 'tracks', playlists: 'playlists' }[s.screen];
+    const ni = (key, label, icon, count, target) => { const on = key === activeNav; return { item: true, label, icon, count: count || '', go: target ? this.go(target) : null, bg: on ? '#182530' : 'transparent', fg: on ? '#F5F7FA' : '#94A3B8', ic: on ? '#FF7A45' : '#94A3B8', fill: on ? 1 : 0, sh: on ? 'inset 0 0 0 1px #243545' : 'none', op: target || key === 'home' || key === 'favs' ? 1 : 0.85 }; };
+    const nav = [
+      ni('home', 'Accueil', 'home'),
+      { head: true, label: 'Musique' }, ni('albums', 'Albums', 'album', '212', 'albums'), ni('artists', 'Artistes', 'person', '96', 'artists'), ni('tracks', 'Titres', 'music_note', '2 418', 'tracks'), ni('playlists', 'Playlists', 'queue_music', '14', 'playlists'), ni('favs', 'Favoris', 'favorite', '86'),
+      { head: true, label: 'Cinéma' }, ni('films', 'Films & séries', 'movie'), ni('perso', 'Vidéos perso', 'video_library'),
+      { head: true, label: 'Focus' }, ni('focus', 'Podcasts & cours', 'school'), ni('books', 'Livres audio', 'auto_stories'),
+    ];
+    const chip = (l, on) => ({ l, bg: on ? '#3A2620' : 'transparent', bd: on ? '#7A4330' : '#2A3D4E', fg: on ? '#FF9166' : '#94A3B8' });
+    const albumFilters = [chip('Tous', true), chip('FLAC / hi-res'), chip('Téléchargés avec Miarina'), chip('Compilations'), chip('Sans pochette · 4')];
+    const AL = [['Saisons de sel','Nafy Rakoto','2024'],['Nord magnétique','Les Cartographes','2023'],['Ny lanitra','Toky','2022'],['Poussière d\u2019or','Mahery Quartet','2021'],['Basse marée','Nafy Rakoto','2020'],['Ville lente','Iony','2024'],['Échos d\u2019Ankaratra','Collectif Rova','2019'],['Les heures claires','Mira Sol','2023'],['Fréquences','Les Cartographes','2021'],['Tany mena','Toky','2018']];
+    const albums = AL.map(([t, ar, y], i) => ({ t, ar, y, c1: H[(i + 2) % 8][0], c2: H[(i + 2) % 8][1], open: this.go('album'), hbg: i === 0 ? '#182530' : 'transparent', playDisp: i === 0 ? 'grid' : 'none' }));
+    const AR = [['Nafy Rakoto','3 albums'],['Les Cartographes','2 albums'],['Toky','4 albums'],['Mahery Quartet','1 album'],['Iony','2 albums'],['Collectif Rova','1 album'],['Mira Sol','3 albums'],['Hery & Lalao','1 album'],['Ambiaty','2 albums'],['Rado Big','5 albums'],['Sanda','1 album'],['Voninkazo','2 albums']];
+    const artists = AR.map(([n, sub], i) => ({ n, s: sub, c1: H[(i + 4) % 8][0], c2: H[(i + 4) % 8][1], open: this.go('artist') }));
+    const trackFilters = [chip('Tous', true), chip('Favoris'), chip('Jamais écoutés'), chip('Hi-res'), chip('Introuvables · 3'), chip('Ajoutés ce mois')];
+    const TR = [['Basse marée','Nafy Rakoto','Basse marée','MP3 320','4:12'],['Ceux d\u2019en haut','Iony','Ville lente','FLAC 16/44','3:31'],['Échos','Collectif Rova','Échos d\u2019Ankaratra','FLAC 16/44','5:48'],['Fréquence 4','Les Cartographes','Fréquences','AAC 256','4:02'],['Kabary','Nafy Rakoto, Toky','Saisons de sel','FLAC 24/96','3:57'],['Lumière basse','Nafy Rakoto','Saisons de sel','FLAC 24/96','3:42'],['Marée haute','Nafy Rakoto','Saisons de sel','FLAC 24/96','4:08'],['Mena','Toky','Tany mena','MP3 320','3:20'],['Nord magnétique','Les Cartographes','Nord magnétique','FLAC 24/48','4:30'],['Seuil','Nafy Rakoto','Saisons de sel','—','4:21'],['Ville lente','Iony','Ville lente','FLAC 16/44','6:10']];
+    const tracks = TR.map(([t, ar, al, f, d], i) => { const on = t === 'Marée haute', miss = t === 'Seuil', sel = i === 2 || i === 3; return { n: i + 1, t, ar, al, f, d, play: () => this.setState({ playing: true }), c1: H[i % 8][0], c2: H[i % 8][1], bg: on ? '#182530' : sel ? '#16302F' : 'transparent', op: miss ? 0.72 : 1, numFg: '#64748B', fg: on ? '#FF9166' : '#F5F7FA', eqD: on ? 'inline' : 'none', numD: on ? 'none' : 'inline', warnD: miss ? 'block' : 'none', hc: [5, 6, 8].includes(i) ? '#FF9166' : '#2A3D4E' }; });
+    const AT = [['Lumière basse','','3:42',1],['Marée haute','','4:08',1],['Vent de sable','','5:16',0],['Kabary','avec Toky','3:57',0],['Seuil','','4:21',0],['Les heures pâles','','6:02',1],['Retour au port','','4:45',0],['Ny lanitra','','3:30',0],['Fin de saison','','5:12',0]];
+    const albumTracks = AT.map(([t, feat, d, fav], i) => { const on = t === 'Marée haute', miss = t === 'Seuil'; return { n: i + 1, t, feat, d, play: () => this.setState({ playing: true }), bg: on ? 'rgba(255,122,69,0.08)' : 'transparent', op: miss ? 0.72 : 1, numFg: '#64748B', fg: on ? '#FF9166' : '#F5F7FA', eqD: on ? 'inline' : 'none', numD: on ? 'none' : 'inline', warnD: miss ? 'inline' : 'none', hc: fav ? '#FF9166' : '#2A3D4E' }; });
+    const topTracks = [['Marée haute','58 écoutes','4:08'],['Lumière basse','41 écoutes','3:42'],['Basse marée','33 écoutes','4:12'],['Kabary','27 écoutes','3:57'],['Les heures pâles','19 écoutes','6:02']].map(([t, plays, d], i) => ({ n: i + 1, t, plays, d, c1: H[(i * 3) % 8][0], c2: H[(i * 3) % 8][1] }));
+    const artistAlbums = [['Saisons de sel','2024'],['Basse marée','2020'],['Premières eaux (EP)','2017']].map(([t, y], i) => ({ t, y, c1: H[[2, 6, 7][i]][0], c2: H[[2, 6, 7][i]][1], open: this.go('album') }));
+    const playlists = [['Soirées calmes','24 titres · 1 h 38',1],['Route du Sud','12 titres',0],['Révisions sans paroles','40 titres',0],['Matins','18 titres',0],['Importée : vieux PC.m3u','63 titres · 5 introuvables',0],['Favoris 2024','31 titres',0]].map(([n, sub, on]) => ({ n, s: sub, bg: on ? '#182530' : 'transparent' }));
+    const PT = [['Marée haute','Nafy Rakoto','Saisons de sel','4:08'],['Ville lente','Iony','Ville lente','6:10'],['Nord magnétique','Les Cartographes','Nord magnétique','4:30'],['Les heures claires','Mira Sol','Les heures claires','3:58'],['Seuil','Introuvable · Localiser','Saisons de sel','4:21'],['Ny lanitra','Toky','Ny lanitra','3:30'],['Échos','Collectif Rova','Échos d\u2019Ankaratra','5:48']];
+    const plTracks = PT.map(([t, sub, al, d], i) => { const drag = i === 2, miss = t === 'Seuil'; return { t, s: sub, al, d, c1: H[(i + 1) % 8][0], c2: H[(i + 1) % 8][1], sc: miss ? '#E8B04B' : '#94A3B8', bg: drag ? '#1F2F3B' : 'transparent', ol: drag ? '2px solid #35C9BD' : 'none', sh: drag ? '0 12px 28px rgba(0,0,0,0.4)' : 'none', tf: drag ? 'translateX(6px)' : 'none' }; });
+    const sf = (l, n, on) => ({ l, n, bg: on ? '#3A2620' : 'transparent', bd: on ? '#7A4330' : '#2A3D4E', fg: on ? '#FF9166' : '#94A3B8' });
+    const searchFilters = [sf('Tout', 23, true), sf('Musique', 14), sf('Cinéma', 2), sf('Focus', 5), sf('Playlists', 1), sf('Dossiers', 1)];
+    const searchGroups = [
+      { name: 'Titres', icon: 'music_note', n: 11, items: [{ t: 'Marée haute', s: 'Nafy Rakoto · Saisons de sel', d: '4:08', h: '40px', rad: '8px' }, { t: 'Basse marée', s: 'Nafy Rakoto · Basse marée', d: '4:12', h: '40px', rad: '8px' }] },
+      { name: 'Focus', icon: 'school', n: 5, items: [{ t: 'Les marées expliquées', s: 'Podcast Ondes courtes · épisode 18', d: '32:10', h: '40px', rad: '8px' }, { t: 'Océanographie — Cours 3', s: 'Cours · 1 h 12', d: '1:12:04', h: '40px', rad: '8px' }] },
+      { name: 'Cinéma', icon: 'movie', n: 2, items: [{ t: 'Grande marée', s: 'Vidéo perso · 2023', d: '3:44', h: '23px', rad: '4px' }] },
+    ];
+    const nowChips = [{ icon: 'speed', l: '1×', go: () => this.setState({ tab: 'sound' }) }, { icon: 'equalizer', l: s.eq ? s.preset : 'Égaliseur off', go: () => this.setState({ tab: 'sound' }) }, { icon: 'bedtime', l: 'Minuteur', go: () => this.setState({ tab: 'sound' }) }, { icon: 'audio_file', l: 'FLAC 24/96', go: null }];
+    const nowTabs = [['lyrics', 'Paroles'], ['queue', 'File'], ['sound', 'Son']].map(([k, l]) => ({ l, go: () => this.setState({ tab: k }), bg: s.tab === k ? 'rgba(245,247,250,0.16)' : 'transparent', fg: s.tab === k ? '#F5F7FA' : '#C7D0DB' }));
+    const tab = { lyrics: s.tab === 'lyrics', queue: s.tab === 'queue', sound: s.tab === 'sound' };
+    const L = ['On compte les vagues comme des jours', 'et la nuit ne finit pas', 'On attend la marée haute', 'pour rentrer chez soi', 'Le sel reste sur les mains', 'quand la mer s\u2019en va', 'et le port s\u2019allume'];
+    const lyrics = L.map((text, i) => ({ text, fg: i === 2 || i === 3 ? '#F5F7FA' : i < 2 ? 'rgba(245,247,250,0.32)' : 'rgba(245,247,250,0.5)' }));
+    const queue = [['Vent de sable','Nafy Rakoto','5:16'],['Kabary','Nafy Rakoto, Toky','3:57'],['Les heures pâles','Nafy Rakoto','6:02'],['Retour au port','Nafy Rakoto','4:45'],['Ny lanitra','Nafy Rakoto','3:30']].map(([t, sub, d], i) => ({ t, s: sub, d, c1: H[(i + 3) % 8][0], c2: H[(i + 3) % 8][1] }));
+    const PR = { Neutre: [0, 0, 0, 0, 0, 0], Basses: [6, 4, 1, 0, 0, 0], Voix: [-2, 0, 3, 4, 2, 0], Rock: [4, 2, -1, 1, 3, 4], Classique: [3, 1, 0, 0, 2, 3] };
+    const presets = Object.keys(PR).map(l => { const on = l === s.preset; return { l, go: () => this.setState({ preset: l }), bg: on ? '#3A2620' : 'transparent', bd: on ? '#7A4330' : 'rgba(245,247,250,0.16)', fg: on ? '#FF9166' : '#C7D0DB' }; });
+    const bands = ['60', '230', '910', '3,6k', '7k', '14k'].map((f, i) => { const v = PR[s.preset][i]; return { f, db: (v > 0 ? '+' : '') + v, top: `calc(${50 - v * 6}% - 8px)` }; });
+    const rates = ['0,75×', '1×', '1,25×', '1,5×', '1,75×', '2×'].map(l => ({ l, bg: l === '1×' ? 'rgba(245,247,250,0.16)' : 'transparent', fg: l === '1×' ? '#F5F7FA' : '#C7D0DB' }));
+    const ctxMenu = [
+      { item: true, icon: 'play_arrow', l: 'Lire', k: 'Entrée', bg: '#26384A', fg: '#F5F7FA', ic: '#FF9166' },
+      { item: true, icon: 'playlist_play', l: 'Lire ensuite', k: 'Ctrl Entrée', bg: 'transparent', fg: '#F5F7FA', ic: '#94A3B8' },
+      { item: true, icon: 'queue_music', l: 'Ajouter à la file', k: '', bg: 'transparent', fg: '#F5F7FA', ic: '#94A3B8' },
+      { item: true, icon: 'playlist_add', l: 'Ajouter à une playlist…', k: '', bg: 'transparent', fg: '#F5F7FA', ic: '#94A3B8' },
+      { sep: true }, { item: true, icon: 'edit_note', l: 'Modifier les tags', k: 'Ctrl I', bg: 'transparent', fg: '#F5F7FA', ic: '#94A3B8' },
+      { item: true, icon: 'folder_open', l: 'Afficher dans l\u2019Explorateur', k: '', bg: 'transparent', fg: '#F5F7FA', ic: '#94A3B8' },
+      { sep: true }, { item: true, icon: 'remove_circle', l: 'Retirer…', k: 'Suppr', bg: 'transparent', fg: '#F07070', ic: '#F07070' },
+    ];
+    return {
+      picker, is, nav, cur, albumFilters, albums, artists, trackFilters, tracks, albumTracks, topTracks, artistAlbums, playlists, plTracks, searchFilters, searchGroups, nowChips, nowTabs, tab, lyrics, queue, presets, bands, rates, ctxMenu,
+      createOpen: s.createOpen, openCreate: () => this.setState({ createOpen: true }), closeCreate: () => this.setState({ createOpen: false }),
+      goAlbums: this.go('albums'), goAlbum: this.go('album'), goArtist: this.go('artist'), goArtists: this.go('artists'), goSearch: this.go('search'), goNow: this.go('now'),
+      goLyrics: () => this.setState({ screen: 'now', tab: 'lyrics' }), goQueue: () => this.setState({ screen: 'now', tab: 'queue' }),
+      playAll: () => this.setState({ playing: true }), togglePlay: () => this.setState({ playing: !s.playing }), playIcon: s.playing ? 'pause' : 'play_arrow',
+      toggleEq: () => this.setState({ eq: !s.eq }), eqTrack: s.eq ? '#FF7A45' : 'rgba(245,247,250,0.2)', eqKnob: s.eq ? '21px' : '3px', eqOp: s.eq ? 1 : 0.45,
+      searchBd: is.search ? '#35C9BD' : '#243545', searchIc: is.search ? '#35C9BD' : '#64748B', searchFg: is.search ? '#F5F7FA' : '#64748B', searchText: is.search ? 'marée' : 'Rechercher titres, films, podcasts…',
+      ctxOpen: s.ctx, toggleCtx: () => this.setState({ ctx: !s.ctx }), ctxLabel: s.ctx ? 'Masquer le menu' : 'Afficher sur la fenêtre',
+      toggleCompact: () => this.setState({ compact: !s.compact }), compactRing: s.compact ? '2px' : '0px',
+    };
+  }
+}
+</script>
+</body>
+</html>

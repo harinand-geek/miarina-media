@@ -62,3 +62,7 @@ Même machine (Core i5-8300H 4 cœurs / 8 fils, 16 Go, SSD, Intel UHD 630 + GTX 
 - Effet mesuré des modes Eco / Performance (les limites appliquées sont testées, leur coût réel ne l'est pas).
 - Machine modeste (2 cœurs / 4 Go), écran haute densité (150 / 200 %), disque dur mécanique, machine sans VLC installé.
 - Android : rien.
+
+## Preuve de concept Flutter — 2026-11-19
+
+Mesures du client Flutter de test (`apps/flutter_client`, Flutter 3.50, libmpv sous Windows, Media3 sous Android) : voir [flutter-poc.md](flutter-poc.md#mesures-relevées). Résumé : dossier Windows release 72,8 Mo ; fenêtre visible en 1,4–1,9 s ; lecture MKV 1080p H.264 ~323 Mo privés, CPU 3–5 % ; APK ARM64 15,9 Mo sans cœur Rust ni outils ; émulateur Android : démarrage à froid 1,5 s, 69 Mo PSS au repos. Pas encore de mesure sur le téléphone de référence ni de comparaison à contenu identique avec la 0.1.11.

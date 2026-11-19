@@ -1,0 +1,29 @@
+[package]
+name = "miarina_bridge"
+description = "Dart bridge (flutter_rust_bridge) to the Miarina Media Rust core."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+crate-type = ["cdylib", "staticlib"]
+
+[dependencies]
+anyhow = "1.0"
+flutter_rust_bridge = "=2.13.0"
+storage = { path = "../../../crates/storage" }
+
+[lints.rust]
+# flutter_rust_bridge's generated code uses this cfg.
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
+
+[target.'cfg(windows)'.dependencies]
+# Same versions as the Tauri app (apps/client/src-tauri/Cargo.toml).
+media-core = { path = "../../../crates/media-core" }
+webview2-com = "=0.39.1"
+windows = { version = "=0.62.2", features = [
+    "Win32_System_Threading",
+    "Win32_UI_WindowsAndMessaging",
+] }

@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#070B0F;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#35C9BD;text-decoration:none}a:hover{color:#4FD6CB;text-decoration:underline}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga'}
+button{font-family:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid #35C9BD;outline-offset:2px}
+</style>
+</helmet>
+
+<div style="padding:32px 40px 80px;display:flex;flex-direction:column;gap:20px;width:max-content;min-width:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;gap:16px;max-width:1360px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#94A3B8">Lot 5 · Android — prototype cliquable</span>
+    <div style="flex:1"></div>
+    <a href="Lecteur Miarina - Design System.dc.html" style="font-size:13px;font-weight:600">Design system</a>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;max-width:1360px">
+    <sc-for list="{{ picker }}" as="p" hint-placeholder-count="15">
+      <button onClick="{{ p.go }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:0.7">{{ p.id }}</span>{{ p.label }}</button>
+    </sc-for>
+  </div>
+
+<div style="display:flex;gap:40px;align-items:flex-start;flex-wrap:wrap">
+
+<!-- PHONE -->
+<div style="width:360px;height:780px;flex-shrink:0;border-radius:40px;border:8px solid #1F2F3B;background:#101820;overflow:hidden;position:relative;box-shadow:0 24px 64px rgba(0,0,0,0.5)" data-screen-label="Android">
+  <div style="position:absolute;left:0;right:0;top:0;height:28px;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:0 22px;font-size:12px;font-weight:700;color:{{ sbFg }}"><span>9:41</span><span style="display:flex;gap:4px;align-items:center"><span class="ms" style="font-size:14px;font-variation-settings:'FILL' 1;display:{{ playingD }}">play_circle</span><span class="ms" style="font-size:15px;font-variation-settings:'FILL' 1">signal_cellular_alt</span><span class="ms" style="font-size:15px;font-variation-settings:'FILL' 1">battery_full</span></span></div>
+
+  <!-- tab screens container -->
+  <div style="position:absolute;inset:0;padding-top:28px;overflow:hidden;display:flex;flex-direction:column">
+
+    <!-- A-00 MUSIQUE ACCUEIL -->
+    <sc-if value="{{ is.home }}" hint-placeholder-val="{{ true }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px 10px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Musique</span><span style="display:flex;color:#94A3B8"><button onClick="{{ goSearch }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">search</span></button><button onClick="{{ goSettings }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">settings</span></button></span></div>
+      <div style="display:flex;gap:8px;padding:0 20px 14px;overflow:hidden"><sc-for list="{{ musicChips }}" as="c" hint-placeholder-count="5"><button onClick="{{ c.go }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};font-size:13px;font-weight:700;flex-shrink:0">{{ c.l }}</button></sc-for></div>
+      <div style="margin:0 16px;height:150px;border-radius:20px;position:relative;overflow:hidden;border:1px solid #243545;flex-shrink:0">
+        <div style="position:absolute;inset:-30px;background:repeating-linear-gradient(135deg,#2A3F52 0 10px,#22374A 10px 20px);filter:blur(22px)"></div>
+        <div style="position:absolute;inset:0;background:linear-gradient(90deg,rgba(13,20,27,0.94),rgba(13,20,27,0.35))"></div>
+        <div style="position:absolute;right:14px;top:14px;width:84px;height:84px;border-radius:12px;background:repeating-linear-gradient(135deg,#3A5468 0 6px,#324A5D 6px 12px)"></div>
+        <div style="position:relative;padding:16px;display:flex;flex-direction:column;gap:3px;height:100%;box-sizing:border-box"><span style="font-size:11.5px;font-weight:700;color:#FF9166">Reprendre</span><span style="font-size:18px;font-weight:800">Nord magnétique</span><span style="font-size:12.5px;color:#C7D0DB">Titre 6 sur 11</span><div style="flex:1"></div><button onClick="{{ goPlayer }}" style="align-self:flex-start;height:40px;padding:0 16px 0 12px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:4px;font-size:13.5px;font-weight:700"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">play_arrow</span>Reprendre</button></div>
+      </div>
+      <div style="display:flex;align-items:baseline;justify-content:space-between;padding:20px 20px 10px"><span style="font-size:17px;font-weight:800">Albums récents</span><button onClick="{{ goLibrary }}" style="font-size:13px;font-weight:600;color:#94A3B8">Tout voir</button></div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;padding:0 20px">
+        <sc-for list="{{ albums2 }}" as="a" hint-placeholder-count="4"><button onClick="{{ a.go }}" style="display:flex;flex-direction:column;gap:6px;text-align:left"><div style="aspect-ratio:1;border-radius:14px;background:repeating-linear-gradient(135deg,{{ a.c1 }} 0 6px,{{ a.c2 }} 6px 12px)"></div><span style="font-size:13.5px;font-weight:700">{{ a.t }}</span><span style="font-size:12px;color:#94A3B8;margin-top:-4px">{{ a.ar }}</span></button></sc-for>
+      </div>
+    </sc-if>
+
+    <!-- A-01 BIBLIOTHEQUE TITRES -->
+    <sc-if value="{{ is.library }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;padding:4px 4px 4px 4px"><button onClick="{{ goHome }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button><span style="flex:1;font-size:20px;font-weight:800">Titres</span><span style="width:48px;height:48px;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:24px">sort</span></span></div>
+      <div style="display:flex;gap:8px;padding:0 16px 10px;overflow:hidden"><sc-for list="{{ trackChips }}" as="c" hint-placeholder-count="4"><span style="height:34px;padding:0 12px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};display:flex;align-items:center;font-size:12.5px;font-weight:700;flex-shrink:0">{{ c.l }}</span></sc-for></div>
+      <div style="display:flex;align-items:center;gap:10px;padding:0 16px 6px"><button onClick="{{ goPlayer }}" style="flex:1;height:44px;border-radius:14px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14px;font-weight:700"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">play_arrow</span>Tout lire</button><span style="flex:1;height:44px;border-radius:14px;background:#1F2F3B;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;font-weight:600"><span class="ms" style="font-size:20px">shuffle</span>Aléatoire</span></div>
+      <div style="padding:0 8px;display:flex;flex-direction:column">
+        <sc-for list="{{ tracksM }}" as="t" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:12px;height:60px;padding:0 8px;opacity:{{ t.op }}"><span style="width:48px;height:48px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 5px,{{ t.c2 }} 5px 10px);display:grid;place-items:center"><span class="ms" style="font-size:20px;color:#FF9166;display:{{ t.eqD }}">graphic_eq</span></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700;color:{{ t.fg }}">{{ t.t }}</span><span style="font-size:12.5px;color:{{ t.sc }}">{{ t.s }}</span></span><span style="width:40px;height:48px;display:grid;place-items:center;color:#64748B"><span class="ms" style="font-size:22px">more_vert</span></span></div></sc-for>
+      </div>
+      <div style="position:absolute;right:4px;top:200px;bottom:170px;width:18px;display:flex;flex-direction:column;justify-content:space-between;align-items:center;font-size:10px;font-weight:700;color:#64748B"><span>A</span><span>E</span><span style="color:#FF9166">K</span><span>M</span><span>R</span><span>V</span><span>#</span></div>
+    </sc-if>
+
+    <!-- A-01b RECHERCHE -->
+    <sc-if value="{{ is.search }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;gap:4px;padding:6px 12px 10px 4px"><button onClick="{{ goHome }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button><div style="flex:1;height:48px;border-radius:999px;background:#182530;border:1px solid #35C9BD;display:flex;align-items:center;gap:8px;padding:0 14px;font-size:15px">marée<span style="display:inline-block;width:1px;height:20px;background:#F5F7FA"></span><span style="flex:1"></span><span class="ms" style="font-size:20px;color:#94A3B8">close</span></div></div>
+      <div style="display:flex;gap:8px;padding:0 16px 12px;overflow:hidden"><sc-for list="{{ searchChips }}" as="c" hint-placeholder-count="4"><span style="height:34px;padding:0 12px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};display:flex;align-items:center;font-size:12.5px;font-weight:700;flex-shrink:0">{{ c.l }}</span></sc-for></div>
+      <sc-for list="{{ searchRes }}" as="g" hint-placeholder-count="3">
+        <span style="padding:10px 20px 4px;font-size:12px;font-weight:800;color:#94A3B8">{{ g.h }}</span>
+        <sc-for list="{{ g.items }}" as="r" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:12px;height:60px;padding:0 16px"><span style="width:{{ r.w }};height:48px;border-radius:{{ r.rad }};flex-shrink:0;background:repeating-linear-gradient(135deg,#22333F 0 5px,#1C2C37 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700">{{ r.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ r.s }}</span></span></div></sc-for>
+      </sc-for>
+    </sc-if>
+
+    <!-- A-02 ALBUM -->
+    <sc-if value="{{ is.album }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:0;right:0;top:0;height:360px;overflow:hidden"><div style="position:absolute;inset:-40px;background:repeating-linear-gradient(135deg,#4A3424 0 12px,#3E2C1F 12px 24px);filter:blur(36px);opacity:0.7"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,24,32,0.2),#101820)"></div></div>
+      <div style="position:relative;display:flex;align-items:center;padding:4px"><button onClick="{{ goHome }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button><span style="flex:1"></span><span style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">more_vert</span></span></div>
+      <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding:0 20px">
+        <div style="width:210px;height:210px;border-radius:14px;background:repeating-linear-gradient(135deg,#4A3424 0 7px,#422E20 7px 14px);box-shadow:0 20px 44px rgba(0,0,0,0.5)"></div>
+        <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em;padding-top:16px">Saisons de sel</span>
+        <button onClick="{{ goArtist }}" style="font-size:14.5px;font-weight:700;color:#FF9166">Nafy Rakoto</button>
+        <span style="font-size:12.5px;color:#94A3B8">Folk · 2024 · 9 titres · 41 min</span>
+        <div style="display:flex;align-items:center;gap:10px;width:100%;padding:16px 0 8px"><span style="width:48px;height:48px;border-radius:999px;background:#1F2F3B;display:grid;place-items:center;color:#FF9166"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">favorite</span></span><span style="width:48px;height:48px;border-radius:999px;background:#1F2F3B;display:grid;place-items:center"><span class="ms" style="font-size:24px">download_done</span></span><span style="flex:1"></span><span style="width:48px;height:48px;display:grid;place-items:center;color:#C7D0DB"><span class="ms" style="font-size:26px">shuffle</span></span><button onClick="{{ goPlayer }}" style="width:56px;height:56px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center;box-shadow:0 8px 20px rgba(255,122,69,0.3)"><span class="ms" style="font-size:32px;font-variation-settings:'FILL' 1">play_arrow</span></button></div>
+      </div>
+      <div style="position:relative;padding:0 8px">
+        <sc-for list="{{ albumT }}" as="t" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:14px;height:56px;padding:0 12px;opacity:{{ t.op }}"><span style="width:20px;font-size:14px;color:{{ t.nc }}">{{ t.n }}</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700;color:{{ t.fg }}">{{ t.t }}</span><span style="font-size:12.5px;color:{{ t.sc }}">{{ t.s }}</span></span><span class="ms" style="font-size:22px;color:#64748B">more_vert</span></div></sc-for>
+      </div>
+    </sc-if>
+
+    <!-- A-02b ARTISTE -->
+    <sc-if value="{{ is.artist }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:0;right:0;top:0;height:300px;background:repeating-linear-gradient(135deg,#3A2B20 0 10px,#33261C 10px 20px)"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(16,24,32,0) 30%,#101820)"></div></div>
+      <div style="position:relative;display:flex;align-items:center;padding:4px"><button onClick="{{ goAlbum }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button></div>
+      <div style="position:relative;padding:150px 20px 0;display:flex;flex-direction:column;gap:4px"><span style="font-size:34px;line-height:38px;font-weight:800;letter-spacing:-0.03em">Nafy Rakoto</span><span style="font-size:13px;color:#C7D0DB">3 albums · 31 titres</span>
+        <div style="display:flex;gap:10px;padding-top:12px"><button onClick="{{ goPlayer }}" style="flex:1;height:48px;border-radius:14px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;justify-content:center;gap:4px;font-size:14.5px;font-weight:700"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span>Lire</button><span style="flex:1;height:48px;border-radius:14px;background:#1F2F3B;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14.5px;font-weight:600"><span class="ms" style="font-size:20px">shuffle</span>Aléatoire</span></div>
+        <span style="font-size:17px;font-weight:800;padding-top:18px">Les plus écoutés</span>
+      </div>
+      <div style="position:relative;padding:4px 8px 0"><sc-for list="{{ topT }}" as="t" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;height:58px;padding:0 12px"><span style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 5px,{{ t.c2 }} 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">{{ t.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ t.s }}</span></span></div></sc-for></div>
+    </sc-if>
+
+    <!-- A-02c PLAYLISTS -->
+    <sc-if value="{{ is.playlists }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px 6px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Playlists</span><span style="width:48px;height:48px;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:24px">file_open</span></span></div>
+      <div style="padding:0 8px"><sc-for list="{{ pls }}" as="p" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:14px;height:68px;padding:0 12px"><span style="width:52px;height:52px;border-radius:12px;display:grid;grid-template-columns:1fr 1fr;overflow:hidden;flex-shrink:0"><span style="background:#22333F"></span><span style="background:#2A3F52"></span><span style="background:#3A2B20"></span><span style="background:#2E3A2A"></span></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">{{ p.n }}</span><span style="font-size:12.5px;color:{{ p.sc }}">{{ p.s }}</span></span><span class="ms" style="font-size:22px;color:#64748B">more_vert</span></div></sc-for></div>
+      <button onClick="{{ toggleSheet }}" style="position:absolute;right:16px;bottom:164px;height:56px;padding:0 20px 0 16px;border-radius:18px;background:#35C9BD;color:#062320;display:flex;align-items:center;gap:8px;font-size:14.5px;font-weight:700;box-shadow:0 10px 24px rgba(0,0,0,0.4)"><span class="ms" style="font-size:24px">add</span>Nouvelle</button>
+    </sc-if>
+
+    <!-- CINEMA TAB -->
+    <sc-if value="{{ is.cinema }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px 10px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Cinéma</span><span style="width:48px;height:48px;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:24px">search</span></span></div>
+      <div style="display:flex;gap:8px;padding:0 20px 14px"><sc-for list="{{ cineChips }}" as="c" hint-placeholder-count="3"><span style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};display:flex;align-items:center;font-size:13px;font-weight:700">{{ c.l }}</span></sc-for></div>
+      <span style="padding:0 20px 10px;font-size:17px;font-weight:800">Reprendre</span>
+      <div style="display:flex;gap:12px;padding:0 20px;overflow:hidden"><sc-for list="{{ cineResume }}" as="r" hint-placeholder-count="2"><button onClick="{{ goVideo }}" style="width:240px;flex-shrink:0;display:flex;flex-direction:column;gap:6px;text-align:left"><div style="height:135px;border-radius:14px;background:repeating-linear-gradient(135deg,{{ r.c1 }} 0 7px,{{ r.c2 }} 7px 14px);position:relative;overflow:hidden"><span style="position:absolute;left:10px;bottom:12px;width:40px;height:40px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span></span><div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(245,247,250,0.2)"><div style="width:{{ r.pct }};height:100%;background:#FF7A45"></div></div></div><span style="font-size:14px;font-weight:700">{{ r.t }}</span><span style="font-size:12.5px;color:#94A3B8;margin-top:-4px">{{ r.s }}</span></button></sc-for></div>
+      <span style="padding:20px 20px 10px;font-size:17px;font-weight:800">Séries</span>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:0 20px"><sc-for list="{{ cinePosters }}" as="p" hint-placeholder-count="3"><div style="display:flex;flex-direction:column;gap:6px"><div style="aspect-ratio:2/3;border-radius:12px;background:repeating-linear-gradient(135deg,{{ p.c1 }} 0 6px,{{ p.c2 }} 6px 12px)"></div><span style="font-size:12.5px;font-weight:700">{{ p.t }}</span></div></sc-for></div>
+    </sc-if>
+
+    <!-- FOCUS TAB -->
+    <sc-if value="{{ is.focus }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 8px 10px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Focus</span><span style="width:48px;height:48px;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:24px">search</span></span></div>
+      <div style="display:flex;gap:8px;padding:0 20px 14px;overflow:hidden"><sc-for list="{{ focusChips }}" as="c" hint-placeholder-count="4"><span style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ c.bd }};background:{{ c.bg }};color:{{ c.fg }};display:flex;align-items:center;font-size:13px;font-weight:700;flex-shrink:0">{{ c.l }}</span></sc-for></div>
+      <span style="padding:0 20px 8px;font-size:17px;font-weight:800">En cours</span>
+      <div style="padding:0 16px;display:flex;flex-direction:column;gap:10px"><sc-for list="{{ focusNow }}" as="f" hint-placeholder-count="3"><button onClick="{{ goFocusPlayer }}" style="display:flex;align-items:center;gap:12px;padding:10px;border-radius:16px;background:#182530;border:1px solid #1F2F3B;text-align:left"><span style="width:60px;height:60px;border-radius:12px;flex-shrink:0;background:repeating-linear-gradient(135deg,{{ f.c1 }} 0 5px,{{ f.c2 }} 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column;gap:4px;min-width:0"><span style="font-size:11px;font-weight:700;color:#94A3B8">{{ f.k }}</span><span style="font-size:14px;font-weight:700">{{ f.t }}</span><span style="display:flex;align-items:center;gap:8px"><span style="flex:1;height:4px;border-radius:999px;background:#243545"><span style="display:block;width:{{ f.pct }};height:100%;border-radius:999px;background:#FF7A45"></span></span><span style="font-size:11.5px;color:#94A3B8">{{ f.left }}</span></span></span></button></sc-for></div>
+    </sc-if>
+
+    <!-- IMPORT / PERMISSIONS -->
+    <sc-if value="{{ is.perm }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;padding:40px 24px 32px;gap:18px">
+        <svg width="56" height="56" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+        <span style="font-size:26px;line-height:32px;font-weight:800;letter-spacing:-0.02em">Accédez à la musique et aux vidéos de ce téléphone</span>
+        <span style="font-size:14.5px;line-height:22px;color:#94A3B8">Miarina lit vos fichiers sur l'appareil. Rien n'est envoyé, aucun compte n'est nécessaire.</span>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ perms }}" as="p" hint-placeholder-count="3"><div style="display:flex;gap:12px;padding:14px;border-radius:16px;background:#182530;border:1px solid #1F2F3B"><span class="ms" style="font-size:24px;color:{{ p.c }}">{{ p.icon }}</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:14.5px;font-weight:700">{{ p.t }}</span><span style="font-size:12.5px;line-height:18px;color:#94A3B8">{{ p.d }}</span></span></div></sc-for>
+        </div>
+        <div style="flex:1"></div>
+        <button onClick="{{ goPermDialog }}" style="height:52px;border-radius:16px;background:#35C9BD;color:#062320;font-size:15px;font-weight:700">Autoriser l'accès</button>
+        <span style="text-align:center;font-size:14px;font-weight:700;color:#94A3B8">Choisir un dossier à la place</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ is.permDialog }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;display:flex;flex-direction:column;padding:40px 24px 32px;gap:18px;opacity:0.3"><span style="font-size:26px;font-weight:800">Accédez à la musique et aux vidéos</span></div>
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.55);display:flex;align-items:center;justify-content:center;padding:24px">
+        <div style="width:100%;border-radius:28px;background:#1F2F3B;padding:24px 20px 12px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+          <span class="ms" style="font-size:28px;color:#C7D0DB">perm_media</span>
+          <span style="font-size:18px;line-height:24px">Autoriser <strong>Miarina Media</strong> à accéder à la musique et à l'audio de cet appareil ?</span>
+          <span style="font-size:11px;color:#64748B;font-family:'JetBrains Mono',monospace">dialogue système Android · READ_MEDIA_AUDIO</span>
+          <div style="width:100%;display:flex;flex-direction:column;gap:2px;padding-top:6px"><button onClick="{{ goHome }}" style="height:48px;border-radius:999px;background:#2A3D4E;font-size:14.5px;font-weight:700">Autoriser</button><button onClick="{{ goDenied }}" style="height:48px;font-size:14.5px;font-weight:700;color:#5FE0D5">Ne pas autoriser</button></div>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ is.denied }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;padding:8px 8px 10px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Musique</span></div>
+      <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 32px 160px;gap:12px">
+        <span style="width:80px;height:80px;border-radius:26px;background:#3A2226;display:grid;place-items:center"><span class="ms" style="font-size:40px;color:#F07070">lock</span></span>
+        <span style="font-size:20px;font-weight:800">Accès aux fichiers refusé</span>
+        <span style="font-size:14px;line-height:21px;color:#94A3B8">Sans cette autorisation, Miarina ne voit que les fichiers téléchargés avec l'app. Vos playlists sont conservées.</span>
+        <span style="height:48px;padding:0 20px;border-radius:999px;background:#35C9BD;color:#062320;display:flex;align-items:center;font-size:14.5px;font-weight:700;margin-top:8px">Ouvrir les paramètres Android</span>
+        <span style="font-size:14px;font-weight:700;color:#5FE0D5">Choisir un dossier</span>
+      </div>
+    </sc-if>
+
+    <!-- SETTINGS -->
+    <sc-if value="{{ is.settings }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;padding:4px"><button onClick="{{ goHome }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button><span style="font-size:20px;font-weight:800">Réglages</span></div>
+      <sc-for list="{{ setGroups }}" as="g" hint-placeholder-count="3">
+        <span style="padding:14px 20px 6px;font-size:12px;font-weight:800;color:#35C9BD">{{ g.h }}</span>
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:16px;min-height:60px;padding:0 20px;opacity:{{ r.op }}"><span class="ms" style="font-size:24px;color:#94A3B8">{{ r.icon }}</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px;font-weight:600">{{ r.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ r.d }}</span></span><span style="width:52px;height:32px;border-radius:999px;background:{{ r.tb }};position:relative;display:{{ r.togD }};flex-shrink:0"><span style="position:absolute;top:4px;left:{{ r.tk }};width:24px;height:24px;border-radius:999px;background:#F5F7FA"></span></span></div></sc-for>
+      </sc-for>
+    </sc-if>
+
+    <!-- ERRORS -->
+    <sc-if value="{{ is.errors }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:center;padding:8px 8px 10px 20px"><span style="font-size:26px;font-weight:800;letter-spacing:-0.02em">Musique</span></div>
+      <div style="margin:0 16px 12px;padding:12px 14px;border-radius:16px;background:#2B2616;border:1px solid #4A3F1F;display:flex;gap:12px;align-items:flex-start"><span class="ms" style="font-size:22px;color:#E8B04B">sd_card_alert</span><span style="flex:1;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">Carte SD retirée</span><span style="font-size:12.5px;line-height:18px;color:#C7D0DB">214 titres sont masqués. Ils reviendront quand la carte sera remise.</span></span></div>
+      <div style="padding:0 8px;opacity:0.9">
+        <sc-for list="{{ tracksM }}" as="t" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;height:60px;padding:0 8px;opacity:{{ t.op }}"><span style="width:48px;height:48px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,{{ t.c1 }} 0 5px,{{ t.c2 }} 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:15px;font-weight:700">{{ t.t }}</span><span style="font-size:12.5px;color:{{ t.sc }}">{{ t.s }}</span></span></div></sc-for>
+      </div>
+      <div style="position:absolute;left:12px;right:12px;bottom:152px;padding:14px 16px;border-radius:16px;background:#2A3D4E;display:flex;align-items:center;gap:12px;box-shadow:0 10px 24px rgba(0,0,0,0.4)"><span class="ms" style="font-size:22px;color:#F07070">music_off</span><span style="flex:1;font-size:13.5px;line-height:19px">« Démo.wma » ne peut pas être lu sur Android</span><span style="font-size:13.5px;font-weight:800;color:#5FE0D5">Suivant</span></div>
+    </sc-if>
+  </div>
+
+  <!-- FULLSCREEN PLAYERS (over tabs) -->
+  <sc-if value="{{ is.player }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#2E2117;overflow:hidden">
+      <div style="position:absolute;inset:-60px;background:repeating-linear-gradient(135deg,#5A3E2A 0 12px,#4A3322 12px 24px);filter:blur(50px)"></div>
+      <div style="position:absolute;inset:0;background:rgba(13,20,27,0.45)"></div>
+      <div style="position:relative;padding:36px 24px 0;display:flex;flex-direction:column;height:100%;box-sizing:border-box">
+        <div style="display:flex;align-items:center;justify-content:space-between"><button onClick="{{ goHome }}" style="width:48px;height:48px;display:grid;place-items:center;margin-left:-12px"><span class="ms" style="font-size:28px">keyboard_arrow_down</span></button><span style="font-size:12.5px;font-weight:700;color:#E2E8F0">Saisons de sel</span><span style="width:48px;height:48px;display:grid;place-items:center;margin-right:-12px"><span class="ms" style="font-size:24px">more_vert</span></span></div>
+        <sc-if value="{{ pTab.art }}" hint-placeholder-val="{{ true }}">
+          <div style="width:100%;aspect-ratio:1;border-radius:16px;margin-top:16px;background:repeating-linear-gradient(135deg,#5A3E2A 0 8px,#4A3322 8px 16px);box-shadow:0 30px 60px rgba(0,0,0,0.45)"></div>
+        </sc-if>
+        <sc-if value="{{ pTab.lyrics }}" hint-placeholder-val="{{ false }}">
+          <div style="height:296px;margin-top:16px;display:flex;flex-direction:column;gap:14px;overflow:hidden"><sc-for list="{{ lyricsM }}" as="l" hint-placeholder-count="6"><span style="font-size:24px;line-height:30px;font-weight:800;color:{{ l.fg }}">{{ l.t }}</span></sc-for></div>
+        </sc-if>
+        <div style="display:flex;align-items:center;gap:10px;padding-top:24px"><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:21px;font-weight:800;letter-spacing:-0.02em">Marée haute</span><span style="font-size:15px;color:#E2E8F0">Nafy Rakoto</span></span><span style="width:48px;height:48px;border-radius:999px;background:rgba(245,247,250,0.12);display:grid;place-items:center;color:#FFB08A"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">favorite</span></span></div>
+        <div style="display:flex;flex-direction:column;gap:6px;padding-top:20px"><div style="height:6px;border-radius:999px;background:rgba(245,247,250,0.2)"><div style="width:38%;height:100%;border-radius:999px;background:#F5F7FA"></div></div><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#E2E8F0"><span>1:34</span><span>−2:34</span></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:12px"><span style="width:48px;height:48px;display:grid;place-items:center;color:#E2E8F0"><span class="ms" style="font-size:24px">shuffle</span></span><span style="width:56px;height:56px;display:grid;place-items:center"><span class="ms" style="font-size:42px;font-variation-settings:'FILL' 1">skip_previous</span></span><button onClick="{{ togglePlay }}" style="width:76px;height:76px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center;box-shadow:0 10px 24px rgba(0,0,0,0.35)"><span class="ms" style="font-size:44px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></button><span style="width:56px;height:56px;display:grid;place-items:center"><span class="ms" style="font-size:42px;font-variation-settings:'FILL' 1">skip_next</span></span><span style="width:48px;height:48px;display:grid;place-items:center;color:#FFB08A"><span class="ms" style="font-size:24px">repeat</span></span></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding-top:18px;color:#E2E8F0">
+          <button onClick="{{ toggleLyrics }}" style="width:48px;height:48px;border-radius:999px;display:grid;place-items:center;background:{{ lyBg }}"><span class="ms" style="font-size:24px">lyrics</span></button>
+          <span style="height:36px;padding:0 14px;border-radius:999px;background:rgba(245,247,250,0.12);display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><span class="ms" style="font-size:18px">headphones</span>Casque BT</span>
+          <button onClick="{{ goQueue }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">queue_music</span></button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ is.queue }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#101820;display:flex;flex-direction:column;padding-top:28px">
+      <div style="display:flex;justify-content:center;padding:8px 0"><span style="width:36px;height:4px;border-radius:999px;background:#3A4D5E"></span></div>
+      <div style="display:flex;align-items:center;padding:0 8px 8px 20px"><span style="flex:1;font-size:20px;font-weight:800">File d'attente</span><button onClick="{{ goPlayer }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">close</span></button></div>
+      <div style="margin:0 12px;display:flex;align-items:center;gap:12px;height:64px;padding:0 10px;border-radius:14px;background:#182530"><span style="width:48px;height:48px;border-radius:10px;background:repeating-linear-gradient(135deg,#5A3E2A 0 5px,#4A3322 5px 10px);display:grid;place-items:center"><span class="ms" style="font-size:20px;color:#FF9166">graphic_eq</span></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700;color:#FF9166">Marée haute</span><span style="font-size:12.5px;color:#94A3B8">En cours</span></span></div>
+      <span style="padding:16px 20px 6px;font-size:12px;font-weight:800;color:#94A3B8">À suivre · 5</span>
+      <sc-for list="{{ queueM }}" as="q" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:12px;height:60px;padding:0 12px 0 20px;background:{{ q.bg }};transform:{{ q.tf }}"><span style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,{{ q.c1 }} 0 5px,{{ q.c2 }} 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:700">{{ q.t }}</span><span style="font-size:12.5px;color:{{ q.sc }}">{{ q.s }}</span></span><span style="width:48px;height:48px;display:grid;place-items:center;color:#64748B"><span class="ms" style="font-size:24px">drag_handle</span></span></div></sc-for>
+      <span style="padding:12px 20px;font-size:12.5px;color:#64748B">Glisser la poignée pour réordonner · balayer une ligne vers la gauche pour la retirer</span>
+    </div>
+  </sc-if>
+  <sc-if value="{{ is.eq }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#101820;display:flex;flex-direction:column;padding-top:28px">
+      <div style="display:flex;align-items:center;padding:4px"><button onClick="{{ goPlayer }}" style="width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:24px">arrow_back</span></button><span style="flex:1;font-size:20px;font-weight:800">Égaliseur</span><span style="width:52px;height:32px;border-radius:999px;background:#FF7A45;position:relative;margin-right:16px"><span style="position:absolute;top:4px;left:24px;width:24px;height:24px;border-radius:999px;background:#F5F7FA"></span></span></div>
+      <div style="display:flex;gap:8px;padding:12px 16px;flex-wrap:wrap"><sc-for list="{{ presetsM }}" as="p" hint-placeholder-count="5"><button onClick="{{ p.go }}" style="height:36px;padding:0 14px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-size:13px;font-weight:700">{{ p.l }}</button></sc-for></div>
+      <div style="display:grid;grid-template-columns:repeat(6,1fr);height:300px;padding:16px 16px 0">
+        <sc-for list="{{ bandsM }}" as="b" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:8px"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#C7D0DB">{{ b.db }}</span><div style="flex:1;width:6px;border-radius:999px;background:#243545;position:relative"><span style="position:absolute;left:-1px;width:8px;top:50%;height:1px;background:#3A4D5E"></span><span style="position:absolute;left:-9px;top:{{ b.top }};width:24px;height:24px;border-radius:999px;background:#FF7A45;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></span></div><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ b.f }}</span></div></sc-for>
+      </div>
+      <div style="display:flex;flex-direction:column;padding:20px 0 0">
+        <div style="display:flex;align-items:center;gap:16px;min-height:60px;padding:0 20px"><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Renforcement des basses</span><span style="font-size:12.5px;color:#94A3B8">Effet audio Android</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#C7D0DB">30 %</span></div>
+        <div style="display:flex;align-items:center;gap:16px;min-height:60px;padding:0 20px"><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:15px;font-weight:600">Appliquer par sortie</span><span style="font-size:12.5px;color:#94A3B8">Réglages différents casque / haut-parleur</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span></div>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ is.focusPlayer }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#101820;display:flex;flex-direction:column;padding:36px 20px 0">
+      <div style="display:flex;align-items:center;justify-content:space-between"><button onClick="{{ goFocus }}" style="width:48px;height:48px;display:grid;place-items:center;margin-left:-12px"><span class="ms" style="font-size:28px">keyboard_arrow_down</span></button><span style="font-size:12.5px;font-weight:700;color:#94A3B8">Cours 7 sur 12</span><span style="width:48px;height:48px;display:grid;place-items:center;margin-right:-12px"><span class="ms" style="font-size:24px">more_vert</span></span></div>
+      <div style="display:flex;gap:14px;align-items:center;padding-top:12px"><span style="width:96px;height:96px;border-radius:14px;flex-shrink:0;background:repeating-linear-gradient(135deg,#3A3520 0 6px,#322E1B 6px 12px)"></span><span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:19px;line-height:24px;font-weight:800">Ordonnancement et interblocages</span><span style="font-size:13px;color:#94A3B8">Pr. Andry · 1 h 24</span></span></div>
+      <div style="padding-top:24px;display:flex;flex-direction:column;gap:6px"><div style="height:22px;position:relative;display:flex;align-items:center"><div style="width:100%;height:5px;border-radius:999px;background:#243545"></div><div style="position:absolute;width:22%;height:5px;border-radius:999px;background:#FF7A45"></div><span style="position:absolute;left:10%;top:2px;width:8px;height:8px;margin-left:-4px;border-radius:2px;transform:rotate(45deg);background:#F5F7FA"></span><span style="position:absolute;left:41%;top:2px;width:8px;height:8px;margin-left:-4px;border-radius:2px;transform:rotate(45deg);background:#F5F7FA"></span><span style="position:absolute;left:calc(22% - 8px);width:16px;height:16px;border-radius:999px;background:#F5F7FA"></span></div><div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8"><span>18:40</span><span>−1:05:26</span></div></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:24px;padding:14px 0"><span style="width:56px;height:56px;display:grid;place-items:center"><span class="ms" style="font-size:34px">replay_10</span></span><button onClick="{{ togglePlay }}" style="width:76px;height:76px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:44px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></button><span style="width:56px;height:56px;display:grid;place-items:center"><span class="ms" style="font-size:34px">forward_30</span></span></div>
+      <div style="display:flex;justify-content:center;gap:8px"><span style="height:40px;padding:0 16px;border-radius:999px;background:#3A2620;border:1px solid #7A4330;color:#FF9166;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:13.5px;font-weight:700">1,25×</span><span style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px">bookmark_add</span>Signet</span><span style="width:40px;height:40px;border-radius:999px;border:1px solid #2A3D4E;display:grid;place-items:center;color:#94A3B8"><span class="ms" style="font-size:20px">bedtime</span></span></div>
+      <div style="display:flex;gap:18px;padding:18px 0 0;border-bottom:1px solid #1B2935"><span style="height:44px;display:flex;align-items:center;font-size:14px;font-weight:800;border-bottom:2px solid #FF7A45">Signets · 3</span><span style="height:44px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#94A3B8">Chapitres</span><span style="height:44px;display:flex;align-items:center;gap:5px;font-size:14px;font-weight:600;color:#64748B">Texte<span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:0 3px;border-radius:3px;border:1px dashed #64748B">FUTUR</span></span></div>
+      <sc-for list="{{ marksM }}" as="b" hint-placeholder-count="3"><div style="display:flex;gap:12px;align-items:center;min-height:58px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:700;color:#FF9166;width:50px">{{ b.t }}</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14.5px;font-weight:700">{{ b.title }}</span><span style="font-size:12.5px;color:#94A3B8">{{ b.note }}</span></span></div></sc-for>
+    </div>
+  </sc-if>
+  <sc-if value="{{ is.video }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#070B0F;display:flex;flex-direction:column;padding-top:28px">
+      <div style="height:202px;position:relative;background:repeating-linear-gradient(135deg,#1A2630 0 12px,#16212A 12px 24px)">
+        <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:11px;color:#3A4D5E">vidéo 16:9 · Media3</span>
+        <button onClick="{{ goCinema }}" style="position:absolute;left:4px;top:4px;width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:26px">keyboard_arrow_down</span></button>
+        <span style="position:absolute;right:4px;top:4px;width:48px;height:48px;display:grid;place-items:center"><span class="ms" style="font-size:22px">closed_caption</span></span>
+        <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:center;gap:36px"><span class="ms" style="font-size:36px">replay_10</span><span style="width:56px;height:56px;border-radius:999px;background:rgba(7,11,15,0.55);display:grid;place-items:center"><span class="ms" style="font-size:36px;font-variation-settings:'FILL' 1">pause</span></span><span class="ms" style="font-size:36px">forward_10</span></div>
+        <div style="position:absolute;left:12px;right:12px;bottom:8px;display:flex;align-items:center;gap:8px;font-family:'JetBrains Mono',monospace;font-size:11px"><span>23:12</span><div style="flex:1;height:4px;border-radius:999px;background:rgba(245,247,250,0.25)"><div style="width:48%;height:100%;border-radius:999px;background:#FF7A45"></div></div><span>48:30</span><button onClick="{{ goLandscape }}"><span class="ms" style="font-size:22px">fullscreen</span></button></div>
+      </div>
+      <div style="flex:1;background:#101820;padding:16px 20px;display:flex;flex-direction:column;gap:10px">
+        <span style="font-size:19px;font-weight:800">Les Hautes Terres · S1 É4</span>
+        <span style="font-size:13px;color:#94A3B8">Le col · 48 min · Français 5.1 · sous-titres FR</span>
+        <div style="display:flex;gap:8px;padding:6px 0 4px"><span style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><span class="ms" style="font-size:19px">audiotrack</span>Audio</span><span style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><span class="ms" style="font-size:19px">speed</span>1×</span><span style="height:40px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600"><span class="ms" style="font-size:19px">picture_in_picture_alt</span>PiP</span></div>
+        <span style="font-size:15px;font-weight:800;padding-top:8px">Épisodes</span>
+        <sc-for list="{{ epsM }}" as="e" hint-placeholder-count="3"><div style="display:flex;gap:12px;align-items:center"><div style="width:120px;height:68px;border-radius:10px;flex-shrink:0;background:repeating-linear-gradient(135deg,#22333F 0 5px,#1C2C37 5px 10px);position:relative;overflow:hidden"><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(245,247,250,0.2)"><div style="width:{{ e.pct }};height:100%;background:#FF7A45"></div></div></div><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700;color:{{ e.fg }}">{{ e.t }}</span><span style="font-size:12px;color:#94A3B8">{{ e.s }}</span></span></div></sc-for>
+      </div>
+    </div>
+  </sc-if>
+
+  <!-- mini player + nav -->
+  <sc-if value="{{ showNav }}" hint-placeholder-val="{{ true }}">
+    <button onClick="{{ goPlayer }}" style="position:absolute;left:8px;right:8px;bottom:80px;height:64px;z-index:5;border-radius:20px;background:#1F2F3B;border:1px solid #2A3D4E;box-shadow:0 12px 30px rgba(0,0,0,0.45);display:flex;align-items:center;gap:10px;padding:0 6px 0 8px;overflow:hidden;text-align:left">
+      <span style="width:48px;height:48px;border-radius:12px;background:repeating-linear-gradient(135deg,#4A3424 0 5px,#422E20 5px 10px)"></span>
+      <span style="flex:1;display:flex;flex-direction:column;min-width:0"><span style="font-size:14px;font-weight:700">Marée haute</span><span style="font-size:12px;color:#94A3B8">Nafy Rakoto</span></span>
+      <span style="width:48px;height:48px;display:grid;place-items:center;color:#FF9166"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">favorite</span></span>
+      <span style="width:44px;height:44px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></span>
+      <span style="position:absolute;left:16px;right:16px;bottom:0;height:3px;border-radius:999px;background:#243545"><span style="display:block;width:38%;height:100%;border-radius:999px;background:#FF7A45"></span></span>
+    </button>
+    <div style="position:absolute;left:0;right:0;bottom:0;height:72px;z-index:5;background:#0D141B;border-top:1px solid #1B2935;display:grid;grid-template-columns:repeat(4,1fr);padding-bottom:6px;box-sizing:border-box">
+      <sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><button onClick="{{ t.go }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:700;color:{{ t.fg }}"><span style="width:56px;height:30px;border-radius:999px;background:{{ t.pill }};display:grid;place-items:center"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' {{ t.fill }}">{{ t.icon }}</span></span>{{ t.l }}</button></sc-for>
+    </div>
+  </sc-if>
+  <span style="position:absolute;left:50%;bottom:6px;transform:translateX(-50%);width:110px;height:4px;border-radius:999px;background:rgba(245,247,250,0.5);z-index:30"></span>
+</div>
+
+<!-- Side column: notes + lockscreen + landscape -->
+<div style="display:flex;flex-direction:column;gap:28px;width:760px">
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">{{ cur.id }}</span>
+    <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">{{ cur.label }}</span>
+    <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:20px;color:#C7D0DB"><sc-for list="{{ cur.notes }}" as="n" hint-placeholder-count="4"><li>{{ n }}</li></sc-for></ul>
+  </div>
+
+  <div style="display:flex;flex-direction:column;gap:10px" data-screen-label="Android · Vidéo paysage">
+    <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">A-04b · Lecteur vidéo paysage</span>
+    <div style="width:740px;height:340px;border-radius:36px;border:8px solid {{ landRing }};background:#070B0F;overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#1A2630 0 14px,#16212A 14px 28px)"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(7,11,15,0.75) 0%,rgba(7,11,15,0) 30%,rgba(7,11,15,0) 60%,rgba(7,11,15,0.85) 100%)"></div>
+      <div style="position:absolute;left:20px;right:20px;top:14px;display:flex;align-items:center;gap:12px"><span class="ms" style="font-size:24px">arrow_back</span><span style="flex:1;font-size:14px;font-weight:800">Les Hautes Terres · S1 É4 « Le col »</span><span class="ms" style="font-size:22px">lock_open</span><span class="ms" style="font-size:22px">picture_in_picture_alt</span></div>
+      <div style="position:absolute;left:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:40px"><span class="ms" style="font-size:20px">light_mode</span><div style="width:4px;height:90px;border-radius:999px;background:rgba(245,247,250,0.25);position:relative"><div style="position:absolute;bottom:0;width:100%;height:60%;border-radius:999px;background:#F5F7FA"></div></div></div>
+      <div style="position:absolute;right:24px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;width:40px"><span class="ms" style="font-size:20px">volume_up</span><div style="width:4px;height:90px;border-radius:999px;background:rgba(245,247,250,0.25);position:relative"><div style="position:absolute;bottom:0;width:100%;height:70%;border-radius:999px;background:#F5F7FA"></div></div></div>
+      <div style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);display:flex;justify-content:center;align-items:center;gap:56px"><span class="ms" style="font-size:40px">replay_10</span><span style="width:68px;height:68px;border-radius:999px;background:rgba(7,11,15,0.55);display:grid;place-items:center"><span class="ms" style="font-size:44px;font-variation-settings:'FILL' 1">pause</span></span><span class="ms" style="font-size:40px">forward_10</span></div>
+      <span style="position:absolute;left:50%;bottom:74px;transform:translateX(-50%);font-size:17px;font-weight:600;padding:3px 10px;border-radius:6px;background:rgba(0,0,0,0.65);white-space:nowrap">— On passera le col avant la nuit.</span>
+      <div style="position:absolute;left:24px;right:24px;bottom:16px;display:flex;flex-direction:column;gap:8px">
+        <div style="height:4px;border-radius:999px;background:rgba(245,247,250,0.25);position:relative"><div style="width:48%;height:100%;border-radius:999px;background:#FF7A45"></div><span style="position:absolute;left:14%;width:2px;height:4px;background:#070B0F"></span><span style="position:absolute;left:37%;width:2px;height:4px;background:#070B0F"></span><span style="position:absolute;left:64%;width:2px;height:4px;background:#070B0F"></span></div>
+        <div style="display:flex;align-items:center;gap:16px;font-family:'JetBrains Mono',monospace;font-size:11.5px"><span>23:12 / 48:30</span><div style="flex:1"></div><span style="display:flex;align-items:center;gap:6px;font-family:Manrope,sans-serif;font-size:12.5px;font-weight:700"><span class="ms" style="font-size:20px">closed_caption</span>FR</span><span class="ms" style="font-size:20px">audiotrack</span><span class="ms" style="font-size:20px">view_carousel</span><span class="ms" style="font-size:20px">aspect_ratio</span><span class="ms" style="font-size:20px">skip_next</span></div>
+      </div>
+    </div>
+    <span style="font-size:12.5px;line-height:19px;color:#94A3B8">Glisser verticalement à gauche : luminosité ; à droite : volume. Double-toucher les côtés : ±10 s. Pincer : remplir l'écran. Le cadenas bloque les gestes (poche, enfant). Les commandes disparaissent après 3 s et ne réapparaissent pas par un toucher accidentel sur les bords (zones système exclues).</span>
+  </div>
+
+  <div style="display:flex;gap:28px;align-items:flex-start" data-screen-label="Android · Notification et écran verrouillé">
+    <div style="width:300px;height:620px;flex-shrink:0;border-radius:36px;border:8px solid #1F2F3B;background:#0E1622;overflow:hidden;position:relative">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#13202E 0 8px,#0E1622 8px 16px)"></div>
+      <div style="position:relative;display:flex;flex-direction:column;align-items:center;padding-top:50px"><span style="font-size:64px;line-height:68px;font-weight:600;letter-spacing:-0.03em">9:41</span><span style="font-size:13px;color:#C7D0DB">jeudi 19 novembre</span></div>
+      <div style="position:relative;margin:32px 12px 0;border-radius:24px;background:#2A2017;padding:14px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#C7D0DB"><svg width="14" height="14" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>Miarina Media<span style="flex:1"></span><span class="ms" style="font-size:15px">headphones</span></div>
+        <div style="display:flex;gap:10px;align-items:center"><span style="width:56px;height:56px;border-radius:10px;background:repeating-linear-gradient(135deg,#4A3826 0 5px,#3A2B1B 5px 10px)"></span><span style="display:flex;flex-direction:column"><span style="font-size:15px;font-weight:800">Marée haute</span><span style="font-size:12.5px;color:#C7D0DB">Nafy Rakoto</span></span></div>
+        <div style="height:4px;border-radius:999px;background:#4A3826"><div style="width:38%;height:100%;border-radius:999px;background:#F5F7FA"></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between"><span class="ms" style="font-size:22px;color:#FFB08A;font-variation-settings:'FILL' 1">favorite</span><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">skip_previous</span><span style="width:54px;height:54px;border-radius:18px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:32px;font-variation-settings:'FILL' 1">pause</span></span><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">skip_next</span><span class="ms" style="font-size:22px;color:#C7D0DB">bedtime</span></div>
+      </div>
+      <div style="position:relative;margin:10px 12px 0;border-radius:18px;background:rgba(16,24,32,0.9);padding:10px 12px;display:flex;align-items:center;gap:8px;font-size:12px"><span class="ms" style="font-size:18px;color:#5FE0D5">headset_off</span><span style="color:#C7D0DB">Casque retiré : lecture en pause</span></div>
+    </div>
+    <div style="flex:1;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">A-05 · Lecture en arrière-plan et commandes système</span>
+      <div style="border-radius:20px;background:#1F2F3B;padding:12px 14px;display:flex;flex-direction:column;gap:10px">
+        <span style="display:flex;align-items:center;gap:6px;font-size:11.5px;color:#C7D0DB"><svg width="14" height="14" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>Miarina Media · Focus</span>
+        <div style="display:flex;gap:10px;align-items:center"><span style="width:44px;height:44px;border-radius:8px;background:repeating-linear-gradient(135deg,#3A3520 0 5px,#322E1B 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700">Ordonnancement et interblocages</span><span style="font-size:12px;color:#94A3B8">Cours 7 · 18:40</span></span></div>
+        <div style="display:flex;justify-content:space-between;padding:0 6px"><span class="ms" style="font-size:24px">replay_10</span><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">pause</span><span class="ms" style="font-size:24px">forward_30</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;align-self:center">1,25×</span><span class="ms" style="font-size:24px">bookmark_add</span></div>
+      </div>
+      <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;line-height:20px;color:#C7D0DB">
+        <li>MediaSessionService Media3 : notification, écran verrouillé, Bluetooth, Android Auto et montre utilisent la même session.</li>
+        <li>Actions personnalisées par section : Musique = favori + minuteur ; Focus = −10/+30 s, vitesse, signet.</li>
+        <li>Audio focus : pause sur appel, baisse du volume sur notification, reprise après.</li>
+        <li>Retrait du casque : pause (P0). La lecture continue écran éteint, avec un service au premier plan.</li>
+        <li>Fermer la notification en balayant arrête la lecture seulement si elle est en pause.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'home', playing: true, lyrics: false, preset: 'Voix' };
+  go = (screen) => () => this.setState({ screen });
+  renderVals() {
+    const s = this.state;
+    const H = [['#22333F','#1C2C37'],['#2A3F52','#22374A'],['#4A3424','#422E20'],['#2E3A2A','#273222'],['#3A2B3A','#322532'],['#3A3520','#322E1B'],['#203A3A','#1B3232'],['#40302A','#382A24']];
+    const screens = [
+      ['A-00','home','Accueil Musique',['Quatre onglets : Musique, Cinéma, Focus (corail) et Obtenir (teal), décision 0006 étendue.','Mini-lecteur 64 dp au-dessus des onglets sur tous les écrans à onglets.','Les puces ouvrent directement une vue de bibliothèque.']],
+      ['A-01','library','Bibliothèque · titres',['Lignes 60 dp, pochette 48, menu ⋮ 48 dp.','Index alphabétique à droite pour les longues listes (glisser).','Appui long : sélection multiple et barre d\u2019actions en haut.']],
+      ['A-01b','search','Recherche',['Ouverte depuis la loupe de chaque onglet, clavier affiché.','Résultats groupés par type, filtres par section.','Retour système : ferme la recherche et garde la requête.']],
+      ['A-02','album','Album',['Pochette au centre, couleur de fond issue de la pochette (flou).','Lire : bouton rond corail en bas à droite de l\u2019en-tête, à portée du pouce.','Fichier introuvable : ligne atténuée, action Localiser.']],
+      ['A-02b','artist','Artiste',['Image d\u2019artiste facultative, dégradé vers le fond.','Deux boutons pleine largeur : Lire et Aléatoire.']],
+      ['A-02c','playlists','Playlists',['Bouton flottant « Nouvelle » (teal = créer).','Import M3U depuis le sélecteur de fichiers Android (SAF).','Les playlists importées signalent leurs titres introuvables.']],
+      ['A-C','cinema','Cinéma',['Reprendre en carrousel 16:9, séries en affiches 2:3.','Toucher une vidéo ouvre le lecteur portrait.']],
+      ['A-04','video','Lecteur vidéo portrait',['Vidéo en haut, infos et épisodes dessous ; faire pivoter ou toucher plein écran passe en paysage.','Picture-in-Picture au retour à l\u2019accueil Android.','Pistes et sous-titres en feuille du bas.']],
+      ['A-04b','landscape','Lecteur vidéo paysage',['Voir le cadre paysage à droite.','Gestes : luminosité, volume, ±10 s, pincer.','Cadenas pour bloquer les gestes.']],
+      ['A-F','focus','Focus',['Contenus longs avec progression et temps restant à la vitesse choisie.']],
+      ['A-F2','focusPlayer','Lecteur Focus',['−10 / +30 s, vitesse, signets en premier plan.','Texte (transcription) marqué FUTUR.']],
+      ['A-03','player','Lecteur audio',['Glisser vers le bas ou retour système : retour au mini-lecteur.','Balayer la pochette : titre suivant/précédent.','Bouton paroles : remplace la pochette par les paroles synchronisées.']],
+      ['A-03b','queue','File d\u2019attente',['Feuille plein écran depuis le lecteur.','Poignée pour réordonner, balayage pour retirer, avec Annuler.']],
+      ['A-03c','eq','Égaliseur',['Curseurs verticaux à grosse prise (24 dp), 6 bandes.','Préréglages identiques à Windows.','Par sortie (casque / HP) : P1.']],
+      ['A-06','perm','Importation · autorisations',['Écran d\u2019explication avant la demande système.','READ_MEDIA_AUDIO et READ_MEDIA_VIDEO (Android 13+), sinon READ_EXTERNAL_STORAGE.','Alternative : choisir un dossier (SAF), sans autorisation globale.']],
+      ['A-06b','permDialog','Dialogue système',['Dialogue Android natif, non personnalisable.','Refuser mène à l\u2019état « accès refusé » (A-07).']],
+      ['A-07','denied','Accès refusé',['Explique la conséquence et propose deux sorties.','Les fichiers téléchargés avec Miarina restent visibles.']],
+      ['A-07b','errors','Erreurs',['Carte SD retirée : bandeau, contenu masqué, rien supprimé.','Format illisible : message en bas avec Suivant.']],
+      ['A-08','settings','Réglages',['Liste Android standard, interrupteurs 52 dp.','Les fonctions P1 sont visibles et désactivées.']],
+    ];
+    const curRow = screens.find(x => x[1] === s.screen) || screens[0];
+    const cur = { id: curRow[0], label: curRow[2], notes: curRow[3] };
+    const picker = screens.map(([id, key, label]) => { const on = key === s.screen; return { id, label, go: this.go(key), bg: on ? '#182530' : 'transparent', bd: on ? '#35C9BD' : '#243545', fg: on ? '#F5F7FA' : '#94A3B8' }; });
+    const scr = s.screen === 'landscape' ? 'video' : s.screen;
+    const is = Object.fromEntries(screens.map(x => [x[1], x[1] === scr]));
+    const tabOf = { home: 'music', library: 'music', search: 'music', album: 'music', artist: 'music', playlists: 'music', errors: 'music', denied: 'music', cinema: 'cinema', focus: 'focus' }[scr];
+    const tabs = [['music','Musique','library_music','home'],['cinema','Cinéma','movie','cinema'],['focus','Focus','headphones','focus'],['get','Obtenir','download',null]].map(([k, l, icon, target]) => { const on = k === tabOf; return { l, icon, go: target ? this.go(target) : null, fg: on ? '#FF9166' : '#94A3B8', pill: on ? '#3A2620' : 'transparent', fill: on ? 1 : 0 }; });
+    const showNav = !!tabOf && scr !== 'denied';
+    const chip = (l, on, go) => ({ l, go: go || null, bg: on ? '#3A2620' : 'transparent', bd: on ? '#7A4330' : '#2A3D4E', fg: on ? '#FF9166' : '#94A3B8' });
+    const musicChips = [chip('Albums', false, this.go('album')), chip('Titres', false, this.go('library')), chip('Artistes', false, this.go('artist')), chip('Playlists', false, this.go('playlists')), chip('Favoris')];
+    const albums2 = [['Saisons de sel','Nafy Rakoto'],['Nord magnétique','Les Cartographes'],['Ny lanitra','Toky'],['Ville lente','Iony']].map(([t, ar], i) => ({ t, ar, c1: H[(i + 2) % 8][0], c2: H[(i + 2) % 8][1], go: this.go('album') }));
+    const trackChips = [chip('Tous', true), chip('Favoris'), chip('Hi-res'), chip('Ajoutés récemment')];
+    const tracksM = [['Kabary','Nafy Rakoto, Toky'],['Lumière basse','Nafy Rakoto'],['Marée haute','Nafy Rakoto',1],['Mena','Toky'],['Nord magnétique','Les Cartographes'],['Seuil','Introuvable · Localiser',0,1],['Ville lente','Iony'],['Vent de sable','Nafy Rakoto']].map(([t, sub, on, miss], i) => ({ t, s: sub, c1: H[i % 8][0], c2: H[i % 8][1], fg: on ? '#FF9166' : '#F5F7FA', sc: miss ? '#E8B04B' : '#94A3B8', op: miss ? 0.7 : 1, eqD: on ? 'block' : 'none' }));
+    const searchChips = [chip('Tout', true), chip('Musique'), chip('Cinéma'), chip('Focus')];
+    const searchRes = [
+      { h: 'Titres', items: [{ t: 'Marée haute', s: 'Nafy Rakoto', w: '48px', rad: '10px' }, { t: 'Basse marée', s: 'Nafy Rakoto', w: '48px', rad: '10px' }] },
+      { h: 'Focus', items: [{ t: 'Les marées expliquées', s: 'Podcast · Ondes courtes', w: '48px', rad: '10px' }] },
+      { h: 'Cinéma', items: [{ t: 'Grande marée', s: 'Vidéo perso', w: '85px', rad: '8px' }] },
+    ];
+    const albumT = [['Lumière basse','Nafy Rakoto'],['Marée haute','En lecture',1],['Vent de sable','Nafy Rakoto'],['Kabary','avec Toky'],['Seuil','Introuvable · Localiser',0,1]].map(([t, sub, on, miss], i) => ({ n: i + 1, t, s: sub, fg: on ? '#FF9166' : '#F5F7FA', nc: on ? '#FF9166' : '#64748B', sc: miss ? '#E8B04B' : on ? '#FF9166' : '#94A3B8', op: miss ? 0.7 : 1 }));
+    const topT = [['Marée haute','58 écoutes'],['Lumière basse','41 écoutes'],['Basse marée','33 écoutes']].map(([t, sub], i) => ({ t, s: sub, c1: H[(i * 3) % 8][0], c2: H[(i * 3) % 8][1] }));
+    const pls = [['Soirées calmes','24 titres · 1 h 38'],['Route du Sud','12 titres'],['Révisions sans paroles','40 titres'],['Matins','18 titres'],['vieux PC.m3u','63 titres · 5 introuvables',1]].map(([n, sub, w]) => ({ n, s: sub, sc: w ? '#E8B04B' : '#94A3B8' }));
+    const cineChips = [chip('Tout', true), chip('Films'), chip('Séries')];
+    const cineResume = [{ t: 'Les Hautes Terres · S1 É4', s: '25 min restantes', pct: '48%', c1: '#2A3F52', c2: '#22374A' }, { t: 'Le Dernier Ferry', s: '31 min restantes', pct: '70%', c1: '#203A3A', c2: '#1B3232' }];
+    const cinePosters = [['Les Hautes Terres'],['Port-Louis Nuit'],['Les Archivistes']].map(([t], i) => ({ t, c1: H[(i + 1) % 8][0], c2: H[(i + 1) % 8][1] }));
+    const focusChips = [chip('Tout', true), chip('Podcasts'), chip('Cours'), chip('Livres audio')];
+    const focusNow = [{ k: 'COURS 7 SUR 12', t: 'Ordonnancement et interblocages', pct: '22%', left: '52 min', c1: '#3A3520', c2: '#322E1B' }, { k: 'PODCAST', t: '#43 — Les radios pirates', pct: '64%', left: '12 min', c1: '#203A3A', c2: '#1B3232' }, { k: 'LIVRE AUDIO · CHAP. 9', t: 'L\u2019Île aux sept vents', pct: '37%', left: '6 h 10', c1: '#3A2B3A', c2: '#322532' }];
+    const perms = [{ icon: 'music_note', c: '#FF9166', t: 'Musique et audio', d: 'Pour afficher vos albums, podcasts et cours.' }, { icon: 'movie', c: '#FF9166', t: 'Vidéos', d: 'Pour vos films, séries et vidéos perso.' }, { icon: 'notifications', c: '#35C9BD', t: 'Notifications', d: 'Pour les commandes de lecture sur l\u2019écran verrouillé.' }];
+    const tog = (v) => ({ tb: v ? '#35C9BD' : '#2A3D4E', tk: v ? '24px' : '4px' });
+    const sr = (icon, t, d, v, o = {}) => ({ icon, t, d, togD: v === null ? 'none' : 'block', op: o.op || 1, ...tog(v) });
+    const setGroups = [
+      { h: 'Lecture', rows: [sr('headset_off', 'Pause au retrait du casque', 'Recommandé', true), sr('play_circle', 'Reprendre au démarrage', 'Dernier titre ou vidéo', true), sr('blur_on', 'Fondu entre les titres', 'P1', false, { op: 0.5 })] },
+      { h: 'Bibliothèque', rows: [sr('folder', 'Dossiers analysés', 'Musique, Movies, Download/Miarina', null), sr('sd_card', 'Inclure la carte SD', '214 fichiers', true)] },
+      { h: 'Apparence', rows: [sr('dark_mode', 'Thème', 'Sombre', null), sr('animation', 'Réduire les animations', 'Suit Android', false)] },
+    ];
+    const lyricsM = ['On compte les vagues', 'comme des jours', 'On attend la marée haute', 'pour rentrer chez soi', 'Le sel reste sur les mains', 'quand la mer s\u2019en va'].map((t, i) => ({ t, fg: i === 2 || i === 3 ? '#F5F7FA' : i < 2 ? 'rgba(245,247,250,0.35)' : 'rgba(245,247,250,0.55)' }));
+    const queueM = [['Vent de sable','Nafy Rakoto'],['Kabary','Nafy Rakoto, Toky'],['Les heures pâles','Nafy Rakoto',1],['Retour au port','Nafy Rakoto'],['Ny lanitra','Nafy Rakoto']].map(([t, sub, drag], i) => ({ t, s: sub, c1: H[(i + 3) % 8][0], c2: H[(i + 3) % 8][1], sc: '#94A3B8', bg: drag ? '#1F2F3B' : 'transparent', tf: drag ? 'scale(1.02)' : 'none' }));
+    const PR = { Neutre: [0, 0, 0, 0, 0, 0], Basses: [6, 4, 1, 0, 0, 0], Voix: [-2, 0, 3, 4, 2, 0], Rock: [4, 2, -1, 1, 3, 4], Classique: [3, 1, 0, 0, 2, 3] };
+    const presetsM = Object.keys(PR).map(l => { const on = l === s.preset; return { l, go: () => this.setState({ preset: l }), bg: on ? '#3A2620' : 'transparent', bd: on ? '#7A4330' : '#2A3D4E', fg: on ? '#FF9166' : '#94A3B8' }; });
+    const bandsM = ['60', '230', '910', '3,6k', '7k', '14k'].map((f, i) => { const v = PR[s.preset][i]; return { f, db: (v > 0 ? '+' : '') + v, top: `calc(${50 - v * 6}% - 12px)` }; });
+    const marksM = [['08:12','Définition d\u2019un ordonnanceur','À revoir avant l\u2019examen'],['34:50','Exemple round-robin','Sans note'],['56:05','Interblocages','Schéma au tableau']].map(([t, title, note]) => ({ t, title, note }));
+    const epsM = [['É4 · Le col','En cours · 25 min restantes','48%',1],['É5 · Brouillard','51 min','0%'],['É6 · Ceux d\u2019en bas','47 min','0%']].map(([t, sub, pct, on]) => ({ t, s: sub, pct, fg: on ? '#FF9166' : '#F5F7FA' }));
+    const dark = ['player', 'video'].includes(scr);
+    return {
+      picker, cur, is, tabs, showNav, musicChips, albums2, trackChips, tracksM, searchChips, searchRes, albumT, topT, pls, cineChips, cineResume, cinePosters, focusChips, focusNow, perms, setGroups, lyricsM, queueM, presetsM, bandsM, marksM, epsM,
+      pTab: { art: !s.lyrics, lyrics: s.lyrics }, lyBg: s.lyrics ? 'rgba(245,247,250,0.2)' : 'transparent', toggleLyrics: () => this.setState({ lyrics: !s.lyrics }),
+      playIcon: s.playing ? 'pause' : 'play_arrow', togglePlay: () => this.setState({ playing: !s.playing }), playingD: s.playing ? 'inline' : 'none',
+      sbFg: dark ? '#F5F7FA' : '#F5F7FA', landRing: s.screen === 'landscape' ? '#35C9BD' : '#1F2F3B',
+      goHome: this.go('home'), goSearch: this.go('search'), goSettings: this.go('settings'), goPlayer: this.go('player'), goLibrary: this.go('library'), goAlbum: this.go('album'), goArtist: this.go('artist'), goQueue: this.go('queue'), goCinema: this.go('cinema'), goVideo: this.go('video'), goLandscape: this.go('landscape'), goFocus: this.go('focus'), goFocusPlayer: this.go('focusPlayer'), goPermDialog: this.go('permDialog'), goDenied: this.go('denied'), toggleSheet: this.go('playlists'),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 [workspace]
 resolver = "3"
-members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "crates/browser-bridge", "apps/client/src-tauri"]
+members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "crates/browser-bridge", "apps/client/src-tauri", "apps/flutter_client/rust"]
 # Feasibility spikes build on their own (they may enable unstable features).
 exclude = ["spikes", "vendor"]
 

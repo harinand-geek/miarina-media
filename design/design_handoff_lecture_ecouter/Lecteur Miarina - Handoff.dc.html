@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0F14;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#35C9BD;text-decoration:none}a:hover{color:#4FD6CB;text-decoration:underline}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga'}
+</style>
+</helmet>
+
+<div style="max-width:1280px;margin:0 auto;padding:56px 40px 120px;display:flex;flex-direction:column;gap:64px">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#94A3B8">Lot 6 sur 6 · transmission aux développeurs · v1.0</span>
+  <h1 style="margin:0;font-size:48px;line-height:54px;font-weight:800;letter-spacing:-0.03em">Lecteur Miarina Media — flux, interactions et handoff</h1>
+  <p style="margin:0;max-width:860px;font-size:16.5px;line-height:26px;color:#94A3B8;text-wrap:pretty">Ce document relie les maquettes au code Flutter : parcours, comportements, mouvements, règles responsive, assets et découpage technique. Les maquettes restent la référence visuelle ; toute divergence est documentée et validée avant implémentation.</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;padding-top:6px">
+    <sc-for list="{{ files }}" as="f" hint-placeholder-count="6"><a href="{{ f.href }}" style="height:34px;padding:0 14px;border-radius:999px;border:1px solid #243545;background:#101820;color:#C7D0DB;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B">{{ f.n }}</span>{{ f.l }}</a></sc-for>
+  </div>
+</header>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">01</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Flux utilisateurs</h2></div>
+  <sc-for list="{{ flows }}" as="f" hint-placeholder-count="6">
+    <div style="padding:18px 20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;align-items:baseline;gap:12px"><span style="font-size:16px;font-weight:800">{{ f.t }}</span><span style="font-size:13px;color:#94A3B8">{{ f.d }}</span></div>
+      <div style="display:flex;flex-wrap:wrap;align-items:center;gap:6px">
+        <sc-for list="{{ f.steps }}" as="s" hint-placeholder-count="5">
+          <span style="display:flex;align-items:center;gap:6px"><span style="height:34px;padding:0 12px;border-radius:10px;background:{{ s.bg }};border:1px solid {{ s.bd }};display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:{{ s.fg }}"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;color:#64748B">{{ s.id }}</span>{{ s.l }}</span><span class="ms" style="font-size:18px;color:#3A4D5E;display:{{ s.arrD }}">arrow_forward</span></span>
+        </sc-for>
+      </div>
+      <span style="font-size:12.5px;color:#64748B">{{ f.alt }}</span>
+    </div>
+  </sc-for>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">02</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Spécifications d'interaction</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px">
+    <sc-for list="{{ interactions }}" as="g" hint-placeholder-count="4">
+      <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:10px">
+        <span style="display:flex;align-items:center;gap:8px;font-size:16px;font-weight:800"><span class="ms" style="font-size:22px;color:#35C9BD">{{ g.icon }}</span>{{ g.t }}</span>
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;padding:8px 0;border-top:1px solid #1B2935;font-size:13px;line-height:19px"><span style="font-weight:700;color:#F5F7FA">{{ r.a }}</span><span style="color:#94A3B8">{{ r.b }}</span></div></sc-for>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">03</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Animation et mouvement</h2></div>
+  <p style="margin:0;max-width:860px;font-size:14.5px;line-height:23px;color:#94A3B8">Courbe standard <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#F5F7FA">cubic(0.2, 0, 0, 1)</span>, sortie <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#F5F7FA">cubic(0.3, 0, 1, 1)</span>. Rien n'est animé en continu, sauf la progression de lecture et les squelettes. Cible : 60 i/s sur les appareils de référence ; uniquement opacité, translation, échelle (pas de flou animé).</p>
+  <div style="border-radius:18px;overflow-x:auto;border:1px solid #1B2935">
+    <div style="min-width:980px;display:grid;grid-template-columns:200px 90px minmax(0,1.4fr) minmax(0,1fr) 220px;background:#0D141B;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B"><span style="padding:12px 16px">Transition</span><span style="padding:12px 0">Durée</span><span style="padding:12px 16px">Comportement</span><span style="padding:12px 16px">Mouvement réduit</span><span style="padding:12px 16px">Flutter</span></div>
+    <sc-for list="{{ motion }}" as="m" hint-placeholder-count="9">
+      <div style="min-width:980px;display:grid;grid-template-columns:200px 90px minmax(0,1.4fr) minmax(0,1fr) 220px;align-items:start;background:#101820;border-top:1px solid #1B2935;font-size:13px;line-height:19px">
+        <span style="padding:12px 16px;font-weight:700">{{ m.a }}</span>
+        <span style="padding:12px 0;font-family:'JetBrains Mono',monospace;font-size:12px;color:#FF9166">{{ m.ms }}</span>
+        <span style="padding:12px 16px;color:#C7D0DB">{{ m.d }}</span>
+        <span style="padding:12px 16px;color:#94A3B8">{{ m.r }}</span>
+        <span style="padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">{{ m.f }}</span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">04</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Règles responsive</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px">
+    <sc-for list="{{ responsive }}" as="g" hint-placeholder-count="2">
+      <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:6px">
+        <span style="font-size:16px;font-weight:800;padding-bottom:4px">{{ g.t }}</span>
+        <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:140px minmax(0,1fr);gap:12px;padding:9px 0;border-top:1px solid #1B2935;font-size:13px;line-height:19px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ r.w }}</span><span style="color:#C7D0DB">{{ r.d }}</span></div></sc-for>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">05</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Architecture Flutter</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:16px">
+    <pre style="margin:0;padding:22px;border-radius:18px;background:#0D141B;border:1px solid #1B2935;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:20px;color:#C7D0DB;overflow:auto;white-space:pre">{{ tree }}</pre>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ arch }}" as="r" hint-placeholder-count="6"><div style="padding:14px 16px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">{{ r.t }}</span><span style="font-size:13px;line-height:20px;color:#94A3B8">{{ r.d }}</span></div></sc-for>
+    </div>
+  </div>
+  <div style="border-radius:18px;overflow-x:auto;border:1px solid #1B2935">
+    <div style="min-width:900px;display:grid;grid-template-columns:90px minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr);background:#0D141B;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B"><span style="padding:12px 16px">ID</span><span style="padding:12px 16px">Écran</span><span style="padding:12px 16px">Route go_router</span><span style="padding:12px 16px">Providers Riverpod</span></div>
+    <sc-for list="{{ routes }}" as="r" hint-placeholder-count="12">
+      <div style="min-width:900px;display:grid;grid-template-columns:90px minmax(0,1fr) minmax(0,1.2fr) minmax(0,1.2fr);background:#101820;border-top:1px solid #1B2935;font-size:13px"><span style="padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">{{ r.id }}</span><span style="padding:9px 16px;font-weight:700">{{ r.n }}</span><span style="padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ r.r }}</span><span style="padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7D0DB">{{ r.p }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">06</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">V1 et fonctions futures</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <sc-for list="{{ scope }}" as="g" hint-placeholder-count="3">
+      <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:10px">
+        <span style="align-self:flex-start;font-family:'JetBrains Mono',monospace;font-size:11.5px;font-weight:700;padding:3px 8px;border-radius:4px;background:{{ g.bg }};color:{{ g.fg }};border:1px {{ g.bs }} {{ g.bd }}">{{ g.tag }}</span>
+        <span style="font-size:13px;color:#94A3B8">{{ g.rule }}</span>
+        <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:6px;font-size:13.5px;line-height:20px;color:#C7D0DB"><sc-for list="{{ g.items }}" as="i" hint-placeholder-count="6"><li>{{ i }}</li></sc-for></ul>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">07</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Assets</h2></div>
+  <div style="border-radius:18px;overflow:hidden;border:1px solid #1B2935">
+    <sc-for list="{{ assets }}" as="a" hint-placeholder-count="8">
+      <div style="display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 140px;gap:12px;padding:12px 18px;background:#101820;border-top:1px solid #1B2935;font-size:13px;align-items:center"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#F5F7FA">{{ a.p }}</span><span style="color:#94A3B8">{{ a.d }}</span><span style="justify-self:end;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:{{ a.sb }};color:{{ a.sc }}">{{ a.s }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+<section style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">08</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Décisions à valider</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(380px,1fr));gap:12px">
+    <sc-for list="{{ decisions }}" as="d" hint-placeholder-count="6"><div style="padding:16px 18px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;gap:12px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#E8B04B;padding-top:2px">{{ d.id }}</span><span style="display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">{{ d.t }}</span><span style="font-size:13px;line-height:20px;color:#94A3B8">{{ d.d }}</span></span></div></sc-for>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const files = [['DS','Design system','Lecteur Miarina - Design System.dc.html'],['L2','Windows Musique','Lecteur Miarina - Windows Musique.dc.html'],['L3','Windows Cinéma & Focus','Lecteur Miarina - Windows Cinema Focus.dc.html'],['L4','Windows système','Lecteur Miarina - Windows Systeme.dc.html'],['L5','Android','Lecteur Miarina - Android.dc.html'],['DIR','Directions (3a)','Lecteur Miarina - Directions.dc.html']].map(([n, l, href]) => ({ n, l, href }));
+    const st = (arr) => arr.map(([id, l, k], i) => ({ id, l, arrD: i < arr.length - 1 ? 'inline' : 'none', bg: k === 'play' ? '#3A2620' : k === 'get' ? '#1F3A3C' : k === 'err' ? '#2B2616' : '#182530', bd: k === 'play' ? '#7A4330' : k === 'get' ? '#2E6A68' : k === 'err' ? '#4A3F1F' : '#243545', fg: k === 'play' ? '#FF9166' : k === 'get' ? '#5FE0D5' : k === 'err' ? '#E8B04B' : '#F5F7FA' }));
+    const flows = [
+      { t: 'Premier démarrage', d: 'Windows', steps: st([['W-O1a','Langue, thème'],['W-O1b','Dossiers','get'],['W-O1c','Analyse progressive','get'],['W-00','Accueil Écouter'],['—','Premier titre lu','play']]), alt: 'Chaque étape est sautable. Si aucun fichier : W-E1 écran vide. Si dossier refusé : W-E3 accès refusé.' },
+      { t: 'Premier démarrage', d: 'Android', steps: st([['A-06','Explication'],['A-06b','Dialogue système'],['A-00','Accueil Musique'],['—','Premier titre lu','play']]), alt: 'Refus → A-07 accès refusé → Paramètres Android ou choix d\u2019un dossier (SAF).' },
+      { t: 'Parcours musique', d: 'CDC §03', steps: st([['W-00','Accueil'],['W-M1a','Albums'],['W-M2a','Album'],['—','Titre','play'],['W-M4','Mini-lecteur','play'],['W-M3','En lecture · paroles / file','play'],['W-M5','Playlist']]), alt: 'Une commande de lecture reste visible sur tous les écrans (barre du bas ou mini-lecteur).' },
+      { t: 'Parcours vidéo', d: 'CDC §03', steps: st([['W-00','Accueil'],['W-C1','Cinéma'],['W-C2','Fiche série'],['—','Choix piste / sous-titres'],['W-C3','Lecteur fenêtré','play'],['W-C4','Plein écran · chapitres','play'],['W-03','Reprise']]), alt: 'Android : rotation → A-04b paysage ; retour accueil → Picture-in-Picture.' },
+      { t: 'Parcours Focus', d: 'CDC §03', steps: st([['W-F1','Focus'],['—','Cours'],['W-F2','Lecteur long','play'],['—','Vitesse 1,25×'],['—','Signet (B)'],['W-03','Reprise']]), alt: 'Transcription visible mais marquée FUTUR, sans action simulée.' },
+      { t: 'Fichier manquant', d: 'récupération', steps: st([['—','Lecture d\u2019un titre'],['—','Toast « introuvable, suivant »','err'],['W-O2a','Fichiers introuvables','err'],['—','Relocaliser'],['—','Chemins mis à jour','get']]), alt: 'Jamais de suppression automatique. Disque débranché : éléments masqués puis réaffichés au branchement.' },
+    ];
+    const r = (a, b) => ({ a, b });
+    const interactions = [
+      { icon: 'mouse', t: 'Windows · souris', rows: [r('Clic', 'Sélectionne ou ouvre (cartes). Les lignes de liste se sélectionnent.'), r('Double-clic', 'Lit la ligne. Sur la vidéo : plein écran.'), r('Clic droit', 'Menu contextuel (Lire, Lire ensuite, File, Playlist, Tags, Explorateur, Retirer).'), r('Survol', '80 ms : fond surface-2, bouton lire sur les cartes, bulle de temps sur la barre.'), r('Molette', 'Sur le volume : ±5 %. Sur la barre vidéo : ±5 s.')] },
+      { icon: 'keyboard', t: 'Windows · clavier', rows: [r('Focus', 'Tab / Maj+Tab, contour teal 2 px. Ordre : sidebar → contenu → barre de lecture.'), r('Listes', '↑/↓ déplace, Entrée lit, Espace coche (multi), Suppr retire, Maj+F10 menu.'), r('Global', 'Espace, ←/→, Ctrl K, Ctrl B, Ctrl L, Ctrl M, F, Échap (voir W-S3).'), r('Média', 'Touches multimédia et casque via SystemMediaTransportControls.')] },
+      { icon: 'drag_pan', t: 'Windows · glisser-déposer', rows: [r('Fichiers', 'Sur la fenêtre : ajout à la bibliothèque et lecture si un seul fichier.'), r('Dossier', 'Sur la fenêtre ou W-O1b : ajouté aux dossiers surveillés.'), r('Titre → playlist', 'Sur un élément de la sidebar ou sur la barre de lecture (Lire ensuite).'), r('File', 'Réordonner par poignée ; Alt+↑/↓ au clavier.')] },
+      { icon: 'touch_app', t: 'Android · gestes', rows: [r('Toucher', 'Ouvre ou lit ; cibles ≥ 48 dp, lignes 56–60 dp.'), r('Appui long', 'Sélection multiple ou feuille d\u2019actions.'), r('Balayer', 'Mini-lecteur ↑ : lecteur ; ← / → : titre. File : ← retire (Annuler).'), r('Retour système', 'Ferme feuille → lecteur → recherche → retour d\u2019onglet → quitte. Ne coupe jamais la lecture.'), r('Vidéo', 'Bords verticaux : luminosité / volume ; double-toucher : ±10 s ; pincer : remplir ; cadenas.')] },
+    ];
+    const m = (a, ms, d, rr, f) => ({ a, ms, d, r: rr, f });
+    const motion = [
+      m('Ouverture du lecteur', '320 ms', 'La pochette du mini-lecteur grandit jusqu\u2019à sa place ; le fond se fond à 200 ms.', 'Fondu 120 ms, pas de déplacement.', 'Hero + FadeTransition'),
+      m('Mini-lecteur → complet (Android)', 'suit le doigt', 'Le panneau suit le geste ; relâché au-delà de 30 % ou à vitesse > 800 dp/s, il termine en 240 ms.', 'Toucher seulement, fondu 120 ms.', 'DraggableScrollableSheet'),
+      m('Changement d\u2019espace / section', '160 ms', 'Le contenu se fond et monte de 8 px ; la navigation ne bouge pas.', 'Fondu 120 ms.', 'FadeTransition + SlideTransition'),
+      m('Ouverture d\u2019un album', '240 ms', 'La pochette de la grille devient celle de l\u2019en-tête ; la liste monte de 12 px.', 'Fondu 120 ms.', 'Hero(tag: album.id)'),
+      m('Ouverture d\u2019une vidéo', '280 ms', 'L\u2019affiche s\u2019agrandit vers le cadre vidéo, passe au noir, puis l\u2019image apparaît (pas de fondu sur l\u2019image).', 'Coupe directe sur noir.', 'PageRouteBuilder'),
+      m('Progression de lecture', 'continu', 'Interpolée entre deux événements du moteur (250 ms), jamais de saut visible.', 'Identique (information, pas décoration).', 'Ticker + Tween'),
+      m('Ajout aux favoris', '180 ms', 'Cœur 1 → 1,15 → 1 et remplissage ; un toast seulement depuis un menu.', 'Changement d\u2019état immédiat.', 'ScaleTransition'),
+      m('Chargement de bibliothèque', '1,2 s cycle', 'Squelettes à la forme du contenu, affichés après 300 ms ; éléments ajoutés en fondu de 160 ms.', 'Squelettes statiques.', 'AnimatedSwitcher'),
+      m('Dialogues / feuilles', '220 ms', 'Dialogue : échelle 0,98 → 1 + fondu. Feuille : montée de 24 px.', 'Fondu 120 ms.', 'showGeneralDialog'),
+    ];
+    const w = (ww, d) => ({ w: ww, d });
+    const responsive = [
+      { t: 'Windows', rows: [w('≥ 1440 px', 'Sidebar 232, panneau En lecture 320 sur l\u2019Accueil, grilles 5–6 colonnes.'), w('1280–1439', 'Grilles 4–5 colonnes ; panneau 320 conservé.'), w('1024–1279', 'Sidebar repliée 64 (icônes + infobulles), panneau masqué, colonnes Format/Album masquées dans Titres.'), w('960 × 640 min', 'Barre de lecture : volume en icône, temps sous la barre ; fiche série en une colonne.'), w('Redimension.', 'Grilles en auto-fill (min 168 px par carte) ; aucune hauteur fixe sur un bloc de texte.'), w('Échelle Windows', '100 à 200 % ; icônes en vectoriel, ombres en dp.')] },
+      { t: 'Android', rows: [w('< 360 dp', 'Marges 16, 2 colonnes, titres 24.'), w('360–599 dp', 'Référence des maquettes. 4 onglets, mini-lecteur 64.'), w('≥ 600 dp', 'NavigationRail à gauche, grilles 3–4 colonnes, lecteur en deux colonnes.'), w('Paysage', 'Vidéo : plein écran immersif. Audio : pochette à gauche, commandes à droite.'), w('Texte 200 %', 'Les titres passent sur deux lignes ; la ligne grandit, rien n\u2019est tronqué au milieu.'), w('Encoches', 'SafeArea partout ; gestes vidéo exclus des bords système.')] },
+    ];
+    const tree = [
+      'apps/player/',
+      '  lib/',
+      '    app/router.dart          // go_router + ShellRoute',
+      '    features/',
+      '      listen_home/           // W-00 · A-00',
+      '      music/{albums,artists,tracks,album,artist,playlists}/',
+      '      cinema/{library,detail,player}/',
+      '      focus/{library,player,bookmarks}/',
+      '      now_playing/{lyrics,queue,sound}/',
+      '      onboarding/ library_health/ settings/',
+      'packages/',
+      '  design_system/   // MmColors, MmType, Mm* widgets',
+      '  player_engine/   // MediaEngine (libmpv, Media3)',
+      '  media_library/   // index, scan, missing, duplicates',
+      '  local_database/  // Drift + migrations',
+      '  app_core/        // BrandConfig, i18n FR/EN',
+    ].join('\n');
+    const arch = [
+      { t: 'Une seule session de lecture', d: 'playbackControllerProvider (Riverpod) enveloppe MediaEngine ; mini-lecteur, barre et lecteurs complets lisent le même état. Changer d\u2019écran ne relance jamais la lecture.' },
+      { t: 'Capacités déclarées', d: 'Chaque fonction lit engine.capabilities (chapitres, ASS, gapless…). Absente = contrôle masqué ou désactivé, jamais simulé (CDC §06).' },
+      { t: 'Navigation', d: 'ShellRoute : Windows = sidebar + barre ; Android = NavigationBar + mini-lecteur. Lecteurs plein écran hors shell. L\u2019historique de pile alimente Retour / Alt+←.' },
+      { t: 'Listes longues', d: 'SliverList/SliverGrid paginées depuis Drift (watch) ; pochettes en cache disque redimensionnées. Objectif : 10 000 éléments fluides.' },
+      { t: 'Teinte de pochette', d: 'Couleur dominante calculée à l\u2019indexation (isolate) et stockée ; voile appliqué pour garantir 4,5:1. Jamais de calcul pendant la lecture.' },
+      { t: 'Accessibilité', d: 'Semantics sur tous les contrôles custom (barre, égaliseur, cartes) ; annonces de changement de titre ; tests TalkBack et Narrateur.' },
+    ];
+    const routes = [
+      ['W-00','Accueil Écouter','/listen','homeShelvesProvider'],['W-M1a','Albums','/listen/music/albums','albumsProvider(sort, filter)'],['W-M2a','Album','/listen/music/album/:id','albumProvider(id)'],['W-M2b','Artiste','/listen/music/artist/:id','artistProvider(id)'],['W-M1c','Titres','/listen/music/tracks','tracksPagedProvider'],['W-M5','Playlists','/listen/music/playlists/:id?','playlistsProvider'],['W-M3','En lecture','/now?tab=lyrics|queue|sound','playbackController, lyricsProvider'],['W-02','Recherche','/search?q=','searchProvider(q, scope)'],['W-C1','Cinéma','/listen/cinema','videoLibraryProvider'],['W-C2','Fiche série','/listen/cinema/series/:id','seriesProvider(id)'],['W-C3/C4','Lecteur vidéo','/play/video/:id','playbackController, tracksProvider'],['W-F1','Focus','/listen/focus','focusLibraryProvider'],['W-F2','Lecteur Focus','/play/focus/:id','bookmarksProvider(id)'],['W-03','Historique','/history','historyProvider'],['W-O1','Premier démarrage','/welcome/:step','onboardingController'],['W-O2','Introuvables · doublons','/library/health','missingProvider, duplicatesProvider'],['W-S1–3','Réglages','/settings/:section','settingsProvider'],
+    ].map(([id, n, rr, p]) => ({ id, n, r: rr, p }));
+    const scope = [
+      { tag: 'V1 · P0', bg: '#1F3A3C', fg: '#5FE0D5', bs: 'solid', bd: '#2E6A68', rule: 'Livré et actif avant la bêta.', items: ['Lecture audio et vidéo, file, aléatoire, boucle, arrière-plan Android', 'Pistes audio, sous-titres externes, ratio, vitesse, reprise', 'Bibliothèque, recherche, tri, pochettes, favoris, historique', 'Playlists + import/export M3U', 'Paroles .lrc locales, signets Focus', 'Fichiers introuvables, erreurs récupérables'] },
+      { tag: 'P1', bg: '#2B2616', fg: '#E8B04B', bs: 'solid', bd: '#4A3F1F', rule: 'Visible, marqué P1, désactivé tant que non livré.', items: ['Égaliseur avancé, normalisation, fondu', 'Chapitres et aperçus vidéo', 'Doublons et fichiers déplacés', 'Smart Queue, playlists intelligentes', 'Accent de lecture personnalisable', 'Sauter les silences, voix renforcée'] },
+      { tag: 'FUTUR · P2 / V1.5', bg: 'transparent', fg: '#94A3B8', bs: 'dashed', bd: '#64748B', rule: 'Mentionné uniquement là où l\u2019utilisateur le cherche.', items: ['Transcription et recherche dans les transcriptions', 'Appairage Wi-Fi, télécommande, continuité PC ↔ Android', 'Synchronisation cloud facultative', 'Analyse sonore, nettoyage audio IA', 'Langue malagasy'] },
+    ];
+    const S = { ok: ['Existant', '#1F3A3C', '#5FE0D5'], new: ['À produire', '#2B2616', '#E8B04B'], user: ['Utilisateur', '#1F2F3B', '#94A3B8'] };
+    const assets = [
+      ['assets/brand/miarina-media-icon.svg','Icône standard (existant, design/)','ok'],['assets/brand/miarina-media-icon-windows.svg','Icône Windows avec liseré','ok'],['assets/brand/ic_launcher_monochrome.xml','Icône Android 13+ à thème','new'],['assets/brand/lockup-{dark,light}.svg','Logotypes','ok'],['assets/fonts/Manrope-Variable.ttf · JetBrainsMono','Polices embarquées (OFL)','ok'],['assets/icons/material-symbols-subset.ttf','Sous-ensemble ~80 glyphes, à régénérer avec la liste du DS §06','new'],['assets/placeholders/{album,poster,video}.svg','Pochettes de repli (hachures neutres)','new'],['Pochettes, affiches, fonds','Lus depuis les fichiers de l\u2019utilisateur ; aucun visuel stock embarqué','user'],
+    ].map(([p, d, s]) => ({ p, d, s: S[s][0], sb: S[s][1], sc: S[s][2] }));
+    const decisions = [
+      { id: 'D1', t: 'Entrée « Accueil » dans Écouter', d: 'Nouvelle par rapport à la navigation actuelle (Titres en premier). Proposée car elle porte la reprise multi-sections.' },
+      { id: 'D2', t: 'Onglets Android à 4 entrées', d: 'Musique · Cinéma · Focus · Obtenir remplace Musique · Vidéos · Téléchargements (décision 0006).' },
+      { id: 'D3', t: 'Migration Tauri → Flutter', d: 'Les tokens sont générés pour les deux ; à confirmer : coexistence temporaire ou bascule complète.' },
+      { id: 'D4', t: 'Mica / transparence Windows', d: 'Écartée en 3a (opaque). Réactivable plus tard via Réglages si le POC Flutter le permet proprement.' },
+      { id: 'D5', t: 'Image d\u2019artiste', d: 'Uniquement locale (artist.jpg). Aucune récupération en ligne sans validation (local-first).' },
+      { id: 'D6', t: 'Images réelles', d: 'Les maquettes utilisent des placeholders ; fournir quelques pochettes pour valider la lisibilité des fonds teintés.' },
+    ];
+    return { files, flows, interactions, motion, responsive, tree, arch, routes, scope, assets, decisions };
+  }
+}
+</script>
+</body>
+</html>

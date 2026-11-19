@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#070B0F;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#35C9BD;text-decoration:none}a:hover{color:#4FD6CB;text-decoration:underline}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga'}
+button{font-family:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:focus-visible{outline:2px solid #35C9BD;outline-offset:2px}
+</style>
+</helmet>
+
+<div style="padding:32px 40px 80px;display:flex;flex-direction:column;gap:20px;width:max-content;min-width:100%;box-sizing:border-box">
+  <div style="display:flex;align-items:center;gap:16px;max-width:1280px">
+    <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#94A3B8">Lot 3 · Windows · Cinéma et Focus — prototype cliquable</span>
+    <div style="flex:1"></div>
+    <a href="Lecteur Miarina - Windows Musique.dc.html" style="font-size:13px;font-weight:600">Lot 2 Musique</a>
+    <a href="Lecteur Miarina - Design System.dc.html" style="font-size:13px;font-weight:600">Design system</a>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:6px;max-width:1280px">
+    <sc-for list="{{ picker }}" as="p" hint-placeholder-count="8">
+      <button onClick="{{ p.go }}" style="height:32px;padding:0 12px;border-radius:999px;border:1px solid {{ p.bd }};background:{{ p.bg }};color:{{ p.fg }};font-size:12.5px;font-weight:700;display:flex;align-items:center;gap:6px"><span style="font-family:'JetBrains Mono',monospace;font-size:10.5px;opacity:0.7">{{ p.id }}</span>{{ p.label }}</button>
+    </sc-for>
+  </div>
+
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="width:1280px;height:800px;flex-shrink:0;border-radius:12px;overflow:hidden;border:1px solid #2A3D4E;box-shadow:0 30px 90px rgba(0,0,0,0.6);background:#101820;display:flex;flex-direction:column;position:relative" data-screen-label="Windows Cinéma Focus">
+
+  <!-- FULLSCREEN PLAYER -->
+  <sc-if value="{{ is.full }}" hint-placeholder-val="{{ false }}">
+    <div style="position:absolute;inset:0;z-index:10;background:#070B0F;overflow:hidden">
+      <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#1A2630 0 16px,#16212A 16px 32px)"></div>
+      <span style="position:absolute;left:50%;top:44%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:13px;color:#3A4D5E">surface vidéo native (libmpv)</span>
+      <div style="position:absolute;left:0;right:0;top:0;height:120px;background:linear-gradient(180deg,rgba(7,11,15,0.85),rgba(7,11,15,0))"></div>
+      <div style="position:absolute;left:0;right:0;bottom:0;height:220px;background:linear-gradient(0deg,rgba(7,11,15,0.92),rgba(7,11,15,0))"></div>
+      <div style="position:absolute;left:24px;right:24px;top:18px;display:flex;align-items:center;gap:14px">
+        <button onClick="{{ goWindowed }}" style="width:40px;height:40px;border-radius:999px;background:rgba(245,247,250,0.1);display:grid;place-items:center"><span class="ms" style="font-size:22px">arrow_back</span></button>
+        <span style="display:flex;flex-direction:column"><span style="font-size:16px;font-weight:800">Les Hautes Terres · S1 É4 « Le col »</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#94A3B8">MKV · HEVC 1080p · Français 5.1 · décodage matériel</span></span>
+      </div>
+      <span style="position:absolute;left:50%;bottom:150px;transform:translateX(-50%);font-size:22px;font-weight:600;padding:4px 12px;border-radius:6px;background:rgba(0,0,0,0.65);white-space:nowrap">— On passera le col avant la nuit.</span>
+      <div style="position:absolute;left:32px;right:32px;bottom:92px;display:flex;flex-direction:column;gap:6px">
+        <div style="height:22px;position:relative;display:flex;align-items:center"><div style="width:100%;height:5px;border-radius:999px;background:rgba(245,247,250,0.18)"></div><div style="position:absolute;width:62%;height:5px;border-radius:999px;background:rgba(245,247,250,0.32)"></div><div style="position:absolute;width:48%;height:5px;border-radius:999px;background:#FF7A45"></div><sc-for list="{{ chapterTicks }}" as="c" hint-placeholder-count="4"><span style="position:absolute;left:{{ c }};width:3px;height:5px;background:#070B0F"></span></sc-for><span style="position:absolute;left:calc(48% - 7px);width:14px;height:14px;border-radius:999px;background:#F5F7FA"></span></div>
+        <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7D0DB"><span>23:12 · La montée</span><span>−25:18</span></div>
+      </div>
+      <div style="position:absolute;left:24px;right:24px;bottom:26px;display:flex;align-items:center;gap:14px">
+        <span style="width:48px;height:48px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:30px;font-variation-settings:'FILL' 1">pause</span></span>
+        <span class="ms" style="font-size:26px">replay_10</span><span class="ms" style="font-size:26px">forward_10</span><span class="ms" style="font-size:26px;font-variation-settings:'FILL' 1">skip_next</span>
+        <span class="ms" style="font-size:22px;color:#C7D0DB;margin-left:6px">volume_up</span><div style="width:90px;height:4px;border-radius:999px;background:rgba(245,247,250,0.2)"><div style="width:70%;height:100%;border-radius:999px;background:#F5F7FA"></div></div>
+        <div style="flex:1"></div>
+        <sc-for list="{{ fullTools }}" as="t" hint-placeholder-count="6">
+          <button onClick="{{ t.go }}" style="height:40px;padding:0 12px;border-radius:999px;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;background:{{ t.bg }};color:{{ t.fg }}"><span class="ms" style="font-size:22px">{{ t.icon }}</span>{{ t.l }}</button>
+        </sc-for>
+      </div>
+      <sc-if value="{{ menu.subs }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:24px;bottom:84px;width:360px;border-radius:18px;background:rgba(24,37,48,0.96);border:1px solid #2F4558;box-shadow:0 24px 64px rgba(0,0,0,0.6);padding:10px;display:flex;flex-direction:column;gap:2px">
+          <span style="padding:6px 10px 8px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Sous-titres</span>
+          <sc-for list="{{ subsList }}" as="o" hint-placeholder-count="5"><span style="height:40px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:10px;background:{{ o.bg }};font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px;color:#35C9BD;opacity:{{ o.ck }}">check</span><span style="flex:1">{{ o.l }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B">{{ o.k }}</span></span></sc-for>
+          <span style="height:1px;background:#2A3D4E;margin:6px 8px"></span>
+          <span style="height:40px;display:flex;align-items:center;gap:10px;padding:0 10px;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px;color:#94A3B8">upload_file</span>Charger un fichier SRT / VTT / ASS…</span>
+          <div style="display:flex;align-items:center;gap:10px;padding:8px 10px"><span style="flex:1;font-size:13.5px;font-weight:600">Décalage</span><span style="width:32px;height:32px;border-radius:999px;border:1px solid #2A3D4E;display:grid;place-items:center"><span class="ms" style="font-size:18px">remove</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:13px;width:60px;text-align:center">+0,3 s</span><span style="width:32px;height:32px;border-radius:999px;border:1px solid #2A3D4E;display:grid;place-items:center"><span class="ms" style="font-size:18px">add</span></span></div>
+          <div style="display:flex;align-items:center;gap:10px;padding:4px 10px 8px"><span style="flex:1;font-size:13.5px;font-weight:600">Taille</span><span style="display:flex;border-radius:999px;border:1px solid #2A3D4E;padding:2px"><span style="height:26px;padding:0 10px;display:grid;place-items:center;font-size:12px;color:#94A3B8">S</span><span style="height:26px;padding:0 10px;display:grid;place-items:center;font-size:12px;font-weight:700;border-radius:999px;background:#2A3D4E">M</span><span style="height:26px;padding:0 10px;display:grid;place-items:center;font-size:12px;color:#94A3B8">L</span></span></div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ menu.audio }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:24px;bottom:84px;width:340px;border-radius:18px;background:rgba(24,37,48,0.96);border:1px solid #2F4558;box-shadow:0 24px 64px rgba(0,0,0,0.6);padding:10px;display:flex;flex-direction:column;gap:2px">
+          <span style="padding:6px 10px 8px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Piste audio</span>
+          <sc-for list="{{ audioList }}" as="o" hint-placeholder-count="3"><span style="min-height:48px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:10px;background:{{ o.bg }}"><span class="ms" style="font-size:20px;color:#35C9BD;opacity:{{ o.ck }}">check</span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">{{ o.l }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ o.k }}</span></span></span></sc-for>
+          <span style="padding:8px 10px;font-size:12px;color:#94A3B8">Choix mémorisé pour toute la série.</span>
+        </div>
+      </sc-if>
+      <sc-if value="{{ menu.chapters }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;left:24px;right:24px;bottom:150px;display:flex;gap:12px">
+          <sc-for list="{{ chapters }}" as="c" hint-placeholder-count="5"><div style="flex:1;display:flex;flex-direction:column;gap:6px;padding:6px;border-radius:12px;background:{{ c.bg }};border:1px solid {{ c.bd }}"><div style="aspect-ratio:16/9;border-radius:8px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px)"></div><span style="font-size:13px;font-weight:700">{{ c.t }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ c.time }}</span></div></sc-for>
+        </div>
+      </sc-if>
+      <sc-if value="{{ menu.settings }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:24px;bottom:84px;width:340px;border-radius:18px;background:rgba(24,37,48,0.96);border:1px solid #2F4558;box-shadow:0 24px 64px rgba(0,0,0,0.6);padding:10px;display:flex;flex-direction:column;gap:2px">
+          <span style="padding:6px 10px 8px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Vidéo</span>
+          <sc-for list="{{ vSettings }}" as="o" hint-placeholder-count="6"><span style="height:42px;display:flex;align-items:center;gap:10px;padding:0 10px;border-radius:10px;font-size:13.5px;font-weight:600"><span class="ms" style="font-size:20px;color:#94A3B8">{{ o.icon }}</span><span style="flex:1">{{ o.l }}</span><span style="font-size:13px;color:#94A3B8">{{ o.v }}</span><span class="ms" style="font-size:18px;color:#64748B">chevron_right</span></span></sc-for>
+        </div>
+      </sc-if>
+    </div>
+  </sc-if>
+
+  <div style="height:40px;flex-shrink:0;display:flex;align-items:center;background:#0D141B;border-bottom:1px solid #1B2935">
+    <div style="width:232px;display:flex;align-items:center;gap:10px;padding:0 16px"><svg width="18" height="18" viewBox="0 0 32 32"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg><span style="font-size:13px;font-weight:800">Miarina Media</span></div>
+    <div style="flex:1;display:flex;justify-content:center"><div style="width:420px;height:30px;border-radius:999px;background:#182530;border:1px solid #243545;display:flex;align-items:center;gap:8px;padding:0 12px;color:#64748B;font-size:12.5px"><span class="ms" style="font-size:18px">search</span><span style="flex:1">Rechercher titres, films, podcasts…</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid #2A3D4E;border-radius:4px;padding:0 5px">Ctrl K</span></div></div>
+    <div style="width:232px;display:flex;justify-content:flex-end;color:#94A3B8"><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:16px">remove</span></span><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:14px">crop_square</span></span><span style="width:46px;height:40px;display:grid;place-items:center"><span class="ms" style="font-size:16px">close</span></span></div>
+  </div>
+  <div style="flex:1;display:flex;min-height:0">
+    <nav style="width:232px;flex-shrink:0;background:#0D141B;border-right:1px solid #1B2935;padding:12px 10px;display:flex;flex-direction:column;gap:2px">
+      <div style="display:flex;gap:2px;border:1px solid #243545;background:#101820;border-radius:999px;padding:3px;margin-bottom:10px">
+        <span style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;color:#94A3B8"><span class="ms" style="font-size:18px">download</span>Obtenir</span>
+        <span style="flex:1;height:34px;display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:700;background:#182530;border:1px solid #2A3D4E;border-radius:999px"><span class="ms" style="font-size:18px;color:#FF7A45">library_music</span>Écouter</span>
+      </div>
+      <sc-for list="{{ nav }}" as="it" hint-placeholder-count="12">
+        <sc-if value="{{ it.head }}" hint-placeholder-val="{{ false }}"><span style="padding:10px 13px 6px;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">{{ it.label }}</span></sc-if>
+        <sc-if value="{{ it.item }}" hint-placeholder-val="{{ true }}"><button onClick="{{ it.go }}" style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;text-align:left;background:{{ it.bg }};color:{{ it.fg }};box-shadow:{{ it.sh }}"><span class="ms" style="font-size:20px;color:{{ it.ic }};font-variation-settings:'FILL' {{ it.fill }}">{{ it.icon }}</span><span style="flex:1">{{ it.label }}</span><span style="font-size:11.5px;color:#64748B">{{ it.count }}</span></button></sc-if>
+      </sc-for>
+      <div style="flex:1"></div>
+      <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;font-size:13.5px;font-weight:600;color:#94A3B8"><span class="ms" style="font-size:20px">settings</span>Réglages</div>
+    </nav>
+    <main style="flex:1;min-width:0;overflow:hidden;position:relative;display:flex;flex-direction:column">
+
+      <!-- C1 BIBLIOTHEQUE VIDEO -->
+      <sc-if value="{{ is.videos }}" hint-placeholder-val="{{ true }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:16px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Films &amp; séries</span><span style="font-size:13px;color:#94A3B8">38 films · 6 séries · 2 dossiers surveillés</span></span><div style="flex:1"></div>
+            <span style="display:flex;border:1px solid #243545;border-radius:999px;padding:3px;background:#0D141B"><sc-for list="{{ vidTabs }}" as="t" hint-placeholder-count="3"><span style="height:30px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:12.5px;font-weight:700;background:{{ t.bg }};color:{{ t.fg }}">{{ t.l }}</span></sc-for></span>
+            <span style="height:34px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:18px">sort</span>Titre<span class="ms" style="font-size:18px">expand_more</span></span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <span style="font-size:17px;font-weight:800">Reprendre</span>
+            <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px">
+              <sc-for list="{{ resume }}" as="r" hint-placeholder-count="3">
+                <button onClick="{{ r.go }}" style="display:flex;flex-direction:column;gap:8px;text-align:left"><div style="aspect-ratio:16/9;border-radius:14px;background:repeating-linear-gradient(135deg,{{ r.c1 }} 0 7px,{{ r.c2 }} 7px 14px);position:relative;overflow:hidden;box-shadow:0 10px 24px rgba(0,0,0,0.3)"><span style="position:absolute;left:12px;bottom:14px;width:40px;height:40px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span></span><span style="position:absolute;right:10px;top:10px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:2px 7px;border-radius:999px;background:rgba(13,20,27,0.8)">{{ r.left }}</span><div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:rgba(245,247,250,0.2)"><div style="width:{{ r.pct }};height:100%;background:#FF7A45"></div></div></div><span style="display:flex;flex-direction:column"><span style="font-size:14px;font-weight:700">{{ r.t }}</span><span style="font-size:12.5px;color:#94A3B8">{{ r.s }}</span></span></button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:baseline;justify-content:space-between"><span style="font-size:17px;font-weight:800">Séries</span><span style="font-size:13px;font-weight:600;color:#94A3B8">Tout voir</span></div>
+            <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:16px">
+              <sc-for list="{{ posters }}" as="p" hint-placeholder-count="6">
+                <button onClick="{{ p.go }}" style="display:flex;flex-direction:column;gap:8px;text-align:left"><div style="aspect-ratio:2/3;border-radius:12px;background:repeating-linear-gradient(135deg,{{ p.c1 }} 0 6px,{{ p.c2 }} 6px 12px);box-shadow:0 10px 24px rgba(0,0,0,0.3);position:relative"><span style="position:absolute;left:8px;top:8px;font-size:11px;font-weight:700;padding:2px 7px;border-radius:999px;background:rgba(13,20,27,0.8);display:{{ p.newD }}">{{ p.badge }}</span></div><span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:700">{{ p.t }}</span><span style="font-size:12px;color:#94A3B8">{{ p.s }}</span></span></button>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- C2 FICHE SERIE -->
+      <sc-if value="{{ is.series }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:flex;flex-direction:column;overflow:hidden">
+          <div style="height:300px;flex-shrink:0;position:relative;overflow:hidden">
+            <div style="position:absolute;inset:0;background:repeating-linear-gradient(135deg,#2A3F52 0 14px,#22374A 14px 28px)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(90deg,#101820 0%,rgba(16,24,32,0.85) 40%,rgba(16,24,32,0.2) 100%),linear-gradient(0deg,#101820 0%,rgba(16,24,32,0) 50%)"></div>
+            <span style="position:absolute;right:16px;top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;color:rgba(245,247,250,0.45)">image de fond 16:9 (capture ou fanart local)</span>
+            <button onClick="{{ goVideos }}" style="position:absolute;left:28px;top:18px;display:flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:20px">chevron_left</span>Films &amp; séries</button>
+            <div style="position:absolute;left:32px;bottom:22px;display:flex;gap:24px;align-items:flex-end">
+              <div style="width:140px;height:210px;border-radius:12px;background:repeating-linear-gradient(135deg,#3A5468 0 6px,#324A5D 6px 12px);box-shadow:0 20px 44px rgba(0,0,0,0.5)"></div>
+              <div style="display:flex;flex-direction:column;gap:8px;max-width:560px">
+                <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#C7D0DB">Série · 2023 · Drame · 2 saisons</span>
+                <span style="font-size:38px;line-height:42px;font-weight:800;letter-spacing:-0.03em">Les Hautes Terres</span>
+                <span style="font-size:13.5px;line-height:20px;color:#C7D0DB">Une guide de montagne reprend la route que son père n'a jamais terminée.</span>
+                <div style="display:flex;flex-wrap:wrap;gap:6px"><span style="height:26px;padding:0 10px;border-radius:999px;background:rgba(245,247,250,0.08);display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600"><span class="ms" style="font-size:15px">volume_up</span>Français 5.1 · Anglais</span><span style="height:26px;padding:0 10px;border-radius:999px;background:rgba(245,247,250,0.08);display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600"><span class="ms" style="font-size:15px">closed_caption</span>FR · EN (SRT)</span><span style="height:26px;padding:0 10px;border-radius:999px;background:rgba(245,247,250,0.08);display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:11px">1080p HEVC</span></div>
+                <div style="display:flex;gap:10px;padding-top:6px"><button onClick="{{ goWindowed }}" style="height:42px;padding:0 20px 0 14px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;box-shadow:0 8px 20px rgba(255,122,69,0.25)"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span>Reprendre S1 · É4 à 23:12</button><span style="height:42px;padding:0 16px;border-radius:999px;background:rgba(245,247,250,0.1);display:flex;align-items:center;font-size:13.5px;font-weight:600">Depuis le début</span><span style="width:42px;height:42px;border-radius:999px;background:rgba(245,247,250,0.1);display:grid;place-items:center"><span class="ms" style="font-size:22px">more_horiz</span></span></div>
+              </div>
+            </div>
+          </div>
+          <div style="padding:6px 32px 0;display:flex;flex-direction:column;gap:12px">
+            <div style="display:flex;align-items:center;gap:20px;border-bottom:1px solid #1B2935"><span style="height:40px;display:flex;align-items:center;font-size:14px;font-weight:800;border-bottom:2px solid #FF7A45">Saison 1</span><span style="height:40px;display:flex;align-items:center;font-size:14px;font-weight:600;color:#94A3B8">Saison 2</span><div style="flex:1"></div><span style="font-size:12.5px;color:#94A3B8">3 vus sur 8 · Marquer la saison comme vue</span></div>
+            <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 20px">
+              <sc-for list="{{ episodes }}" as="e" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:14px;padding:8px;border-radius:14px;background:{{ e.bg }};border:1px solid {{ e.bd }}"><div style="width:128px;height:72px;flex-shrink:0;border-radius:10px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px);position:relative;overflow:hidden"><span class="ms" style="position:absolute;right:6px;top:6px;font-size:18px;color:#35C9BD;font-variation-settings:'FILL' 1;display:{{ e.seenD }}">check_circle</span><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(245,247,250,0.2)"><div style="width:{{ e.pct }};height:100%;background:#FF7A45"></div></div></div><span style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700">{{ e.t }}</span><span style="font-size:12.5px;color:{{ e.sc }}">{{ e.s }}</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">{{ e.d }}</span></div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- C3 WINDOWED PLAYER -->
+      <sc-if value="{{ is.windowed }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 300px;background:#070B0F">
+          <div style="display:flex;flex-direction:column;min-width:0">
+            <div style="flex:1;position:relative;background:repeating-linear-gradient(135deg,#1A2630 0 16px,#16212A 16px 32px)">
+              <span style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-family:'JetBrains Mono',monospace;font-size:12px;color:#3A4D5E">surface vidéo native</span>
+              <span style="position:absolute;left:50%;bottom:28px;transform:translateX(-50%);font-size:18px;font-weight:600;padding:3px 10px;border-radius:6px;background:rgba(0,0,0,0.65);white-space:nowrap">— On passera le col avant la nuit.</span>
+              <div style="position:absolute;left:16px;top:14px;display:flex;align-items:center;gap:10px"><button onClick="{{ goSeries }}" style="width:36px;height:36px;border-radius:999px;background:rgba(7,11,15,0.6);display:grid;place-items:center"><span class="ms" style="font-size:20px">arrow_back</span></button><span style="font-size:14px;font-weight:800;text-shadow:0 1px 3px rgba(0,0,0,0.6)">S1 É4 · Le col</span></div>
+            </div>
+            <div style="padding:10px 18px 12px;background:#0B1117;border-top:1px solid #1B2935;display:flex;flex-direction:column;gap:8px">
+              <div style="height:18px;position:relative;display:flex;align-items:center"><div style="width:100%;height:4px;border-radius:999px;background:#243545"></div><div style="position:absolute;width:62%;height:4px;border-radius:999px;background:#3A4D5E"></div><div style="position:absolute;width:48%;height:4px;border-radius:999px;background:#FF7A45"></div><sc-for list="{{ chapterTicks }}" as="c" hint-placeholder-count="4"><span style="position:absolute;left:{{ c }};width:2px;height:4px;background:#0B1117"></span></sc-for><span style="position:absolute;left:calc(48% - 6px);width:12px;height:12px;border-radius:999px;background:#F5F7FA"></span></div>
+              <div style="display:flex;align-items:center;gap:12px;color:#C7D0DB">
+                <span style="width:40px;height:40px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:26px;font-variation-settings:'FILL' 1">pause</span></span>
+                <span class="ms" style="font-size:22px">replay_10</span><span class="ms" style="font-size:22px">forward_10</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:12px">23:12 / 48:30</span>
+                <div style="flex:1"></div>
+                <span style="height:30px;padding:0 10px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700"><span class="ms" style="font-size:17px">closed_caption</span>FR</span>
+                <span class="ms" style="font-size:22px">audiotrack</span><span class="ms" style="font-size:22px">speed</span><span class="ms" style="font-size:22px">aspect_ratio</span><span class="ms" style="font-size:22px">picture_in_picture_alt</span>
+                <button onClick="{{ goFull }}" title="Plein écran (F)"><span class="ms" style="font-size:24px">fullscreen</span></button>
+              </div>
+            </div>
+          </div>
+          <aside style="background:#0D141B;border-left:1px solid #1B2935;padding:16px 14px;display:flex;flex-direction:column;gap:6px;overflow:hidden">
+            <span style="display:flex;align-items:center;justify-content:space-between;padding:0 6px 6px"><span style="font-size:15px;font-weight:800">Chapitres</span><span style="font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span></span>
+            <sc-for list="{{ chapters }}" as="c" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:10px;padding:6px;border-radius:10px;background:{{ c.bg }}"><span style="width:76px;height:43px;flex-shrink:0;border-radius:6px;background:repeating-linear-gradient(135deg,#22333F 0 5px,#1C2C37 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column"><span style="font-size:13px;font-weight:700;color:{{ c.fg }}">{{ c.t }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ c.time }}</span></span></div></sc-for>
+            <div style="flex:1"></div>
+            <span style="padding:10px;border-radius:12px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:2px"><span style="font-size:12px;color:#94A3B8">Épisode suivant</span><span style="font-size:13.5px;font-weight:700">É5 · Brouillard</span><span style="font-size:12px;color:#94A3B8">Lecture auto à la fin (désactivable)</span></span>
+          </aside>
+        </div>
+      </sc-if>
+
+      <!-- C5 HISTORIQUE -->
+      <sc-if value="{{ is.history }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:16px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:16px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Historique</span><span style="font-size:13px;color:#94A3B8">Lectures et positions, conservées sur cet appareil</span></span><div style="flex:1"></div><span style="display:flex;border:1px solid #243545;border-radius:999px;padding:3px;background:#0D141B"><sc-for list="{{ histTabs }}" as="t" hint-placeholder-count="4"><span style="height:30px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:12.5px;font-weight:700;background:{{ t.bg }};color:{{ t.fg }}">{{ t.l }}</span></sc-for></span><span style="height:34px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;font-size:13px;font-weight:600;color:#C7D0DB">Effacer l'historique…</span></div>
+          <sc-for list="{{ history }}" as="g" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font-size:13px;font-weight:800;color:#94A3B8;padding:6px 0">{{ g.day }}</span>
+              <sc-for list="{{ g.items }}" as="h" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:56px 80px minmax(0,1fr) 200px 130px;align-items:center;gap:14px;height:62px;padding:0 8px;border-radius:12px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#64748B">{{ h.time }}</span><span style="width:{{ h.w }};height:{{ h.h }};border-radius:8px;background:repeating-linear-gradient(135deg,#22333F 0 5px,#1C2C37 5px 10px)"></span><span style="display:flex;flex-direction:column;min-width:0"><span style="font-size:13.5px;font-weight:700">{{ h.t }}</span><span style="font-size:12px;color:#94A3B8">{{ h.s }}</span></span><span style="display:flex;flex-direction:column;gap:5px"><span style="font-size:12px;color:#94A3B8">{{ h.prog }}</span><span style="height:3px;border-radius:999px;background:#243545"><span style="display:block;width:{{ h.pct }};height:100%;border-radius:999px;background:{{ h.pc }}"></span></span></span><span style="justify-self:end;height:32px;padding:0 12px 0 8px;border-radius:999px;background:{{ h.bbg }};color:{{ h.bfg }};display:flex;align-items:center;gap:4px;font-size:12.5px;font-weight:700"><span class="ms" style="font-size:18px;font-variation-settings:'FILL' 1">{{ h.bi }}</span>{{ h.bl }}</span></div>
+              </sc-for>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+
+      <!-- F1 FOCUS LIBRARY -->
+      <sc-if value="{{ is.focus }}" hint-placeholder-val="{{ false }}">
+        <div style="padding:24px 32px 0;display:flex;flex-direction:column;gap:20px;overflow:hidden">
+          <div style="display:flex;align-items:flex-end;gap:16px"><span style="display:flex;flex-direction:column;gap:2px"><span style="font-size:28px;line-height:34px;font-weight:800;letter-spacing:-0.02em">Podcasts &amp; cours</span><span style="font-size:13px;color:#94A3B8">11 podcasts · 7 cours · 3 livres audio · 214 h</span></span><div style="flex:1"></div><span style="display:flex;border:1px solid #243545;border-radius:999px;padding:3px;background:#0D141B"><sc-for list="{{ focusTabs }}" as="t" hint-placeholder-count="4"><span style="height:30px;padding:0 14px;border-radius:999px;display:flex;align-items:center;font-size:12.5px;font-weight:700;background:{{ t.bg }};color:{{ t.fg }}">{{ t.l }}</span></sc-for></span></div>
+          <div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px">
+            <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:17px;font-weight:800">En cours</span>
+              <sc-for list="{{ focusNow }}" as="f" hint-placeholder-count="3">
+                <button onClick="{{ f.go }}" style="display:flex;gap:14px;align-items:center;padding:12px;border-radius:16px;background:#182530;border:1px solid #1F2F3B;text-align:left"><span style="width:72px;height:72px;flex-shrink:0;border-radius:12px;background:repeating-linear-gradient(135deg,{{ f.c1 }} 0 5px,{{ f.c2 }} 5px 10px)"></span><span style="flex:1;display:flex;flex-direction:column;gap:5px;min-width:0"><span style="font-size:11.5px;font-weight:700;color:#94A3B8">{{ f.kind }}</span><span style="font-size:14.5px;font-weight:700">{{ f.t }}</span><span style="display:flex;align-items:center;gap:10px"><span style="flex:1;height:4px;border-radius:999px;background:#243545"><span style="display:block;width:{{ f.pct }};height:100%;border-radius:999px;background:#FF7A45"></span></span><span style="font-size:12px;color:#94A3B8;white-space:nowrap">{{ f.left }}</span></span></span><span style="width:40px;height:40px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center;flex-shrink:0"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span></span></button>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:10px"><span style="font-size:17px;font-weight:800">Cours · Architecture des systèmes</span>
+              <div style="border-radius:16px;background:#0D141B;border:1px solid #1B2935;padding:6px">
+                <sc-for list="{{ lessons }}" as="l" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:12px;height:46px;padding:0 10px;border-radius:10px;background:{{ l.bg }}"><span class="ms" style="font-size:20px;color:{{ l.ic }};font-variation-settings:'FILL' 1">{{ l.icon }}</span><span style="flex:1;font-size:13.5px;font-weight:{{ l.w }};color:{{ l.fg }}">{{ l.t }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#94A3B8">{{ l.d }}</span></div></sc-for>
+              </div>
+              <span style="font-size:12px;color:#64748B">Ordre lu depuis les noms de fichiers (01, 02…) ou les tags ; modifiable.</span>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- F2 FOCUS PLAYER -->
+      <sc-if value="{{ is.focusPlayer }}" hint-placeholder-val="{{ false }}">
+        <div style="flex:1;min-height:0;display:grid;grid-template-columns:minmax(0,1fr) 380px">
+          <div style="padding:22px 36px;display:flex;flex-direction:column;gap:22px">
+            <button onClick="{{ goFocus }}" style="align-self:flex-start;display:flex;align-items:center;gap:2px;font-size:13px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:20px">chevron_left</span>Podcasts &amp; cours</button>
+            <div style="display:flex;gap:24px;align-items:center">
+              <span style="width:168px;height:168px;border-radius:16px;background:repeating-linear-gradient(135deg,#3A3520 0 7px,#322E1B 7px 14px);box-shadow:0 20px 44px rgba(0,0,0,0.45)"></span>
+              <span style="display:flex;flex-direction:column;gap:6px"><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#94A3B8">Cours 7 sur 12 · Pr. Andry</span><span style="font-size:30px;line-height:36px;font-weight:800;letter-spacing:-0.02em;max-width:480px">Ordonnancement et interblocages</span><span style="font-size:13.5px;color:#94A3B8">Architecture des systèmes · enregistré le 12 octobre · 1 h 24</span></span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <div style="height:26px;position:relative;display:flex;align-items:center"><div style="width:100%;height:6px;border-radius:999px;background:#243545"></div><div style="position:absolute;width:22%;height:6px;border-radius:999px;background:#FF7A45"></div><sc-for list="{{ bmTicks }}" as="b" hint-placeholder-count="3"><span style="position:absolute;left:{{ b.left }};top:0;width:10px;height:10px;margin-left:-5px;border-radius:2px;transform:rotate(45deg);background:{{ b.c }}"></span></sc-for><span style="position:absolute;left:calc(22% - 8px);width:16px;height:16px;border-radius:999px;background:#F5F7FA;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></span></div>
+              <div style="display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:12.5px;color:#94A3B8"><span>18:40</span><span>Fin estimée 11:52 à 1,25×</span><span>−1:05:26</span></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:22px">
+              <span style="display:flex;flex-direction:column;align-items:center;gap:2px;color:#C7D0DB"><span class="ms" style="font-size:34px">replay_10</span></span>
+              <button onClick="{{ togglePlay }}" style="width:72px;height:72px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center;box-shadow:0 10px 24px rgba(255,122,69,0.3)"><span class="ms" style="font-size:42px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></button>
+              <span style="display:flex;flex-direction:column;align-items:center;gap:2px;color:#C7D0DB"><span class="ms" style="font-size:34px">forward_30</span></span>
+              <div style="width:1px;height:40px;background:#243545;margin:0 4px"></div>
+              <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12px;font-weight:700;color:#94A3B8">Vitesse</span><div style="display:flex;border-radius:999px;border:1px solid #243545;background:#0D141B;padding:3px"><sc-for list="{{ rates }}" as="r" hint-placeholder-count="6"><button onClick="{{ r.go }}" style="height:30px;padding:0 10px;border-radius:999px;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:{{ r.bg }};color:{{ r.fg }}">{{ r.l }}</button></sc-for></div></div>
+              <div style="flex:1"></div>
+              <button onClick="{{ addBookmark }}" style="height:42px;padding:0 16px 0 12px;border-radius:999px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700"><span class="ms" style="font-size:20px">bookmark_add</span>Signet<span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">B</span></button>
+            </div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <span style="height:32px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:17px">bedtime</span>Minuteur : fin du chapitre</span>
+              <span style="height:32px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:17px">content_cut</span>Sauter les silences</span>
+              <span style="height:32px;padding:0 12px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:12.5px;font-weight:600;color:#C7D0DB"><span class="ms" style="font-size:17px">record_voice_over</span>Voix renforcée</span>
+              <span style="align-self:center;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:0 4px;border-radius:3px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span><span style="align-self:center;font-size:12px;color:#64748B">pour les deux dernières</span>
+            </div>
+          </div>
+          <aside style="background:#0D141B;border-left:1px solid #1B2935;display:flex;flex-direction:column;overflow:hidden">
+            <div style="display:flex;margin:12px;padding:3px;border-radius:999px;background:#101820;border:1px solid #1B2935"><sc-for list="{{ fTabs }}" as="t" hint-placeholder-count="3"><button onClick="{{ t.go }}" style="flex:1;height:32px;border-radius:999px;font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:5px;background:{{ t.bg }};color:{{ t.fg }}">{{ t.l }}<span style="font-family:'JetBrains Mono',monospace;font-size:9px;font-weight:700;padding:0 3px;border-radius:3px;border:1px dashed #64748B;color:#94A3B8;display:{{ t.futD }}">FUTUR</span></button></sc-for></div>
+            <sc-if value="{{ ftab.marks }}" hint-placeholder-val="{{ true }}">
+              <div style="flex:1;padding:0 12px;display:flex;flex-direction:column;gap:2px;overflow:hidden">
+                <sc-for list="{{ bookmarks }}" as="b" hint-placeholder-count="4"><div style="display:flex;gap:12px;padding:10px;border-radius:12px;background:{{ b.bg }}"><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px;font-weight:700;color:{{ b.tc }};width:52px;padding-top:1px">{{ b.t }}</span><span style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:13.5px;font-weight:700">{{ b.title }}</span><span style="font-size:12.5px;color:#94A3B8">{{ b.note }}</span></span><span class="ms" style="font-size:18px;color:#64748B">more_horiz</span></div></sc-for>
+              </div>
+              <span style="padding:12px 18px 16px;font-size:12px;color:#64748B">B ajoute un signet à la position courante. Exportables en texte avec le cours.</span>
+            </sc-if>
+            <sc-if value="{{ ftab.chapters }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;padding:0 12px;display:flex;flex-direction:column;gap:2px">
+                <sc-for list="{{ fChapters }}" as="c" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:12px;height:46px;padding:0 10px;border-radius:10px;background:{{ c.bg }}"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;width:52px">{{ c.time }}</span><span style="flex:1;font-size:13.5px;font-weight:{{ c.w }};color:{{ c.fg }}">{{ c.t }}</span></div></sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ ftab.transcript }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;padding:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px">
+                <span style="width:56px;height:56px;border-radius:999px;background:#1F2F3B;display:grid;place-items:center"><span class="ms" style="font-size:28px;color:#94A3B8">subject</span></span>
+                <span style="font-size:15px;font-weight:800">Transcription — fonction future</span>
+                <span style="font-size:13px;line-height:20px;color:#94A3B8">En V1, un fichier .txt ou .vtt du même nom placé à côté du cours sera affiché ici. La génération locale et la recherche dans les transcriptions sont prévues en V2 (P2 du cahier des charges).</span>
+                <span style="height:34px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;opacity:0.5"><span class="ms" style="font-size:18px">auto_awesome</span>Générer (V2)</span>
+              </div>
+            </sc-if>
+          </aside>
+        </div>
+      </sc-if>
+    </main>
+  </div>
+
+  <sc-if value="{{ showBar }}" hint-placeholder-val="{{ true }}">
+  <section style="height:80px;flex-shrink:0;display:grid;grid-template-columns:320px minmax(0,1fr) 320px;align-items:center;padding:0 20px 0 16px;background:#0B1117;border-top:1px solid #1B2935">
+    <button onClick="{{ goFocusPlayer }}" style="display:flex;align-items:center;gap:12px;min-width:0;text-align:left"><span style="width:52px;height:52px;border-radius:12px;background:repeating-linear-gradient(135deg,#3A3520 0 5px,#322E1B 5px 10px);flex-shrink:0"></span><span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font-size:14px;font-weight:700">Ordonnancement et interblocages</span><span style="font-size:12.5px;color:#94A3B8">Cours 7 · Pr. Andry</span></span></button>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px">
+      <div style="display:flex;align-items:center;gap:18px;color:#F5F7FA"><span class="ms" style="font-size:26px">replay_10</span><button onClick="{{ togglePlay }}" style="width:44px;height:44px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:28px;font-variation-settings:'FILL' 1">{{ playIcon }}</span></button><span class="ms" style="font-size:26px">forward_30</span></div>
+      <div style="width:100%;max-width:520px;display:flex;align-items:center;gap:10px;font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#94A3B8"><span>18:40</span><div style="flex:1;height:4px;border-radius:999px;background:#243545"><div style="width:22%;height:100%;border-radius:999px;background:#FF7A45"></div></div><span>1:24:06</span></div>
+    </div>
+    <div style="display:flex;align-items:center;justify-content:flex-end;gap:14px;color:#94A3B8"><span style="height:28px;padding:0 10px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;color:#F5F7FA">{{ rateLabel }}</span><span class="ms" style="font-size:20px">bookmark_add</span><span class="ms" style="font-size:20px">volume_up</span><div style="width:84px;height:4px;border-radius:999px;background:#243545"><div style="width:70%;height:100%;border-radius:999px;background:#F5F7FA"></div></div></div>
+  </section>
+  </sc-if>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:12px;width:360px">
+  <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">{{ cur.id }}</span>
+  <span style="font-size:22px;font-weight:800;letter-spacing:-0.02em">{{ cur.label }}</span>
+  <ul style="margin:0;padding-left:18px;display:flex;flex-direction:column;gap:8px;font-size:13.5px;line-height:20px;color:#C7D0DB">
+    <sc-for list="{{ cur.notes }}" as="n" hint-placeholder-count="4"><li>{{ n }}</li></sc-for>
+  </ul>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { screen: 'videos', menu: 'subs', ftab: 'marks', rate: '1,25×', playing: true, extraMark: false };
+  go = (screen) => () => this.setState({ screen });
+  renderVals() {
+    const s = this.state;
+    const H = [['#22333F','#1C2C37'],['#2A3F52','#22374A'],['#4A3424','#422E20'],['#2E3A2A','#273222'],['#3A2B3A','#322532'],['#3A3520','#322E1B'],['#203A3A','#1B3232'],['#40302A','#382A24']];
+    const screens = [
+      ['W-C1','videos','Bibliothèque vidéo',['Films, séries et vidéos perso séparés par un segment ; même dossier source possible.','« Reprendre » en tête : temps restant visible avant de cliquer.','Séries reconnues depuis les noms de fichiers (S01E04) ; correction manuelle possible.','Affiches 2:3 lues depuis le dossier (poster.jpg) sinon capture vidéo.']],
+      ['W-C2','series','Fiche série',['Pistes audio et sous-titres affichés avant la lecture, pour choisir sans lancer.','Bouton principal = reprise explicite : épisode et minute.','Épisodes vus cochés, en cours avec barre corail.','La description vient des tags ou d\u2019un fichier .nfo local ; sinon masquée.']],
+      ['W-C3','windowed','Lecteur fenêtré',['La vidéo reste dans la fenêtre, chapitres à droite (P1).','F ou double-clic : plein écran. Échap : sortie.','Encoches de chapitres dans la barre ; survol = titre du chapitre.','Épisode suivant annoncé, lecture auto désactivable.']],
+      ['W-C4','full','Plein écran · menus',['Commandes masquées après 3 s d\u2019inactivité, réapparaissent au mouvement de souris.','Sous-titres : internes, externes, décalage ±0,1 s, taille.','Pistes audio : choix mémorisé pour la série.','Basculer les menus avec les boutons en bas à droite. Raccourcis : C sous-titres, A audio, ←/→ 10 s.']],
+      ['W-03','history','Historique et reprise',['Groupé par jour, tous espaces confondus.','Chaque ligne indique la position : reprendre en un clic.','Effacer l\u2019historique ne supprime aucun fichier ni favori.']],
+      ['W-F1','focus','Bibliothèque Focus',['Les contenus longs sont triés par dernière écoute.','Les cours suivent l\u2019ordre des fichiers ; les leçons terminées sont cochées.','Le temps restant tient compte de la vitesse choisie.']],
+      ['W-F2','focusPlayer','Lecteur long format',['−10 / +30 s, vitesse en premier plan, mémorisée par contenu.','Signets : touche B, repères en losange sur la barre.','« Fin estimée » calculée avec la vitesse.','Transcription marquée FUTUR : rien de simulé en V1.']],
+    ];
+    const curRow = screens.find(x => x[1] === s.screen) || screens[0];
+    const cur = { id: curRow[0], label: curRow[2], notes: curRow[3] };
+    const picker = screens.map(([id, key, label]) => { const on = key === s.screen; return { id, label, go: this.go(key), bg: on ? '#182530' : 'transparent', bd: on ? '#35C9BD' : '#243545', fg: on ? '#F5F7FA' : '#94A3B8' }; });
+    const is = Object.fromEntries(screens.map(x => [x[1], x[1] === s.screen]));
+    const activeNav = { videos: 'films', series: 'films', windowed: 'films', full: 'films', history: 'hist', focus: 'focus', focusPlayer: 'focus' }[s.screen];
+    const ni = (key, label, icon, count, target) => { const on = key === activeNav; return { item: true, label, icon, count: count || '', go: target ? this.go(target) : null, bg: on ? '#182530' : 'transparent', fg: on ? '#F5F7FA' : '#94A3B8', ic: on ? '#FF7A45' : '#94A3B8', fill: on ? 1 : 0, sh: on ? 'inset 0 0 0 1px #243545' : 'none' }; };
+    const nav = [
+      ni('home', 'Accueil', 'home'), ni('hist', 'Historique', 'history', '', 'history'),
+      { head: true, label: 'Musique' }, ni('albums', 'Albums', 'album', '212'), ni('playlists', 'Playlists', 'queue_music', '14'),
+      { head: true, label: 'Cinéma' }, ni('films', 'Films & séries', 'movie', '44', 'videos'), ni('perso', 'Vidéos perso', 'video_library', '540'),
+      { head: true, label: 'Focus' }, ni('focus', 'Podcasts & cours', 'school', '18', 'focus'), ni('books', 'Livres audio', 'auto_stories', '3'),
+    ];
+    const seg = (labels, on) => labels.map(l => ({ l, bg: l === on ? '#182530' : 'transparent', fg: l === on ? '#F5F7FA' : '#94A3B8' }));
+    const vidTabs = seg(['Tout', 'Films', 'Séries'], 'Tout');
+    const resume = [
+      { t: 'Les Hautes Terres · S1 É4', s: 'Le col · reprendre à 23:12', left: '25 min', pct: '48%', c1: '#2A3F52', c2: '#22374A', go: this.go('series') },
+      { t: 'Le Dernier Ferry', s: 'Film · reprendre à 1:12:40', left: '31 min', pct: '70%', c1: '#203A3A', c2: '#1B3232', go: this.go('windowed') },
+      { t: 'Mariage de Lova', s: 'Vidéo perso · 2024', left: '42 min', pct: '18%', c1: '#40302A', c2: '#382A24', go: this.go('windowed') },
+    ];
+    const posters = [['Les Hautes Terres','2 saisons','Nouvel épisode'],['Port-Louis Nuit','1 saison',''],['Les Archivistes','3 saisons',''],['Rova','Mini-série',''],['Atelier 9','2 saisons',''],['Longue Piste','1 saison','']].map(([t, sub, badge], i) => ({ t, s: sub, badge, newD: badge ? 'block' : 'none', c1: H[(i + 1) % 8][0], c2: H[(i + 1) % 8][1], go: this.go('series') }));
+    const episodes = [
+      ['É1 · Départ','Vu','45:20','100%',1,0],['É2 · Les bergers','Vu','47:02','100%',1,0],['É3 · La crête','Vu','48:10','100%',1,0],['É4 · Le col','Reprendre à 23:12 · 25 min restantes','48:30','48%',0,1],
+      ['É5 · Brouillard','Sous-titres FR, EN','51:02','0%',0,0],['É6 · Ceux d\u2019en bas','Sous-titres FR','46:44','0%',0,0],['É7 · Refuge','Fichier introuvable · Localiser','—','0%',0,0],['É8 · Retour','Sous-titres FR, EN','52:15','0%',0,0],
+    ].map(([t, sub, d, pct, seen, on]) => ({ t, s: sub, d, pct, seenD: seen ? 'block' : 'none', bg: on ? '#182530' : 'transparent', bd: on ? '#2A3D4E' : 'transparent', sc: sub.startsWith('Fichier') ? '#E8B04B' : '#94A3B8' }));
+    const chapterTicks = ['14%', '37%', '64%', '95%'];
+    const chapters = [['Ouverture','00:00'],['Le marché','06:40'],['La montée','17:55',1],['Le refuge','31:20'],['Générique','46:10']].map(([t, time, on]) => ({ t, time, bg: on ? '#182530' : 'transparent', bd: on ? '#FF7A45' : 'rgba(245,247,250,0.1)', fg: on ? '#FF9166' : '#F5F7FA' }));
+    const tool = (k, icon, l) => ({ icon, l, go: () => this.setState({ menu: s.menu === k ? null : k }), bg: s.menu === k ? 'rgba(245,247,250,0.18)' : 'transparent', fg: s.menu === k ? '#F5F7FA' : '#C7D0DB' });
+    const fullTools = [tool('subs', 'closed_caption', 'FR'), tool('audio', 'audiotrack', ''), tool('chapters', 'view_carousel', ''), tool('settings', 'tune', ''), { icon: 'picture_in_picture_alt', l: '', go: null, bg: 'transparent', fg: '#C7D0DB' }, { icon: 'fullscreen_exit', l: '', go: this.go('windowed'), bg: 'transparent', fg: '#C7D0DB' }];
+    const menu = { subs: s.menu === 'subs', audio: s.menu === 'audio', chapters: s.menu === 'chapters', settings: s.menu === 'settings' };
+    const subsList = [['Désactivés','',0],['Français (interne)','ASS',0],['Français · hautes-terres-s1e04.fr.srt','externe',1],['English (interne)','SRT',0],['Français · sourds et malentendants','SRT',0]].map(([l, k, on]) => ({ l, k, ck: on ? 1 : 0, bg: on ? '#1F3A3C' : 'transparent' }));
+    const audioList = [['Français','AC-3 5.1 · 640 kbit/s',1],['Anglais','AAC stéréo · 192 kbit/s',0],['Audiodescription (FR)','AAC stéréo',0]].map(([l, k, on]) => ({ l, k, ck: on ? 1 : 0, bg: on ? '#1F3A3C' : 'transparent' }));
+    const vSettings = [['speed','Vitesse','1×'],['aspect_ratio','Format d\u2019image','Auto (16:9)'],['crop','Recadrage','Aucun'],['sync','Synchro audio','0 ms'],['memory','Décodage matériel','Auto (D3D11)'],['repeat','Boucle A–B','Désactivée']].map(([icon, l, v]) => ({ icon, l, v }));
+    const histTabs = seg(['Tout', 'Musique', 'Cinéma', 'Focus'], 'Tout');
+    const hi = (time, t, sub, prog, pct, kind, done) => ({ time, t, s: sub, prog, pct, h: kind === 'video' ? '45px' : '48px', w: kind === 'video' ? '80px' : '48px', pc: done ? '#35C9BD' : '#FF7A45', bi: done ? 'replay' : 'play_arrow', bl: done ? 'Revoir' : 'Reprendre', bbg: done ? 'transparent' : '#3A2620', bfg: done ? '#94A3B8' : '#FF9166' });
+    const history = [
+      { day: 'Aujourd\u2019hui', items: [hi('21:04','Les Hautes Terres · S1 É4','Cinéma · Série','23:12 sur 48:30','48%','video',0), hi('18:20','Ordonnancement et interblocages','Focus · Cours 7','18:40 sur 1:24:06','22%','audio',0), hi('17:02','Saisons de sel','Musique · album entier','Terminé','100%','audio',1)] },
+      { day: 'Hier', items: [hi('22:40','Le Dernier Ferry','Cinéma · Film','1:12:40 sur 1:43:00','70%','video',0), hi('08:15','Ondes courtes #42','Focus · Podcast','Terminé','100%','audio',1)] },
+    ];
+    const focusTabs = seg(['Tout', 'Podcasts', 'Cours', 'Livres audio'], 'Tout');
+    const focusNow = [
+      { kind: 'COURS 7 SUR 12', t: 'Ordonnancement et interblocages', pct: '22%', left: '52 min à 1,25×', c1: '#3A3520', c2: '#322E1B', go: this.go('focusPlayer') },
+      { kind: 'PODCAST · ONDES COURTES', t: '#43 — Les radios pirates', pct: '64%', left: '12 min', c1: '#203A3A', c2: '#1B3232', go: this.go('focusPlayer') },
+      { kind: 'LIVRE AUDIO · CHAP. 9 SUR 24', t: 'L\u2019Île aux sept vents', pct: '37%', left: '6 h 10', c1: '#3A2B3A', c2: '#322532', go: this.go('focusPlayer') },
+    ];
+    const lessons = [['Cours 5 · Mémoire virtuelle','1:18:20',2],['Cours 6 · Processus et threads','1:21:05',2],['Cours 7 · Ordonnancement','1:24:06',1],['Cours 8 · Systèmes de fichiers','1:19:40',0],['Cours 9 · Entrées-sorties','1:16:12',0],['Cours 10 · Sécurité','1:22:48',0]].map(([t, d, st]) => ({ t, d, icon: st === 2 ? 'check_circle' : st === 1 ? 'play_circle' : 'radio_button_unchecked', ic: st === 2 ? '#35C9BD' : st === 1 ? '#FF7A45' : '#3A4D5E', w: st === 1 ? 800 : 600, fg: st === 1 ? '#FF9166' : '#F5F7FA', bg: st === 1 ? '#182530' : 'transparent' }));
+    const bmBase = [['08:12','Définition d\u2019un ordonnanceur','À revoir avant l\u2019examen','10%'],['34:50','Exemple round-robin','Signet sans note','41%'],['56:05','Interblocages','Schéma au tableau','67%']];
+    if (s.extraMark) bmBase.splice(1, 0, ['18:40','Nouveau signet','Ajouter une note…','22%']);
+    const bookmarks = bmBase.map(([t, title, note], i) => ({ t, title, note, tc: title === 'Nouveau signet' ? '#35C9BD' : '#FF9166', bg: title === 'Nouveau signet' ? '#1F3A3C' : 'transparent' }));
+    const bmTicks = bmBase.map(b => ({ left: b[3], c: b[1] === 'Nouveau signet' ? '#35C9BD' : '#F5F7FA' }));
+    const fTabs = [['marks','Signets'],['chapters','Chapitres'],['transcript','Texte']].map(([k, l]) => ({ l, go: () => this.setState({ ftab: k }), bg: s.ftab === k ? '#182530' : 'transparent', fg: s.ftab === k ? '#F5F7FA' : '#94A3B8', futD: k === 'transcript' ? 'inline' : 'none' }));
+    const ftab = { marks: s.ftab === 'marks', chapters: s.ftab === 'chapters', transcript: s.ftab === 'transcript' };
+    const fChapters = [['00:00','Rappels'],['09:30','Rôle de l\u2019ordonnanceur'],['17:10','Algorithmes classiques',1],['41:00','Exercices'],['52:20','Interblocages'],['1:12:00','Questions']].map(([time, t, on]) => ({ time, t, bg: on ? '#182530' : 'transparent', w: on ? 800 : 600, fg: on ? '#FF9166' : '#F5F7FA' }));
+    const rates = ['0,8×', '1×', '1,25×', '1,5×', '1,75×', '2×'].map(l => ({ l, go: () => this.setState({ rate: l }), bg: l === s.rate ? '#182530' : 'transparent', fg: l === s.rate ? '#F5F7FA' : '#94A3B8' }));
+    return {
+      picker, cur, is, nav, vidTabs, resume, posters, episodes, chapterTicks, chapters, fullTools, menu, subsList, audioList, vSettings, histTabs, history, focusTabs, focusNow, lessons, bookmarks, bmTicks, fTabs, ftab, fChapters, rates,
+      rateLabel: s.rate, playIcon: s.playing ? 'pause' : 'play_arrow', togglePlay: () => this.setState({ playing: !s.playing }),
+      addBookmark: () => this.setState({ extraMark: true, ftab: 'marks' }),
+      showBar: !['windowed', 'full', 'focusPlayer'].includes(s.screen),
+      goVideos: this.go('videos'), goSeries: this.go('series'), goWindowed: this.go('windowed'), goFull: this.go('full'), goFocus: this.go('focus'), goFocusPlayer: this.go('focusPlayer'),
+    };
+  }
+}
+</script>
+</body>
+</html>

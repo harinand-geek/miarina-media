@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400..600,0..1,0&display=block" rel="stylesheet">
+<style>
+body{margin:0;background:#0A0F14;color:#F5F7FA;font-family:Manrope,system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+a{color:#35C9BD;text-decoration:none}a:hover{color:#4FD6CB;text-decoration:underline}
+.ms{font-family:'Material Symbols Rounded';font-weight:400;font-style:normal;line-height:1;letter-spacing:normal;text-transform:none;white-space:nowrap;direction:ltr;font-feature-settings:'liga'}
+</style>
+</helmet>
+
+<div style="max-width:1440px;margin:0 auto;padding:56px 48px 120px;display:flex;flex-direction:column;gap:72px">
+
+<header style="display:flex;flex-direction:column;gap:14px">
+  <div style="display:flex;align-items:center;gap:12px">
+    <svg width="32" height="32" viewBox="0 0 32 32"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#94A3B8">Lot 1 sur 6 · direction 3a validée · v1.0 · 19.11.2026</span>
+  </div>
+  <h1 style="margin:0;font-size:52px;line-height:58px;font-weight:800;letter-spacing:-0.03em">Lecteur Miarina Media — charte et design system</h1>
+  <p style="margin:0;max-width:880px;font-size:17px;line-height:27px;color:#94A3B8;text-wrap:pretty">Ce document est la référence unique pour l'espace Écouter (Musique, Cinéma, Focus) sur Windows et Android. Il prolonge la charte Miarina existante (<span style="font-family:'JetBrains Mono',monospace;font-size:14px">theme.css</span>, handoff Windows v2) ; tout ce qui est nouveau est marqué <span style="font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;padding:1px 6px;border-radius:4px;background:#1F3A3C;color:#5FE0D5">NOUVEAU</span>. Chaque token porte son nom Flutter.</p>
+  <nav style="display:flex;flex-wrap:wrap;gap:8px;padding-top:8px">
+    <sc-for list="{{ toc }}" as="s" hint-placeholder-count="9">
+      <a href="{{ s.href }}" style="height:34px;padding:0 14px;border-radius:999px;border:1px solid #243545;background:#101820;color:#C7D0DB;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:600"><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#64748B">{{ s.n }}</span>{{ s.label }}</a>
+    </sc-for>
+  </nav>
+</header>
+
+<!-- 01 Principes -->
+<section id="principes" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">01</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Direction artistique finale</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+    <sc-for list="{{ principles }}" as="p" hint-placeholder-count="4">
+      <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:8px"><span class="ms" style="font-size:24px;color:{{ p.c }}">{{ p.icon }}</span><span style="font-size:16px;font-weight:800">{{ p.t }}</span><span style="font-size:13.5px;line-height:21px;color:#94A3B8">{{ p.d }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- 02 Logo -->
+<section id="logo" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">02</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Logo, déclinaisons et icône d'application</h2></div>
+  <p style="margin:0;max-width:820px;font-size:14.5px;line-height:23px;color:#94A3B8">Le mark 4d reste le seul logo. Le lecteur n'a pas de sous-marque : le nom « Miarina Media » est lu depuis une constante unique (<span style="font-family:'JetBrains Mono',monospace;font-size:13px">BrandConfig.name</span>) et les SVG depuis <span style="font-family:'JetBrains Mono',monospace;font-size:13px">assets/brand/</span>, pour pouvoir remplacer la marque sans toucher aux écrans.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px">
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <svg width="112" height="112" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+      <span style="font-size:13.5px;font-weight:700">Icône standard</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">miarina-media-icon.svg</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <svg width="112" height="112" viewBox="0 0 32 32"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg>
+      <span style="font-size:13.5px;font-weight:700">Windows (liseré #3A4D5E)</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">16 · 24 · 32 · 48 · 256 px</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="width:112px;height:112px;border-radius:999px;background:#101820;display:grid;place-items:center;box-shadow:inset 0 0 0 1px #243545"><svg width="68" height="68" viewBox="0 0 32 32"><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg></div>
+      <span style="font-size:13.5px;font-weight:700">Android adaptative</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">108 dp · zone sûre 66 dp</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;gap:14px">
+      <div style="width:112px;height:112px;border-radius:999px;background:#3A4D5E;display:grid;place-items:center"><svg width="68" height="68" viewBox="0 0 32 32"><path d="M13 9.5v13l10-6.5z" fill="#E6EEF5"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#E6EEF5"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#E6EEF5"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#E6EEF5"></rect></svg></div>
+      <span style="font-size:13.5px;font-weight:700">Android 13+ monochrome <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:#1F3A3C;color:#5FE0D5">NOUVEAU</span></span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">ic_launcher_monochrome</span>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+    <div style="height:140px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;align-items:center;justify-content:center;gap:16px"><svg width="52" height="52" viewBox="0 0 32 32"><rect x="0.5" y="0.5" width="31" height="31" rx="7.5" fill="#101820" stroke="#3A4D5E"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg><span style="font-size:32px;font-weight:800;letter-spacing:-0.02em">Miarina Media</span></div>
+    <div style="height:140px;border-radius:18px;background:#F6F8FA;display:flex;align-items:center;justify-content:center;gap:16px;color:#101820"><svg width="52" height="52" viewBox="0 0 32 32"><rect width="32" height="32" rx="8" fill="#101820"></rect><path d="M13 9.5v13l10-6.5z" fill="#FF7A45"></path><rect x="6" y="10.5" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="4" y="14.75" width="6" height="2.5" rx="1.25" fill="#35C9BD"></rect><rect x="6" y="19" width="4" height="2.5" rx="1.25" fill="#35C9BD"></rect></svg><span style="font-size:32px;font-weight:800;letter-spacing:-0.02em">Miarina Media</span></div>
+  </div>
+  <span style="font-size:13px;color:#64748B">Zone de protection : la moitié de la hauteur du mark. Taille minimale : 16 px (icône), 96 px de large (logotype). Le carreau garde son fond sombre sur les deux thèmes.</span>
+</section>
+
+<!-- 03 Couleurs -->
+<section id="couleurs" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">03</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Couleurs</h2></div>
+  <p style="margin:0;max-width:880px;font-size:14.5px;line-height:23px;color:#94A3B8">Deux accents à rôle fixe : <strong style="color:#FF9166">corail = lire</strong> (lecture, position, élément en cours), <strong style="color:#5FE0D5">teal = obtenir / sélectionner / focus</strong>. Un seul bouton plein de chaque accent par vue. Une information n'est jamais portée par la couleur seule (icône ou texte en plus).</p>
+  <div style="border-radius:18px;overflow-x:auto;border:1px solid #1B2935">
+    <div style="min-width:880px;display:grid;grid-template-columns:220px 1fr 1fr 260px;gap:0;background:#0D141B;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B"><span style="padding:12px 16px">Rôle</span><span style="padding:12px 16px">Sombre (défaut)</span><span style="padding:12px 16px">Clair</span><span style="padding:12px 16px">Flutter</span></div>
+    <sc-for list="{{ colors }}" as="c" hint-placeholder-count="18">
+      <div style="min-width:880px;display:grid;grid-template-columns:220px 1fr 1fr 260px;align-items:center;background:#101820;border-top:1px solid #1B2935">
+        <span style="padding:10px 16px;display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">{{ c.role }}</span><span style="font-size:12px;color:#64748B">{{ c.use }}</span></span>
+        <span style="padding:10px 16px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:28px;border-radius:6px;background:{{ c.d }};box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)"></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7D0DB">{{ c.d }}</span></span>
+        <span style="padding:10px 16px;display:flex;align-items:center;gap:10px"><span style="width:40px;height:28px;border-radius:6px;background:{{ c.l }};box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)"></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#C7D0DB">{{ c.l }}</span></span>
+        <span style="padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ c.f }}</span>
+      </div>
+    </sc-for>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+    <div style="padding:18px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Contrastes vérifiés</span><span style="font-size:13px;line-height:20px;color:#94A3B8">fg/bg 16,4:1 · muted/bg 7,3:1 · faint/bg 3,6:1 (texte ≥ 18 px ou décoratif seulement) · coral-ink/coral 7,9:1 · light coral-strong/blanc 5,2:1.</span></div>
+    <div style="padding:18px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">États d'accent</span><span style="font-size:13px;line-height:20px;color:#94A3B8">Corail #FF7A45 → hover #FF9166 → pressed #E8642E. Teal #35C9BD → #4FD6CB → #2BB0A5. Disabled : opacité 0,5 sur le composant entier.</span></div>
+    <div style="padding:18px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:6px"><span style="font-size:14px;font-weight:700">Accent personnalisable <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:1px 5px;border-radius:4px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span></span><span style="font-size:13px;line-height:20px;color:#94A3B8">Le CDC demande un accent personnalisable : seul le rôle « lire » change (corail, rose, ambre, bleu), à luminance égale, contraste recalculé.</span></div>
+  </div>
+</section>
+
+<!-- 04 Typo -->
+<section id="typo" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">04</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Typographie</h2></div>
+  <p style="margin:0;max-width:880px;font-size:14.5px;line-height:23px;color:#94A3B8">Manrope (OFL) pour toute l'interface, JetBrains Mono (OFL) pour les temps, formats, chemins et raccourcis, en chiffres tabulaires. Polices embarquées dans l'app, pas de téléchargement à l'exécution. Taille adaptable : l'échelle suit le facteur texte système (Android) et le réglage « Taille du texte » (90–130 %).</p>
+  <div style="border-radius:18px;overflow:hidden;border:1px solid #1B2935">
+    <sc-for list="{{ type }}" as="t" hint-placeholder-count="10">
+      <div style="display:grid;grid-template-columns:minmax(0,1fr) 180px 220px;align-items:center;gap:16px;padding:14px 20px;background:#101820;border-top:1px solid #1B2935">
+        <span style="font-family:{{ t.ff }};font-size:{{ t.size }};line-height:{{ t.lh }};font-weight:{{ t.w }};letter-spacing:{{ t.ls }};text-transform:{{ t.tt }};color:{{ t.c }}">{{ t.sample }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">{{ t.spec }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ t.f }}</span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- 05 Espacements, rayons, ombres, grilles -->
+<section id="espaces" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">05</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Espacements, rayons, ombres, grilles</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+    <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:15px;font-weight:800">Espacements · base 4</span>
+      <sc-for list="{{ spaces }}" as="s" hint-placeholder-count="9">
+        <div style="display:flex;align-items:center;gap:12px"><span style="width:76px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ s.f }}</span><span style="height:10px;width:{{ s.px }};border-radius:3px;background:#35C9BD"></span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">{{ s.px }}</span></div>
+      </sc-for>
+    </div>
+    <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <span style="font-size:15px;font-weight:800">Rayons</span>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">
+        <sc-for list="{{ radii }}" as="r" hint-placeholder-count="7">
+          <div style="display:flex;flex-direction:column;gap:6px;align-items:center"><span style="width:56px;height:56px;border-radius:{{ r.px }};background:#1F2F3B;border:1px solid #2A3D4E"></span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ r.label }}</span><span style="font-size:11px;color:#64748B;text-align:center">{{ r.use }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:16px">
+      <span style="font-size:15px;font-weight:800">Élévation</span>
+      <sc-for list="{{ shadows }}" as="s" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:14px"><span style="width:64px;height:40px;border-radius:10px;background:#1F2F3B;box-shadow:{{ s.v }}"></span><span style="display:flex;flex-direction:column"><span style="font-size:13px;font-weight:700">{{ s.n }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#94A3B8">{{ s.v }}</span></span></div>
+      </sc-for>
+    </div>
+  </div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px">
+    <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:15px;font-weight:800">Grille Windows</span>
+      <div style="height:160px;border-radius:10px;border:1px solid #2A3D4E;display:grid;grid-template-columns:52px minmax(0,1fr) 72px;grid-template-rows:12px minmax(0,1fr) 20px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:10px;color:#94A3B8">
+        <div style="grid-column:1/4;background:#0D141B;border-bottom:1px solid #243545"></div>
+        <div style="background:#0D141B;border-right:1px solid #243545;display:grid;place-items:center">232</div>
+        <div style="background:#101820;padding:8px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px"><span style="background:rgba(53,201,189,0.1);border-radius:4px"></span><span style="background:rgba(53,201,189,0.1);border-radius:4px"></span><span style="background:rgba(53,201,189,0.1);border-radius:4px"></span><span style="background:rgba(53,201,189,0.1);border-radius:4px"></span></div>
+        <div style="background:#0D141B;border-left:1px solid #243545;display:grid;place-items:center">320</div>
+        <div style="grid-column:1/4;background:#0B1117;border-top:1px solid #243545;display:grid;place-items:center">barre de lecture 80</div>
+      </div>
+      <sc-for list="{{ bpWin }}" as="b" hint-placeholder-count="4">
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;font-size:13px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ b.w }}</span><span style="color:#C7D0DB">{{ b.d }}</span></div>
+      </sc-for>
+    </div>
+    <div style="padding:20px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:14px">
+      <span style="font-size:15px;font-weight:800">Grille Android</span>
+      <sc-for list="{{ bpAnd }}" as="b" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:150px minmax(0,1fr);gap:12px;font-size:13px"><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">{{ b.w }}</span><span style="color:#C7D0DB">{{ b.d }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- 06 Icônes -->
+<section id="icones" style="display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">06</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Icônes</h2></div>
+  <p style="margin:0;max-width:880px;font-size:14.5px;line-height:23px;color:#94A3B8">Material Symbols Rounded (Apache 2.0), sous-ensemble embarqué. Poids 400, taille optique égale à la taille d'affichage. Contour au repos, plein (FILL 1) quand l'élément est actif ou sélectionné. Tailles : 16 (inline), 20 (Windows), 24 (Android), 28–64 (transport).</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px">
+    <sc-for list="{{ icons }}" as="i" hint-placeholder-count="30">
+      <div style="height:84px;border-radius:12px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px"><span class="ms" style="font-size:24px;color:#F5F7FA">{{ i }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:10px;color:#64748B;overflow-wrap:anywhere;text-align:center;max-width:100%;padding:0 6px;box-sizing:border-box">{{ i }}</span></div>
+    </sc-for>
+  </div>
+</section>
+
+<!-- 07 Composants -->
+<section id="composants" style="display:flex;flex-direction:column;gap:28px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">07</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Composants et états</h2></div>
+
+  <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Boutons</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">MmButton(variant:, size:) · hauteur 32 / 40 / 48</span></div>
+    <div style="display:grid;grid-template-columns:140px repeat(5,minmax(0,1fr));gap:12px;align-items:center">
+      <span></span>
+      <span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Repos</span><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Survol</span><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Pressé</span><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Focus clavier</span><span style="font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B">Désactivé</span>
+      <sc-for list="{{ buttons }}" as="b" hint-placeholder-count="5">
+        <span style="font-size:13px;font-weight:700;color:#C7D0DB">{{ b.name }}</span>
+        <sc-for list="{{ b.states }}" as="s" hint-placeholder-count="5">
+          <span style="justify-self:start;height:40px;padding:0 18px;border-radius:999px;display:flex;align-items:center;gap:6px;font-size:13.5px;font-weight:700;background:{{ s.bg }};color:{{ s.fg }};border:1px solid {{ s.bd }};opacity:{{ s.op }};outline:{{ s.ol }};outline-offset:2px"><span class="ms" style="font-size:20px;font-variation-settings:'FILL' 1">{{ b.icon }}</span>{{ b.label }}</span>
+        </sc-for>
+      </sc-for>
+    </div>
+    <span style="font-size:13px;color:#94A3B8">Focus clavier : contour 2 px teal, décalé de 2 px, sur tous les éléments interactifs (FocusableActionDetector). Cible minimale : 32 px Windows, 48 dp Android.</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px">
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Recherche</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">MmSearchField</span></div>
+      <div style="height:36px;border-radius:999px;background:#182530;border:1px solid #243545;display:flex;align-items:center;gap:8px;padding:0 14px;color:#64748B;font-size:13.5px"><span class="ms" style="font-size:19px">search</span><span style="flex:1">Rechercher titres, films, podcasts…</span><span style="font-family:'JetBrains Mono',monospace;font-size:11px;border:1px solid #2A3D4E;border-radius:4px;padding:0 5px">Ctrl K</span></div>
+      <div style="height:36px;border-radius:999px;background:#182530;border:1px solid #35C9BD;box-shadow:0 0 0 3px rgba(53,201,189,0.16);display:flex;align-items:center;gap:8px;padding:0 14px;font-size:13.5px"><span class="ms" style="font-size:19px;color:#35C9BD">search</span><span style="flex:1">marée<span style="display:inline-block;width:1px;height:16px;background:#F5F7FA;vertical-align:middle;margin-left:1px"></span></span><span class="ms" style="font-size:18px;color:#94A3B8">close</span></div>
+      <div style="border-radius:14px;background:#1F2F3B;border:1px solid #2A3D4E;box-shadow:0 12px 32px rgba(0,0,0,0.4);padding:6px;display:flex;flex-direction:column">
+        <sc-for list="{{ suggestions }}" as="s" hint-placeholder-count="4">
+          <div style="height:44px;display:flex;align-items:center;gap:12px;padding:0 10px;border-radius:10px;background:{{ s.bg }}"><span class="ms" style="font-size:20px;color:#94A3B8">{{ s.icon }}</span><span style="flex:1;font-size:13.5px;font-weight:600">{{ s.t }}</span><span style="font-size:12px;color:#64748B">{{ s.k }}</span></div>
+        </sc-for>
+      </div>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:20px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Curseurs</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">MmSeekBar · MmVolume</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;color:#94A3B8">Audio · repos (4 px), survol (6 px + bulle de temps)</span>
+        <div style="height:20px;position:relative;display:flex;align-items:center"><div style="width:100%;height:4px;border-radius:999px;background:#243545"></div><div style="position:absolute;width:38%;height:4px;border-radius:999px;background:#FF7A45"></div></div>
+        <div style="height:34px;position:relative;display:flex;align-items:flex-end"><div style="width:100%;height:6px;border-radius:999px;background:#243545;margin-bottom:6px"></div><div style="position:absolute;bottom:6px;width:38%;height:6px;border-radius:999px;background:#FF7A45"></div><span style="position:absolute;left:calc(38% - 7px);bottom:2px;width:14px;height:14px;border-radius:999px;background:#F5F7FA;box-shadow:0 2px 6px rgba(0,0,0,0.4)"></span><span style="position:absolute;left:calc(52% - 20px);bottom:18px;font-family:'JetBrains Mono',monospace;font-size:11px;padding:1px 6px;border-radius:4px;background:#F5F7FA;color:#101820">2:09</span></div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px"><span style="font-size:12.5px;color:#94A3B8">Vidéo · tampon, chapitres (encoches), signets Focus (repères)</span>
+        <div style="height:20px;position:relative;display:flex;align-items:center"><div style="width:100%;height:4px;border-radius:999px;background:#243545"></div><div style="position:absolute;width:64%;height:4px;border-radius:999px;background:#3A4D5E"></div><div style="position:absolute;width:41%;height:4px;border-radius:999px;background:#FF7A45"></div><span style="position:absolute;left:22%;width:2px;height:4px;background:#101820"></span><span style="position:absolute;left:58%;width:2px;height:4px;background:#101820"></span><span style="position:absolute;left:80%;width:2px;height:4px;background:#101820"></span><span style="position:absolute;left:70%;top:0;width:8px;height:8px;border-radius:2px;background:#F5F7FA;transform:rotate(45deg)"></span></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;color:#94A3B8"><span class="ms" style="font-size:20px">volume_up</span><div style="width:120px;height:4px;border-radius:999px;background:#243545"><div style="width:70%;height:100%;border-radius:999px;background:#F5F7FA"></div></div><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px">70 %</span><span style="font-size:12.5px;color:#64748B;margin-left:auto">← → 5 s · ↑ ↓ volume · Orig/Fin au clavier</span></div>
+    </div>
+  </div>
+
+  <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Cartes médias</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">MmMediaCard(ratio: square | video | poster)</span></div>
+    <div style="display:grid;grid-template-columns:180px 180px 260px 140px minmax(0,1fr);gap:18px;align-items:start">
+      <div style="padding:12px;border-radius:16px;background:#182530;border:1px solid #1F2F3B;display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:1;border-radius:10px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px)"></div><span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">Saisons de sel</span><span style="font-size:12px;color:#94A3B8">Nafy Rakoto</span></span><span style="font-size:11px;color:#64748B">Repos</span></div>
+      <div style="padding:12px;border-radius:16px;background:#1F2F3B;border:1px solid #2A3D4E;display:flex;flex-direction:column;gap:10px;transform:translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,0.35)"><div style="aspect-ratio:1;border-radius:10px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px);position:relative"><span style="position:absolute;right:8px;bottom:8px;width:38px;height:38px;border-radius:999px;background:#FF7A45;color:#1F0C03;display:grid;place-items:center"><span class="ms" style="font-size:24px;font-variation-settings:'FILL' 1">play_arrow</span></span></div><span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">Saisons de sel</span><span style="font-size:12px;color:#94A3B8">Nafy Rakoto</span></span><span style="font-size:11px;color:#64748B">Survol / focus : lire visible</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><div style="aspect-ratio:16/9;border-radius:12px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px);position:relative;overflow:hidden"><span style="position:absolute;right:8px;top:8px;font-family:'JetBrains Mono',monospace;font-size:10.5px;padding:1px 6px;border-radius:4px;background:rgba(13,20,27,0.8)">48:30</span><div style="position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(245,247,250,0.2)"><div style="width:48%;height:100%;background:#FF7A45"></div></div></div><span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">É4 · Le col</span><span style="font-size:12px;color:#94A3B8">Reprendre à 23:12</span></span><span style="font-size:11px;color:#64748B">Vidéo 16:9 + reprise</span></div>
+      <div style="display:flex;flex-direction:column;gap:8px"><div style="aspect-ratio:2/3;border-radius:12px;background:repeating-linear-gradient(135deg,#22333F 0 6px,#1C2C37 6px 12px)"></div><span style="font-size:13.5px;font-weight:700">Les Hautes Terres</span><span style="font-size:11px;color:#64748B">Affiche 2:3</span></div>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <div style="padding:12px;border-radius:16px;background:#182530;border:1px solid #1F2F3B;display:flex;flex-direction:column;gap:10px"><div style="aspect-ratio:1;border-radius:10px;background:#1F2F3B;opacity:0.7"></div><span style="width:70%;height:12px;border-radius:4px;background:#1F2F3B"></span><span style="width:45%;height:10px;border-radius:4px;background:#1F2F3B"></span></div>
+        <span style="font-size:11px;color:#64748B">Chargement : squelette, pulsation 1,2 s (statique en mouvement réduit)</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:14px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Listes et tableaux</span><span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#5FE0D5">MmTrackRow · hauteur 48 (compact 40, Android 56)</span></div>
+    <div style="display:flex;flex-direction:column">
+      <sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:44px minmax(0,1fr) 160px 64px 120px;align-items:center;height:48px;padding:0 10px;border-radius:10px;background:{{ r.bg }};opacity:{{ r.op }};outline:{{ r.ol }};outline-offset:-2px">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:{{ r.numFg }}">{{ r.n }}</span>
+          <span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700;color:{{ r.fg }}">{{ r.title }}</span><span style="font-size:12px;color:{{ r.subFg }}">{{ r.sub }}</span></span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#64748B">FLAC 24/96</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8;text-align:right">{{ r.dur }}</span>
+          <span style="font-size:11.5px;color:#64748B;text-align:right">{{ r.state }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <span style="font-size:13px;color:#94A3B8">Sélection multiple : Ctrl/Maj + clic (Windows), appui long puis touches (Android). Menu contextuel : clic droit, Maj+F10 ou touche Menu.</span>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Navigation latérale</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">MmSidebar</span></div>
+      <div style="padding:10px;border-radius:14px;background:#0D141B;display:flex;flex-direction:column;gap:2px">
+        <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:#94A3B8"><span class="ms" style="font-size:20px">album</span>Albums<span style="margin-left:auto;font-size:11px;color:#64748B">repos</span></div>
+        <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;background:rgba(24,37,48,0.6);color:#F5F7FA"><span class="ms" style="font-size:20px">person</span>Artistes<span style="margin-left:auto;font-size:11px;color:#64748B">survol</span></div>
+        <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;background:#182530;box-shadow:inset 0 0 0 1px #243545;color:#F5F7FA"><span class="ms" style="font-size:20px;color:#FF7A45;font-variation-settings:'FILL' 1">home</span>Accueil<span style="margin-left:auto;font-size:11px;color:#64748B">actif</span></div>
+        <div style="height:38px;display:flex;align-items:center;gap:12px;padding:0 14px;border-radius:999px;font-size:13.5px;font-weight:600;color:#94A3B8;opacity:0.55"><span class="ms" style="font-size:20px">cast</span>Appareils<span style="margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9.5px;font-weight:700;padding:1px 4px;border-radius:3px;border:1px dashed #64748B">V1.5</span></div>
+      </div>
+      <span style="font-size:12.5px;line-height:19px;color:#94A3B8">232 px, repliée 64 px (Ctrl B, auto sous 1280 px). Une fonction future est visible mais désactivée, jamais présentée comme active.</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Navigation mobile</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">NavigationBar</span></div>
+      <div style="border-radius:14px;overflow:hidden;background:#0D141B;border:1px solid #1B2935;height:72px;display:grid;grid-template-columns:repeat(4,1fr)">
+        <span style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:700;color:#FF9166"><span style="width:56px;height:30px;border-radius:999px;background:#3A2620;display:grid;place-items:center"><span class="ms" style="font-size:22px;font-variation-settings:'FILL' 1">library_music</span></span>Musique</span>
+        <span style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:#94A3B8"><span class="ms" style="font-size:22px;height:30px;display:grid;place-items:center">movie</span>Cinéma</span>
+        <span style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:#94A3B8"><span class="ms" style="font-size:22px;height:30px;display:grid;place-items:center">headphones</span>Focus</span>
+        <span style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:11.5px;font-weight:600;color:#94A3B8;position:relative"><span class="ms" style="font-size:22px;height:30px;display:grid;place-items:center">download</span>Obtenir<span style="position:absolute;top:12px;right:24px;min-width:16px;height:16px;border-radius:999px;background:#35C9BD;color:#062320;font-size:10px;font-weight:800;display:grid;place-items:center">2</span></span>
+      </div>
+      <span style="font-size:12.5px;line-height:19px;color:#94A3B8">Corail pour les trois onglets de lecture, teal pour Obtenir (décision 0006 étendue). Retoucher l'onglet actif remonte en haut puis à la racine.</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Puces et segments</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">MmChip · MmSegmented</span></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <span style="height:32px;padding:0 13px;border-radius:999px;border:1px solid #2A3D4E;color:#94A3B8;display:flex;align-items:center;font-size:12.5px;font-weight:600">Tous</span>
+        <span style="height:32px;padding:0 13px;border-radius:999px;border:1px solid #7A4330;background:#3A2620;color:#FF9166;display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:700"><span class="ms" style="font-size:16px">check</span>FLAC</span>
+        <span style="height:32px;padding:0 13px;border-radius:999px;border:1px solid #2E6A68;background:#1F3A3C;color:#5FE0D5;display:flex;align-items:center;font-size:12.5px;font-weight:700">Fin du titre</span>
+        <span style="height:32px;padding:0 13px;border-radius:999px;border:1px solid #2A3D4E;color:#94A3B8;display:flex;align-items:center;gap:5px;font-size:12.5px;font-weight:600"><span class="ms" style="font-size:16px">speed</span>1,25×</span>
+      </div>
+      <div style="display:flex;border-radius:999px;border:1px solid #243545;background:#0D141B;padding:3px">
+        <span style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">0,75×</span>
+        <span style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">1×</span>
+        <span style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;font-weight:700;background:#182530;border:1px solid #2A3D4E;border-radius:999px">1,25×</span>
+        <span style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">1,5×</span>
+        <span style="flex:1;height:30px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">2×</span>
+      </div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;padding-top:4px">
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#2B2616;color:#E8B04B;border:1px solid #4A3F1F">P1</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;border:1px dashed #64748B;color:#94A3B8">FUTUR</span>
+        <span style="font-size:12px;color:#64748B">badges de priorité</span>
+      </div>
+    </div>
+  </div>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px">
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:16px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Dialogue</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">MmDialog · 440–760 px</span></div>
+      <div style="position:relative;border-radius:14px;overflow:hidden;background:rgba(5,9,13,0.62);padding:28px;display:grid;place-items:center">
+        <div style="width:100%;max-width:420px;box-sizing:border-box;border-radius:18px;background:#1F2F3B;border:1px solid #2F4558;box-shadow:0 24px 64px rgba(0,0,0,0.5);padding:22px;display:flex;flex-direction:column;gap:14px">
+          <span style="font-size:18px;font-weight:800">Retirer « Seuil » ?</span>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <span style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid #35C9BD;background:#1F3A3C"><span class="ms" style="font-size:20px;color:#35C9BD;font-variation-settings:'FILL' 1">radio_button_checked</span><span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">Retirer de la bibliothèque</span><span style="font-size:12px;color:#94A3B8">Le fichier reste sur le disque</span></span></span>
+            <span style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-radius:12px;border:1px solid #2A3D4E"><span class="ms" style="font-size:20px;color:#94A3B8">radio_button_unchecked</span><span style="display:flex;flex-direction:column"><span style="font-size:13.5px;font-weight:700">Supprimer le fichier</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#94A3B8">D:\Musique\Nafy Rakoto\05 Seuil.flac</span></span></span>
+          </div>
+          <div style="display:flex;justify-content:flex-end;gap:8px"><span style="height:36px;padding:0 16px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;font-size:13.5px;font-weight:600;outline:2px solid #35C9BD;outline-offset:2px">Annuler</span><span style="height:36px;padding:0 16px;border-radius:999px;background:#35C9BD;color:#062320;display:flex;align-items:center;font-size:13.5px;font-weight:700">Retirer</span></div>
+        </div>
+      </div>
+      <span style="font-size:12.5px;color:#94A3B8">Focus initial sur l'action sûre. Échap ferme. Android : feuille du bas pour les choix, dialogue seulement pour les confirmations.</span>
+    </div>
+    <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">Notifications</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">MmToast · 3,2 s</span></div>
+      <sc-for list="{{ toasts }}" as="t" hint-placeholder-count="4">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:#1F2F3B;border:1px solid #2A3D4E;box-shadow:0 12px 32px rgba(0,0,0,0.35)"><span class="ms" style="font-size:20px;color:{{ t.c }};font-variation-settings:'FILL' 1">{{ t.icon }}</span><span style="flex:1;font-size:13.5px">{{ t.msg }}</span><span style="font-size:13px;font-weight:700;color:#35C9BD">{{ t.action }}</span></div>
+      </sc-for>
+      <span style="font-size:12.5px;line-height:19px;color:#94A3B8">Annoncées aux lecteurs d'écran (live region polite ; assertive pour les erreurs). Une action au plus. Les erreurs bloquantes deviennent un état d'écran, pas un toast.</span>
+    </div>
+  </div>
+
+  <div style="padding:24px;border-radius:18px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:16px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-size:17px;font-weight:800">États d'écran</span><span style="font-family:'JetBrains Mono',monospace;font-size:11.5px;color:#5FE0D5">MmStateView(kind:)</span></div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px">
+      <sc-for list="{{ states }}" as="s" hint-placeholder-count="4">
+        <div style="padding:24px 18px;border-radius:16px;background:#0D141B;border:1px solid #1B2935;display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;min-height:220px;justify-content:center">
+          <span style="width:56px;height:56px;border-radius:999px;background:{{ s.bg }};display:grid;place-items:center"><span class="ms" style="font-size:28px;color:{{ s.c }}">{{ s.icon }}</span></span>
+          <span style="font-size:15px;font-weight:800">{{ s.t }}</span>
+          <span style="font-size:13px;line-height:19px;color:#94A3B8">{{ s.d }}</span>
+          <span style="height:34px;padding:0 14px;border-radius:999px;border:1px solid #2A3D4E;display:flex;align-items:center;font-size:13px;font-weight:700">{{ s.a }}</span>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- 08 Flutter -->
+<section id="flutter" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">08</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Traduction Flutter</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(420px,1fr));gap:16px">
+    <pre style="margin:0;padding:22px;border-radius:18px;background:#0D141B;border:1px solid #1B2935;font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:20px;color:#C7D0DB;overflow:auto;white-space:pre">{{ code }}</pre>
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <sc-for list="{{ flutterRules }}" as="r" hint-placeholder-count="6">
+        <div style="padding:14px 16px;border-radius:14px;background:#101820;border:1px solid #1B2935;display:flex;flex-direction:column;gap:4px"><span style="font-size:14px;font-weight:700">{{ r.t }}</span><span style="font-size:13px;line-height:20px;color:#94A3B8">{{ r.d }}</span></div>
+      </sc-for>
+    </div>
+  </div>
+</section>
+
+<!-- 09 Inventaire -->
+<section id="inventaire" style="display:flex;flex-direction:column;gap:20px">
+  <div style="display:flex;align-items:baseline;gap:14px"><span style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#64748B">09</span><h2 style="margin:0;font-size:30px;font-weight:800;letter-spacing:-0.02em">Inventaire des écrans</h2><span style="margin-left:auto;font-size:13px;color:#94A3B8">{{ invSummary }}</span></div>
+  <div style="border-radius:18px;overflow-x:auto;border:1px solid #1B2935">
+    <div style="min-width:860px;display:grid;grid-template-columns:90px 70px minmax(0,1.1fr) minmax(0,1.6fr) 70px 130px;background:#0D141B;font-size:11px;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;color:#64748B"><span style="padding:12px 16px">ID</span><span style="padding:12px 0">Plat.</span><span style="padding:12px 16px">Écran</span><span style="padding:12px 16px">Rôle</span><span style="padding:12px 0">Prio</span><span style="padding:12px 16px">État</span></div>
+    <sc-for list="{{ inventory }}" as="s" hint-placeholder-count="20">
+      <div style="min-width:860px;display:grid;grid-template-columns:90px 70px minmax(0,1.1fr) minmax(0,1.6fr) 70px 130px;align-items:center;background:#101820;border-top:1px solid #1B2935;font-size:13px">
+        <span style="padding:9px 16px;font-family:'JetBrains Mono',monospace;font-size:12px;color:#94A3B8">{{ s.id }}</span>
+        <span style="font-size:12px;color:#94A3B8">{{ s.p }}</span>
+        <span style="padding:9px 16px;font-weight:700">{{ s.n }}</span>
+        <span style="padding:9px 16px;color:#94A3B8">{{ s.r }}</span>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:700;color:{{ s.pc }}">{{ s.prio }}</span>
+        <span style="padding:9px 16px"><span style="font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;background:{{ s.sb }};color:{{ s.sc }}">{{ s.st }}</span></span>
+      </div>
+    </sc-for>
+  </div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const toc = [['01','Direction','#principes'],['02','Logo','#logo'],['03','Couleurs','#couleurs'],['04','Typographie','#typo'],['05','Espaces & grilles','#espaces'],['06','Icônes','#icones'],['07','Composants','#composants'],['08','Flutter','#flutter'],['09','Inventaire','#inventaire']].map(([n,label,href])=>({n,label,href}));
+    const principles = [
+      { icon: 'dark_mode', c: '#94A3B8', t: 'Sombre d\u2019abord', d: 'Bleu nuit #101820 pour les longues sessions et la vidéo. Thème clair complet au même niveau de finition, choisi ou suivant le système.' },
+      { icon: 'play_circle', c: '#FF7A45', t: 'Corail = lire', d: 'Toute action ou indication de lecture est corail. Le teal reste à Obtenir, à la sélection et au focus. Les rôles ne changent jamais.' },
+      { icon: 'layers', c: '#35C9BD', t: 'Profondeur par couches', d: 'Quatre niveaux de surface et des ombres douces plutôt que des bordures fortes. Les pochettes portent l\u2019ambiance, l\u2019interface reste neutre.' },
+      { icon: 'offline_bolt', c: '#E8B04B', t: 'Local et honnête', d: 'Aucun compte ni contenu promu. Les fonctions futures sont visibles, marquées et désactivées, jamais simulées.' },
+    ];
+    const colors = [
+      ['Fond','bg app','#101820','#F6F8FA','colors.bg'],['Sidebar / chrome','barres, panneaux','#0D141B','#EDF1F4','colors.sidebar'],['Barre de lecture','transport global','#0B1117','#EDF1F4','colors.playerChrome'],
+      ['Surface','cartes, champs','#182530','#FFFFFF','colors.surface'],['Surface 2','survol, dialogues','#1F2F3B','#EEF2F5','colors.surface2'],['Ligne','bordures','#243545','#DDE3E9','colors.line'],['Ligne forte','boutons secondaires','#2A3D4E','#C9D2DB','colors.lineStrong'],['Séparateur','filets','#1B2935','#E3E8ED','colors.divider'],
+      ['Texte','principal','#F5F7FA','#101820','colors.fg'],['Texte secondaire','métadonnées','#94A3B8','#526072','colors.muted'],['Texte tertiaire','aide, compteurs','#64748B','#707D8C','colors.faint'],
+      ['Lire','bouton plein','#FF7A45','#FF7A45','colors.play'],['Lire (texte)','titre en cours','#FF9166','#C2410C','colors.playStrong'],['Lire (fond)','pastille, chip','#3A2620','#FFE8DE','colors.playSubtle'],
+      ['Obtenir / focus','sélection','#35C9BD','#0F8579','colors.accent'],['Obtenir (fond)','sélection','#1F3A3C','#DDF5F2','colors.accentSubtle'],
+      ['Avertissement','introuvable, P1','#E8B04B','#A86F0A','colors.warning'],['Danger','erreurs','#F07070','#C93C3C','colors.danger'],['Vidéo','surface lecteur','#070B0F','#070B0F','colors.video'],
+    ].map(([role,use,d,l,f])=>({role,use,d,l,f}));
+    const M = "Manrope,sans-serif", J = "'JetBrains Mono',monospace";
+    const ty = (sample,size,lh,w,ls,spec,f,o={}) => ({ sample,size,lh,w,ls,spec,f,ff:o.ff||M,tt:o.tt||'none',c:o.c||'#F5F7FA' });
+    const type = [
+      ty('Saisons de sel','40px','46px',800,'-0.03em','display-lg 40/46 · 800','displayLarge'),
+      ty('Accueil Écouter','28px','34px',800,'-0.02em','display 28/34 · 800','displayMedium'),
+      ty('Les Hautes Terres','24px','30px',800,'-0.02em','title-lg 24/30 · 800','headlineSmall'),
+      ty('Vos listes automatiques','18px','24px',700,'-0.01em','title 18/24 · 700','titleLarge'),
+      ty('Marée haute','14px','20px',700,'0','heading 14/20 · 700','titleSmall'),
+      ty('Nafy Rakoto · Saisons de sel · 9 titres','14px','21px',500,'0','body 14/21 · 500','bodyMedium',{c:'#94A3B8'}),
+      ty('Lire ensuite','13.5px','20px',600,'0','label 13.5/20 · 600','labelLarge'),
+      ty('148 nouveaux titres trouvés','12px','16px',500,'0','caption 12/16 · 500','bodySmall',{c:'#94A3B8'}),
+      ty('Musique','11px','16px',700,'0.06em','overline 11/16 · 700 · +6 %','labelSmall',{tt:'uppercase',c:'#64748B'}),
+      ty('1:34 / 4:08 · FLAC 24/96 · D:\\Musique','12.5px','18px',500,'0','mono 12.5/18 · tabular','MmText.mono',{ff:J,c:'#94A3B8'}),
+    ];
+    const spaces = [['s1',4],['s2',8],['s3',12],['s4',16],['s5',20],['s6',24],['s8',32],['s10',40],['s12',48]].map(([f,v])=>({f:'space.'+f,px:v+'px'}));
+    const radii = [['4','xs','badges'],['8','sm','vignettes'],['12','md','pochettes'],['14','lg','cartes'],['18','xl','panneaux'],['24','2xl','hero'],['999','pill','boutons']].map(([px,l,use])=>({px:px+'px',label:l+' · '+px,use}));
+    const shadows = [
+      { n: 'Niveau 1 · carte survolée', v: '0 8px 20px rgba(0,0,0,0.25)' },
+      { n: 'Niveau 2 · menu, panneau', v: '0 12px 32px rgba(0,0,0,0.4)' },
+      { n: 'Niveau 3 · dialogue', v: '0 24px 64px rgba(0,0,0,0.5)' },
+      { n: 'Halo lire', v: '0 8px 20px rgba(255,122,69,0.25)' },
+    ];
+    const bpWin = [
+      { w: '≥ 1440 px', d: 'Sidebar 232 + contenu + panneau En lecture 320. Grilles 5–6 colonnes.' },
+      { w: '1280–1439 px', d: 'Panneau 320 conservé, grilles 4 colonnes.' },
+      { w: '1024–1279 px', d: 'Sidebar repliée 64, panneau masqué (accessible via la barre de lecture).' },
+      { w: '960 × 640 min', d: 'Taille minimale de fenêtre. Barre de lecture : volume replié en icône.' },
+    ];
+    const bpAnd = [
+      { w: 'Marges', d: '16 dp (< 400 dp), 20 dp au-delà. Grille de 4 dp.' },
+      { w: 'Cibles', d: '48 dp minimum, 56 dp pour les lignes de liste.' },
+      { w: 'Onglets', d: 'NavigationBar 72 dp, mini-lecteur 64 dp au-dessus.' },
+      { w: '≥ 600 dp', d: 'Tablette / pliable : NavigationRail à gauche, grilles 4 colonnes.' },
+      { w: 'Paysage', d: 'Lecteur vidéo plein écran immersif ; lecteur audio en deux colonnes.' },
+      { w: 'Texte', d: 'Facteur texte système jusqu\u2019à 200 % sans troncature des titres.' },
+    ];
+    const icons = ['play_arrow','pause','skip_previous','skip_next','shuffle','repeat','repeat_one','replay_10','forward_30','speed','graphic_eq','equalizer','lyrics','queue_music','playlist_add','favorite','bookmark_add','bedtime','volume_up','closed_caption','subtitles','audiotrack','aspect_ratio','fullscreen','picture_in_picture_alt','movie','headphones','library_music','album','person','school','podcasts','auto_stories','folder_open','link_off','content_copy','search','tune','download','settings'];
+    const st = (bg,fg,bd,o={}) => ({ bg, fg, bd, op: o.op||1, ol: o.ol||'none' });
+    const FOC = '2px solid #35C9BD';
+    const buttons = [
+      { name: 'Lire', icon: 'play_arrow', label: 'Lire', states: [st('#FF7A45','#1F0C03','#FF7A45'),st('#FF9166','#1F0C03','#FF9166'),st('#E8642E','#1F0C03','#E8642E'),st('#FF7A45','#1F0C03','#FF7A45',{ol:FOC}),st('#FF7A45','#1F0C03','#FF7A45',{op:0.5})] },
+      { name: 'Obtenir', icon: 'download', label: 'Importer', states: [st('#35C9BD','#062320','#35C9BD'),st('#4FD6CB','#062320','#4FD6CB'),st('#2BB0A5','#062320','#2BB0A5'),st('#35C9BD','#062320','#35C9BD',{ol:FOC}),st('#35C9BD','#062320','#35C9BD',{op:0.5})] },
+      { name: 'Secondaire', icon: 'shuffle', label: 'Aléatoire', states: [st('#1F2F3B','#F5F7FA','#2A3D4E'),st('#26384A','#F5F7FA','#2A3D4E'),st('#182530','#F5F7FA','#2A3D4E'),st('#1F2F3B','#F5F7FA','#2A3D4E',{ol:FOC}),st('#1F2F3B','#F5F7FA','#2A3D4E',{op:0.5})] },
+      { name: 'Discret', icon: 'more_horiz', label: 'Plus', states: [st('transparent','#94A3B8','transparent'),st('#182530','#F5F7FA','transparent'),st('#1F2F3B','#F5F7FA','transparent'),st('transparent','#F5F7FA','transparent',{ol:FOC}),st('transparent','#94A3B8','transparent',{op:0.5})] },
+      { name: 'Destructif', icon: 'delete', label: 'Supprimer', states: [st('#E05A5A','#FFFFFF','#E05A5A'),st('#EA6B6B','#FFFFFF','#EA6B6B'),st('#C94B4B','#FFFFFF','#C94B4B'),st('#E05A5A','#FFFFFF','#E05A5A',{ol:FOC}),st('#E05A5A','#FFFFFF','#E05A5A',{op:0.5})] },
+    ];
+    const suggestions = [
+      { icon: 'music_note', t: 'Marée haute', k: 'Titre · Nafy Rakoto', bg: '#26384A' },
+      { icon: 'album', t: 'Marées (live)', k: 'Album', bg: 'transparent' },
+      { icon: 'podcasts', t: 'Les marées expliquées', k: 'Podcast · Focus', bg: 'transparent' },
+      { icon: 'history', t: 'Rechercher « marée » partout', k: 'Entrée', bg: 'transparent' },
+    ];
+    const r = (n,title,sub,dur,state,o={}) => ({ n,title,sub,dur,state, bg:o.bg||'transparent', op:o.op||1, ol:o.ol||'none', numFg:o.on?'#FF9166':'#64748B', fg:o.on?'#FF9166':'#F5F7FA', subFg:o.warn?'#E8B04B':'#94A3B8' });
+    const rows = [
+      r('1','Lumière basse','Nafy Rakoto','3:42','repos'),
+      r('2','Marée haute','Nafy Rakoto','4:08','en lecture',{on:true,bg:'#182530'}),
+      r('3','Vent de sable','Nafy Rakoto','5:16','survol',{bg:'#141F28'}),
+      r('4','Kabary','Nafy Rakoto, Toky','3:57','sélectionné',{bg:'#16302F'}),
+      r('5','Seuil','Fichier introuvable · Localiser','4:21','introuvable',{op:0.72,warn:true}),
+      r('6','Les heures pâles','Nafy Rakoto','6:02','focus clavier',{ol:'2px solid #35C9BD'}),
+    ];
+    const toasts = [
+      { icon: 'check_circle', c: '#35C9BD', msg: '« Seuil » ajouté à Soirées calmes', action: 'Annuler' },
+      { icon: 'skip_next', c: '#E8B04B', msg: '« Seuil » est introuvable, titre suivant', action: 'Localiser' },
+      { icon: 'error', c: '#F07070', msg: 'Lecture impossible : codec AC-4 non pris en charge', action: 'Détails' },
+      { icon: 'bedtime', c: '#94A3B8', msg: 'Minuteur : lecture arrêtée', action: '' },
+    ];
+    const states = [
+      { icon: 'library_music', c: '#FF9166', bg: '#3A2620', t: 'Bibliothèque vide', d: 'Ajoutez un dossier pour que vos fichiers apparaissent ici.', a: 'Ajouter un dossier' },
+      { icon: 'folder_off', c: '#E8B04B', bg: '#2B2616', t: 'Disque déconnecté', d: 'E:\\Films n\u2019est plus accessible. 38 éléments sont masqués.', a: 'Relocaliser' },
+      { icon: 'lock', c: '#F07070', bg: '#3A2226', t: 'Accès refusé', d: 'Miarina n\u2019a plus l\u2019autorisation de lire vos fichiers audio.', a: 'Autoriser' },
+      { icon: 'search_off', c: '#94A3B8', bg: '#1F2F3B', t: 'Aucun résultat', d: 'Aucun titre, film ou cours ne contient « marre ».', a: 'Rechercher « marée »' },
+    ];
+    const code = [
+      "// design_system/lib/tokens/mm_colors.dart",
+      "@immutable",
+      "class MmColors extends ThemeExtension<MmColors> {",
+      "  final Color bg, sidebar, playerChrome, surface, surface2;",
+      "  final Color line, lineStrong, divider, fg, muted, faint;",
+      "  final Color play, playStrong, playSubtle, accent, accentSubtle;",
+      "  final Color warning, danger, video;",
+      "  static const dark = MmColors(",
+      "    bg: Color(0xFF101820), surface: Color(0xFF182530),",
+      "    play: Color(0xFFFF7A45), accent: Color(0xFF35C9BD), /* … */);",
+      "  // copyWith + lerp générés",
+      "}",
+      "",
+      "ThemeData mmTheme(MmColors c, Brightness b) => ThemeData(",
+      "  brightness: b,",
+      "  scaffoldBackgroundColor: c.bg,",
+      "  colorScheme: ColorScheme(",
+      "    brightness: b, primary: c.play, onPrimary: Color(0xFF1F0C03),",
+      "    secondary: c.accent, onSecondary: Color(0xFF062320),",
+      "    surface: c.surface, onSurface: c.fg,",
+      "    error: c.danger, onError: Colors.white),",
+      "  textTheme: MmType.textTheme(c),   // Manrope embarquée",
+      "  focusColor: c.accent,",
+      "  extensions: [c, MmSpacing.standard, MmMotion.of(context)],",
+      ");",
+      "",
+      "// Usage",
+      "final c = Theme.of(context).extension<MmColors>()!;",
+    ].join('\n');
+    const flutterRules = [
+      { t: 'Une source, deux sorties', d: 'Les tokens vivent dans tokens.json ; un script génère MmColors (Dart) et theme.css (app Tauri actuelle) pour garder les deux en phase pendant la migration.' },
+      { t: 'Widgets maison minces', d: 'MmButton, MmSeekBar, MmTrackRow, MmMediaCard, MmStateView… enveloppent les widgets Material 3 ; pas de dessin custom sauf la barre de lecture.' },
+      { t: 'États via WidgetStateProperty', d: 'hovered / pressed / focused / disabled lus depuis les tokens, aucune couleur en dur dans les écrans.' },
+      { t: 'Mouvement', d: 'MmMotion expose les durées ; MediaQuery.disableAnimations les remplace par un fondu de 120 ms.' },
+      { t: 'Densité', d: 'VisualDensity.compact sur Windows (lignes 40), standard sur Android (56).' },
+      { t: 'Marque remplaçable', d: 'BrandConfig (nom, SVG, couleurs du mark) injecté à la racine ; aucun écran ne contient le nom en dur.' },
+    ];
+    const S = { done: ['Maquette livrée','#1F3A3C','#5FE0D5'], ds: ['Lot 1','#1F3A3C','#5FE0D5'], todo: ['À faire','#1F2F3B','#94A3B8'] };
+    const P = { P0: '#5FE0D5', P1: '#E8B04B', P2: '#94A3B8' };
+    const inv = [
+      ['W-00','Win','Accueil Écouter','Reprise multi-sections, listes auto, En lecture','P0','done'],
+      ['W-01','Win','Bibliothèque','Toutes sections, filtres, tri, vues','P0','done'],
+      ['W-02','Win','Recherche globale','Résultats groupés par section, filtres','P0','done'],
+      ['W-03','Win','Favoris · Historique','Titres, vidéos, cours ; reprise','P0','done'],
+      ['W-M1','Win','Albums · Artistes · Titres','Grilles et tableau, tri, sélection multiple','P0','done'],
+      ['W-M2','Win','Album · Artiste (détail)','Lecture, doublons, fichiers introuvables','P0','done'],
+      ['W-M3','Win','En lecture + paroles + file','Plein écran audio, paroles .lrc, file éditable','P0','done'],
+      ['W-M4','Win','Mini-lecteur flottant','Fenêtre compacte toujours visible','P0','done'],
+      ['W-M5','Win','Playlists (créer, modifier, M3U)','Glisser-déposer, import/export','P0','done'],
+      ['W-M6','Win','Égaliseur','Préréglages, 6 bandes, normalisation','P1','done'],
+      ['W-C1','Win','Bibliothèque vidéo · séries','Films, séries, perso, reprise','P0','done'],
+      ['W-C2','Win','Fiche film / série','Pistes, sous-titres, épisodes','P0','done'],
+      ['W-C3','Win','Lecteur vidéo fenêtré + plein écran','Pistes, sous-titres, ratio, vitesse','P0','done'],
+      ['W-C4','Win','Chapitres · aperçus','Navigation par chapitres','P1','done'],
+      ['W-F1','Win','Bibliothèque Focus','Podcasts, cours, livres audio','P0','done'],
+      ['W-F2','Win','Lecteur long format','Vitesse, signets, progression','P0','done'],
+      ['W-F3','Win','Transcription · recherche','Marquées FUTUR','P2','done'],
+      ['W-O1','Win','Premier démarrage · import · analyse','Langue, thème, dossiers, indexation','P0','done'],
+      ['W-O2','Win','Fichiers manquants · doublons','Relocaliser, fusionner','P1','done'],
+      ['W-S1','Win','Réglages apparence · lecture · raccourcis','Thème, accent, densité, moteur','P0','done'],
+      ['W-E1','Win','Vide · chargement · erreurs','Codec, accès, hors ligne','P0','done'],
+      ['A-00','And','Accueil Musique / Cinéma / Focus','Onglets, reprise, mini-lecteur','P0','done'],
+      ['A-01','And','Bibliothèque · recherche','Listes tactiles, filtres','P0','done'],
+      ['A-02','And','Album · artiste · playlists','Actions par feuille du bas','P0','done'],
+      ['A-03','And','Lecteur audio · file · égaliseur','Gestes, sortie audio','P0','done'],
+      ['A-04','And','Lecteur vidéo portrait + paysage','Gestes luminosité/volume, verrou','P0','done'],
+      ['A-05','And','Notification · écran verrouillé','MediaSession Media3','P0','done'],
+      ['A-06','And','Import · autorisations','READ_MEDIA_AUDIO/VIDEO, SAF','P0','done'],
+      ['A-07','And','Réglages · vides · erreurs','Permission refusée, stockage retiré','P0','done'],
+      ['DS','Tous','Charte + design system','Ce document','—','ds'],
+    ];
+    const inventory = inv.map(([id,p,n,rr,prio,s])=>({id,p,n,r:rr,prio,pc:P[prio]||'#64748B',st:S[s][0],sb:S[s][1],sc:S[s][2]}));
+    const invSummary = `${inventory.length} entrées · tous les écrans livrés en maquette · ${inventory.filter(i=>i.st==='À faire').length} à faire`;
+    return { toc, principles, colors, type, spaces, radii, shadows, bpWin, bpAnd, icons, buttons, suggestions, rows, toasts, states, code, flutterRules, inventory, invSummary };
+  }
+}
+</script>
+</body>
+</html>
