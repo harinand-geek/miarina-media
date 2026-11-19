@@ -1,12 +1,14 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:material_ui/material_ui.dart';
 
 import '../tokens.dart';
 
-/// Cover, poster or thumbnail. Without a picture it shows the neutral
-/// hatching of the mockups (two close tones at 135°), tinted from [seed] so
-/// neighbouring items do not look identical; never a stock image.
+/// Cover, poster or thumbnail from the user's own files ([imagePath]),
+/// decoded at the displayed size. Without a picture, or when it cannot be
+/// read, it shows the neutral hatching of the mockups (two close tones at
+/// 135°), tinted from [seed]; never a stock image.
 class CoverArt extends StatelessWidget {
   const CoverArt({
     super.key,
@@ -16,6 +18,7 @@ class CoverArt extends StatelessWidget {
     this.shadow = true,
     this.child,
     this.aspectRatio = 1,
+    this.imagePath,
   });
 
   final double size;
@@ -24,6 +27,7 @@ class CoverArt extends StatelessWidget {
   final bool shadow;
   final Widget? child;
   final double aspectRatio;
+  final String? imagePath;
 
   // Hatching pairs of the prototypes (warm, green, plum, olive, teal, slate…).
   static const _pairs = [
@@ -43,6 +47,28 @@ class CoverArt extends StatelessWidget {
     final pair = c.brightness == Brightness.dark
         ? _pairs[seed.abs() % _pairs.length]
         : (c.hatchA, c.hatchB);
+    final hatch = CustomPaint(
+      painter: _Hatch(pair.$1, pair.$2),
+      size: Size(size, size / aspectRatio),
+    );
+    final path = imagePath;
+    Widget picture = hatch;
+    if (path != null && path.isNotEmpty) {
+      final px = (size * MediaQuery.devicePixelRatioOf(context)).round();
+      picture = Image.file(
+        File(path),
+        width: size,
+        height: size / aspectRatio,
+        fit: BoxFit.cover,
+        cacheWidth: px,
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.medium,
+        frameBuilder: (context, img, frame, sync) => sync || frame != null
+            ? img
+            : Stack(fit: StackFit.expand, children: [hatch, img]),
+        errorBuilder: (_, _, _) => hatch,
+      );
+    }
     return Container(
       width: size,
       height: size / aspectRatio,
@@ -52,10 +78,15 @@ class CoverArt extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(radius),
-        child: CustomPaint(
-          painter: _Hatch(pair.$1, pair.$2),
-          child: child == null ? null : Center(child: child),
-        ),
+        child: child == null
+            ? picture
+            : Stack(
+                fit: StackFit.expand,
+                children: [
+                  picture,
+                  Center(child: child),
+                ],
+              ),
       ),
     );
   }

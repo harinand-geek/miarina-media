@@ -123,6 +123,8 @@ LibraryItem track(
   int id,
   String title, {
   String? artist,
+  String? album,
+  int? trackNo,
   bool missing = false,
   bool favorite = false,
 }) => LibraryItem(
@@ -132,12 +134,15 @@ LibraryItem track(
   isVideo: false,
   durationSecs: 245,
   artist: artist,
-  album: 'Album $id',
+  album: album ?? 'Album $id',
   format: 'FLAC',
   missing: missing,
   favorite: favorite,
+  trackNo: trackNo,
 );
 
+/// Same rules as the core: albums grouped by name (case-insensitive) with
+/// their album artist; artists with their number of albums.
 class FakeLibraryApi implements LibraryApi {
   FakeLibraryApi(this.items);
 
@@ -150,15 +155,50 @@ class FakeLibraryApi implements LibraryApi {
     required bool favoritesOnly,
     required int offset,
     required int limit,
+    String? album,
+    String? artist,
   }) async {
-    var list = items.where((i) => !favoritesOnly || i.favorite).toList();
+    bool same(String? a, String? b) => a?.toLowerCase() == b?.toLowerCase();
+    var list = items
+        .where((i) => !favoritesOnly || i.favorite)
+        .where((i) => album == null || same(i.album, album))
+        .where((i) => artist == null || same(i.artist, artist))
+        .toList();
     if (search.isNotEmpty) {
       list = list
           .where((i) => i.title.toLowerCase().contains(search.toLowerCase()))
           .toList();
     }
+    if (album != null) {
+      list.sort((a, b) => (a.trackNo ?? 9999).compareTo(b.trackNo ?? 9999));
+    }
     final page = list.skip(offset).take(limit).toList();
     return LibraryPage(items: page, total: BigInt.from(list.length));
+  }
+
+  @override
+  Future<List<LibraryGroup>> groups(GroupKind kind) async {
+    final by = <String, List<LibraryItem>>{};
+    for (final i in items) {
+      final key = kind == GroupKind.album ? i.album : i.artist;
+      if (key != null && !i.missing) (by[key.toLowerCase()] ??= []).add(i);
+    }
+    final keys = by.keys.toList()..sort();
+    return [
+      for (final k in keys)
+        LibraryGroup(
+          name: kind == GroupKind.album
+              ? by[k]!.first.album!
+              : by[k]!.first.artist!,
+          detail: kind == GroupKind.album
+              ? by[k]!.first.artist
+              : '${by[k]!.map((i) => i.album).toSet().length}',
+          count: BigInt.from(by[k]!.length),
+          durationSecs: by[k]!.fold(0.0, (t, i) => t + (i.durationSecs ?? 0)),
+          year: null,
+          thumbnail: null,
+        ),
+    ];
   }
 
   @override

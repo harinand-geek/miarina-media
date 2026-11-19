@@ -61,7 +61,12 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
 
     return Stack(
       children: [
-        Positioned.fill(child: CoverBackdrop(seed: entry?.seed ?? 0)),
+        Positioned.fill(
+          child: CoverBackdrop(
+            seed: entry?.seed ?? 0,
+            imagePath: entry?.artwork,
+          ),
+        ),
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 18, 20, 18),
           child: Row(
@@ -125,7 +130,11 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  FlyingCover(size: size, seed: entry.seed),
+                                  FlyingCover(
+                                    size: size,
+                                    seed: entry.seed,
+                                    imagePath: entry.artwork,
+                                  ),
                                   const SizedBox(height: 26),
                                   Row(
                                     crossAxisAlignment: CrossAxisAlignment.end,

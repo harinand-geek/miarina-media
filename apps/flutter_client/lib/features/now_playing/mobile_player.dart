@@ -172,6 +172,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                                     child: FlyingCover(
                                       size: cover,
                                       seed: entry?.seed ?? 0,
+                                      imagePath: entry?.artwork,
                                       radius: MmRadius.xl,
                                     ),
                                   ),
@@ -406,7 +407,12 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
           color: c.bg,
           child: Stack(
             children: [
-              Positioned.fill(child: CoverBackdrop(seed: entry?.seed ?? 0)),
+              Positioned.fill(
+                child: CoverBackdrop(
+                  seed: entry?.seed ?? 0,
+                  imagePath: entry?.artwork,
+                ),
+              ),
               body,
             ],
           ),

@@ -690,6 +690,78 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Plus d\'options'**
   String get moreOptions;
+
+  /// No description provided for @albumsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun album} =1{1 album} other{{count} albums}}'**
+  String albumsCount(int count);
+
+  /// No description provided for @artistsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun artiste} =1{1 artiste} other{{count} artistes}}'**
+  String artistsCount(int count);
+
+  /// No description provided for @artistsGrouping.
+  ///
+  /// In fr, this message translates to:
+  /// **'regroupés selon le tag « Artiste de l\'album »'**
+  String get artistsGrouping;
+
+  /// No description provided for @albumsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'album'**
+  String get albumsEmptyTitle;
+
+  /// No description provided for @albumsEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les albums viennent des tags des fichiers (album, artiste). Aucun titre de la bibliothèque n\'en a pour l\'instant.'**
+  String get albumsEmptyBody;
+
+  /// No description provided for @artistsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'artiste'**
+  String get artistsEmptyTitle;
+
+  /// No description provided for @artistsEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les artistes viennent des tags des fichiers. Aucun titre de la bibliothèque n\'en a pour l\'instant.'**
+  String get artistsEmptyBody;
+
+  /// No description provided for @albumOverline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Album'**
+  String get albumOverline;
+
+  /// No description provided for @albumTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titres de l\'album'**
+  String get albumTracks;
+
+  /// No description provided for @artistTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titres'**
+  String get artistTracks;
+
+  /// No description provided for @groupMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet élément n\'est plus dans la bibliothèque.'**
+  String get groupMissing;
+
+  /// No description provided for @playVerb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire'**
+  String get playVerb;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

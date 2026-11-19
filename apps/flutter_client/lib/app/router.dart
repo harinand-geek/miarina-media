@@ -6,6 +6,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/tokens.dart';
 import '../features/common/coming_soon.dart';
+import '../features/library/albums_screen.dart';
+import '../features/library/group_screen.dart';
+import '../features/library/library_data.dart';
 import '../features/library/tracks_screen.dart';
 import '../features/now_playing/mobile_player.dart';
 import '../features/now_playing/now_playing_screen.dart';
@@ -16,7 +19,9 @@ import '../features/shell/mobile_shell.dart';
 abstract final class Routes {
   static const listenHome = '/listen';
   static const albums = '/listen/music/albums';
+  static const album = '/listen/music/albums/album';
   static const artists = '/listen/music/artists';
+  static const artist = '/listen/music/artists/artist';
   static const tracks = '/listen/music/tracks';
   static const playlists = '/listen/music/playlists';
   static const favorites = '/listen/music/favorites';
@@ -59,8 +64,34 @@ final routerProvider = Provider<GoRouter>((ref) {
             : MobileShell(location: state.uri.path, child: child),
         routes: [
           screen(Routes.listenHome, () => const ComingSoon(screenId: 'W-00')),
-          screen(Routes.albums, () => const ComingSoon(screenId: 'W-M1a')),
-          screen(Routes.artists, () => const ComingSoon(screenId: 'W-M1b')),
+          screen(
+            Routes.albums,
+            () => const GroupsScreen(kind: GroupKind.album),
+          ),
+          screen(
+            Routes.artists,
+            () => const GroupsScreen(kind: GroupKind.artist),
+          ),
+          GoRoute(
+            path: Routes.album,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: GroupScreen(
+                kind: GroupKind.album,
+                name: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
+          ),
+          GoRoute(
+            path: Routes.artist,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: GroupScreen(
+                kind: GroupKind.artist,
+                name: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
+          ),
           screen(Routes.tracks, () => const TracksScreen()),
           GoRoute(
             path: Routes.now,

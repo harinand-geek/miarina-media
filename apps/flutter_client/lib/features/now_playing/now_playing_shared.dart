@@ -51,30 +51,43 @@ class CoverBackdrop extends StatelessWidget {
     super.key,
     required this.seed,
     this.veil = const Color(0x8C0D141B),
+    this.imagePath,
   });
 
   final int seed;
   final Color veil;
+  final String? imagePath;
 
   @override
   Widget build(BuildContext context) {
+    // Clipped: a blur spreads ~3σ beyond its box and would tint (and make the
+    // compositor repaint) everything around it.
     return RepaintBoundary(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ImageFiltered(
-            imageFilter: ui.ImageFilter.blur(
-              sigmaX: 60,
-              sigmaY: 60,
-              tileMode: TileMode.mirror,
+      child: ClipRect(
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ImageFiltered(
+              imageFilter: ui.ImageFilter.blur(
+                sigmaX: 60,
+                sigmaY: 60,
+                tileMode: TileMode.mirror,
+              ),
+              child: FittedBox(
+                fit: BoxFit.cover,
+                // Decoded small: it is blurred anyway.
+                child: CoverArt(
+                  size: 160,
+                  radius: 0,
+                  seed: seed,
+                  shadow: false,
+                  imagePath: imagePath,
+                ),
+              ),
             ),
-            child: FittedBox(
-              fit: BoxFit.cover,
-              child: CoverArt(size: 400, radius: 0, seed: seed, shadow: false),
-            ),
-          ),
-          ColoredBox(color: veil),
-        ],
+            ColoredBox(color: veil),
+          ],
+        ),
       ),
     );
   }
@@ -88,11 +101,13 @@ class FlyingCover extends ConsumerStatefulWidget {
     required this.size,
     required this.seed,
     this.radius = 16,
+    this.imagePath,
   });
 
   final double size;
   final int seed;
   final double radius;
+  final String? imagePath;
 
   @override
   ConsumerState<FlyingCover> createState() => _FlyingCoverState();
@@ -146,6 +161,7 @@ class _FlyingCoverState extends ConsumerState<FlyingCover>
       size: widget.size,
       radius: widget.radius,
       seed: widget.seed,
+      imagePath: widget.imagePath,
     );
     return AnimatedBuilder(
       animation: _ctl,

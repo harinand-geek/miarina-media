@@ -98,5 +98,17 @@
   "closePlayer": "Collapse the player",
   "showLyrics": "Show lyrics",
   "showCover": "Show the cover",
-  "moreOptions": "More options"
+  "moreOptions": "More options",
+  "albumsCount": "{count, plural, =0{No albums} =1{1 album} other{{count} albums}}",
+  "artistsCount": "{count, plural, =0{No artists} =1{1 artist} other{{count} artists}}",
+  "artistsGrouping": "grouped by the “Album artist” tag",
+  "albumsEmptyTitle": "No albums yet",
+  "albumsEmptyBody": "Albums come from the files' tags (album, artist). No track of the library has them yet.",
+  "artistsEmptyTitle": "No artists yet",
+  "artistsEmptyBody": "Artists come from the files' tags. No track of the library has them yet.",
+  "albumOverline": "Album",
+  "albumTracks": "Album tracks",
+  "artistTracks": "Tracks",
+  "groupMissing": "This item is no longer in the library.",
+  "playVerb": "Play"
 }

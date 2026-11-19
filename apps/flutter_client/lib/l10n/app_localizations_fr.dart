@@ -325,4 +325,61 @@ class L10nFr extends L10n {
 
   @override
   String get moreOptions => 'Plus d\'options';
+
+  @override
+  String albumsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count albums',
+      one: '1 album',
+      zero: 'Aucun album',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String artistsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count artistes',
+      one: '1 artiste',
+      zero: 'Aucun artiste',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get artistsGrouping =>
+      'regroupés selon le tag « Artiste de l\'album »';
+
+  @override
+  String get albumsEmptyTitle => 'Pas encore d\'album';
+
+  @override
+  String get albumsEmptyBody =>
+      'Les albums viennent des tags des fichiers (album, artiste). Aucun titre de la bibliothèque n\'en a pour l\'instant.';
+
+  @override
+  String get artistsEmptyTitle => 'Pas encore d\'artiste';
+
+  @override
+  String get artistsEmptyBody =>
+      'Les artistes viennent des tags des fichiers. Aucun titre de la bibliothèque n\'en a pour l\'instant.';
+
+  @override
+  String get albumOverline => 'Album';
+
+  @override
+  String get albumTracks => 'Titres de l\'album';
+
+  @override
+  String get artistTracks => 'Titres';
+
+  @override
+  String get groupMissing => 'Cet élément n\'est plus dans la bibliothèque.';
+
+  @override
+  String get playVerb => 'Lire';
 }

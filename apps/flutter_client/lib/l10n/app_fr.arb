@@ -126,5 +126,31 @@
   "closePlayer": "Réduire le lecteur",
   "showLyrics": "Afficher les paroles",
   "showCover": "Afficher la pochette",
-  "moreOptions": "Plus d'options"
+  "moreOptions": "Plus d'options",
+  "albumsCount": "{count, plural, =0{Aucun album} =1{1 album} other{{count} albums}}",
+  "@albumsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "artistsCount": "{count, plural, =0{Aucun artiste} =1{1 artiste} other{{count} artistes}}",
+  "@artistsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "artistsGrouping": "regroupés selon le tag « Artiste de l'album »",
+  "albumsEmptyTitle": "Pas encore d'album",
+  "albumsEmptyBody": "Les albums viennent des tags des fichiers (album, artiste). Aucun titre de la bibliothèque n'en a pour l'instant.",
+  "artistsEmptyTitle": "Pas encore d'artiste",
+  "artistsEmptyBody": "Les artistes viennent des tags des fichiers. Aucun titre de la bibliothèque n'en a pour l'instant.",
+  "albumOverline": "Album",
+  "albumTracks": "Titres de l'album",
+  "artistTracks": "Titres",
+  "groupMissing": "Cet élément n'est plus dans la bibliothèque.",
+  "playVerb": "Lire"
 }

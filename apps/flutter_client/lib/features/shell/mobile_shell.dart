@@ -216,6 +216,7 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
                   size: 48,
                   radius: MmRadius.md,
                   seed: entry?.seed ?? 0,
+                  imagePath: entry?.artwork,
                   shadow: false,
                 ),
                 const SizedBox(width: 10),

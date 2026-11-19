@@ -31,10 +31,17 @@ abstract interface class LibraryApi {
     required bool favoritesOnly,
     required int offset,
     required int limit,
+    String? album,
+    String? artist,
   });
+
+  /// Albums or artists, alphabetical.
+  Future<List<LibraryGroup>> groups(GroupKind kind);
   Future<void> setFavorite(int mediaId, {required bool favorite});
   Future<LibrarySummary> summary();
 }
+
+enum GroupKind { album, artist }
 
 class RustLibraryApi implements LibraryApi {
   RustLibraryApi(this._ref);
@@ -49,13 +56,21 @@ class RustLibraryApi implements LibraryApi {
     required bool favoritesOnly,
     required int offset,
     required int limit,
+    String? album,
+    String? artist,
   }) async => libraryTracks(
     dbPath: await _db,
     search: search,
     favoritesOnly: favoritesOnly,
+    album: album,
+    artist: artist,
     offset: offset,
     limit: limit,
   );
+
+  @override
+  Future<List<LibraryGroup>> groups(GroupKind kind) async =>
+      libraryGroups(dbPath: await _db, by: kind.name);
 
   @override
   Future<void> setFavorite(int mediaId, {required bool favorite}) async =>
@@ -89,4 +104,22 @@ QueueEntry queueEntryOf(LibraryItem item, {required String unknownArtist}) =>
           ? null
           : Duration(milliseconds: (item.durationSecs! * 1000).round()),
       format: item.format,
+      artwork: item.thumbnail,
     );
+
+extension LibraryItemCopy on LibraryItem {
+  LibraryItem withFavorite(bool value) => LibraryItem(
+    id: id,
+    title: title,
+    path: path,
+    isVideo: isVideo,
+    durationSecs: durationSecs,
+    artist: artist,
+    album: album,
+    format: format,
+    missing: missing,
+    favorite: value,
+    thumbnail: thumbnail,
+    trackNo: trackNo,
+  );
+}

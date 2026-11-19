@@ -19,6 +19,7 @@ class QueueEntry {
     this.album,
     this.duration,
     this.format,
+    this.artwork,
   });
 
   final MediaSource source;
@@ -32,6 +33,9 @@ class QueueEntry {
   /// Short technical label shown in Now playing ("FLAC").
   final String? format;
 
+  /// Cover image file, when the library has one.
+  final String? artwork;
+
   QueueEntry withFavorite(bool value) => QueueEntry(
     source: source,
     title: title,
@@ -41,6 +45,7 @@ class QueueEntry {
     album: album,
     duration: duration,
     format: format,
+    artwork: artwork,
   );
 
   /// Stable tint of the placeholder cover.

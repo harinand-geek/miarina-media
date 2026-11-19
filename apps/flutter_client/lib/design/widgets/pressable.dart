@@ -113,7 +113,10 @@ class _PressableState extends State<Pressable> {
       ),
     );
 
+    // Its own node: screen readers focus exactly this control, not the row
+    // or list item around it.
     body = Semantics(
+      container: true,
       button: true,
       enabled: _enabled,
       selected: widget.selected,

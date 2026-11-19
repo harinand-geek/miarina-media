@@ -19,21 +19,33 @@ Future<LibrarySummary> librarySummary({
   limit: limit,
 );
 
-/// A page of audio tracks sorted by title; `search` uses the library's
-/// full-text index (accent-insensitive), empty = everything.
+/// A page of audio tracks sorted by title (by disc and track within an
+/// album); `search` uses the library's full-text index (accent-insensitive),
+/// empty = everything. `album` / `artist` narrow to one group.
 Future<LibraryPage> libraryTracks({
   required String dbPath,
   required String search,
   required bool favoritesOnly,
+  String? album,
+  String? artist,
   required int offset,
   required int limit,
 }) => RustLib.instance.api.crateApiLibraryLibraryTracks(
   dbPath: dbPath,
   search: search,
   favoritesOnly: favoritesOnly,
+  album: album,
+  artist: artist,
   offset: offset,
   limit: limit,
 );
+
+/// Albums (`by` = "album") or artists ("artist") of the music library,
+/// alphabetical; files reported missing are left out.
+Future<List<LibraryGroup>> libraryGroups({
+  required String dbPath,
+  required String by,
+}) => RustLib.instance.api.crateApiLibraryLibraryGroups(dbPath: dbPath, by: by);
 
 /// Marks or unmarks a library entry as a favorite.
 Future<void> librarySetFavorite({
@@ -61,6 +73,48 @@ Future<PlatformInt64> libraryAddFile({
   sizeBytes: sizeBytes,
 );
 
+/// One album or artist of the music library.
+class LibraryGroup {
+  final String name;
+
+  /// Album artist (albums) or number of albums (artists).
+  final String? detail;
+  final BigInt count;
+  final double durationSecs;
+  final int? year;
+  final String? thumbnail;
+
+  const LibraryGroup({
+    required this.name,
+    this.detail,
+    required this.count,
+    required this.durationSecs,
+    this.year,
+    this.thumbnail,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^
+      detail.hashCode ^
+      count.hashCode ^
+      durationSecs.hashCode ^
+      year.hashCode ^
+      thumbnail.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibraryGroup &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          detail == other.detail &&
+          count == other.count &&
+          durationSecs == other.durationSecs &&
+          year == other.year &&
+          thumbnail == other.thumbnail;
+}
+
 class LibraryItem {
   final PlatformInt64 id;
   final String title;
@@ -75,6 +129,10 @@ class LibraryItem {
   final bool missing;
   final bool favorite;
 
+  /// Absolute path of the cover / thumbnail JPEG, when one exists.
+  final String? thumbnail;
+  final int? trackNo;
+
   const LibraryItem({
     required this.id,
     required this.title,
@@ -86,6 +144,8 @@ class LibraryItem {
     this.format,
     required this.missing,
     required this.favorite,
+    this.thumbnail,
+    this.trackNo,
   });
 
   @override
@@ -99,7 +159,9 @@ class LibraryItem {
       album.hashCode ^
       format.hashCode ^
       missing.hashCode ^
-      favorite.hashCode;
+      favorite.hashCode ^
+      thumbnail.hashCode ^
+      trackNo.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -115,7 +177,9 @@ class LibraryItem {
           album == other.album &&
           format == other.format &&
           missing == other.missing &&
-          favorite == other.favorite;
+          favorite == other.favorite &&
+          thumbnail == other.thumbnail &&
+          trackNo == other.trackNo;
 }
 
 class LibraryPage {

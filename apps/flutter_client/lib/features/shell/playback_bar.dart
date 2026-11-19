@@ -73,6 +73,7 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
               size: 52,
               radius: MmRadius.md,
               seed: entry?.seed ?? 0,
+              imagePath: entry?.artwork,
               shadow: entry != null,
             ),
           ),

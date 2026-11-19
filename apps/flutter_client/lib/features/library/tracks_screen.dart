@@ -14,6 +14,8 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart';
 import '../playback/playback.dart';
+import '../../app/router.dart';
+import 'groups.dart';
 import 'library_data.dart';
 
 /// W-M1c Titres: every audio track of the library, sorted by title, in a
@@ -110,18 +112,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         .setFavorite(item.id, favorite: !item.favorite);
     if (!mounted) return;
     setState(() {
-      _items[index] = LibraryItem(
-        id: item.id,
-        title: item.title,
-        path: item.path,
-        isVideo: item.isVideo,
-        durationSecs: item.durationSecs,
-        artist: item.artist,
-        album: item.album,
-        format: item.format,
-        missing: item.missing,
-        favorite: !item.favorite,
-      );
+      _items[index] = item.withFavorite(!item.favorite);
     });
   }
 
@@ -235,6 +226,8 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             style: MmType.bodySm.copyWith(color: c.muted),
           ),
         ),
+        const MusicChips(current: Routes.tracks),
+        const SizedBox(height: 10),
         SizedBox(
           height: 34,
           child: ListView(

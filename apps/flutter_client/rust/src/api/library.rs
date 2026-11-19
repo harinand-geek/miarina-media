@@ -2,7 +2,7 @@ use std::path::Path;
 use std::sync::Mutex;
 
 use anyhow::{Result, anyhow};
-use storage::{MediaKind, MediaQuery, MediaRecord, MediaSort, NewMedia, Storage};
+use storage::{GroupBy, MediaKind, MediaQuery, MediaRecord, MediaSort, NewMedia, Storage};
 
 pub struct LibraryItem {
     pub id: i64,
@@ -16,6 +16,20 @@ pub struct LibraryItem {
     pub format: Option<String>,
     pub missing: bool,
     pub favorite: bool,
+    /// Absolute path of the cover / thumbnail JPEG, when one exists.
+    pub thumbnail: Option<String>,
+    pub track_no: Option<u32>,
+}
+
+/// One album or artist of the music library.
+pub struct LibraryGroup {
+    pub name: String,
+    /// Album artist (albums) or number of albums (artists).
+    pub detail: Option<String>,
+    pub count: u64,
+    pub duration_secs: f64,
+    pub year: Option<i32>,
+    pub thumbnail: Option<String>,
 }
 
 pub struct LibrarySummary {
@@ -65,6 +79,8 @@ fn item(m: MediaRecord) -> LibraryItem {
         format,
         missing: m.missing,
         favorite: m.favorite,
+        thumbnail: m.thumbnail,
+        track_no: m.track_no,
     }
 }
 
@@ -73,26 +89,36 @@ fn item(m: MediaRecord) -> LibraryItem {
 pub fn library_summary(db_path: String, limit: u32) -> Result<LibrarySummary> {
     with_db(&db_path, |db| {
         let stats = db.media_stats()?;
-        let page = db.query_media(&MediaQuery {
-            limit: limit.min(200),
-            ..MediaQuery::default()
-        })?;
+        // A query limit of 0 means "the maximum page" to the core: counters
+        // alone must not load any row.
+        let items = if limit == 0 {
+            Vec::new()
+        } else {
+            db.query_media(&MediaQuery {
+                limit: limit.min(200),
+                ..MediaQuery::default()
+            })?
+            .items
+        };
         Ok(LibrarySummary {
             schema_version: db.schema_version()?,
             total: stats.count,
             audio_count: stats.audio_count,
             video_count: stats.video_count,
-            items: page.items.into_iter().map(item).collect(),
+            items: items.into_iter().map(item).collect(),
         })
     })
 }
 
-/// A page of audio tracks sorted by title; `search` uses the library's
-/// full-text index (accent-insensitive), empty = everything.
+/// A page of audio tracks sorted by title (by disc and track within an
+/// album); `search` uses the library's full-text index (accent-insensitive),
+/// empty = everything. `album` / `artist` narrow to one group.
 pub fn library_tracks(
     db_path: String,
     search: String,
     favorites_only: bool,
+    album: Option<String>,
+    artist: Option<String>,
     offset: u32,
     limit: u32,
 ) -> Result<LibraryPage> {
@@ -101,6 +127,8 @@ pub fn library_tracks(
             search,
             kind: Some(MediaKind::Audio),
             favorites: favorites_only,
+            album,
+            artist,
             sort: MediaSort::Title,
             offset,
             limit: limit.clamp(1, 500),
@@ -110,6 +138,30 @@ pub fn library_tracks(
             items: page.items.into_iter().map(item).collect(),
             total: page.total,
         })
+    })
+}
+
+/// Albums (`by` = "album") or artists ("artist") of the music library,
+/// alphabetical; files reported missing are left out.
+pub fn library_groups(db_path: String, by: String) -> Result<Vec<LibraryGroup>> {
+    let by = match by.as_str() {
+        "album" => GroupBy::Album,
+        "artist" => GroupBy::Artist,
+        other => return Err(anyhow!("unknown grouping: {other}")),
+    };
+    with_db(&db_path, |db| {
+        Ok(db
+            .media_groups(by)?
+            .into_iter()
+            .map(|g| LibraryGroup {
+                name: g.name,
+                detail: g.detail,
+                count: g.count,
+                duration_secs: g.duration_secs,
+                year: g.year,
+                thumbnail: g.thumbnail,
+            })
+            .collect())
     })
 }
 

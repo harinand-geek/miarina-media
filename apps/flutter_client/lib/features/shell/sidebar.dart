@@ -159,7 +159,12 @@ class Sidebar extends ConsumerWidget {
                   for (final e in entries)
                     _NavItem(
                       entry: e,
-                      active: location == e.route,
+                      active:
+                          location == e.route ||
+                          // Album and artist pages keep their list lit.
+                          ((e.route == Routes.albums ||
+                                  e.route == Routes.artists) &&
+                              location.startsWith('${e.route}/')),
                       collapsed: collapsed,
                     ),
                 ],

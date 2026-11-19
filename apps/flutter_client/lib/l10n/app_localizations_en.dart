@@ -325,4 +325,60 @@ class L10nEn extends L10n {
 
   @override
   String get moreOptions => 'More options';
+
+  @override
+  String albumsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count albums',
+      one: '1 album',
+      zero: 'No albums',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String artistsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count artists',
+      one: '1 artist',
+      zero: 'No artists',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get artistsGrouping => 'grouped by the “Album artist” tag';
+
+  @override
+  String get albumsEmptyTitle => 'No albums yet';
+
+  @override
+  String get albumsEmptyBody =>
+      'Albums come from the files\' tags (album, artist). No track of the library has them yet.';
+
+  @override
+  String get artistsEmptyTitle => 'No artists yet';
+
+  @override
+  String get artistsEmptyBody =>
+      'Artists come from the files\' tags. No track of the library has them yet.';
+
+  @override
+  String get albumOverline => 'Album';
+
+  @override
+  String get albumTracks => 'Album tracks';
+
+  @override
+  String get artistTracks => 'Tracks';
+
+  @override
+  String get groupMissing => 'This item is no longer in the library.';
+
+  @override
+  String get playVerb => 'Play';
 }
