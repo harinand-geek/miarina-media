@@ -31,9 +31,8 @@ class MpvEngine implements MediaEngine {
     embeddedSubtitles: true,
     externalSubtitles: true,
     assSubtitles: true,
-    // media_kit does not expose the chapter list; libmpv has it, but until an
-    // adapter reads it the interface must not offer chapters.
-    chapters: false,
+    // Read from libmpv's chapter-list once the file is loaded.
+    chapters: true,
     equalizer: true,
     backgroundPlayback: true,
   );
@@ -86,7 +85,9 @@ class MpvEngine implements MediaEngine {
       )
       ..add(
         s.duration.listen((d) {
+          final loaded = d > Duration.zero && _state.duration == Duration.zero;
           _state = _state.copyWith(duration: d);
+          if (loaded) unawaited(_refreshChapters());
           if (d > Duration.zero && _recoverIfPlaying()) return;
           _emit(_state);
         }),
@@ -165,6 +166,32 @@ class MpvEngine implements MediaEngine {
         next.selectedSubtitle != _state.selectedSubtitle) {
       _emit(next);
     }
+  }
+
+  /// Chapters of the loaded file (MKV, MP4 / M4B, Ogg chapter marks), at
+  /// most 500.
+  Future<void> _refreshChapters() async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return;
+    final source = _state.source;
+    final count = int.tryParse(await native.getProperty('chapter-list/count'));
+    final chapters = <ChapterInfo>[];
+    for (var i = 0; i < (count ?? 0).clamp(0, 500); i++) {
+      final time = double.tryParse(
+        await native.getProperty('chapter-list/$i/time'),
+      );
+      if (time == null) continue;
+      final title = await native.getProperty('chapter-list/$i/title');
+      chapters.add(
+        ChapterInfo(
+          start: Duration(milliseconds: (time * 1000).round()),
+          title: title.trim().isEmpty ? null : title.trim(),
+        ),
+      );
+    }
+    // Another file may have been opened meanwhile.
+    if (!identical(source, _state.source)) return;
+    _emit(_state.copyWith(chapters: chapters));
   }
 
   PlaybackStatus _pausedOrEnded() => _state.status == PlaybackStatus.ended

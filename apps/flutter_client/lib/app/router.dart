@@ -10,6 +10,8 @@ import '../features/cinema/personal_videos_screen.dart';
 import '../features/cinema/series_screen.dart';
 import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
+import '../features/focus/focus_player.dart';
+import '../features/focus/focus_screen.dart';
 import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
 import '../features/library/group_screen.dart';
@@ -35,6 +37,8 @@ abstract final class Routes {
   static const watch = '/listen/cinema/watch';
   static const personalVideos = '/listen/cinema/personal';
   static const focus = '/listen/focus';
+  static const focusProgram = '/listen/focus/program';
+  static const focusPlayer = '/listen/focus/player';
   static const audiobooks = '/listen/focus/books';
   static const get = '/get';
   static const settings = '/settings';
@@ -81,6 +85,13 @@ final routerProvider = Provider<GoRouter>((ref) {
       ),
       // A-04: the Android video page covers the tabs; Windows keeps the
       // sidebar (W-C3), so the route sits in the shell there.
+      // A-F2: the Android long-format player also covers the tabs.
+      if (!desktop)
+        GoRoute(
+          path: Routes.focusPlayer,
+          pageBuilder: (context, state) =>
+              _ScreenPage(key: state.pageKey, child: const FocusPlayerScreen()),
+        ),
       if (!desktop)
         GoRoute(
           path: Routes.watch,
@@ -148,8 +159,22 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           if (desktop) screen(Routes.watch, () => const WatchScreen()),
           screen(Routes.personalVideos, () => const PersonalVideosScreen()),
-          screen(Routes.focus, () => const ComingSoon(screenId: 'W-F1')),
-          screen(Routes.audiobooks, () => const ComingSoon(screenId: 'W-F1')),
+          screen(Routes.focus, () => const FocusScreen()),
+          screen(
+            Routes.audiobooks,
+            () => const FocusScreen(initial: FocusFilter.books),
+          ),
+          GoRoute(
+            path: Routes.focusProgram,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: FocusProgramScreen(
+                name: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
+          ),
+          if (desktop)
+            screen(Routes.focusPlayer, () => const FocusPlayerScreen()),
           screen(Routes.get, () => const ComingSoon(screenId: 'Obtenir')),
           screen(Routes.settings, () => const ComingSoon(screenId: 'W-S1')),
         ],

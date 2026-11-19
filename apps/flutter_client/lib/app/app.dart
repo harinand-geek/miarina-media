@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/theme.dart';
 import '../design/tokens.dart';
+import '../features/focus/focus_data.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
 
@@ -11,6 +12,8 @@ class MiarinaApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // Remembered Focus speeds follow what plays, whichever screen started it.
+    ref.watch(focusSpeedProvider);
     return MaterialApp.router(
       title: 'Miarina Media',
       debugShowCheckedModeBanner: false,

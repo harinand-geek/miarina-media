@@ -191,8 +191,13 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
   final _cover = GlobalKey();
 
   void _open() {
-    if (ref.read(queueProvider).current?.isVideo ?? false) {
+    final current = ref.read(queueProvider).current;
+    if (current?.isVideo ?? false) {
       context.push(Routes.watch);
+      return;
+    }
+    if (current?.focusKey != null) {
+      context.push(Routes.focusPlayer);
       return;
     }
     ref.read(coverOriginProvider.notifier).capture(_cover);

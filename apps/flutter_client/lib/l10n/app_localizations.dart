@@ -1164,6 +1164,246 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Aucune vidéo en cours'**
   String get videoUnavailable;
+
+  /// No description provided for @podcastsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun podcast} =1{1 podcast} other{{count} podcasts}}'**
+  String podcastsCount(int count);
+
+  /// No description provided for @coursesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun cours} =1{1 cours} other{{count} cours}}'**
+  String coursesCount(int count);
+
+  /// No description provided for @audiobooksCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun livre audio} =1{1 livre audio} other{{count} livres audio}}'**
+  String audiobooksCount(int count);
+
+  /// No description provided for @hoursTotal.
+  ///
+  /// In fr, this message translates to:
+  /// **'{hours} h'**
+  String hoursTotal(int hours);
+
+  /// No description provided for @segPodcasts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Podcasts'**
+  String get segPodcasts;
+
+  /// No description provided for @segCourses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours'**
+  String get segCourses;
+
+  /// No description provided for @segBooks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livres audio'**
+  String get segBooks;
+
+  /// No description provided for @focusInProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get focusInProgress;
+
+  /// No description provided for @focusLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque'**
+  String get focusLibrary;
+
+  /// No description provided for @kindPodcast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Podcast'**
+  String get kindPodcast;
+
+  /// No description provided for @kindCourse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cours'**
+  String get kindCourse;
+
+  /// No description provided for @kindAudiobook.
+  ///
+  /// In fr, this message translates to:
+  /// **'Livre audio'**
+  String get kindAudiobook;
+
+  /// No description provided for @episodesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 épisode} other{{count} épisodes}}'**
+  String episodesCount(int count);
+
+  /// No description provided for @lessonsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 leçon} other{{count} leçons}}'**
+  String lessonsCount(int count);
+
+  /// No description provided for @partsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 partie} other{{count} parties}}'**
+  String partsCount(int count);
+
+  /// No description provided for @leftAtRate.
+  ///
+  /// In fr, this message translates to:
+  /// **'reste {left} à {rate}'**
+  String leftAtRate(String left, String rate);
+
+  /// No description provided for @focusOrderHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ordre lu depuis les numéros des fichiers (01, 02…) ou les tags.'**
+  String get focusOrderHint;
+
+  /// No description provided for @focusEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun podcast, cours ou livre audio'**
+  String get focusEmptyTitle;
+
+  /// No description provided for @focusEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fichier audio rejoint Focus par son genre (Podcast, Cours, Livre audio), par un dossier nommé Podcasts, Cours ou Livres audio, ou s\'il est au format .m4b.'**
+  String get focusEmptyBody;
+
+  /// No description provided for @focusNoMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien dans cette catégorie pour l\'instant.'**
+  String get focusNoMatch;
+
+  /// No description provided for @programPosition.
+  ///
+  /// In fr, this message translates to:
+  /// **'{kind} {number} sur {total}'**
+  String programPosition(String kind, int number, int total);
+
+  /// No description provided for @estimatedEnd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin estimée {time} à {rate}'**
+  String estimatedEnd(String time, String rate);
+
+  /// No description provided for @forward30.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancer de 30 s'**
+  String get forward30;
+
+  /// No description provided for @bookmark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signet'**
+  String get bookmark;
+
+  /// No description provided for @bookmarkAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un signet (B)'**
+  String get bookmarkAdd;
+
+  /// No description provided for @bookmarks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signets'**
+  String get bookmarks;
+
+  /// No description provided for @bookmarkNoNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signet sans note'**
+  String get bookmarkNoNote;
+
+  /// No description provided for @bookmarksEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun signet pour l\'instant.'**
+  String get bookmarksEmpty;
+
+  /// No description provided for @bookmarksHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'B ajoute un signet à la position courante.'**
+  String get bookmarksHint;
+
+  /// No description provided for @bookmarkRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer le signet'**
+  String get bookmarkRemove;
+
+  /// No description provided for @chaptersNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier n\'a pas de chapitres.'**
+  String get chaptersNone;
+
+  /// No description provided for @transcript.
+  ///
+  /// In fr, this message translates to:
+  /// **'Texte'**
+  String get transcript;
+
+  /// No description provided for @futureBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'FUTUR'**
+  String get futureBadge;
+
+  /// No description provided for @transcriptTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Transcription — fonction future'**
+  String get transcriptTitle;
+
+  /// No description provided for @transcriptBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fichier .txt ou .vtt du même nom placé à côté du fichier est affiché ici. La génération locale et la recherche dans les transcriptions viendront plus tard.'**
+  String get transcriptBody;
+
+  /// No description provided for @sleepEndOfChapter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minuteur : fin du chapitre'**
+  String get sleepEndOfChapter;
+
+  /// No description provided for @sleepEndOfEpisode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minuteur : fin du fichier'**
+  String get sleepEndOfEpisode;
+
+  /// No description provided for @skipSilence.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sauter les silences'**
+  String get skipSilence;
+
+  /// No description provided for @voiceBoost.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix renforcée'**
+  String get voiceBoost;
+
+  /// No description provided for @p1Later.
+  ///
+  /// In fr, this message translates to:
+  /// **'pour les deux dernières'**
+  String get p1Later;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

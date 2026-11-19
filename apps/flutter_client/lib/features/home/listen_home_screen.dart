@@ -9,8 +9,8 @@ import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
-import '../../src/rust/api/library.dart';
 import '../cinema/cinema_screen.dart';
+import '../focus/focus_data.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/lyrics_view.dart';
@@ -134,8 +134,11 @@ class _Link extends StatelessWidget {
   }
 }
 
-String _kindLabel(L10n t, LibraryItem i) =>
-    i.isVideo ? t.tabCinema : t.tabMusic;
+String _kindLabel(L10n t, ResumeItem r) => r.item.isVideo
+    ? t.tabCinema
+    : r.focus != null
+    ? t.tabFocus
+    : t.tabMusic;
 
 /// Resumes [r]; a video opens its player (W-C3 / A-04), an episode with
 /// the rest of its series after it.
@@ -146,8 +149,19 @@ Future<void> _resume(
   ResumeItem r,
 ) async {
   final video = r.video;
+  final focus = r.focus;
   if (video != null) {
     await playVideo(ref, t, video);
+  } else if (focus != null) {
+    final items = await ref.read(focusProgramProvider(focus.program).future);
+    final i = items.indexWhere((f) => f.item.id == focus.item.id);
+    await playFocus(
+      ref.read(queueProvider.notifier),
+      i < 0 ? [focus] : items,
+      start: i < 0 ? 0 : i,
+    );
+    if (context.mounted) context.push(Routes.focusPlayer);
+    return;
   } else {
     await ref.read(queueProvider.notifier).playAll([
       queueEntryOf(r.item, unknownArtist: t.unknownArtist),
@@ -283,7 +297,7 @@ class _ResumePage extends ConsumerWidget {
                         ),
                         const SizedBox(width: 6),
                         Text(
-                          t.homeResumeKind(_kindLabel(t, i)),
+                          t.homeResumeKind(_kindLabel(t, r)),
                           style: MmType.captionStrong.copyWith(
                             fontSize: 12.5,
                             color: c.coralStrong,

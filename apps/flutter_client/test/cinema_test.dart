@@ -9,6 +9,7 @@ import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/cinema/watch_screen.dart';
+import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
@@ -175,6 +176,7 @@ void main() {
             cinemaApiProvider.overrideWithValue(
               FakeCinemaApi([e1, e2, e3, film, clip]),
             ),
+            focusApiProvider.overrideWithValue(FakeFocusApi()),
             desktopShellProvider.overrideWithValue(desktop),
             settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
             lyricsLoaderProvider.overrideWithValue((_) async => null),
@@ -231,6 +233,22 @@ void main() {
       expect(find.text('Vidéos perso'), findsOneWidget);
       expect(find.text('Chapitres'), findsOneWidget);
       expect(find.text('Le Dernier Ferry'), findsOneWidget);
+      // Chapters read by the engine are listed; a click seeks there.
+      engine.emit(
+        engine.current.copyWith(
+          chapters: const [
+            ChapterInfo(start: Duration.zero, title: 'Ouverture'),
+            ChapterInfo(
+              start: Duration(minutes: 6, seconds: 40),
+              title: 'Le marché',
+            ),
+          ],
+        ),
+      );
+      await settle(tester);
+      await tester.tap(find.text('Le marché'));
+      await settle(tester);
+      expect(engine.seeks.last, const Duration(minutes: 6, seconds: 40));
     });
 
     testWidgets('series page: explicit resume, from the start, episodes', (

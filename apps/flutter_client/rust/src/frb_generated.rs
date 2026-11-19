@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 637028906;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1903073563;
 
 // Section: executor
 
@@ -147,6 +147,113 @@ fn wire__crate__api__cinema__cinema_series_impl(
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
                         let output_ok = crate::api::cinema::cinema_series(api_db_path, api_name)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__focus__focus_entry_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "focus_entry",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            let api_media_id = <i64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::focus::focus_entry(api_db_path, api_media_id)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__focus__focus_library_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "focus_library",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::focus::focus_library(api_db_path)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__focus__focus_program_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "focus_program",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            let api_name = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::focus::focus_program(api_db_path, api_name)?;
                         std::result::Result::Ok(output_ok)
                     })(),
                 )
@@ -827,6 +934,79 @@ impl SseDecode for f64 {
     }
 }
 
+impl SseDecode for crate::api::focus::FocusItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_item = <crate::api::library::LibraryItem>::sse_decode(deserializer);
+        let mut var_kind = <crate::api::focus::FocusKind>::sse_decode(deserializer);
+        let mut var_program = <String>::sse_decode(deserializer);
+        let mut var_number = <u32>::sse_decode(deserializer);
+        let mut var_of = <u32>::sse_decode(deserializer);
+        let mut var_addedAt = <i64>::sse_decode(deserializer);
+        return crate::api::focus::FocusItem {
+            item: var_item,
+            kind: var_kind,
+            program: var_program,
+            number: var_number,
+            of: var_of,
+            added_at: var_addedAt,
+        };
+    }
+}
+
+impl SseDecode for crate::api::focus::FocusKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::focus::FocusKind::Podcast,
+            1 => crate::api::focus::FocusKind::Course,
+            2 => crate::api::focus::FocusKind::Audiobook,
+            _ => unreachable!("Invalid variant for FocusKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::focus::FocusLibrary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_programs = <Vec<crate::api::focus::FocusProgram>>::sse_decode(deserializer);
+        let mut var_podcastCount = <u32>::sse_decode(deserializer);
+        let mut var_courseCount = <u32>::sse_decode(deserializer);
+        let mut var_audiobookCount = <u32>::sse_decode(deserializer);
+        let mut var_durationSecs = <f64>::sse_decode(deserializer);
+        return crate::api::focus::FocusLibrary {
+            programs: var_programs,
+            podcast_count: var_podcastCount,
+            course_count: var_courseCount,
+            audiobook_count: var_audiobookCount,
+            duration_secs: var_durationSecs,
+        };
+    }
+}
+
+impl SseDecode for crate::api::focus::FocusProgram {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_kind = <crate::api::focus::FocusKind>::sse_decode(deserializer);
+        let mut var_artist = <Option<String>>::sse_decode(deserializer);
+        let mut var_count = <u32>::sse_decode(deserializer);
+        let mut var_durationSecs = <f64>::sse_decode(deserializer);
+        let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
+        let mut var_latestAdded = <i64>::sse_decode(deserializer);
+        return crate::api::focus::FocusProgram {
+            name: var_name,
+            kind: var_kind,
+            artist: var_artist,
+            count: var_count,
+            duration_secs: var_durationSecs,
+            thumbnail: var_thumbnail,
+            latest_added: var_latestAdded,
+        };
+    }
+}
+
 impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -961,6 +1141,30 @@ impl SseDecode for Vec<crate::api::browser_spike::DetectedMediaItem> {
     }
 }
 
+impl SseDecode for Vec<crate::api::focus::FocusItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::focus::FocusItem>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::focus::FocusProgram> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::focus::FocusProgram>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::library::LibraryGroup> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1052,6 +1256,17 @@ impl SseDecode for Option<f64> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<f64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::focus::FocusItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::focus::FocusItem>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1220,22 +1435,25 @@ fn pde_ffi_dispatcher_primary_impl(
         1 => wire__crate__api__cinema__cinema_item_impl(port, ptr, rust_vec_len, data_len),
         2 => wire__crate__api__cinema__cinema_library_impl(port, ptr, rust_vec_len, data_len),
         3 => wire__crate__api__cinema__cinema_series_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__library__init_app_impl(port, ptr, rust_vec_len, data_len),
-        5 => wire__crate__api__library__library_add_file_impl(port, ptr, rust_vec_len, data_len),
-        6 => wire__crate__api__library__library_groups_impl(port, ptr, rust_vec_len, data_len),
-        7 => wire__crate__api__library__library_item_impl(port, ptr, rust_vec_len, data_len),
-        8 => {
+        4 => wire__crate__api__focus__focus_entry_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__focus__focus_library_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__focus__focus_program_impl(port, ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__library__init_app_impl(port, ptr, rust_vec_len, data_len),
+        8 => wire__crate__api__library__library_add_file_impl(port, ptr, rust_vec_len, data_len),
+        9 => wire__crate__api__library__library_groups_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__library__library_item_impl(port, ptr, rust_vec_len, data_len),
+        11 => {
             wire__crate__api__library__library_item_by_path_impl(port, ptr, rust_vec_len, data_len)
         }
-        9 => {
+        12 => {
             wire__crate__api__library__library_set_favorite_impl(port, ptr, rust_vec_len, data_len)
         }
-        10 => wire__crate__api__library__library_summary_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__library__library_tracks_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
-        13 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
-        14 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
-        15 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__library__library_summary_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__library__library_tracks_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
+        16 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
+        17 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1248,15 +1466,15 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        16 => {
+        19 => {
             wire__crate__api__browser_spike__webview_spike_close_impl(ptr, rust_vec_len, data_len)
         }
-        17 => wire__crate__api__browser_spike__webview_spike_detections_impl(
+        20 => wire__crate__api__browser_spike__webview_spike_detections_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        18 => wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len),
+        21 => wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -1359,6 +1577,97 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::browser_spike::DetectedMediaI
     for crate::api::browser_spike::DetectedMediaItem
 {
     fn into_into_dart(self) -> crate::api::browser_spike::DetectedMediaItem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::focus::FocusItem {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.item.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.program.into_into_dart().into_dart(),
+            self.number.into_into_dart().into_dart(),
+            self.of.into_into_dart().into_dart(),
+            self.added_at.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::focus::FocusItem {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::focus::FocusItem>
+    for crate::api::focus::FocusItem
+{
+    fn into_into_dart(self) -> crate::api::focus::FocusItem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::focus::FocusKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Podcast => 0.into_dart(),
+            Self::Course => 1.into_dart(),
+            Self::Audiobook => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::api::focus::FocusKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::focus::FocusKind>
+    for crate::api::focus::FocusKind
+{
+    fn into_into_dart(self) -> crate::api::focus::FocusKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::focus::FocusLibrary {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.programs.into_into_dart().into_dart(),
+            self.podcast_count.into_into_dart().into_dart(),
+            self.course_count.into_into_dart().into_dart(),
+            self.audiobook_count.into_into_dart().into_dart(),
+            self.duration_secs.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::focus::FocusLibrary
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::focus::FocusLibrary>
+    for crate::api::focus::FocusLibrary
+{
+    fn into_into_dart(self) -> crate::api::focus::FocusLibrary {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::focus::FocusProgram {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.artist.into_into_dart().into_dart(),
+            self.count.into_into_dart().into_dart(),
+            self.duration_secs.into_into_dart().into_dart(),
+            self.thumbnail.into_into_dart().into_dart(),
+            self.latest_added.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::focus::FocusProgram
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::focus::FocusProgram>
+    for crate::api::focus::FocusProgram
+{
+    fn into_into_dart(self) -> crate::api::focus::FocusProgram {
         self
     }
 }
@@ -1619,6 +1928,59 @@ impl SseEncode for f64 {
     }
 }
 
+impl SseEncode for crate::api::focus::FocusItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::library::LibraryItem>::sse_encode(self.item, serializer);
+        <crate::api::focus::FocusKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.program, serializer);
+        <u32>::sse_encode(self.number, serializer);
+        <u32>::sse_encode(self.of, serializer);
+        <i64>::sse_encode(self.added_at, serializer);
+    }
+}
+
+impl SseEncode for crate::api::focus::FocusKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::focus::FocusKind::Podcast => 0,
+                crate::api::focus::FocusKind::Course => 1,
+                crate::api::focus::FocusKind::Audiobook => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::focus::FocusLibrary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::focus::FocusProgram>>::sse_encode(self.programs, serializer);
+        <u32>::sse_encode(self.podcast_count, serializer);
+        <u32>::sse_encode(self.course_count, serializer);
+        <u32>::sse_encode(self.audiobook_count, serializer);
+        <f64>::sse_encode(self.duration_secs, serializer);
+    }
+}
+
+impl SseEncode for crate::api::focus::FocusProgram {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <crate::api::focus::FocusKind>::sse_encode(self.kind, serializer);
+        <Option<String>>::sse_encode(self.artist, serializer);
+        <u32>::sse_encode(self.count, serializer);
+        <f64>::sse_encode(self.duration_secs, serializer);
+        <Option<String>>::sse_encode(self.thumbnail, serializer);
+        <i64>::sse_encode(self.latest_added, serializer);
+    }
+}
+
 impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1712,6 +2074,26 @@ impl SseEncode for Vec<crate::api::browser_spike::DetectedMediaItem> {
     }
 }
 
+impl SseEncode for Vec<crate::api::focus::FocusItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::focus::FocusItem>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::focus::FocusProgram> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::focus::FocusProgram>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::library::LibraryGroup> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1788,6 +2170,16 @@ impl SseEncode for Option<f64> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <f64>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::focus::FocusItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::focus::FocusItem>::sse_encode(value, serializer);
         }
     }
 }

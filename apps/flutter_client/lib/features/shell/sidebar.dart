@@ -169,7 +169,11 @@ class Sidebar extends ConsumerWidget {
                           // séries.
                           (e.route == Routes.cinema &&
                               (location == Routes.series ||
-                                  location == Routes.watch)),
+                                  location == Routes.watch)) ||
+                          // The Focus player and program pages too.
+                          (e.route == Routes.focus &&
+                              (location == Routes.focusPlayer ||
+                                  location == Routes.focusProgram)),
                       collapsed: collapsed,
                     ),
                 ],

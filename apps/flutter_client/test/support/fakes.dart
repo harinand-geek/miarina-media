@@ -3,10 +3,12 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
+import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/cinema.dart';
+import 'package:miarina_media/src/rust/api/focus.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
 
 class FakePlaybackStore implements PlaybackStore {
@@ -80,6 +82,8 @@ class FakeEngine implements MediaEngine {
         source: media,
         duration: const Duration(minutes: 4),
         position: startAt ?? Duration.zero,
+        // Like libmpv and Media3, the speed carries over to the next file.
+        speed: _state.speed,
       ),
     );
   }
@@ -345,4 +349,75 @@ class FakeCinemaApi implements CinemaApi {
   @override
   Future<CinemaItem?> item(int id) async =>
       videos.where((v) => v.item.id == id).firstOrNull;
+}
+
+FocusItem lesson(
+  int id,
+  String title, {
+  FocusKind kind = FocusKind.course,
+  String program = 'Architecture des systèmes',
+  int number = 1,
+  int of = 1,
+  double minutes = 84,
+}) => FocusItem(
+  item: LibraryItem(
+    id: id,
+    title: title,
+    path: 'D:/Cours/$program/$title.mp3',
+    isVideo: false,
+    durationSecs: minutes * 60,
+    format: 'MP3',
+    missing: false,
+    favorite: false,
+  ),
+  kind: kind,
+  program: program,
+  number: number,
+  of: of,
+  addedAt: id,
+);
+
+/// Focus library built from classified items, like the core.
+class FakeFocusApi implements FocusApi {
+  FakeFocusApi([this.items = const []]);
+
+  final List<FocusItem> items;
+
+  @override
+  Future<FocusLibrary> library() async {
+    final names = <String, FocusItem>{};
+    for (final f in items) {
+      names.putIfAbsent(f.program, () => f);
+    }
+    final sorted = names.keys.toList()..sort();
+    int count(FocusKind k) => sorted.where((n) => names[n]!.kind == k).length;
+    return FocusLibrary(
+      programs: [
+        for (final n in sorted)
+          FocusProgram(
+            name: n,
+            kind: names[n]!.kind,
+            artist: 'Pr. Andry',
+            count: items.where((f) => f.program == n).length,
+            durationSecs: items
+                .where((f) => f.program == n)
+                .fold(0.0, (t, f) => t + (f.item.durationSecs ?? 0)),
+            latestAdded: 0,
+          ),
+      ],
+      podcastCount: count(FocusKind.podcast),
+      courseCount: count(FocusKind.course),
+      audiobookCount: count(FocusKind.audiobook),
+      durationSecs: items.fold(0.0, (t, f) => t + (f.item.durationSecs ?? 0)),
+    );
+  }
+
+  @override
+  Future<List<FocusItem>> program(String name) async =>
+      items.where((f) => f.program.toLowerCase() == name.toLowerCase()).toList()
+        ..sort((a, b) => a.number.compareTo(b.number));
+
+  @override
+  Future<FocusItem?> entry(int id) async =>
+      items.where((f) => f.item.id == id).firstOrNull;
 }

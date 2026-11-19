@@ -71,8 +71,12 @@ class WatchState {
   bool isSeen(int id) => seen.contains(id);
 }
 
-final watchStateProvider = FutureProvider<WatchState>((ref) async {
-  // Recomputed when another video starts; screens also refresh it when the
+/// Watched / started state of one kind of media ('video' or 'audio').
+final playStateProvider = FutureProvider.family<WatchState, String>((
+  ref,
+  kind,
+) async {
+  // Recomputed when another item starts; screens also refresh it when a
   // player closes.
   ref.watch(queueProvider.select((q) => q.current?.libraryId));
   final memory = ref.watch(playbackMemoryProvider);
@@ -80,7 +84,7 @@ final watchStateProvider = FutureProvider<WatchState>((ref) async {
   final resume = <int, Duration>{};
   final seen = <int>{};
   final recent = <int>[];
-  for (final e in history.where((e) => e.kind == 'video')) {
+  for (final e in history.where((e) => e.kind == kind)) {
     if (recent.contains(e.id)) continue;
     recent.add(e.id);
     if (reachedEnd(e)) {
@@ -92,6 +96,8 @@ final watchStateProvider = FutureProvider<WatchState>((ref) async {
   }
   return WatchState(resume: resume, seen: seen, recent: recent);
 });
+
+final watchStateProvider = playStateProvider('video');
 
 /// "Reprendre" of W-C1 / A-C: started videos, latest first.
 final cinemaResumeProvider = FutureProvider<List<CinemaItem>>((ref) async {

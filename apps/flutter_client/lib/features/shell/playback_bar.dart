@@ -116,6 +116,10 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
           context.go(Routes.watch);
           return;
         }
+        if (entry.focusKey != null) {
+          context.go(Routes.focusPlayer);
+          return;
+        }
         ref.read(coverOriginProvider.notifier).capture(_cover);
         context.go(Routes.now);
       },

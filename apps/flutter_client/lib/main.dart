@@ -12,6 +12,7 @@ import 'engine/engine_factory.dart';
 import 'engine/media_engine.dart';
 import 'features/cinema/cinema_data.dart';
 import 'features/cinema/cinema_screen.dart';
+import 'features/focus/focus_data.dart';
 import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
 import 'features/playback/playback.dart';
@@ -76,6 +77,23 @@ Future<void> _openLaunchFile(ProviderContainer container, String path) async {
   final video = known != null && known.isVideo
       ? await container.read(cinemaApiProvider).item(known.id)
       : null;
+  final focus = known != null && !known.isVideo
+      ? await container.read(focusApiProvider).entry(known.id)
+      : null;
+  if (focus != null) {
+    // A podcast, course or book plays in its program, at its speed (W-F2).
+    final items = await container.read(
+      focusProgramProvider(focus.program).future,
+    );
+    final i = items.indexWhere((f) => f.item.id == focus.item.id);
+    await playFocus(
+      container.read(queueProvider.notifier),
+      i < 0 ? [focus] : items,
+      start: i < 0 ? 0 : i,
+    );
+    container.read(routerProvider).push(Routes.focusPlayer);
+    return;
+  }
   if (video != null) {
     // A known episode keeps its label ("É4 · Le col"), like from Cinema.
     final t = lookupL10n(_appLocale());

@@ -843,6 +843,11 @@ class _SidePanel extends ConsumerWidget {
     final next = queue.hasNext && queue.position + 1 < queue.order.length
         ? queue.entries[queue.order[queue.position + 1]]
         : null;
+    final engine = ref.read(mediaEngineProvider);
+    final readsChapters = engine?.capabilities.chapters ?? false;
+    final snap = currentSnapshot(ref);
+    final chapters = snap.chapters;
+    final current = snap.chapterAt();
     return Container(
       width: 300,
       padding: const EdgeInsets.fromLTRB(14, 16, 14, 14),
@@ -867,18 +872,64 @@ class _SidePanel extends ConsumerWidget {
                     ),
                   ),
                 ),
-                const _P1Badge(),
+                // P1 where the engine cannot read chapters (handoff rule).
+                if (!readsChapters) const _P1Badge(),
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 6),
-            child: Text(
-              t.chaptersSoon,
-              style: MmType.caption.copyWith(color: c.muted),
+          if (chapters.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6),
+              child: Text(
+                readsChapters ? t.chaptersNone : t.chaptersSoon,
+                style: MmType.caption.copyWith(color: c.muted),
+              ),
+            )
+          else
+            Expanded(
+              child: ListView(
+                children: [
+                  for (var i = 0; i < chapters.length; i++)
+                    Pressable(
+                      onTap: () => engine?.seek(chapters[i].start),
+                      selected: i == current,
+                      semanticLabel:
+                          chapters[i].title ?? '${t.chapters} ${i + 1}',
+                      borderRadius: BorderRadius.circular(10),
+                      hoverColor: c.cardHover,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 9,
+                        ),
+                        decoration: BoxDecoration(
+                          color: i == current ? c.surface : Colors.transparent,
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              chapters[i].title ?? '${t.chapters} ${i + 1}',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: MmType.labelStrong.copyWith(
+                                fontSize: 13,
+                                color: i == current ? c.coralStrong : c.fg,
+                              ),
+                            ),
+                            Text(
+                              formatClock(chapters[i].start),
+                              style: MmType.monoStyle(size: 11, color: c.muted),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          const Spacer(),
+          if (chapters.isEmpty) const Spacer() else const SizedBox(height: 8),
           if (next != null)
             Pressable(
               onTap: () => ref.read(queueProvider.notifier).next(),

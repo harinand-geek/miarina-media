@@ -660,4 +660,186 @@ class L10nFr extends L10n {
 
   @override
   String get videoUnavailable => 'Aucune vidéo en cours';
+
+  @override
+  String podcastsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count podcasts',
+      one: '1 podcast',
+      zero: 'aucun podcast',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coursesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count cours',
+      one: '1 cours',
+      zero: 'aucun cours',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String audiobooksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count livres audio',
+      one: '1 livre audio',
+      zero: 'aucun livre audio',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursTotal(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get segPodcasts => 'Podcasts';
+
+  @override
+  String get segCourses => 'Cours';
+
+  @override
+  String get segBooks => 'Livres audio';
+
+  @override
+  String get focusInProgress => 'En cours';
+
+  @override
+  String get focusLibrary => 'Bibliothèque';
+
+  @override
+  String get kindPodcast => 'Podcast';
+
+  @override
+  String get kindCourse => 'Cours';
+
+  @override
+  String get kindAudiobook => 'Livre audio';
+
+  @override
+  String episodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count épisodes',
+      one: '1 épisode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lessonsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count leçons',
+      one: '1 leçon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String partsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parties',
+      one: '1 partie',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftAtRate(String left, String rate) {
+    return 'reste $left à $rate';
+  }
+
+  @override
+  String get focusOrderHint =>
+      'Ordre lu depuis les numéros des fichiers (01, 02…) ou les tags.';
+
+  @override
+  String get focusEmptyTitle => 'Aucun podcast, cours ou livre audio';
+
+  @override
+  String get focusEmptyBody =>
+      'Un fichier audio rejoint Focus par son genre (Podcast, Cours, Livre audio), par un dossier nommé Podcasts, Cours ou Livres audio, ou s\'il est au format .m4b.';
+
+  @override
+  String get focusNoMatch => 'Rien dans cette catégorie pour l\'instant.';
+
+  @override
+  String programPosition(String kind, int number, int total) {
+    return '$kind $number sur $total';
+  }
+
+  @override
+  String estimatedEnd(String time, String rate) {
+    return 'Fin estimée $time à $rate';
+  }
+
+  @override
+  String get forward30 => 'Avancer de 30 s';
+
+  @override
+  String get bookmark => 'Signet';
+
+  @override
+  String get bookmarkAdd => 'Ajouter un signet (B)';
+
+  @override
+  String get bookmarks => 'Signets';
+
+  @override
+  String get bookmarkNoNote => 'Signet sans note';
+
+  @override
+  String get bookmarksEmpty => 'Aucun signet pour l\'instant.';
+
+  @override
+  String get bookmarksHint => 'B ajoute un signet à la position courante.';
+
+  @override
+  String get bookmarkRemove => 'Supprimer le signet';
+
+  @override
+  String get chaptersNone => 'Ce fichier n\'a pas de chapitres.';
+
+  @override
+  String get transcript => 'Texte';
+
+  @override
+  String get futureBadge => 'FUTUR';
+
+  @override
+  String get transcriptTitle => 'Transcription — fonction future';
+
+  @override
+  String get transcriptBody =>
+      'Un fichier .txt ou .vtt du même nom placé à côté du fichier est affiché ici. La génération locale et la recherche dans les transcriptions viendront plus tard.';
+
+  @override
+  String get sleepEndOfChapter => 'Minuteur : fin du chapitre';
+
+  @override
+  String get sleepEndOfEpisode => 'Minuteur : fin du fichier';
+
+  @override
+  String get skipSilence => 'Sauter les silences';
+
+  @override
+  String get voiceBoost => 'Voix renforcée';
+
+  @override
+  String get p1Later => 'pour les deux dernières';
 }

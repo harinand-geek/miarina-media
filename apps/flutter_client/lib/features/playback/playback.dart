@@ -22,6 +22,7 @@ class QueueEntry {
     this.format,
     this.artwork,
     this.isVideo = false,
+    this.focusKey,
   });
 
   final MediaSource source;
@@ -39,6 +40,10 @@ class QueueEntry {
   final String? artwork;
   final bool isVideo;
 
+  /// Focus program (podcast, course, book) the entry belongs to, e.g.
+  /// "course:architecture"; its speed is remembered per program.
+  final String? focusKey;
+
   QueueEntry withFavorite(bool value) => QueueEntry(
     source: source,
     title: title,
@@ -50,6 +55,7 @@ class QueueEntry {
     format: format,
     artwork: artwork,
     isVideo: isVideo,
+    focusKey: focusKey,
   );
 
   /// Stable tint of the placeholder cover.

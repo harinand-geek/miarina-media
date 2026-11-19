@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/design/widgets/pressable.dart';
+import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
@@ -44,6 +45,7 @@ void main() {
         overrides: [
           mediaEngineProvider.overrideWithValue(engine),
           libraryApiProvider.overrideWithValue(library),
+          focusApiProvider.overrideWithValue(FakeFocusApi()),
           desktopShellProvider.overrideWithValue(desktop),
           settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
           lyricsLoaderProvider.overrideWithValue((_) async => null),
@@ -117,10 +119,10 @@ void main() {
 
   testWidgets('a section that is not built yet says so', (tester) async {
     await pumpApp(tester);
-    await tester.tap(find.text('Podcasts & cours'));
+    await tester.tap(find.text('Playlists'));
     await settle(tester);
     expect(find.text('Cet écran arrive bientôt'), findsOneWidget);
-    expect(find.text('W-F1'), findsOneWidget);
+    expect(find.text('W-M5'), findsOneWidget);
   });
 
   testWidgets('below 1280 px the sidebar keeps only icons', (tester) async {
@@ -154,7 +156,8 @@ void main() {
     );
     await tester.tap(find.text('Focus'));
     await settle(tester);
-    expect(find.text('W-F1'), findsOneWidget);
+    // No podcast, course or audiobook in these fixtures: the empty state.
+    expect(find.text('Aucun podcast, cours ou livre audio'), findsOneWidget);
   });
 
   Future<void> playFirstRow(WidgetTester tester) async {

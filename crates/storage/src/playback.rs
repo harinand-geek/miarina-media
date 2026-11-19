@@ -25,6 +25,8 @@ const FIXED_KEYS: &[&str] = &[
     "mm:eq:v1",
     "mm:gestures",
     "mm:headset",
+    // Focus (podcasts, courses, audiobooks): speed and bookmarks per content.
+    "mm:focus:v1",
     PLAYBACK_IMPORTED,
 ];
 

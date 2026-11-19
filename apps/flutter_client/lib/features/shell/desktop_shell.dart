@@ -50,8 +50,8 @@ class DesktopShell extends ConsumerWidget {
               ],
             ),
           ),
-          // W-C3 has its own controls under the picture.
-          if (!watching) const PlaybackBar(),
+          // W-C3 and W-F2 have their own controls.
+          if (!watching && location != Routes.focusPlayer) const PlaybackBar(),
         ],
       ),
     );

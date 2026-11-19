@@ -658,4 +658,186 @@ class L10nEn extends L10n {
 
   @override
   String get videoUnavailable => 'No video playing';
+
+  @override
+  String podcastsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count podcasts',
+      one: '1 podcast',
+      zero: 'no podcasts',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String coursesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count courses',
+      one: '1 course',
+      zero: 'no courses',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String audiobooksCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count audiobooks',
+      one: '1 audiobook',
+      zero: 'no audiobooks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String hoursTotal(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get segPodcasts => 'Podcasts';
+
+  @override
+  String get segCourses => 'Courses';
+
+  @override
+  String get segBooks => 'Audiobooks';
+
+  @override
+  String get focusInProgress => 'In progress';
+
+  @override
+  String get focusLibrary => 'Library';
+
+  @override
+  String get kindPodcast => 'Podcast';
+
+  @override
+  String get kindCourse => 'Course';
+
+  @override
+  String get kindAudiobook => 'Audiobook';
+
+  @override
+  String episodesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count episodes',
+      one: '1 episode',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String lessonsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count lessons',
+      one: '1 lesson',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String partsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count parts',
+      one: '1 part',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String leftAtRate(String left, String rate) {
+    return '$left left at $rate';
+  }
+
+  @override
+  String get focusOrderHint =>
+      'Order read from file numbers (01, 02…) or tags.';
+
+  @override
+  String get focusEmptyTitle => 'No podcasts, courses or audiobooks';
+
+  @override
+  String get focusEmptyBody =>
+      'An audio file joins Focus through its genre (Podcast, Course, Audiobook), a folder named Podcasts, Courses or Audiobooks, or the .m4b format.';
+
+  @override
+  String get focusNoMatch => 'Nothing in this category yet.';
+
+  @override
+  String programPosition(String kind, int number, int total) {
+    return '$kind $number of $total';
+  }
+
+  @override
+  String estimatedEnd(String time, String rate) {
+    return 'Ends at $time at $rate';
+  }
+
+  @override
+  String get forward30 => 'Forward 30 s';
+
+  @override
+  String get bookmark => 'Bookmark';
+
+  @override
+  String get bookmarkAdd => 'Add a bookmark (B)';
+
+  @override
+  String get bookmarks => 'Bookmarks';
+
+  @override
+  String get bookmarkNoNote => 'Bookmark without a note';
+
+  @override
+  String get bookmarksEmpty => 'No bookmarks yet.';
+
+  @override
+  String get bookmarksHint => 'B adds a bookmark at the current position.';
+
+  @override
+  String get bookmarkRemove => 'Remove the bookmark';
+
+  @override
+  String get chaptersNone => 'This file has no chapters.';
+
+  @override
+  String get transcript => 'Text';
+
+  @override
+  String get futureBadge => 'FUTURE';
+
+  @override
+  String get transcriptTitle => 'Transcript — future feature';
+
+  @override
+  String get transcriptBody =>
+      'A .txt or .vtt file with the same name next to the file is shown here. Local generation and search in transcripts will come later.';
+
+  @override
+  String get sleepEndOfChapter => 'Timer: end of chapter';
+
+  @override
+  String get sleepEndOfEpisode => 'Timer: end of file';
+
+  @override
+  String get skipSilence => 'Skip silences';
+
+  @override
+  String get voiceBoost => 'Voice boost';
+
+  @override
+  String get p1Later => 'for the last two';
 }

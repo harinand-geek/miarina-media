@@ -426,6 +426,7 @@ fn playback_keys_and_sizes_are_bounded() {
     assert!(is_playback_key("mm:position:42"));
     assert!(is_playback_key(PLAYBACK_IMPORTED));
     assert!(is_playback_key("mm:lang"));
+    assert!(is_playback_key("mm:focus:v1"));
     assert!(!is_playback_key("mm:sidebar"));
     assert!(!is_playback_key("mm:position:"));
     assert!(!is_playback_key("mm:position:4a"));

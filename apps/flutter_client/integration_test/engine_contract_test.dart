@@ -205,6 +205,25 @@ void main() {
     expect(s.error?.recoverable ?? true, isTrue);
   });
 
+  testWidgets('chapters of an audiobook are listed when supported', (
+    tester,
+  ) async {
+    // chapitres.m4b: 30 s, chapters at 0, 10 and 20 s.
+    await engine.open(MediaSource.file(media('chapitres.m4b')));
+    await _until(engine, (s) => s.duration > Duration.zero);
+    if (!engine.capabilities.chapters) {
+      expect(engine.current.chapters, isEmpty);
+      return;
+    }
+    final s = await _until(engine, (s) => s.chapters.length == 3);
+    expect(
+      [for (final c in s.chapters) c.title],
+      ['Rappels', 'Algorithmes classiques', 'Questions'],
+    );
+    expect(s.chapters[1].start, const Duration(seconds: 10));
+    expect(s.chapterAt(const Duration(seconds: 15)), 1);
+  });
+
   testWidgets('a missing file ends in an error state, not a hang', (
     tester,
   ) async {

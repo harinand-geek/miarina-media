@@ -40,6 +40,22 @@ class TrackInfo {
   int get hashCode => id.hashCode;
 }
 
+/// A chapter of the open file (start time and its title, when it has one).
+@immutable
+class ChapterInfo {
+  const ChapterInfo({required this.start, this.title});
+
+  final Duration start;
+  final String? title;
+
+  @override
+  bool operator ==(Object other) =>
+      other is ChapterInfo && other.start == start && other.title == title;
+
+  @override
+  int get hashCode => Object.hash(start, title);
+}
+
 /// What an engine can really do on this platform. The interface hides or
 /// disables anything set to false instead of simulating it.
 class EngineCapabilities {
@@ -91,6 +107,7 @@ class PlaybackSnapshot {
     this.subtitlesEnabled = true,
     this.videoSize,
     this.error,
+    this.chapters = const [],
   });
 
   final PlaybackStatus status;
@@ -109,8 +126,22 @@ class PlaybackSnapshot {
   final Size? videoSize;
   final PlaybackError? error;
 
+  /// Chapters of the file, in order; empty when it has none or the engine
+  /// cannot read them.
+  final List<ChapterInfo> chapters;
+
   bool get isPlaying => status == PlaybackStatus.playing;
   bool get hasVideo => videoSize != null && videoSize!.width > 0;
+
+  /// Index of the chapter playing at [at] (the position by default), or -1.
+  int chapterAt([Duration? at]) {
+    final p = at ?? position;
+    var i = -1;
+    for (var k = 0; k < chapters.length; k++) {
+      if (chapters[k].start <= p) i = k;
+    }
+    return i;
+  }
 
   static const _keep = Object();
 
@@ -130,6 +161,7 @@ class PlaybackSnapshot {
     bool? subtitlesEnabled,
     Object? videoSize = _keep,
     Object? error = _keep,
+    List<ChapterInfo>? chapters,
   }) {
     return PlaybackSnapshot(
       status: status ?? this.status,
@@ -153,6 +185,7 @@ class PlaybackSnapshot {
           ? this.videoSize
           : videoSize as Size?,
       error: identical(error, _keep) ? this.error : error as PlaybackError?,
+      chapters: chapters ?? this.chapters,
     );
   }
 }
