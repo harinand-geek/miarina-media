@@ -16,6 +16,9 @@ class QueueEntry {
     this.subtitle,
     this.libraryId,
     this.favorite = false,
+    this.album,
+    this.duration,
+    this.format,
   });
 
   final MediaSource source;
@@ -23,6 +26,22 @@ class QueueEntry {
   final String? subtitle;
   final int? libraryId;
   final bool favorite;
+  final String? album;
+  final Duration? duration;
+
+  /// Short technical label shown in Now playing ("FLAC").
+  final String? format;
+
+  QueueEntry withFavorite(bool value) => QueueEntry(
+    source: source,
+    title: title,
+    subtitle: subtitle,
+    libraryId: libraryId,
+    favorite: value,
+    album: album,
+    duration: duration,
+    format: format,
+  );
 
   /// Stable tint of the placeholder cover.
   int get seed => libraryId ?? title.hashCode;
@@ -58,6 +77,11 @@ class QueueState {
   bool get hasPrevious =>
       position > 0 || (repeat == RepeatSetting.all && order.isNotEmpty);
 
+  /// Entries after the current one, in play order.
+  List<QueueEntry> get upcoming => [
+    for (var i = position + 1; i < order.length; i++) entries[order[i]],
+  ];
+
   QueueState copyWith({
     List<QueueEntry>? entries,
     List<int>? order,
@@ -71,6 +95,17 @@ class QueueState {
     shuffle: shuffle ?? this.shuffle,
     repeat: repeat ?? this.repeat,
   );
+}
+
+/// Sleep timer: pause after a delay, or at the end of the current track.
+@immutable
+class SleepTimer {
+  const SleepTimer({this.until, this.endOfTrack = false});
+
+  final DateTime? until;
+  final bool endOfTrack;
+
+  bool get active => until != null || endOfTrack;
 }
 
 final mediaEngineProvider = Provider<MediaEngine?>((ref) {
@@ -197,6 +232,44 @@ class QueueController extends Notifier<QueueState> {
     );
   }
 
+  /// Plays the [i]-th upcoming entry (0 = next), skipping those before it.
+  Future<void> playUpcoming(int i) async {
+    final p = state.position + 1 + i;
+    if (p >= state.order.length) return;
+    state = state.copyWith(position: p);
+    await _load();
+  }
+
+  /// Moves an upcoming entry from index [from] to [to] (0 = next).
+  void moveUpcoming(int from, int to) {
+    final base = state.position + 1;
+    final order = List.of(state.order);
+    if (from < 0 || base + from >= order.length) return;
+    final item = order.removeAt(base + from);
+    order.insert((base + to).clamp(base, order.length), item);
+    state = state.copyWith(order: order);
+  }
+
+  void removeUpcoming(int i) {
+    final p = state.position + 1 + i;
+    if (p >= state.order.length) return;
+    state = state.copyWith(order: List.of(state.order)..removeAt(p));
+  }
+
+  void markFavorite(int libraryId, {required bool favorite}) {
+    state = state.copyWith(
+      entries: [
+        for (final e in state.entries)
+          e.libraryId == libraryId ? e.withFavorite(favorite) : e,
+      ],
+    );
+  }
+
+  void clearUpcoming() {
+    if (state.position < 0) return;
+    state = state.copyWith(order: state.order.sublist(0, state.position + 1));
+  }
+
   List<int> _orderFor(int length, {required bool shuffle, required int first}) {
     final order = List<int>.generate(length, (i) => i);
     if (!shuffle) {
@@ -217,7 +290,52 @@ class QueueController extends Notifier<QueueState> {
   }
 
   Future<void> _advanceAfterEnd() async {
+    if (ref.read(sleepTimerProvider).endOfTrack) {
+      ref.read(sleepTimerProvider.notifier).cancel();
+      return;
+    }
     if (state.repeat == RepeatSetting.one) return;
     if (state.hasNext) await next();
+  }
+}
+
+final sleepTimerProvider = NotifierProvider<SleepTimerController, SleepTimer>(
+  SleepTimerController.new,
+);
+
+class SleepTimerController extends Notifier<SleepTimer> {
+  Timer? _timer;
+
+  @override
+  SleepTimer build() {
+    ref.onDispose(() => _timer?.cancel());
+    return const SleepTimer();
+  }
+
+  void after(Duration delay) {
+    _timer?.cancel();
+    _timer = Timer(delay, () {
+      ref.read(mediaEngineProvider)?.pause();
+      state = const SleepTimer();
+    });
+    state = SleepTimer(until: DateTime.now().add(delay));
+  }
+
+  /// Pauses when the current track ends (the queue does not advance). The
+  /// engine stops looping one track meanwhile, or the end would never come.
+  void atEndOfTrack() {
+    _timer?.cancel();
+    ref.read(mediaEngineProvider)?.setRepeatMode(RepeatSetting.off);
+    state = const SleepTimer(endOfTrack: true);
+  }
+
+  void cancel() {
+    _timer?.cancel();
+    _timer = null;
+    if (state.endOfTrack &&
+        ref.read(queueProvider).repeat == RepeatSetting.one) {
+      ref.read(mediaEngineProvider)?.setRepeatMode(RepeatSetting.one);
+    }
+    state = const SleepTimer();
   }
 }

@@ -2,7 +2,7 @@
 
 Maquette : `design/design_handoff_lecture_ecouter/` (direction 3a). Décision : [0007](decisions/0007-flutter-migration.md). Code : `apps/flutter_client/lib/`. Les écrans de l'app Tauri restent décrits dans `design-implementation-map.md`.
 
-État au 2026-11-19 (phase 2, fondations).
+État au 2026-11-19 (phase 2 : fondations, puis En lecture).
 
 ## Fondations
 
@@ -23,7 +23,7 @@ Maquette : `design/design_handoff_lecture_ecouter/` (direction 3a). Décision : 
 |---|---|---|---|
 | — | Barre de titre Windows 40 px, recherche, boutons fenêtre | `features/shell/title_bar.dart` | fait ; la recherche (W-02) est affichée **inerte** avec infobulle « Bientôt disponible » ; la zone utile fait 1280 × 800 au lancement (bordures invisibles de Windows ajoutées) |
 | — | Barre latérale Écouter 232 / 64 px, sélecteur Obtenir · Écouter | `features/shell/sidebar.dart` | fait ; seuil de repli : zone utile < 1280 px ; seul « Titres » affiche un compteur (le seul que le cœur donne aujourd'hui) |
-| — | Barre de lecture 80 px, grille 320 / 1fr / 320 | `features/shell/playback_bar.dart` | fait : pochette, titre, transport (aléatoire, précédent, lire, suivant, répéter non → tout → ce titre), position, volume et coupure ; **Paroles, File, Mini-lecteur affichés inertes** jusqu'au lot En lecture ; le cœur de la barre n'est pas encore affiché |
+| — | Barre de lecture 80 px, grille 320 / 1fr / 320 | `features/shell/playback_bar.dart` | fait : pochette et titre (ouvrent En lecture, la pochette grandit depuis la barre), transport (aléatoire, précédent, lire, suivant, répéter non → tout → ce titre), position, volume et coupure, Paroles et File (ouvrent l'onglet) ; **Mini-lecteur W-M4 affiché inerte** ; le cœur de la barre n'est pas encore affiché |
 | A-00… | Onglets Android Musique · Cinéma · Focus (corail) · Obtenir (teal), mini-lecteur 64 dp | `features/shell/mobile_shell.dart` | fait ; **écart temporaire** : l'onglet Musique ouvre Titres tant que A-00 n'est pas construit ; le mini-lecteur n'ouvre pas encore le lecteur complet (A-03) |
 
 ## Écrans
@@ -31,17 +31,24 @@ Maquette : `design/design_handoff_lecture_ecouter/` (direction 3a). Décision : 
 | ID | Écran | Code | État |
 |---|---|---|---|
 | W-M1c / A-01 | Titres | `features/library/tracks_screen.dart` | fait : table virtualisée par pages de 200 (Windows), lignes 60 dp (Android), filtre plein texte (Windows), puces Tous / Favoris, favori réel, introuvable atténué ; double-clic ou Entrée lit (Windows), toucher lit (Android). Puces « Jamais écoutés », « Hi-res », « Introuvables », « Ajoutés ce mois », tri par colonne, sélection multiple, « Localiser », menu ⋮ et index alphabétique : **non affichés** tant que non construits |
-| W-00, W-M1a/b, W-M2a/b, W-M3, W-M4, W-M5, W-02, W-C1–4, W-F1/F2, W-03, W-O1/O2, W-S1–3, W-E1–3, A-00, A-01b…A-08 | autres écrans | `features/common/coming_soon.dart` | écran « Cet écran arrive bientôt » avec l'ID ; rien de simulé |
+| W-M3 | En lecture (Windows) | `features/now_playing/now_playing_screen.dart`, `lyrics_view.dart`, `queue_view.dart`, `sound_view.dart`, `now_playing_shared.dart` | fait : fond flouté σ 60 + voile, pochette 360 qui grandit depuis la barre (320 ms), titre, cœur réel, puces vitesse / préréglage / minuteur / format ; panneau 420 Paroles (.lrc synchronisé, clic = position, ligne courante suivie), File (en cours, à suivre réordonnable à la poignée ou Alt+↑/↓, retirer, Vider, Smart Queue **P1** inerte), Son (égaliseur 5 préréglages + 6 bandes, vitesse, normalisation **P1** inerte). Non affichés tant que non construits : « Enregistrer en playlist », paroles intégrées aux tags |
+| A-03 / A-03b / A-03c | Lecteur audio Android, file, son | `features/now_playing/mobile_player.dart` | fait : ouverture depuis le mini-lecteur (toucher ou glisser ↑, montée 320 ms), glisser ↓ pour réduire (30 % ou 800 dp/s, ressort sinon), retour système, balayer la pochette = titre suivant / précédent, bouton paroles, File et Son en feuilles. **Écart** : la puce « Casque BT » (sortie audio) est remplacée par Minuteur et Son, Android ne donnant pas la sortie sans autorisation supplémentaire ; menu ⋮ non affiché |
+| W-00, W-M1a/b, W-M2a/b, W-M4, W-M5, W-02, W-C1–4, W-F1/F2, W-03, W-O1/O2, W-S1–3, W-E1–3, A-00, A-01b…A-08 | autres écrans | `features/common/coming_soon.dart` | écran « Cet écran arrive bientôt » avec l'ID ; rien de simulé |
 | Obtenir | accueil lien, analyse, téléchargements, navigateur, torrents | — | à porter à l'identique de l'app Tauri (pas de nouvelle maquette) |
 
 ## Données
 
 - Bibliothèque : `features/library/library_data.dart` (`LibraryApi`) → pont Rust `rust/src/api/library.rs` → `crates/storage` (même base et mêmes migrations que la 0.1.x).
 - En développement, `--dart-define=MM_DATA_DIR=<dossier>` pointe vers un dossier de travail ou une **copie** d'un dossier de données 0.1.x ; la base de l'app Tauri en service n'est jamais ouverte tant que les deux apps coexistent.
+- Égaliseur : `setEqualizer` du contrat moteur. Windows : chaîne de 6 filtres `equalizer` FFmpeg (lavfi) dans libmpv ; Android : `MiarinaEqualizer.kt` repris de l'app Tauri, sur la session audio Media3 ; réglage mémorisé dans la table `settings` (clé `equalizer`). Préréglages identiques à l'app actuelle.
+- Paroles : fichier `.lrc` du même nom à côté du titre (512 Kio au plus, encodage tolérant) ; les paroles dans les tags viendront avec la lecture des tags.
 - Android : la base est vide ; les titres du téléphone (MediaStore, comme `DeviceMediaPlugin` de l'app Tauri) arrivent dans un lot suivant.
 
 ## Vérifications
 
-- `flutter analyze` : aucun problème. `flutter test` : 18 tests (contrat moteur, file de lecture, shell Windows et Android, table, favori, repli de la barre latérale).
+- `flutter analyze` : aucun problème. `flutter test` : 36 tests (file de lecture, minuteur, égaliseur, paroles .lrc, shell Windows et Android, table, favori, En lecture, lecteur Android). Tests d'intégration du moteur réel : 9 / 9 sur Windows (libmpv) et sur l'émulateur Android (Media3), égaliseur compris.
+- Défaut trouvé et corrigé en chemin : libmpv signale une erreur quand il ne parvient pas à charger automatiquement un fichier voisin (un .lrc pris pour des sous-titres) ; l'adaptateur la prenait pour une erreur fatale et affichait « en pause » pendant la lecture. Test de non-régression `a sidecar file mpv cannot load is not a playback error`.
+- Accessibilité : les curseurs de l'égaliseur annoncent valeur, valeur suivante et précédente (exigé par TalkBack / Narrateur, détecté par les tests).
 - Capture réelle Windows (release, copie de la bibliothèque) à 1280 × 800 : barre latérale, table, lecture en cours ; comparée à W-M1c.
-- Capture réelle Android (émulateur, debug) : onglets, état vide, mini-lecteur en lecture.
+- Capture réelle Android (émulateur, debug) : onglets, état vide, mini-lecteur en lecture ; grand lecteur A-03 en lecture.
+- Captures réelles Windows de W-M3 (Paroles synchronisées à 0:06, Son) comparées à la maquette.

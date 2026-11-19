@@ -119,6 +119,13 @@ class Media3EnginePlugin(
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
       "texture" -> result.success(texture())
+      "setEqualizer" -> {
+        val gains = call.argument<List<Double>>("gains")
+        MiarinaEqualizer.set(gains != null, gains ?: emptyList())
+        // null until the service has a player session: the setting is kept
+        // and applied when it attaches.
+        result.success(MiarinaEqualizer.supported)
+      }
       "dispose" -> {
         dispose()
         result.success(null)

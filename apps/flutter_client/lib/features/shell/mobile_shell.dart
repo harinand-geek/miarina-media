@@ -11,6 +11,7 @@ import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
+import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
 
 /// Android shell (decision 0006 extended, D2): tabs Musique · Cinéma · Focus
@@ -175,16 +176,28 @@ class _TabBar extends StatelessWidget {
 }
 
 /// 64 dp mini player: cover, title, play; 3 dp progress along the bottom.
-class _MiniPlayer extends ConsumerWidget {
+class _MiniPlayer extends ConsumerStatefulWidget {
   const _MiniPlayer();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_MiniPlayer> createState() => _MiniPlayerState();
+}
+
+class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
+  final _cover = GlobalKey();
+
+  void _open() {
+    ref.read(coverOriginProvider.notifier).capture(_cover);
+    context.push(Routes.player);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final entry = ref.watch(queueProvider.select((q) => q.current));
     final snap = currentSnapshot(ref);
-    return Container(
+    final card = Container(
       decoration: BoxDecoration(
         color: c.surface2,
         borderRadius: BorderRadius.circular(MmRadius.sheet),
@@ -199,6 +212,7 @@ class _MiniPlayer extends ConsumerWidget {
             child: Row(
               children: [
                 CoverArt(
+                  key: _cover,
                   size: 48,
                   radius: MmRadius.md,
                   seed: entry?.seed ?? 0,
@@ -273,6 +287,20 @@ class _MiniPlayer extends ConsumerWidget {
             ),
           ),
         ],
+      ),
+    );
+    if (entry == null) return card;
+    // Tap or swipe up opens the full player (A-03).
+    return GestureDetector(
+      onVerticalDragEnd: (d) {
+        if ((d.primaryVelocity ?? 0) < -300) _open();
+      },
+      child: Pressable(
+        onTap: _open,
+        semanticLabel: t.openNowPlaying,
+        pressScale: 0.98,
+        borderRadius: BorderRadius.circular(MmRadius.sheet),
+        child: card,
       ),
     );
   }

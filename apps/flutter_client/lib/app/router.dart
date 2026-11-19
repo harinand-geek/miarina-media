@@ -7,6 +7,8 @@ import 'package:material_ui/material_ui.dart';
 import '../design/tokens.dart';
 import '../features/common/coming_soon.dart';
 import '../features/library/tracks_screen.dart';
+import '../features/now_playing/mobile_player.dart';
+import '../features/now_playing/now_playing_screen.dart';
 import '../features/shell/desktop_shell.dart';
 import '../features/shell/mobile_shell.dart';
 
@@ -24,11 +26,17 @@ abstract final class Routes {
   static const audiobooks = '/listen/focus/books';
   static const get = '/get';
   static const settings = '/settings';
+  static const now = '/now';
+  static const player = '/player';
 }
 
 /// Windows gets the sidebar shell, Android the tab shell (tablets included:
 /// they get a navigation rail in a later lot). Overridden in tests.
 final desktopShellProvider = Provider<bool>((ref) => !Platform.isAndroid);
+
+// Development hook for automated screenshots (no input injection): the
+// screen to start on, e.g. --dart-define=MM_START_ROUTE=/now?tab=queue.
+const _startRoute = String.fromEnvironment('MM_START_ROUTE');
 
 final routerProvider = Provider<GoRouter>((ref) {
   final desktop = ref.watch(desktopShellProvider);
@@ -38,8 +46,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         _ScreenPage(key: state.pageKey, child: build()),
   );
   return GoRouter(
-    initialLocation: Routes.tracks,
+    initialLocation: _startRoute.isEmpty ? Routes.tracks : _startRoute,
     routes: [
+      // A-03, above the tab shell.
+      GoRoute(
+        path: Routes.player,
+        pageBuilder: (context, state) => PlayerPage(key: state.pageKey),
+      ),
       ShellRoute(
         builder: (context, state, child) => desktop
             ? DesktopShell(location: state.uri.path, child: child)
@@ -49,6 +62,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           screen(Routes.albums, () => const ComingSoon(screenId: 'W-M1a')),
           screen(Routes.artists, () => const ComingSoon(screenId: 'W-M1b')),
           screen(Routes.tracks, () => const TracksScreen()),
+          GoRoute(
+            path: Routes.now,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: NowPlayingScreen(
+                tab:
+                    NowTab.values
+                        .asNameMap()[state.uri.queryParameters['tab']] ??
+                    NowTab.lyrics,
+              ),
+            ),
+          ),
           screen(Routes.playlists, () => const ComingSoon(screenId: 'W-M5')),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
           screen(Routes.cinema, () => const ComingSoon(screenId: 'W-C1')),

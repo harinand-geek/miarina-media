@@ -186,6 +186,11 @@ abstract interface class MediaEngine {
   Future<void> loadExternalSubtitle(Uri uri);
   Future<void> setSubtitleEnabled(bool enabled);
 
+  /// Six band gains in dB at 60, 230, 910, 3.6k, 7k and 14k Hz, or null to
+  /// bypass. Applied to what plays; files are never modified. Returns whether
+  /// the output really applies it (null when not known yet).
+  Future<bool?> setEqualizer(List<double>? gainsDb);
+
   /// The picture for this engine, or an empty box for audio-only engines.
   Widget buildVideoView({BoxFit fit = BoxFit.contain});
 

@@ -212,4 +212,117 @@ class L10nFr extends L10n {
 
   @override
   String get comingSoonShort => 'Bientôt disponible';
+
+  @override
+  String get nowPlaying => 'En lecture';
+
+  @override
+  String get back => 'Retour';
+
+  @override
+  String get tabQueue => 'File';
+
+  @override
+  String get tabSound => 'Son';
+
+  @override
+  String get nowCurrent => 'En cours';
+
+  @override
+  String get upNext => 'À suivre';
+
+  @override
+  String get clearQueue => 'Vider';
+
+  @override
+  String get smartQueueTitle => 'Continuer avec des titres proches';
+
+  @override
+  String get smartQueueBody => 'Smart Queue, calculée sur l\'appareil';
+
+  @override
+  String lyricsHint(String file) {
+    return '$file · clic sur une ligne pour y aller';
+  }
+
+  @override
+  String get lyricsNoneTitle => 'Pas de paroles pour ce titre';
+
+  @override
+  String get lyricsNoneBody =>
+      'Placez un fichier .lrc du même nom à côté du fichier audio : il sera lu automatiquement.';
+
+  @override
+  String get equalizer => 'Égaliseur';
+
+  @override
+  String get equalizerBody => 'Appliqué à toute la lecture audio';
+
+  @override
+  String get equalizerUnsupported =>
+      'Cet appareil ne propose pas d\'égaliseur pour la lecture.';
+
+  @override
+  String get eqFlat => 'Neutre';
+
+  @override
+  String get eqBass => 'Basses';
+
+  @override
+  String get eqVoice => 'Voix';
+
+  @override
+  String get eqRock => 'Rock';
+
+  @override
+  String get eqClassic => 'Classique';
+
+  @override
+  String get eqCustom => 'Personnalisé';
+
+  @override
+  String get speed => 'Vitesse';
+
+  @override
+  String get normalization => 'Normalisation du volume';
+
+  @override
+  String get normalizationBody => 'ReplayGain si présent';
+
+  @override
+  String get sleepTimer => 'Minuteur';
+
+  @override
+  String sleepMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get sleepEndOfTrack => 'Fin du titre';
+
+  @override
+  String get sleepOff => 'Désactiver le minuteur';
+
+  @override
+  String sleepRemaining(String time) {
+    return 'Arrêt dans $time';
+  }
+
+  @override
+  String get upNextEmpty => 'Rien après ce titre.';
+
+  @override
+  String get removeFromQueue => 'Retirer de la file';
+
+  @override
+  String get closePlayer => 'Réduire le lecteur';
+
+  @override
+  String get showLyrics => 'Afficher les paroles';
+
+  @override
+  String get showCover => 'Afficher la pochette';
+
+  @override
+  String get moreOptions => 'Plus d\'options';
 }

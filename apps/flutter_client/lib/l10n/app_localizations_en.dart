@@ -212,4 +212,117 @@ class L10nEn extends L10n {
 
   @override
   String get comingSoonShort => 'Coming soon';
+
+  @override
+  String get nowPlaying => 'Now playing';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get tabQueue => 'Queue';
+
+  @override
+  String get tabSound => 'Sound';
+
+  @override
+  String get nowCurrent => 'Now';
+
+  @override
+  String get upNext => 'Up next';
+
+  @override
+  String get clearQueue => 'Clear';
+
+  @override
+  String get smartQueueTitle => 'Continue with similar tracks';
+
+  @override
+  String get smartQueueBody => 'Smart Queue, computed on the device';
+
+  @override
+  String lyricsHint(String file) {
+    return '$file · click a line to go there';
+  }
+
+  @override
+  String get lyricsNoneTitle => 'No lyrics for this track';
+
+  @override
+  String get lyricsNoneBody =>
+      'Put an .lrc file with the same name next to the audio file: it is read automatically.';
+
+  @override
+  String get equalizer => 'Equalizer';
+
+  @override
+  String get equalizerBody => 'Applied to all audio playback';
+
+  @override
+  String get equalizerUnsupported =>
+      'This device offers no equalizer for playback.';
+
+  @override
+  String get eqFlat => 'Flat';
+
+  @override
+  String get eqBass => 'Bass';
+
+  @override
+  String get eqVoice => 'Voice';
+
+  @override
+  String get eqRock => 'Rock';
+
+  @override
+  String get eqClassic => 'Classical';
+
+  @override
+  String get eqCustom => 'Custom';
+
+  @override
+  String get speed => 'Speed';
+
+  @override
+  String get normalization => 'Volume normalization';
+
+  @override
+  String get normalizationBody => 'ReplayGain when present';
+
+  @override
+  String get sleepTimer => 'Sleep timer';
+
+  @override
+  String sleepMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get sleepEndOfTrack => 'End of track';
+
+  @override
+  String get sleepOff => 'Turn off the timer';
+
+  @override
+  String sleepRemaining(String time) {
+    return 'Stops in $time';
+  }
+
+  @override
+  String get upNextEmpty => 'Nothing after this track.';
+
+  @override
+  String get removeFromQueue => 'Remove from queue';
+
+  @override
+  String get closePlayer => 'Collapse the player';
+
+  @override
+  String get showLyrics => 'Show lyrics';
+
+  @override
+  String get showCover => 'Show the cover';
+
+  @override
+  String get moreOptions => 'More options';
 }

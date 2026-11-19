@@ -3,7 +3,18 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/library/library_data.dart';
+import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
+
+class FakeSettingsStore implements SettingsStore {
+  final values = <String, Object?>{};
+
+  @override
+  Future<Object?> read(String key) async => values[key];
+
+  @override
+  Future<void> write(String key, Object? value) async => values[key] = value;
+}
 
 class FakeEngine implements MediaEngine {
   final opened = <MediaSource>[];
@@ -26,7 +37,7 @@ class FakeEngine implements MediaEngine {
     externalSubtitles: true,
     assSubtitles: false,
     chapters: false,
-    equalizer: false,
+    equalizer: true,
     backgroundPlayback: true,
   );
 
@@ -91,6 +102,15 @@ class FakeEngine implements MediaEngine {
 
   @override
   Future<void> setSubtitleEnabled(bool enabled) async {}
+
+  List<double>? equalizer;
+  bool equalizerSupported = true;
+
+  @override
+  Future<bool?> setEqualizer(List<double>? gainsDb) async {
+    equalizer = gainsDb;
+    return equalizerSupported;
+  }
 
   @override
   Widget buildVideoView({BoxFit fit = BoxFit.contain}) => const SizedBox();

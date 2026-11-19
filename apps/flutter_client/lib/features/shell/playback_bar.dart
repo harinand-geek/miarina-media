@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../design/mm_icons.g.dart';
@@ -9,7 +10,9 @@ import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
+import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
+import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
 
 /// Windows playback bar (Handoff, shell): 80 px, full width, always visible;
@@ -43,25 +46,35 @@ class PlaybackBar extends ConsumerWidget {
   }
 }
 
-class _NowPlayingInfo extends ConsumerWidget {
+class _NowPlayingInfo extends ConsumerStatefulWidget {
   const _NowPlayingInfo();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_NowPlayingInfo> createState() => _NowPlayingInfoState();
+}
+
+class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
+  final _cover = GlobalKey();
+
+  @override
+  Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final entry = ref.watch(queueProvider.select((q) => q.current));
-    return AnimatedSwitcher(
+    final row = AnimatedSwitcher(
       duration: MmMotion.of(context).screen,
       switchInCurve: MmMotion.standard,
       child: Row(
         key: ValueKey(entry?.source.uri),
         children: [
-          CoverArt(
-            size: 52,
-            radius: MmRadius.md,
-            seed: entry?.seed ?? 0,
-            shadow: entry != null,
+          KeyedSubtree(
+            key: _cover,
+            child: CoverArt(
+              size: 52,
+              radius: MmRadius.md,
+              seed: entry?.seed ?? 0,
+              shadow: entry != null,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(
@@ -94,6 +107,18 @@ class _NowPlayingInfo extends ConsumerWidget {
           ),
         ],
       ),
+    );
+    if (entry == null) return row;
+    return Pressable(
+      onTap: () {
+        ref.read(coverOriginProvider.notifier).capture(_cover);
+        context.go(Routes.now);
+      },
+      semanticLabel: t.openNowPlaying,
+      tooltip: t.openNowPlaying,
+      pressScale: 0.98,
+      borderRadius: BorderRadius.circular(MmRadius.lg),
+      child: row,
     );
   }
 }
@@ -257,19 +282,33 @@ class _SideControlsState extends ConsumerState<_SideControls> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        // Lyrics, queue and the compact window come with the Now playing lot;
-        // they keep their place in the bar but are inert and say so.
-        for (final (icon, label) in [
-          (PhosphorRegular.quotes, t.lyrics),
-          (PhosphorRegular.queue, t.queue),
-          (PhosphorRegular.pictureInPicture, t.miniPlayer),
-        ]) ...[
-          Tooltip(
-            message: '$label · ${t.comingSoonShort}',
-            child: Icon(icon, size: 20, color: c.faintIcon),
+        _IconButton(
+          icon: PhosphorRegular.quotes,
+          size: 20,
+          label: t.lyrics,
+          color: c.muted,
+          onTap: () => context.go('${Routes.now}?tab=lyrics'),
+        ),
+        const SizedBox(width: 10),
+        _IconButton(
+          icon: PhosphorRegular.queue,
+          size: 20,
+          label: t.queue,
+          color: c.muted,
+          onTap: () => context.go('${Routes.now}?tab=queue'),
+        ),
+        const SizedBox(width: 10),
+        // The compact always-on-top window (W-M4) comes later; it keeps its
+        // place in the bar but is inert and says so.
+        Tooltip(
+          message: '${t.miniPlayer} · ${t.comingSoonShort}',
+          child: Icon(
+            PhosphorRegular.pictureInPicture,
+            size: 20,
+            color: c.faintIcon,
           ),
-          const SizedBox(width: 14),
-        ],
+        ),
+        const SizedBox(width: 14),
         _IconButton(
           icon: muted
               ? PhosphorRegular.speakerSlash

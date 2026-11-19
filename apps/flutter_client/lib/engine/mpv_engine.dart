@@ -34,7 +34,7 @@ class MpvEngine implements MediaEngine {
     // media_kit does not expose the chapter list; libmpv has it, but until an
     // adapter reads it the interface must not offer chapters.
     chapters: false,
-    equalizer: false,
+    equalizer: true,
     backgroundPlayback: true,
   );
 
@@ -74,6 +74,7 @@ class MpvEngine implements MediaEngine {
       )
       ..add(
         s.position.listen((position) {
+          if (position > Duration.zero && _recoverIfPlaying()) return;
           final now = DateTime.now();
           if (now.difference(_lastPositionEmit) < positionInterval) {
             _state = _state.copyWith(position: position);
@@ -83,7 +84,13 @@ class MpvEngine implements MediaEngine {
           _emit(_state.copyWith(position: position));
         }),
       )
-      ..add(s.duration.listen((d) => _emit(_state.copyWith(duration: d))))
+      ..add(
+        s.duration.listen((d) {
+          _state = _state.copyWith(duration: d);
+          if (d > Duration.zero && _recoverIfPlaying()) return;
+          _emit(_state);
+        }),
+      )
       ..add(s.buffering.listen((b) => _emit(_state.copyWith(buffering: b))))
       ..add(
         s.volume.listen(
@@ -124,6 +131,23 @@ class MpvEngine implements MediaEngine {
           );
         }),
       );
+  }
+
+  // mpv reports some errors before the file is loaded that do not stop it,
+  // e.g. a sidecar it fails to auto-load (an .lrc taken for subtitles). Once
+  // the file has a duration or plays, the error was only a warning.
+  bool _recoverIfPlaying() {
+    final error = _state.error;
+    if (_state.status != PlaybackStatus.error || error == null) return false;
+    _emit(
+      _state.copyWith(
+        status: _player.state.playing
+            ? PlaybackStatus.playing
+            : PlaybackStatus.paused,
+        error: PlaybackError(error.message),
+      ),
+    );
+    return true;
   }
 
   // media_kit reports 'auto' when mpv picked the track itself, and a URI for
@@ -285,6 +309,28 @@ class MpvEngine implements MediaEngine {
       }
     }
     _emit(_state.copyWith(subtitlesEnabled: enabled));
+  }
+
+  static const _eqHz = [60, 230, 910, 3600, 7000, 14000];
+
+  // FFmpeg's peaking equalizer through mpv's lavfi audio filter; outer bands
+  // are wider so the low and high ends move as shelves would.
+  @override
+  Future<bool?> setEqualizer(List<double>? gainsDb) async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return false;
+    if (gainsDb == null ||
+        gainsDb.length != _eqHz.length ||
+        gainsDb.every((g) => g == 0)) {
+      await native.setProperty('af', '');
+      return gainsDb == null || gainsDb.length == _eqHz.length;
+    }
+    final chain = [
+      for (var i = 0; i < _eqHz.length; i++)
+        'equalizer=f=${_eqHz[i]}:t=o:w=${i == 0 || i == _eqHz.length - 1 ? 2 : 1.3}:g=${gainsDb[i].clamp(-12.0, 12.0).toStringAsFixed(1)}',
+    ].join(',');
+    await native.setProperty('af', 'lavfi=[$chain]');
+    return true;
   }
 
   @override

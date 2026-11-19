@@ -40,7 +40,8 @@ class Media3Engine implements MediaEngine {
     // Media3 parses SSA/ASS but drops most styling; shown as plain text.
     assSubtitles: false,
     chapters: false,
-    equalizer: false,
+    // Depends on the device: setEqualizer reports it.
+    equalizer: true,
     backgroundPlayback: true,
   );
 
@@ -186,6 +187,10 @@ class Media3Engine implements MediaEngine {
   @override
   Future<void> setSubtitleEnabled(bool enabled) =>
       _call('setSubtitlesEnabled', {'enabled': enabled});
+
+  @override
+  Future<bool?> setEqualizer(List<double>? gainsDb) =>
+      _methods.invokeMethod<bool>('setEqualizer', {'gains': gainsDb});
 
   @override
   Widget buildVideoView({BoxFit fit = BoxFit.contain}) {

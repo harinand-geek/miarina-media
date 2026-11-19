@@ -35,7 +35,7 @@ pub struct LibraryPage {
 /// connection is kept between calls for the same path.
 static OPEN: Mutex<Option<(String, Storage)>> = Mutex::new(None);
 
-fn with_db<R>(db_path: &str, f: impl FnOnce(&Storage) -> Result<R>) -> Result<R> {
+pub(crate) fn with_db<R>(db_path: &str, f: impl FnOnce(&Storage) -> Result<R>) -> Result<R> {
     let mut guard = OPEN.lock().map_err(|_| anyhow!("library lock poisoned"))?;
     let reuse = matches!(guard.as_ref(), Some((path, _)) if path == db_path);
     if !reuse {

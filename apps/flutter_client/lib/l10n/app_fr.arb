@@ -70,5 +70,61 @@
   "filterAll": "Tous",
   "filterTracks": "Filtrer les titres",
   "playAll": "Tout lire",
-  "comingSoonShort": "Bientôt disponible"
+  "comingSoonShort": "Bientôt disponible",
+  "nowPlaying": "En lecture",
+  "back": "Retour",
+  "tabQueue": "File",
+  "tabSound": "Son",
+  "nowCurrent": "En cours",
+  "upNext": "À suivre",
+  "clearQueue": "Vider",
+  "smartQueueTitle": "Continuer avec des titres proches",
+  "smartQueueBody": "Smart Queue, calculée sur l'appareil",
+  "lyricsHint": "{file} · clic sur une ligne pour y aller",
+  "@lyricsHint": {
+    "placeholders": {
+      "file": {
+        "type": "String"
+      }
+    }
+  },
+  "lyricsNoneTitle": "Pas de paroles pour ce titre",
+  "lyricsNoneBody": "Placez un fichier .lrc du même nom à côté du fichier audio : il sera lu automatiquement.",
+  "equalizer": "Égaliseur",
+  "equalizerBody": "Appliqué à toute la lecture audio",
+  "equalizerUnsupported": "Cet appareil ne propose pas d'égaliseur pour la lecture.",
+  "eqFlat": "Neutre",
+  "eqBass": "Basses",
+  "eqVoice": "Voix",
+  "eqRock": "Rock",
+  "eqClassic": "Classique",
+  "eqCustom": "Personnalisé",
+  "speed": "Vitesse",
+  "normalization": "Normalisation du volume",
+  "normalizationBody": "ReplayGain si présent",
+  "sleepTimer": "Minuteur",
+  "sleepMinutes": "{minutes} min",
+  "@sleepMinutes": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "sleepEndOfTrack": "Fin du titre",
+  "sleepOff": "Désactiver le minuteur",
+  "sleepRemaining": "Arrêt dans {time}",
+  "@sleepRemaining": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "upNextEmpty": "Rien après ce titre.",
+  "removeFromQueue": "Retirer de la file",
+  "closePlayer": "Réduire le lecteur",
+  "showLyrics": "Afficher les paroles",
+  "showCover": "Afficher la pochette",
+  "moreOptions": "Plus d'options"
 }

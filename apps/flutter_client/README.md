@@ -9,7 +9,8 @@ Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/000
 - `rust/` : crate `miarina_bridge` (flutter_rust_bridge) vers le cœur Rust partagé (`crates/`).
 - `lib/src/rust/` et `rust/src/frb_generated.rs` : code généré, ne pas modifier (`flutter_rust_bridge_codegen generate`).
 - `lib/design/` : tokens, thème, composants de base ; `mm_icons.g.dart` est généré par `dart run tool/gen_icons.dart <@phosphor-icons/web>`.
-- `lib/features/` : shell (Windows, Android), lecture (file d'attente), bibliothèque.
+- `lib/features/` : shell (Windows, Android), lecture (file d'attente, minuteur, égaliseur), En lecture (paroles, file, son ; lecteur Android), bibliothèque.
+- Capture automatisée sans saisie : `--dart-define=MM_START_ROUTE=/now?tab=lyrics` fixe l'écran de départ.
 - `lib/l10n/` : textes FR (référence) et EN ; les `app_localizations*.dart` sont générés par `flutter pub get`.
 
 ## Prérequis
@@ -31,7 +32,7 @@ flutter build windows --release
 flutter build apk --release --target-platform android-arm64
 ```
 
-Tests d'intégration (vrais moteurs). Les médias de test sont générés avec FFmpeg (MP3, FLAC, MP4, MKV à deux pistes audio et sous-titres, `externe.srt`), voir le rapport :
+Tests d'intégration (vrais moteurs). Les médias de test sont générés avec FFmpeg (MP3, FLAC, MP4, MKV à deux pistes audio et sous-titres, `externe.srt`, et `chanson.flac` avec `chanson.lrc` à côté), voir le rapport :
 
 ```powershell
 flutter test integration_test -d windows `

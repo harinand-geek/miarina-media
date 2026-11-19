@@ -5,6 +5,7 @@
 
 import 'api/browser_spike.dart';
 import 'api/library.dart';
+import 'api/settings.dart';
 
 import 'dart:async';
 import 'dart:convert';

@@ -480,6 +480,216 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Bientôt disponible'**
   String get comingSoonShort;
+
+  /// No description provided for @nowPlaying.
+  ///
+  /// In fr, this message translates to:
+  /// **'En lecture'**
+  String get nowPlaying;
+
+  /// No description provided for @back.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get back;
+
+  /// No description provided for @tabQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'File'**
+  String get tabQueue;
+
+  /// No description provided for @tabSound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son'**
+  String get tabSound;
+
+  /// No description provided for @nowCurrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours'**
+  String get nowCurrent;
+
+  /// No description provided for @upNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'À suivre'**
+  String get upNext;
+
+  /// No description provided for @clearQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider'**
+  String get clearQueue;
+
+  /// No description provided for @smartQueueTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec des titres proches'**
+  String get smartQueueTitle;
+
+  /// No description provided for @smartQueueBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Smart Queue, calculée sur l\'appareil'**
+  String get smartQueueBody;
+
+  /// No description provided for @lyricsHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'{file} · clic sur une ligne pour y aller'**
+  String lyricsHint(String file);
+
+  /// No description provided for @lyricsNoneTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de paroles pour ce titre'**
+  String get lyricsNoneTitle;
+
+  /// No description provided for @lyricsNoneBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Placez un fichier .lrc du même nom à côté du fichier audio : il sera lu automatiquement.'**
+  String get lyricsNoneBody;
+
+  /// No description provided for @equalizer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Égaliseur'**
+  String get equalizer;
+
+  /// No description provided for @equalizerBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appliqué à toute la lecture audio'**
+  String get equalizerBody;
+
+  /// No description provided for @equalizerUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet appareil ne propose pas d\'égaliseur pour la lecture.'**
+  String get equalizerUnsupported;
+
+  /// No description provided for @eqFlat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Neutre'**
+  String get eqFlat;
+
+  /// No description provided for @eqBass.
+  ///
+  /// In fr, this message translates to:
+  /// **'Basses'**
+  String get eqBass;
+
+  /// No description provided for @eqVoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voix'**
+  String get eqVoice;
+
+  /// No description provided for @eqRock.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rock'**
+  String get eqRock;
+
+  /// No description provided for @eqClassic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Classique'**
+  String get eqClassic;
+
+  /// No description provided for @eqCustom.
+  ///
+  /// In fr, this message translates to:
+  /// **'Personnalisé'**
+  String get eqCustom;
+
+  /// No description provided for @speed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vitesse'**
+  String get speed;
+
+  /// No description provided for @normalization.
+  ///
+  /// In fr, this message translates to:
+  /// **'Normalisation du volume'**
+  String get normalization;
+
+  /// No description provided for @normalizationBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'ReplayGain si présent'**
+  String get normalizationBody;
+
+  /// No description provided for @sleepTimer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Minuteur'**
+  String get sleepTimer;
+
+  /// No description provided for @sleepMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min'**
+  String sleepMinutes(int minutes);
+
+  /// No description provided for @sleepEndOfTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fin du titre'**
+  String get sleepEndOfTrack;
+
+  /// No description provided for @sleepOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactiver le minuteur'**
+  String get sleepOff;
+
+  /// No description provided for @sleepRemaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêt dans {time}'**
+  String sleepRemaining(String time);
+
+  /// No description provided for @upNextEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien après ce titre.'**
+  String get upNextEmpty;
+
+  /// No description provided for @removeFromQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de la file'**
+  String get removeFromQueue;
+
+  /// No description provided for @closePlayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduire le lecteur'**
+  String get closePlayer;
+
+  /// No description provided for @showLyrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher les paroles'**
+  String get showLyrics;
+
+  /// No description provided for @showCover.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher la pochette'**
+  String get showCover;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus d\'options'**
+  String get moreOptions;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

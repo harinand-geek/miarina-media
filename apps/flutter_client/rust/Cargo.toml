@@ -13,6 +13,7 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 anyhow = "1.0"
 flutter_rust_bridge = "=2.13.0"
+serde_json.workspace = true
 storage = { path = "../../../crates/storage" }
 
 [lints.rust]

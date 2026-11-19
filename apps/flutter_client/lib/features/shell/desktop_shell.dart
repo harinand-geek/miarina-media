@@ -1,21 +1,29 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/router.dart';
 import '../../design/tokens.dart';
+import '../now_playing/now_playing_screen.dart';
 import 'playback_bar.dart';
 import 'sidebar.dart';
 import 'title_bar.dart';
 
 /// Windows shell: title bar, sidebar, content, playback bar. Only the
 /// content changes between screens; the playback session is shared.
-class DesktopShell extends StatelessWidget {
+class DesktopShell extends ConsumerWidget {
   const DesktopShell({super.key, required this.location, required this.child});
 
   final String location;
   final Widget child;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
+    if (location != Routes.now) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(lastLocationProvider.notifier).set(location),
+      );
+    }
     final collapsed = MediaQuery.sizeOf(context).width < 1280;
     return Scaffold(
       backgroundColor: c.bg,

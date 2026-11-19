@@ -84,4 +84,9 @@ QueueEntry queueEntryOf(LibraryItem item, {required String unknownArtist}) =>
       subtitle: item.artist ?? unknownArtist,
       libraryId: item.id,
       favorite: item.favorite,
+      album: item.album,
+      duration: item.durationSecs == null
+          ? null
+          : Duration(milliseconds: (item.durationSecs! * 1000).round()),
+      format: item.format,
     );

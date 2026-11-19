@@ -4067,6 +4067,7 @@ dependencies = [
  "anyhow",
  "flutter_rust_bridge",
  "media-core",
+ "serde_json",
  "storage",
  "webview2-com",
  "windows",

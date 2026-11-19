@@ -4,7 +4,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/features/library/library_data.dart';
+import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
+import 'package:miarina_media/features/playback/settings_store.dart';
 
 import 'support/fakes.dart';
 
@@ -36,6 +38,8 @@ void main() {
           mediaEngineProvider.overrideWithValue(engine),
           libraryApiProvider.overrideWithValue(library),
           desktopShellProvider.overrideWithValue(desktop),
+          settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
+          lyricsLoaderProvider.overrideWithValue((_) async => null),
         ],
         child: const MiarinaApp(),
       ),
@@ -142,5 +146,52 @@ void main() {
     await tester.tap(find.text('Focus'));
     await settle(tester);
     expect(find.text('W-F1'), findsOneWidget);
+  });
+
+  Future<void> playFirstRow(WidgetTester tester) async {
+    await tester.tap(find.text('Basse marée'));
+    await tester.pump(const Duration(milliseconds: 50));
+    await tester.tap(find.text('Basse marée'));
+    await settle(tester);
+  }
+
+  testWidgets('the bar opens Now playing; tabs show queue and sound', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    await playFirstRow(tester);
+    await tester.tap(find.bySemanticsLabel(RegExp('^Ouvrir En lecture')));
+    await settle(tester);
+    expect(find.text('Pas de paroles pour ce titre'), findsOneWidget);
+    expect(find.text('FLAC'), findsWidgets);
+    await tester.tap(find.text('File'));
+    await settle(tester);
+    expect(find.text('Échos'), findsOneWidget, reason: 'next in the queue');
+    expect(find.text('P1'), findsWidgets);
+    await tester.tap(find.text('Son'));
+    await settle(tester);
+    await tester.tap(find.text('Voix'));
+    await settle(tester);
+    expect(engine.equalizer, [-2.5, -0.5, 4.0, 5.0, 2.0, -1.0]);
+    expect(find.text('Voix'), findsNWidgets(2), reason: 'preset and chip');
+  });
+
+  testWidgets('Android: mini player opens the full player; chevron closes', (
+    tester,
+  ) async {
+    await pumpApp(tester, size: const Size(392, 850), desktop: false);
+    await tester.tap(find.text('Basse marée'));
+    await settle(tester);
+    await tester.tap(find.bySemanticsLabel(RegExp('^Ouvrir En lecture')));
+    await settle(tester);
+    expect(find.bySemanticsLabel('Réduire le lecteur'), findsOneWidget);
+    expect(find.text('Album 1'), findsWidgets);
+    await tester.tap(find.bySemanticsLabel('Afficher les paroles'));
+    await settle(tester);
+    expect(find.text('Pas de paroles pour ce titre'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel('Réduire le lecteur'));
+    await settle(tester);
+    expect(find.bySemanticsLabel('Réduire le lecteur'), findsNothing);
+    expect(find.text('Tout lire'), findsOneWidget);
   });
 }
