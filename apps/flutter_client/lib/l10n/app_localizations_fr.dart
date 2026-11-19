@@ -842,4 +842,103 @@ class L10nFr extends L10n {
 
   @override
   String get p1Later => 'pour les deux dernières';
+
+  @override
+  String get navHistory => 'Historique';
+
+  @override
+  String get historySubtitle =>
+      'Lectures et positions, conservées sur cet appareil';
+
+  @override
+  String get historyClear => 'Effacer l\'historique…';
+
+  @override
+  String get historyClearTitle => 'Effacer l\'historique ?';
+
+  @override
+  String get historyClearBody =>
+      'Les lectures listées ici sont oubliées. Aucun fichier, favori ni point de reprise n\'est supprimé.';
+
+  @override
+  String get cancel => 'Annuler';
+
+  @override
+  String get clear => 'Effacer';
+
+  @override
+  String get today => 'Aujourd\'hui';
+
+  @override
+  String get yesterday => 'Hier';
+
+  @override
+  String positionOf(String position, String total) {
+    return '$position sur $total';
+  }
+
+  @override
+  String get finished => 'Terminé';
+
+  @override
+  String get replay => 'Revoir';
+
+  @override
+  String get historyEmptyTitle => 'Aucune lecture pour l\'instant';
+
+  @override
+  String get historyEmptyBody =>
+      'Ce que vous écoutez et regardez apparaîtra ici, avec la position où vous vous êtes arrêté.';
+
+  @override
+  String searchTitle(String query) {
+    return '« $query »';
+  }
+
+  @override
+  String searchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count résultats',
+      one: '1 résultat',
+      zero: 'aucun résultat',
+    );
+    return '$_temp0 dans la bibliothèque locale';
+  }
+
+  @override
+  String get bestResult => 'Meilleur résultat';
+
+  @override
+  String seeAllCount(int count) {
+    return 'Tout voir ($count)';
+  }
+
+  @override
+  String get searchTranscripts => 'Recherche dans les transcriptions';
+
+  @override
+  String searchEmptyTitle(String query) {
+    return 'Aucun résultat pour « $query »';
+  }
+
+  @override
+  String get searchEmptyBody =>
+      'La recherche ne tient pas compte des accents et trouve le début des mots. Essayez un autre mot.';
+
+  @override
+  String get searchHint => 'Tapez un titre, un artiste, un film ou un podcast.';
+
+  @override
+  String get kindTrack => 'Titre';
+
+  @override
+  String get kindAlbum => 'Album';
+
+  @override
+  String get kindArtist => 'Artiste';
+
+  @override
+  String get searchClear => 'Effacer la recherche';
 }

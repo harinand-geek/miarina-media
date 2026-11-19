@@ -498,5 +498,69 @@
   "sleepEndOfEpisode": "Minuteur : fin du fichier",
   "skipSilence": "Sauter les silences",
   "voiceBoost": "Voix renforcée",
-  "p1Later": "pour les deux dernières"
+  "p1Later": "pour les deux dernières",
+  "navHistory": "Historique",
+  "historySubtitle": "Lectures et positions, conservées sur cet appareil",
+  "historyClear": "Effacer l'historique…",
+  "historyClearTitle": "Effacer l'historique ?",
+  "historyClearBody": "Les lectures listées ici sont oubliées. Aucun fichier, favori ni point de reprise n'est supprimé.",
+  "cancel": "Annuler",
+  "clear": "Effacer",
+  "today": "Aujourd'hui",
+  "yesterday": "Hier",
+  "positionOf": "{position} sur {total}",
+  "@positionOf": {
+    "placeholders": {
+      "position": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "finished": "Terminé",
+  "replay": "Revoir",
+  "historyEmptyTitle": "Aucune lecture pour l'instant",
+  "historyEmptyBody": "Ce que vous écoutez et regardez apparaîtra ici, avec la position où vous vous êtes arrêté.",
+  "searchTitle": "« {query} »",
+  "@searchTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchCount": "{count, plural, =0{aucun résultat} =1{1 résultat} other{{count} résultats}} dans la bibliothèque locale",
+  "@searchCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "bestResult": "Meilleur résultat",
+  "seeAllCount": "Tout voir ({count})",
+  "@seeAllCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "searchTranscripts": "Recherche dans les transcriptions",
+  "searchEmptyTitle": "Aucun résultat pour « {query} »",
+  "@searchEmptyTitle": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "searchEmptyBody": "La recherche ne tient pas compte des accents et trouve le début des mots. Essayez un autre mot.",
+  "searchHint": "Tapez un titre, un artiste, un film ou un podcast.",
+  "kindTrack": "Titre",
+  "kindAlbum": "Album",
+  "kindArtist": "Artiste",
+  "searchClear": "Effacer la recherche"
 }

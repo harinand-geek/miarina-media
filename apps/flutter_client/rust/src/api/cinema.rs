@@ -87,7 +87,7 @@ fn file_stem(path: &str) -> String {
         .unwrap_or_default()
 }
 
-fn classify(m: MediaRecord) -> CinemaItem {
+pub(crate) fn classify(m: MediaRecord) -> CinemaItem {
     let parsed =
         cinema::parse_episode(&file_stem(&m.path)).or_else(|| cinema::parse_episode(&m.title));
     let tagged_series = m.album.clone().filter(|a| !a.trim().is_empty());

@@ -15,6 +15,7 @@ import '../cinema/cinema_widgets.dart';
 import '../cinema/watch_screen.dart' show speedLabel;
 import '../library/groups.dart';
 import '../playback/playback.dart';
+import '../search/search_screen.dart' show SearchButton;
 import 'focus_data.dart';
 
 enum FocusFilter { all, podcasts, courses, books }
@@ -93,9 +94,16 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
     final header = mobile
         ? Padding(
             padding: const EdgeInsets.fromLTRB(20, 12, 8, 10),
-            child: Text(
-              t.tabFocus,
-              style: MmType.display.copyWith(color: c.fg),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.tabFocus,
+                    style: MmType.display.copyWith(color: c.fg),
+                  ),
+                ),
+                const SearchButton(),
+              ],
             ),
           )
         : Padding(

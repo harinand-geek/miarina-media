@@ -11,6 +11,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/cinema.dart';
 import '../library/groups.dart';
+import '../search/search_screen.dart' show SearchButton;
 import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_widgets.dart';
@@ -47,7 +48,13 @@ String resumeLine(L10n t, CinemaItem v, Duration at) {
 }
 
 /// Plays [v]; an episode plays with the rest of its series queued after it.
-Future<void> playVideo(WidgetRef ref, L10n t, CinemaItem v) async {
+/// [fromStart] ignores its resume point.
+Future<void> playVideo(
+  WidgetRef ref,
+  L10n t,
+  CinemaItem v, {
+  bool fromStart = false,
+}) async {
   String label(CinemaItem e) => episodeTitle(t, e);
   final name = v.series;
   if (v.kind == CinemaKind.episode && name != null) {
@@ -58,11 +65,17 @@ Future<void> playVideo(WidgetRef ref, L10n t, CinemaItem v) async {
         ref.read(queueProvider.notifier),
         s.episodes,
         start: i,
+        fromStart: fromStart,
         label: label,
       );
     }
   }
-  await playVideos(ref.read(queueProvider.notifier), [v], label: label);
+  await playVideos(
+    ref.read(queueProvider.notifier),
+    [v],
+    fromStart: fromStart,
+    label: label,
+  );
 }
 
 String resumeTitle(L10n t, CinemaItem v) =>
@@ -102,7 +115,17 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
     if (mobile) {
       header = Padding(
         padding: const EdgeInsets.fromLTRB(20, 12, 8, 10),
-        child: Text(t.tabCinema, style: MmType.display.copyWith(color: c.fg)),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                t.tabCinema,
+                style: MmType.display.copyWith(color: c.fg),
+              ),
+            ),
+            const SearchButton(),
+          ],
+        ),
       );
     } else {
       header = Padding(

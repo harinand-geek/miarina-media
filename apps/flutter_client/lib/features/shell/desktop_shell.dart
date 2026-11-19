@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -36,23 +37,34 @@ class DesktopShell extends ConsumerWidget {
     if (watching && ref.watch(videoFullscreenProvider)) {
       return Scaffold(backgroundColor: c.video, body: content);
     }
-    return Scaffold(
-      backgroundColor: c.bg,
-      body: Column(
-        children: [
-          TitleBar(sideWidth: collapsed ? 64 : 232),
-          Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Sidebar(location: location, collapsed: collapsed),
-                Expanded(child: ClipRect(child: content)),
-              ],
-            ),
+    // Ctrl K: global search (W-02), from any screen of the window.
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.keyK, control: true): () =>
+            ref.read(searchFocusProvider).requestFocus(),
+      },
+      child: Focus(
+        autofocus: true,
+        child: Scaffold(
+          backgroundColor: c.bg,
+          body: Column(
+            children: [
+              TitleBar(sideWidth: collapsed ? 64 : 232, location: location),
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Sidebar(location: location, collapsed: collapsed),
+                    Expanded(child: ClipRect(child: content)),
+                  ],
+                ),
+              ),
+              // W-C3 and W-F2 have their own controls.
+              if (!watching && location != Routes.focusPlayer)
+                const PlaybackBar(),
+            ],
           ),
-          // W-C3 and W-F2 have their own controls.
-          if (!watching && location != Routes.focusPlayer) const PlaybackBar(),
-        ],
+        ),
       ),
     );
   }

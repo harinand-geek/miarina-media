@@ -10,6 +10,7 @@ import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
 import 'api/library.dart';
+import 'api/search.dart';
 import 'api/settings.dart';
 
 import 'dart:async';
@@ -44,6 +45,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusItem dco_decode_box_autoadd_focus_item(dynamic raw);
+
+  @protected
+  FocusKind dco_decode_box_autoadd_focus_kind(dynamic raw);
 
   @protected
   int dco_decode_box_autoadd_i_32(dynamic raw);
@@ -133,6 +137,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<(String, String?)> dco_decode_list_record_string_opt_string(dynamic raw);
 
   @protected
+  List<SearchHit> dco_decode_list_search_hit(dynamic raw);
+
+  @protected
   List<SeriesSummary> dco_decode_list_series_summary(dynamic raw);
 
   @protected
@@ -146,6 +153,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusItem? dco_decode_opt_box_autoadd_focus_item(dynamic raw);
+
+  @protected
+  FocusKind? dco_decode_opt_box_autoadd_focus_kind(dynamic raw);
 
   @protected
   int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
@@ -164,6 +174,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
+
+  @protected
+  SearchHit dco_decode_search_hit(dynamic raw);
+
+  @protected
+  SearchResults dco_decode_search_results(dynamic raw);
+
+  @protected
+  SearchSection dco_decode_search_section(dynamic raw);
 
   @protected
   SeriesDetail dco_decode_series_detail(dynamic raw);
@@ -203,6 +222,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusItem sse_decode_box_autoadd_focus_item(SseDeserializer deserializer);
+
+  @protected
+  FocusKind sse_decode_box_autoadd_focus_kind(SseDeserializer deserializer);
 
   @protected
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
@@ -304,6 +326,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<SearchHit> sse_decode_list_search_hit(SseDeserializer deserializer);
+
+  @protected
   List<SeriesSummary> sse_decode_list_series_summary(
     SseDeserializer deserializer,
   );
@@ -321,6 +346,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusItem? sse_decode_opt_box_autoadd_focus_item(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FocusKind? sse_decode_opt_box_autoadd_focus_kind(
     SseDeserializer deserializer,
   );
 
@@ -347,6 +377,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   (String, String?) sse_decode_record_string_opt_string(
     SseDeserializer deserializer,
   );
+
+  @protected
+  SearchHit sse_decode_search_hit(SseDeserializer deserializer);
+
+  @protected
+  SearchResults sse_decode_search_results(SseDeserializer deserializer);
+
+  @protected
+  SearchSection sse_decode_search_section(SseDeserializer deserializer);
 
   @protected
   SeriesDetail sse_decode_series_detail(SseDeserializer deserializer);
@@ -393,6 +432,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_focus_item(
     FocusItem self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_focus_kind(
+    FocusKind self,
     SseSerializer serializer,
   );
 
@@ -520,6 +565,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_search_hit(
+    List<SearchHit> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_series_summary(
     List<SeriesSummary> self,
     SseSerializer serializer,
@@ -540,6 +591,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_focus_item(
     FocusItem? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_focus_kind(
+    FocusKind? self,
     SseSerializer serializer,
   );
 
@@ -569,6 +626,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     (String, String?) self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_search_hit(SearchHit self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_results(SearchResults self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_section(SearchSection self, SseSerializer serializer);
 
   @protected
   void sse_encode_series_detail(SeriesDetail self, SseSerializer serializer);

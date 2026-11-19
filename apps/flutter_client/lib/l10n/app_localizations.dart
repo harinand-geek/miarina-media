@@ -1404,6 +1404,162 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'pour les deux dernières'**
   String get p1Later;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get navHistory;
+
+  /// No description provided for @historySubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lectures et positions, conservées sur cet appareil'**
+  String get historySubtitle;
+
+  /// No description provided for @historyClear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l\'historique…'**
+  String get historyClear;
+
+  /// No description provided for @historyClearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l\'historique ?'**
+  String get historyClearTitle;
+
+  /// No description provided for @historyClearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les lectures listées ici sont oubliées. Aucun fichier, favori ni point de reprise n\'est supprimé.'**
+  String get historyClearBody;
+
+  /// No description provided for @cancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get cancel;
+
+  /// No description provided for @clear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get clear;
+
+  /// No description provided for @today.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd\'hui'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get yesterday;
+
+  /// No description provided for @positionOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{position} sur {total}'**
+  String positionOf(String position, String total);
+
+  /// No description provided for @finished.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get finished;
+
+  /// No description provided for @replay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir'**
+  String get replay;
+
+  /// No description provided for @historyEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune lecture pour l\'instant'**
+  String get historyEmptyTitle;
+
+  /// No description provided for @historyEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que vous écoutez et regardez apparaîtra ici, avec la position où vous vous êtes arrêté.'**
+  String get historyEmptyBody;
+
+  /// No description provided for @searchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {query} »'**
+  String searchTitle(String query);
+
+  /// No description provided for @searchCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun résultat} =1{1 résultat} other{{count} résultats}} dans la bibliothèque locale'**
+  String searchCount(int count);
+
+  /// No description provided for @bestResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleur résultat'**
+  String get bestResult;
+
+  /// No description provided for @seeAllCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout voir ({count})'**
+  String seeAllCount(int count);
+
+  /// No description provided for @searchTranscripts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche dans les transcriptions'**
+  String get searchTranscripts;
+
+  /// No description provided for @searchEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat pour « {query} »'**
+  String searchEmptyTitle(String query);
+
+  /// No description provided for @searchEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La recherche ne tient pas compte des accents et trouve le début des mots. Essayez un autre mot.'**
+  String get searchEmptyBody;
+
+  /// No description provided for @searchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tapez un titre, un artiste, un film ou un podcast.'**
+  String get searchHint;
+
+  /// No description provided for @kindTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre'**
+  String get kindTrack;
+
+  /// No description provided for @kindAlbum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Album'**
+  String get kindAlbum;
+
+  /// No description provided for @kindArtist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Artiste'**
+  String get kindArtist;
+
+  /// No description provided for @searchClear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer la recherche'**
+  String get searchClear;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

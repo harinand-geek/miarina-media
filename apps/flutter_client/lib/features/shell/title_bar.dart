@@ -1,17 +1,29 @@
+import 'dart:async';
+
+import 'package:flutter/services.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:window_manager/window_manager.dart';
+
+import '../../app/router.dart';
 
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/logo.dart';
+import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../search/search_screen.dart' show searchUri;
 
 /// Windows title bar of the mockup: 40 px, logo, central search, window
 /// buttons. The empty area drags the window; double-click maximizes.
 class TitleBar extends StatefulWidget {
-  const TitleBar({super.key, required this.sideWidth});
+  const TitleBar({super.key, required this.sideWidth, required this.location});
 
   final double sideWidth;
+
+  /// Current route, so the search field can follow it.
+  final String location;
 
   @override
   State<TitleBar> createState() => _TitleBarState();
@@ -74,48 +86,56 @@ class _TitleBarState extends State<TitleBar> {
       child: Row(
         children: [
           Expanded(
-            child: DragToMoveArea(
-              child: GestureDetector(
-                onDoubleTap: _toggleMaximize,
-                behavior: HitTestBehavior.translucent,
-                child: Row(
+            child: Stack(
+              children: [
+                // The empty title bar moves the window; the search field
+                // sits above it so typing never drags.
+                Positioned.fill(
+                  child: DragToMoveArea(
+                    child: GestureDetector(
+                      onDoubleTap: _toggleMaximize,
+                      behavior: HitTestBehavior.translucent,
+                      child: const SizedBox.expand(),
+                    ),
+                  ),
+                ),
+                Row(
                   children: [
-                    SizedBox(
-                      width: widget.sideWidth,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: [
-                            const MiarinaLogo(),
-                            if (widget.sideWidth > 100) ...[
-                              const SizedBox(width: 10),
-                              Text(
-                                t.appTitle,
-                                style: MmType.heading.copyWith(
-                                  fontSize: 13,
-                                  color: c.fg,
-                                  fontWeight: FontWeight.w800,
-                                  fontVariations: const [
-                                    FontVariation.weight(800),
-                                  ],
+                    IgnorePointer(
+                      child: SizedBox(
+                        width: widget.sideWidth,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            children: [
+                              const MiarinaLogo(),
+                              if (widget.sideWidth > 100) ...[
+                                const SizedBox(width: 10),
+                                Text(
+                                  t.appTitle,
+                                  style: MmType.heading.copyWith(
+                                    fontSize: 13,
+                                    color: c.fg,
+                                    fontWeight: FontWeight.w800,
+                                    fontVariations: const [
+                                      FontVariation.weight(800),
+                                    ],
+                                  ),
                                 ),
-                              ),
+                              ],
                             ],
-                          ],
+                          ),
                         ),
                       ),
                     ),
                     Expanded(
                       child: Center(
-                        child: _SearchPill(
-                          placeholder: t.searchPlaceholder,
-                          tooltip: t.comingSoonShort,
-                        ),
+                        child: SearchField(location: widget.location),
                       ),
                     ),
                   ],
                 ),
-              ),
+              ],
             ),
           ),
           _WindowButton(
@@ -145,52 +165,150 @@ class _TitleBarState extends State<TitleBar> {
   }
 }
 
-/// Global search (Ctrl K) comes with the W-02 screen; until then the field is
-/// shown as in the design but inert, and says so.
-class _SearchPill extends StatelessWidget {
-  const _SearchPill({required this.placeholder, required this.tooltip});
+/// Focus of the title bar search field; Ctrl K anywhere in the window
+/// requests it.
+final searchFocusProvider = Provider<FocusNode>((ref) {
+  final node = FocusNode(debugLabel: 'search');
+  ref.onDispose(node.dispose);
+  return node;
+});
 
-  final String placeholder;
-  final String tooltip;
+/// Global search of the title bar (W-02): typing shows the results screen
+/// (after 200 ms without a key), Esc clears it and returns to the screen
+/// the search started from.
+class SearchField extends ConsumerStatefulWidget {
+  const SearchField({super.key, required this.location});
+
+  final String location;
+
+  @override
+  ConsumerState<SearchField> createState() => _SearchFieldState();
+}
+
+class _SearchFieldState extends ConsumerState<SearchField> {
+  final _text = TextEditingController();
+  Timer? _debounce;
+  String? _before;
+
+  bool get _onSearch => widget.location == Routes.search;
+
+  @override
+  void didUpdateWidget(SearchField old) {
+    super.didUpdateWidget(old);
+    // Leaving the results (sidebar, back) empties the field.
+    if (!_onSearch && old.location == Routes.search) {
+      _text.clear();
+      _before = null;
+    }
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _text.dispose();
+    super.dispose();
+  }
+
+  void _show(String value) {
+    final router = GoRouter.of(context);
+    if (value.trim().isEmpty) {
+      if (_onSearch) router.go(_before ?? Routes.listenHome);
+      return;
+    }
+    if (!_onSearch) _before = widget.location;
+    router.go(searchUri(value));
+  }
+
+  void _escape() {
+    _debounce?.cancel();
+    _text.clear();
+    ref.read(searchFocusProvider).unfocus();
+    if (_onSearch) GoRouter.of(context).go(_before ?? Routes.listenHome);
+  }
 
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
-    return Tooltip(
-      message: tooltip,
-      child: Container(
-        width: 420,
-        height: 30,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
-        decoration: BoxDecoration(
-          color: c.surface,
-          borderRadius: BorderRadius.circular(MmRadius.pill),
-          border: Border.all(color: c.line),
-        ),
-        child: Row(
-          children: [
-            Icon(PhosphorRegular.magnifyingGlass, size: 16, color: c.faint),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(
-                placeholder,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: MmType.caption.copyWith(fontSize: 12.5, color: c.faint),
-              ),
+    final t = L10n.of(context);
+    final focus = ref.watch(searchFocusProvider);
+    return SizedBox(
+      width: 420,
+      height: 30,
+      child: CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): _escape},
+        child: ListenableBuilder(
+          listenable: focus,
+          builder: (context, _) => Container(
+            padding: const EdgeInsets.only(left: 12, right: 6),
+            decoration: BoxDecoration(
+              color: c.surface,
+              borderRadius: BorderRadius.circular(MmRadius.pill),
+              border: Border.all(color: focus.hasFocus ? c.accent : c.line),
             ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 5),
-              decoration: BoxDecoration(
-                border: Border.all(color: c.lineStrong),
-                borderRadius: BorderRadius.circular(MmRadius.xs),
-              ),
-              child: Text(
-                'Ctrl K',
-                style: MmType.monoStyle(size: 11, color: c.faint),
-              ),
+            child: Row(
+              children: [
+                Icon(PhosphorRegular.magnifyingGlass, size: 16, color: c.faint),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: TextField(
+                    controller: _text,
+                    focusNode: focus,
+                    style: MmType.caption.copyWith(fontSize: 12.5, color: c.fg),
+                    cursorColor: c.accent,
+                    cursorHeight: 14,
+                    textInputAction: TextInputAction.search,
+                    decoration: InputDecoration.collapsed(
+                      hintText: t.searchPlaceholder,
+                      hintStyle: MmType.caption.copyWith(
+                        fontSize: 12.5,
+                        color: c.faint,
+                      ),
+                    ),
+                    onChanged: (v) {
+                      _debounce?.cancel();
+                      _debounce = Timer(
+                        const Duration(milliseconds: 200),
+                        () => mounted ? _show(v) : null,
+                      );
+                    },
+                    onSubmitted: (v) {
+                      _debounce?.cancel();
+                      _show(v);
+                    },
+                  ),
+                ),
+                ListenableBuilder(
+                  listenable: _text,
+                  builder: (context, _) => _text.text.isEmpty
+                      ? Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 5),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: c.lineStrong),
+                            borderRadius: BorderRadius.circular(MmRadius.xs),
+                          ),
+                          child: Text(
+                            'Ctrl K',
+                            style: MmType.monoStyle(size: 11, color: c.faint),
+                          ),
+                        )
+                      : Pressable(
+                          onTap: _escape,
+                          tooltip: t.searchClear,
+                          semanticLabel: t.searchClear,
+                          child: SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: Icon(
+                              PhosphorRegular.x,
+                              size: 14,
+                              color: c.muted,
+                            ),
+                          ),
+                        ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

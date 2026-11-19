@@ -12,6 +12,8 @@ import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
+import '../features/history/history_screen.dart';
+import '../features/search/search_screen.dart';
 import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
 import '../features/library/group_screen.dart';
@@ -25,6 +27,8 @@ import '../features/shell/mobile_shell.dart';
 /// Route paths, one per screen ID of the handoff (Handoff §05).
 abstract final class Routes {
   static const listenHome = '/listen';
+  static const history = '/listen/history';
+  static const search = '/listen/search';
   static const albums = '/listen/music/albums';
   static const album = '/listen/music/albums/album';
   static const artists = '/listen/music/artists';
@@ -147,6 +151,15 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           screen(Routes.playlists, () => const ComingSoon(screenId: 'W-M5')),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
+          screen(Routes.history, () => const HistoryScreen()),
+          GoRoute(
+            path: Routes.search,
+            // Same page while typing: only the results change.
+            pageBuilder: (context, state) => _ScreenPage(
+              key: const ValueKey('search'),
+              child: SearchScreen(query: state.uri.queryParameters['q'] ?? ''),
+            ),
+          ),
           screen(Routes.cinema, () => const CinemaScreen()),
           GoRoute(
             path: Routes.series,

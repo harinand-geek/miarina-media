@@ -7,6 +7,7 @@ import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
 import 'api/library.dart';
+import 'api/search.dart';
 import 'api/settings.dart';
 
 import 'dart:async';
@@ -73,7 +74,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1903073563;
+  int get rustContentHash => 1880951006;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -132,6 +133,12 @@ abstract class RustLibApi extends BaseApi {
   Future<LibraryItem?> crateApiLibraryLibraryItemByPath({
     required String dbPath,
     required String path,
+  });
+
+  Future<SearchResults> crateApiSearchLibrarySearch({
+    required String dbPath,
+    required String query,
+    required int limit,
   });
 
   Future<void> crateApiLibraryLibrarySetFavorite({
@@ -563,6 +570,43 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<SearchResults> crateApiSearchLibrarySearch({
+    required String dbPath,
+    required String query,
+    required int limit,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(dbPath, serializer);
+          sse_encode_String(query, serializer);
+          sse_encode_u_32(limit, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 12,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_search_results,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiSearchLibrarySearchConstMeta,
+        argValues: [dbPath, query, limit],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiSearchLibrarySearchConstMeta =>
+      const TaskConstMeta(
+        debugName: "library_search",
+        argNames: ["dbPath", "query", "limit"],
+      );
+
+  @override
   Future<void> crateApiLibraryLibrarySetFavorite({
     required String dbPath,
     required PlatformInt64 mediaId,
@@ -578,7 +622,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 12,
+            funcId: 13,
             port: port_,
           );
         },
@@ -613,7 +657,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 13,
+            funcId: 14,
             port: port_,
           );
         },
@@ -660,7 +704,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 14,
+            funcId: 15,
             port: port_,
           );
         },
@@ -713,7 +757,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 15,
+            funcId: 16,
             port: port_,
           );
         },
@@ -748,7 +792,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 16,
+            funcId: 17,
             port: port_,
           );
         },
@@ -783,7 +827,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 17,
+            funcId: 18,
             port: port_,
           );
         },
@@ -820,7 +864,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 18,
+            funcId: 19,
             port: port_,
           );
         },
@@ -847,7 +891,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 19)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -869,7 +913,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 20)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_list_detected_media_item,
@@ -902,7 +946,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_i_32(y, serializer);
           sse_encode_i_32(width, serializer);
           sse_encode_i_32(height, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 21)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 22)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_webview_spike_info,
@@ -955,6 +999,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FocusItem dco_decode_box_autoadd_focus_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_focus_item(raw);
+  }
+
+  @protected
+  FocusKind dco_decode_box_autoadd_focus_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_focus_kind(raw);
   }
 
   @protected
@@ -1239,6 +1289,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SearchHit> dco_decode_list_search_hit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_search_hit).toList();
+  }
+
+  @protected
   List<SeriesSummary> dco_decode_list_series_summary(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_series_summary).toList();
@@ -1266,6 +1322,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FocusItem? dco_decode_opt_box_autoadd_focus_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_focus_item(raw);
+  }
+
+  @protected
+  FocusKind? dco_decode_opt_box_autoadd_focus_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_focus_kind(raw);
   }
 
   @protected
@@ -1306,6 +1368,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       throw Exception('Expected 2 elements, got ${arr.length}');
     }
     return (dco_decode_String(arr[0]), dco_decode_opt_String(arr[1]));
+  }
+
+  @protected
+  SearchHit dco_decode_search_hit(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return SearchHit(
+      item: dco_decode_library_item(arr[0]),
+      section: dco_decode_search_section(arr[1]),
+      video: dco_decode_opt_box_autoadd_cinema_item(arr[2]),
+      focusKind: dco_decode_opt_box_autoadd_focus_kind(arr[3]),
+      program: dco_decode_opt_String(arr[4]),
+    );
+  }
+
+  @protected
+  SearchResults dco_decode_search_results(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return SearchResults(
+      hits: dco_decode_list_search_hit(arr[0]),
+      total: dco_decode_u_64(arr[1]),
+    );
+  }
+
+  @protected
+  SearchSection dco_decode_search_section(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SearchSection.values[raw as int];
   }
 
   @protected
@@ -1414,6 +1509,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   FocusItem sse_decode_box_autoadd_focus_item(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_focus_item(deserializer));
+  }
+
+  @protected
+  FocusKind sse_decode_box_autoadd_focus_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_focus_kind(deserializer));
   }
 
   @protected
@@ -1789,6 +1890,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SearchHit> sse_decode_list_search_hit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SearchHit>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_search_hit(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<SeriesSummary> sse_decode_list_series_summary(
     SseDeserializer deserializer,
   ) {
@@ -1845,6 +1958,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_focus_item(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  FocusKind? sse_decode_opt_box_autoadd_focus_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_focus_kind(deserializer));
     } else {
       return null;
     }
@@ -1917,6 +2043,38 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_field0 = sse_decode_String(deserializer);
     var var_field1 = sse_decode_opt_String(deserializer);
     return (var_field0, var_field1);
+  }
+
+  @protected
+  SearchHit sse_decode_search_hit(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_item = sse_decode_library_item(deserializer);
+    var var_section = sse_decode_search_section(deserializer);
+    var var_video = sse_decode_opt_box_autoadd_cinema_item(deserializer);
+    var var_focusKind = sse_decode_opt_box_autoadd_focus_kind(deserializer);
+    var var_program = sse_decode_opt_String(deserializer);
+    return SearchHit(
+      item: var_item,
+      section: var_section,
+      video: var_video,
+      focusKind: var_focusKind,
+      program: var_program,
+    );
+  }
+
+  @protected
+  SearchResults sse_decode_search_results(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_hits = sse_decode_list_search_hit(deserializer);
+    var var_total = sse_decode_u_64(deserializer);
+    return SearchResults(hits: var_hits, total: var_total);
+  }
+
+  @protected
+  SearchSection sse_decode_search_section(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SearchSection.values[inner];
   }
 
   @protected
@@ -2040,6 +2198,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_focus_item(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_focus_kind(
+    FocusKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_focus_kind(self, serializer);
   }
 
   @protected
@@ -2331,6 +2498,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_search_hit(
+    List<SearchHit> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_search_hit(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_series_summary(
     List<SeriesSummary> self,
     SseSerializer serializer,
@@ -2385,6 +2564,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_focus_item(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_focus_kind(
+    FocusKind? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_focus_kind(self, serializer);
     }
   }
 
@@ -2452,6 +2644,29 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.$1, serializer);
     sse_encode_opt_String(self.$2, serializer);
+  }
+
+  @protected
+  void sse_encode_search_hit(SearchHit self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_library_item(self.item, serializer);
+    sse_encode_search_section(self.section, serializer);
+    sse_encode_opt_box_autoadd_cinema_item(self.video, serializer);
+    sse_encode_opt_box_autoadd_focus_kind(self.focusKind, serializer);
+    sse_encode_opt_String(self.program, serializer);
+  }
+
+  @protected
+  void sse_encode_search_results(SearchResults self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_search_hit(self.hits, serializer);
+    sse_encode_u_64(self.total, serializer);
+  }
+
+  @protected
+  void sse_encode_search_section(SearchSection self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected

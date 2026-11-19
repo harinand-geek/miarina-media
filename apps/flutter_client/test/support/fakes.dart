@@ -4,12 +4,14 @@ import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/search/search_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/cinema.dart';
 import 'package:miarina_media/src/rust/api/focus.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
+import 'package:miarina_media/src/rust/api/search.dart';
 
 class FakePlaybackStore implements PlaybackStore {
   final values = <String, String>{};
@@ -420,4 +422,23 @@ class FakeFocusApi implements FocusApi {
   @override
   Future<FocusItem?> entry(int id) async =>
       items.where((f) => f.item.id == id).firstOrNull;
+}
+
+/// Search over fixed hits with the core's rule (every word starts a word).
+class FakeSearchApi implements SearchApi {
+  FakeSearchApi(this.hits);
+
+  final List<SearchHit> hits;
+
+  @override
+  Future<SearchResults> search(String query, {int limit = 200}) async {
+    final found = [
+      for (final h in hits)
+        if (matchesWords(h.item.title, query)) h,
+    ];
+    return SearchResults(
+      hits: found.take(limit).toList(),
+      total: BigInt.from(found.length),
+    );
+  }
 }

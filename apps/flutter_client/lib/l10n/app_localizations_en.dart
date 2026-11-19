@@ -840,4 +840,102 @@ class L10nEn extends L10n {
 
   @override
   String get p1Later => 'for the last two';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get historySubtitle => 'Plays and positions, kept on this device';
+
+  @override
+  String get historyClear => 'Clear history…';
+
+  @override
+  String get historyClearTitle => 'Clear history?';
+
+  @override
+  String get historyClearBody =>
+      'The plays listed here are forgotten. No file, favorite or resume point is deleted.';
+
+  @override
+  String get cancel => 'Cancel';
+
+  @override
+  String get clear => 'Clear';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String positionOf(String position, String total) {
+    return '$position of $total';
+  }
+
+  @override
+  String get finished => 'Finished';
+
+  @override
+  String get replay => 'Play again';
+
+  @override
+  String get historyEmptyTitle => 'Nothing played yet';
+
+  @override
+  String get historyEmptyBody =>
+      'What you listen to and watch will show here, with the position where you stopped.';
+
+  @override
+  String searchTitle(String query) {
+    return '“$query”';
+  }
+
+  @override
+  String searchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count results',
+      one: '1 result',
+      zero: 'no results',
+    );
+    return '$_temp0 in the local library';
+  }
+
+  @override
+  String get bestResult => 'Top result';
+
+  @override
+  String seeAllCount(int count) {
+    return 'See all ($count)';
+  }
+
+  @override
+  String get searchTranscripts => 'Search in transcripts';
+
+  @override
+  String searchEmptyTitle(String query) {
+    return 'No results for “$query”';
+  }
+
+  @override
+  String get searchEmptyBody =>
+      'Search ignores accents and matches the start of words. Try another word.';
+
+  @override
+  String get searchHint => 'Type a title, an artist, a film or a podcast.';
+
+  @override
+  String get kindTrack => 'Track';
+
+  @override
+  String get kindAlbum => 'Album';
+
+  @override
+  String get kindArtist => 'Artist';
+
+  @override
+  String get searchClear => 'Clear the search';
 }

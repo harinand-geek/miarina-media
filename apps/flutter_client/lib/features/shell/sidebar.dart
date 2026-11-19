@@ -44,6 +44,13 @@ class Sidebar extends ConsumerWidget {
             PhosphorRegular.house,
             PhosphorFill.house,
           ),
+          // W-03, under Home in the Cinema & Focus mockups.
+          _Entry(
+            Routes.history,
+            t.navHistory,
+            PhosphorRegular.clockCounterClockwise,
+            PhosphorFill.clockCounterClockwise,
+          ),
         ],
       ),
       (

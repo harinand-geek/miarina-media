@@ -16,6 +16,7 @@ import '../library/library_data.dart';
 import '../now_playing/lyrics_view.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
+import '../search/search_screen.dart' show SearchButton;
 import 'home_data.dart';
 
 /// W-00 Accueil Écouter (Windows) and A-00 Accueil Musique (Android):
@@ -928,6 +929,7 @@ class _MobileHome extends ConsumerWidget {
                   style: MmType.display.copyWith(color: c.fg),
                 ),
               ),
+              const SearchButton(),
               Pressable(
                 onTap: () => context.go(Routes.settings),
                 semanticLabel: t.navSettings,
