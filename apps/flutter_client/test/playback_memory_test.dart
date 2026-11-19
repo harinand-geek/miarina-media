@@ -135,6 +135,8 @@ void main() {
       engine.emit(engine.current.copyWith(status: PlaybackStatus.ended));
       await pumpEventQueue();
       expect(store.values.containsKey(positionKey(5)), isFalse);
+      // History keeps the end, as 0.1.x does: the video counts as watched.
+      expect(parseHistory(store.values[historyKey]).single.position, 240);
     });
 
     test('switching track saves where the previous one stopped', () async {

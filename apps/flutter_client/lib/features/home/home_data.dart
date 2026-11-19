@@ -1,17 +1,22 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../src/rust/api/cinema.dart';
 import '../../src/rust/api/library.dart';
+import '../cinema/cinema_data.dart';
 import '../library/library_data.dart';
 import '../playback/playback.dart';
 import '../playback/playback_memory.dart';
 
 @immutable
 class ResumeItem {
-  const ResumeItem(this.item, this.position);
+  const ResumeItem(this.item, this.position, {this.video});
 
   final LibraryItem item;
   final Duration position;
+
+  /// Cinema details of a video (series, episode), for its title.
+  final CinemaItem? video;
 
   Duration? get remaining {
     final secs = item.durationSecs;
@@ -93,7 +98,11 @@ final homeProvider = FutureProvider<HomeData>((ref) async {
     final at = await memory.savedPosition(e.id);
     if (at == null) continue;
     final item = await api.item(e.id);
-    if (item != null && !item.missing) resume.add(ResumeItem(item, at));
+    if (item == null || item.missing) continue;
+    final video = item.isVideo
+        ? await ref.read(cinemaApiProvider).item(item.id)
+        : null;
+    resume.add(ResumeItem(item, at, video: video));
   }
 
   final most = <LibraryItem>[];

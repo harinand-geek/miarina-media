@@ -10,6 +10,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart';
+import '../cinema/cinema_screen.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/lyrics_view.dart';
@@ -136,9 +137,27 @@ class _Link extends StatelessWidget {
 String _kindLabel(L10n t, LibraryItem i) =>
     i.isVideo ? t.tabCinema : t.tabMusic;
 
-Future<void> _resume(WidgetRef ref, L10n t, LibraryItem item) => ref
-    .read(queueProvider.notifier)
-    .playAll([queueEntryOf(item, unknownArtist: t.unknownArtist)]);
+/// Resumes [r]; a video opens its player (W-C3 / A-04), an episode with
+/// the rest of its series after it.
+Future<void> _resume(
+  BuildContext context,
+  WidgetRef ref,
+  L10n t,
+  ResumeItem r,
+) async {
+  final video = r.video;
+  if (video != null) {
+    await playVideo(ref, t, video);
+  } else {
+    await ref.read(queueProvider.notifier).playAll([
+      queueEntryOf(r.item, unknownArtist: t.unknownArtist),
+    ]);
+  }
+  if (r.item.isVideo && context.mounted) context.push(Routes.watch);
+}
+
+String _resumeTitle(L10n t, ResumeItem r) =>
+    r.video == null ? r.item.title : resumeTitle(t, r.video!);
 
 /// "Reprendre" (W-00): 216 px card on the blurred cover, progress, resume
 /// button with the exact time; several unfinished items page sideways.
@@ -228,8 +247,7 @@ class _ResumePage extends ConsumerWidget {
     final i = r.item;
     final left = r.remaining;
     final sub = [
-      i.artist,
-      i.album,
+      if (r.video == null) ...[i.artist, i.album] else r.video!.episodeTitle,
       if (left != null) t.minutesLeft(left.inMinutes),
     ].whereType<String>().join(' · ');
     return Stack(
@@ -275,7 +293,7 @@ class _ResumePage extends ConsumerWidget {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      i.title,
+                      _resumeTitle(t, r),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       style: MmType.display.copyWith(color: c.fg),
@@ -320,7 +338,7 @@ class _ResumePage extends ConsumerWidget {
                             label: t.homeResumeAt(formatClock(r.position)),
                             icon: PhosphorFill.play,
                             primary: true,
-                            onTap: () => _resume(ref, t, i),
+                            onTap: () => _resume(context, ref, t, r),
                           ),
                         ),
                         if (i.album != null) ...[
@@ -939,7 +957,7 @@ class _MobileHome extends ConsumerWidget {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          r.item.title,
+                          _resumeTitle(t, r),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: MmType.titleLg.copyWith(
@@ -965,7 +983,7 @@ class _MobileHome extends ConsumerWidget {
                           label: t.homeResume,
                           icon: PhosphorFill.play,
                           primary: true,
-                          onTap: () => _resume(ref, t, r.item),
+                          onTap: () => _resume(context, ref, t, r),
                         ),
                       ],
                     ),

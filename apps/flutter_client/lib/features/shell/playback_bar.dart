@@ -112,6 +112,10 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
     if (entry == null) return row;
     return Pressable(
       onTap: () {
+        if (entry.isVideo) {
+          context.go(Routes.watch);
+          return;
+        }
         ref.read(coverOriginProvider.notifier).capture(_cover);
         context.go(Routes.now);
       },

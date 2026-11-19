@@ -61,7 +61,7 @@ pub(crate) fn with_db<R>(db_path: &str, f: impl FnOnce(&Storage) -> Result<R>) -
     f(db)
 }
 
-fn item(m: MediaRecord) -> LibraryItem {
+pub(crate) fn item(m: MediaRecord) -> LibraryItem {
     let format = m
         .audio_codec
         .as_deref()
@@ -132,7 +132,11 @@ pub fn library_tracks(
             favorites: favorites_only,
             album,
             artist,
-            sort: if recent { MediaSort::Added } else { MediaSort::Title },
+            sort: if recent {
+                MediaSort::Added
+            } else {
+                MediaSort::Title
+            },
             offset,
             limit: limit.clamp(1, 500),
             ..MediaQuery::default()

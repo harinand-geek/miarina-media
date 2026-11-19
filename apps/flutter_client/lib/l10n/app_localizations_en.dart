@@ -455,4 +455,207 @@ class L10nEn extends L10n {
   @override
   String get nowPlayingHint =>
       'Start a track: it shows here, with its lyrics and what comes next.';
+
+  @override
+  String filmsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count films',
+      one: '1 film',
+      zero: 'no films',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String seriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count series',
+      one: '1 series',
+      zero: 'no series',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String videosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count videos',
+      one: '1 video',
+      zero: 'no videos',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String seasonsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count seasons',
+      one: '1 season',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get segAll => 'All';
+
+  @override
+  String get segFilms => 'Films';
+
+  @override
+  String get segSeries => 'Series';
+
+  @override
+  String get sortBy => 'Sort';
+
+  @override
+  String get sortTitle => 'Title';
+
+  @override
+  String get sortAdded => 'Recently added';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get kindFilm => 'Film';
+
+  @override
+  String get kindPersonal => 'Personal video';
+
+  @override
+  String resumeAtShort(String time) {
+    return 'resume at $time';
+  }
+
+  @override
+  String episodeShort(int season, int episode) {
+    return 'S$season E$episode';
+  }
+
+  @override
+  String episodeLabel(int episode, String title) {
+    return 'E$episode · $title';
+  }
+
+  @override
+  String episodeNumber(int episode) {
+    return 'Episode $episode';
+  }
+
+  @override
+  String get cinemaEmptyTitle => 'No films or series yet';
+
+  @override
+  String get cinemaEmptyBody =>
+      'Videos of 40 minutes or more show up here as films. Files named like S01E04, or tagged with a series, make up series.';
+
+  @override
+  String get cinemaNoMatch => 'Nothing in this category yet.';
+
+  @override
+  String get personalEmptyTitle => 'No personal videos';
+
+  @override
+  String get personalEmptyBody =>
+      'Short videos from the library (clips, phone videos) show up here.';
+
+  @override
+  String get seriesWord => 'Series';
+
+  @override
+  String get seriesMissing => 'This series is no longer in the library.';
+
+  @override
+  String resumeEpisode(int season, int episode, String time) {
+    return 'Resume S$season · E$episode at $time';
+  }
+
+  @override
+  String playEpisode(int season, int episode) {
+    return 'Play S$season · E$episode';
+  }
+
+  @override
+  String get fromStart => 'From the start';
+
+  @override
+  String seasonNumber(int season) {
+    return 'Season $season';
+  }
+
+  @override
+  String seenOf(int seen, int total) {
+    return '$seen watched of $total';
+  }
+
+  @override
+  String get watched => 'Watched';
+
+  @override
+  String resumeAtLeft(String time, String left) {
+    return 'Resume at $time · $left';
+  }
+
+  @override
+  String subtitlesLangs(String langs) {
+    return 'Subtitles $langs';
+  }
+
+  @override
+  String get subtitles => 'Subtitles';
+
+  @override
+  String get subtitlesOff => 'Off';
+
+  @override
+  String get subtitlesLoad => 'Load an SRT / VTT / ASS file…';
+
+  @override
+  String get subtitlesExternal => 'external';
+
+  @override
+  String get audioTrack => 'Audio track';
+
+  @override
+  String get noTracks => 'No other track in this file';
+
+  @override
+  String get replay10 => 'Back 10 s';
+
+  @override
+  String get forward10 => 'Forward 10 s';
+
+  @override
+  String get fullscreen => 'Full screen (F)';
+
+  @override
+  String get fullscreenExit => 'Exit full screen (Esc)';
+
+  @override
+  String get chapters => 'Chapters';
+
+  @override
+  String get chaptersSoon => 'The file\'s chapters will show here.';
+
+  @override
+  String get nextEpisode => 'Next episode';
+
+  @override
+  String get autoNext => 'Plays automatically at the end';
+
+  @override
+  String get videoLoading => 'Opening the video…';
+
+  @override
+  String get videoUnavailable => 'No video playing';
 }

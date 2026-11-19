@@ -7,6 +7,7 @@
 // ignore_for_file: argument_type_not_assignable
 
 import 'api/browser_spike.dart';
+import 'api/cinema.dart';
 import 'api/library.dart';
 import 'api/settings.dart';
 
@@ -35,6 +36,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  CinemaItem dco_decode_box_autoadd_cinema_item(dynamic raw);
+
+  @protected
   double dco_decode_box_autoadd_f_64(dynamic raw);
 
   @protected
@@ -44,10 +48,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem dco_decode_box_autoadd_library_item(dynamic raw);
 
   @protected
+  SeriesDetail dco_decode_box_autoadd_series_detail(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  CinemaItem dco_decode_cinema_item(dynamic raw);
+
+  @protected
+  CinemaKind dco_decode_cinema_kind(dynamic raw);
+
+  @protected
+  CinemaLibrary dco_decode_cinema_library(dynamic raw);
 
   @protected
   DetectedMediaItem dco_decode_detected_media_item(dynamic raw);
@@ -74,6 +90,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibrarySummary dco_decode_library_summary(dynamic raw);
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
+  List<CinemaItem> dco_decode_list_cinema_item(dynamic raw);
+
+  @protected
   List<DetectedMediaItem> dco_decode_list_detected_media_item(dynamic raw);
 
   @protected
@@ -89,7 +111,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<(String, String?)> dco_decode_list_record_string_opt_string(dynamic raw);
 
   @protected
+  List<SeriesSummary> dco_decode_list_series_summary(dynamic raw);
+
+  @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  CinemaItem? dco_decode_opt_box_autoadd_cinema_item(dynamic raw);
 
   @protected
   double? dco_decode_opt_box_autoadd_f_64(dynamic raw);
@@ -101,6 +129,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem? dco_decode_opt_box_autoadd_library_item(dynamic raw);
 
   @protected
+  SeriesDetail? dco_decode_opt_box_autoadd_series_detail(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
 
   @protected
@@ -108,6 +139,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
+
+  @protected
+  SeriesDetail dco_decode_series_detail(dynamic raw);
+
+  @protected
+  SeriesSummary dco_decode_series_summary(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -134,6 +171,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  CinemaItem sse_decode_box_autoadd_cinema_item(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
 
   @protected
@@ -143,10 +183,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem sse_decode_box_autoadd_library_item(SseDeserializer deserializer);
 
   @protected
+  SeriesDetail sse_decode_box_autoadd_series_detail(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  CinemaItem sse_decode_cinema_item(SseDeserializer deserializer);
+
+  @protected
+  CinemaKind sse_decode_cinema_kind(SseDeserializer deserializer);
+
+  @protected
+  CinemaLibrary sse_decode_cinema_library(SseDeserializer deserializer);
 
   @protected
   DetectedMediaItem sse_decode_detected_media_item(
@@ -175,6 +229,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibrarySummary sse_decode_library_summary(SseDeserializer deserializer);
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
+  List<CinemaItem> sse_decode_list_cinema_item(SseDeserializer deserializer);
+
+  @protected
   List<DetectedMediaItem> sse_decode_list_detected_media_item(
     SseDeserializer deserializer,
   );
@@ -196,7 +256,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<SeriesSummary> sse_decode_list_series_summary(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  CinemaItem? sse_decode_opt_box_autoadd_cinema_item(
+    SseDeserializer deserializer,
+  );
 
   @protected
   double? sse_decode_opt_box_autoadd_f_64(SseDeserializer deserializer);
@@ -210,6 +280,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  SeriesDetail? sse_decode_opt_box_autoadd_series_detail(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
@@ -219,6 +294,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   (String, String?) sse_decode_record_string_opt_string(
     SseDeserializer deserializer,
   );
+
+  @protected
+  SeriesDetail sse_decode_series_detail(SseDeserializer deserializer);
+
+  @protected
+  SeriesSummary sse_decode_series_summary(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -248,6 +329,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_cinema_item(
+    CinemaItem self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer);
 
   @protected
@@ -260,10 +347,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_series_detail(
+    SeriesDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cinema_item(CinemaItem self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cinema_kind(CinemaKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_cinema_library(CinemaLibrary self, SseSerializer serializer);
 
   @protected
   void sse_encode_detected_media_item(
@@ -292,6 +394,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_library_summary(
     LibrarySummary self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_cinema_item(
+    List<CinemaItem> self,
     SseSerializer serializer,
   );
 
@@ -326,7 +437,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_series_summary(
+    List<SeriesSummary> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_cinema_item(
+    CinemaItem? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_f_64(double? self, SseSerializer serializer);
@@ -341,6 +464,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_series_detail(
+    SeriesDetail? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
 
   @protected
@@ -351,6 +480,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     (String, String?) self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_series_detail(SeriesDetail self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_series_summary(SeriesSummary self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);

@@ -117,10 +117,10 @@ void main() {
 
   testWidgets('a section that is not built yet says so', (tester) async {
     await pumpApp(tester);
-    await tester.tap(find.text('Films & séries'));
+    await tester.tap(find.text('Podcasts & cours'));
     await settle(tester);
     expect(find.text('Cet écran arrive bientôt'), findsOneWidget);
-    expect(find.text('W-C1'), findsOneWidget);
+    expect(find.text('W-F1'), findsOneWidget);
   });
 
   testWidgets('below 1280 px the sidebar keeps only icons', (tester) async {

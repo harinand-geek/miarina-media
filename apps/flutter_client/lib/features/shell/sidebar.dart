@@ -164,7 +164,12 @@ class Sidebar extends ConsumerWidget {
                           // Album and artist pages keep their list lit.
                           ((e.route == Routes.albums ||
                                   e.route == Routes.artists) &&
-                              location.startsWith('${e.route}/')),
+                              location.startsWith('${e.route}/')) ||
+                          // Series pages and the player sit under Films &
+                          // séries.
+                          (e.route == Routes.cinema &&
+                              (location == Routes.series ||
+                                  location == Routes.watch)),
                       collapsed: collapsed,
                     ),
                 ],

@@ -237,7 +237,9 @@ class PlaybackMemory {
     if (_currentId == null || s.duration == Duration.zero) return;
     final paused = previous?.isPlaying == true && !s.isPlaying;
     if (s.status == PlaybackStatus.ended) {
-      unawaited(_save(Duration.zero, s.duration));
+      // Like 0.1.x: history keeps the end position (watched to the end), the
+      // resume point is forgotten.
+      unawaited(_save(s.duration, s.duration));
     } else if (paused ||
         (s.position - _savedAt).abs() >= const Duration(seconds: 5)) {
       unawaited(_save(s.position, s.duration));

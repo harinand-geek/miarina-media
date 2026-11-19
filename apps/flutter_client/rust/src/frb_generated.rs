@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1460384716;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 637028906;
 
 // Section: executor
 
@@ -47,6 +47,113 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__api__cinema__cinema_item_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cinema_item",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            let api_media_id = <i64>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::cinema::cinema_item(api_db_path, api_media_id)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__cinema__cinema_library_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cinema_library",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::cinema::cinema_library(api_db_path)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__cinema__cinema_series_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cinema_series",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_db_path = <String>::sse_decode(&mut deserializer);
+            let api_name = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::cinema::cinema_series(api_db_path, api_name)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__library__init_app_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -636,6 +743,69 @@ impl SseDecode for bool {
     }
 }
 
+impl SseDecode for crate::api::cinema::CinemaItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_item = <crate::api::library::LibraryItem>::sse_decode(deserializer);
+        let mut var_kind = <crate::api::cinema::CinemaKind>::sse_decode(deserializer);
+        let mut var_series = <Option<String>>::sse_decode(deserializer);
+        let mut var_season = <Option<u32>>::sse_decode(deserializer);
+        let mut var_episode = <Option<u32>>::sse_decode(deserializer);
+        let mut var_episodeTitle = <Option<String>>::sse_decode(deserializer);
+        let mut var_year = <Option<i32>>::sse_decode(deserializer);
+        let mut var_genre = <Option<String>>::sse_decode(deserializer);
+        let mut var_addedAt = <i64>::sse_decode(deserializer);
+        let mut var_width = <Option<u32>>::sse_decode(deserializer);
+        let mut var_height = <Option<u32>>::sse_decode(deserializer);
+        let mut var_videoCodec = <Option<String>>::sse_decode(deserializer);
+        let mut var_poster = <Option<String>>::sse_decode(deserializer);
+        let mut var_subtitleLanguages = <Vec<String>>::sse_decode(deserializer);
+        return crate::api::cinema::CinemaItem {
+            item: var_item,
+            kind: var_kind,
+            series: var_series,
+            season: var_season,
+            episode: var_episode,
+            episode_title: var_episodeTitle,
+            year: var_year,
+            genre: var_genre,
+            added_at: var_addedAt,
+            width: var_width,
+            height: var_height,
+            video_codec: var_videoCodec,
+            poster: var_poster,
+            subtitle_languages: var_subtitleLanguages,
+        };
+    }
+}
+
+impl SseDecode for crate::api::cinema::CinemaKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::cinema::CinemaKind::Film,
+            1 => crate::api::cinema::CinemaKind::Episode,
+            2 => crate::api::cinema::CinemaKind::Personal,
+            _ => unreachable!("Invalid variant for CinemaKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::cinema::CinemaLibrary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_films = <Vec<crate::api::cinema::CinemaItem>>::sse_decode(deserializer);
+        let mut var_series = <Vec<crate::api::cinema::SeriesSummary>>::sse_decode(deserializer);
+        let mut var_personal = <Vec<crate::api::cinema::CinemaItem>>::sse_decode(deserializer);
+        return crate::api::cinema::CinemaLibrary {
+            films: var_films,
+            series: var_series,
+            personal: var_personal,
+        };
+    }
+}
+
 impl SseDecode for crate::api::browser_spike::DetectedMediaItem {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -753,6 +923,30 @@ impl SseDecode for crate::api::library::LibrarySummary {
     }
 }
 
+impl SseDecode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::cinema::CinemaItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::cinema::CinemaItem>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::browser_spike::DetectedMediaItem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -817,11 +1011,36 @@ impl SseDecode for Vec<(String, Option<String>)> {
     }
 }
 
+impl SseDecode for Vec<crate::api::cinema::SeriesSummary> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::cinema::SeriesSummary>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<String>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::api::cinema::CinemaItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::cinema::CinemaItem>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -861,6 +1080,17 @@ impl SseDecode for Option<crate::api::library::LibraryItem> {
     }
 }
 
+impl SseDecode for Option<crate::api::cinema::SeriesDetail> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::api::cinema::SeriesDetail>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -889,6 +1119,56 @@ impl SseDecode for (String, Option<String>) {
         let mut var_field0 = <String>::sse_decode(deserializer);
         let mut var_field1 = <Option<String>>::sse_decode(deserializer);
         return (var_field0, var_field1);
+    }
+}
+
+impl SseDecode for crate::api::cinema::SeriesDetail {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_poster = <Option<String>>::sse_decode(deserializer);
+        let mut var_backdrop = <Option<String>>::sse_decode(deserializer);
+        let mut var_plot = <Option<String>>::sse_decode(deserializer);
+        let mut var_year = <Option<i32>>::sse_decode(deserializer);
+        let mut var_genre = <Option<String>>::sse_decode(deserializer);
+        let mut var_episodes = <Vec<crate::api::cinema::CinemaItem>>::sse_decode(deserializer);
+        let mut var_subtitleLanguages = <Vec<String>>::sse_decode(deserializer);
+        let mut var_subtitleFormats = <Vec<String>>::sse_decode(deserializer);
+        let mut var_videoLabel = <Option<String>>::sse_decode(deserializer);
+        return crate::api::cinema::SeriesDetail {
+            name: var_name,
+            poster: var_poster,
+            backdrop: var_backdrop,
+            plot: var_plot,
+            year: var_year,
+            genre: var_genre,
+            episodes: var_episodes,
+            subtitle_languages: var_subtitleLanguages,
+            subtitle_formats: var_subtitleFormats,
+            video_label: var_videoLabel,
+        };
+    }
+}
+
+impl SseDecode for crate::api::cinema::SeriesSummary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_seasons = <u32>::sse_decode(deserializer);
+        let mut var_episodes = <u32>::sse_decode(deserializer);
+        let mut var_poster = <Option<String>>::sse_decode(deserializer);
+        let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
+        let mut var_year = <Option<i32>>::sse_decode(deserializer);
+        let mut var_latestAdded = <i64>::sse_decode(deserializer);
+        return crate::api::cinema::SeriesSummary {
+            name: var_name,
+            seasons: var_seasons,
+            episodes: var_episodes,
+            poster: var_poster,
+            thumbnail: var_thumbnail,
+            year: var_year,
+            latest_added: var_latestAdded,
+        };
     }
 }
 
@@ -937,22 +1217,25 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__library__init_app_impl(port, ptr, rust_vec_len, data_len),
-        2 => wire__crate__api__library__library_add_file_impl(port, ptr, rust_vec_len, data_len),
-        3 => wire__crate__api__library__library_groups_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__api__library__library_item_impl(port, ptr, rust_vec_len, data_len),
-        5 => {
+        1 => wire__crate__api__cinema__cinema_item_impl(port, ptr, rust_vec_len, data_len),
+        2 => wire__crate__api__cinema__cinema_library_impl(port, ptr, rust_vec_len, data_len),
+        3 => wire__crate__api__cinema__cinema_series_impl(port, ptr, rust_vec_len, data_len),
+        4 => wire__crate__api__library__init_app_impl(port, ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__library__library_add_file_impl(port, ptr, rust_vec_len, data_len),
+        6 => wire__crate__api__library__library_groups_impl(port, ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__library__library_item_impl(port, ptr, rust_vec_len, data_len),
+        8 => {
             wire__crate__api__library__library_item_by_path_impl(port, ptr, rust_vec_len, data_len)
         }
-        6 => {
+        9 => {
             wire__crate__api__library__library_set_favorite_impl(port, ptr, rust_vec_len, data_len)
         }
-        7 => wire__crate__api__library__library_summary_impl(port, ptr, rust_vec_len, data_len),
-        8 => wire__crate__api__library__library_tracks_impl(port, ptr, rust_vec_len, data_len),
-        9 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
-        10 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
-        11 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
-        12 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
+        10 => wire__crate__api__library__library_summary_impl(port, ptr, rust_vec_len, data_len),
+        11 => wire__crate__api__library__library_tracks_impl(port, ptr, rust_vec_len, data_len),
+        12 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
+        13 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
+        14 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
+        15 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -965,21 +1248,98 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        13 => {
+        16 => {
             wire__crate__api__browser_spike__webview_spike_close_impl(ptr, rust_vec_len, data_len)
         }
-        14 => wire__crate__api__browser_spike__webview_spike_detections_impl(
+        17 => wire__crate__api__browser_spike__webview_spike_detections_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        15 => wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len),
+        18 => wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
 
 // Section: rust2dart
 
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::cinema::CinemaItem {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.item.into_into_dart().into_dart(),
+            self.kind.into_into_dart().into_dart(),
+            self.series.into_into_dart().into_dart(),
+            self.season.into_into_dart().into_dart(),
+            self.episode.into_into_dart().into_dart(),
+            self.episode_title.into_into_dart().into_dart(),
+            self.year.into_into_dart().into_dart(),
+            self.genre.into_into_dart().into_dart(),
+            self.added_at.into_into_dart().into_dart(),
+            self.width.into_into_dart().into_dart(),
+            self.height.into_into_dart().into_dart(),
+            self.video_codec.into_into_dart().into_dart(),
+            self.poster.into_into_dart().into_dart(),
+            self.subtitle_languages.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::cinema::CinemaItem
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::cinema::CinemaItem>
+    for crate::api::cinema::CinemaItem
+{
+    fn into_into_dart(self) -> crate::api::cinema::CinemaItem {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::cinema::CinemaKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Film => 0.into_dart(),
+            Self::Episode => 1.into_dart(),
+            Self::Personal => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::cinema::CinemaKind
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::cinema::CinemaKind>
+    for crate::api::cinema::CinemaKind
+{
+    fn into_into_dart(self) -> crate::api::cinema::CinemaKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::cinema::CinemaLibrary {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.films.into_into_dart().into_dart(),
+            self.series.into_into_dart().into_dart(),
+            self.personal.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::cinema::CinemaLibrary
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::cinema::CinemaLibrary>
+    for crate::api::cinema::CinemaLibrary
+{
+    fn into_into_dart(self) -> crate::api::cinema::CinemaLibrary {
+        self
+    }
+}
 // Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::browser_spike::DetectedMediaItem {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
@@ -1104,6 +1464,61 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::library::LibrarySummary>
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::cinema::SeriesDetail {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.poster.into_into_dart().into_dart(),
+            self.backdrop.into_into_dart().into_dart(),
+            self.plot.into_into_dart().into_dart(),
+            self.year.into_into_dart().into_dart(),
+            self.genre.into_into_dart().into_dart(),
+            self.episodes.into_into_dart().into_dart(),
+            self.subtitle_languages.into_into_dart().into_dart(),
+            self.subtitle_formats.into_into_dart().into_dart(),
+            self.video_label.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::cinema::SeriesDetail
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::cinema::SeriesDetail>
+    for crate::api::cinema::SeriesDetail
+{
+    fn into_into_dart(self) -> crate::api::cinema::SeriesDetail {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::cinema::SeriesSummary {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.seasons.into_into_dart().into_dart(),
+            self.episodes.into_into_dart().into_dart(),
+            self.poster.into_into_dart().into_dart(),
+            self.thumbnail.into_into_dart().into_dart(),
+            self.year.into_into_dart().into_dart(),
+            self.latest_added.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::cinema::SeriesSummary
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::cinema::SeriesSummary>
+    for crate::api::cinema::SeriesSummary
+{
+    fn into_into_dart(self) -> crate::api::cinema::SeriesSummary {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::browser_spike::WebviewSpikeInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [self.on_window_thread.into_into_dart().into_dart()].into_dart()
@@ -1139,6 +1554,52 @@ impl SseEncode for bool {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_u8(self as _).unwrap();
+    }
+}
+
+impl SseEncode for crate::api::cinema::CinemaItem {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::library::LibraryItem>::sse_encode(self.item, serializer);
+        <crate::api::cinema::CinemaKind>::sse_encode(self.kind, serializer);
+        <Option<String>>::sse_encode(self.series, serializer);
+        <Option<u32>>::sse_encode(self.season, serializer);
+        <Option<u32>>::sse_encode(self.episode, serializer);
+        <Option<String>>::sse_encode(self.episode_title, serializer);
+        <Option<i32>>::sse_encode(self.year, serializer);
+        <Option<String>>::sse_encode(self.genre, serializer);
+        <i64>::sse_encode(self.added_at, serializer);
+        <Option<u32>>::sse_encode(self.width, serializer);
+        <Option<u32>>::sse_encode(self.height, serializer);
+        <Option<String>>::sse_encode(self.video_codec, serializer);
+        <Option<String>>::sse_encode(self.poster, serializer);
+        <Vec<String>>::sse_encode(self.subtitle_languages, serializer);
+    }
+}
+
+impl SseEncode for crate::api::cinema::CinemaKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::cinema::CinemaKind::Film => 0,
+                crate::api::cinema::CinemaKind::Episode => 1,
+                crate::api::cinema::CinemaKind::Personal => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::cinema::CinemaLibrary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::api::cinema::CinemaItem>>::sse_encode(self.films, serializer);
+        <Vec<crate::api::cinema::SeriesSummary>>::sse_encode(self.series, serializer);
+        <Vec<crate::api::cinema::CinemaItem>>::sse_encode(self.personal, serializer);
     }
 }
 
@@ -1221,6 +1682,26 @@ impl SseEncode for crate::api::library::LibrarySummary {
     }
 }
 
+impl SseEncode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <String>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::cinema::CinemaItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::cinema::CinemaItem>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::browser_spike::DetectedMediaItem> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1271,12 +1752,32 @@ impl SseEncode for Vec<(String, Option<String>)> {
     }
 }
 
+impl SseEncode for Vec<crate::api::cinema::SeriesSummary> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::cinema::SeriesSummary>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<String> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <String>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::api::cinema::CinemaItem> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::cinema::CinemaItem>::sse_encode(value, serializer);
         }
     }
 }
@@ -1311,6 +1812,16 @@ impl SseEncode for Option<crate::api::library::LibraryItem> {
     }
 }
 
+impl SseEncode for Option<crate::api::cinema::SeriesDetail> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::api::cinema::SeriesDetail>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<u32> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1336,6 +1847,35 @@ impl SseEncode for (String, Option<String>) {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.0, serializer);
         <Option<String>>::sse_encode(self.1, serializer);
+    }
+}
+
+impl SseEncode for crate::api::cinema::SeriesDetail {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <Option<String>>::sse_encode(self.poster, serializer);
+        <Option<String>>::sse_encode(self.backdrop, serializer);
+        <Option<String>>::sse_encode(self.plot, serializer);
+        <Option<i32>>::sse_encode(self.year, serializer);
+        <Option<String>>::sse_encode(self.genre, serializer);
+        <Vec<crate::api::cinema::CinemaItem>>::sse_encode(self.episodes, serializer);
+        <Vec<String>>::sse_encode(self.subtitle_languages, serializer);
+        <Vec<String>>::sse_encode(self.subtitle_formats, serializer);
+        <Option<String>>::sse_encode(self.video_label, serializer);
+    }
+}
+
+impl SseEncode for crate::api::cinema::SeriesSummary {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <u32>::sse_encode(self.seasons, serializer);
+        <u32>::sse_encode(self.episodes, serializer);
+        <Option<String>>::sse_encode(self.poster, serializer);
+        <Option<String>>::sse_encode(self.thumbnail, serializer);
+        <Option<i32>>::sse_encode(self.year, serializer);
+        <i64>::sse_encode(self.latest_added, serializer);
     }
 }
 

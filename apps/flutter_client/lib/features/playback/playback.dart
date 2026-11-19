@@ -155,12 +155,19 @@ class QueueController extends Notifier<QueueState> {
     return const QueueState();
   }
 
-  Future<void> playAll(List<QueueEntry> entries, {int start = 0}) async {
+  /// Plays [entries] from [start]. [inOrder] ignores shuffle (episodes of a
+  /// series); [fromStart] ignores the saved resume point of the first one.
+  Future<void> playAll(
+    List<QueueEntry> entries, {
+    int start = 0,
+    bool inOrder = false,
+    bool fromStart = false,
+  }) async {
     if (entries.isEmpty) return;
     final first = start.clamp(0, entries.length - 1);
     final order = _orderFor(
       entries.length,
-      shuffle: state.shuffle,
+      shuffle: state.shuffle && !inOrder,
       first: first,
     );
     state = state.copyWith(
@@ -168,7 +175,7 @@ class QueueController extends Notifier<QueueState> {
       order: order,
       position: order.indexOf(first),
     );
-    await _load();
+    await _load(fromStart: fromStart);
   }
 
   Future<void> togglePlay() async {
@@ -291,12 +298,12 @@ class QueueController extends Notifier<QueueState> {
     return order;
   }
 
-  Future<void> _load() async {
+  Future<void> _load({bool fromStart = false}) async {
     final entry = state.current;
     final engine = _engine;
     if (entry == null || engine == null) return;
     final memory = ref.read(playbackMemoryProvider);
-    final start = await memory.startFor(entry);
+    final start = fromStart ? null : await memory.startFor(entry);
     // Before open(): the previous track's position is saved from the last
     // snapshot, which open() replaces.
     await memory.started(entry);

@@ -457,4 +457,207 @@ class L10nFr extends L10n {
   @override
   String get nowPlayingHint =>
       'Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file.';
+
+  @override
+  String filmsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count films',
+      one: '1 film',
+      zero: 'aucun film',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String seriesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count séries',
+      one: '1 série',
+      zero: 'aucune série',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String videosCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count vidéos',
+      one: '1 vidéo',
+      zero: 'aucune vidéo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String seasonsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count saisons',
+      one: '1 saison',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get segAll => 'Tout';
+
+  @override
+  String get segFilms => 'Films';
+
+  @override
+  String get segSeries => 'Séries';
+
+  @override
+  String get sortBy => 'Trier';
+
+  @override
+  String get sortTitle => 'Titre';
+
+  @override
+  String get sortAdded => 'Ajout récent';
+
+  @override
+  String minutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String get kindFilm => 'Film';
+
+  @override
+  String get kindPersonal => 'Vidéo perso';
+
+  @override
+  String resumeAtShort(String time) {
+    return 'reprendre à $time';
+  }
+
+  @override
+  String episodeShort(int season, int episode) {
+    return 'S$season É$episode';
+  }
+
+  @override
+  String episodeLabel(int episode, String title) {
+    return 'É$episode · $title';
+  }
+
+  @override
+  String episodeNumber(int episode) {
+    return 'Épisode $episode';
+  }
+
+  @override
+  String get cinemaEmptyTitle => 'Aucun film ni série pour l\'instant';
+
+  @override
+  String get cinemaEmptyBody =>
+      'Les vidéos de 40 minutes ou plus apparaissent ici comme films. Les fichiers nommés comme S01E04, ou avec le tag Série, forment des séries.';
+
+  @override
+  String get cinemaNoMatch => 'Rien dans cette catégorie pour l\'instant.';
+
+  @override
+  String get personalEmptyTitle => 'Aucune vidéo perso';
+
+  @override
+  String get personalEmptyBody =>
+      'Les vidéos courtes de la bibliothèque (clips, vidéos du téléphone) apparaissent ici.';
+
+  @override
+  String get seriesWord => 'Série';
+
+  @override
+  String get seriesMissing => 'Cette série n\'est plus dans la bibliothèque.';
+
+  @override
+  String resumeEpisode(int season, int episode, String time) {
+    return 'Reprendre S$season · É$episode à $time';
+  }
+
+  @override
+  String playEpisode(int season, int episode) {
+    return 'Lire S$season · É$episode';
+  }
+
+  @override
+  String get fromStart => 'Depuis le début';
+
+  @override
+  String seasonNumber(int season) {
+    return 'Saison $season';
+  }
+
+  @override
+  String seenOf(int seen, int total) {
+    return '$seen vus sur $total';
+  }
+
+  @override
+  String get watched => 'Vu';
+
+  @override
+  String resumeAtLeft(String time, String left) {
+    return 'Reprendre à $time · $left';
+  }
+
+  @override
+  String subtitlesLangs(String langs) {
+    return 'Sous-titres $langs';
+  }
+
+  @override
+  String get subtitles => 'Sous-titres';
+
+  @override
+  String get subtitlesOff => 'Désactivés';
+
+  @override
+  String get subtitlesLoad => 'Charger un fichier SRT / VTT / ASS…';
+
+  @override
+  String get subtitlesExternal => 'externe';
+
+  @override
+  String get audioTrack => 'Piste audio';
+
+  @override
+  String get noTracks => 'Aucune autre piste dans ce fichier';
+
+  @override
+  String get replay10 => 'Reculer de 10 s';
+
+  @override
+  String get forward10 => 'Avancer de 10 s';
+
+  @override
+  String get fullscreen => 'Plein écran (F)';
+
+  @override
+  String get fullscreenExit => 'Quitter le plein écran (Échap)';
+
+  @override
+  String get chapters => 'Chapitres';
+
+  @override
+  String get chaptersSoon => 'Les chapitres du fichier s\'afficheront ici.';
+
+  @override
+  String get nextEpisode => 'Épisode suivant';
+
+  @override
+  String get autoNext => 'Lecture auto à la fin';
+
+  @override
+  String get videoLoading => 'Ouverture de la vidéo…';
+
+  @override
+  String get videoUnavailable => 'Aucune vidéo en cours';
 }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui' show PlatformDispatcher;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -6,8 +7,12 @@ import 'package:window_manager/window_manager.dart';
 
 import 'app/app.dart';
 import 'app/launch_args.dart';
+import 'app/router.dart';
 import 'engine/engine_factory.dart';
 import 'engine/media_engine.dart';
+import 'features/cinema/cinema_data.dart';
+import 'features/cinema/cinema_screen.dart';
+import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
 import 'features/playback/playback.dart';
 import 'src/rust/api/library.dart';
@@ -68,12 +73,38 @@ Future<void> _openLaunchFile(ProviderContainer container, String path) async {
     known = null;
   }
   final name = fileTitle(path);
-  await container.read(queueProvider.notifier).playAll([
-    known != null
-        ? queueEntryOf(known)
-        : QueueEntry(
-            source: MediaSource.file(path, title: name),
-            title: name,
-          ),
-  ]);
+  final video = known != null && known.isVideo
+      ? await container.read(cinemaApiProvider).item(known.id)
+      : null;
+  if (video != null) {
+    // A known episode keeps its label ("É4 · Le col"), like from Cinema.
+    final t = lookupL10n(_appLocale());
+    await playVideos(container.read(queueProvider.notifier), [
+      video,
+    ], label: (v) => episodeTitle(t, v));
+  } else {
+    await container.read(queueProvider.notifier).playAll([
+      known != null
+          ? queueEntryOf(known)
+          : QueueEntry(
+              source: MediaSource.file(path, title: name),
+              title: name,
+              isVideo: looksLikeVideo(path),
+            ),
+    ]);
+  }
+  // A video opens on its player (W-C3 / A-04).
+  if (container.read(queueProvider).current?.isVideo ?? false) {
+    container.read(routerProvider).push(Routes.watch);
+  }
+}
+
+/// The interface language the app will pick (French unless the system asks
+/// for a supported other one).
+Locale _appLocale() {
+  final system = PlatformDispatcher.instance.locale.languageCode;
+  return L10n.supportedLocales.firstWhere(
+    (l) => l.languageCode == system,
+    orElse: () => const Locale('fr'),
+  );
 }

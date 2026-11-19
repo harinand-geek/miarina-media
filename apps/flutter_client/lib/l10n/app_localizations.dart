@@ -876,6 +876,294 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file.'**
   String get nowPlayingHint;
+
+  /// No description provided for @filmsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun film} =1{1 film} other{{count} films}}'**
+  String filmsCount(int count);
+
+  /// No description provided for @seriesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucune série} =1{1 série} other{{count} séries}}'**
+  String seriesCount(int count);
+
+  /// No description provided for @videosCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucune vidéo} =1{1 vidéo} other{{count} vidéos}}'**
+  String videosCount(int count);
+
+  /// No description provided for @seasonsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 saison} other{{count} saisons}}'**
+  String seasonsCount(int count);
+
+  /// No description provided for @segAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout'**
+  String get segAll;
+
+  /// No description provided for @segFilms.
+  ///
+  /// In fr, this message translates to:
+  /// **'Films'**
+  String get segFilms;
+
+  /// No description provided for @segSeries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Séries'**
+  String get segSeries;
+
+  /// No description provided for @sortBy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trier'**
+  String get sortBy;
+
+  /// No description provided for @sortTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre'**
+  String get sortTitle;
+
+  /// No description provided for @sortAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajout récent'**
+  String get sortAdded;
+
+  /// No description provided for @minutesShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min'**
+  String minutesShort(int minutes);
+
+  /// No description provided for @kindFilm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Film'**
+  String get kindFilm;
+
+  /// No description provided for @kindPersonal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo perso'**
+  String get kindPersonal;
+
+  /// No description provided for @resumeAtShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'reprendre à {time}'**
+  String resumeAtShort(String time);
+
+  /// No description provided for @episodeShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'S{season} É{episode}'**
+  String episodeShort(int season, int episode);
+
+  /// No description provided for @episodeLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'É{episode} · {title}'**
+  String episodeLabel(int episode, String title);
+
+  /// No description provided for @episodeNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épisode {episode}'**
+  String episodeNumber(int episode);
+
+  /// No description provided for @cinemaEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun film ni série pour l\'instant'**
+  String get cinemaEmptyTitle;
+
+  /// No description provided for @cinemaEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les vidéos de 40 minutes ou plus apparaissent ici comme films. Les fichiers nommés comme S01E04, ou avec le tag Série, forment des séries.'**
+  String get cinemaEmptyBody;
+
+  /// No description provided for @cinemaNoMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien dans cette catégorie pour l\'instant.'**
+  String get cinemaNoMatch;
+
+  /// No description provided for @personalEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune vidéo perso'**
+  String get personalEmptyTitle;
+
+  /// No description provided for @personalEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les vidéos courtes de la bibliothèque (clips, vidéos du téléphone) apparaissent ici.'**
+  String get personalEmptyBody;
+
+  /// No description provided for @seriesWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série'**
+  String get seriesWord;
+
+  /// No description provided for @seriesMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette série n\'est plus dans la bibliothèque.'**
+  String get seriesMissing;
+
+  /// No description provided for @resumeEpisode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre S{season} · É{episode} à {time}'**
+  String resumeEpisode(int season, int episode, String time);
+
+  /// No description provided for @playEpisode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire S{season} · É{episode}'**
+  String playEpisode(int season, int episode);
+
+  /// No description provided for @fromStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis le début'**
+  String get fromStart;
+
+  /// No description provided for @seasonNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Saison {season}'**
+  String seasonNumber(int season);
+
+  /// No description provided for @seenOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{seen} vus sur {total}'**
+  String seenOf(int seen, int total);
+
+  /// No description provided for @watched.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vu'**
+  String get watched;
+
+  /// No description provided for @resumeAtLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre à {time} · {left}'**
+  String resumeAtLeft(String time, String left);
+
+  /// No description provided for @subtitlesLangs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres {langs}'**
+  String subtitlesLangs(String langs);
+
+  /// No description provided for @subtitles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres'**
+  String get subtitles;
+
+  /// No description provided for @subtitlesOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivés'**
+  String get subtitlesOff;
+
+  /// No description provided for @subtitlesLoad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charger un fichier SRT / VTT / ASS…'**
+  String get subtitlesLoad;
+
+  /// No description provided for @subtitlesExternal.
+  ///
+  /// In fr, this message translates to:
+  /// **'externe'**
+  String get subtitlesExternal;
+
+  /// No description provided for @audioTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piste audio'**
+  String get audioTrack;
+
+  /// No description provided for @noTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune autre piste dans ce fichier'**
+  String get noTracks;
+
+  /// No description provided for @replay10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reculer de 10 s'**
+  String get replay10;
+
+  /// No description provided for @forward10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancer de 10 s'**
+  String get forward10;
+
+  /// No description provided for @fullscreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plein écran (F)'**
+  String get fullscreen;
+
+  /// No description provided for @fullscreenExit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quitter le plein écran (Échap)'**
+  String get fullscreenExit;
+
+  /// No description provided for @chapters.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chapitres'**
+  String get chapters;
+
+  /// No description provided for @chaptersSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les chapitres du fichier s\'afficheront ici.'**
+  String get chaptersSoon;
+
+  /// No description provided for @nextEpisode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Épisode suivant'**
+  String get nextEpisode;
+
+  /// No description provided for @autoNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture auto à la fin'**
+  String get autoNext;
+
+  /// No description provided for @videoLoading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouverture de la vidéo…'**
+  String get videoLoading;
+
+  /// No description provided for @videoUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune vidéo en cours'**
+  String get videoUnavailable;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

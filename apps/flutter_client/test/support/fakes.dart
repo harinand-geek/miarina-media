@@ -2,9 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
+import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
+import 'package:miarina_media/src/rust/api/cinema.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
 
 class FakePlaybackStore implements PlaybackStore {
@@ -110,11 +112,20 @@ class FakeEngine implements MediaEngine {
   @override
   Future<void> setRepeatMode(RepeatSetting mode) async => engineRepeat = mode;
 
-  @override
-  Future<void> selectAudioTrack(String trackId) async {}
+  final audioSelections = <String>[];
+  final subtitleSelections = <String?>[];
 
   @override
-  Future<void> selectSubtitleTrack(String? trackId) async {}
+  Future<void> selectAudioTrack(String trackId) async {
+    audioSelections.add(trackId);
+    emit(_state.copyWith(selectedAudio: trackId));
+  }
+
+  @override
+  Future<void> selectSubtitleTrack(String? trackId) async {
+    subtitleSelections.add(trackId);
+    emit(_state.copyWith(selectedSubtitle: trackId));
+  }
 
   @override
   Future<void> loadExternalSubtitle(Uri uri) async {}
@@ -244,4 +255,94 @@ class FakeLibraryApi implements LibraryApi {
     videoCount: BigInt.zero,
     items: const [],
   );
+}
+
+CinemaItem video(
+  int id,
+  String title, {
+  CinemaKind kind = CinemaKind.film,
+  String? series,
+  int? season,
+  int? episode,
+  String? episodeTitle,
+  double minutes = 50,
+  bool missing = false,
+  List<String> subtitles = const [],
+}) => CinemaItem(
+  item: LibraryItem(
+    id: id,
+    title: title,
+    path: 'D:/Vidéos/$title.mkv',
+    isVideo: true,
+    durationSecs: minutes * 60,
+    format: 'MKV',
+    missing: missing,
+    favorite: false,
+  ),
+  kind: kind,
+  series: series,
+  season: season,
+  episode: episode,
+  episodeTitle: episodeTitle,
+  addedAt: id,
+  subtitleLanguages: subtitles,
+);
+
+/// Cinema library built from a list of classified videos, like the core.
+class FakeCinemaApi implements CinemaApi {
+  FakeCinemaApi(this.videos);
+
+  final List<CinemaItem> videos;
+
+  List<CinemaItem> _episodes(String name) =>
+      videos
+          .where(
+            (v) =>
+                v.kind == CinemaKind.episode &&
+                v.series?.toLowerCase() == name.toLowerCase(),
+          )
+          .toList()
+        ..sort(
+          (a, b) => (a.season! * 1000 + a.episode!).compareTo(
+            b.season! * 1000 + b.episode!,
+          ),
+        );
+
+  @override
+  Future<CinemaLibrary> library() async {
+    final names = {
+      for (final v in videos)
+        if (v.kind == CinemaKind.episode) v.series!,
+    }.toList()..sort();
+    return CinemaLibrary(
+      films: videos.where((v) => v.kind == CinemaKind.film).toList(),
+      series: [
+        for (final n in names)
+          SeriesSummary(
+            name: n,
+            seasons: _episodes(n).map((e) => e.season).toSet().length,
+            episodes: _episodes(n).length,
+            latestAdded: 0,
+          ),
+      ],
+      personal: videos.where((v) => v.kind == CinemaKind.personal).toList(),
+    );
+  }
+
+  @override
+  Future<SeriesDetail?> series(String name) async {
+    final eps = _episodes(name);
+    if (eps.isEmpty) return null;
+    return SeriesDetail(
+      name: eps.first.series!,
+      episodes: eps,
+      subtitleLanguages: const ['FR', 'EN'],
+      subtitleFormats: const ['SRT'],
+      videoLabel: '1080p HEVC',
+    );
+  }
+
+  @override
+  Future<CinemaItem?> item(int id) async =>
+      videos.where((v) => v.item.id == id).firstOrNull;
 }

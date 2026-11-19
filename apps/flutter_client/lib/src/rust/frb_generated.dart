@@ -4,6 +4,7 @@
 // ignore_for_file: unused_import, unused_element, unnecessary_import, duplicate_ignore, invalid_use_of_internal_member, annotate_overrides, non_constant_identifier_names, curly_braces_in_flow_control_structures, prefer_const_literals_to_create_immutables, unused_field
 
 import 'api/browser_spike.dart';
+import 'api/cinema.dart';
 import 'api/library.dart';
 import 'api/settings.dart';
 
@@ -71,7 +72,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1460384716;
+  int get rustContentHash => 637028906;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -83,6 +84,18 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  Future<CinemaItem?> crateApiCinemaCinemaItem({
+    required String dbPath,
+    required PlatformInt64 mediaId,
+  });
+
+  Future<CinemaLibrary> crateApiCinemaCinemaLibrary({required String dbPath});
+
+  Future<SeriesDetail?> crateApiCinemaCinemaSeries({
+    required String dbPath,
+    required String name,
+  });
+
   Future<void> crateApiLibraryInitApp();
 
   Future<PlatformInt64> crateApiLibraryLibraryAddFile({
@@ -173,6 +186,102 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  Future<CinemaItem?> crateApiCinemaCinemaItem({
+    required String dbPath,
+    required PlatformInt64 mediaId,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(dbPath, serializer);
+          sse_encode_i_64(mediaId, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_cinema_item,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiCinemaCinemaItemConstMeta,
+        argValues: [dbPath, mediaId],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCinemaCinemaItemConstMeta => const TaskConstMeta(
+    debugName: "cinema_item",
+    argNames: ["dbPath", "mediaId"],
+  );
+
+  @override
+  Future<CinemaLibrary> crateApiCinemaCinemaLibrary({required String dbPath}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(dbPath, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_cinema_library,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiCinemaCinemaLibraryConstMeta,
+        argValues: [dbPath],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCinemaCinemaLibraryConstMeta =>
+      const TaskConstMeta(debugName: "cinema_library", argNames: ["dbPath"]);
+
+  @override
+  Future<SeriesDetail?> crateApiCinemaCinemaSeries({
+    required String dbPath,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_String(dbPath, serializer);
+          sse_encode_String(name, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 3,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_opt_box_autoadd_series_detail,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiCinemaCinemaSeriesConstMeta,
+        argValues: [dbPath, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiCinemaCinemaSeriesConstMeta => const TaskConstMeta(
+    debugName: "cinema_series",
+    argNames: ["dbPath", "name"],
+  );
+
+  @override
   Future<void> crateApiLibraryInitApp() {
     return handler.executeNormal(
       NormalTask(
@@ -181,7 +290,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 1,
+            funcId: 4,
             port: port_,
           );
         },
@@ -219,7 +328,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 2,
+            funcId: 5,
             port: port_,
           );
         },
@@ -254,7 +363,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 3,
+            funcId: 6,
             port: port_,
           );
         },
@@ -289,7 +398,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 4,
+            funcId: 7,
             port: port_,
           );
         },
@@ -323,7 +432,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 5,
+            funcId: 8,
             port: port_,
           );
         },
@@ -360,7 +469,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 6,
+            funcId: 9,
             port: port_,
           );
         },
@@ -395,7 +504,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 7,
+            funcId: 10,
             port: port_,
           );
         },
@@ -442,7 +551,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 8,
+            funcId: 11,
             port: port_,
           );
         },
@@ -495,7 +604,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 9,
+            funcId: 12,
             port: port_,
           );
         },
@@ -530,7 +639,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 10,
+            funcId: 13,
             port: port_,
           );
         },
@@ -565,7 +674,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 11,
+            funcId: 14,
             port: port_,
           );
         },
@@ -602,7 +711,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 12,
+            funcId: 15,
             port: port_,
           );
         },
@@ -629,7 +738,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 13)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 16)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_unit,
@@ -651,7 +760,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 14)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 17)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_list_detected_media_item,
@@ -684,7 +793,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_i_32(y, serializer);
           sse_encode_i_32(width, serializer);
           sse_encode_i_32(height, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 15)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 18)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_webview_spike_info,
@@ -722,6 +831,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CinemaItem dco_decode_box_autoadd_cinema_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_cinema_item(raw);
+  }
+
+  @protected
   double dco_decode_box_autoadd_f_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as double;
@@ -740,6 +855,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  SeriesDetail dco_decode_box_autoadd_series_detail(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_series_detail(raw);
+  }
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -749,6 +870,49 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   BigInt dco_decode_box_autoadd_u_64(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_u_64(raw);
+  }
+
+  @protected
+  CinemaItem dco_decode_cinema_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 14)
+      throw Exception('unexpected arr length: expect 14 but see ${arr.length}');
+    return CinemaItem(
+      item: dco_decode_library_item(arr[0]),
+      kind: dco_decode_cinema_kind(arr[1]),
+      series: dco_decode_opt_String(arr[2]),
+      season: dco_decode_opt_box_autoadd_u_32(arr[3]),
+      episode: dco_decode_opt_box_autoadd_u_32(arr[4]),
+      episodeTitle: dco_decode_opt_String(arr[5]),
+      year: dco_decode_opt_box_autoadd_i_32(arr[6]),
+      genre: dco_decode_opt_String(arr[7]),
+      addedAt: dco_decode_i_64(arr[8]),
+      width: dco_decode_opt_box_autoadd_u_32(arr[9]),
+      height: dco_decode_opt_box_autoadd_u_32(arr[10]),
+      videoCodec: dco_decode_opt_String(arr[11]),
+      poster: dco_decode_opt_String(arr[12]),
+      subtitleLanguages: dco_decode_list_String(arr[13]),
+    );
+  }
+
+  @protected
+  CinemaKind dco_decode_cinema_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return CinemaKind.values[raw as int];
+  }
+
+  @protected
+  CinemaLibrary dco_decode_cinema_library(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return CinemaLibrary(
+      films: dco_decode_list_cinema_item(arr[0]),
+      series: dco_decode_list_series_summary(arr[1]),
+      personal: dco_decode_list_cinema_item(arr[2]),
+    );
   }
 
   @protected
@@ -848,6 +1012,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_String).toList();
+  }
+
+  @protected
+  List<CinemaItem> dco_decode_list_cinema_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_cinema_item).toList();
+  }
+
+  @protected
   List<DetectedMediaItem> dco_decode_list_detected_media_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_detected_media_item).toList();
@@ -882,9 +1058,21 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SeriesSummary> dco_decode_list_series_summary(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_series_summary).toList();
+  }
+
+  @protected
   String? dco_decode_opt_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_String(raw);
+  }
+
+  @protected
+  CinemaItem? dco_decode_opt_box_autoadd_cinema_item(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_cinema_item(raw);
   }
 
   @protected
@@ -903,6 +1091,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   LibraryItem? dco_decode_opt_box_autoadd_library_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_library_item(raw);
+  }
+
+  @protected
+  SeriesDetail? dco_decode_opt_box_autoadd_series_detail(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_series_detail(raw);
   }
 
   @protected
@@ -925,6 +1119,43 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       throw Exception('Expected 2 elements, got ${arr.length}');
     }
     return (dco_decode_String(arr[0]), dco_decode_opt_String(arr[1]));
+  }
+
+  @protected
+  SeriesDetail dco_decode_series_detail(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 10)
+      throw Exception('unexpected arr length: expect 10 but see ${arr.length}');
+    return SeriesDetail(
+      name: dco_decode_String(arr[0]),
+      poster: dco_decode_opt_String(arr[1]),
+      backdrop: dco_decode_opt_String(arr[2]),
+      plot: dco_decode_opt_String(arr[3]),
+      year: dco_decode_opt_box_autoadd_i_32(arr[4]),
+      genre: dco_decode_opt_String(arr[5]),
+      episodes: dco_decode_list_cinema_item(arr[6]),
+      subtitleLanguages: dco_decode_list_String(arr[7]),
+      subtitleFormats: dco_decode_list_String(arr[8]),
+      videoLabel: dco_decode_opt_String(arr[9]),
+    );
+  }
+
+  @protected
+  SeriesSummary dco_decode_series_summary(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
+    return SeriesSummary(
+      name: dco_decode_String(arr[0]),
+      seasons: dco_decode_u_32(arr[1]),
+      episodes: dco_decode_u_32(arr[2]),
+      poster: dco_decode_opt_String(arr[3]),
+      thumbnail: dco_decode_opt_String(arr[4]),
+      year: dco_decode_opt_box_autoadd_i_32(arr[5]),
+      latestAdded: dco_decode_i_64(arr[6]),
+    );
   }
 
   @protected
@@ -981,6 +1212,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  CinemaItem sse_decode_box_autoadd_cinema_item(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_cinema_item(deserializer));
+  }
+
+  @protected
   double sse_decode_box_autoadd_f_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_f_64(deserializer));
@@ -1001,6 +1238,14 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  SeriesDetail sse_decode_box_autoadd_series_detail(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_series_detail(deserializer));
+  }
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_u_32(deserializer));
@@ -1010,6 +1255,61 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_u_64(deserializer));
+  }
+
+  @protected
+  CinemaItem sse_decode_cinema_item(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_item = sse_decode_library_item(deserializer);
+    var var_kind = sse_decode_cinema_kind(deserializer);
+    var var_series = sse_decode_opt_String(deserializer);
+    var var_season = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_episode = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_episodeTitle = sse_decode_opt_String(deserializer);
+    var var_year = sse_decode_opt_box_autoadd_i_32(deserializer);
+    var var_genre = sse_decode_opt_String(deserializer);
+    var var_addedAt = sse_decode_i_64(deserializer);
+    var var_width = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_height = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_videoCodec = sse_decode_opt_String(deserializer);
+    var var_poster = sse_decode_opt_String(deserializer);
+    var var_subtitleLanguages = sse_decode_list_String(deserializer);
+    return CinemaItem(
+      item: var_item,
+      kind: var_kind,
+      series: var_series,
+      season: var_season,
+      episode: var_episode,
+      episodeTitle: var_episodeTitle,
+      year: var_year,
+      genre: var_genre,
+      addedAt: var_addedAt,
+      width: var_width,
+      height: var_height,
+      videoCodec: var_videoCodec,
+      poster: var_poster,
+      subtitleLanguages: var_subtitleLanguages,
+    );
+  }
+
+  @protected
+  CinemaKind sse_decode_cinema_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return CinemaKind.values[inner];
+  }
+
+  @protected
+  CinemaLibrary sse_decode_cinema_library(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_films = sse_decode_list_cinema_item(deserializer);
+    var var_series = sse_decode_list_series_summary(deserializer);
+    var var_personal = sse_decode_list_cinema_item(deserializer);
+    return CinemaLibrary(
+      films: var_films,
+      series: var_series,
+      personal: var_personal,
+    );
   }
 
   @protected
@@ -1121,6 +1421,30 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <String>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<CinemaItem> sse_decode_list_cinema_item(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <CinemaItem>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_cinema_item(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<DetectedMediaItem> sse_decode_list_detected_media_item(
     SseDeserializer deserializer,
   ) {
@@ -1182,11 +1506,38 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SeriesSummary> sse_decode_list_series_summary(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SeriesSummary>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_series_summary(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   String? sse_decode_opt_String(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_String(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  CinemaItem? sse_decode_opt_box_autoadd_cinema_item(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_cinema_item(deserializer));
     } else {
       return null;
     }
@@ -1228,6 +1579,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  SeriesDetail? sse_decode_opt_box_autoadd_series_detail(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_series_detail(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1257,6 +1621,54 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_field0 = sse_decode_String(deserializer);
     var var_field1 = sse_decode_opt_String(deserializer);
     return (var_field0, var_field1);
+  }
+
+  @protected
+  SeriesDetail sse_decode_series_detail(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_poster = sse_decode_opt_String(deserializer);
+    var var_backdrop = sse_decode_opt_String(deserializer);
+    var var_plot = sse_decode_opt_String(deserializer);
+    var var_year = sse_decode_opt_box_autoadd_i_32(deserializer);
+    var var_genre = sse_decode_opt_String(deserializer);
+    var var_episodes = sse_decode_list_cinema_item(deserializer);
+    var var_subtitleLanguages = sse_decode_list_String(deserializer);
+    var var_subtitleFormats = sse_decode_list_String(deserializer);
+    var var_videoLabel = sse_decode_opt_String(deserializer);
+    return SeriesDetail(
+      name: var_name,
+      poster: var_poster,
+      backdrop: var_backdrop,
+      plot: var_plot,
+      year: var_year,
+      genre: var_genre,
+      episodes: var_episodes,
+      subtitleLanguages: var_subtitleLanguages,
+      subtitleFormats: var_subtitleFormats,
+      videoLabel: var_videoLabel,
+    );
+  }
+
+  @protected
+  SeriesSummary sse_decode_series_summary(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_seasons = sse_decode_u_32(deserializer);
+    var var_episodes = sse_decode_u_32(deserializer);
+    var var_poster = sse_decode_opt_String(deserializer);
+    var var_thumbnail = sse_decode_opt_String(deserializer);
+    var var_year = sse_decode_opt_box_autoadd_i_32(deserializer);
+    var var_latestAdded = sse_decode_i_64(deserializer);
+    return SeriesSummary(
+      name: var_name,
+      seasons: var_seasons,
+      episodes: var_episodes,
+      poster: var_poster,
+      thumbnail: var_thumbnail,
+      year: var_year,
+      latestAdded: var_latestAdded,
+    );
   }
 
   @protected
@@ -1311,6 +1723,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_cinema_item(
+    CinemaItem self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_cinema_item(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_f_64(double self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_f_64(self, serializer);
@@ -1332,6 +1753,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_series_detail(
+    SeriesDetail self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_series_detail(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_32(self, serializer);
@@ -1341,6 +1771,39 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_64(self, serializer);
+  }
+
+  @protected
+  void sse_encode_cinema_item(CinemaItem self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_library_item(self.item, serializer);
+    sse_encode_cinema_kind(self.kind, serializer);
+    sse_encode_opt_String(self.series, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.season, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.episode, serializer);
+    sse_encode_opt_String(self.episodeTitle, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.year, serializer);
+    sse_encode_opt_String(self.genre, serializer);
+    sse_encode_i_64(self.addedAt, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.width, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.height, serializer);
+    sse_encode_opt_String(self.videoCodec, serializer);
+    sse_encode_opt_String(self.poster, serializer);
+    sse_encode_list_String(self.subtitleLanguages, serializer);
+  }
+
+  @protected
+  void sse_encode_cinema_kind(CinemaKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_cinema_library(CinemaLibrary self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_cinema_item(self.films, serializer);
+    sse_encode_list_series_summary(self.series, serializer);
+    sse_encode_list_cinema_item(self.personal, serializer);
   }
 
   @protected
@@ -1421,6 +1884,27 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_String(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_cinema_item(
+    List<CinemaItem> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_cinema_item(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_detected_media_item(
     List<DetectedMediaItem> self,
     SseSerializer serializer,
@@ -1479,12 +1963,37 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_series_summary(
+    List<SeriesSummary> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_series_summary(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_String(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_cinema_item(
+    CinemaItem? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_cinema_item(self, serializer);
     }
   }
 
@@ -1522,6 +2031,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_series_detail(
+    SeriesDetail? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_series_detail(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1549,6 +2071,33 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.$1, serializer);
     sse_encode_opt_String(self.$2, serializer);
+  }
+
+  @protected
+  void sse_encode_series_detail(SeriesDetail self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_opt_String(self.poster, serializer);
+    sse_encode_opt_String(self.backdrop, serializer);
+    sse_encode_opt_String(self.plot, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.year, serializer);
+    sse_encode_opt_String(self.genre, serializer);
+    sse_encode_list_cinema_item(self.episodes, serializer);
+    sse_encode_list_String(self.subtitleLanguages, serializer);
+    sse_encode_list_String(self.subtitleFormats, serializer);
+    sse_encode_opt_String(self.videoLabel, serializer);
+  }
+
+  @protected
+  void sse_encode_series_summary(SeriesSummary self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_u_32(self.seasons, serializer);
+    sse_encode_u_32(self.episodes, serializer);
+    sse_encode_opt_String(self.poster, serializer);
+    sse_encode_opt_String(self.thumbnail, serializer);
+    sse_encode_opt_box_autoadd_i_32(self.year, serializer);
+    sse_encode_i_64(self.latestAdded, serializer);
   }
 
   @protected

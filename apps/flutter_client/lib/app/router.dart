@@ -5,6 +5,10 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../design/tokens.dart';
+import '../features/cinema/cinema_screen.dart';
+import '../features/cinema/personal_videos_screen.dart';
+import '../features/cinema/series_screen.dart';
+import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
 import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
@@ -27,6 +31,8 @@ abstract final class Routes {
   static const playlists = '/listen/music/playlists';
   static const favorites = '/listen/music/favorites';
   static const cinema = '/listen/cinema';
+  static const series = '/listen/cinema/series';
+  static const watch = '/listen/cinema/watch';
   static const personalVideos = '/listen/cinema/personal';
   static const focus = '/listen/focus';
   static const audiobooks = '/listen/focus/books';
@@ -42,12 +48,21 @@ final desktopShellProvider = Provider<bool>((ref) => !Platform.isAndroid);
 
 // Development hook for automated screenshots (no input injection): the
 // screen to start on, e.g. --dart-define=MM_START_ROUTE=/now?tab=queue.
+// Development builds (those pointed at a scratch MM_DATA_DIR) also read it
+// from the environment, so one build can be captured on several screens.
 const _startRoute = String.fromEnvironment('MM_START_ROUTE');
+const _devData = String.fromEnvironment('MM_DATA_DIR');
+
+String _devStartRoute() {
+  if (_startRoute.isNotEmpty || _devData.isEmpty) return _startRoute;
+  return Platform.environment['MM_START_ROUTE'] ?? '';
+}
 
 /// First screen: the Listen home (handoff D1). Overridden in tests.
-final initialRouteProvider = Provider<String>(
-  (ref) => _startRoute.isEmpty ? Routes.listenHome : _startRoute,
-);
+final initialRouteProvider = Provider<String>((ref) {
+  final dev = _devStartRoute();
+  return dev.isEmpty ? Routes.listenHome : dev;
+});
 
 final routerProvider = Provider<GoRouter>((ref) {
   final desktop = ref.watch(desktopShellProvider);
@@ -64,6 +79,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: Routes.player,
         pageBuilder: (context, state) => PlayerPage(key: state.pageKey),
       ),
+      // A-04: the Android video page covers the tabs; Windows keeps the
+      // sidebar (W-C3), so the route sits in the shell there.
+      if (!desktop)
+        GoRoute(
+          path: Routes.watch,
+          pageBuilder: (context, state) =>
+              _ScreenPage(key: state.pageKey, child: const WatchScreen()),
+        ),
       ShellRoute(
         builder: (context, state, child) => desktop
             ? DesktopShell(location: state.uri.path, child: child)
@@ -113,11 +136,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           screen(Routes.playlists, () => const ComingSoon(screenId: 'W-M5')),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
-          screen(Routes.cinema, () => const ComingSoon(screenId: 'W-C1')),
-          screen(
-            Routes.personalVideos,
-            () => const ComingSoon(screenId: 'W-C1'),
+          screen(Routes.cinema, () => const CinemaScreen()),
+          GoRoute(
+            path: Routes.series,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: SeriesScreen(
+                name: state.uri.queryParameters['name'] ?? '',
+              ),
+            ),
           ),
+          if (desktop) screen(Routes.watch, () => const WatchScreen()),
+          screen(Routes.personalVideos, () => const PersonalVideosScreen()),
           screen(Routes.focus, () => const ComingSoon(screenId: 'W-F1')),
           screen(Routes.audiobooks, () => const ComingSoon(screenId: 'W-F1')),
           screen(Routes.get, () => const ComingSoon(screenId: 'Obtenir')),

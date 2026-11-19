@@ -33,3 +33,26 @@ String fileTitle(String path) {
   final dot = name.lastIndexOf('.');
   return dot > 0 ? name.substring(0, dot) : name;
 }
+
+const _videoExtensions = {
+  'mkv',
+  'mp4',
+  'm4v',
+  'mov',
+  'avi',
+  'webm',
+  'wmv',
+  'ts',
+  'm2ts',
+  'mpg',
+  'mpeg',
+  'ogv',
+  '3gp',
+};
+
+/// Whether a file not in the library is a video, from its extension.
+bool looksLikeVideo(String path) {
+  final dot = path.lastIndexOf('.');
+  return dot > 0 &&
+      _videoExtensions.contains(path.substring(dot + 1).toLowerCase());
+}

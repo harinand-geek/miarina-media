@@ -58,4 +58,11 @@ void main() {
     expect(fileTitle('sans-extension'), 'sans-extension');
     expect(fileTitle(r'C:\.cache'), '.cache');
   });
+
+  test('an unknown file is a video from its extension', () {
+    expect(looksLikeVideo(r'D:\Films\Ferry.MKV'), isTrue);
+    expect(looksLikeVideo('/sdcard/DCIM/VID_1.mp4'), isTrue);
+    expect(looksLikeVideo('C:/Musique/titre.flac'), isFalse);
+    expect(looksLikeVideo('mkv'), isFalse);
+  });
 }

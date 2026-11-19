@@ -202,5 +202,179 @@
   "homeEmptyBody": "Rien n'a encore été écouté et la bibliothèque est vide. Ajoutez de la musique depuis Obtenir, ou ouvrez un fichier.",
   "goTracks": "Voir les titres",
   "goGet": "Obtenir de la musique",
-  "nowPlayingHint": "Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file."
+  "nowPlayingHint": "Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file.",
+  "filmsCount": "{count, plural, =0{aucun film} =1{1 film} other{{count} films}}",
+  "@filmsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seriesCount": "{count, plural, =0{aucune série} =1{1 série} other{{count} séries}}",
+  "@seriesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "videosCount": "{count, plural, =0{aucune vidéo} =1{1 vidéo} other{{count} vidéos}}",
+  "@videosCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "seasonsCount": "{count, plural, =1{1 saison} other{{count} saisons}}",
+  "@seasonsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "segAll": "Tout",
+  "segFilms": "Films",
+  "segSeries": "Séries",
+  "sortBy": "Trier",
+  "sortTitle": "Titre",
+  "sortAdded": "Ajout récent",
+  "minutesShort": "{minutes} min",
+  "@minutesShort": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "kindFilm": "Film",
+  "kindPersonal": "Vidéo perso",
+  "resumeAtShort": "reprendre à {time}",
+  "@resumeAtShort": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeShort": "S{season} É{episode}",
+  "@episodeShort": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      }
+    }
+  },
+  "episodeLabel": "É{episode} · {title}",
+  "@episodeLabel": {
+    "placeholders": {
+      "episode": {
+        "type": "int"
+      },
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "episodeNumber": "Épisode {episode}",
+  "@episodeNumber": {
+    "placeholders": {
+      "episode": {
+        "type": "int"
+      }
+    }
+  },
+  "cinemaEmptyTitle": "Aucun film ni série pour l'instant",
+  "cinemaEmptyBody": "Les vidéos de 40 minutes ou plus apparaissent ici comme films. Les fichiers nommés comme S01E04, ou avec le tag Série, forment des séries.",
+  "cinemaNoMatch": "Rien dans cette catégorie pour l'instant.",
+  "personalEmptyTitle": "Aucune vidéo perso",
+  "personalEmptyBody": "Les vidéos courtes de la bibliothèque (clips, vidéos du téléphone) apparaissent ici.",
+  "seriesWord": "Série",
+  "seriesMissing": "Cette série n'est plus dans la bibliothèque.",
+  "resumeEpisode": "Reprendre S{season} · É{episode} à {time}",
+  "@resumeEpisode": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      },
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "playEpisode": "Lire S{season} · É{episode}",
+  "@playEpisode": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      },
+      "episode": {
+        "type": "int"
+      }
+    }
+  },
+  "fromStart": "Depuis le début",
+  "seasonNumber": "Saison {season}",
+  "@seasonNumber": {
+    "placeholders": {
+      "season": {
+        "type": "int"
+      }
+    }
+  },
+  "seenOf": "{seen} vus sur {total}",
+  "@seenOf": {
+    "placeholders": {
+      "seen": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "watched": "Vu",
+  "resumeAtLeft": "Reprendre à {time} · {left}",
+  "@resumeAtLeft": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      },
+      "left": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitlesLangs": "Sous-titres {langs}",
+  "@subtitlesLangs": {
+    "placeholders": {
+      "langs": {
+        "type": "String"
+      }
+    }
+  },
+  "subtitles": "Sous-titres",
+  "subtitlesOff": "Désactivés",
+  "subtitlesLoad": "Charger un fichier SRT / VTT / ASS…",
+  "subtitlesExternal": "externe",
+  "audioTrack": "Piste audio",
+  "noTracks": "Aucune autre piste dans ce fichier",
+  "replay10": "Reculer de 10 s",
+  "forward10": "Avancer de 10 s",
+  "fullscreen": "Plein écran (F)",
+  "fullscreenExit": "Quitter le plein écran (Échap)",
+  "chapters": "Chapitres",
+  "chaptersSoon": "Les chapitres du fichier s'afficheront ici.",
+  "nextEpisode": "Épisode suivant",
+  "autoNext": "Lecture auto à la fin",
+  "videoLoading": "Ouverture de la vidéo…",
+  "videoUnavailable": "Aucune vidéo en cours"
 }
