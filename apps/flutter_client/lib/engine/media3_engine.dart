@@ -43,6 +43,9 @@ class Media3Engine implements MediaEngine {
     // Depends on the device: setEqualizer reports it.
     equalizer: true,
     backgroundPlayback: true,
+    // Media3 picks the text track by language; outputs, exclusive mode and
+    // sidecar files are left to Android.
+    subtitleLanguage: true,
   );
 
   @override
@@ -187,6 +190,15 @@ class Media3Engine implements MediaEngine {
   @override
   Future<void> setSubtitleEnabled(bool enabled) =>
       _call('setSubtitlesEnabled', {'enabled': enabled});
+
+  @override
+  Future<List<AudioOutput>> audioOutputs() async => const [];
+
+  @override
+  Future<void> applyPreferences(EnginePreferences p) =>
+      _methods.invokeMethod<void>('setPreferredSubtitle', {
+        'language': p.subtitleLanguage,
+      });
 
   @override
   Future<bool?> setEqualizer(List<double>? gainsDb) =>

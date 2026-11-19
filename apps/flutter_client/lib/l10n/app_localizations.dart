@@ -1560,6 +1560,354 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Effacer la recherche'**
   String get searchClear;
+
+  /// No description provided for @setGeneral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Général'**
+  String get setGeneral;
+
+  /// No description provided for @setAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Apparence'**
+  String get setAppearance;
+
+  /// No description provided for @setPlayback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture'**
+  String get setPlayback;
+
+  /// No description provided for @setLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque'**
+  String get setLibrary;
+
+  /// No description provided for @setShortcuts.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raccourcis'**
+  String get setShortcuts;
+
+  /// No description provided for @setData.
+  ///
+  /// In fr, this message translates to:
+  /// **'Données et sauvegarde'**
+  String get setData;
+
+  /// No description provided for @setAbout.
+  ///
+  /// In fr, this message translates to:
+  /// **'À propos'**
+  String get setAbout;
+
+  /// No description provided for @language.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue'**
+  String get language;
+
+  /// No description provided for @languageBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue de l\'interface'**
+  String get languageBody;
+
+  /// No description provided for @languageSystem.
+  ///
+  /// In fr, this message translates to:
+  /// **'Système'**
+  String get languageSystem;
+
+  /// No description provided for @theme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème'**
+  String get theme;
+
+  /// No description provided for @themeDark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sombre'**
+  String get themeDark;
+
+  /// No description provided for @themeLight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Clair'**
+  String get themeLight;
+
+  /// No description provided for @themeSystem.
+  ///
+  /// In fr, this message translates to:
+  /// **'Système'**
+  String get themeSystem;
+
+  /// No description provided for @playColor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couleur de lecture'**
+  String get playColor;
+
+  /// No description provided for @colorCoral.
+  ///
+  /// In fr, this message translates to:
+  /// **'Corail'**
+  String get colorCoral;
+
+  /// No description provided for @colorRose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rose'**
+  String get colorRose;
+
+  /// No description provided for @colorAmber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ambre'**
+  String get colorAmber;
+
+  /// No description provided for @colorBlue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bleu'**
+  String get colorBlue;
+
+  /// No description provided for @density.
+  ///
+  /// In fr, this message translates to:
+  /// **'Densité'**
+  String get density;
+
+  /// No description provided for @densityBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compacte : lignes de 40 px dans les listes'**
+  String get densityBody;
+
+  /// No description provided for @densityComfortable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Confortable'**
+  String get densityComfortable;
+
+  /// No description provided for @densityCompact.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compacte'**
+  String get densityCompact;
+
+  /// No description provided for @textSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille du texte'**
+  String get textSize;
+
+  /// No description provided for @textSizeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'90 à 130 %'**
+  String get textSizeBody;
+
+  /// No description provided for @reduceMotion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduire les animations'**
+  String get reduceMotion;
+
+  /// No description provided for @reduceMotionBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suit le réglage Windows par défaut'**
+  String get reduceMotionBody;
+
+  /// No description provided for @reduceTransparency.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réduire la transparence'**
+  String get reduceTransparency;
+
+  /// No description provided for @reduceTransparencyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Surfaces opaques partout'**
+  String get reduceTransparencyBody;
+
+  /// No description provided for @coverBackdrop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pochette en fond dans En lecture'**
+  String get coverBackdrop;
+
+  /// No description provided for @coverBackdropBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flou de la pochette derrière le lecteur'**
+  String get coverBackdropBody;
+
+  /// No description provided for @engineSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moteur et sortie'**
+  String get engineSection;
+
+  /// No description provided for @engine.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moteur de lecture'**
+  String get engine;
+
+  /// No description provided for @engineBodyWindows.
+  ///
+  /// In fr, this message translates to:
+  /// **'libmpv intégré, décodage matériel avec repli'**
+  String get engineBodyWindows;
+
+  /// No description provided for @engineBodyAndroid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Media3, le lecteur d\'Android'**
+  String get engineBodyAndroid;
+
+  /// No description provided for @engineValue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Intégré (recommandé)'**
+  String get engineValue;
+
+  /// No description provided for @audioOutput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortie audio'**
+  String get audioOutput;
+
+  /// No description provided for @audioOutputBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Périphérique utilisé par Miarina'**
+  String get audioOutputBody;
+
+  /// No description provided for @systemDefault.
+  ///
+  /// In fr, this message translates to:
+  /// **'Système par défaut'**
+  String get systemDefault;
+
+  /// No description provided for @exclusive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode exclusif WASAPI'**
+  String get exclusive;
+
+  /// No description provided for @exclusiveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour les DAC externes, coupe les autres sons'**
+  String get exclusiveBody;
+
+  /// No description provided for @chainSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enchaînement'**
+  String get chainSection;
+
+  /// No description provided for @resumeSetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre où j\'en étais'**
+  String get resumeSetting;
+
+  /// No description provided for @resumeSettingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audio et vidéo, au démarrage'**
+  String get resumeSettingBody;
+
+  /// No description provided for @gapless.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture sans blanc (gapless)'**
+  String get gapless;
+
+  /// No description provided for @gaplessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Albums live et mixés'**
+  String get gaplessBody;
+
+  /// No description provided for @crossfade.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fondu entre les titres'**
+  String get crossfade;
+
+  /// No description provided for @crossfadeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'0 à 12 s'**
+  String get crossfadeBody;
+
+  /// No description provided for @off.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivé'**
+  String get off;
+
+  /// No description provided for @normalizationSetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Normalisation du volume'**
+  String get normalizationSetting;
+
+  /// No description provided for @normalizationSettingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'ReplayGain si présent'**
+  String get normalizationSettingBody;
+
+  /// No description provided for @videoSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get videoSection;
+
+  /// No description provided for @defaultSubtitles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres par défaut'**
+  String get defaultSubtitles;
+
+  /// No description provided for @defaultSubtitlesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue préférée, sinon aucun'**
+  String get defaultSubtitlesBody;
+
+  /// No description provided for @none.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get none;
+
+  /// No description provided for @sidecar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Charger les sous-titres à côté du fichier'**
+  String get sidecar;
+
+  /// No description provided for @sidecarBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'.srt, .vtt, .ass du même nom'**
+  String get sidecarBody;
+
+  /// No description provided for @p1Badge.
+  ///
+  /// In fr, this message translates to:
+  /// **'P1'**
+  String get p1Badge;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

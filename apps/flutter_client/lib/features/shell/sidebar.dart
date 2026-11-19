@@ -194,7 +194,7 @@ class Sidebar extends ConsumerWidget {
               PhosphorRegular.gearSix,
               PhosphorFill.gearSix,
             ),
-            active: location == Routes.settings,
+            active: location.startsWith(Routes.settings),
             collapsed: collapsed,
           ),
         ],

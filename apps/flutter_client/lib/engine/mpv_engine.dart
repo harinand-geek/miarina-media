@@ -35,7 +35,55 @@ class MpvEngine implements MediaEngine {
     chapters: true,
     equalizer: true,
     backgroundPlayback: true,
+    audioOutputs: true,
+    exclusiveAudio: true,
+    sidecarSubtitles: true,
+    subtitleLanguage: true,
   );
+
+  /// mpv wants the 2- and 3-letter codes a file may use.
+  static const _languageCodes = {
+    'fr': 'fr,fre,fra',
+    'en': 'en,eng',
+    'mg': 'mg,mlg',
+    'es': 'es,spa',
+    'de': 'de,ger,deu',
+    'it': 'it,ita',
+    'pt': 'pt,por',
+  };
+
+  @override
+  Future<List<AudioOutput>> audioOutputs() async => [
+    for (final d in _player.state.audioDevices)
+      AudioOutput(
+        id: d.name,
+        label: d.name == 'auto'
+            ? ''
+            : (d.description.isEmpty ? d.name : d.description),
+      ),
+  ];
+
+  @override
+  Future<void> applyPreferences(EnginePreferences p) async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return;
+    final lang = p.subtitleLanguage;
+    await native.setProperty(
+      'slang',
+      lang == null ? '' : (_languageCodes[lang] ?? lang),
+    );
+    // Without a preferred language, no subtitle is turned on by itself.
+    await native.setProperty('subs-fallback', lang == null ? 'no' : 'default');
+    await native.setProperty('sub-auto', p.sidecarSubtitles ? 'fuzzy' : 'no');
+    await native.setProperty(
+      'audio-exclusive',
+      p.exclusiveAudio ? 'yes' : 'no',
+    );
+    final device = _player.state.audioDevices
+        .where((d) => d.name == p.audioOutput)
+        .firstOrNull;
+    await _player.setAudioDevice(device ?? mk.AudioDevice.auto());
+  }
 
   @override
   PlaybackSnapshot get current => _state;

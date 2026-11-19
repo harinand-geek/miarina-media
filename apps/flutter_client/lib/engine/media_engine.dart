@@ -56,6 +56,43 @@ class ChapterInfo {
   int get hashCode => Object.hash(start, title);
 }
 
+/// An audio output the engine can play to.
+@immutable
+class AudioOutput {
+  const AudioOutput({required this.id, required this.label});
+
+  /// 'auto' = the system's default output.
+  final String id;
+  final String label;
+
+  @override
+  bool operator ==(Object other) => other is AudioOutput && other.id == id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+/// Playback settings (W-S2) the engine applies to every file it opens.
+@immutable
+class EnginePreferences {
+  const EnginePreferences({
+    this.subtitleLanguage,
+    this.sidecarSubtitles = true,
+    this.exclusiveAudio = false,
+    this.audioOutput = 'auto',
+  });
+
+  /// ISO 639-1 code of the preferred subtitle language, or null for none.
+  final String? subtitleLanguage;
+
+  /// Load subtitle files named after the video (.srt, .vtt, .ass).
+  final bool sidecarSubtitles;
+
+  /// Exclusive access to the output (WASAPI), for external DACs.
+  final bool exclusiveAudio;
+  final String audioOutput;
+}
+
 /// What an engine can really do on this platform. The interface hides or
 /// disables anything set to false instead of simulating it.
 class EngineCapabilities {
@@ -69,6 +106,10 @@ class EngineCapabilities {
     required this.chapters,
     required this.equalizer,
     required this.backgroundPlayback,
+    this.audioOutputs = false,
+    this.exclusiveAudio = false,
+    this.sidecarSubtitles = false,
+    this.subtitleLanguage = false,
   });
 
   final bool video;
@@ -80,6 +121,13 @@ class EngineCapabilities {
   final bool chapters;
   final bool equalizer;
   final bool backgroundPlayback;
+
+  /// Settings of [EnginePreferences] the engine honours; the others are not
+  /// offered in Settings.
+  final bool audioOutputs;
+  final bool exclusiveAudio;
+  final bool sidecarSubtitles;
+  final bool subtitleLanguage;
 }
 
 class PlaybackError {
@@ -223,6 +271,13 @@ abstract interface class MediaEngine {
   /// bypass. Applied to what plays; files are never modified. Returns whether
   /// the output really applies it (null when not known yet).
   Future<bool?> setEqualizer(List<double>? gainsDb);
+
+  /// Outputs the user can choose from ('auto' first); empty when the
+  /// platform decides alone.
+  Future<List<AudioOutput>> audioOutputs();
+
+  /// Applies the playback settings to what plays and what will.
+  Future<void> applyPreferences(EnginePreferences preferences);
 
   /// The picture for this engine, or an empty box for audio-only engines.
   Widget buildVideoView({BoxFit fit = BoxFit.contain});

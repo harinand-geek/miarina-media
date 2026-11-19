@@ -62,6 +62,10 @@ class FakeEngine implements MediaEngine {
     chapters: false,
     equalizer: true,
     backgroundPlayback: true,
+    audioOutputs: true,
+    exclusiveAudio: true,
+    sidecarSubtitles: true,
+    subtitleLanguage: true,
   );
 
   @override
@@ -147,6 +151,18 @@ class FakeEngine implements MediaEngine {
     equalizer = gainsDb;
     return equalizerSupported;
   }
+
+  EnginePreferences? preferences;
+  List<AudioOutput> outputs = const [
+    AudioOutput(id: 'auto', label: ''),
+    AudioOutput(id: 'wasapi/dac', label: 'DAC USB'),
+  ];
+
+  @override
+  Future<List<AudioOutput>> audioOutputs() async => outputs;
+
+  @override
+  Future<void> applyPreferences(EnginePreferences p) async => preferences = p;
 
   @override
   Widget buildVideoView({BoxFit fit = BoxFit.contain}) => const SizedBox();

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../features/cinema/cinema_screen.dart';
 import '../features/cinema/personal_videos_screen.dart';
@@ -14,6 +15,7 @@ import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/history/history_screen.dart';
 import '../features/search/search_screen.dart';
+import '../features/settings/settings_screen.dart';
 import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
 import '../features/library/group_screen.dart';
@@ -99,8 +101,10 @@ final routerProvider = Provider<GoRouter>((ref) {
       if (!desktop)
         GoRoute(
           path: Routes.watch,
-          pageBuilder: (context, state) =>
-              _ScreenPage(key: state.pageKey, child: const WatchScreen()),
+          pageBuilder: (context, state) => _ScreenPage(
+            key: state.pageKey,
+            child: const _DarkPlayer(child: WatchScreen()),
+          ),
         ),
       ShellRoute(
         builder: (context, state, child) => desktop
@@ -170,7 +174,8 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ),
           ),
-          if (desktop) screen(Routes.watch, () => const WatchScreen()),
+          if (desktop)
+            screen(Routes.watch, () => const _DarkPlayer(child: WatchScreen())),
           screen(Routes.personalVideos, () => const PersonalVideosScreen()),
           screen(Routes.focus, () => const FocusScreen()),
           screen(
@@ -189,12 +194,34 @@ final routerProvider = Provider<GoRouter>((ref) {
           if (desktop)
             screen(Routes.focusPlayer, () => const FocusPlayerScreen()),
           screen(Routes.get, () => const ComingSoon(screenId: 'Obtenir')),
-          screen(Routes.settings, () => const ComingSoon(screenId: 'W-S1')),
+          screen(Routes.settings, () => const SettingsScreen()),
+          GoRoute(
+            path: '${Routes.settings}/:section',
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: SettingsScreen(
+                section: SettingsSection.values
+                    .asNameMap()[state.pathParameters['section']],
+              ),
+            ),
+          ),
         ],
       ),
     ],
   );
 });
+
+/// The video player stays dark in both themes: its controls sit on the
+/// picture.
+class _DarkPlayer extends StatelessWidget {
+  const _DarkPlayer({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) =>
+      Theme(data: buildMmTheme(MmColors.dark), child: child);
+}
 
 /// Screen change (handoff §03): content fades in and rises 8 px in 160 ms;
 /// navigation chrome does not move. Reduced motion: 120 ms fade only.

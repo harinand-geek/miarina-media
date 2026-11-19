@@ -941,4 +941,179 @@ class L10nFr extends L10n {
 
   @override
   String get searchClear => 'Effacer la recherche';
+
+  @override
+  String get setGeneral => 'Général';
+
+  @override
+  String get setAppearance => 'Apparence';
+
+  @override
+  String get setPlayback => 'Lecture';
+
+  @override
+  String get setLibrary => 'Bibliothèque';
+
+  @override
+  String get setShortcuts => 'Raccourcis';
+
+  @override
+  String get setData => 'Données et sauvegarde';
+
+  @override
+  String get setAbout => 'À propos';
+
+  @override
+  String get language => 'Langue';
+
+  @override
+  String get languageBody => 'Langue de l\'interface';
+
+  @override
+  String get languageSystem => 'Système';
+
+  @override
+  String get theme => 'Thème';
+
+  @override
+  String get themeDark => 'Sombre';
+
+  @override
+  String get themeLight => 'Clair';
+
+  @override
+  String get themeSystem => 'Système';
+
+  @override
+  String get playColor => 'Couleur de lecture';
+
+  @override
+  String get colorCoral => 'Corail';
+
+  @override
+  String get colorRose => 'Rose';
+
+  @override
+  String get colorAmber => 'Ambre';
+
+  @override
+  String get colorBlue => 'Bleu';
+
+  @override
+  String get density => 'Densité';
+
+  @override
+  String get densityBody => 'Compacte : lignes de 40 px dans les listes';
+
+  @override
+  String get densityComfortable => 'Confortable';
+
+  @override
+  String get densityCompact => 'Compacte';
+
+  @override
+  String get textSize => 'Taille du texte';
+
+  @override
+  String get textSizeBody => '90 à 130 %';
+
+  @override
+  String get reduceMotion => 'Réduire les animations';
+
+  @override
+  String get reduceMotionBody => 'Suit le réglage Windows par défaut';
+
+  @override
+  String get reduceTransparency => 'Réduire la transparence';
+
+  @override
+  String get reduceTransparencyBody => 'Surfaces opaques partout';
+
+  @override
+  String get coverBackdrop => 'Pochette en fond dans En lecture';
+
+  @override
+  String get coverBackdropBody => 'Flou de la pochette derrière le lecteur';
+
+  @override
+  String get engineSection => 'Moteur et sortie';
+
+  @override
+  String get engine => 'Moteur de lecture';
+
+  @override
+  String get engineBodyWindows =>
+      'libmpv intégré, décodage matériel avec repli';
+
+  @override
+  String get engineBodyAndroid => 'Media3, le lecteur d\'Android';
+
+  @override
+  String get engineValue => 'Intégré (recommandé)';
+
+  @override
+  String get audioOutput => 'Sortie audio';
+
+  @override
+  String get audioOutputBody => 'Périphérique utilisé par Miarina';
+
+  @override
+  String get systemDefault => 'Système par défaut';
+
+  @override
+  String get exclusive => 'Mode exclusif WASAPI';
+
+  @override
+  String get exclusiveBody => 'Pour les DAC externes, coupe les autres sons';
+
+  @override
+  String get chainSection => 'Enchaînement';
+
+  @override
+  String get resumeSetting => 'Reprendre où j\'en étais';
+
+  @override
+  String get resumeSettingBody => 'Audio et vidéo, au démarrage';
+
+  @override
+  String get gapless => 'Lecture sans blanc (gapless)';
+
+  @override
+  String get gaplessBody => 'Albums live et mixés';
+
+  @override
+  String get crossfade => 'Fondu entre les titres';
+
+  @override
+  String get crossfadeBody => '0 à 12 s';
+
+  @override
+  String get off => 'Désactivé';
+
+  @override
+  String get normalizationSetting => 'Normalisation du volume';
+
+  @override
+  String get normalizationSettingBody => 'ReplayGain si présent';
+
+  @override
+  String get videoSection => 'Vidéo';
+
+  @override
+  String get defaultSubtitles => 'Sous-titres par défaut';
+
+  @override
+  String get defaultSubtitlesBody => 'Langue préférée, sinon aucun';
+
+  @override
+  String get none => 'Aucun';
+
+  @override
+  String get sidecar => 'Charger les sous-titres à côté du fichier';
+
+  @override
+  String get sidecarBody => '.srt, .vtt, .ass du même nom';
+
+  @override
+  String get p1Badge => 'P1';
 }

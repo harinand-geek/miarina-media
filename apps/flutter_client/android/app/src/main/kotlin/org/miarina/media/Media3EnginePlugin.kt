@@ -181,6 +181,10 @@ class Media3EnginePlugin(
         .setTrackTypeDisabled(C.TRACK_TYPE_TEXT, call.argument<Boolean>("enabled") != true)
         .build()
       "loadSubtitle" -> loadSubtitle(call.argument<String>("uri") ?: throw IllegalArgumentException("uri"))
+      // Settings › Playback: preferred subtitle language, none when null.
+      "setPreferredSubtitle" -> c.trackSelectionParameters = c.trackSelectionParameters.buildUpon()
+        .setPreferredTextLanguage(call.argument<String>("language"))
+        .build()
       else -> return result.notImplemented()
     }
     result.success(null)

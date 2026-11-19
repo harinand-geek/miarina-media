@@ -111,15 +111,19 @@ class _TitleBarState extends State<TitleBar> {
                               const MiarinaLogo(),
                               if (widget.sideWidth > 100) ...[
                                 const SizedBox(width: 10),
-                                Text(
-                                  t.appTitle,
-                                  style: MmType.heading.copyWith(
-                                    fontSize: 13,
-                                    color: c.fg,
-                                    fontWeight: FontWeight.w800,
-                                    fontVariations: const [
-                                      FontVariation.weight(800),
-                                    ],
+                                Flexible(
+                                  child: Text(
+                                    t.appTitle,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: MmType.heading.copyWith(
+                                      fontSize: 13,
+                                      color: c.fg,
+                                      fontWeight: FontWeight.w800,
+                                      fontVariations: const [
+                                        FontVariation.weight(800),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ],

@@ -14,6 +14,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart';
 import '../playback/playback.dart';
+import '../settings/settings_data.dart';
 import '../../app/router.dart';
 import 'groups.dart';
 import 'library_data.dart';
@@ -398,7 +399,11 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       focusNode: _listFocus,
       onKeyEvent: _onKey,
       child: ListView.builder(
-        itemExtent: 44,
+        // Settings › Appearance › Density: compact rows are 40 px.
+        itemExtent:
+            ref.watch(appearanceProvider).value?.density == Density.compact
+            ? 40
+            : 44,
         padding: const EdgeInsets.only(bottom: 24, top: 4),
         itemCount: _items.length,
         itemBuilder: (context, i) {

@@ -54,7 +54,9 @@ class DesktopShell extends ConsumerWidget {
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Sidebar(location: location, collapsed: collapsed),
+                    // Settings brings its own navigation (W-S1…S3).
+                    if (!location.startsWith(Routes.settings))
+                      Sidebar(location: location, collapsed: collapsed),
                     Expanded(child: ClipRect(child: content)),
                   ],
                 ),

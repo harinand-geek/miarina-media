@@ -41,7 +41,8 @@ class PicturePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = MmColors.of(context);
+    // Always light text: the pill sits on a picture, in both themes.
+    const ink = Color(0xFFF5F7FA);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
@@ -51,8 +52,8 @@ class PicturePill extends StatelessWidget {
       child: Text(
         text,
         style: mono
-            ? MmType.monoStyle(size: 11, color: c.fg)
-            : MmType.captionStrong.copyWith(fontSize: 11, color: c.fg),
+            ? MmType.monoStyle(size: 11, color: ink)
+            : MmType.captionStrong.copyWith(fontSize: 11, color: ink),
       ),
     );
   }

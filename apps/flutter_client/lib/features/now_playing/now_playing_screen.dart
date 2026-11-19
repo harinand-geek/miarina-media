@@ -63,6 +63,7 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
       children: [
         Positioned.fill(
           child: CoverBackdrop(
+            nowPlaying: true,
             seed: entry?.seed ?? 0,
             imagePath: entry?.artwork,
           ),

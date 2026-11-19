@@ -409,6 +409,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
             children: [
               Positioned.fill(
                 child: CoverBackdrop(
+                  nowPlaying: true,
                   seed: entry?.seed ?? 0,
                   imagePath: entry?.artwork,
                 ),

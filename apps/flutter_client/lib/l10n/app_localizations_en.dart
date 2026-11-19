@@ -938,4 +938,179 @@ class L10nEn extends L10n {
 
   @override
   String get searchClear => 'Clear the search';
+
+  @override
+  String get setGeneral => 'General';
+
+  @override
+  String get setAppearance => 'Appearance';
+
+  @override
+  String get setPlayback => 'Playback';
+
+  @override
+  String get setLibrary => 'Library';
+
+  @override
+  String get setShortcuts => 'Shortcuts';
+
+  @override
+  String get setData => 'Data and backup';
+
+  @override
+  String get setAbout => 'About';
+
+  @override
+  String get language => 'Language';
+
+  @override
+  String get languageBody => 'Interface language';
+
+  @override
+  String get languageSystem => 'System';
+
+  @override
+  String get theme => 'Theme';
+
+  @override
+  String get themeDark => 'Dark';
+
+  @override
+  String get themeLight => 'Light';
+
+  @override
+  String get themeSystem => 'System';
+
+  @override
+  String get playColor => 'Play color';
+
+  @override
+  String get colorCoral => 'Coral';
+
+  @override
+  String get colorRose => 'Pink';
+
+  @override
+  String get colorAmber => 'Amber';
+
+  @override
+  String get colorBlue => 'Blue';
+
+  @override
+  String get density => 'Density';
+
+  @override
+  String get densityBody => 'Compact: 40 px rows in lists';
+
+  @override
+  String get densityComfortable => 'Comfortable';
+
+  @override
+  String get densityCompact => 'Compact';
+
+  @override
+  String get textSize => 'Text size';
+
+  @override
+  String get textSizeBody => '90 to 130%';
+
+  @override
+  String get reduceMotion => 'Reduce motion';
+
+  @override
+  String get reduceMotionBody => 'Follows the system setting by default';
+
+  @override
+  String get reduceTransparency => 'Reduce transparency';
+
+  @override
+  String get reduceTransparencyBody => 'Opaque surfaces everywhere';
+
+  @override
+  String get coverBackdrop => 'Cover behind Now playing';
+
+  @override
+  String get coverBackdropBody => 'Blurred cover behind the player';
+
+  @override
+  String get engineSection => 'Engine and output';
+
+  @override
+  String get engine => 'Playback engine';
+
+  @override
+  String get engineBodyWindows =>
+      'Built-in libmpv, hardware decoding with fallback';
+
+  @override
+  String get engineBodyAndroid => 'Media3, Android\'s player';
+
+  @override
+  String get engineValue => 'Built-in (recommended)';
+
+  @override
+  String get audioOutput => 'Audio output';
+
+  @override
+  String get audioOutputBody => 'Device Miarina plays to';
+
+  @override
+  String get systemDefault => 'System default';
+
+  @override
+  String get exclusive => 'WASAPI exclusive mode';
+
+  @override
+  String get exclusiveBody => 'For external DACs, mutes other sounds';
+
+  @override
+  String get chainSection => 'Continuity';
+
+  @override
+  String get resumeSetting => 'Resume where I left off';
+
+  @override
+  String get resumeSettingBody => 'Audio and video, when starting';
+
+  @override
+  String get gapless => 'Gapless playback';
+
+  @override
+  String get gaplessBody => 'Live and mixed albums';
+
+  @override
+  String get crossfade => 'Crossfade between tracks';
+
+  @override
+  String get crossfadeBody => '0 to 12 s';
+
+  @override
+  String get off => 'Off';
+
+  @override
+  String get normalizationSetting => 'Volume normalization';
+
+  @override
+  String get normalizationSettingBody => 'ReplayGain when present';
+
+  @override
+  String get videoSection => 'Video';
+
+  @override
+  String get defaultSubtitles => 'Default subtitles';
+
+  @override
+  String get defaultSubtitlesBody => 'Preferred language, otherwise none';
+
+  @override
+  String get none => 'None';
+
+  @override
+  String get sidecar => 'Load subtitles next to the file';
+
+  @override
+  String get sidecarBody => 'Same-name .srt, .vtt, .ass';
+
+  @override
+  String get p1Badge => 'P1';
 }

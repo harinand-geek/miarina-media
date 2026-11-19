@@ -12,6 +12,7 @@ import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../library/library_data.dart';
 import '../playback/playback.dart';
+import '../settings/settings_data.dart';
 
 /// Where the small cover was when the player was opened, so the big one can
 /// grow out of it (Handoff §03, "Ouverture du lecteur").
@@ -46,20 +47,30 @@ Future<void> toggleCurrentFavorite(WidgetRef ref) async {
 
 /// Blurred cover behind the player (σ 60) under a dark veil so text keeps a
 /// 4.5:1 contrast. Static: the blur is never animated.
-class CoverBackdrop extends StatelessWidget {
+class CoverBackdrop extends ConsumerWidget {
   const CoverBackdrop({
     super.key,
     required this.seed,
     this.veil = const Color(0x8C0D141B),
     this.imagePath,
+    this.nowPlaying = false,
   });
 
   final int seed;
   final Color veil;
   final String? imagePath;
 
+  /// Behind the Now playing screens, where Settings can turn it off.
+  final bool nowPlaying;
+
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final look = ref.watch(appearanceProvider).value;
+    // Settings › Appearance: opaque surfaces, or no cover behind the player.
+    if ((look?.reduceTransparency ?? false) ||
+        (nowPlaying && !(look?.coverBackdrop ?? true))) {
+      return ColoredBox(color: MmColors.of(context).surface);
+    }
     // Clipped: a blur spreads ~3σ beyond its box and would tint (and make the
     // compositor repaint) everything around it.
     return RepaintBoundary(
