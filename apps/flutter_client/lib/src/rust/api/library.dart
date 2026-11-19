@@ -19,15 +19,17 @@ Future<LibrarySummary> librarySummary({
   limit: limit,
 );
 
-/// A page of audio tracks sorted by title (by disc and track within an
-/// album); `search` uses the library's full-text index (accent-insensitive),
-/// empty = everything. `album` / `artist` narrow to one group.
+/// A page of audio tracks sorted by title, or newest first when
+/// `recent` (by disc and track within an album whatever the sort); `search`
+/// uses the library's full-text index (accent-insensitive), empty =
+/// everything. `album` / `artist` narrow to one group.
 Future<LibraryPage> libraryTracks({
   required String dbPath,
   required String search,
   required bool favoritesOnly,
   String? album,
   String? artist,
+  required bool recent,
   required int offset,
   required int limit,
 }) => RustLib.instance.api.crateApiLibraryLibraryTracks(
@@ -36,6 +38,7 @@ Future<LibraryPage> libraryTracks({
   favoritesOnly: favoritesOnly,
   album: album,
   artist: artist,
+  recent: recent,
   offset: offset,
   limit: limit,
 );
@@ -46,6 +49,24 @@ Future<List<LibraryGroup>> libraryGroups({
   required String dbPath,
   required String by,
 }) => RustLib.instance.api.crateApiLibraryLibraryGroups(dbPath: dbPath, by: by);
+
+/// One library entry by id; None when it was removed.
+Future<LibraryItem?> libraryItem({
+  required String dbPath,
+  required PlatformInt64 mediaId,
+}) => RustLib.instance.api.crateApiLibraryLibraryItem(
+  dbPath: dbPath,
+  mediaId: mediaId,
+);
+
+/// The library entry of a file ("Open with"), if the file is known.
+Future<LibraryItem?> libraryItemByPath({
+  required String dbPath,
+  required String path,
+}) => RustLib.instance.api.crateApiLibraryLibraryItemByPath(
+  dbPath: dbPath,
+  path: path,
+);
 
 /// Marks or unmarks a library entry as a favorite.
 Future<void> librarySetFavorite({

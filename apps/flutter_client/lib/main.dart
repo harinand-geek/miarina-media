@@ -8,7 +8,9 @@ import 'app/app.dart';
 import 'app/launch_args.dart';
 import 'engine/engine_factory.dart';
 import 'engine/media_engine.dart';
+import 'features/library/library_data.dart';
 import 'features/playback/playback.dart';
+import 'src/rust/api/library.dart';
 import 'src/rust/frb_generated.dart';
 
 // Test hook: Android has no command line, so a test build can name a file to
@@ -32,15 +34,7 @@ Future<void> main(List<String> args) async {
     if (_openDefine.isNotEmpty) _openDefine,
   ]);
   final media = launch.media;
-  if (media != null) {
-    final name = fileTitle(media);
-    await container.read(queueProvider.notifier).playAll([
-      QueueEntry(
-        source: MediaSource.file(media, title: name),
-        title: name,
-      ),
-    ]);
-  }
+  if (media != null) await _openLaunchFile(container, media);
 }
 
 /// 1280 × 800 reference client area, 960 × 640 minimum, own title bar
@@ -62,4 +56,24 @@ void _setUpWindow() {
     false,
   );
   window.center();
+}
+
+/// A known file plays as its library entry (title, cover, favorite, resume
+/// point); an unknown one under its file name.
+Future<void> _openLaunchFile(ProviderContainer container, String path) async {
+  LibraryItem? known;
+  try {
+    known = await container.read(libraryApiProvider).itemByPath(path);
+  } catch (_) {
+    known = null;
+  }
+  final name = fileTitle(path);
+  await container.read(queueProvider.notifier).playAll([
+    known != null
+        ? queueEntryOf(known)
+        : QueueEntry(
+            source: MediaSource.file(path, title: name),
+            title: name,
+          ),
+  ]);
 }

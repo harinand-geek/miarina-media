@@ -152,5 +152,55 @@
   "albumTracks": "Titres de l'album",
   "artistTracks": "Titres",
   "groupMissing": "Cet élément n'est plus dans la bibliothèque.",
-  "playVerb": "Lire"
+  "playVerb": "Lire",
+  "homeResume": "Reprendre",
+  "homeResumeKind": "Reprendre · {kind}",
+  "@homeResumeKind": {
+    "placeholders": {
+      "kind": {
+        "type": "String"
+      }
+    }
+  },
+  "homeResumeAt": "Reprendre à {time}",
+  "@homeResumeAt": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "minutesLeft": "{minutes, plural, =0{moins d'une minute restante} =1{1 min restante} other{{minutes} min restantes}}",
+  "@minutesLeft": {
+    "placeholders": {
+      "minutes": {
+        "type": "int"
+      }
+    }
+  },
+  "openAlbum": "Voir l'album",
+  "autoLists": "Vos listes automatiques",
+  "listMostPlayed": "Écoutés souvent",
+  "listRecentlyAdded": "Ajoutés récemment",
+  "listRecentlyAddedBody": "Les derniers titres arrivés dans la bibliothèque",
+  "listFavoritesBody": "Vos titres favoris",
+  "andOthers": "{names} et {count} autres",
+  "@andOthers": {
+    "placeholders": {
+      "names": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "fullQueue": "File complète",
+  "seeAll": "Tout voir",
+  "recentAlbums": "Albums récents",
+  "homeEmptyTitle": "Votre espace d'écoute est prêt",
+  "homeEmptyBody": "Rien n'a encore été écouté et la bibliothèque est vide. Ajoutez de la musique depuis Obtenir, ou ouvrez un fichier.",
+  "goTracks": "Voir les titres",
+  "goGet": "Obtenir de la musique",
+  "nowPlayingHint": "Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file."
 }

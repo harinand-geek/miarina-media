@@ -3,8 +3,24 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/library/library_data.dart';
+import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
+
+class FakePlaybackStore implements PlaybackStore {
+  final values = <String, String>{};
+
+  @override
+  Future<String?> read(String key) async => values[key];
+
+  @override
+  Future<void> write(Map<String, String?> changes) async {
+    for (final e in changes.entries) {
+      final v = e.value;
+      v == null ? values.remove(e.key) : values[e.key] = v;
+    }
+  }
+}
 
 class FakeSettingsStore implements SettingsStore {
   final values = <String, Object?>{};
@@ -18,6 +34,7 @@ class FakeSettingsStore implements SettingsStore {
 
 class FakeEngine implements MediaEngine {
   final opened = <MediaSource>[];
+  final starts = <Duration?>[];
   final seeks = <Duration>[];
   final _controller = StreamController<PlaybackSnapshot>.broadcast();
   PlaybackSnapshot _state = const PlaybackSnapshot();
@@ -54,11 +71,13 @@ class FakeEngine implements MediaEngine {
     Duration? startAt,
   }) async {
     opened.add(media);
+    starts.add(startAt);
     emit(
       PlaybackSnapshot(
         status: PlaybackStatus.playing,
         source: media,
         duration: const Duration(minutes: 4),
+        position: startAt ?? Duration.zero,
       ),
     );
   }
@@ -157,6 +176,7 @@ class FakeLibraryApi implements LibraryApi {
     required int limit,
     String? album,
     String? artist,
+    bool recent = false,
   }) async {
     bool same(String? a, String? b) => a?.toLowerCase() == b?.toLowerCase();
     var list = items
@@ -171,10 +191,21 @@ class FakeLibraryApi implements LibraryApi {
     }
     if (album != null) {
       list.sort((a, b) => (a.trackNo ?? 9999).compareTo(b.trackNo ?? 9999));
+    } else if (recent) {
+      // Newest first: higher ids were added later in these fixtures.
+      list.sort((a, b) => b.id.compareTo(a.id));
     }
     final page = list.skip(offset).take(limit).toList();
     return LibraryPage(items: page, total: BigInt.from(list.length));
   }
+
+  @override
+  Future<LibraryItem?> itemByPath(String path) async =>
+      items.where((i) => i.path == path).firstOrNull;
+
+  @override
+  Future<LibraryItem?> item(int id) async =>
+      items.where((i) => i.id == id).firstOrNull;
 
   @override
   Future<List<LibraryGroup>> groups(GroupKind kind) async {

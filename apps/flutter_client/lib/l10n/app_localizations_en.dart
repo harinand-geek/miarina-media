@@ -381,4 +381,78 @@ class L10nEn extends L10n {
 
   @override
   String get playVerb => 'Play';
+
+  @override
+  String get homeResume => 'Resume';
+
+  @override
+  String homeResumeKind(String kind) {
+    return 'Resume · $kind';
+  }
+
+  @override
+  String homeResumeAt(String time) {
+    return 'Resume at $time';
+  }
+
+  @override
+  String minutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min left',
+      one: '1 min left',
+      zero: 'less than a minute left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openAlbum => 'Open album';
+
+  @override
+  String get autoLists => 'Your automatic lists';
+
+  @override
+  String get listMostPlayed => 'Played often';
+
+  @override
+  String get listRecentlyAdded => 'Recently added';
+
+  @override
+  String get listRecentlyAddedBody => 'The latest tracks added to the library';
+
+  @override
+  String get listFavoritesBody => 'Your favorite tracks';
+
+  @override
+  String andOthers(String names, int count) {
+    return '$names and $count more';
+  }
+
+  @override
+  String get fullQueue => 'Full queue';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get recentAlbums => 'Recent albums';
+
+  @override
+  String get homeEmptyTitle => 'Your listening space is ready';
+
+  @override
+  String get homeEmptyBody =>
+      'Nothing has been played yet and the library is empty. Add music from Get, or open a file.';
+
+  @override
+  String get goTracks => 'See tracks';
+
+  @override
+  String get goGet => 'Get music';
+
+  @override
+  String get nowPlayingHint =>
+      'Start a track: it shows here, with its lyrics and what comes next.';
 }

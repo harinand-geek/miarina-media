@@ -762,6 +762,120 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Lire'**
   String get playVerb;
+
+  /// No description provided for @homeResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get homeResume;
+
+  /// No description provided for @homeResumeKind.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre · {kind}'**
+  String homeResumeKind(String kind);
+
+  /// No description provided for @homeResumeAt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre à {time}'**
+  String homeResumeAt(String time);
+
+  /// No description provided for @minutesLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes, plural, =0{moins d\'une minute restante} =1{1 min restante} other{{minutes} min restantes}}'**
+  String minutesLeft(int minutes);
+
+  /// No description provided for @openAlbum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l\'album'**
+  String get openAlbum;
+
+  /// No description provided for @autoLists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos listes automatiques'**
+  String get autoLists;
+
+  /// No description provided for @listMostPlayed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoutés souvent'**
+  String get listMostPlayed;
+
+  /// No description provided for @listRecentlyAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutés récemment'**
+  String get listRecentlyAdded;
+
+  /// No description provided for @listRecentlyAddedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les derniers titres arrivés dans la bibliothèque'**
+  String get listRecentlyAddedBody;
+
+  /// No description provided for @listFavoritesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos titres favoris'**
+  String get listFavoritesBody;
+
+  /// No description provided for @andOthers.
+  ///
+  /// In fr, this message translates to:
+  /// **'{names} et {count} autres'**
+  String andOthers(String names, int count);
+
+  /// No description provided for @fullQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'File complète'**
+  String get fullQueue;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout voir'**
+  String get seeAll;
+
+  /// No description provided for @recentAlbums.
+  ///
+  /// In fr, this message translates to:
+  /// **'Albums récents'**
+  String get recentAlbums;
+
+  /// No description provided for @homeEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre espace d\'écoute est prêt'**
+  String get homeEmptyTitle;
+
+  /// No description provided for @homeEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n\'a encore été écouté et la bibliothèque est vide. Ajoutez de la musique depuis Obtenir, ou ouvrez un fichier.'**
+  String get homeEmptyBody;
+
+  /// No description provided for @goTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir les titres'**
+  String get goTracks;
+
+  /// No description provided for @goGet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir de la musique'**
+  String get goGet;
+
+  /// No description provided for @nowPlayingHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file.'**
+  String get nowPlayingHint;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

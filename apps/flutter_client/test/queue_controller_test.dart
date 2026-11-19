@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/playback/playback.dart';
+import 'package:miarina_media/features/playback/playback_memory.dart';
 
 import 'support/fakes.dart';
 
@@ -20,7 +21,10 @@ void main() {
   setUp(() {
     engine = FakeEngine();
     container = ProviderContainer(
-      overrides: [mediaEngineProvider.overrideWithValue(engine)],
+      overrides: [
+        mediaEngineProvider.overrideWithValue(engine),
+        playbackStoreProvider.overrideWithValue(FakePlaybackStore()),
+      ],
     );
     container.read(queueProvider);
   });

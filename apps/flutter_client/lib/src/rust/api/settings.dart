@@ -21,3 +21,18 @@ Future<void> settingsSet({
   key: key,
   json: json,
 );
+
+/// A playback-state value (resume positions `mm:position:<id>`, play
+/// history `mm:playHistory:v1`…), same keys as the Tauri app.
+Future<String?> playbackGet({required String dbPath, required String key}) =>
+    RustLib.instance.api.crateApiSettingsPlaybackGet(dbPath: dbPath, key: key);
+
+/// Sets (or removes, with None) playback-state values in one transaction;
+/// unknown keys are refused by the core.
+Future<void> playbackSet({
+  required String dbPath,
+  required List<(String, String?)> changes,
+}) => RustLib.instance.api.crateApiSettingsPlaybackSet(
+  dbPath: dbPath,
+  changes: changes,
+);

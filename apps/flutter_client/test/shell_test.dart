@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -7,6 +9,7 @@ import 'package:miarina_media/design/widgets/pressable.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
+import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
 
@@ -28,6 +31,8 @@ void main() {
     WidgetTester tester, {
     Size size = const Size(1280, 800),
     bool desktop = true,
+    String start = Routes.tracks,
+    FakePlaybackStore? store,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -42,6 +47,8 @@ void main() {
           desktopShellProvider.overrideWithValue(desktop),
           settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
           lyricsLoaderProvider.overrideWithValue((_) async => null),
+          playbackStoreProvider.overrideWithValue(store ?? FakePlaybackStore()),
+          initialRouteProvider.overrideWithValue(start),
         ],
         child: const MiarinaApp(),
       ),
@@ -314,5 +321,80 @@ void main() {
     await tester.tap(find.text('Albums'));
     await settle(tester);
     expect(find.text("Pas encore d'album"), findsOneWidget);
+  });
+
+  group('Listen home', () {
+    FakePlaybackStore storeWithHistory() {
+      final store = FakePlaybackStore();
+      store.values[historyKey] = jsonEncode([
+        {
+          'id': 2,
+          'title': 'Échos',
+          'kind': 'audio',
+          'at': 1794000000000,
+          'position': 94,
+          'duration': 245,
+        },
+        {'id': 1, 'title': 'Basse marée', 'kind': 'audio', 'at': 1793000000000},
+        {'id': 2, 'title': 'Échos', 'kind': 'audio', 'at': 1792000000000},
+      ]);
+      store.values[positionKey(2)] = '94';
+      return store;
+    }
+
+    testWidgets('resume card, automatic lists, resume at the saved time', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        start: Routes.listenHome,
+        store: storeWithHistory(),
+      );
+      expect(find.text('Reprendre · Musique'), findsOneWidget);
+      expect(find.text('Reprendre à 1:34'), findsOneWidget);
+      expect(find.text('Écoutés souvent'), findsOneWidget);
+      expect(find.text('Ajoutés récemment'), findsOneWidget);
+      expect(find.text('Vos titres favoris'), findsOneWidget);
+      expect(find.text('Rien en lecture'), findsWidgets);
+      await tester.tap(find.text('Reprendre à 1:34'));
+      await settle(tester);
+      expect(engine.starts.single, const Duration(seconds: 94));
+    });
+
+    testWidgets('an empty library and history gives the welcome state', (
+      tester,
+    ) async {
+      library = FakeLibraryApi([]);
+      await pumpApp(tester, start: Routes.listenHome);
+      expect(find.text("Votre espace d'écoute est prêt"), findsOneWidget);
+      expect(find.text('Obtenir de la musique'), findsOneWidget);
+      expect(find.text('Voir les titres'), findsOneWidget);
+    });
+
+    testWidgets('Android: Music home with resume and recent albums', (
+      tester,
+    ) async {
+      library = FakeLibraryApi([
+        track(1, 'Basse marée', artist: 'Nafy Rakoto', album: 'Basse marée'),
+        track(
+          2,
+          'Échos',
+          artist: 'Collectif Rova',
+          album: 'Échos',
+          favorite: true,
+        ),
+      ]);
+      await pumpApp(
+        tester,
+        size: const Size(392, 850),
+        desktop: false,
+        start: Routes.listenHome,
+        store: storeWithHistory(),
+      );
+      expect(find.text('Musique'), findsWidgets);
+      expect(find.text('Albums récents'), findsOneWidget);
+      expect(find.text('Reprendre'), findsWidgets);
+      expect(find.text('Échos'), findsWidgets);
+    });
   });
 }

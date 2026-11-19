@@ -382,4 +382,79 @@ class L10nFr extends L10n {
 
   @override
   String get playVerb => 'Lire';
+
+  @override
+  String get homeResume => 'Reprendre';
+
+  @override
+  String homeResumeKind(String kind) {
+    return 'Reprendre · $kind';
+  }
+
+  @override
+  String homeResumeAt(String time) {
+    return 'Reprendre à $time';
+  }
+
+  @override
+  String minutesLeft(int minutes) {
+    String _temp0 = intl.Intl.pluralLogic(
+      minutes,
+      locale: localeName,
+      other: '$minutes min restantes',
+      one: '1 min restante',
+      zero: 'moins d\'une minute restante',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get openAlbum => 'Voir l\'album';
+
+  @override
+  String get autoLists => 'Vos listes automatiques';
+
+  @override
+  String get listMostPlayed => 'Écoutés souvent';
+
+  @override
+  String get listRecentlyAdded => 'Ajoutés récemment';
+
+  @override
+  String get listRecentlyAddedBody =>
+      'Les derniers titres arrivés dans la bibliothèque';
+
+  @override
+  String get listFavoritesBody => 'Vos titres favoris';
+
+  @override
+  String andOthers(String names, int count) {
+    return '$names et $count autres';
+  }
+
+  @override
+  String get fullQueue => 'File complète';
+
+  @override
+  String get seeAll => 'Tout voir';
+
+  @override
+  String get recentAlbums => 'Albums récents';
+
+  @override
+  String get homeEmptyTitle => 'Votre espace d\'écoute est prêt';
+
+  @override
+  String get homeEmptyBody =>
+      'Rien n\'a encore été écouté et la bibliothèque est vide. Ajoutez de la musique depuis Obtenir, ou ouvrez un fichier.';
+
+  @override
+  String get goTracks => 'Voir les titres';
+
+  @override
+  String get goGet => 'Obtenir de la musique';
+
+  @override
+  String get nowPlayingHint =>
+      'Lancez un titre : il apparaîtra ici, avec ses paroles et la suite de la file.';
 }

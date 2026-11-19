@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/tokens.dart';
 import '../features/common/coming_soon.dart';
+import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
 import '../features/library/group_screen.dart';
 import '../features/library/library_data.dart';
@@ -43,6 +44,11 @@ final desktopShellProvider = Provider<bool>((ref) => !Platform.isAndroid);
 // screen to start on, e.g. --dart-define=MM_START_ROUTE=/now?tab=queue.
 const _startRoute = String.fromEnvironment('MM_START_ROUTE');
 
+/// First screen: the Listen home (handoff D1). Overridden in tests.
+final initialRouteProvider = Provider<String>(
+  (ref) => _startRoute.isEmpty ? Routes.listenHome : _startRoute,
+);
+
 final routerProvider = Provider<GoRouter>((ref) {
   final desktop = ref.watch(desktopShellProvider);
   GoRoute screen(String path, Widget Function() build) => GoRoute(
@@ -51,7 +57,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         _ScreenPage(key: state.pageKey, child: build()),
   );
   return GoRouter(
-    initialLocation: _startRoute.isEmpty ? Routes.tracks : _startRoute,
+    initialLocation: ref.watch(initialRouteProvider),
     routes: [
       // A-03, above the tab shell.
       GoRoute(
@@ -63,7 +69,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             ? DesktopShell(location: state.uri.path, child: child)
             : MobileShell(location: state.uri.path, child: child),
         routes: [
-          screen(Routes.listenHome, () => const ComingSoon(screenId: 'W-00')),
+          screen(Routes.listenHome, () => const ListenHomeScreen()),
           screen(
             Routes.albums,
             () => const GroupsScreen(kind: GroupKind.album),

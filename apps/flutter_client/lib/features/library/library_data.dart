@@ -33,7 +33,14 @@ abstract interface class LibraryApi {
     required int limit,
     String? album,
     String? artist,
+    bool recent = false,
   });
+
+  /// One entry by id; null when it is no longer in the library.
+  Future<LibraryItem?> item(int id);
+
+  /// The entry of a file path, when the library knows the file.
+  Future<LibraryItem?> itemByPath(String path);
 
   /// Albums or artists, alphabetical.
   Future<List<LibraryGroup>> groups(GroupKind kind);
@@ -58,15 +65,25 @@ class RustLibraryApi implements LibraryApi {
     required int limit,
     String? album,
     String? artist,
+    bool recent = false,
   }) async => libraryTracks(
     dbPath: await _db,
     search: search,
     favoritesOnly: favoritesOnly,
     album: album,
     artist: artist,
+    recent: recent,
     offset: offset,
     limit: limit,
   );
+
+  @override
+  Future<LibraryItem?> itemByPath(String path) async =>
+      libraryItemByPath(dbPath: await _db, path: path);
+
+  @override
+  Future<LibraryItem?> item(int id) async =>
+      libraryItem(dbPath: await _db, mediaId: id);
 
   @override
   Future<List<LibraryGroup>> groups(GroupKind kind) async =>
@@ -92,7 +109,7 @@ final libraryStatsProvider = FutureProvider<LibrarySummary>(
   (ref) => ref.watch(libraryApiProvider).summary(),
 );
 
-QueueEntry queueEntryOf(LibraryItem item, {required String unknownArtist}) =>
+QueueEntry queueEntryOf(LibraryItem item, {String? unknownArtist}) =>
     QueueEntry(
       source: MediaSource.file(item.path, title: item.title),
       title: item.title,
@@ -105,6 +122,7 @@ QueueEntry queueEntryOf(LibraryItem item, {required String unknownArtist}) =>
           : Duration(milliseconds: (item.durationSecs! * 1000).round()),
       format: item.format,
       artwork: item.thumbnail,
+      isVideo: item.isVideo,
     );
 
 extension LibraryItemCopy on LibraryItem {

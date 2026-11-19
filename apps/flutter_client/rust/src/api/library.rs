@@ -110,15 +110,18 @@ pub fn library_summary(db_path: String, limit: u32) -> Result<LibrarySummary> {
     })
 }
 
-/// A page of audio tracks sorted by title (by disc and track within an
-/// album); `search` uses the library's full-text index (accent-insensitive),
-/// empty = everything. `album` / `artist` narrow to one group.
+/// A page of audio tracks sorted by title, or newest first when
+/// `recent` (by disc and track within an album whatever the sort); `search`
+/// uses the library's full-text index (accent-insensitive), empty =
+/// everything. `album` / `artist` narrow to one group.
+#[allow(clippy::too_many_arguments)]
 pub fn library_tracks(
     db_path: String,
     search: String,
     favorites_only: bool,
     album: Option<String>,
     artist: Option<String>,
+    recent: bool,
     offset: u32,
     limit: u32,
 ) -> Result<LibraryPage> {
@@ -129,7 +132,7 @@ pub fn library_tracks(
             favorites: favorites_only,
             album,
             artist,
-            sort: MediaSort::Title,
+            sort: if recent { MediaSort::Added } else { MediaSort::Title },
             offset,
             limit: limit.clamp(1, 500),
             ..MediaQuery::default()
@@ -163,6 +166,20 @@ pub fn library_groups(db_path: String, by: String) -> Result<Vec<LibraryGroup>> 
             })
             .collect())
     })
+}
+
+/// One library entry by id; None when it was removed.
+pub fn library_item(db_path: String, media_id: i64) -> Result<Option<LibraryItem>> {
+    with_db(&db_path, |db| match db.media(media_id) {
+        Ok(m) => Ok(Some(item(m))),
+        Err(storage::StorageError::NotFound(_)) => Ok(None),
+        Err(e) => Err(e.into()),
+    })
+}
+
+/// The library entry of a file ("Open with"), if the file is known.
+pub fn library_item_by_path(db_path: String, path: String) -> Result<Option<LibraryItem>> {
+    with_db(&db_path, |db| Ok(db.media_by_path(&path)?.map(item)))
 }
 
 /// Marks or unmarks a library entry as a favorite.

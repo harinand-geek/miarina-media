@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
+import 'playback_memory.dart';
 
 /// One playable entry of the queue, with what the bars display.
 @immutable
@@ -20,6 +21,7 @@ class QueueEntry {
     this.duration,
     this.format,
     this.artwork,
+    this.isVideo = false,
   });
 
   final MediaSource source;
@@ -35,6 +37,7 @@ class QueueEntry {
 
   /// Cover image file, when the library has one.
   final String? artwork;
+  final bool isVideo;
 
   QueueEntry withFavorite(bool value) => QueueEntry(
     source: source,
@@ -46,6 +49,7 @@ class QueueEntry {
     duration: duration,
     format: format,
     artwork: artwork,
+    isVideo: isVideo,
   );
 
   /// Stable tint of the placeholder cover.
@@ -291,7 +295,12 @@ class QueueController extends Notifier<QueueState> {
     final entry = state.current;
     final engine = _engine;
     if (entry == null || engine == null) return;
-    await engine.open(entry.source);
+    final memory = ref.read(playbackMemoryProvider);
+    final start = await memory.startFor(entry);
+    // Before open(): the previous track's position is saved from the last
+    // snapshot, which open() replaces.
+    await memory.started(entry);
+    await engine.open(entry.source, startAt: start);
   }
 
   Future<void> _advanceAfterEnd() async {

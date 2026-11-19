@@ -79,7 +79,7 @@ class _TabBar extends StatelessWidget {
         PhosphorRegular.musicNotes,
         PhosphorFill.musicNotes,
         '/listen/music',
-        Routes.tracks,
+        Routes.listenHome,
         c.coralStrong,
         c.coralSubtle,
       ),
@@ -123,7 +123,11 @@ class _TabBar extends StatelessWidget {
             Expanded(
               child: Builder(
                 builder: (context) {
-                  final on = location.startsWith(prefix);
+                  // The Music tab also owns the Listen home (A-00).
+                  final on =
+                      location.startsWith(prefix) ||
+                      (prefix == '/listen/music' &&
+                          location == Routes.listenHome);
                   return Pressable(
                     onTap: on ? null : () => context.go(route),
                     semanticLabel: label,
