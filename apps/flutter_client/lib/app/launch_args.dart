@@ -25,3 +25,11 @@ class LaunchArgs {
     return LaunchArgs(media: media, subtitle: subtitle);
   }
 }
+
+/// Display title for a file without tags: its name without the extension.
+String fileTitle(String path) {
+  final cut = path.lastIndexOf(RegExp(r'[\\/]'));
+  final name = cut < 0 ? path : path.substring(cut + 1);
+  final dot = name.lastIndexOf('.');
+  return dot > 0 ? name.substring(0, dot) : name;
+}

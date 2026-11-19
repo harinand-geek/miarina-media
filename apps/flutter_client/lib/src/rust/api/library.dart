@@ -7,6 +7,8 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `item`, `with_db`
+
 /// Opens the library database (running pending migrations, exactly like the
 /// Tauri app) and returns its counters and the first `limit` entries.
 Future<LibrarySummary> librarySummary({
@@ -15,6 +17,33 @@ Future<LibrarySummary> librarySummary({
 }) => RustLib.instance.api.crateApiLibraryLibrarySummary(
   dbPath: dbPath,
   limit: limit,
+);
+
+/// A page of audio tracks sorted by title; `search` uses the library's
+/// full-text index (accent-insensitive), empty = everything.
+Future<LibraryPage> libraryTracks({
+  required String dbPath,
+  required String search,
+  required bool favoritesOnly,
+  required int offset,
+  required int limit,
+}) => RustLib.instance.api.crateApiLibraryLibraryTracks(
+  dbPath: dbPath,
+  search: search,
+  favoritesOnly: favoritesOnly,
+  offset: offset,
+  limit: limit,
+);
+
+/// Marks or unmarks a library entry as a favorite.
+Future<void> librarySetFavorite({
+  required String dbPath,
+  required PlatformInt64 mediaId,
+  required bool favorite,
+}) => RustLib.instance.api.crateApiLibraryLibrarySetFavorite(
+  dbPath: dbPath,
+  mediaId: mediaId,
+  favorite: favorite,
 );
 
 /// Adds one local file to the library and returns its id.
@@ -40,6 +69,9 @@ class LibraryItem {
   final double? durationSecs;
   final String? artist;
   final String? album;
+
+  /// Short technical label (codec or container), e.g. "FLAC".
+  final String? format;
   final bool missing;
   final bool favorite;
 
@@ -51,6 +83,7 @@ class LibraryItem {
     this.durationSecs,
     this.artist,
     this.album,
+    this.format,
     required this.missing,
     required this.favorite,
   });
@@ -64,6 +97,7 @@ class LibraryItem {
       durationSecs.hashCode ^
       artist.hashCode ^
       album.hashCode ^
+      format.hashCode ^
       missing.hashCode ^
       favorite.hashCode;
 
@@ -79,8 +113,27 @@ class LibraryItem {
           durationSecs == other.durationSecs &&
           artist == other.artist &&
           album == other.album &&
+          format == other.format &&
           missing == other.missing &&
           favorite == other.favorite;
+}
+
+class LibraryPage {
+  final List<LibraryItem> items;
+  final BigInt total;
+
+  const LibraryPage({required this.items, required this.total});
+
+  @override
+  int get hashCode => items.hashCode ^ total.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LibraryPage &&
+          runtimeType == other.runtimeType &&
+          items == other.items &&
+          total == other.total;
 }
 
 class LibrarySummary {

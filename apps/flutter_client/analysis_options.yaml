@@ -16,6 +16,10 @@ analyzer:
     - windows/**
 
     - rust_builder/cargokit/**
+    # Generated: flutter gen-l10n, flutter_rust_bridge, tool/gen_icons.dart.
+    - lib/l10n/app_localizations*.dart
+    - lib/src/rust/**
+    - lib/design/mm_icons.g.dart
 linter:
   # The lint rules applied to this project can be customized in the
   # section below to disable rules from the `package:flutter_lints/flutter.yaml`

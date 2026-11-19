@@ -26,6 +26,10 @@ Points de conformité :
 | JetBrains Mono | SIL Open Font License 1.1 |
 | Material Symbols Rounded | Apache-2.0 |
 
+Client Flutter (`apps/flutter_client`, décision 0007) : Manrope et JetBrains Mono en TTF variables du dépôt google/fonts (OFL 1.1, textes livrés dans `assets/fonts/OFL-*.txt`) ; icônes **Phosphor** 2.1.2 (`@phosphor-icons/web`, MIT, texte dans `assets/icons/LICENSE-Phosphor.txt`), sous-ensemble choisi au build par Flutter. Les fichiers de licence sont déclarés comme ressources pour l'écran « À propos / Licences ».
+
+Client Flutter, moteurs de lecture (preuve de concept, à réauditer avant toute version publique) : `media_kit` / `media_kit_video` (MIT) et libmpv livré par `media_kit_libs_windows_video` (build du 2023-09-24, GPL ou LGPL selon la configuration, **à remplacer** par une build vérifiée, voir `docs/flutter-poc.md`) ; AndroidX Media3 1.11.1 (Apache-2.0) ; `flutter_rust_bridge` 2.13.0 (MIT) ; `window_manager` 0.7.0 / `nativeapi` 0.6.1 (MIT) ; `flutter_riverpod` 3.5 (MIT) ; `go_router` 18.1 et `file_selector` 1.1 (BSD-3-Clause, The Flutter Authors). Licences relevées dans les paquets le 2026-11-19.
+
 ## 3. Principales dépendances applicatives (à auditer en Phase 6)
 
 Tauri 2, tokio, reqwest (rustls, aws-lc-rs), pgp/rPGP (vérification des mises à jour de yt-dlp), rusqlite (SQLite bundled, domaine public), zip, sha2, React, Zustand, TanStack Virtual, Tailwind CSS — licences MIT / Apache-2.0 / ISC / BSD majoritairement. Un inventaire automatisé (`cargo about` / `license-checker`) sera produit avant la release.

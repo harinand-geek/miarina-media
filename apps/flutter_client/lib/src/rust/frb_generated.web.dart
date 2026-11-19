@@ -55,6 +55,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem dco_decode_library_item(dynamic raw);
 
   @protected
+  LibraryPage dco_decode_library_page(dynamic raw);
+
+  @protected
   LibrarySummary dco_decode_library_summary(dynamic raw);
 
   @protected
@@ -121,6 +124,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LibraryItem sse_decode_library_item(SseDeserializer deserializer);
+
+  @protected
+  LibraryPage sse_decode_library_page(SseDeserializer deserializer);
 
   @protected
   LibrarySummary sse_decode_library_summary(SseDeserializer deserializer);
@@ -195,6 +201,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_library_item(LibraryItem self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_library_page(LibraryPage self, SseSerializer serializer);
 
   @protected
   void sse_encode_library_summary(

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart' show Size;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:miarina_media/app/launch_args.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 
 void main() {
@@ -49,5 +50,12 @@ void main() {
     final s = MediaSource.file(r'C:\Musique\titre.flac');
     expect(s.uri.isScheme('file'), isTrue);
     expect(s.uri.toFilePath(windows: true), r'C:\Musique\titre.flac');
+  });
+
+  test('fileTitle keeps the name without folder or extension', () {
+    expect(fileTitle(r'C:\Musique\Odyai - Dédicace.mp3'), 'Odyai - Dédicace');
+    expect(fileTitle('/sdcard/Music/a.b.flac'), 'a.b');
+    expect(fileTitle('sans-extension'), 'sans-extension');
+    expect(fileTitle(r'C:\.cache'), '.cache');
   });
 }

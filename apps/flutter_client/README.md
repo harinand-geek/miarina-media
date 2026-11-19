@@ -1,6 +1,6 @@
 # Miarina Media — client Flutter
 
-Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/0007-flutter-migration.md)). État : **preuve de concept** ([rapport](../../docs/flutter-poc.md)). L'app Tauri (`apps/client`) reste celle qui est publiée.
+Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/0007-flutter-migration.md)). État : **phase 2, fondations** ([preuve de concept](../../docs/flutter-poc.md), [correspondance maquette ↔ code](../../docs/flutter-implementation-map.md)). L'app Tauri (`apps/client`) reste celle qui est publiée.
 
 ## Contenu
 
@@ -8,13 +8,21 @@ Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/000
 - `android/app/src/main/kotlin/org/miarina/media/` : `PlaybackService` (session Media3, arrière-plan) et `Media3EnginePlugin` (pont vers Dart, texture vidéo).
 - `rust/` : crate `miarina_bridge` (flutter_rust_bridge) vers le cœur Rust partagé (`crates/`).
 - `lib/src/rust/` et `rust/src/frb_generated.rs` : code généré, ne pas modifier (`flutter_rust_bridge_codegen generate`).
-- `lib/poc/` : écran de test, remplacé par les écrans de la maquette en phase 2.
+- `lib/design/` : tokens, thème, composants de base ; `mm_icons.g.dart` est généré par `dart run tool/gen_icons.dart <@phosphor-icons/web>`.
+- `lib/features/` : shell (Windows, Android), lecture (file d'attente), bibliothèque.
+- `lib/l10n/` : textes FR (référence) et EN ; les `app_localizations*.dart` sont générés par `flutter pub get`.
 
 ## Prérequis
 
 Flutter 3.50 stable, Rust (cibles `x86_64-pc-windows-msvc` et `*-linux-android`), Visual Studio Build Tools (C++), SDK et NDK Android, `flutter_rust_bridge_codegen` 2.13.0.
 
 ## Commandes
+
+En développement, faire pointer l'app vers un dossier de travail ou une **copie** d'un dossier de données 0.1.x, jamais vers celui de l'app Tauri en service :
+
+```powershell
+flutter run -d windows --dart-define=MM_DATA_DIR=<dossier>
+```
 
 ```powershell
 flutter analyze
