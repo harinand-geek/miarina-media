@@ -30,17 +30,18 @@ enum ShortcutAction {
   frameStep(ShortcutScope.video),
   bookmark(ShortcutScope.focus),
   lyrics(ShortcutScope.global),
-  miniPlayer(ShortcutScope.global, available: false),
+  miniPlayer(ShortcutScope.global),
   speedDown(ShortcutScope.global),
   speedUp(ShortcutScope.global);
 
-  const ShortcutAction(this.scope, {this.available = true});
+  const ShortcutAction(this.scope);
 
   final ShortcutScope scope;
 
-  /// False for actions whose feature is not built yet (P1): listed, their
-  /// key reserved, not changeable.
-  final bool available;
+  /// False for an action whose feature is not built yet (P1): listed, its
+  /// key reserved, not changeable. Every action works now (the mini player, W-M4, was the last one);
+  /// such an action would return false here.
+  bool get available => true;
 }
 
 /// A key with its modifiers.

@@ -13,6 +13,7 @@ import '../../engine/media_engine.dart';
 import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
 import '../now_playing/now_playing_shared.dart';
+import '../mini/mini_player.dart';
 import '../playback/playback.dart';
 import '../shortcuts/global_shortcuts.dart';
 
@@ -313,15 +314,13 @@ class _SideControlsState extends ConsumerState<_SideControls> {
           onTap: () => context.go('${Routes.now}?tab=queue'),
         ),
         const SizedBox(width: 10),
-        // The compact always-on-top window (W-M4) comes later; it keeps its
-        // place in the bar but is inert and says so.
-        Tooltip(
-          message: '${t.miniPlayer} · ${t.comingSoonShort}',
-          child: Icon(
-            PhosphorRegular.pictureInPicture,
-            size: 20,
-            color: c.faintIcon,
-          ),
+        // W-M4: the compact always-on-top window.
+        _IconButton(
+          icon: PhosphorRegular.pictureInPicture,
+          size: 20,
+          label: t.miniPlayer,
+          color: c.muted,
+          onTap: () => ref.read(miniPlayerProvider.notifier).enter(),
         ),
         const SizedBox(width: 14),
         _IconButton(

@@ -1951,4 +1951,13 @@ class L10nFr extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get miniPin => 'Garder au premier plan';
+
+  @override
+  String get miniUnpin => 'Ne plus garder au premier plan';
+
+  @override
+  String get miniExpand => 'Agrandir la fenêtre';
 }

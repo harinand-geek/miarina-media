@@ -3102,6 +3102,24 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{count, plural, =0{Aucun doublon trouvé} =1{1 titre présent en plusieurs versions} other{{count} titres présents en plusieurs versions}}'**
   String duplicatesFound(int count);
+
+  /// No description provided for @miniPin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder au premier plan'**
+  String get miniPin;
+
+  /// No description provided for @miniUnpin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ne plus garder au premier plan'**
+  String get miniUnpin;
+
+  /// No description provided for @miniExpand.
+  ///
+  /// In fr, this message translates to:
+  /// **'Agrandir la fenêtre'**
+  String get miniExpand;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

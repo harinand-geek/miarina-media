@@ -5,6 +5,7 @@ import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../features/focus/focus_data.dart';
 import '../features/import/import_data.dart';
+import '../features/mini/mini_player.dart' show TaskbarSync;
 import '../features/settings/settings_data.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
@@ -45,7 +46,8 @@ class MiarinaApp extends ConsumerWidget {
             ),
             disableAnimations: media.disableAnimations || look.reduceMotion,
           ),
-          child: child!,
+          // Taskbar thumbnail buttons follow the queue (W-M4, Windows).
+          child: TaskbarSync(child: child!),
         );
       },
       localizationsDelegates: const [

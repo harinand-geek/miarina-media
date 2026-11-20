@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
 import '../focus/focus_data.dart';
+import '../mini/mini_player.dart' show miniPlayerProvider;
 import '../playback/playback.dart';
 import '../shell/title_bar.dart' show searchFocusProvider;
 import 'keymap.dart';
@@ -215,9 +216,10 @@ class GlobalShortcuts extends ConsumerWidget {
           ShortcutAction.subtitles ||
           ShortcutAction.audioTrack ||
           ShortcutAction.frameStep ||
-          ShortcutAction.bookmark ||
-          ShortcutAction.miniPlayer:
+          ShortcutAction.bookmark:
         break;
+      case ShortcutAction.miniPlayer:
+        ref.read(miniPlayerProvider.notifier).toggle();
     }
   }
 }

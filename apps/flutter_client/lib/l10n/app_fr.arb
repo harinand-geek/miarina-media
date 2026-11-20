@@ -1112,5 +1112,8 @@
         "type": "int"
       }
     }
-  }
+  },
+  "miniPin": "Garder au premier plan",
+  "miniUnpin": "Ne plus garder au premier plan",
+  "miniExpand": "Agrandir la fenêtre"
 }

@@ -15,6 +15,7 @@ import 'features/cinema/cinema_screen.dart';
 import 'features/focus/focus_data.dart';
 import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
+import 'features/mini/mini_player.dart' show miniPlayerProvider;
 import 'features/playback/playback.dart';
 import 'src/rust/api/library.dart';
 import 'src/rust/frb_generated.dart';
@@ -41,6 +42,16 @@ Future<void> main(List<String> args) async {
   ]);
   final media = launch.media;
   if (media != null) await _openLaunchFile(container, media);
+
+  // Development hook for automated screenshots (no input injection), read
+  // only by builds pointed at a scratch MM_DATA_DIR: start in the compact
+  // window (W-M4).
+  if (const String.fromEnvironment('MM_DATA_DIR').isNotEmpty &&
+      Platform.environment['MM_START_MINI'] == '1') {
+    WidgetsBinding.instance.addPostFrameCallback(
+      (_) => container.read(miniPlayerProvider.notifier).enter(),
+    );
+  }
 }
 
 /// 1280 × 800 reference client area, 960 × 640 minimum, own title bar
