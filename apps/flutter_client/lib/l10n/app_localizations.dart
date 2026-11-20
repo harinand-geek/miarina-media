@@ -4914,6 +4914,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Suppr'**
   String get keyDelete;
+
+  /// No description provided for @filterNeverPlayed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jamais écoutés'**
+  String get filterNeverPlayed;
+
+  /// No description provided for @filterHiRes.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hi-res'**
+  String get filterHiRes;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

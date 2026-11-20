@@ -213,5 +213,36 @@ pub fn migrations() -> Migrations<'static> {
         CREATE INDEX browser_history_url ON browser_history (url);
         "#,
         ),
+        // v10 — plays and audio quality (W-M1c "Jamais écoutés", "Hi-res",
+        // Format "FLAC 24/96" / "MP3 320"). Play counts start from the play
+        // history and resume points already kept; present audio files are
+        // read again for their sample rate, bit depth and bit rate.
+        M::up(
+            r#"
+        ALTER TABLE media ADD COLUMN play_count INTEGER NOT NULL DEFAULT 0;
+        ALTER TABLE media ADD COLUMN last_played_at INTEGER;
+        ALTER TABLE media ADD COLUMN sample_rate INTEGER;
+        ALTER TABLE media ADD COLUMN bit_depth INTEGER;
+        ALTER TABLE media ADD COLUMN bit_rate INTEGER;
+        CREATE TEMP TABLE v10_plays AS
+            SELECT CAST(json_extract(e.value, '$.id') AS INTEGER) AS id,
+                   count(*) AS plays,
+                   max(CAST(json_extract(e.value, '$.at') AS INTEGER)) AS last_at
+            FROM playback_state p, json_each(p.value) e
+            WHERE p.key = 'mm:playHistory:v1' AND json_valid(p.value)
+                  AND json_type(p.value) = 'array'
+            GROUP BY 1;
+        UPDATE media SET
+            play_count = (SELECT plays FROM v10_plays WHERE v10_plays.id = media.id),
+            last_played_at = (SELECT last_at FROM v10_plays WHERE v10_plays.id = media.id)
+        WHERE id IN (SELECT id FROM v10_plays);
+        UPDATE media SET play_count = 1
+        WHERE play_count = 0
+          AND ('mm:position:' || id) IN (SELECT key FROM playback_state);
+        DROP TABLE v10_plays;
+        CREATE INDEX media_played ON media (play_count);
+        UPDATE media SET probed = 0 WHERE kind = 'audio' AND missing = 0;
+        "#,
+        ),
     ])
 }

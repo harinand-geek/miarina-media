@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `item`, `with_db`
+// These functions are ignored because they are not marked as `pub`: `format_label`, `item`, `with_db`
 
 /// Opens the library database (running pending migrations, exactly like the
 /// Tauri app) and returns its counters and the first `limit` entries.
@@ -24,7 +24,8 @@ Future<LibrarySummary> librarySummary({
 /// within an album when sorted by title. `search` uses the library's
 /// full-text index (accent-insensitive), empty = everything. `album` /
 /// `artist` narrow to one group; `added_since` (ms since the epoch) to the
-/// tracks added since then.
+/// tracks added since then; `never_played` to those never played; `hi_res`
+/// to those beyond CD quality (more than 16 bits or 48 kHz).
 Future<LibraryPage> libraryTracks({
   required String dbPath,
   required String search,
@@ -34,6 +35,8 @@ Future<LibraryPage> libraryTracks({
   required String sort,
   required bool reverse,
   PlatformInt64? addedSince,
+  required bool neverPlayed,
+  required bool hiRes,
   required int offset,
   required int limit,
 }) => RustLib.instance.api.crateApiLibraryLibraryTracks(
@@ -45,6 +48,8 @@ Future<LibraryPage> libraryTracks({
   sort: sort,
   reverse: reverse,
   addedSince: addedSince,
+  neverPlayed: neverPlayed,
+  hiRes: hiRes,
   offset: offset,
   limit: limit,
 );
@@ -75,6 +80,15 @@ Future<LibraryItem?> libraryItemByPath({
 );
 
 /// Marks or unmarks a library entry as a favorite.
+/// A play of a library entry, as the player notes it (once per play).
+Future<void> libraryNotePlayed({
+  required String dbPath,
+  required PlatformInt64 mediaId,
+}) => RustLib.instance.api.crateApiLibraryLibraryNotePlayed(
+  dbPath: dbPath,
+  mediaId: mediaId,
+);
+
 Future<void> librarySetFavorite({
   required String dbPath,
   required PlatformInt64 mediaId,

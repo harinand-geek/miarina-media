@@ -491,7 +491,7 @@ fn v7_adds_favorites_and_playlists_to_a_v6_database() {
         .unwrap();
     }
     let storage = Storage::open(&path).unwrap();
-    assert_eq!(storage.schema_version().unwrap(), 9);
+    assert!(storage.schema_version().unwrap() >= 9);
     let page = storage.query_media(&MediaQuery::default()).unwrap();
     assert!(!page.items[0].favorite);
     assert!(
@@ -746,4 +746,116 @@ fn tracks_sort_by_column_both_ways_and_filter_by_date() {
         .unwrap();
     assert_eq!(recent.total, 2);
     assert!(recent.items.iter().all(|m| m.id != a.id));
+}
+
+#[test]
+fn v10_counts_past_plays_and_reads_audio_again() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 9).unwrap();
+        for (id, kind, missing) in [
+            (1, "audio", 0),
+            (2, "audio", 0),
+            (3, "audio", 1),
+            (4, "video", 0),
+        ] {
+            conn.execute(
+                "INSERT INTO media (id, path, title, kind, size_bytes, added_at, modified_at, \
+                 probed, missing) VALUES (?1, 'C:/M/' || ?1, 'T', ?2, 1, 1, 1, 1, ?3)",
+                rusqlite::params![id, kind, missing],
+            )
+            .unwrap();
+        }
+        // Two plays of 1 in the history, a resume point for 4.
+        conn.execute(
+            "INSERT INTO playback_state (key, value, updated_at) VALUES \
+             ('mm:playHistory:v1', '[{\"id\":1,\"at\":500},{\"id\":1,\"at\":900},{\"id\":77,\"at\":1}]', 1), \
+             ('mm:position:4', '61', 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    let get = |id| storage.media(id).unwrap();
+    assert_eq!((get(1).play_count, get(1).last_played_at), (2, Some(900)));
+    assert_eq!(get(2).play_count, 0);
+    assert_eq!(get(4).play_count, 1, "a resume point is a play");
+    assert!(
+        !get(1).probed && !get(2).probed,
+        "present audio is read again"
+    );
+    assert!(get(3).probed && get(4).probed);
+}
+
+#[test]
+fn v10_survives_a_damaged_play_history() {
+    let dir = tempfile::tempdir().unwrap();
+    let path = dir.path().join("miarina.db");
+    {
+        let mut conn = rusqlite::Connection::open(&path).unwrap();
+        migrations::migrations().to_version(&mut conn, 9).unwrap();
+        conn.execute(
+            "INSERT INTO playback_state (key, value, updated_at) \
+             VALUES ('mm:playHistory:v1', '{not json', 1)",
+            [],
+        )
+        .unwrap();
+    }
+    let storage = Storage::open(&path).unwrap();
+    assert!(storage.schema_version().unwrap() >= 10);
+}
+
+#[test]
+fn plays_and_audio_quality_filter_tracks() {
+    let storage = Storage::open_in_memory().unwrap();
+    let cd = audio(&storage, "C:/M/cd.flac", "CD");
+    let hi = audio(&storage, "C:/M/hi.flac", "Hi");
+    let mp3 = audio(&storage, "C:/M/a.mp3", "Mp3");
+    let probe = |rate, depth, kbps| MediaProbe {
+        audio_codec: Some("flac".into()),
+        sample_rate: Some(rate),
+        bit_depth: depth,
+        bit_rate: kbps,
+        ..MediaProbe::default()
+    };
+    storage
+        .set_media_probe(cd.id, &probe(44_100, Some(16), None), None)
+        .unwrap();
+    storage
+        .set_media_probe(hi.id, &probe(96_000, Some(24), None), None)
+        .unwrap();
+    storage
+        .set_media_probe(mp3.id, &probe(44_100, None, Some(320)), None)
+        .unwrap();
+    let rec = storage.media(hi.id).unwrap();
+    assert_eq!((rec.sample_rate, rec.bit_depth), (Some(96_000), Some(24)));
+
+    storage.note_played(cd.id, 1234).unwrap();
+    storage.note_played(cd.id, 5678).unwrap();
+    let rec = storage.media(cd.id).unwrap();
+    assert_eq!((rec.play_count, rec.last_played_at), (2, Some(5678)));
+    assert!(storage.note_played(9999, 1).is_err());
+
+    let titles = |q: MediaQuery| {
+        storage
+            .query_media(&q)
+            .unwrap()
+            .items
+            .into_iter()
+            .map(|m| m.title)
+            .collect::<Vec<_>>()
+    };
+    let never = titles(MediaQuery {
+        never_played: true,
+        sort: MediaSort::Title,
+        ..Default::default()
+    });
+    assert_eq!(never, ["Hi", "Mp3"]);
+    let hi_res = titles(MediaQuery {
+        hi_res: true,
+        ..Default::default()
+    });
+    assert_eq!(hi_res, ["Hi"]);
 }

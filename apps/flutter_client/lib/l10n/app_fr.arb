@@ -1814,5 +1814,7 @@
   "playSelection": "Lire",
   "keyEnter": "Entrée",
   "keyCtrlEnter": "Ctrl Entrée",
-  "keyDelete": "Suppr"
+  "keyDelete": "Suppr",
+  "filterNeverPlayed": "Jamais écoutés",
+  "filterHiRes": "Hi-res"
 }

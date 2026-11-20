@@ -228,7 +228,7 @@ mod tests {
         let conn = at_version(&db, last - 1);
         // An object that makes the last migration fail half-way.
         conn.execute_batch(
-            "CREATE TABLE browser_history (x); INSERT INTO settings (key, value) VALUES ('k', '1');",
+            "CREATE TABLE media_played (x); INSERT INTO settings (key, value) VALUES ('k', '1');",
         )
         .unwrap();
         drop(conn);

@@ -38,6 +38,8 @@ abstract interface class LibraryApi {
     TrackSort sort = TrackSort.title,
     bool reverse = false,
     DateTime? addedSince,
+    bool neverPlayed = false,
+    bool hiRes = false,
   });
 
   /// One entry by id; null when it is no longer in the library.
@@ -49,6 +51,9 @@ abstract interface class LibraryApi {
   /// Albums or artists, alphabetical.
   Future<List<LibraryGroup>> groups(GroupKind kind);
   Future<void> setFavorite(int mediaId, {required bool favorite});
+
+  /// One play of an entry (the player calls it once per play).
+  Future<void> notePlayed(int mediaId);
   Future<LibrarySummary> summary();
 
   /// Adds a local file to the library (title from its name, tags and
@@ -80,6 +85,8 @@ class RustLibraryApi implements LibraryApi {
     TrackSort sort = TrackSort.title,
     bool reverse = false,
     DateTime? addedSince,
+    bool neverPlayed = false,
+    bool hiRes = false,
   }) async => libraryTracks(
     dbPath: await _db,
     search: search,
@@ -89,6 +96,8 @@ class RustLibraryApi implements LibraryApi {
     sort: recent ? TrackSort.added.name : sort.name,
     reverse: reverse,
     addedSince: addedSince?.millisecondsSinceEpoch,
+    neverPlayed: neverPlayed,
+    hiRes: hiRes,
     offset: offset,
     limit: limit,
   );
@@ -104,6 +113,10 @@ class RustLibraryApi implements LibraryApi {
   @override
   Future<List<LibraryGroup>> groups(GroupKind kind) async =>
       libraryGroups(dbPath: await _db, by: kind.name);
+
+  @override
+  Future<void> notePlayed(int mediaId) async =>
+      libraryNotePlayed(dbPath: await _db, mediaId: mediaId);
 
   @override
   Future<void> setFavorite(int mediaId, {required bool favorite}) async =>

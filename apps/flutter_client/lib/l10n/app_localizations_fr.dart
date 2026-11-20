@@ -3037,4 +3037,10 @@ class L10nFr extends L10n {
 
   @override
   String get keyDelete => 'Suppr';
+
+  @override
+  String get filterNeverPlayed => 'Jamais écoutés';
+
+  @override
+  String get filterHiRes => 'Hi-res';
 }

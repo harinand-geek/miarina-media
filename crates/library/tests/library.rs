@@ -378,6 +378,7 @@ impl library::Prober for FakeProber {
                     audio_codec: Some("aac".into()),
                     container: Some("mp4".into()),
                     has_video: true,
+                    ..Default::default()
                 },
                 thumbnail_written: thumbnail.is_some(),
             })
@@ -742,7 +743,11 @@ fn missing_files_are_searched_in_a_chosen_folder() {
     // Moved by hand to a folder the library does not follow.
     let elsewhere = h.root.parent().unwrap().join("Disque");
     std::fs::create_dir_all(elsewhere.join("Films")).unwrap();
-    std::fs::rename(h.root.join("Rova.mp4"), elsewhere.join("Films").join("Rova.mp4")).unwrap();
+    std::fs::rename(
+        h.root.join("Rova.mp4"),
+        elsewhere.join("Films").join("Rova.mp4"),
+    )
+    .unwrap();
     std::fs::remove_file(h.root.join("Mena.mp4")).unwrap();
     // Same name, other content: not taken.
     std::fs::write(elsewhere.join("Mena.mp4"), b"other").unwrap();

@@ -216,8 +216,9 @@ class PlaybackMemory {
     final id = entry.libraryId;
     if (id == null) return;
     final kind = entry.isVideo ? 'video' : 'audio';
+    final before = await history();
     final next = notePlayed(
-      await history(),
+      before,
       PlayEntry(
         id: id,
         title: entry.title,
@@ -229,6 +230,13 @@ class PlaybackMemory {
     await _write({
       historyKey: jsonEncode([for (final e in next) e.toJson()]),
     });
+    // A new play (not the same one resumed): counted by the library
+    // ("Jamais écoutés"). A failure only loses one count.
+    if (!identical(next, before)) {
+      try {
+        await _ref.read(libraryApiProvider).notePlayed(id);
+      } catch (_) {}
+    }
   }
 
   void _onSnapshot(PlaybackSnapshot s) {

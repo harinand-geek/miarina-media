@@ -51,7 +51,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
   late final bool _favoritesOnly = widget.favorites;
   TrackSort _sort = TrackSort.title;
   bool _reverse = false;
-  bool _addedThisMonth = false;
+  _Quick? _quick;
 
   /// Keyboard cursor (index into [_items]).
   int? _selected;
@@ -101,7 +101,11 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             favoritesOnly: _favoritesOnly,
             sort: _sort,
             reverse: _reverse,
-            addedSince: _addedThisMonth ? _monthStart(DateTime.now()) : null,
+            addedSince: _quick == _Quick.addedThisMonth
+                ? _monthStart(DateTime.now())
+                : null,
+            neverPlayed: _quick == _Quick.neverPlayed,
+            hiRes: _quick == _Quick.hiRes,
             offset: _items.length,
             limit: _pageSize,
           );
@@ -517,11 +521,19 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
           const SizedBox(height: 14),
           SizedBox(
             height: 30,
+            // Narrow windows: the chips scroll, the selection bar stays.
             child: Row(
               children: [
-                ..._chips(t, height: 30),
-                const Spacer(),
-                if (_picked.length > 1) _selectionBar(c, t),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(children: _chips(t, height: 30)),
+                  ),
+                ),
+                if (_picked.length > 1) ...[
+                  const SizedBox(width: 12),
+                  _selectionBar(c, t),
+                ],
               ],
             ),
           ),
@@ -538,30 +550,41 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
     );
   }
 
-  /// Tous / Favoris (the sidebar entries), Introuvables · N (the W-O2
-  /// screen, shown when files are missing), Ajoutés ce mois (a filter).
-  /// "Jamais écoutés" and "Hi-res" wait for play counts and audio details
-  /// in the core: not shown.
+  /// Tous / Favoris (the sidebar entries), then the quick filters of the
+  /// core, one at a time (a second tap clears it): Jamais écoutés, Hi-res
+  /// (more than 16 bits or 48 kHz), Ajoutés ce mois. Introuvables · N opens
+  /// the W-O2 screen, shown when files are missing.
   List<Widget> _chips(L10n t, {required double height}) {
     final missing = ref.watch(healthCountsProvider).value?.missing.toInt() ?? 0;
+    Widget quick(_Quick q, String label) => _Chip(
+      label: label,
+      on: _quick == q,
+      height: height,
+      onTap: () => _setQuick(_quick == q ? null : q),
+    );
+    const gap = SizedBox(width: 8);
     return [
       _Chip(
         label: t.filterAll,
-        on: !_favoritesOnly && !_addedThisMonth,
+        on: !_favoritesOnly && _quick == null,
         height: height,
         onTap: _favoritesOnly
             ? () => context.go(Routes.tracks)
-            : (_addedThisMonth ? _toggleAddedThisMonth : null),
+            : (_quick == null ? null : () => _setQuick(null)),
       ),
-      const SizedBox(width: 8),
+      gap,
       _Chip(
         label: t.navFavorites,
         on: _favoritesOnly,
         height: height,
         onTap: _favoritesOnly ? null : () => context.go(Routes.favorites),
       ),
+      gap,
+      quick(_Quick.neverPlayed, t.filterNeverPlayed),
+      gap,
+      quick(_Quick.hiRes, t.filterHiRes),
       if (missing > 0) ...[
-        const SizedBox(width: 8),
+        gap,
         _Chip(
           label: t.filterMissingCount(missing),
           on: false,
@@ -569,18 +592,13 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
           onTap: () => context.go(Routes.missing),
         ),
       ],
-      const SizedBox(width: 8),
-      _Chip(
-        label: t.filterAddedThisMonth,
-        on: _addedThisMonth,
-        height: height,
-        onTap: _toggleAddedThisMonth,
-      ),
+      gap,
+      quick(_Quick.addedThisMonth, t.filterAddedThisMonth),
     ];
   }
 
-  void _toggleAddedThisMonth() {
-    setState(() => _addedThisMonth = !_addedThisMonth);
+  void _setQuick(_Quick? q) {
+    setState(() => _quick = q);
     _reload();
   }
 
@@ -1127,6 +1145,9 @@ class _TrackRow extends StatelessWidget {
     );
   }
 }
+
+/// Quick filters of Titres, one at a time.
+enum _Quick { neverPlayed, hiRes, addedThisMonth }
 
 enum _Act { play, playNext, queue, playlist, reveal, remove }
 

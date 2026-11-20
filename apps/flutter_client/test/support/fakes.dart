@@ -217,6 +217,14 @@ class FakeLibraryApi implements LibraryApi {
   /// Ids counted as added since any date asked ("Ajoutés ce mois").
   Set<int> addedRecently = {};
 
+  /// Ids never played, and beyond CD quality, for the quick filters.
+  Set<int> played = {};
+  Set<int> hiResIds = {};
+  final notedPlays = <int>[];
+
+  @override
+  Future<void> notePlayed(int mediaId) async => notedPlays.add(mediaId);
+
   /// Sorts asked, in order.
   final sorts = <(TrackSort, bool)>[];
 
@@ -232,6 +240,8 @@ class FakeLibraryApi implements LibraryApi {
     TrackSort sort = TrackSort.title,
     bool reverse = false,
     DateTime? addedSince,
+    bool neverPlayed = false,
+    bool hiRes = false,
   }) async {
     bool same(String? a, String? b) => a?.toLowerCase() == b?.toLowerCase();
     if (offset == 0) sorts.add((sort, reverse));
@@ -240,6 +250,8 @@ class FakeLibraryApi implements LibraryApi {
         .where((i) => album == null || same(i.album, album))
         .where((i) => artist == null || same(i.artist, artist))
         .where((i) => addedSince == null || addedRecently.contains(i.id))
+        .where((i) => !neverPlayed || !played.contains(i.id))
+        .where((i) => !hiRes || hiResIds.contains(i.id))
         .toList();
     if (search.isNotEmpty) {
       list = list

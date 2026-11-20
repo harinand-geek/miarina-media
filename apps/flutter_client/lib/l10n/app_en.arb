@@ -802,5 +802,7 @@
   "playSelection": "Play",
   "keyEnter": "Enter",
   "keyCtrlEnter": "Ctrl Enter",
-  "keyDelete": "Del"
+  "keyDelete": "Del",
+  "filterNeverPlayed": "Never played",
+  "filterHiRes": "Hi-res"
 }

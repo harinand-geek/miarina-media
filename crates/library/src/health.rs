@@ -499,15 +499,26 @@ mod tests {
             disc_no: None,
             favorite: false,
             cover_custom: false,
+            play_count: 0,
+            last_played_at: None,
+            sample_rate: None,
+            bit_depth: None,
+            bit_rate: None,
         }
     }
 
     #[test]
     fn volumes_that_can_be_unplugged() {
         let root = |p: &str| volume_root(Path::new(p)).map(|r| r.to_string_lossy().into_owned());
-        assert_eq!(root("/storage/1A2B-3C4D/Music/a.mp3").as_deref(), Some("/storage/1A2B-3C4D"));
+        assert_eq!(
+            root("/storage/1A2B-3C4D/Music/a.mp3").as_deref(),
+            Some("/storage/1A2B-3C4D")
+        );
         assert_eq!(root("/storage/emulated/0/Music/a.mp3"), None);
-        assert_eq!(root("/media/hery/Disque/a.mkv").as_deref(), Some("/media/hery/Disque"));
+        assert_eq!(
+            root("/media/hery/Disque/a.mkv").as_deref(),
+            Some("/media/hery/Disque")
+        );
         assert_eq!(root("/Volumes/USB/a.mkv").as_deref(), Some("/Volumes/USB"));
         assert_eq!(root("/home/hery/a.mp3"), None);
         assert_eq!(root("/Volumes/USB"), None);
@@ -528,15 +539,28 @@ mod tests {
             record(5, "/home/h/Music/Vieux/Mena.mp3", "Mena", 5),
         ];
         let present = vec![
-            (10, "/home/h/Musique/Nafy (2024)/05 Seuil.flac".to_owned(), 900),
-            (11, "/home/h/Musique/Nafy (2024)/06 fin.FLAC".to_owned(), 800),
+            (
+                10,
+                "/home/h/Musique/Nafy (2024)/05 Seuil.flac".to_owned(),
+                900,
+            ),
+            (
+                11,
+                "/home/h/Musique/Nafy (2024)/06 fin.FLAC".to_owned(),
+                800,
+            ),
             // Same name, other size: not the same file.
             (12, "/home/h/Autre/Mena.mp3".to_owned(), 6),
         ];
         let groups = missing_groups(missing, &present, |root| root != Path::new("/Volumes/E"));
         let summary: Vec<_> = groups
             .iter()
-            .map(|g| (g.cause, g.files.iter().map(|f| f.record.id).collect::<Vec<_>>()))
+            .map(|g| {
+                (
+                    g.cause,
+                    g.files.iter().map(|f| f.record.id).collect::<Vec<_>>(),
+                )
+            })
             .collect();
         assert_eq!(
             summary,
@@ -547,7 +571,10 @@ mod tests {
             ]
         );
         assert_eq!(groups[0].folder, "/Volumes/E");
-        assert_eq!(groups[1].target.as_deref(), Some("/home/h/Musique/Nafy (2024)"));
+        assert_eq!(
+            groups[1].target.as_deref(),
+            Some("/home/h/Musique/Nafy (2024)")
+        );
         assert_eq!(
             groups[1].files[1].found.as_deref(),
             Some("/home/h/Musique/Nafy (2024)/06 fin.FLAC")

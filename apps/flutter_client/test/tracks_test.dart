@@ -204,7 +204,9 @@ void main() {
     expect(health.removed, isEmpty);
   });
 
-  testWidgets('chips: missing files, added this month', (tester) async {
+  testWidgets('chips: never played, hi-res, missing files, added this month', (
+    tester,
+  ) async {
     health = FakeHealthApi(
       missing: [
         MissingGroupInfo(
@@ -222,9 +224,22 @@ void main() {
         ),
       ],
     );
-    library.addedRecently = {3};
+    library
+      ..addedRecently = {3}
+      ..played = {1, 2}
+      ..hiResIds = {4};
     await pumpApp(tester);
-    expect(find.text('Jamais écoutés'), findsNothing, reason: 'not built');
+
+    await tester.tap(find.text('Jamais écoutés'));
+    await settle(tester);
+    expect(rowTitles(tester), ['Lumière basse', 'Marée haute']);
+    // One quick filter at a time.
+    await tester.tap(find.text('Hi-res'));
+    await settle(tester);
+    expect(rowTitles(tester), ['Marée haute']);
+    await tester.tap(find.text('Hi-res'));
+    await settle(tester);
+    expect(rowTitles(tester).length, 4, reason: 'a second tap clears it');
 
     await tester.tap(find.text('Ajoutés ce mois'));
     await settle(tester);

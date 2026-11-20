@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/engine/media_engine.dart';
+import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 
@@ -83,6 +84,7 @@ void main() {
   group('with the queue', () {
     late FakeEngine engine;
     late FakePlaybackStore store;
+    late FakeLibraryApi library;
     late ProviderContainer c;
 
     QueueEntry track(int id) => QueueEntry(
@@ -95,10 +97,12 @@ void main() {
     setUp(() {
       engine = FakeEngine();
       store = FakePlaybackStore();
+      library = FakeLibraryApi([]);
       c = ProviderContainer(
         overrides: [
           mediaEngineProvider.overrideWithValue(engine),
           playbackStoreProvider.overrideWithValue(store),
+          libraryApiProvider.overrideWithValue(library),
         ],
       );
       c.read(queueProvider);
@@ -115,6 +119,16 @@ void main() {
         expect(parseHistory(store.values[historyKey]).single.id, 5);
       },
     );
+
+    test('each new play is counted once by the library', () async {
+      await c.read(queueProvider.notifier).playAll([track(5), track(6)]);
+      await c.read(queueProvider.notifier).next();
+      expect(library.notedPlays, [5, 6]);
+      // Back to 6 right away: the same play, not counted again.
+      await c.read(queueProvider.notifier).playAll([track(6)]);
+      await pumpEventQueue();
+      expect(library.notedPlays, [5, 6]);
+    });
 
     test('resume can be switched off like in 0.1.x', () async {
       store.values[positionKey(5)] = '94';

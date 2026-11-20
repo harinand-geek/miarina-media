@@ -3014,4 +3014,10 @@ class L10nEn extends L10n {
 
   @override
   String get keyDelete => 'Del';
+
+  @override
+  String get filterNeverPlayed => 'Never played';
+
+  @override
+  String get filterHiRes => 'Hi-res';
 }

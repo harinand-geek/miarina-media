@@ -30,6 +30,14 @@ struct ProbeStream {
     codec_name: Option<String>,
     width: Option<u32>,
     height: Option<u32>,
+    /// Audio: Hz, as text.
+    sample_rate: Option<String>,
+    /// Bits per sample of lossless codecs, as text ("24").
+    bits_per_raw_sample: Option<String>,
+    /// Bits per sample of PCM.
+    bits_per_sample: Option<u32>,
+    /// bit/s, as text.
+    bit_rate: Option<String>,
     /// Cover art is a video stream flagged as attached picture.
     disposition: Option<Disposition>,
 }
@@ -43,6 +51,20 @@ struct Disposition {
 struct ProbeFormat {
     format_name: Option<String>,
     duration: Option<String>,
+    bit_rate: Option<String>,
+}
+
+/// Codecs whose bit depth is the file's own (not a decoder setting).
+fn lossless(codec: &str) -> bool {
+    matches!(
+        codec,
+        "flac" | "alac" | "ape" | "wavpack" | "tta" | "truehd" | "mlp" | "tak"
+    ) || codec.starts_with("pcm_")
+}
+
+fn number(text: Option<&str>) -> Option<u64> {
+    text.and_then(|t| t.trim().parse::<u64>().ok())
+        .filter(|n| *n > 0)
 }
 
 /// Parses ffprobe JSON (untrusted).
@@ -72,6 +94,27 @@ pub fn parse_probe(json: &[u8]) -> Result<MediaProbe, LibraryError> {
             .and_then(|n| n.split(',').next())
             .map(str::to_owned),
         has_video: video.is_some(),
+        sample_rate: audio
+            .and_then(|a| number(a.sample_rate.as_deref()))
+            .filter(|r| *r <= 12_288_000)
+            .map(|r| r as u32),
+        bit_depth: audio
+            .filter(|a| a.codec_name.as_deref().is_some_and(lossless))
+            .and_then(|a| {
+                number(a.bits_per_raw_sample.as_deref())
+                    .or(a.bits_per_sample.filter(|b| *b > 0).map(u64::from))
+            })
+            .filter(|b| *b <= 64)
+            .map(|b| b as u32),
+        // Kbit/s; the container's rate stands in for an audio-only file.
+        bit_rate: audio
+            .and_then(|a| number(a.bit_rate.as_deref()))
+            .or_else(|| {
+                (video.is_none())
+                    .then(|| number(format.and_then(|f| f.bit_rate.as_deref())))
+                    .flatten()
+            })
+            .map(|b| ((b + 500) / 1000).min(100_000) as u32),
     })
 }
 
@@ -223,6 +266,36 @@ mod tests {
         let p = parse_probe(json).unwrap();
         assert!(!p.has_video);
         assert_eq!(p.width, None);
+    }
+
+    #[test]
+    fn audio_quality_is_read() {
+        // FLAC 24/96: depth from the lossless codec.
+        let flac = br#"{"streams":[{"codec_type":"audio","codec_name":"flac",
+            "sample_rate":"96000","bits_per_raw_sample":"24","bits_per_sample":0}],
+            "format":{"format_name":"flac","bit_rate":"2870000"}}"#;
+        let p = parse_probe(flac).unwrap();
+        assert_eq!((p.sample_rate, p.bit_depth), (Some(96_000), Some(24)));
+        // MP3 320: no depth for a lossy codec, rate in kbit/s.
+        let mp3 = br#"{"streams":[{"codec_type":"audio","codec_name":"mp3",
+            "sample_rate":"44100","bits_per_raw_sample":"16","bit_rate":"320000"}],
+            "format":{"format_name":"mp3"}}"#;
+        let p = parse_probe(mp3).unwrap();
+        assert_eq!((p.bit_depth, p.bit_rate), (None, Some(320)));
+        // WAV 16/44: PCM depth; the container's rate when the stream has none.
+        let wav = br#"{"streams":[{"codec_type":"audio","codec_name":"pcm_s16le",
+            "sample_rate":"44100","bits_per_sample":16}],
+            "format":{"format_name":"wav","bit_rate":"1411200"}}"#;
+        let p = parse_probe(wav).unwrap();
+        assert_eq!(
+            (p.sample_rate, p.bit_depth, p.bit_rate),
+            (Some(44_100), Some(16), Some(1411))
+        );
+        // Untrusted values out of range are dropped.
+        let odd = br#"{"streams":[{"codec_type":"audio","codec_name":"flac",
+            "sample_rate":"-5","bits_per_raw_sample":"999"}]}"#;
+        let p = parse_probe(odd).unwrap();
+        assert_eq!((p.sample_rate, p.bit_depth), (None, None));
     }
 
     #[test]

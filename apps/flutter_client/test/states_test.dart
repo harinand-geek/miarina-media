@@ -44,6 +44,8 @@ class BrokenLibraryApi extends FakeLibraryApi {
     TrackSort sort = TrackSort.title,
     bool reverse = false,
     DateTime? addedSince,
+    bool neverPlayed = false,
+    bool hiRes = false,
   }) async {
     calls++;
     throw Exception(message);

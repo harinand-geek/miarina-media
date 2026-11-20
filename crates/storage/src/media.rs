@@ -29,6 +29,10 @@ pub struct MediaProbe {
     pub container: Option<String>,
     /// `false` when no video stream exists (audio file).
     pub has_video: bool,
+    /// Audio stream: Hz, bits per sample (lossless and PCM only), kbit/s.
+    pub sample_rate: Option<u32>,
+    pub bit_depth: Option<u32>,
+    pub bit_rate: Option<u32>,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize)]
@@ -65,6 +69,13 @@ pub struct MediaRecord {
     /// The picture was chosen by the user (or removed on purpose): the
     /// library never replaces it.
     pub cover_custom: bool,
+    /// Plays noted by the player (one per play, not per resume).
+    pub play_count: u32,
+    /// Last play, ms since the epoch.
+    pub last_played_at: Option<i64>,
+    pub sample_rate: Option<u32>,
+    pub bit_depth: Option<u32>,
+    pub bit_rate: Option<u32>,
 }
 
 /// Editable tags of a library entry (COM-07). `None` = no value.
@@ -160,6 +171,10 @@ pub struct MediaQuery {
     pub favorites: bool,
     /// Entries added at or after this time (ms since the epoch).
     pub added_since: Option<i64>,
+    /// Never played (W-M1c "Jamais écoutés").
+    pub never_played: bool,
+    /// Beyond CD quality: more than 16 bits or more than 48 kHz.
+    pub hi_res: bool,
     pub sort: MediaSort,
     /// The opposite of the sort's usual direction.
     pub reverse: bool,
@@ -201,13 +216,17 @@ pub struct MediaStats {
     pub audio_bytes: u64,
 }
 
+/// Beyond CD quality (16 bits, 44.1 / 48 kHz).
+pub const HI_RES: &str = "m.bit_depth > 16 OR m.sample_rate > 48000";
+
 /// Largest page returned by one query.
 pub const MEDIA_PAGE_MAX: u32 = 10_000;
 const MAX_SEARCH_TOKENS: usize = 8;
 
 pub(crate) const COLUMNS: &str = "id, path, title, kind, source_host, source_url, task_id, size_bytes, \
      duration_secs, width, height, video_codec, audio_codec, container, thumbnail, probed, \
-     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no, favorite, cover_custom";
+     missing, added_at, modified_at, artist, album, album_artist, year, genre, track_no, disc_no, favorite, cover_custom, \
+     play_count, last_played_at, sample_rate, bit_depth, bit_rate";
 
 impl<'de> Deserialize<'de> for MediaKind {
     fn deserialize<D: serde::Deserializer<'de>>(d: D) -> std::result::Result<Self, D::Error> {
@@ -222,9 +241,6 @@ impl<'de> Deserialize<'de> for MediaKind {
     }
 }
 
-/// Turns user input into a safe FTS5 query: every word becomes a quoted
-/// prefix term (`"tear"* "ste"*`), so operators and quotes typed by the user
-/// are never interpreted.
 /// ORDER BY of a sort: its key in its usual direction (flipped by
 /// `reverse`), entries without a value last, then title and id.
 fn sort_order(sort: MediaSort, reverse: bool) -> String {
@@ -267,6 +283,9 @@ fn sort_order(sort: MediaSort, reverse: bool) -> String {
     format!("({key}) IS NULL, {key}{collate} {dir}, {tail}")
 }
 
+/// Turns user input into a safe FTS5 query: every word becomes a quoted
+/// prefix term (`"tear"* "ste"*`), so operators and quotes typed by the user
+/// are never interpreted.
 pub fn fts_query(input: &str) -> Option<String> {
     let terms: Vec<String> = input
         .split(|c: char| !c.is_alphanumeric())
@@ -358,6 +377,12 @@ impl Storage {
         if let Some(since) = query.added_since {
             conditions.push("m.added_at >= ?".into());
             values.push(Value::Integer(since));
+        }
+        if query.never_played {
+            conditions.push("m.play_count = 0".into());
+        }
+        if query.hi_res {
+            conditions.push(format!("({HI_RES})"));
         }
         if let Some(folder) = &query.folder {
             conditions.push("(m.path LIKE ? ESCAPE '!' OR m.path LIKE ? ESCAPE '!')".into());
@@ -475,6 +500,7 @@ impl Storage {
             "UPDATE media SET duration_secs = ?2, width = ?3, height = ?4, video_codec = ?5, \
              audio_codec = ?6, container = ?7, kind = ?8, \
              thumbnail = CASE WHEN cover_custom = 1 THEN thumbnail ELSE coalesce(?9, thumbnail) END, \
+             sample_rate = ?10, bit_depth = ?11, bit_rate = ?12, \
              probed = 1 WHERE id = ?1",
             params![
                 id,
@@ -486,7 +512,19 @@ impl Storage {
                 probe.container,
                 kind.as_str(),
                 thumbnail,
+                probe.sample_rate,
+                probe.bit_depth,
+                probe.bit_rate,
             ],
+        )?;
+        crate::ensure_found(changed, &id.to_string())
+    }
+
+    /// A play of an entry (W-M1c "Jamais écoutés", "écouté N fois").
+    pub fn note_played(&self, id: i64, at_ms: i64) -> Result<()> {
+        let changed = self.conn.execute(
+            "UPDATE media SET play_count = play_count + 1, last_played_at = ?2 WHERE id = ?1",
+            params![id, at_ms],
         )?;
         crate::ensure_found(changed, &id.to_string())
     }
@@ -868,6 +906,11 @@ pub(crate) fn row_to_media(row: &Row<'_>) -> rusqlite::Result<Result<MediaRecord
         disc_no: opt_u32(25)?,
         favorite: row.get(26)?,
         cover_custom: row.get(27)?,
+        play_count: opt_u32(28)?.unwrap_or(0),
+        last_played_at: row.get(29)?,
+        sample_rate: opt_u32(30)?,
+        bit_depth: opt_u32(31)?,
+        bit_rate: opt_u32(32)?,
     }))
 }
 
@@ -923,7 +966,7 @@ mod tests {
     fn latest_schema_is_applied() {
         assert_eq!(
             Storage::open_in_memory().unwrap().schema_version().unwrap(),
-            9
+            10
         );
     }
 
