@@ -189,5 +189,6 @@ extension LibraryItemCopy on LibraryItem {
     favorite: value,
     thumbnail: thumbnail,
     trackNo: trackNo,
+    plays: plays,
   );
 }

@@ -4926,6 +4926,96 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Hi-res'**
   String get filterHiRes;
+
+  /// No description provided for @groupSortAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutés récemment'**
+  String get groupSortAdded;
+
+  /// No description provided for @groupSortName.
+  ///
+  /// In fr, this message translates to:
+  /// **'A → Z'**
+  String get groupSortName;
+
+  /// No description provided for @groupSortYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année'**
+  String get groupSortYear;
+
+  /// No description provided for @groupSortPlays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les plus écoutés'**
+  String get groupSortPlays;
+
+  /// No description provided for @groupSortTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de titres'**
+  String get groupSortTracks;
+
+  /// No description provided for @filterLossless.
+  ///
+  /// In fr, this message translates to:
+  /// **'FLAC / hi-res'**
+  String get filterLossless;
+
+  /// No description provided for @filterDownloaded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargés avec Miarina'**
+  String get filterDownloaded;
+
+  /// No description provided for @filterCompilations.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compilations'**
+  String get filterCompilations;
+
+  /// No description provided for @filterNoCover.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans pochette · {count}'**
+  String filterNoCover(int count);
+
+  /// No description provided for @filterEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien avec ce filtre'**
+  String get filterEmptyTitle;
+
+  /// No description provided for @filterEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez « Tous » pour revoir toute la liste.'**
+  String get filterEmptyBody;
+
+  /// No description provided for @viewGrid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Grille'**
+  String get viewGrid;
+
+  /// No description provided for @viewList.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liste'**
+  String get viewList;
+
+  /// No description provided for @playsCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 écoute} other{{count} écoutes}}'**
+  String playsCount(int count);
+
+  /// No description provided for @playedTimes.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{écouté 1 fois} other{écouté {count} fois}}'**
+  String playedTimes(int count);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

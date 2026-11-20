@@ -19,6 +19,8 @@ pub struct LibraryItem {
     /// Absolute path of the cover / thumbnail JPEG, when one exists.
     pub thumbnail: Option<String>,
     pub track_no: Option<u32>,
+    /// Plays noted by the player.
+    pub plays: u32,
 }
 
 /// One album or artist of the music library.
@@ -30,6 +32,17 @@ pub struct LibraryGroup {
     pub duration_secs: f64,
     pub year: Option<i32>,
     pub thumbnail: Option<String>,
+    /// Newest entry, ms since the epoch ("Ajoutés récemment").
+    pub added_at: i64,
+    /// Plays of all its tracks ("écouté N fois", "Les plus écoutés").
+    pub plays: u64,
+    pub size_bytes: u64,
+    /// Lossless or beyond 48 kHz audio ("FLAC / hi-res").
+    pub lossless: bool,
+    /// Downloaded with Miarina.
+    pub downloaded: bool,
+    /// Album of various artists.
+    pub compilation: bool,
 }
 
 pub struct LibrarySummary {
@@ -96,6 +109,7 @@ pub(crate) fn item(m: MediaRecord) -> LibraryItem {
         favorite: m.favorite,
         thumbnail: m.thumbnail,
         track_no: m.track_no,
+        plays: m.play_count,
     }
 }
 
@@ -153,6 +167,7 @@ pub fn library_tracks(
         "format" => MediaSort::Format,
         "duration" => MediaSort::Duration,
         "added" => MediaSort::Added,
+        "plays" => MediaSort::Plays,
         _ => MediaSort::Title,
     };
     with_db(&db_path, |db| {
@@ -197,6 +212,12 @@ pub fn library_groups(db_path: String, by: String) -> Result<Vec<LibraryGroup>> 
                 duration_secs: g.duration_secs,
                 year: g.year,
                 thumbnail: g.thumbnail,
+                added_at: g.added_at,
+                plays: g.plays,
+                size_bytes: g.size_bytes,
+                lossless: g.lossless,
+                downloaded: g.downloaded,
+                compilation: g.compilation,
             })
             .collect())
     })

@@ -192,6 +192,8 @@ LibraryItem track(
   int? trackNo,
   bool missing = false,
   bool favorite = false,
+  int plays = 0,
+  String format = 'FLAC',
 }) => LibraryItem(
   id: id,
   title: title,
@@ -200,9 +202,10 @@ LibraryItem track(
   durationSecs: 245,
   artist: artist,
   album: album ?? 'Album $id',
-  format: 'FLAC',
+  format: format,
   missing: missing,
   favorite: favorite,
+  plays: plays,
   trackNo: trackNo,
 );
 
@@ -311,9 +314,20 @@ class FakeLibraryApi implements LibraryApi {
           durationSecs: by[k]!.fold(0.0, (t, i) => t + (i.durationSecs ?? 0)),
           year: null,
           thumbnail: null,
+          // Higher ids were added later in these fixtures.
+          addedAt: by[k]!.map((i) => i.id).reduce((a, b) => a > b ? a : b),
+          plays: BigInt.from(by[k]!.fold<int>(0, (n, i) => n + i.plays)),
+          sizeBytes: BigInt.from(by[k]!.length * 1000000),
+          lossless: by[k]!.any((i) => i.format?.startsWith('FLAC') ?? false),
+          downloaded: downloadedGroups.contains(k),
+          compilation: compilations.contains(k),
         ),
     ];
   }
+
+  /// Group names (lower case) marked downloaded / compilation.
+  Set<String> downloadedGroups = {};
+  Set<String> compilations = {};
 
   @override
   Future<void> setFavorite(int mediaId, {required bool favorite}) async {
@@ -337,6 +351,7 @@ class FakeLibraryApi implements LibraryApi {
         isVideo: isVideo,
         missing: false,
         favorite: false,
+        plays: 0,
       ),
     );
     return id;
@@ -373,6 +388,7 @@ CinemaItem video(
     format: 'MKV',
     missing: missing,
     favorite: false,
+    plays: 0,
   ),
   kind: kind,
   series: series,
@@ -460,6 +476,7 @@ FocusItem lesson(
     format: 'MP3',
     missing: false,
     favorite: false,
+    plays: 0,
   ),
   kind: kind,
   program: program,
@@ -796,6 +813,7 @@ DuplicateVersion version(
     album: 'Saisons de sel',
     missing: false,
     favorite: false,
+    plays: 0,
   ),
   sizeBytes: BigInt.from(size),
   codec: codec,

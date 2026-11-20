@@ -141,7 +141,23 @@ pub struct MediaGroup {
     pub duration_secs: f64,
     pub year: Option<i32>,
     pub thumbnail: Option<String>,
+    /// Newest entry of the group (ms since the epoch).
+    pub added_at: i64,
+    /// Plays of all its entries.
+    pub plays: u64,
+    pub size_bytes: u64,
+    /// Holds lossless (or beyond 48 kHz) audio: the "FLAC / hi-res" filter.
+    pub lossless: bool,
+    /// Holds a file downloaded with Miarina.
+    pub downloaded: bool,
+    /// Album of various artists: album artist "Various Artists" (or a
+    /// translation), or no album artist and at least 3 track artists.
+    pub compilation: bool,
 }
+
+/// Album artists that mean "various artists".
+const VARIOUS: &str = "'various artists', 'various', 'va', 'artistes divers', \
+     'artistes variés', 'compilation', 'verschiedene interpreten', 'varios artistas'";
 
 #[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Deserialize)]
 #[serde(rename_all = "snake_case")]
@@ -156,6 +172,8 @@ pub enum MediaSort {
     Album,
     /// Codec (audio) or container label, as shown in the Format column.
     Format,
+    /// Most played first (W-M2b "Les plus écoutés").
+    Plays,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -254,6 +272,7 @@ fn sort_order(sort: MediaSort, reverse: bool) -> String {
         MediaSort::Artist => ("coalesce(m.artist, m.album_artist) COLLATE NOCASE", false),
         MediaSort::Album => ("m.album COLLATE NOCASE", false),
         MediaSort::Format => (FORMAT, false),
+        MediaSort::Plays => ("m.play_count", true),
     };
     let dir = if descending != reverse { "DESC" } else { "ASC" };
     let tail = match sort {
@@ -667,22 +686,29 @@ impl Storage {
 
     /// Albums, artists or folders of the present audio files.
     pub fn media_groups(&self, by: GroupBy) -> Result<Vec<MediaGroup>> {
+        // Shared by both groupings: newest, plays, size, quality, origin.
+        const AGGREGATES: &str = "max(added_at), coalesce(sum(play_count), 0), \
+             coalesce(sum(size_bytes), 0), \
+             max(bit_depth IS NOT NULL OR coalesce(sample_rate, 0) > 48000), \
+             max(task_id IS NOT NULL OR source_url IS NOT NULL)";
         let sql = match by {
-            GroupBy::Album => {
+            GroupBy::Album => format!(
                 "SELECT min(album), max(coalesce(album_artist, artist)), count(*), \
-                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail) FROM media \
-                 WHERE kind = 'audio' AND missing = 0 AND album IS NOT NULL \
+                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail), {AGGREGATES}, \
+                 (max(lower(trim(album_artist))) IN ({VARIOUS}) \
+                  OR (max(album_artist) IS NULL AND count(DISTINCT artist COLLATE NOCASE) >= 3)) \
+                 FROM media WHERE kind = 'audio' AND missing = 0 AND album IS NOT NULL \
                  GROUP BY album COLLATE NOCASE ORDER BY album COLLATE NOCASE"
-            }
-            GroupBy::Artist => {
+            ),
+            GroupBy::Artist => format!(
                 "SELECT min(artist), CAST(count(DISTINCT album COLLATE NOCASE) AS TEXT), count(*), \
-                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail) FROM media \
-                 WHERE kind = 'audio' AND missing = 0 AND artist IS NOT NULL \
+                 coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail), {AGGREGATES}, 0 \
+                 FROM media WHERE kind = 'audio' AND missing = 0 AND artist IS NOT NULL \
                  GROUP BY artist COLLATE NOCASE ORDER BY artist COLLATE NOCASE"
-            }
+            ),
             GroupBy::Folder => return self.media_folders(),
         };
-        let mut stmt = self.conn.prepare(sql)?;
+        let mut stmt = self.conn.prepare(&sql)?;
         stmt.query_map([], |r| {
             Ok(MediaGroup {
                 name: r.get(0)?,
@@ -691,6 +717,12 @@ impl Storage {
                 duration_secs: r.get(3)?,
                 year: r.get(4)?,
                 thumbnail: r.get(5)?,
+                added_at: r.get::<_, Option<i64>>(6)?.unwrap_or(0),
+                plays: r.get::<_, i64>(7)?.max(0) as u64,
+                size_bytes: r.get::<_, i64>(8)?.max(0) as u64,
+                lossless: r.get::<_, Option<bool>>(9)?.unwrap_or(false),
+                downloaded: r.get::<_, Option<bool>>(10)?.unwrap_or(false),
+                compilation: r.get::<_, Option<bool>>(11)?.unwrap_or(false),
             })
         })?
         .collect::<rusqlite::Result<_>>()
@@ -722,6 +754,12 @@ impl Storage {
                 duration_secs: 0.0,
                 year: None,
                 thumbnail: None,
+                added_at: 0,
+                plays: 0,
+                size_bytes: 0,
+                lossless: false,
+                downloaded: false,
+                compilation: false,
             });
             group.count += 1;
             group.duration_secs += secs;

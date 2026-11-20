@@ -287,7 +287,7 @@ void main() {
       await pumpApp(tester);
       await tester.tap(find.text('Albums'));
       await settle(tester);
-      expect(find.text('3 albums · 5 titres'), findsOneWidget);
+      expect(find.text('3 albums · 5 titres · 4,8 Mo'), findsOneWidget);
       await tester.tap(find.text('Saisons de sel'));
       await settle(tester);
       expect(find.text('ALBUM'), findsOneWidget);
@@ -342,7 +342,7 @@ void main() {
       expect(find.text('Kabary'), findsOneWidget);
       await tester.tap(find.bySemanticsLabel('Retour'));
       await settle(tester);
-      expect(find.text('3 albums · 5 titres'), findsOneWidget);
+      expect(find.text('3 albums · 5 titres · 4,8 Mo'), findsOneWidget);
     });
   });
 
@@ -357,6 +357,7 @@ void main() {
         isVideo: false,
         missing: false,
         favorite: false,
+        plays: 0,
       ),
     ]);
     await pumpApp(tester);

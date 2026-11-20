@@ -63,10 +63,21 @@ class GroupScreen extends ConsumerWidget {
       (s, i) => s + (i.durationSecs ?? 0),
     );
     final formats = items.map((i) => i.format).whereType<String>().toSet();
+    final plays = items.fold<int>(0, (n, i) => n + i.plays);
     final meta = [
+      if (kind == GroupKind.artist && albumsOfArtist.isNotEmpty)
+        t.albumsCount(albumsOfArtist.length),
       t.tracksSummary(items.length),
       if (totalSecs > 0) durationWords(totalSecs),
+      if (kind == GroupKind.artist && plays > 0) t.playedTimes(plays),
     ].join(' · ');
+    // W-M2b "Les plus écoutés": the five most played, from local plays.
+    final top = kind == GroupKind.artist
+        ? ([
+            for (final i in items)
+              if (i.plays > 0) i,
+          ]..sort((a, b) => b.plays.compareTo(a.plays))).take(5).toList()
+        : const <LibraryItem>[];
 
     return mobile
         ? _MobileGroup(
@@ -109,6 +120,24 @@ class GroupScreen extends ConsumerWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                if (top.isNotEmpty) ...[
+                                  Text(
+                                    t.groupSortPlays,
+                                    style: MmType.title.copyWith(color: c.fg),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  _TrackList(
+                                    items: top,
+                                    showPlays: true,
+                                    onPlay: (i) => playGroup(
+                                      ref,
+                                      t,
+                                      _key,
+                                      start: items.indexOf(top[i]),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 22),
+                                ],
                                 Text(
                                   t.artistTracks,
                                   style: MmType.title.copyWith(color: c.fg),
@@ -376,12 +405,16 @@ class _TrackList extends ConsumerWidget {
     required this.onPlay,
     this.numbered = false,
     this.mobile = false,
+    this.showPlays = false,
   });
 
   final List<LibraryItem> items;
   final ValueChanged<int> onPlay;
   final bool numbered;
   final bool mobile;
+
+  /// "58 écoutes" before the length ("Les plus écoutés").
+  final bool showPlays;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -472,6 +505,14 @@ class _TrackList extends ConsumerWidget {
                             ],
                           ),
                         ),
+                        if (showPlays)
+                          Padding(
+                            padding: const EdgeInsets.only(right: 18),
+                            child: Text(
+                              t.playsCount(item.plays),
+                              style: MmType.caption.copyWith(color: c.muted),
+                            ),
+                          ),
                         if (item.durationSecs != null)
                           Text(
                             formatClock(

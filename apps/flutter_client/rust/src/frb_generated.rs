@@ -3868,6 +3868,12 @@ impl SseDecode for crate::api::library::LibraryGroup {
         let mut var_durationSecs = <f64>::sse_decode(deserializer);
         let mut var_year = <Option<i32>>::sse_decode(deserializer);
         let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
+        let mut var_addedAt = <i64>::sse_decode(deserializer);
+        let mut var_plays = <u64>::sse_decode(deserializer);
+        let mut var_sizeBytes = <u64>::sse_decode(deserializer);
+        let mut var_lossless = <bool>::sse_decode(deserializer);
+        let mut var_downloaded = <bool>::sse_decode(deserializer);
+        let mut var_compilation = <bool>::sse_decode(deserializer);
         return crate::api::library::LibraryGroup {
             name: var_name,
             detail: var_detail,
@@ -3875,6 +3881,12 @@ impl SseDecode for crate::api::library::LibraryGroup {
             duration_secs: var_durationSecs,
             year: var_year,
             thumbnail: var_thumbnail,
+            added_at: var_addedAt,
+            plays: var_plays,
+            size_bytes: var_sizeBytes,
+            lossless: var_lossless,
+            downloaded: var_downloaded,
+            compilation: var_compilation,
         };
     }
 }
@@ -3894,6 +3906,7 @@ impl SseDecode for crate::api::library::LibraryItem {
         let mut var_favorite = <bool>::sse_decode(deserializer);
         let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
         let mut var_trackNo = <Option<u32>>::sse_decode(deserializer);
+        let mut var_plays = <u32>::sse_decode(deserializer);
         return crate::api::library::LibraryItem {
             id: var_id,
             title: var_title,
@@ -3907,6 +3920,7 @@ impl SseDecode for crate::api::library::LibraryItem {
             favorite: var_favorite,
             thumbnail: var_thumbnail,
             track_no: var_trackNo,
+            plays: var_plays,
         };
     }
 }
@@ -5718,6 +5732,12 @@ impl flutter_rust_bridge::IntoDart for crate::api::library::LibraryGroup {
             self.duration_secs.into_into_dart().into_dart(),
             self.year.into_into_dart().into_dart(),
             self.thumbnail.into_into_dart().into_dart(),
+            self.added_at.into_into_dart().into_dart(),
+            self.plays.into_into_dart().into_dart(),
+            self.size_bytes.into_into_dart().into_dart(),
+            self.lossless.into_into_dart().into_dart(),
+            self.downloaded.into_into_dart().into_dart(),
+            self.compilation.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -5749,6 +5769,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::library::LibraryItem {
             self.favorite.into_into_dart().into_dart(),
             self.thumbnail.into_into_dart().into_dart(),
             self.track_no.into_into_dart().into_dart(),
+            self.plays.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -6751,6 +6772,12 @@ impl SseEncode for crate::api::library::LibraryGroup {
         <f64>::sse_encode(self.duration_secs, serializer);
         <Option<i32>>::sse_encode(self.year, serializer);
         <Option<String>>::sse_encode(self.thumbnail, serializer);
+        <i64>::sse_encode(self.added_at, serializer);
+        <u64>::sse_encode(self.plays, serializer);
+        <u64>::sse_encode(self.size_bytes, serializer);
+        <bool>::sse_encode(self.lossless, serializer);
+        <bool>::sse_encode(self.downloaded, serializer);
+        <bool>::sse_encode(self.compilation, serializer);
     }
 }
 
@@ -6769,6 +6796,7 @@ impl SseEncode for crate::api::library::LibraryItem {
         <bool>::sse_encode(self.favorite, serializer);
         <Option<String>>::sse_encode(self.thumbnail, serializer);
         <Option<u32>>::sse_encode(self.track_no, serializer);
+        <u32>::sse_encode(self.plays, serializer);
     }
 }
 

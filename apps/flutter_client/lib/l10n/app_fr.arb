@@ -1816,5 +1816,41 @@
   "keyCtrlEnter": "Ctrl Entrée",
   "keyDelete": "Suppr",
   "filterNeverPlayed": "Jamais écoutés",
-  "filterHiRes": "Hi-res"
+  "filterHiRes": "Hi-res",
+  "groupSortAdded": "Ajoutés récemment",
+  "groupSortName": "A → Z",
+  "groupSortYear": "Année",
+  "groupSortPlays": "Les plus écoutés",
+  "groupSortTracks": "Nombre de titres",
+  "filterLossless": "FLAC / hi-res",
+  "filterDownloaded": "Téléchargés avec Miarina",
+  "filterCompilations": "Compilations",
+  "filterNoCover": "Sans pochette · {count}",
+  "@filterNoCover": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterEmptyTitle": "Rien avec ce filtre",
+  "filterEmptyBody": "Choisissez « Tous » pour revoir toute la liste.",
+  "viewGrid": "Grille",
+  "viewList": "Liste",
+  "playsCount": "{count, plural, =1{1 écoute} other{{count} écoutes}}",
+  "@playsCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playedTimes": "{count, plural, =1{écouté 1 fois} other{écouté {count} fois}}",
+  "@playedTimes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

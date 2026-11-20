@@ -125,6 +125,22 @@ class LibraryGroup {
   final int? year;
   final String? thumbnail;
 
+  /// Newest entry, ms since the epoch ("Ajoutés récemment").
+  final PlatformInt64 addedAt;
+
+  /// Plays of all its tracks ("écouté N fois", "Les plus écoutés").
+  final BigInt plays;
+  final BigInt sizeBytes;
+
+  /// Lossless or beyond 48 kHz audio ("FLAC / hi-res").
+  final bool lossless;
+
+  /// Downloaded with Miarina.
+  final bool downloaded;
+
+  /// Album of various artists.
+  final bool compilation;
+
   const LibraryGroup({
     required this.name,
     this.detail,
@@ -132,6 +148,12 @@ class LibraryGroup {
     required this.durationSecs,
     this.year,
     this.thumbnail,
+    required this.addedAt,
+    required this.plays,
+    required this.sizeBytes,
+    required this.lossless,
+    required this.downloaded,
+    required this.compilation,
   });
 
   @override
@@ -141,7 +163,13 @@ class LibraryGroup {
       count.hashCode ^
       durationSecs.hashCode ^
       year.hashCode ^
-      thumbnail.hashCode;
+      thumbnail.hashCode ^
+      addedAt.hashCode ^
+      plays.hashCode ^
+      sizeBytes.hashCode ^
+      lossless.hashCode ^
+      downloaded.hashCode ^
+      compilation.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -153,7 +181,13 @@ class LibraryGroup {
           count == other.count &&
           durationSecs == other.durationSecs &&
           year == other.year &&
-          thumbnail == other.thumbnail;
+          thumbnail == other.thumbnail &&
+          addedAt == other.addedAt &&
+          plays == other.plays &&
+          sizeBytes == other.sizeBytes &&
+          lossless == other.lossless &&
+          downloaded == other.downloaded &&
+          compilation == other.compilation;
 }
 
 class LibraryItem {
@@ -174,6 +208,9 @@ class LibraryItem {
   final String? thumbnail;
   final int? trackNo;
 
+  /// Plays noted by the player.
+  final int plays;
+
   const LibraryItem({
     required this.id,
     required this.title,
@@ -187,6 +224,7 @@ class LibraryItem {
     required this.favorite,
     this.thumbnail,
     this.trackNo,
+    required this.plays,
   });
 
   @override
@@ -202,7 +240,8 @@ class LibraryItem {
       missing.hashCode ^
       favorite.hashCode ^
       thumbnail.hashCode ^
-      trackNo.hashCode;
+      trackNo.hashCode ^
+      plays.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -220,7 +259,8 @@ class LibraryItem {
           missing == other.missing &&
           favorite == other.favorite &&
           thumbnail == other.thumbnail &&
-          trackNo == other.trackNo;
+          trackNo == other.trackNo &&
+          plays == other.plays;
 }
 
 class LibraryPage {

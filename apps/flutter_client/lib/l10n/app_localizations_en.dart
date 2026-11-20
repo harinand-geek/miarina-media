@@ -3020,4 +3020,67 @@ class L10nEn extends L10n {
 
   @override
   String get filterHiRes => 'Hi-res';
+
+  @override
+  String get groupSortAdded => 'Recently added';
+
+  @override
+  String get groupSortName => 'A → Z';
+
+  @override
+  String get groupSortYear => 'Year';
+
+  @override
+  String get groupSortPlays => 'Most played';
+
+  @override
+  String get groupSortTracks => 'Number of tracks';
+
+  @override
+  String get filterLossless => 'FLAC / hi-res';
+
+  @override
+  String get filterDownloaded => 'Downloaded with Miarina';
+
+  @override
+  String get filterCompilations => 'Compilations';
+
+  @override
+  String filterNoCover(int count) {
+    return 'No cover · $count';
+  }
+
+  @override
+  String get filterEmptyTitle => 'Nothing with this filter';
+
+  @override
+  String get filterEmptyBody => 'Choose “All” to see the whole list again.';
+
+  @override
+  String get viewGrid => 'Grid';
+
+  @override
+  String get viewList => 'List';
+
+  @override
+  String playsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count plays',
+      one: '1 play',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playedTimes(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'played $count times',
+      one: 'played once',
+    );
+    return '$_temp0';
+  }
 }

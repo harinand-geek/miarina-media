@@ -3796,8 +3796,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   LibraryGroup dco_decode_library_group(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 12)
+      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
     return LibraryGroup(
       name: dco_decode_String(arr[0]),
       detail: dco_decode_opt_String(arr[1]),
@@ -3805,6 +3805,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       durationSecs: dco_decode_f_64(arr[3]),
       year: dco_decode_opt_box_autoadd_i_32(arr[4]),
       thumbnail: dco_decode_opt_String(arr[5]),
+      addedAt: dco_decode_i_64(arr[6]),
+      plays: dco_decode_u_64(arr[7]),
+      sizeBytes: dco_decode_u_64(arr[8]),
+      lossless: dco_decode_bool(arr[9]),
+      downloaded: dco_decode_bool(arr[10]),
+      compilation: dco_decode_bool(arr[11]),
     );
   }
 
@@ -3812,8 +3818,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   LibraryItem dco_decode_library_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 12)
-      throw Exception('unexpected arr length: expect 12 but see ${arr.length}');
+    if (arr.length != 13)
+      throw Exception('unexpected arr length: expect 13 but see ${arr.length}');
     return LibraryItem(
       id: dco_decode_i_64(arr[0]),
       title: dco_decode_String(arr[1]),
@@ -3827,6 +3833,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       favorite: dco_decode_bool(arr[9]),
       thumbnail: dco_decode_opt_String(arr[10]),
       trackNo: dco_decode_opt_box_autoadd_u_32(arr[11]),
+      plays: dco_decode_u_32(arr[12]),
     );
   }
 
@@ -5128,6 +5135,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_durationSecs = sse_decode_f_64(deserializer);
     var var_year = sse_decode_opt_box_autoadd_i_32(deserializer);
     var var_thumbnail = sse_decode_opt_String(deserializer);
+    var var_addedAt = sse_decode_i_64(deserializer);
+    var var_plays = sse_decode_u_64(deserializer);
+    var var_sizeBytes = sse_decode_u_64(deserializer);
+    var var_lossless = sse_decode_bool(deserializer);
+    var var_downloaded = sse_decode_bool(deserializer);
+    var var_compilation = sse_decode_bool(deserializer);
     return LibraryGroup(
       name: var_name,
       detail: var_detail,
@@ -5135,6 +5148,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       durationSecs: var_durationSecs,
       year: var_year,
       thumbnail: var_thumbnail,
+      addedAt: var_addedAt,
+      plays: var_plays,
+      sizeBytes: var_sizeBytes,
+      lossless: var_lossless,
+      downloaded: var_downloaded,
+      compilation: var_compilation,
     );
   }
 
@@ -5153,6 +5172,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_favorite = sse_decode_bool(deserializer);
     var var_thumbnail = sse_decode_opt_String(deserializer);
     var var_trackNo = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_plays = sse_decode_u_32(deserializer);
     return LibraryItem(
       id: var_id,
       title: var_title,
@@ -5166,6 +5186,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       favorite: var_favorite,
       thumbnail: var_thumbnail,
       trackNo: var_trackNo,
+      plays: var_plays,
     );
   }
 
@@ -6654,6 +6675,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_f_64(self.durationSecs, serializer);
     sse_encode_opt_box_autoadd_i_32(self.year, serializer);
     sse_encode_opt_String(self.thumbnail, serializer);
+    sse_encode_i_64(self.addedAt, serializer);
+    sse_encode_u_64(self.plays, serializer);
+    sse_encode_u_64(self.sizeBytes, serializer);
+    sse_encode_bool(self.lossless, serializer);
+    sse_encode_bool(self.downloaded, serializer);
+    sse_encode_bool(self.compilation, serializer);
   }
 
   @protected
@@ -6671,6 +6698,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self.favorite, serializer);
     sse_encode_opt_String(self.thumbnail, serializer);
     sse_encode_opt_box_autoadd_u_32(self.trackNo, serializer);
+    sse_encode_u_32(self.plays, serializer);
   }
 
   @protected

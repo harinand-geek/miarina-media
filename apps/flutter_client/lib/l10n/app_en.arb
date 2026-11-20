@@ -804,5 +804,20 @@
   "keyCtrlEnter": "Ctrl Enter",
   "keyDelete": "Del",
   "filterNeverPlayed": "Never played",
-  "filterHiRes": "Hi-res"
+  "filterHiRes": "Hi-res",
+  "groupSortAdded": "Recently added",
+  "groupSortName": "A → Z",
+  "groupSortYear": "Year",
+  "groupSortPlays": "Most played",
+  "groupSortTracks": "Number of tracks",
+  "filterLossless": "FLAC / hi-res",
+  "filterDownloaded": "Downloaded with Miarina",
+  "filterCompilations": "Compilations",
+  "filterNoCover": "No cover · {count}",
+  "filterEmptyTitle": "Nothing with this filter",
+  "filterEmptyBody": "Choose “All” to see the whole list again.",
+  "viewGrid": "Grid",
+  "viewList": "List",
+  "playsCount": "{count, plural, =1{1 play} other{{count} plays}}",
+  "playedTimes": "{count, plural, =1{played once} other{played {count} times}}"
 }

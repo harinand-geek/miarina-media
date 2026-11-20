@@ -859,3 +859,82 @@ fn plays_and_audio_quality_filter_tracks() {
     });
     assert_eq!(hi_res, ["Hi"]);
 }
+
+#[test]
+fn groups_carry_what_albums_filter_and_sort_on() {
+    let storage = Storage::open_in_memory().unwrap();
+    let tag = |r: &MediaRecord, artist: &str, album: &str, album_artist: Option<&str>| {
+        storage
+            .update_media_tags(
+                r.id,
+                &MediaTags {
+                    title: Some(r.title.clone()),
+                    artist: Some(artist.into()),
+                    album: Some(album.into()),
+                    album_artist: album_artist.map(Into::into),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+    };
+    let flac = audio(&storage, "C:/M/1.flac", "Un");
+    let mp3 = audio(&storage, "C:/M/2.mp3", "Deux");
+    tag(&flac, "Nafy", "Saisons", None);
+    tag(&mp3, "Nafy", "Saisons", None);
+    storage
+        .set_media_probe(
+            flac.id,
+            &MediaProbe {
+                bit_depth: Some(16),
+                sample_rate: Some(44_100),
+                ..MediaProbe::default()
+            },
+            None,
+        )
+        .unwrap();
+    storage.note_played(flac.id, 10).unwrap();
+    storage.note_played(mp3.id, 20).unwrap();
+    storage.note_played(mp3.id, 30).unwrap();
+    // Three artists without album artist: a compilation; so is "VA".
+    for (i, artist) in ["A", "B", "C"].iter().enumerate() {
+        let r = audio(&storage, &format!("C:/C/{i}.mp3"), artist);
+        tag(&r, artist, "Été 2024", None);
+    }
+    let va = audio(&storage, "C:/V/1.mp3", "V");
+    tag(&va, "Toky", "Hits", Some("Various Artists"));
+    let dl = storage
+        .upsert_media(&NewMedia {
+            path: "C:/D/1.mp3".into(),
+            title: "D".into(),
+            kind: MediaKind::Audio,
+            source_host: Some("example.org".into()),
+            source_url: Some("https://example.org/d".into()),
+            task_id: None,
+            size_bytes: 10,
+        })
+        .unwrap();
+    tag(&dl, "Iony", "Ville lente", None);
+
+    let albums = storage.media_groups(GroupBy::Album).unwrap();
+    let get = |n: &str| albums.iter().find(|g| g.name == n).unwrap();
+    let saisons = get("Saisons");
+    assert_eq!((saisons.plays, saisons.size_bytes), (3, 6));
+    assert!(saisons.lossless && !saisons.downloaded && !saisons.compilation);
+    assert!(saisons.added_at > 0);
+    assert!(get("Été 2024").compilation);
+    assert!(get("Hits").compilation);
+    assert!(get("Ville lente").downloaded && !get("Ville lente").lossless);
+
+    let artists = storage.media_groups(GroupBy::Artist).unwrap();
+    let nafy = artists.iter().find(|g| g.name == "Nafy").unwrap();
+    assert_eq!(nafy.plays, 3);
+
+    let top = storage
+        .query_media(&MediaQuery {
+            artist: Some("Nafy".into()),
+            sort: MediaSort::Plays,
+            ..Default::default()
+        })
+        .unwrap();
+    assert_eq!(top.items[0].title, "Deux", "most played first");
+}
