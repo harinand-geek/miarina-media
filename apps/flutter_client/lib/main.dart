@@ -7,6 +7,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'app/app.dart';
 import 'app/database_problem.dart';
+import 'features/updates/updates_data.dart' show startUpdates;
 import 'app/launch_args.dart';
 import 'app/router.dart';
 import 'engine/engine_factory.dart';
@@ -39,6 +40,8 @@ Future<void> main(List<String> args) async {
     runApp(DatabaseProblemApp(open: opened));
     return;
   }
+  // Release builds: what an earlier update left is cleaned up or restored.
+  await startUpdates(opened.dbPath);
 
   final container = ProviderContainer();
   runApp(

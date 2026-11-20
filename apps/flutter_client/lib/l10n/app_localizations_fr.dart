@@ -3316,4 +3316,139 @@ class L10nFr extends L10n {
   String dbOpenFailed(String file, String reason) {
     return 'La bibliothèque de Miarina Media n’a pas pu être ouverte.\n\nFichier : $file\nDétail : $reason';
   }
+
+  @override
+  String get updConverting =>
+      'Conversion en cours : l’installation sera possible quand elle sera terminée';
+
+  @override
+  String get updNetwork =>
+      'Connexion au serveur de mises à jour perdue. Réessayez : un téléchargement reprend là où il s’est arrêté.';
+
+  @override
+  String updAvailable(String v) {
+    return 'Miarina $v est disponible';
+  }
+
+  @override
+  String get updBeta => 'Bêta';
+
+  @override
+  String updActive(String n) {
+    return '$n téléchargement(s) en cours : interrompus pendant l’installation, retrouvés en pause au redémarrage. Bibliothèque et réglages conservés.';
+  }
+
+  @override
+  String get updStopsPlayback => 'La lecture en cours sera arrêtée';
+
+  @override
+  String get updStopsSharing => 'Le partage torrent sera arrêté';
+
+  @override
+  String updReady(String v) {
+    return '$v est prête';
+  }
+
+  @override
+  String updDownloading(String v) {
+    return 'Téléchargement de $v…';
+  }
+
+  @override
+  String updInstalled(String v, String channel, String size) {
+    return 'Version installée $v · canal $channel · $size';
+  }
+
+  @override
+  String get updBadgeReady => 'Prête';
+
+  @override
+  String get updBadgeDownloading => 'Téléchargement';
+
+  @override
+  String get updBadge => 'Disponible';
+
+  @override
+  String get updProgress => 'Progression de la mise à jour';
+
+  @override
+  String updProgressText(String done, String size) {
+    return '$done / $size · vérification à la fin';
+  }
+
+  @override
+  String updPartial(String done, String size) {
+    return '$done / $size déjà téléchargés : la suite reprend où elle s’est arrêtée.';
+  }
+
+  @override
+  String get updVerified => 'Signature et SHA-256 vérifiées';
+
+  @override
+  String get updResume => 'Reprendre le téléchargement';
+
+  @override
+  String updDownload(String size) {
+    return 'Télécharger · $size';
+  }
+
+  @override
+  String get updInstalling => 'Ouverture de l’installation…';
+
+  @override
+  String get updInstall => 'Installer maintenant';
+
+  @override
+  String get updLater => 'Plus tard';
+
+  @override
+  String get updKeptReady => 'Mise à jour gardée prête.';
+
+  @override
+  String get updWindowsNote =>
+      'Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.';
+
+  @override
+  String get updChecking => 'Recherche…';
+
+  @override
+  String updLatest(String v) {
+    return 'Vous utilisez la dernière version ($v).';
+  }
+
+  @override
+  String get updAutoCheck =>
+      'Recherche automatique au démarrage et toutes les six heures.';
+
+  @override
+  String get updCheck => 'Rechercher une mise à jour';
+
+  @override
+  String get updChannel => 'Canal';
+
+  @override
+  String get updChannelDesc =>
+      'La bêta reçoit les nouveautés avant validation complète.';
+
+  @override
+  String get updAuto => 'Télécharger automatiquement';
+
+  @override
+  String get updAutoDesc =>
+      'Uniquement en Wi-Fi ou réseau non limité. L’installation reste toujours à votre demande.';
+
+  @override
+  String get setUpdates => 'Mises à jour';
+
+  @override
+  String get updView => 'Voir';
+
+  @override
+  String updVersion(String v) {
+    return 'Version $v';
+  }
+
+  @override
+  String get updDevBuild =>
+      'Version de développement : les mises à jour sont désactivées.';
 }

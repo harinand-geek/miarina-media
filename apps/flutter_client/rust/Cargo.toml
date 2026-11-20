@@ -19,13 +19,22 @@ storage = { path = "../../../crates/storage" }
 # Library indexing (W-O1): the same crates as the Tauri app.
 library = { path = "../../../crates/library" }
 download-engine = { path = "../../../crates/download-engine" }
-tokio = { version = "1.53.2", features = ["rt-multi-thread"] }
+tokio = { version = "1.53.2", features = ["rt-multi-thread", "fs", "io-util", "macros", "sync", "time"] }
 # Obtenir (download manager): the same crates as the Tauri app.
 media-core = { path = "../../../crates/media-core" }
 resource-manager = { path = "../../../crates/resource-manager" }
 tokio-util = { version = "0.7.19", default-features = false }
 # Built-in browser: addresses (same crate as the core and the Tauri app).
 url.workspace = true
+# App updates (plan R3): the same crates and versions as the Tauri app.
+reqwest = { version = "0.13.5", default-features = false, features = ["rustls", "http2", "system-proxy"] }
+ring = "0.17.14"
+sha2 = "=0.11.1"
+
+[features]
+# Recette builds only (docs/app-updates.md): a loopback update server and a
+# test key given at build time (MIARINA_UPDATE_TEST_BASE / _KEY).
+update-test-channel = []
 
 [lints.rust]
 # flutter_rust_bridge's generated code uses this cfg.
@@ -37,6 +46,9 @@ mdm-torrent = { path = "../../../vendor/misterdownloadmanager-source/crates/torr
 # Same versions as the Tauri app (apps/client/src-tauri/Cargo.toml).
 webview2-com = "=0.39.1"
 windows = { version = "=0.62.2", features = [
+    "Win32_Networking_NetworkListManager",
+    "Win32_System_Com",
+    "Win32_System_Power",
     "Win32_System_Threading",
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",

@@ -9,6 +9,7 @@ import '../features/import/import_data.dart';
 import '../features/mini/mini_player.dart' show TaskbarSync;
 import '../features/settings/settings_data.dart';
 import '../l10n/app_localizations.dart';
+import '../features/updates/updates_view.dart';
 import 'exit_guard.dart';
 import 'router.dart';
 
@@ -34,6 +35,7 @@ class MiarinaApp extends ConsumerWidget {
       title: 'Miarina Media',
       debugShowCheckedModeBanner: false,
       routerConfig: ref.watch(routerProvider),
+      scaffoldMessengerKey: rootMessengerKey,
       theme: buildMmTheme(MmColors.light),
       darkTheme: buildMmTheme(MmColors.dark),
       // Dark-first (design direction 3a); Settings › Appearance changes it.
@@ -55,7 +57,10 @@ class MiarinaApp extends ConsumerWidget {
           ),
           // Taskbar thumbnail buttons follow the queue (W-M4, Windows);
           // closing stops torrents and flushes downloads first.
-          child: ExitGuard(child: TaskbarSync(child: child!)),
+          // Updates are looked for after launch and every six hours.
+          child: ExitGuard(
+            child: UpdateMonitor(child: TaskbarSync(child: child!)),
+          ),
         );
       },
       localizationsDelegates: const [

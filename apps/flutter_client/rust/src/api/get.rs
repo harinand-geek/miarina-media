@@ -56,6 +56,17 @@ pub(crate) fn shutdown_downloads() {
     }
 }
 
+/// A conversion is running (UPD-04: an update would interrupt it).
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn converting() -> bool {
+    getter().is_ok_and(|g| {
+        g.manager.tasks().is_ok_and(|t| {
+            t.iter()
+                .any(|t| t.state == media_core::TaskState::Processing)
+        })
+    })
+}
+
 fn getter() -> Result<Arc<Getter>> {
     GETTER
         .lock()

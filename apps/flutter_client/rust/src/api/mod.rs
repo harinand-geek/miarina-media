@@ -12,3 +12,4 @@ pub mod search;
 pub mod settings;
 pub mod tags;
 pub mod torrents;
+pub mod updates;

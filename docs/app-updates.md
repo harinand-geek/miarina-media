@@ -2,6 +2,10 @@
 
 Since 0.1.7, Windows and Android check for a newer release after startup and every six hours while the UI is visible. Settings provides a manual check, download progress, cancel/resume and a separate installation action. Installation never starts automatically. The behaviour below is the one implemented for the next release (lot L09, 2026-11-12); 0.1.7 has the first version of it (no channel, no resume, no backup before migration).
 
+## Flutter app (0.2.x, Windows)
+
+The same mechanism, ported with its tests (plan R3, 2026-11-21): `apps/flutter_client/rust/src/update_engine.rs` (rules, files and tests of `updates.rs`; same manifest addresses, same pinned key file `apps/client/src-tauri/resources/update-public-key.bin`, same cache folder `%LOCALAPPDATA%\org.miarina.media`, same settings keys `update_channel` / `update_auto_download`), `api/updates.rs` (bridge), `features/updates/` (Settings › Updates with the 0.1.x texts, check 15 s after launch and every six hours while the app is in front). Only release builds (`MM_VERSION` given) check; a development build says updates are off. Installing starts the verified installer, then the app closes through its exit path (torrent session stopped, downloads flushed). The test channel is the cargo feature `update-test-channel` of `miarina_bridge`, with the same build-time variables.
+
 ## Manifest and authenticity (UPD-02)
 
 The manifest is an envelope with a UTF-8 `payload` JSON string and a hexadecimal Ed25519 signature over the exact payload bytes. Public keys are pinned in the application (`apps/client/src-tauri/resources/update-public-key.bin`; the code accepts a list of keys for rotation). The payload carries `channel` (`stable` or `beta`; absent means stable, as in 0.1.7 manifests) and one record per platform: numeric three-part version, release notes, URL, byte size and SHA-256.

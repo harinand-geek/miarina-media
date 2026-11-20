@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `apply_limits`, `check_ytdlp_update`, `clean_text`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
 
 /// Starts the download manager on the indexing runtime (call after

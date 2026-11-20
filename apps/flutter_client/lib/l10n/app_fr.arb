@@ -1978,5 +1978,123 @@
         "type": "String"
       }
     }
-  }
+  },
+  "updConverting": "Conversion en cours : l’installation sera possible quand elle sera terminée",
+  "updNetwork": "Connexion au serveur de mises à jour perdue. Réessayez : un téléchargement reprend là où il s’est arrêté.",
+  "updAvailable": "Miarina {v} est disponible",
+  "@updAvailable": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "updBeta": "Bêta",
+  "updActive": "{n} téléchargement(s) en cours : interrompus pendant l’installation, retrouvés en pause au redémarrage. Bibliothèque et réglages conservés.",
+  "@updActive": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "updStopsPlayback": "La lecture en cours sera arrêtée",
+  "updStopsSharing": "Le partage torrent sera arrêté",
+  "updReady": "{v} est prête",
+  "@updReady": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "updDownloading": "Téléchargement de {v}…",
+  "@updDownloading": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "updInstalled": "Version installée {v} · canal {channel} · {size}",
+  "@updInstalled": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      },
+      "channel": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "updBadgeReady": "Prête",
+  "updBadgeDownloading": "Téléchargement",
+  "updBadge": "Disponible",
+  "updProgress": "Progression de la mise à jour",
+  "updProgressText": "{done} / {size} · vérification à la fin",
+  "@updProgressText": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "updPartial": "{done} / {size} déjà téléchargés : la suite reprend où elle s’est arrêtée.",
+  "@updPartial": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "updVerified": "Signature et SHA-256 vérifiées",
+  "updResume": "Reprendre le téléchargement",
+  "updDownload": "Télécharger · {size}",
+  "@updDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "updInstalling": "Ouverture de l’installation…",
+  "updInstall": "Installer maintenant",
+  "updLater": "Plus tard",
+  "updKeptReady": "Mise à jour gardée prête.",
+  "updWindowsNote": "Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.",
+  "updChecking": "Recherche…",
+  "updLatest": "Vous utilisez la dernière version ({v}).",
+  "@updLatest": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "updAutoCheck": "Recherche automatique au démarrage et toutes les six heures.",
+  "updCheck": "Rechercher une mise à jour",
+  "updChannel": "Canal",
+  "updChannelDesc": "La bêta reçoit les nouveautés avant validation complète.",
+  "updAuto": "Télécharger automatiquement",
+  "updAutoDesc": "Uniquement en Wi-Fi ou réseau non limité. L’installation reste toujours à votre demande.",
+  "setUpdates": "Mises à jour",
+  "updView": "Voir",
+  "updVersion": "Version {v}",
+  "@updVersion": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "updDevBuild": "Version de développement : les mises à jour sont désactivées."
 }

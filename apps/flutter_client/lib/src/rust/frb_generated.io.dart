@@ -17,6 +17,7 @@ import 'api/search.dart';
 import 'api/settings.dart';
 import 'api/tags.dart';
 import 'api/torrents.dart';
+import 'api/updates.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -107,6 +108,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  UpdateRelease dco_decode_box_autoadd_update_release(dynamic raw);
 
   @protected
   BrowserEvent dco_decode_browser_event(dynamic raw);
@@ -355,6 +359,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
+  UpdateRelease? dco_decode_opt_box_autoadd_update_release(dynamic raw);
+
+  @protected
   PlaylistDetail dco_decode_playlist_detail(dynamic raw);
 
   @protected
@@ -422,6 +429,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void dco_decode_unit(dynamic raw);
+
+  @protected
+  UpdatePrefsInfo dco_decode_update_prefs_info(dynamic raw);
+
+  @protected
+  UpdateRelease dco_decode_update_release(dynamic raw);
+
+  @protected
+  UpdateStatusInfo dco_decode_update_status_info(dynamic raw);
 
   @protected
   WebviewSpikeInfo dco_decode_webview_spike_info(dynamic raw);
@@ -512,6 +528,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  UpdateRelease sse_decode_box_autoadd_update_release(
+    SseDeserializer deserializer,
+  );
 
   @protected
   BrowserEvent sse_decode_browser_event(SseDeserializer deserializer);
@@ -808,6 +829,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  UpdateRelease? sse_decode_opt_box_autoadd_update_release(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   PlaylistDetail sse_decode_playlist_detail(SseDeserializer deserializer);
 
   @protected
@@ -877,6 +903,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_decode_unit(SseDeserializer deserializer);
+
+  @protected
+  UpdatePrefsInfo sse_decode_update_prefs_info(SseDeserializer deserializer);
+
+  @protected
+  UpdateRelease sse_decode_update_release(SseDeserializer deserializer);
+
+  @protected
+  UpdateStatusInfo sse_decode_update_status_info(SseDeserializer deserializer);
 
   @protected
   WebviewSpikeInfo sse_decode_webview_spike_info(SseDeserializer deserializer);
@@ -1006,6 +1041,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_update_release(
+    UpdateRelease self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_browser_event(BrowserEvent self, SseSerializer serializer);
@@ -1392,6 +1433,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_update_release(
+    UpdateRelease? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_playlist_detail(
     PlaylistDetail self,
     SseSerializer serializer,
@@ -1474,6 +1521,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_unit(void self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_update_prefs_info(
+    UpdatePrefsInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_update_release(UpdateRelease self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_update_status_info(
+    UpdateStatusInfo self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_webview_spike_info(

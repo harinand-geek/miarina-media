@@ -3290,4 +3290,137 @@ class L10nEn extends L10n {
   String dbOpenFailed(String file, String reason) {
     return 'The Miarina Media library could not be opened.\n\nFile: $file\nDetails: $reason';
   }
+
+  @override
+  String get updConverting =>
+      'A conversion is running: you can install once it is finished';
+
+  @override
+  String get updNetwork =>
+      'Lost the connection to the update server. Try again: a download resumes where it stopped.';
+
+  @override
+  String updAvailable(String v) {
+    return 'Miarina $v is available';
+  }
+
+  @override
+  String get updBeta => 'Beta';
+
+  @override
+  String updActive(String n) {
+    return '$n active download(s): interrupted during the install, found paused on restart. Library and settings are kept.';
+  }
+
+  @override
+  String get updStopsPlayback => 'Current playback will stop';
+
+  @override
+  String get updStopsSharing => 'Torrent sharing will stop';
+
+  @override
+  String updReady(String v) {
+    return '$v is ready';
+  }
+
+  @override
+  String updDownloading(String v) {
+    return 'Downloading $v…';
+  }
+
+  @override
+  String updInstalled(String v, String channel, String size) {
+    return 'Installed version $v · $channel channel · $size';
+  }
+
+  @override
+  String get updBadgeReady => 'Ready';
+
+  @override
+  String get updBadgeDownloading => 'Downloading';
+
+  @override
+  String get updBadge => 'Available';
+
+  @override
+  String get updProgress => 'Update progress';
+
+  @override
+  String updProgressText(String done, String size) {
+    return '$done / $size · verified at the end';
+  }
+
+  @override
+  String updPartial(String done, String size) {
+    return '$done / $size already downloaded: the rest resumes where it stopped.';
+  }
+
+  @override
+  String get updVerified => 'Signature and SHA-256 verified';
+
+  @override
+  String get updResume => 'Resume download';
+
+  @override
+  String updDownload(String size) {
+    return 'Download · $size';
+  }
+
+  @override
+  String get updInstalling => 'Opening the installer…';
+
+  @override
+  String get updInstall => 'Install now';
+
+  @override
+  String get updLater => 'Later';
+
+  @override
+  String get updKeptReady => 'Update kept ready.';
+
+  @override
+  String get updWindowsNote =>
+      'Windows closes Miarina and opens the installer. Your library, playlists, playback positions and settings are kept. Nothing is installed without your consent.';
+
+  @override
+  String get updChecking => 'Checking…';
+
+  @override
+  String updLatest(String v) {
+    return 'You are on the latest version ($v).';
+  }
+
+  @override
+  String get updAutoCheck =>
+      'Checked automatically at startup and every six hours.';
+
+  @override
+  String get updCheck => 'Check for updates';
+
+  @override
+  String get updChannel => 'Channel';
+
+  @override
+  String get updChannelDesc => 'Beta gets new features before full validation.';
+
+  @override
+  String get updAuto => 'Download automatically';
+
+  @override
+  String get updAutoDesc =>
+      'Only on Wi-Fi or unmetered networks. Installation always waits for you.';
+
+  @override
+  String get setUpdates => 'Updates';
+
+  @override
+  String get updView => 'View';
+
+  @override
+  String updVersion(String v) {
+    return 'Version $v';
+  }
+
+  @override
+  String get updDevBuild => 'Development build: updates are turned off.';
 }

@@ -5382,6 +5382,222 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'La bibliothèque de Miarina Media n’a pas pu être ouverte.\n\nFichier : {file}\nDétail : {reason}'**
   String dbOpenFailed(String file, String reason);
+
+  /// No description provided for @updConverting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion en cours : l’installation sera possible quand elle sera terminée'**
+  String get updConverting;
+
+  /// No description provided for @updNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion au serveur de mises à jour perdue. Réessayez : un téléchargement reprend là où il s’est arrêté.'**
+  String get updNetwork;
+
+  /// No description provided for @updAvailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina {v} est disponible'**
+  String updAvailable(String v);
+
+  /// No description provided for @updBeta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bêta'**
+  String get updBeta;
+
+  /// No description provided for @updActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} téléchargement(s) en cours : interrompus pendant l’installation, retrouvés en pause au redémarrage. Bibliothèque et réglages conservés.'**
+  String updActive(String n);
+
+  /// No description provided for @updStopsPlayback.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture en cours sera arrêtée'**
+  String get updStopsPlayback;
+
+  /// No description provided for @updStopsSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le partage torrent sera arrêté'**
+  String get updStopsSharing;
+
+  /// No description provided for @updReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'{v} est prête'**
+  String updReady(String v);
+
+  /// No description provided for @updDownloading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement de {v}…'**
+  String updDownloading(String v);
+
+  /// No description provided for @updInstalled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version installée {v} · canal {channel} · {size}'**
+  String updInstalled(String v, String channel, String size);
+
+  /// No description provided for @updBadgeReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prête'**
+  String get updBadgeReady;
+
+  /// No description provided for @updBadgeDownloading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement'**
+  String get updBadgeDownloading;
+
+  /// No description provided for @updBadge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disponible'**
+  String get updBadge;
+
+  /// No description provided for @updProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Progression de la mise à jour'**
+  String get updProgress;
+
+  /// No description provided for @updProgressText.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} / {size} · vérification à la fin'**
+  String updProgressText(String done, String size);
+
+  /// No description provided for @updPartial.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} / {size} déjà téléchargés : la suite reprend où elle s’est arrêtée.'**
+  String updPartial(String done, String size);
+
+  /// No description provided for @updVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signature et SHA-256 vérifiées'**
+  String get updVerified;
+
+  /// No description provided for @updResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre le téléchargement'**
+  String get updResume;
+
+  /// No description provided for @updDownload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger · {size}'**
+  String updDownload(String size);
+
+  /// No description provided for @updInstalling.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouverture de l’installation…'**
+  String get updInstalling;
+
+  /// No description provided for @updInstall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer maintenant'**
+  String get updInstall;
+
+  /// No description provided for @updLater.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get updLater;
+
+  /// No description provided for @updKeptReady.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise à jour gardée prête.'**
+  String get updKeptReady;
+
+  /// No description provided for @updWindowsNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.'**
+  String get updWindowsNote;
+
+  /// No description provided for @updChecking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche…'**
+  String get updChecking;
+
+  /// No description provided for @updLatest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous utilisez la dernière version ({v}).'**
+  String updLatest(String v);
+
+  /// No description provided for @updAutoCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche automatique au démarrage et toutes les six heures.'**
+  String get updAutoCheck;
+
+  /// No description provided for @updCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une mise à jour'**
+  String get updCheck;
+
+  /// No description provided for @updChannel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Canal'**
+  String get updChannel;
+
+  /// No description provided for @updChannelDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'La bêta reçoit les nouveautés avant validation complète.'**
+  String get updChannelDesc;
+
+  /// No description provided for @updAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger automatiquement'**
+  String get updAuto;
+
+  /// No description provided for @updAutoDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Uniquement en Wi-Fi ou réseau non limité. L’installation reste toujours à votre demande.'**
+  String get updAutoDesc;
+
+  /// No description provided for @setUpdates.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mises à jour'**
+  String get setUpdates;
+
+  /// No description provided for @updView.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get updView;
+
+  /// No description provided for @updVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version {v}'**
+  String updVersion(String v);
+
+  /// No description provided for @updDevBuild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version de développement : les mises à jour sont désactivées.'**
+  String get updDevBuild;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
