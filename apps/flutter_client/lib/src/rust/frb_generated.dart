@@ -301,7 +301,9 @@ abstract class RustLibApi extends BaseApi {
     required bool favoritesOnly,
     String? album,
     String? artist,
-    required bool recent,
+    required String sort,
+    required bool reverse,
+    PlatformInt64? addedSince,
     required int offset,
     required int limit,
   });
@@ -2345,7 +2347,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     required bool favoritesOnly,
     String? album,
     String? artist,
-    required bool recent,
+    required String sort,
+    required bool reverse,
+    PlatformInt64? addedSince,
     required int offset,
     required int limit,
   }) {
@@ -2358,7 +2362,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           sse_encode_bool(favoritesOnly, serializer);
           sse_encode_opt_String(album, serializer);
           sse_encode_opt_String(artist, serializer);
-          sse_encode_bool(recent, serializer);
+          sse_encode_String(sort, serializer);
+          sse_encode_bool(reverse, serializer);
+          sse_encode_opt_box_autoadd_i_64(addedSince, serializer);
           sse_encode_u_32(offset, serializer);
           sse_encode_u_32(limit, serializer);
           pdeCallFfi(
@@ -2379,7 +2385,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           favoritesOnly,
           album,
           artist,
-          recent,
+          sort,
+          reverse,
+          addedSince,
           offset,
           limit,
         ],
@@ -2397,7 +2405,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           "favoritesOnly",
           "album",
           "artist",
-          "recent",
+          "sort",
+          "reverse",
+          "addedSince",
           "offset",
           "limit",
         ],
@@ -3304,6 +3314,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64 dco_decode_box_autoadd_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_i_64(raw);
+  }
+
+  @protected
   LibraryItem dco_decode_box_autoadd_library_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_library_item(raw);
@@ -4091,6 +4107,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64? dco_decode_opt_box_autoadd_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_i_64(raw);
+  }
+
+  @protected
   LibraryItem? dco_decode_opt_box_autoadd_library_item(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_library_item(raw);
@@ -4539,6 +4561,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_i_32(deserializer));
+  }
+
+  @protected
+  PlatformInt64 sse_decode_box_autoadd_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_i_64(deserializer));
   }
 
   @protected
@@ -5654,6 +5682,17 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  PlatformInt64? sse_decode_opt_box_autoadd_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_i_64(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   LibraryItem? sse_decode_opt_box_autoadd_library_item(
     SseDeserializer deserializer,
   ) {
@@ -6194,6 +6233,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_i_64(
+    PlatformInt64 self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_64(self, serializer);
   }
 
   @protected
@@ -7085,6 +7133,19 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_i_32(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_i_64(
+    PlatformInt64? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_i_64(self, serializer);
     }
   }
 

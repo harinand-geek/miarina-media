@@ -2912,4 +2912,106 @@ class L10nEn extends L10n {
 
   @override
   String get torPlanned => 'PLANNED';
+
+  @override
+  String filterMissingCount(int count) {
+    return 'Missing · $count';
+  }
+
+  @override
+  String get filterAddedThisMonth => 'Added this month';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count selected',
+      one: '1 selected',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playNext => 'Play next';
+
+  @override
+  String get addToQueue => 'Add to queue';
+
+  @override
+  String get addTo => 'Add to…';
+
+  @override
+  String get addToPlaylist => 'Add to a playlist…';
+
+  @override
+  String get addToPlaylistTitle => 'Add to a playlist';
+
+  @override
+  String get newPlaylistEllipsis => 'New playlist…';
+
+  @override
+  String get showInExplorer => 'Show in File Explorer';
+
+  @override
+  String get removeEllipsis => 'Remove…';
+
+  @override
+  String playNextDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The $count tracks will play next',
+      one: 'The track will play next',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String queueAddDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tracks added to the queue',
+      one: '1 track added to the queue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playlistAddDone(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tracks added to “$name”',
+      one: '1 track added to “$name”',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sortByColumn(String column) {
+    return 'Sort by $column';
+  }
+
+  @override
+  String get sortedAscending => 'ascending';
+
+  @override
+  String get sortedDescending => 'descending';
+
+  @override
+  String get clearSelection => 'Clear selection';
+
+  @override
+  String get playSelection => 'Play';
+
+  @override
+  String get keyEnter => 'Enter';
+
+  @override
+  String get keyCtrlEnter => 'Ctrl Enter';
+
+  @override
+  String get keyDelete => 'Del';
 }

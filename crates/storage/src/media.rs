@@ -140,6 +140,11 @@ pub enum MediaSort {
     Title,
     Size,
     Duration,
+    /// Track artist, else album artist; untagged entries last.
+    Artist,
+    Album,
+    /// Codec (audio) or container label, as shown in the Format column.
+    Format,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -153,7 +158,11 @@ pub struct MediaQuery {
     pub folder: Option<String>,
     /// Favorites only (COM-06).
     pub favorites: bool,
+    /// Entries added at or after this time (ms since the epoch).
+    pub added_since: Option<i64>,
     pub sort: MediaSort,
+    /// The opposite of the sort's usual direction.
+    pub reverse: bool,
     pub offset: u32,
     pub limit: u32,
 }
@@ -216,6 +225,48 @@ impl<'de> Deserialize<'de> for MediaKind {
 /// Turns user input into a safe FTS5 query: every word becomes a quoted
 /// prefix term (`"tear"* "ste"*`), so operators and quotes typed by the user
 /// are never interpreted.
+/// ORDER BY of a sort: its key in its usual direction (flipped by
+/// `reverse`), entries without a value last, then title and id.
+fn sort_order(sort: MediaSort, reverse: bool) -> String {
+    const FORMAT: &str =
+        "upper(coalesce(CASE WHEN m.kind = 'audio' THEN m.audio_codec END, m.container))";
+    let (key, descending) = match sort {
+        MediaSort::Added => ("m.added_at", true),
+        MediaSort::Title => ("m.title COLLATE NOCASE", false),
+        MediaSort::Size => ("m.size_bytes", true),
+        MediaSort::Duration => ("m.duration_secs", true),
+        MediaSort::Artist => ("coalesce(m.artist, m.album_artist) COLLATE NOCASE", false),
+        MediaSort::Album => ("m.album COLLATE NOCASE", false),
+        MediaSort::Format => (FORMAT, false),
+    };
+    let dir = if descending != reverse { "DESC" } else { "ASC" };
+    let tail = match sort {
+        MediaSort::Album => {
+            "coalesce(m.disc_no, 1), coalesce(m.track_no, 9999), m.title COLLATE NOCASE, m.id"
+        }
+        MediaSort::Title => "m.id",
+        // Entries indexed in the same instant: the newest one first.
+        MediaSort::Added | MediaSort::Size => {
+            if dir == "DESC" {
+                "m.id DESC"
+            } else {
+                "m.id"
+            }
+        }
+        _ => "m.title COLLATE NOCASE, m.id",
+    };
+    let key = key.split(" COLLATE").next().unwrap_or(key);
+    let collate = if matches!(
+        sort,
+        MediaSort::Title | MediaSort::Artist | MediaSort::Album
+    ) {
+        " COLLATE NOCASE"
+    } else {
+        ""
+    };
+    format!("({key}) IS NULL, {key}{collate} {dir}, {tail}")
+}
+
 pub fn fts_query(input: &str) -> Option<String> {
     let terms: Vec<String> = input
         .split(|c: char| !c.is_alphanumeric())
@@ -304,6 +355,10 @@ impl Storage {
         if query.favorites {
             conditions.push("m.favorite = 1".into());
         }
+        if let Some(since) = query.added_since {
+            conditions.push("m.added_at >= ?".into());
+            values.push(Value::Integer(since));
+        }
         if let Some(folder) = &query.folder {
             conditions.push("(m.path LIKE ? ESCAPE '!' OR m.path LIKE ? ESCAPE '!')".into());
             let escaped = folder
@@ -315,15 +370,12 @@ impl Storage {
             values.push(Value::Text(format!("{escaped}/%")));
         }
         let filter = conditions.join(" AND ");
-        let order = match query.sort {
+        let order = if query.album.is_some() && query.sort == MediaSort::Title && !query.reverse {
             // Within an album, disc and track order wins.
-            _ if query.album.is_some() => {
-                "coalesce(m.disc_no, 1), coalesce(m.track_no, 9999), m.title COLLATE NOCASE, m.id"
-            }
-            MediaSort::Added => "m.added_at DESC, m.id DESC",
-            MediaSort::Title => "m.title COLLATE NOCASE ASC, m.id",
-            MediaSort::Size => "m.size_bytes DESC, m.id DESC",
-            MediaSort::Duration => "coalesce(m.duration_secs, -1) DESC, m.id DESC",
+            "coalesce(m.disc_no, 1), coalesce(m.track_no, 9999), m.title COLLATE NOCASE, m.id"
+                .to_owned()
+        } else {
+            sort_order(query.sort, query.reverse)
         };
         let total: i64 = self.conn.query_row(
             &format!("SELECT count(*) FROM media m WHERE {filter}"),
@@ -707,11 +759,11 @@ impl Storage {
     }
 
     pub fn missing_count(&self) -> Result<u64> {
-        Ok(self.conn.query_row(
-            "SELECT count(*) FROM media WHERE missing = 1",
-            [],
-            |r| r.get::<_, i64>(0),
-        )? as u64)
+        Ok(self
+            .conn
+            .query_row("SELECT count(*) FROM media WHERE missing = 1", [], |r| {
+                r.get::<_, i64>(0)
+            })? as u64)
     }
 
     /// Present files as (id, path, size): a missing entry whose name and

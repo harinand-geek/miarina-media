@@ -110,10 +110,12 @@ pub fn library_summary(db_path: String, limit: u32) -> Result<LibrarySummary> {
     })
 }
 
-/// A page of audio tracks sorted by title, or newest first when
-/// `recent` (by disc and track within an album whatever the sort); `search`
-/// uses the library's full-text index (accent-insensitive), empty =
-/// everything. `album` / `artist` narrow to one group.
+/// A page of audio tracks. `sort`: title (default), artist, album, format,
+/// duration or added (newest first); `reverse` flips it; by disc and track
+/// within an album when sorted by title. `search` uses the library's
+/// full-text index (accent-insensitive), empty = everything. `album` /
+/// `artist` narrow to one group; `added_since` (ms since the epoch) to the
+/// tracks added since then.
 #[allow(clippy::too_many_arguments)]
 pub fn library_tracks(
     db_path: String,
@@ -121,10 +123,20 @@ pub fn library_tracks(
     favorites_only: bool,
     album: Option<String>,
     artist: Option<String>,
-    recent: bool,
+    sort: String,
+    reverse: bool,
+    added_since: Option<i64>,
     offset: u32,
     limit: u32,
 ) -> Result<LibraryPage> {
+    let sort = match sort.as_str() {
+        "artist" => MediaSort::Artist,
+        "album" => MediaSort::Album,
+        "format" => MediaSort::Format,
+        "duration" => MediaSort::Duration,
+        "added" => MediaSort::Added,
+        _ => MediaSort::Title,
+    };
     with_db(&db_path, |db| {
         let page = db.query_media(&MediaQuery {
             search,
@@ -132,11 +144,9 @@ pub fn library_tracks(
             favorites: favorites_only,
             album,
             artist,
-            sort: if recent {
-                MediaSort::Added
-            } else {
-                MediaSort::Title
-            },
+            sort,
+            reverse,
+            added_since,
             offset,
             limit: limit.clamp(1, 500),
             ..MediaQuery::default()

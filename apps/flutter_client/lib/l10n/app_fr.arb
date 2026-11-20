@@ -1747,5 +1747,72 @@
   "torSelection": "Sélectionnez au moins un fichier.",
   "torSessionChanged": "La session a changé : analysez le lien à nouveau.",
   "torPlannedHint": "Prévu dans un prochain lot : pas encore disponible.",
-  "torPlanned": "PRÉVU"
+  "torPlanned": "PRÉVU",
+  "filterMissingCount": "Introuvables · {count}",
+  "@filterMissingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "filterAddedThisMonth": "Ajoutés ce mois",
+  "selectedCount": "{count, plural, =1{1 sélectionné} other{{count} sélectionnés}}",
+  "@selectedCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playNext": "Lire ensuite",
+  "addToQueue": "Ajouter à la file",
+  "addTo": "Ajouter à…",
+  "addToPlaylist": "Ajouter à une playlist…",
+  "addToPlaylistTitle": "Ajouter à une playlist",
+  "newPlaylistEllipsis": "Nouvelle playlist…",
+  "showInExplorer": "Afficher dans l’Explorateur",
+  "removeEllipsis": "Retirer…",
+  "playNextDone": "{count, plural, =1{Le titre sera lu ensuite} other{Les {count} titres seront lus ensuite}}",
+  "@playNextDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "queueAddDone": "{count, plural, =1{1 titre ajouté à la file} other{{count} titres ajoutés à la file}}",
+  "@queueAddDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "playlistAddDone": "{count, plural, =1{1 titre ajouté à « {name} »} other{{count} titres ajoutés à « {name} »}}",
+  "@playlistAddDone": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "sortByColumn": "Trier par {column}",
+  "@sortByColumn": {
+    "placeholders": {
+      "column": {
+        "type": "String"
+      }
+    }
+  },
+  "sortedAscending": "tri croissant",
+  "sortedDescending": "tri décroissant",
+  "clearSelection": "Désélectionner",
+  "playSelection": "Lire",
+  "keyEnter": "Entrée",
+  "keyCtrlEnter": "Ctrl Entrée",
+  "keyDelete": "Suppr"
 }

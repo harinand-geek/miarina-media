@@ -4782,6 +4782,138 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'PRÉVU'**
   String get torPlanned;
+
+  /// No description provided for @filterMissingCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Introuvables · {count}'**
+  String filterMissingCount(int count);
+
+  /// No description provided for @filterAddedThisMonth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutés ce mois'**
+  String get filterAddedThisMonth;
+
+  /// No description provided for @selectedCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 sélectionné} other{{count} sélectionnés}}'**
+  String selectedCount(int count);
+
+  /// No description provided for @playNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire ensuite'**
+  String get playNext;
+
+  /// No description provided for @addToQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à la file'**
+  String get addToQueue;
+
+  /// No description provided for @addTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à…'**
+  String get addTo;
+
+  /// No description provided for @addToPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à une playlist…'**
+  String get addToPlaylist;
+
+  /// No description provided for @addToPlaylistTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à une playlist'**
+  String get addToPlaylistTitle;
+
+  /// No description provided for @newPlaylistEllipsis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle playlist…'**
+  String get newPlaylistEllipsis;
+
+  /// No description provided for @showInExplorer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher dans l’Explorateur'**
+  String get showInExplorer;
+
+  /// No description provided for @removeEllipsis.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer…'**
+  String get removeEllipsis;
+
+  /// No description provided for @playNextDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Le titre sera lu ensuite} other{Les {count} titres seront lus ensuite}}'**
+  String playNextDone(int count);
+
+  /// No description provided for @queueAddDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 titre ajouté à la file} other{{count} titres ajoutés à la file}}'**
+  String queueAddDone(int count);
+
+  /// No description provided for @playlistAddDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 titre ajouté à « {name} »} other{{count} titres ajoutés à « {name} »}}'**
+  String playlistAddDone(int count, String name);
+
+  /// No description provided for @sortByColumn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trier par {column}'**
+  String sortByColumn(String column);
+
+  /// No description provided for @sortedAscending.
+  ///
+  /// In fr, this message translates to:
+  /// **'tri croissant'**
+  String get sortedAscending;
+
+  /// No description provided for @sortedDescending.
+  ///
+  /// In fr, this message translates to:
+  /// **'tri décroissant'**
+  String get sortedDescending;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désélectionner'**
+  String get clearSelection;
+
+  /// No description provided for @playSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire'**
+  String get playSelection;
+
+  /// No description provided for @keyEnter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée'**
+  String get keyEnter;
+
+  /// No description provided for @keyCtrlEnter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ctrl Entrée'**
+  String get keyCtrlEnter;
+
+  /// No description provided for @keyDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suppr'**
+  String get keyDelete;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

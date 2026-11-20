@@ -214,6 +214,12 @@ class FakeLibraryApi implements LibraryApi {
   final List<LibraryItem> items;
   final favoriteCalls = <(int, bool)>[];
 
+  /// Ids counted as added since any date asked ("Ajoutés ce mois").
+  Set<int> addedRecently = {};
+
+  /// Sorts asked, in order.
+  final sorts = <(TrackSort, bool)>[];
+
   @override
   Future<LibraryPage> tracks({
     required String search,
@@ -223,12 +229,17 @@ class FakeLibraryApi implements LibraryApi {
     String? album,
     String? artist,
     bool recent = false,
+    TrackSort sort = TrackSort.title,
+    bool reverse = false,
+    DateTime? addedSince,
   }) async {
     bool same(String? a, String? b) => a?.toLowerCase() == b?.toLowerCase();
+    if (offset == 0) sorts.add((sort, reverse));
     var list = items
         .where((i) => !favoritesOnly || i.favorite)
         .where((i) => album == null || same(i.album, album))
         .where((i) => artist == null || same(i.artist, artist))
+        .where((i) => addedSince == null || addedRecently.contains(i.id))
         .toList();
     if (search.isNotEmpty) {
       list = list
@@ -240,6 +251,20 @@ class FakeLibraryApi implements LibraryApi {
     } else if (recent) {
       // Newest first: higher ids were added later in these fixtures.
       list.sort((a, b) => b.id.compareTo(a.id));
+    } else if (sort != TrackSort.title || reverse) {
+      int by(LibraryItem a, LibraryItem b) => switch (sort) {
+        TrackSort.artist => (a.artist ?? '~').compareTo(b.artist ?? '~'),
+        TrackSort.album => (a.album ?? '~').compareTo(b.album ?? '~'),
+        TrackSort.format => (a.format ?? '~').compareTo(b.format ?? '~'),
+        TrackSort.duration => (b.durationSecs ?? -1).compareTo(
+          a.durationSecs ?? -1,
+        ),
+        TrackSort.added => b.id.compareTo(a.id),
+        TrackSort.title => a.title.toLowerCase().compareTo(
+          b.title.toLowerCase(),
+        ),
+      };
+      list.sort(reverse ? (a, b) => by(b, a) : by);
     }
     final page = list.skip(offset).take(limit).toList();
     return LibraryPage(items: page, total: BigInt.from(list.length));

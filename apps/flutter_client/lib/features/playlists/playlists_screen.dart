@@ -943,6 +943,130 @@ Future<void> showNewPlaylistDialog(BuildContext context, WidgetRef ref) async {
   }
 }
 
+/// "Ajouter à une playlist…": [mediaIds] go at the end of a chosen playlist,
+/// or into a new one. Says what was done.
+Future<void> showAddToPlaylistDialog(
+  BuildContext context,
+  WidgetRef ref,
+  List<int> mediaIds,
+) async {
+  if (mediaIds.isEmpty) return;
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  final t = L10n.of(context);
+  final chosen = await showDialog<_PlaylistChoice>(
+    context: context,
+    builder: (context) => const _AddToPlaylistDialog(),
+  );
+  if (chosen == null || !context.mounted) return;
+  PlaylistInfo? target = chosen.playlist;
+  if (target == null) {
+    target = await showDialog<PlaylistInfo>(
+      context: context,
+      builder: (context) => _NameDialog(
+        create: true,
+        onSave: (name, _) =>
+            editPlaylists(ref, (api) => api.create(name, mediaIds)),
+      ),
+    );
+    if (target == null) return;
+  } else {
+    final id = target.id;
+    await editPlaylists(ref, (api) => api.add(id, mediaIds), id: id);
+  }
+  messenger?.showSnackBar(
+    SnackBar(content: Text(t.playlistAddDone(mediaIds.length, target.name))),
+  );
+}
+
+/// A playlist, or null for "Nouvelle playlist…".
+class _PlaylistChoice {
+  const _PlaylistChoice(this.playlist);
+
+  final PlaylistInfo? playlist;
+}
+
+class _AddToPlaylistDialog extends ConsumerWidget {
+  const _AddToPlaylistDialog();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final lists = ref.watch(playlistsProvider).value ?? const <PlaylistInfo>[];
+    Widget row(IconData icon, String label, String? sub, _PlaylistChoice v) =>
+        Pressable(
+          onTap: () => Navigator.of(context).pop(v),
+          semanticLabel: label,
+          borderRadius: BorderRadius.circular(MmRadius.md),
+          hoverColor: c.cardHover,
+          pressScale: 1,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 9),
+            child: Row(
+              children: [
+                Icon(icon, size: 18, color: c.muted),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: MmType.label.copyWith(color: c.fg),
+                  ),
+                ),
+                if (sub != null)
+                  Text(sub, style: MmType.caption.copyWith(color: c.faint)),
+              ],
+            ),
+          ),
+        );
+    return AlertDialog(
+      backgroundColor: c.surface2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MmRadius.sheet),
+        side: BorderSide(color: c.overlayBorder),
+      ),
+      title: Text(
+        t.addToPlaylistTitle,
+        style: MmType.title.copyWith(color: c.fg),
+      ),
+      content: SizedBox(
+        width: 400,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 360),
+          child: ListView(
+            shrinkWrap: true,
+            children: [
+              row(
+                PhosphorRegular.plus,
+                t.newPlaylistEllipsis,
+                null,
+                const _PlaylistChoice(null),
+              ),
+              for (final p in lists)
+                row(
+                  PhosphorRegular.playlist,
+                  p.name,
+                  t.tracksSummary(p.count),
+                  _PlaylistChoice(p),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            t.cancel,
+            style: MmType.labelStrong.copyWith(color: c.fg),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 Future<void> showRenameDialog(
   BuildContext context,
   WidgetRef ref,

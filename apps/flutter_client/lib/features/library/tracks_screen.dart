@@ -1,12 +1,17 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:flutter/gestures.dart' show kPrimaryButton;
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../get/get_screens.dart' show revealProvider;
+import '../health/health_data.dart';
 import '../health/health_screens.dart' show locateMissing;
+import '../playlists/playlists_screen.dart' show showAddToPlaylistDialog;
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../common/state_views.dart';
@@ -44,7 +49,16 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
   Object? _error;
   String _search = '';
   late final bool _favoritesOnly = widget.favorites;
+  TrackSort _sort = TrackSort.title;
+  bool _reverse = false;
+  bool _addedThisMonth = false;
+
+  /// Keyboard cursor (index into [_items]).
   int? _selected;
+
+  /// Selected rows (library ids); [_anchor] starts Shift ranges.
+  final _picked = <int>{};
+  int? _anchor;
   int _generation = 0;
   Timer? _debounce;
   final _listFocus = FocusNode(debugLabel: 'tracks');
@@ -68,6 +82,8 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       _items.clear();
       _total = 0;
       _selected = null;
+      _picked.clear();
+      _anchor = null;
       _error = null;
     });
     await _loadMore();
@@ -83,6 +99,9 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
           .tracks(
             search: _search,
             favoritesOnly: _favoritesOnly,
+            sort: _sort,
+            reverse: _reverse,
+            addedSince: _addedThisMonth ? _monthStart(DateTime.now()) : null,
             offset: _items.length,
             limit: _pageSize,
           );
@@ -119,6 +138,268 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
     ref.read(queueProvider.notifier).playAll(entries, start: index);
   }
 
+  /// The selected rows in table order; the cursor row when none is.
+  List<LibraryItem> get _chosen {
+    if (_picked.isNotEmpty) {
+      return [
+        for (final i in _items)
+          if (_picked.contains(i.id)) i,
+      ];
+    }
+    final s = _selected;
+    return s == null ? const [] : [_items[s]];
+  }
+
+  List<QueueEntry> _entries(List<LibraryItem> items) {
+    final t = L10n.of(context);
+    return [
+      for (final i in items)
+        if (!i.missing) queueEntryOf(i, unknownArtist: t.unknownArtist),
+    ];
+  }
+
+  /// "Lire" on the selection: several rows play on their own, in order.
+  void _playChosen() {
+    final chosen = _chosen;
+    if (chosen.length == 1) {
+      _play(_items.indexOf(chosen.single));
+    } else if (chosen.isNotEmpty) {
+      ref.read(queueProvider.notifier).playAll(_entries(chosen), inOrder: true);
+    }
+  }
+
+  Future<void> _enqueue({required bool next}) async {
+    final entries = _entries(_chosen);
+    if (entries.isEmpty) return;
+    final t = L10n.of(context);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    await ref.read(queueProvider.notifier).enqueue(entries, next: next);
+    messenger?.showSnackBar(
+      SnackBar(
+        content: Text(
+          next
+              ? t.playNextDone(entries.length)
+              : t.queueAddDone(entries.length),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addToPlaylist() =>
+      showAddToPlaylistDialog(context, ref, [for (final i in _chosen) i.id]);
+
+  Future<void> _reveal() async {
+    final chosen = _chosen;
+    if (chosen.length != 1) return;
+    await ref.read(revealProvider)(chosen.single.path, select: true);
+  }
+
+  /// "Retirer…": out of the library after a confirmation; files stay.
+  Future<void> _remove() async {
+    final chosen = _chosen;
+    if (chosen.isEmpty) return;
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: c.surface2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MmRadius.sheet),
+          side: BorderSide(color: c.overlayBorder),
+        ),
+        title: Text(
+          t.missingRemoveTitle(chosen.length),
+          style: MmType.title.copyWith(color: c.fg),
+        ),
+        content: SizedBox(
+          width: 440,
+          child: Text(
+            t.missingRemoveBody,
+            style: MmType.body.copyWith(color: c.fgSoft),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              t.cancel,
+              style: MmType.labelStrong.copyWith(color: c.fg),
+            ),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: c.danger,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(t.remove, style: MmType.labelStrong),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    await ref.read(healthApiProvider).remove([for (final i in chosen) i.id]);
+    ref
+      ..invalidate(favoritesCountProvider)
+      ..invalidate(healthCountsProvider);
+    await _reload();
+  }
+
+  /// Ctrl / Shift as they were when the button went down: the click itself
+  /// comes after the double-click delay, when they may be released.
+  /// Per row: another row's pending click may land in between.
+  final _downKeys = <int, (bool, bool)>{};
+
+  void _pointerDown(int i) {
+    final keys = HardwareKeyboard.instance;
+    _downKeys[i] = (keys.isControlPressed, keys.isShiftPressed);
+  }
+
+  /// Click: one row; Ctrl: add or take out; Shift: a range from the anchor.
+  void _click(int i) {
+    _listFocus.requestFocus();
+    final (ctrl, shift) = _downKeys.remove(i) ?? (false, false);
+    final id = _items[i].id;
+    setState(() {
+      if (shift && _anchor != null) {
+        final a = math.min(_anchor!, i), b = math.max(_anchor!, i);
+        if (!ctrl) _picked.clear();
+        _picked.addAll([for (var k = a; k <= b; k++) _items[k].id]);
+      } else if (ctrl) {
+        if (!_picked.remove(id)) _picked.add(id);
+        _anchor = i;
+      } else {
+        _picked
+          ..clear()
+          ..add(id);
+        _anchor = i;
+      }
+      _selected = i;
+    });
+  }
+
+  void _setSort(TrackSort sort) {
+    setState(() {
+      _reverse = sort == _sort && !_reverse;
+      _sort = sort;
+    });
+    _reload();
+  }
+
+  Future<void> _openMenu(int i, Offset at) async {
+    if (!_picked.contains(_items[i].id)) _click(i);
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final chosen = _chosen;
+    final single = chosen.length == 1 ? chosen.single : null;
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    final action = await showMenu<_Act>(
+      context: context,
+      position: RelativeRect.fromRect(
+        at & const Size(1, 1),
+        Offset.zero & overlay.size,
+      ),
+      color: c.surface2,
+      constraints: const BoxConstraints.tightFor(width: 250),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: c.overlayBorder),
+      ),
+      menuPadding: const EdgeInsets.all(6),
+      items: [
+        if (single?.missing ?? false)
+          _item(_Act.play, PhosphorRegular.magnifyingGlass, t.missingLocate)
+        else
+          _item(
+            _Act.play,
+            PhosphorFill.play,
+            t.playSelection,
+            keys: t.keyEnter,
+            accent: true,
+          ),
+        _item(
+          _Act.playNext,
+          PhosphorRegular.playlist,
+          t.playNext,
+          keys: t.keyCtrlEnter,
+        ),
+        _item(_Act.queue, PhosphorRegular.queue, t.addToQueue),
+        _item(_Act.playlist, PhosphorRegular.listPlus, t.addToPlaylist),
+        if (single != null && Platform.isWindows) ...[
+          const PopupMenuDivider(height: 9),
+          _item(_Act.reveal, PhosphorRegular.folderOpen, t.showInExplorer),
+        ],
+        const PopupMenuDivider(height: 9),
+        _item(
+          _Act.remove,
+          PhosphorRegular.minusCircle,
+          t.removeEllipsis,
+          keys: t.keyDelete,
+          danger: true,
+        ),
+      ],
+    );
+    if (!mounted || action == null) return;
+    _run(action);
+  }
+
+  void _run(_Act action) {
+    switch (action) {
+      case _Act.play:
+        _playChosen();
+      case _Act.playNext:
+        unawaited(_enqueue(next: true));
+      case _Act.queue:
+        unawaited(_enqueue(next: false));
+      case _Act.playlist:
+        unawaited(_addToPlaylist());
+      case _Act.reveal:
+        unawaited(_reveal());
+      case _Act.remove:
+        unawaited(_remove());
+    }
+  }
+
+  PopupMenuItem<_Act> _item(
+    _Act value,
+    IconData icon,
+    String label, {
+    String? keys,
+    bool accent = false,
+    bool danger = false,
+  }) {
+    final c = MmColors.of(context);
+    return PopupMenuItem<_Act>(
+      value: value,
+      height: 34,
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Icon(
+            icon,
+            size: 18,
+            color: danger ? c.danger : (accent ? c.coralStrong : c.muted),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              label,
+              style: MmType.label.copyWith(
+                color: danger ? c.danger : c.fg,
+                fontWeight: FontWeight.w600,
+                fontSize: 13,
+              ),
+            ),
+          ),
+          if (keys != null)
+            Text(keys, style: MmType.monoStyle(size: 10.5, color: c.faint)),
+        ],
+      ),
+    );
+  }
+
   Future<void> _toggleFavorite(int index) async {
     final item = _items[index];
     await ref
@@ -133,23 +414,63 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
     });
   }
 
+  void _moveCursor(int to, {required bool extend}) {
+    final i = to.clamp(0, _items.length - 1);
+    setState(() {
+      if (extend && _anchor != null) {
+        final a = math.min(_anchor!, i), b = math.max(_anchor!, i);
+        _picked
+          ..clear()
+          ..addAll([for (var k = a; k <= b; k++) _items[k].id]);
+      } else {
+        _picked
+          ..clear()
+          ..add(_items[i].id);
+        _anchor = i;
+      }
+      _selected = i;
+    });
+  }
+
   KeyEventResult _onKey(FocusNode node, KeyEvent e) {
     if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
     if (_items.isEmpty) return KeyEventResult.ignored;
+    final keys = HardwareKeyboard.instance;
+    final key = e.logicalKey;
     final s = _selected ?? -1;
-    if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
-      setState(() => _selected = (s + 1).clamp(0, _items.length - 1));
-    } else if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
-      setState(() => _selected = (s - 1).clamp(0, _items.length - 1));
-    } else if (e.logicalKey == LogicalKeyboardKey.enter && _selected != null) {
-      _play(_selected!);
+    if (key == LogicalKeyboardKey.arrowDown) {
+      _moveCursor(s + 1, extend: keys.isShiftPressed);
+    } else if (key == LogicalKeyboardKey.arrowUp) {
+      _moveCursor(s - 1, extend: keys.isShiftPressed);
+    } else if (key == LogicalKeyboardKey.keyA && keys.isControlPressed) {
+      setState(() => _picked.addAll([for (final i in _items) i.id]));
+    } else if (key == LogicalKeyboardKey.escape && _picked.isNotEmpty) {
+      setState(_picked.clear);
+    } else if (key == LogicalKeyboardKey.enter && _chosen.isNotEmpty) {
+      if (keys.isControlPressed) {
+        unawaited(_enqueue(next: true));
+      } else if (_picked.length > 1) {
+        _playChosen();
+      } else {
+        _play(s < 0 ? 0 : s);
+      }
+    } else if (key == LogicalKeyboardKey.delete && _chosen.isNotEmpty) {
+      unawaited(_remove());
+    } else if ((key == LogicalKeyboardKey.contextMenu ||
+            (key == LogicalKeyboardKey.f10 && keys.isShiftPressed)) &&
+        s >= 0) {
+      final box = context.findRenderObject() as RenderBox?;
+      final at = box?.localToGlobal(const Offset(240, 160)) ?? Offset.zero;
+      unawaited(_openMenu(s, at));
     } else {
       return KeyEventResult.ignored;
     }
     return KeyEventResult.handled;
   }
+
+  static DateTime _monthStart(DateTime now) => DateTime(now.year, now.month);
 
   @override
   Widget build(BuildContext context) {
@@ -194,28 +515,151 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             ],
           ),
           const SizedBox(height: 14),
-          Row(
-            children: [
-              _Chip(
-                label: t.filterAll,
-                on: !_favoritesOnly,
-                onTap: _favoritesOnly ? () => context.go(Routes.tracks) : null,
-              ),
-              const SizedBox(width: 8),
-              _Chip(
-                label: t.navFavorites,
-                on: _favoritesOnly,
-                onTap: _favoritesOnly
-                    ? null
-                    : () => context.go(Routes.favorites),
-              ),
-            ],
+          SizedBox(
+            height: 30,
+            child: Row(
+              children: [
+                ..._chips(t, height: 30),
+                const Spacer(),
+                if (_picked.length > 1) _selectionBar(c, t),
+              ],
+            ),
           ),
           const SizedBox(height: 14),
-          _HeaderRow(compact: compact),
+          _HeaderRow(
+            compact: compact,
+            sort: _sort,
+            reverse: _reverse,
+            onSort: _setSort,
+          ),
           Expanded(child: _body(c, t, playingId, compact)),
         ],
       ),
+    );
+  }
+
+  /// Tous / Favoris (the sidebar entries), Introuvables · N (the W-O2
+  /// screen, shown when files are missing), Ajoutés ce mois (a filter).
+  /// "Jamais écoutés" and "Hi-res" wait for play counts and audio details
+  /// in the core: not shown.
+  List<Widget> _chips(L10n t, {required double height}) {
+    final missing = ref.watch(healthCountsProvider).value?.missing.toInt() ?? 0;
+    return [
+      _Chip(
+        label: t.filterAll,
+        on: !_favoritesOnly && !_addedThisMonth,
+        height: height,
+        onTap: _favoritesOnly
+            ? () => context.go(Routes.tracks)
+            : (_addedThisMonth ? _toggleAddedThisMonth : null),
+      ),
+      const SizedBox(width: 8),
+      _Chip(
+        label: t.navFavorites,
+        on: _favoritesOnly,
+        height: height,
+        onTap: _favoritesOnly ? null : () => context.go(Routes.favorites),
+      ),
+      if (missing > 0) ...[
+        const SizedBox(width: 8),
+        _Chip(
+          label: t.filterMissingCount(missing),
+          on: false,
+          height: height,
+          onTap: () => context.go(Routes.missing),
+        ),
+      ],
+      const SizedBox(width: 8),
+      _Chip(
+        label: t.filterAddedThisMonth,
+        on: _addedThisMonth,
+        height: height,
+        onTap: _toggleAddedThisMonth,
+      ),
+    ];
+  }
+
+  void _toggleAddedThisMonth() {
+    setState(() => _addedThisMonth = !_addedThisMonth);
+    _reload();
+  }
+
+  /// "2 sélectionnés · Lire ensuite · Ajouter à…" (mockup W-M1c).
+  Widget _selectionBar(MmColors c, L10n t) {
+    final strong = MmType.captionStrong.copyWith(fontSize: 12.5, color: c.fg);
+    Widget link(String label, VoidCallback onTap) => Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      pressScale: 0.96,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        child: Text(label, style: strong),
+      ),
+    );
+    final dot = Text(
+      ' · ',
+      style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
+    );
+    return Row(
+      children: [
+        Text(
+          t.selectedCount(_picked.length),
+          style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
+        ),
+        dot,
+        link(t.playNext, () => _enqueue(next: true)),
+        dot,
+        MenuAnchor(
+          style: MenuStyle(
+            backgroundColor: WidgetStatePropertyAll(c.surface2),
+            shape: WidgetStatePropertyAll(
+              RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+                side: BorderSide(color: c.overlayBorder),
+              ),
+            ),
+          ),
+          menuChildren: [
+            MenuItemButton(
+              leadingIcon: Icon(
+                PhosphorRegular.queue,
+                size: 18,
+                color: c.muted,
+              ),
+              onPressed: () => _enqueue(next: false),
+              child: Text(
+                t.addToQueue,
+                style: MmType.label.copyWith(color: c.fg),
+              ),
+            ),
+            MenuItemButton(
+              leadingIcon: Icon(
+                PhosphorRegular.listPlus,
+                size: 18,
+                color: c.muted,
+              ),
+              onPressed: _addToPlaylist,
+              child: Text(
+                t.addToPlaylist,
+                style: MmType.label.copyWith(color: c.fg),
+              ),
+            ),
+          ],
+          builder: (context, menu, _) =>
+              link(t.addTo, () => menu.isOpen ? menu.close() : menu.open()),
+        ),
+        const SizedBox(width: 6),
+        Pressable(
+          onTap: () => setState(_picked.clear),
+          semanticLabel: t.clearSelection,
+          tooltip: t.clearSelection,
+          pressScale: 0.9,
+          child: Padding(
+            padding: const EdgeInsets.all(4),
+            child: Icon(PhosphorRegular.x, size: 16, color: c.muted),
+          ),
+        ),
+      ],
     );
   }
 
@@ -246,23 +690,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
           child: ListView(
             scrollDirection: Axis.horizontal,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: [
-              _Chip(
-                label: t.filterAll,
-                on: !_favoritesOnly,
-                height: 34,
-                onTap: _favoritesOnly ? () => context.go(Routes.tracks) : null,
-              ),
-              const SizedBox(width: 8),
-              _Chip(
-                label: t.navFavorites,
-                on: _favoritesOnly,
-                height: 34,
-                onTap: _favoritesOnly
-                    ? null
-                    : () => context.go(Routes.favorites),
-              ),
-            ],
+            children: _chips(t, height: 34),
           ),
         ),
         Padding(
@@ -424,12 +852,11 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             index: i,
             item: item,
             compact: compact,
-            selected: _selected == i,
+            selected: _picked.contains(item.id),
             playing: playingId == item.id,
-            onSelect: () {
-              _listFocus.requestFocus();
-              setState(() => _selected = i);
-            },
+            onDown: () => _pointerDown(i),
+            onSelect: () => _click(i),
+            onMenu: (at) => _openMenu(i, at),
             onPlay: () => _play(i),
             onFavorite: () => _toggleFavorite(i),
           );
@@ -458,16 +885,72 @@ List<Widget> _grid(List<Widget> cells, {required bool compact}) {
 }
 
 class _HeaderRow extends StatelessWidget {
-  const _HeaderRow({required this.compact});
+  const _HeaderRow({
+    required this.compact,
+    required this.sort,
+    required this.reverse,
+    required this.onSort,
+  });
 
   final bool compact;
+  final TrackSort sort;
+  final bool reverse;
+  final ValueChanged<TrackSort> onSort;
 
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final style = MmType.overline.copyWith(color: c.faint);
-    Text h(String s) => Text(s.toUpperCase(), style: style);
+    // Duration starts with the longest; the others from A.
+    final ascending = (sort == TrackSort.duration) == reverse;
+    Widget h(String label, TrackSort by, {bool end = false}) {
+      final on = sort == by;
+      final button = Pressable(
+        onTap: () => onSort(by),
+        semanticLabel: [
+          t.sortByColumn(label),
+          if (on) ascending ? t.sortedAscending : t.sortedDescending,
+        ].join(', '),
+        selected: on,
+        pressScale: 1,
+        borderRadius: BorderRadius.circular(6),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: Text(
+                  label.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: on ? style.copyWith(color: c.fg) : style,
+                ),
+              ),
+              if (on) ...[
+                const SizedBox(width: 4),
+                RotatedBox(
+                  quarterTurns: ascending ? 0 : 2,
+                  child: Icon(PhosphorRegular.arrowUp, size: 13, color: c.fg),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+      // The 60 px Durée column: a longer label ("DURATION", or with the
+      // arrow) runs into the free end of Format rather than being cut.
+      return end
+          ? OverflowBox(
+              alignment: Alignment.centerRight,
+              minWidth: 0,
+              maxWidth: 140,
+              child: button,
+            )
+          : Align(alignment: Alignment.centerLeft, child: button);
+    }
+
     return Container(
       height: 34,
       padding: const EdgeInsets.symmetric(horizontal: 10),
@@ -476,21 +959,12 @@ class _HeaderRow extends StatelessWidget {
       ),
       child: Row(
         children: _grid([
-          h('#'),
-          Row(
-            children: [
-              Text(
-                t.colTitle.toUpperCase(),
-                style: style.copyWith(color: c.fg),
-              ),
-              const SizedBox(width: 4),
-              Icon(PhosphorRegular.arrowUp, size: 13, color: c.fg),
-            ],
-          ),
-          h(t.colArtist),
-          h(t.colAlbum),
-          h(t.colFormat),
-          Align(alignment: Alignment.centerRight, child: h(t.colDuration)),
+          Text('#', style: style),
+          h(t.colTitle, TrackSort.title),
+          h(t.colArtist, TrackSort.artist),
+          h(t.colAlbum, TrackSort.album),
+          h(t.colFormat, TrackSort.format),
+          h(t.colDuration, TrackSort.duration, end: true),
           const SizedBox(),
         ], compact: compact),
       ),
@@ -505,7 +979,9 @@ class _TrackRow extends StatelessWidget {
     required this.compact,
     required this.selected,
     required this.playing,
+    required this.onDown,
     required this.onSelect,
+    required this.onMenu,
     required this.onPlay,
     required this.onFavorite,
   });
@@ -515,7 +991,9 @@ class _TrackRow extends StatelessWidget {
   final bool compact;
   final bool selected;
   final bool playing;
+  final VoidCallback onDown;
   final VoidCallback onSelect;
+  final ValueChanged<Offset> onMenu;
   final VoidCallback onPlay;
   final VoidCallback onFavorite;
 
@@ -526,112 +1004,131 @@ class _TrackRow extends StatelessWidget {
     final muted = MmType.bodySm.copyWith(color: c.muted);
     final duration = item.durationSecs;
     final bg = playing ? c.surface : (selected ? c.selected : null);
-    return Opacity(
-      opacity: item.missing ? 0.72 : 1,
-      child: Pressable(
-        onTap: onSelect,
-        onDoubleTap: onPlay,
-        semanticLabel: '${item.title}, ${item.artist ?? t.unknownArtist}',
-        selected: selected,
-        pressScale: 1,
-        hoverColor: bg == null ? c.cardHover : null,
-        borderRadius: BorderRadius.circular(10),
-        child: AnimatedContainer(
-          duration: MmMotion.of(context).hover,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          decoration: BoxDecoration(
-            color: bg,
+    return Listener(
+      onPointerDown: (e) {
+        if (e.buttons == kPrimaryButton) onDown();
+      },
+      child: GestureDetector(
+        onSecondaryTapUp: (d) => onMenu(d.globalPosition),
+        child: Opacity(
+          opacity: item.missing ? 0.72 : 1,
+          child: Pressable(
+            onTap: onSelect,
+            onDoubleTap: onPlay,
+            semanticLabel: '${item.title}, ${item.artist ?? t.unknownArtist}',
+            selected: selected,
+            pressScale: 1,
+            hoverColor: bg == null ? c.cardHover : null,
             borderRadius: BorderRadius.circular(10),
-          ),
-          child: Row(
-            children: _grid([
-              playing
-                  ? Icon(PhosphorFill.equalizer, size: 16, color: c.coralStrong)
-                  : Text(
-                      '${index + 1}',
-                      style: MmType.monoStyle(size: 12, color: c.faint),
-                    ),
-              Row(
-                children: [
-                  CoverArt(size: 32, radius: 6, seed: item.id, shadow: false),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.labelStrong.copyWith(
-                            color: playing ? c.coralStrong : c.fg,
-                          ),
+            child: AnimatedContainer(
+              duration: MmMotion.of(context).hover,
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              decoration: BoxDecoration(
+                color: bg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Row(
+                children: _grid([
+                  playing
+                      ? Icon(
+                          PhosphorFill.equalizer,
+                          size: 16,
+                          color: c.coralStrong,
+                        )
+                      : Text(
+                          '${index + 1}',
+                          style: MmType.monoStyle(size: 12, color: c.faint),
                         ),
-                        if (item.missing)
-                          Text(
-                            '${t.fileMissing} · ${t.locate}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: MmType.caption.copyWith(
-                              color: c.warning,
-                              fontSize: 11.5,
+                  Row(
+                    children: [
+                      CoverArt(
+                        size: 32,
+                        radius: 6,
+                        seed: item.id,
+                        shadow: false,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              item.title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: MmType.labelStrong.copyWith(
+                                color: playing ? c.coralStrong : c.fg,
+                              ),
                             ),
-                          ),
-                      ],
+                            if (item.missing)
+                              Text(
+                                '${t.fileMissing} · ${t.locate}',
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: MmType.caption.copyWith(
+                                  color: c.warning,
+                                  fontSize: 11.5,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    item.artist ?? '—',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: muted,
+                  ),
+                  Text(
+                    item.album ?? '—',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: muted,
+                  ),
+                  Text(
+                    item.format ?? '—',
+                    style: MmType.monoStyle(size: 11.5, color: c.faint),
+                  ),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      duration == null
+                          ? '—'
+                          : formatClock(
+                              Duration(milliseconds: (duration * 1000).round()),
+                            ),
+                      style: MmType.monoStyle(size: 12, color: c.muted),
                     ),
                   ),
-                ],
-              ),
-              Text(
-                item.artist ?? '—',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: muted,
-              ),
-              Text(
-                item.album ?? '—',
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: muted,
-              ),
-              Text(
-                item.format ?? '—',
-                style: MmType.monoStyle(size: 11.5, color: c.faint),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Text(
-                  duration == null
-                      ? '—'
-                      : formatClock(
-                          Duration(milliseconds: (duration * 1000).round()),
-                        ),
-                  style: MmType.monoStyle(size: 12, color: c.muted),
-                ),
-              ),
-              Align(
-                alignment: Alignment.centerRight,
-                child: Pressable(
-                  onTap: onFavorite,
-                  semanticLabel: item.favorite
-                      ? t.favoriteRemove
-                      : t.favoriteAdd,
-                  tooltip: item.favorite ? t.favoriteRemove : t.favoriteAdd,
-                  pressScale: 0.85,
-                  child: Padding(
-                    padding: const EdgeInsets.all(4),
-                    child: _Heart(on: item.favorite),
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: Pressable(
+                      onTap: onFavorite,
+                      semanticLabel: item.favorite
+                          ? t.favoriteRemove
+                          : t.favoriteAdd,
+                      tooltip: item.favorite ? t.favoriteRemove : t.favoriteAdd,
+                      pressScale: 0.85,
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: _Heart(on: item.favorite),
+                      ),
+                    ),
                   ),
-                ),
+                ], compact: compact),
               ),
-            ], compact: compact),
+            ),
           ),
         ),
       ),
     );
   }
 }
+
+enum _Act { play, playNext, queue, playlist, reveal, remove }
 
 /// Favorite heart: 1 → 1.15 → 1 and fill in 180 ms (handoff §03).
 class _Heart extends StatelessWidget {

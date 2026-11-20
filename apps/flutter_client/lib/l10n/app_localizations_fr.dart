@@ -2935,4 +2935,106 @@ class L10nFr extends L10n {
 
   @override
   String get torPlanned => 'PRÉVU';
+
+  @override
+  String filterMissingCount(int count) {
+    return 'Introuvables · $count';
+  }
+
+  @override
+  String get filterAddedThisMonth => 'Ajoutés ce mois';
+
+  @override
+  String selectedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count sélectionnés',
+      one: '1 sélectionné',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get playNext => 'Lire ensuite';
+
+  @override
+  String get addToQueue => 'Ajouter à la file';
+
+  @override
+  String get addTo => 'Ajouter à…';
+
+  @override
+  String get addToPlaylist => 'Ajouter à une playlist…';
+
+  @override
+  String get addToPlaylistTitle => 'Ajouter à une playlist';
+
+  @override
+  String get newPlaylistEllipsis => 'Nouvelle playlist…';
+
+  @override
+  String get showInExplorer => 'Afficher dans l’Explorateur';
+
+  @override
+  String get removeEllipsis => 'Retirer…';
+
+  @override
+  String playNextDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Les $count titres seront lus ensuite',
+      one: 'Le titre sera lu ensuite',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String queueAddDone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres ajoutés à la file',
+      one: '1 titre ajouté à la file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String playlistAddDone(int count, String name) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres ajoutés à « $name »',
+      one: '1 titre ajouté à « $name »',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String sortByColumn(String column) {
+    return 'Trier par $column';
+  }
+
+  @override
+  String get sortedAscending => 'tri croissant';
+
+  @override
+  String get sortedDescending => 'tri décroissant';
+
+  @override
+  String get clearSelection => 'Désélectionner';
+
+  @override
+  String get playSelection => 'Lire';
+
+  @override
+  String get keyEnter => 'Entrée';
+
+  @override
+  String get keyCtrlEnter => 'Ctrl Entrée';
+
+  @override
+  String get keyDelete => 'Suppr';
 }

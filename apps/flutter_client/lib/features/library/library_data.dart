@@ -35,6 +35,9 @@ abstract interface class LibraryApi {
     String? album,
     String? artist,
     bool recent = false,
+    TrackSort sort = TrackSort.title,
+    bool reverse = false,
+    DateTime? addedSince,
   });
 
   /// One entry by id; null when it is no longer in the library.
@@ -55,6 +58,9 @@ abstract interface class LibraryApi {
 
 enum GroupKind { album, artist }
 
+/// Columns the Titres table sorts by (W-M1c); [added] = newest first.
+enum TrackSort { title, artist, album, format, duration, added }
+
 class RustLibraryApi implements LibraryApi {
   RustLibraryApi(this._ref);
 
@@ -71,13 +77,18 @@ class RustLibraryApi implements LibraryApi {
     String? album,
     String? artist,
     bool recent = false,
+    TrackSort sort = TrackSort.title,
+    bool reverse = false,
+    DateTime? addedSince,
   }) async => libraryTracks(
     dbPath: await _db,
     search: search,
     favoritesOnly: favoritesOnly,
     album: album,
     artist: artist,
-    recent: recent,
+    sort: recent ? TrackSort.added.name : sort.name,
+    reverse: reverse,
+    addedSince: addedSince?.millisecondsSinceEpoch,
     offset: offset,
     limit: limit,
   );

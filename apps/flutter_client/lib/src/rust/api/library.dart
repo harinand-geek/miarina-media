@@ -19,17 +19,21 @@ Future<LibrarySummary> librarySummary({
   limit: limit,
 );
 
-/// A page of audio tracks sorted by title, or newest first when
-/// `recent` (by disc and track within an album whatever the sort); `search`
-/// uses the library's full-text index (accent-insensitive), empty =
-/// everything. `album` / `artist` narrow to one group.
+/// A page of audio tracks. `sort`: title (default), artist, album, format,
+/// duration or added (newest first); `reverse` flips it; by disc and track
+/// within an album when sorted by title. `search` uses the library's
+/// full-text index (accent-insensitive), empty = everything. `album` /
+/// `artist` narrow to one group; `added_since` (ms since the epoch) to the
+/// tracks added since then.
 Future<LibraryPage> libraryTracks({
   required String dbPath,
   required String search,
   required bool favoritesOnly,
   String? album,
   String? artist,
-  required bool recent,
+  required String sort,
+  required bool reverse,
+  PlatformInt64? addedSince,
   required int offset,
   required int limit,
 }) => RustLib.instance.api.crateApiLibraryLibraryTracks(
@@ -38,7 +42,9 @@ Future<LibraryPage> libraryTracks({
   favoritesOnly: favoritesOnly,
   album: album,
   artist: artist,
-  recent: recent,
+  sort: sort,
+  reverse: reverse,
+  addedSince: addedSince,
   offset: offset,
   limit: limit,
 );

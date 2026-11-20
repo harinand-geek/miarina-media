@@ -322,6 +322,24 @@ class QueueController extends Notifier<QueueState> {
     state = state.copyWith(order: List.of(state.order)..removeAt(p));
   }
 
+  /// "Lire ensuite" ([next]: right after the current entry) or "Ajouter à
+  /// la file" (at the end). With nothing loaded, [entries] start playing.
+  Future<void> enqueue(List<QueueEntry> entries, {required bool next}) async {
+    if (entries.isEmpty) return;
+    if (state.current == null) {
+      await playAll(entries, inOrder: true);
+      return;
+    }
+    final base = state.entries.length;
+    final added = [for (var i = 0; i < entries.length; i++) base + i];
+    final order = List.of(state.order);
+    order.insertAll(next ? state.position + 1 : order.length, added);
+    state = state.copyWith(
+      entries: List.unmodifiable([...state.entries, ...entries]),
+      order: order,
+    );
+  }
+
   void markFavorite(int libraryId, {required bool favorite}) {
     state = state.copyWith(
       entries: [

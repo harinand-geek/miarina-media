@@ -597,7 +597,10 @@ fn index_progress_counts_the_work_left() {
     let b = add("D:/b.mkv", MediaKind::Video);
     let c = add("D:/c.mp3", MediaKind::Audio);
     let p = storage.index_progress().unwrap();
-    assert_eq!((p.total, p.to_tag, p.to_probe, p.audio, p.video), (3, 3, 3, 2, 1));
+    assert_eq!(
+        (p.total, p.to_tag, p.to_probe, p.audio, p.video),
+        (3, 3, 3, 2, 1)
+    );
 
     storage.set_media_tags_read(a, None).unwrap();
     let probe = MediaProbe {
@@ -652,7 +655,10 @@ fn library_health_lists_missing_files_and_moves_links() {
         storage.set_media_probe(id, &probe, None).unwrap();
     }
     let dupes = storage.duplicate_candidates().unwrap();
-    assert_eq!(dupes.iter().map(|m| m.id).collect::<Vec<_>>(), [other, copy]);
+    assert_eq!(
+        dupes.iter().map(|m| m.id).collect::<Vec<_>>(),
+        [other, copy]
+    );
 
     // The playlist entry and the favorite follow the kept version.
     let list = storage.create_playlist("Soir", &[copy, other]).unwrap();
@@ -660,6 +666,84 @@ fn library_health_lists_missing_files_and_moves_links() {
     storage.transfer_media_links(copy, other).unwrap();
     storage.remove_media(copy).unwrap();
     let items = storage.playlist(list.id).unwrap().items;
-    assert_eq!(items.iter().map(|m| m.id).collect::<Vec<_>>(), [other, other]);
+    assert_eq!(
+        items.iter().map(|m| m.id).collect::<Vec<_>>(),
+        [other, other]
+    );
     assert!(storage.media(other).unwrap().favorite);
+}
+
+#[test]
+fn tracks_sort_by_column_both_ways_and_filter_by_date() {
+    let storage = Storage::open_in_memory().unwrap();
+    let tag = |r: &MediaRecord, artist: Option<&str>, album: Option<&str>| {
+        storage
+            .update_media_tags(
+                r.id,
+                &MediaTags {
+                    title: Some(r.title.clone()),
+                    artist: artist.map(Into::into),
+                    album: album.map(Into::into),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+    };
+    let a = audio(&storage, "C:/M/a.mp3", "Alpha");
+    let b = audio(&storage, "C:/M/b.mp3", "bravo");
+    let c = audio(&storage, "C:/M/c.mp3", "Charlie");
+    tag(&a, Some("Zed"), Some("Mid"));
+    tag(&b, Some("anna"), None);
+    tag(&c, None, Some("Alb"));
+    let titles = |sort, reverse| {
+        storage
+            .query_media(&MediaQuery {
+                sort,
+                reverse,
+                ..Default::default()
+            })
+            .unwrap()
+            .items
+            .into_iter()
+            .map(|m| m.title)
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        titles(MediaSort::Title, false),
+        ["Alpha", "bravo", "Charlie"]
+    );
+    assert_eq!(
+        titles(MediaSort::Title, true),
+        ["Charlie", "bravo", "Alpha"]
+    );
+    // Untagged entries last, both ways.
+    assert_eq!(
+        titles(MediaSort::Artist, false),
+        ["bravo", "Alpha", "Charlie"]
+    );
+    assert_eq!(
+        titles(MediaSort::Artist, true),
+        ["Alpha", "bravo", "Charlie"]
+    );
+    assert_eq!(
+        titles(MediaSort::Album, false),
+        ["Charlie", "Alpha", "bravo"]
+    );
+    assert_eq!(
+        titles(MediaSort::Added, false),
+        ["Charlie", "bravo", "Alpha"]
+    );
+
+    storage
+        .conn
+        .execute("UPDATE media SET added_at = 1000 WHERE id = ?1", [a.id])
+        .unwrap();
+    let recent = storage
+        .query_media(&MediaQuery {
+            added_since: Some(2000),
+            ..Default::default()
+        })
+        .unwrap();
+    assert_eq!(recent.total, 2);
+    assert!(recent.items.iter().all(|m| m.id != a.id));
 }
