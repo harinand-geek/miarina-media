@@ -1,6 +1,6 @@
 # Plan — première version Flutter publique pour Windows
 
-État : **proposition à valider par le propriétaire** (2026-11-20). Rien de public n'est fait avant son accord écrit sur les points de la section « Décisions du propriétaire ».
+État : **validé le 2026-11-20** (décisions ci-dessous). Rien de public n'est fait avant l'accord final du propriétaire (point 5).
 
 ## Point de départ
 
@@ -33,10 +33,10 @@
 
 Chaque lot est commité et poussé sur `main` comme les précédents.
 
-## Décisions du propriétaire
+## Décisions du propriétaire (2026-11-20)
 
-1. **Publication en Bêta d'abord ?** Proposé : la 0.2.0 sort d'abord sur le canal Bêta (seuls les utilisateurs qui l'ont choisi la reçoivent), puis sur Stable après quelques jours sans problème.
-2. **Signature Authenticode** (certificat payant, environ quelques centaines d'euros par an) : sans elle, Windows SmartScreen avertit au premier lancement de l'installateur, comme aujourd'hui pour la 0.1.x.
-3. **La 0.1.12 en cours (app Tauri)** : la publier avant, ou l'abandonner au profit de la 0.2.0 ?
-4. **Copie de données réelles pour la recette** : le propriétaire fournit une copie de son dossier `%APPDATA%\org.miarina.media\` (l'app fermée), ou la recette se fait sur des données de démonstration seulement.
+1. **Bêta d'abord** : la 0.2.0 sort sur le canal Bêta, puis sur Stable après quelques jours sans problème.
+2. **Pas de signature Authenticode pour l'instant** : l'avertissement SmartScreen reste comme pour la 0.1.x.
+3. **La 0.1.12 (app Tauri) n'est pas publiée** : remplacée par la 0.2.0 ; ses fichiers en cours restent dans l'arbre de travail, non commités.
+4. **Recette sur données de démonstration** : une base 0.1.11 de démonstration est fabriquée ; les vraies données du propriétaire ne sont jamais utilisées.
 5. **Accord final avant R6** : rien n'est envoyé sur le serveur ni sur le site sans cet accord.
