@@ -9,6 +9,7 @@
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
+import 'api/indexer.dart';
 import 'api/library.dart';
 import 'api/playlists.dart';
 import 'api/search.dart';
@@ -105,6 +106,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   ImportReport dco_decode_import_report(dynamic raw);
 
   @protected
+  IndexStatus dco_decode_index_status(dynamic raw);
+
+  @protected
   LibraryGroup dco_decode_library_group(dynamic raw);
 
   @protected
@@ -196,6 +200,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
+
+  @protected
+  ScanTotals dco_decode_scan_totals(dynamic raw);
 
   @protected
   SearchHit dco_decode_search_hit(dynamic raw);
@@ -307,6 +314,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ImportReport sse_decode_import_report(SseDeserializer deserializer);
+
+  @protected
+  IndexStatus sse_decode_index_status(SseDeserializer deserializer);
 
   @protected
   LibraryGroup sse_decode_library_group(SseDeserializer deserializer);
@@ -426,6 +436,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   (String, String?) sse_decode_record_string_opt_string(
     SseDeserializer deserializer,
   );
+
+  @protected
+  ScanTotals sse_decode_scan_totals(SseDeserializer deserializer);
 
   @protected
   SearchHit sse_decode_search_hit(SseDeserializer deserializer);
@@ -555,6 +568,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_import_report(ImportReport self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_index_status(IndexStatus self, SseSerializer serializer);
 
   @protected
   void sse_encode_library_group(LibraryGroup self, SseSerializer serializer);
@@ -711,6 +727,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     (String, String?) self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_scan_totals(ScanTotals self, SseSerializer serializer);
 
   @protected
   void sse_encode_search_hit(SearchHit self, SseSerializer serializer);

@@ -13,6 +13,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_screen.dart';
 import '../focus/focus_data.dart';
+import '../import/import_data.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/lyrics_view.dart';
@@ -41,6 +42,14 @@ class ListenHomeScreen extends ConsumerWidget {
       );
     }
     if (home == null) return const SkeletonGrid(minTile: 240);
+    // W-O1: an empty library on a first launch opens the welcome screens.
+    if (home.isEmpty &&
+        !mobile &&
+        ref.watch(onboardingProvider).value == false) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (context.mounted) context.go(Routes.welcome);
+      });
+    }
     if (mobile) return _MobileHome(home: home);
 
     final body = home.isEmpty

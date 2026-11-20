@@ -12,6 +12,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/focus.dart';
 import '../common/state_views.dart';
+import '../import/import_data.dart';
 import '../cinema/cinema_data.dart';
 import '../cinema/cinema_widgets.dart';
 import '../cinema/watch_screen.dart' show speedLabel;
@@ -153,6 +154,7 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
         icon: PhosphorRegular.graduationCap,
         title: t.focusEmptyTitle,
         body: t.focusEmptyBody,
+        folderKind: FolderKind.focus,
       );
     } else {
       final programs = data.programs

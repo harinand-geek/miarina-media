@@ -60,15 +60,19 @@ class _ActionButton extends StatelessWidget {
                 ),
                 const SizedBox(width: 6),
               ],
-              Text(
-                a.label,
-                style: MmType.labelStrong.copyWith(
-                  fontSize: compact ? 13 : 14,
-                  color: a.primary && !compact
-                      ? const Color(0xFF062320)
-                      : compact && !a.primary
-                      ? c.fgSoft
-                      : c.fg,
+              Flexible(
+                child: Text(
+                  a.label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.labelStrong.copyWith(
+                    fontSize: compact ? 13 : 14,
+                    color: a.primary && !compact
+                        ? const Color(0xFF062320)
+                        : compact && !a.primary
+                        ? c.fgSoft
+                        : c.fg,
+                  ),
                 ),
               ),
             ],

@@ -1,6 +1,7 @@
 pub mod browser_spike;
 pub mod cinema;
 pub mod focus;
+pub mod indexer;
 pub mod library;
 pub mod playlists;
 pub mod search;

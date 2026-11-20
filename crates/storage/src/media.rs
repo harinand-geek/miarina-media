@@ -165,6 +165,22 @@ pub struct MediaPage {
     pub total: u64,
 }
 
+/// Background indexing work left (first import, W-O1c).
+#[derive(Debug, Clone, Default, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct IndexProgress {
+    /// Entries whose file is present.
+    pub total: u64,
+    /// Tags not read yet.
+    pub to_tag: u64,
+    /// Technical details (duration, picture) not read yet.
+    pub to_probe: u64,
+    /// Read but without a duration: the file could not be decoded.
+    pub unreadable: u64,
+    pub audio: u64,
+    pub video: u64,
+}
+
 #[derive(Debug, Clone, Default, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaStats {
@@ -338,6 +354,25 @@ impl Storage {
             items,
             total: total.max(0) as u64,
         })
+    }
+
+    /// How much indexing is left, for progress screens.
+    pub fn index_progress(&self) -> Result<IndexProgress> {
+        Ok(self.conn.query_row(
+            "SELECT count(*),              count(*) FILTER (WHERE tags_read = 0),              count(*) FILTER (WHERE probed = 0),              count(*) FILTER (WHERE probed = 1 AND duration_secs IS NULL),              count(*) FILTER (WHERE kind = 'audio'),              count(*) FILTER (WHERE kind = 'video')              FROM media WHERE missing = 0",
+            [],
+            |r| {
+                let n = |i: usize| r.get::<_, i64>(i).map(|v| v.max(0) as u64);
+                Ok(IndexProgress {
+                    total: n(0)?,
+                    to_tag: n(1)?,
+                    to_probe: n(2)?,
+                    unreadable: n(3)?,
+                    audio: n(4)?,
+                    video: n(5)?,
+                })
+            },
+        )?)
     }
 
     pub fn media_stats(&self) -> Result<MediaStats> {

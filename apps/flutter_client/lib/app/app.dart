@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../features/focus/focus_data.dart';
+import '../features/import/import_data.dart';
 import '../features/settings/settings_data.dart';
 import '../l10n/app_localizations.dart';
 import 'router.dart';
@@ -17,6 +18,9 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(focusSpeedProvider);
     // Playback settings (W-S2) reach the engine.
     ref.watch(enginePreferencesProvider);
+    // Followed folders are scanned at launch; screens refresh as the
+    // background worker reads them (W-O1).
+    ref.watch(indexingProvider);
     final look = ref.watch(appearanceProvider).value ?? const AppearancePrefs();
     return MaterialApp.router(
       title: 'Miarina Media',

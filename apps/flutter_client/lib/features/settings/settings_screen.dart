@@ -15,6 +15,8 @@ import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
 import '../history/history_data.dart';
+import '../import/import_data.dart';
+import '../import/welcome_screen.dart';
 import '../history/history_screen.dart' show confirmClearHistory;
 import '../library/library_data.dart';
 import '../playback/playback.dart';
@@ -827,18 +829,51 @@ class _Library extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
-    final stats = ref.watch(libraryStatsProvider).value;
-    Widget count(String label, BigInt? n) => SettingsRow(
-      title: label,
-      control: Text(
-        n == null ? '…' : '$n',
-        style: MmType.monoStyle(size: 13, weight: 700, color: c.fg),
-      ),
-    );
-    return SettingsGroup(
-      rows: [
-        count(t.libraryTracks, stats?.audioCount),
-        count(t.libraryVideos, stats?.videoCount),
+    final folders = ref.watch(libraryFoldersProvider).value ?? const [];
+    final status = ref.watch(indexStatusProvider).value;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          t.libraryFolders.toUpperCase(),
+          style: MmType.overline.copyWith(color: c.muted),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          t.libraryFoldersBody,
+          style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
+        ),
+        const SizedBox(height: 10),
+        if (folders.isEmpty)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(
+              t.noFolders,
+              style: MmType.bodySm.copyWith(color: c.fgSoft),
+            ),
+          )
+        else
+          FolderList(folders: folders),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: [
+            _OutlinedAction(
+              label: t.addFolder,
+              onTap: () async {
+                final path = await pickFolder(ref, FolderKind.music);
+                if (path != null) await scanFolders(ref);
+              },
+            ),
+            _OutlinedAction(
+              label: t.scanNow,
+              onTap: folders.isEmpty ? null : () => scanFolders(ref),
+            ),
+          ],
+        ),
+        const SizedBox(height: 22),
+        if (status != null) ScanProgressCard(status: status),
       ],
     );
   }

@@ -7,6 +7,7 @@ import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/design/widgets/pressable.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
@@ -27,6 +28,7 @@ Future<void> settle(WidgetTester tester) async {
 void main() {
   late FakeEngine engine;
   late FakeLibraryApi library;
+  late FakeSettingsStore settings;
 
   Future<void> pumpApp(
     WidgetTester tester, {
@@ -47,7 +49,8 @@ void main() {
           libraryApiProvider.overrideWithValue(library),
           focusApiProvider.overrideWithValue(FakeFocusApi()),
           desktopShellProvider.overrideWithValue(desktop),
-          settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
+          settingsStoreProvider.overrideWithValue(settings),
+          indexerApiProvider.overrideWithValue(FakeIndexerApi()),
           lyricsLoaderProvider.overrideWithValue((_) async => null),
           playbackStoreProvider.overrideWithValue(store ?? FakePlaybackStore()),
           initialRouteProvider.overrideWithValue(start),
@@ -60,6 +63,7 @@ void main() {
 
   setUp(() {
     engine = FakeEngine();
+    settings = FakeSettingsStore()..values['onboardingDone'] = true;
     library = FakeLibraryApi([
       track(1, 'Basse marée', artist: 'Nafy Rakoto'),
       track(2, 'Échos', artist: 'Collectif Rova', favorite: true),
@@ -362,6 +366,16 @@ void main() {
       await tester.tap(find.text('Reprendre à 1:34'));
       await settle(tester);
       expect(engine.starts.single, const Duration(seconds: 94));
+    });
+
+    testWidgets('a first launch on an empty library opens W-O1', (
+      tester,
+    ) async {
+      library = FakeLibraryApi([]);
+      settings.values.remove('onboardingDone');
+      await pumpApp(tester, start: Routes.listenHome);
+      expect(find.text('Langue et apparence'), findsWidgets);
+      expect(find.text('Passer'), findsOneWidget);
     });
 
     testWidgets('an empty library and history gives the welcome state', (

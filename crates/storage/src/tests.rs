@@ -575,3 +575,39 @@ fn media_is_found_by_path_ignoring_case() {
         None
     );
 }
+
+#[test]
+fn index_progress_counts_the_work_left() {
+    let storage = Storage::open_in_memory().unwrap();
+    let add = |path: &str, kind| {
+        storage
+            .upsert_media(&NewMedia {
+                path: path.into(),
+                title: path.into(),
+                kind,
+                source_host: None,
+                source_url: None,
+                task_id: None,
+                size_bytes: 1,
+            })
+            .unwrap()
+            .id
+    };
+    let a = add("D:/a.flac", MediaKind::Audio);
+    let b = add("D:/b.mkv", MediaKind::Video);
+    let c = add("D:/c.mp3", MediaKind::Audio);
+    let p = storage.index_progress().unwrap();
+    assert_eq!((p.total, p.to_tag, p.to_probe, p.audio, p.video), (3, 3, 3, 2, 1));
+
+    storage.set_media_tags_read(a, None).unwrap();
+    let probe = MediaProbe {
+        duration_secs: Some(200.0),
+        has_video: false,
+        ..MediaProbe::default()
+    };
+    storage.set_media_probe(a, &probe, None).unwrap();
+    storage.mark_media_unprobeable(b).unwrap();
+    storage.set_media_missing(c, true).unwrap();
+    let p = storage.index_progress().unwrap();
+    assert_eq!((p.total, p.to_tag, p.to_probe, p.unreadable), (2, 1, 0, 1));
+}

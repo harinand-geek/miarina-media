@@ -1501,4 +1501,136 @@ class L10nFr extends L10n {
 
   @override
   String get skipNext => 'Passer au suivant';
+
+  @override
+  String get welcomeHeadline =>
+      'Votre musique, vos films et vos cours, au même endroit.';
+
+  @override
+  String get welcomeLocal =>
+      'Tout reste sur cet ordinateur. Aucun compte, aucune donnée envoyée.';
+
+  @override
+  String get welcomeFoot =>
+      'Lecture locale, sans télémétrie. Modifiable plus tard dans Réglages.';
+
+  @override
+  String get stepAppearance => 'Langue et apparence';
+
+  @override
+  String get stepFolders => 'Dossiers';
+
+  @override
+  String get stepScan => 'Analyse';
+
+  @override
+  String get skip => 'Passer';
+
+  @override
+  String get continueLabel => 'Continuer';
+
+  @override
+  String get analyse => 'Analyser';
+
+  @override
+  String get themeFollow => 'Suivre Windows';
+
+  @override
+  String get foldersTitle => 'Où sont vos fichiers ?';
+
+  @override
+  String get foldersBody =>
+      'Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.';
+
+  @override
+  String folderFiles(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers audio ou vidéo',
+      one: '1 fichier audio ou vidéo',
+      zero: 'aucun fichier audio ou vidéo',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get kindVideo => 'Vidéo';
+
+  @override
+  String get addFolder => 'Ajouter un dossier…';
+
+  @override
+  String foldersSummary(int folders, int files) {
+    String _temp0 = intl.Intl.pluralLogic(
+      folders,
+      locale: localeName,
+      other: '$folders dossiers',
+      one: '1 dossier',
+      zero: 'aucun dossier',
+    );
+    return '$_temp0 · environ $files fichiers';
+  }
+
+  @override
+  String get removeFolder => 'Retirer ce dossier';
+
+  @override
+  String get scanTitle => 'Analyse de votre bibliothèque';
+
+  @override
+  String get scanBody =>
+      'Vous pouvez commencer à écouter : l\'analyse continue en arrière-plan.';
+
+  @override
+  String scanProgress(int done, int total) {
+    return '$done fichiers sur environ $total';
+  }
+
+  @override
+  String get statTracks => 'titres';
+
+  @override
+  String get statAlbums => 'albums';
+
+  @override
+  String get statVideos => 'vidéos';
+
+  @override
+  String get statUnreadable => 'illisibles';
+
+  @override
+  String get readyNow => 'Déjà prêts';
+
+  @override
+  String get scanEco =>
+      'Analyse en arrière-plan, un fichier à la fois (mode éco).';
+
+  @override
+  String get scanNoFfmpeg =>
+      'FFmpeg n\'est pas installé à côté de l\'application : titres, artistes et albums sont lus ; durées et vignettes le seront quand il le sera.';
+
+  @override
+  String get startListening => 'Commencer à écouter';
+
+  @override
+  String get libraryFolders => 'Dossiers suivis';
+
+  @override
+  String get libraryFoldersBody =>
+      'Analysés à chaque lancement ; rien n\'est modifié ni déplacé.';
+
+  @override
+  String get scanNow => 'Analyser maintenant';
+
+  @override
+  String get scanDone => 'Analyse terminée';
+
+  @override
+  String scanRunning(int done, int total) {
+    return '$done sur $total analysés';
+  }
+
+  @override
+  String get noFolders => 'Aucun dossier suivi pour l\'instant.';
 }

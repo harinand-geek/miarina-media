@@ -44,6 +44,8 @@ class DesktopShell extends ConsumerWidget {
         ref.watch(sidebarCollapsedProvider) ??
         MediaQuery.sizeOf(context).width < 1280;
     final watching = location == Routes.watch;
+    // W-O1: the first launch has the window to itself.
+    final welcome = location == Routes.welcome;
     final content = KeyedSubtree(key: _content, child: child);
     // Keyboard shortcuts of the whole window (W-S3), Ctrl K included.
     return GlobalShortcuts(
@@ -54,20 +56,24 @@ class DesktopShell extends ConsumerWidget {
               backgroundColor: c.bg,
               body: Column(
                 children: [
-                  TitleBar(sideWidth: collapsed ? 64 : 232, location: location),
+                  TitleBar(
+                    sideWidth: collapsed ? 64 : 232,
+                    location: location,
+                    search: !welcome,
+                  ),
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         // Settings brings its own navigation (W-S1…S3).
-                        if (!location.startsWith(Routes.settings))
+                        if (!location.startsWith(Routes.settings) && !welcome)
                           Sidebar(location: location, collapsed: collapsed),
                         Expanded(child: ClipRect(child: content)),
                       ],
                     ),
                   ),
                   // W-C3 and W-F2 have their own controls.
-                  if (!watching && location != Routes.focusPlayer)
+                  if (!watching && location != Routes.focusPlayer && !welcome)
                     const PlaybackBar(),
                 ],
               ),

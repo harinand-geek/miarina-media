@@ -820,5 +820,76 @@
   "errLibraryBody": "Rien n'a été modifié. Réessayez ; si cela continue, copiez les détails pour le support.",
   "copyDetails": "Copier les détails",
   "detailsCopied": "Détails copiés",
-  "skipNext": "Passer au suivant"
+  "skipNext": "Passer au suivant",
+  "welcomeHeadline": "Votre musique, vos films et vos cours, au même endroit.",
+  "welcomeLocal": "Tout reste sur cet ordinateur. Aucun compte, aucune donnée envoyée.",
+  "welcomeFoot": "Lecture locale, sans télémétrie. Modifiable plus tard dans Réglages.",
+  "stepAppearance": "Langue et apparence",
+  "stepFolders": "Dossiers",
+  "stepScan": "Analyse",
+  "skip": "Passer",
+  "continueLabel": "Continuer",
+  "analyse": "Analyser",
+  "themeFollow": "Suivre Windows",
+  "foldersTitle": "Où sont vos fichiers ?",
+  "foldersBody": "Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.",
+  "folderFiles": "{count, plural, =0{aucun fichier audio ou vidéo} =1{1 fichier audio ou vidéo} other{{count} fichiers audio ou vidéo}}",
+  "@folderFiles": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "kindVideo": "Vidéo",
+  "addFolder": "Ajouter un dossier…",
+  "foldersSummary": "{folders, plural, =0{aucun dossier} =1{1 dossier} other{{folders} dossiers}} · environ {files} fichiers",
+  "@foldersSummary": {
+    "placeholders": {
+      "folders": {
+        "type": "int"
+      },
+      "files": {
+        "type": "int"
+      }
+    }
+  },
+  "removeFolder": "Retirer ce dossier",
+  "scanTitle": "Analyse de votre bibliothèque",
+  "scanBody": "Vous pouvez commencer à écouter : l'analyse continue en arrière-plan.",
+  "scanProgress": "{done} fichiers sur environ {total}",
+  "@scanProgress": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "statTracks": "titres",
+  "statAlbums": "albums",
+  "statVideos": "vidéos",
+  "statUnreadable": "illisibles",
+  "readyNow": "Déjà prêts",
+  "scanEco": "Analyse en arrière-plan, un fichier à la fois (mode éco).",
+  "scanNoFfmpeg": "FFmpeg n'est pas installé à côté de l'application : titres, artistes et albums sont lus ; durées et vignettes le seront quand il le sera.",
+  "startListening": "Commencer à écouter",
+  "libraryFolders": "Dossiers suivis",
+  "libraryFoldersBody": "Analysés à chaque lancement ; rien n'est modifié ni déplacé.",
+  "scanNow": "Analyser maintenant",
+  "scanDone": "Analyse terminée",
+  "scanRunning": "{done} sur {total} analysés",
+  "@scanRunning": {
+    "placeholders": {
+      "done": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "noFolders": "Aucun dossier suivi pour l'instant."
 }

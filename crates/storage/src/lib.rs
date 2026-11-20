@@ -12,7 +12,8 @@ mod upgrade;
 
 pub use browser_history::{VISITS_MAX, VISITS_PAGE_MAX, Visit};
 pub use media::{
-    GroupBy, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort, MediaStats,
+    GroupBy, IndexProgress, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort,
+    MediaStats,
     MediaTags, NewMedia, fts_query,
 };
 pub use playback::{

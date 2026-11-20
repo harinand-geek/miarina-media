@@ -18,7 +18,15 @@ import '../search/search_screen.dart' show searchUri;
 /// Windows title bar of the mockup: 40 px, logo, central search, window
 /// buttons. The empty area drags the window; double-click maximizes.
 class TitleBar extends StatefulWidget {
-  const TitleBar({super.key, required this.sideWidth, required this.location});
+  const TitleBar({
+    super.key,
+    required this.sideWidth,
+    required this.location,
+    this.search = true,
+  });
+
+  /// False on the first-launch screens.
+  final bool search;
 
   final double sideWidth;
 
@@ -134,7 +142,9 @@ class _TitleBarState extends State<TitleBar> {
                     ),
                     Expanded(
                       child: Center(
-                        child: SearchField(location: widget.location),
+                        child: widget.search
+                            ? SearchField(location: widget.location)
+                            : const SizedBox.shrink(),
                       ),
                     ),
                   ],

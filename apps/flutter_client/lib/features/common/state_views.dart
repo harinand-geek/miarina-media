@@ -7,10 +7,8 @@ import '../../design/mm_icons.g.dart';
 import '../../design/widgets/states.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
-import '../cinema/cinema_data.dart';
-import '../focus/focus_data.dart';
-import '../home/home_data.dart';
-import '../library/groups.dart';
+import '../import/import_data.dart';
+import '../import/welcome_screen.dart' show pickFolder, scanFolders;
 import '../library/library_data.dart';
 import '../playback/playback.dart';
 import 'open_media.dart';
@@ -36,14 +34,7 @@ const mediaExtensions = [
 ];
 
 /// Every screen built on the library reads it again.
-void refreshLibrary(WidgetRef ref) {
-  ref
-    ..invalidate(libraryStatsProvider)
-    ..invalidate(groupsProvider)
-    ..invalidate(cinemaLibraryProvider)
-    ..invalidate(focusLibraryProvider)
-    ..invalidate(homeProvider);
-}
+void refreshLibrary(WidgetRef ref) => refreshLibraryWith(ref.invalidate);
 
 /// "Ouvrir des fichiers…": adds the chosen files to the library and plays
 /// the first one. Returns how many were added.
@@ -75,12 +66,16 @@ class LibraryEmpty extends ConsumerWidget {
     required this.title,
     required this.body,
     this.onAdded,
+    this.folderKind = FolderKind.music,
   });
 
   final IconData icon;
   final String title;
   final String body;
   final VoidCallback? onAdded;
+
+  /// Type given to a folder added from here (W-O1b).
+  final FolderKind folderKind;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -91,14 +86,20 @@ class LibraryEmpty extends ConsumerWidget {
       body: '$body\n${t.emptyFormats}',
       actions: [
         StateAction(
-          t.emptyOpenFiles,
+          t.addFolder,
           () async {
-            final n = await openFilesIntoLibrary(context, ref);
-            if (n > 0) onAdded?.call();
+            final path = await pickFolder(ref, folderKind);
+            if (path == null) return;
+            await scanFolders(ref);
+            onAdded?.call();
           },
           primary: true,
-          icon: PhosphorRegular.folderOpen,
+          icon: PhosphorRegular.folderPlus,
         ),
+        StateAction(t.emptyOpenFiles, () async {
+          final n = await openFilesIntoLibrary(context, ref);
+          if (n > 0) onAdded?.call();
+        }, icon: PhosphorRegular.folderOpen),
       ],
       note: t.emptyNote,
     );

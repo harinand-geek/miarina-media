@@ -15,6 +15,10 @@ anyhow = "1.0"
 flutter_rust_bridge = "=2.13.0"
 serde_json.workspace = true
 storage = { path = "../../../crates/storage" }
+# Library indexing (W-O1): the same crates as the Tauri app.
+library = { path = "../../../crates/library" }
+download-engine = { path = "../../../crates/download-engine" }
+tokio = { version = "1.53.2", features = ["rt-multi-thread"] }
 
 [lints.rust]
 # flutter_rust_bridge's generated code uses this cfg.

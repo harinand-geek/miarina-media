@@ -3,7 +3,8 @@
 //! which order they play. Only the user's tags and folder names are read.
 
 use std::cmp::Ordering;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+use std::sync::RwLock;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum Kind {
@@ -85,8 +86,25 @@ fn category_folder(name: &str) -> Option<Kind> {
     }
 }
 
+static FOCUS_ROOTS: RwLock<Vec<PathBuf>> = RwLock::new(Vec::new());
+
+/// Folders the user typed "Focus" at import (W-O1b).
+pub fn set_focus_roots(roots: Vec<PathBuf>) {
+    if let Ok(mut r) = FOCUS_ROOTS.write() {
+        *r = roots;
+    }
+}
+
+fn in_focus_root(path: &Path) -> bool {
+    FOCUS_ROOTS
+        .read()
+        .map(|roots| roots.iter().any(|r| path.starts_with(r)))
+        .unwrap_or(false)
+}
+
 /// The Focus kind of an audio file: its genre tag first, then a category
-/// folder above it, then the `.m4b` extension (audiobook). None = music.
+/// folder above it, then the `.m4b` extension (audiobook), then a folder
+/// typed "Focus" by the user (course). None = music.
 pub fn classify(genre: Option<&str>, path: &str) -> Option<Kind> {
     if let Some(k) = genre.and_then(kind_of_words) {
         return Some(k);
@@ -101,7 +119,10 @@ pub fn classify(genre: Option<&str>, path: &str) -> Option<Kind> {
         }
     }
     let ext = p.extension().map(|e| e.to_string_lossy().to_lowercase());
-    (ext.as_deref() == Some("m4b")).then_some(Kind::Audiobook)
+    if ext.as_deref() == Some("m4b") {
+        return Some(Kind::Audiobook);
+    }
+    in_focus_root(p).then_some(Kind::Course)
 }
 
 /// Program (show, course, book) of a Focus file: the album tag, else the
@@ -252,6 +273,17 @@ mod tests {
             "Sous les acacias",
         );
         assert_eq!(name, "Sous les acacias");
+    }
+
+    #[test]
+    fn folders_typed_focus_hold_courses() {
+        let p = "E:/Enregistrements/Licence 3/seance-04.mp3";
+        assert_eq!(classify(None, p), None);
+        set_focus_roots(vec![PathBuf::from("E:/Enregistrements")]);
+        assert_eq!(classify(None, p), Some(Kind::Course));
+        // A genre still wins.
+        assert_eq!(classify(Some("Podcast"), p), Some(Kind::Podcast));
+        set_focus_roots(Vec::new());
     }
 
     #[test]

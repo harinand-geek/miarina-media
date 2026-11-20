@@ -10,6 +10,7 @@ import '../../design/widgets/states.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
+import '../import/import_data.dart';
 import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_screen.dart';
@@ -71,6 +72,7 @@ class PersonalVideosScreen extends ConsumerWidget {
         icon: PhosphorRegular.monitorPlay,
         title: t.personalEmptyTitle,
         body: t.personalEmptyBody,
+        folderKind: FolderKind.video,
       );
     } else {
       body = LayoutBuilder(

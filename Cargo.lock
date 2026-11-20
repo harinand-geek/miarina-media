@@ -4065,10 +4065,13 @@ name = "miarina_bridge"
 version = "0.1.11"
 dependencies = [
  "anyhow",
+ "download-engine",
  "flutter_rust_bridge",
+ "library",
  "media-core",
  "serde_json",
  "storage",
+ "tokio",
  "webview2-com",
  "windows",
 ]

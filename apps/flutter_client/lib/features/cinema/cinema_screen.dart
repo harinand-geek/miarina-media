@@ -12,6 +12,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/cinema.dart';
 import '../common/state_views.dart';
+import '../import/import_data.dart';
 import '../search/search_screen.dart' show SearchButton;
 import '../playback/playback.dart';
 import 'cinema_data.dart';
@@ -190,6 +191,7 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
         icon: PhosphorRegular.filmSlate,
         title: t.cinemaEmptyTitle,
         body: t.cinemaEmptyBody,
+        folderKind: FolderKind.video,
       );
     } else {
       body = LayoutBuilder(

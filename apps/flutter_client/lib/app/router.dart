@@ -14,6 +14,7 @@ import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/history/history_screen.dart';
+import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -30,6 +31,7 @@ import '../features/shell/mobile_shell.dart';
 /// Route paths, one per screen ID of the handoff (Handoff §05).
 abstract final class Routes {
   static const listenHome = '/listen';
+  static const welcome = '/welcome';
   static const history = '/listen/history';
   static const search = '/listen/search';
   static const albums = '/listen/music/albums';
@@ -179,6 +181,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
           screen(Routes.history, () => const HistoryScreen()),
+          screen(Routes.welcome, () => const WelcomeScreen()),
           GoRoute(
             path: Routes.search,
             // Same page while typing: only the results change.

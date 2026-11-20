@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/playlists/playlists_data.dart';
 import 'package:miarina_media/features/search/search_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
@@ -11,6 +12,7 @@ import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/cinema.dart';
 import 'package:miarina_media/src/rust/api/focus.dart';
+import 'package:miarina_media/src/rust/api/indexer.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
 import 'package:miarina_media/src/rust/api/playlists.dart';
 import 'package:miarina_media/src/rust/api/search.dart';
@@ -559,4 +561,56 @@ class FakePlaylistApi implements PlaylistApi {
 
   @override
   Future<void> exportM3u(int id, String path) async {}
+}
+
+/// Indexing without the core: folders hold [files] media each; a scan adds
+/// them all, and the worker is instantly done.
+class FakeIndexerApi implements IndexerApi {
+  FakeIndexerApi({this.files = const {}});
+
+  final Map<String, int> files;
+  final scanned = <List<String>>[];
+  var focusFolders = <String>[];
+  var _total = 0;
+  var _generation = BigInt.zero;
+
+  @override
+  Future<void> start() async {}
+
+  final _indexed = <String>{};
+
+  /// Like the core, a folder scanned again adds nothing new.
+  @override
+  Future<ScanTotals> scan(List<String> folders) async {
+    scanned.add(folders);
+    var added = 0;
+    for (final f in folders) {
+      if (_indexed.add(f)) added += files[f] ?? 0;
+    }
+    _total += added;
+    _generation += BigInt.one;
+    return ScanTotals(added: added, missing: 0, restored: 0);
+  }
+
+  @override
+  Future<int> count(String folder) async => files[folder] ?? 0;
+
+  @override
+  Future<IndexStatus> status() async => IndexStatus(
+    total: BigInt.from(_total),
+    toTag: BigInt.zero,
+    toProbe: BigInt.zero,
+    unreadable: BigInt.zero,
+    audio: BigInt.from(_total),
+    video: BigInt.zero,
+    albums: BigInt.zero,
+    hasFfmpeg: true,
+  );
+
+  @override
+  Future<BigInt> generation() async => _generation;
+
+  @override
+  Future<void> setFocusFolders(List<String> folders) async =>
+      focusFolders = folders;
 }

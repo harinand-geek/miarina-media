@@ -2550,6 +2550,210 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Passer au suivant'**
   String get skipNext;
+
+  /// No description provided for @welcomeHeadline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre musique, vos films et vos cours, au même endroit.'**
+  String get welcomeHeadline;
+
+  /// No description provided for @welcomeLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout reste sur cet ordinateur. Aucun compte, aucune donnée envoyée.'**
+  String get welcomeLocal;
+
+  /// No description provided for @welcomeFoot.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture locale, sans télémétrie. Modifiable plus tard dans Réglages.'**
+  String get welcomeFoot;
+
+  /// No description provided for @stepAppearance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue et apparence'**
+  String get stepAppearance;
+
+  /// No description provided for @stepFolders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossiers'**
+  String get stepFolders;
+
+  /// No description provided for @stepScan.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse'**
+  String get stepScan;
+
+  /// No description provided for @skip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer'**
+  String get skip;
+
+  /// No description provided for @continueLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get continueLabel;
+
+  /// No description provided for @analyse.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser'**
+  String get analyse;
+
+  /// No description provided for @themeFollow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivre Windows'**
+  String get themeFollow;
+
+  /// No description provided for @foldersTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Où sont vos fichiers ?'**
+  String get foldersTitle;
+
+  /// No description provided for @foldersBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.'**
+  String get foldersBody;
+
+  /// No description provided for @folderFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun fichier audio ou vidéo} =1{1 fichier audio ou vidéo} other{{count} fichiers audio ou vidéo}}'**
+  String folderFiles(int count);
+
+  /// No description provided for @kindVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get kindVideo;
+
+  /// No description provided for @addFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un dossier…'**
+  String get addFolder;
+
+  /// No description provided for @foldersSummary.
+  ///
+  /// In fr, this message translates to:
+  /// **'{folders, plural, =0{aucun dossier} =1{1 dossier} other{{folders} dossiers}} · environ {files} fichiers'**
+  String foldersSummary(int folders, int files);
+
+  /// No description provided for @removeFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer ce dossier'**
+  String get removeFolder;
+
+  /// No description provided for @scanTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse de votre bibliothèque'**
+  String get scanTitle;
+
+  /// No description provided for @scanBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous pouvez commencer à écouter : l\'analyse continue en arrière-plan.'**
+  String get scanBody;
+
+  /// No description provided for @scanProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} fichiers sur environ {total}'**
+  String scanProgress(int done, int total);
+
+  /// No description provided for @statTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'titres'**
+  String get statTracks;
+
+  /// No description provided for @statAlbums.
+  ///
+  /// In fr, this message translates to:
+  /// **'albums'**
+  String get statAlbums;
+
+  /// No description provided for @statVideos.
+  ///
+  /// In fr, this message translates to:
+  /// **'vidéos'**
+  String get statVideos;
+
+  /// No description provided for @statUnreadable.
+  ///
+  /// In fr, this message translates to:
+  /// **'illisibles'**
+  String get statUnreadable;
+
+  /// No description provided for @readyNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déjà prêts'**
+  String get readyNow;
+
+  /// No description provided for @scanEco.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse en arrière-plan, un fichier à la fois (mode éco).'**
+  String get scanEco;
+
+  /// No description provided for @scanNoFfmpeg.
+  ///
+  /// In fr, this message translates to:
+  /// **'FFmpeg n\'est pas installé à côté de l\'application : titres, artistes et albums sont lus ; durées et vignettes le seront quand il le sera.'**
+  String get scanNoFfmpeg;
+
+  /// No description provided for @startListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commencer à écouter'**
+  String get startListening;
+
+  /// No description provided for @libraryFolders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossiers suivis'**
+  String get libraryFolders;
+
+  /// No description provided for @libraryFoldersBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analysés à chaque lancement ; rien n\'est modifié ni déplacé.'**
+  String get libraryFoldersBody;
+
+  /// No description provided for @scanNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser maintenant'**
+  String get scanNow;
+
+  /// No description provided for @scanDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse terminée'**
+  String get scanDone;
+
+  /// No description provided for @scanRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} sur {total} analysés'**
+  String scanRunning(int done, int total);
+
+  /// No description provided for @noFolders.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun dossier suivi pour l\'instant.'**
+  String get noFolders;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
