@@ -9,6 +9,7 @@
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
+import 'api/get.dart';
 import 'api/health.dart';
 import 'api/indexer.dart';
 import 'api/library.dart';
@@ -35,7 +36,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<GetEvent> dco_decode_StreamSink_get_event_Sse(dynamic raw);
+
+  @protected
   String dco_decode_String(dynamic raw);
+
+  @protected
+  Analysis dco_decode_analysis(dynamic raw);
+
+  @protected
+  AnalysisStatus dco_decode_analysis_status(dynamic raw);
 
   @protected
   bool dco_decode_bool(dynamic raw);
@@ -53,16 +63,28 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusKind dco_decode_box_autoadd_focus_kind(dynamic raw);
 
   @protected
+  HistoryInfo dco_decode_box_autoadd_history_info(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_i_32(dynamic raw);
 
   @protected
   LibraryItem dco_decode_box_autoadd_library_item(dynamic raw);
 
   @protected
+  MediaInfo dco_decode_box_autoadd_media_info(dynamic raw);
+
+  @protected
   PlaylistDetail dco_decode_box_autoadd_playlist_detail(dynamic raw);
 
   @protected
   SeriesDetail dco_decode_box_autoadd_series_detail(dynamic raw);
+
+  @protected
+  StartRequest dco_decode_box_autoadd_start_request(dynamic raw);
+
+  @protected
+  TaskInfo dco_decode_box_autoadd_task_info(dynamic raw);
 
   @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
@@ -104,7 +126,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusProgram dco_decode_focus_program(dynamic raw);
 
   @protected
+  FormatOffer dco_decode_format_offer(dynamic raw);
+
+  @protected
+  GetEvent dco_decode_get_event(dynamic raw);
+
+  @protected
+  GetEventKind dco_decode_get_event_kind(dynamic raw);
+
+  @protected
+  GetSettings dco_decode_get_settings(dynamic raw);
+
+  @protected
   HealthCounts dco_decode_health_counts(dynamic raw);
+
+  @protected
+  HistoryInfo dco_decode_history_info(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
@@ -131,6 +168,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibrarySummary dco_decode_library_summary(dynamic raw);
 
   @protected
+  LinkCheck dco_decode_link_check(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
@@ -150,6 +190,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<FocusProgram> dco_decode_list_focus_program(dynamic raw);
+
+  @protected
+  List<FormatOffer> dco_decode_list_format_offer(dynamic raw);
+
+  @protected
+  List<HistoryInfo> dco_decode_list_history_info(dynamic raw);
 
   @protected
   List<LibraryGroup> dco_decode_list_library_group(dynamic raw);
@@ -182,6 +228,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<SeriesSummary> dco_decode_list_series_summary(dynamic raw);
 
   @protected
+  List<TaskInfo> dco_decode_list_task_info(dynamic raw);
+
+  @protected
+  List<ToolStatus> dco_decode_list_tool_status(dynamic raw);
+
+  @protected
+  MediaInfo dco_decode_media_info(dynamic raw);
+
+  @protected
   MissingCause dco_decode_missing_cause(dynamic raw);
 
   @protected
@@ -206,16 +261,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusKind? dco_decode_opt_box_autoadd_focus_kind(dynamic raw);
 
   @protected
+  HistoryInfo? dco_decode_opt_box_autoadd_history_info(dynamic raw);
+
+  @protected
   int? dco_decode_opt_box_autoadd_i_32(dynamic raw);
 
   @protected
   LibraryItem? dco_decode_opt_box_autoadd_library_item(dynamic raw);
 
   @protected
+  MediaInfo? dco_decode_opt_box_autoadd_media_info(dynamic raw);
+
+  @protected
   PlaylistDetail? dco_decode_opt_box_autoadd_playlist_detail(dynamic raw);
 
   @protected
   SeriesDetail? dco_decode_opt_box_autoadd_series_detail(dynamic raw);
+
+  @protected
+  TaskInfo? dco_decode_opt_box_autoadd_task_info(dynamic raw);
 
   @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
@@ -254,6 +318,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesSummary dco_decode_series_summary(dynamic raw);
 
   @protected
+  StartRequest dco_decode_start_request(dynamic raw);
+
+  @protected
+  TaskInfo dco_decode_task_info(dynamic raw);
+
+  @protected
+  ToolStatus dco_decode_tool_status(dynamic raw);
+
+  @protected
   int dco_decode_u_32(dynamic raw);
 
   @protected
@@ -272,7 +345,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<GetEvent> sse_decode_StreamSink_get_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
+
+  @protected
+  Analysis sse_decode_analysis(SseDeserializer deserializer);
+
+  @protected
+  AnalysisStatus sse_decode_analysis_status(SseDeserializer deserializer);
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
@@ -290,10 +374,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusKind sse_decode_box_autoadd_focus_kind(SseDeserializer deserializer);
 
   @protected
+  HistoryInfo sse_decode_box_autoadd_history_info(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
   LibraryItem sse_decode_box_autoadd_library_item(SseDeserializer deserializer);
+
+  @protected
+  MediaInfo sse_decode_box_autoadd_media_info(SseDeserializer deserializer);
 
   @protected
   PlaylistDetail sse_decode_box_autoadd_playlist_detail(
@@ -304,6 +394,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesDetail sse_decode_box_autoadd_series_detail(
     SseDeserializer deserializer,
   );
+
+  @protected
+  StartRequest sse_decode_box_autoadd_start_request(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  TaskInfo sse_decode_box_autoadd_task_info(SseDeserializer deserializer);
 
   @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
@@ -347,7 +445,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusProgram sse_decode_focus_program(SseDeserializer deserializer);
 
   @protected
+  FormatOffer sse_decode_format_offer(SseDeserializer deserializer);
+
+  @protected
+  GetEvent sse_decode_get_event(SseDeserializer deserializer);
+
+  @protected
+  GetEventKind sse_decode_get_event_kind(SseDeserializer deserializer);
+
+  @protected
+  GetSettings sse_decode_get_settings(SseDeserializer deserializer);
+
+  @protected
   HealthCounts sse_decode_health_counts(SseDeserializer deserializer);
+
+  @protected
+  HistoryInfo sse_decode_history_info(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
@@ -372,6 +485,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LibrarySummary sse_decode_library_summary(SseDeserializer deserializer);
+
+  @protected
+  LinkCheck sse_decode_link_check(SseDeserializer deserializer);
 
   @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
@@ -401,6 +517,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<FocusProgram> sse_decode_list_focus_program(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<FormatOffer> sse_decode_list_format_offer(SseDeserializer deserializer);
+
+  @protected
+  List<HistoryInfo> sse_decode_list_history_info(SseDeserializer deserializer);
 
   @protected
   List<LibraryGroup> sse_decode_list_library_group(
@@ -445,6 +567,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<TaskInfo> sse_decode_list_task_info(SseDeserializer deserializer);
+
+  @protected
+  List<ToolStatus> sse_decode_list_tool_status(SseDeserializer deserializer);
+
+  @protected
+  MediaInfo sse_decode_media_info(SseDeserializer deserializer);
+
+  @protected
   MissingCause sse_decode_missing_cause(SseDeserializer deserializer);
 
   @protected
@@ -475,10 +606,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  HistoryInfo? sse_decode_opt_box_autoadd_history_info(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int? sse_decode_opt_box_autoadd_i_32(SseDeserializer deserializer);
 
   @protected
   LibraryItem? sse_decode_opt_box_autoadd_library_item(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  MediaInfo? sse_decode_opt_box_autoadd_media_info(
     SseDeserializer deserializer,
   );
 
@@ -491,6 +632,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesDetail? sse_decode_opt_box_autoadd_series_detail(
     SseDeserializer deserializer,
   );
+
+  @protected
+  TaskInfo? sse_decode_opt_box_autoadd_task_info(SseDeserializer deserializer);
 
   @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
@@ -531,6 +675,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesSummary sse_decode_series_summary(SseDeserializer deserializer);
 
   @protected
+  StartRequest sse_decode_start_request(SseDeserializer deserializer);
+
+  @protected
+  TaskInfo sse_decode_task_info(SseDeserializer deserializer);
+
+  @protected
+  ToolStatus sse_decode_tool_status(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_u_32(SseDeserializer deserializer);
 
   @protected
@@ -552,7 +705,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_get_event_Sse(
+    RustStreamSink<GetEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_analysis(Analysis self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_analysis_status(
+    AnalysisStatus self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
@@ -579,11 +747,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_history_info(
+    HistoryInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_i_32(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_library_item(
     LibraryItem self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_media_info(
+    MediaInfo self,
     SseSerializer serializer,
   );
 
@@ -596,6 +776,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_series_detail(
     SeriesDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_start_request(
+    StartRequest self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_task_info(
+    TaskInfo self,
     SseSerializer serializer,
   );
 
@@ -645,7 +837,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_focus_program(FocusProgram self, SseSerializer serializer);
 
   @protected
+  void sse_encode_format_offer(FormatOffer self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_get_event(GetEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_get_event_kind(GetEventKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_get_settings(GetSettings self, SseSerializer serializer);
+
+  @protected
   void sse_encode_health_counts(HealthCounts self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_history_info(HistoryInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -673,6 +880,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     LibrarySummary self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_link_check(LinkCheck self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
@@ -710,6 +920,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_focus_program(
     List<FocusProgram> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_format_offer(
+    List<FormatOffer> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_history_info(
+    List<HistoryInfo> self,
     SseSerializer serializer,
   );
 
@@ -774,6 +996,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_task_info(List<TaskInfo> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_tool_status(
+    List<ToolStatus> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_media_info(MediaInfo self, SseSerializer serializer);
+
+  @protected
   void sse_encode_missing_cause(MissingCause self, SseSerializer serializer);
 
   @protected
@@ -813,11 +1047,23 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_history_info(
+    HistoryInfo? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_i_32(int? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_library_item(
     LibraryItem? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_media_info(
+    MediaInfo? self,
     SseSerializer serializer,
   );
 
@@ -830,6 +1076,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_series_detail(
     SeriesDetail? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_task_info(
+    TaskInfo? self,
     SseSerializer serializer,
   );
 
@@ -877,6 +1129,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_series_summary(SeriesSummary self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_start_request(StartRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_task_info(TaskInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tool_status(ToolStatus self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);

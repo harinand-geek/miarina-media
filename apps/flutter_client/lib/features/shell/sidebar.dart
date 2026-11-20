@@ -8,6 +8,7 @@ import '../../design/tokens.dart';
 import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../get/get_data.dart';
 import '../health/health_data.dart';
 import '../library/library_data.dart';
 import '../playlists/playlists_data.dart';
@@ -20,6 +21,7 @@ class _Entry {
     this.filled, {
     this.count,
     this.warn = false,
+    this.accent = false,
   });
   final String route;
   final String label;
@@ -29,6 +31,9 @@ class _Entry {
 
   /// Amber badge: something needs the user (missing files).
   final bool warn;
+
+  /// Teal badge (open downloads, as in the Tauri app).
+  final bool accent;
 }
 
 /// Windows sidebar of the Listen space (Handoff, "Navigation cible"):
@@ -54,121 +59,164 @@ class Sidebar extends ConsumerWidget {
     final onHealth =
         location == Routes.missing || location == Routes.duplicates;
 
-    final groups = <(String?, List<_Entry>)>[
+    final open = ref.watch(downloadsSummaryProvider).openCount;
+    // Obtenir: the Tauri app's sections, in its order.
+    final getGroups = <(String?, List<_Entry>)>[
       (
         null,
         [
           _Entry(
-            Routes.listenHome,
-            t.navHome,
+            Routes.get,
+            t.getNavHome,
             PhosphorRegular.house,
             PhosphorFill.house,
           ),
-          // W-03, under Home in the Cinema & Focus mockups.
           _Entry(
-            Routes.history,
-            t.navHistory,
+            Routes.getDownloads,
+            t.getNavDownloads,
+            PhosphorRegular.downloadSimple,
+            PhosphorFill.downloadSimple,
+            count: open > 0 ? '$open' : null,
+            accent: true,
+          ),
+          _Entry(
+            Routes.getBrowser,
+            t.getNavBrowser,
+            PhosphorRegular.globe,
+            PhosphorFill.globe,
+          ),
+          _Entry(
+            Routes.getTorrents,
+            t.getNavTorrents,
+            PhosphorRegular.shareNetwork,
+            PhosphorFill.shareNetwork,
+          ),
+          _Entry(
+            Routes.getHistory,
+            t.getNavHistory,
             PhosphorRegular.clockCounterClockwise,
             PhosphorFill.clockCounterClockwise,
           ),
         ],
       ),
-      (
-        t.navSectionMusic,
-        [
-          _Entry(
-            Routes.albums,
-            t.navAlbums,
-            PhosphorRegular.vinylRecord,
-            PhosphorFill.vinylRecord,
-          ),
-          _Entry(
-            Routes.artists,
-            t.navArtists,
-            PhosphorRegular.user,
-            PhosphorFill.user,
-          ),
-          _Entry(
-            Routes.tracks,
-            t.navTracks,
-            PhosphorRegular.musicNote,
-            PhosphorFill.musicNote,
-            count: tracks == null ? null : _group(tracks),
-          ),
-          _Entry(
-            Routes.playlists,
-            t.navPlaylists,
-            PhosphorRegular.queue,
-            PhosphorFill.queue,
-            count: playlists == null ? null : _group(playlists),
-          ),
-          _Entry(
-            Routes.favorites,
-            t.navFavorites,
-            PhosphorRegular.heart,
-            PhosphorFill.heart,
-            count: favorites == null ? null : _group(favorites),
-          ),
-        ],
-      ),
-      (
-        t.navSectionCinema,
-        [
-          _Entry(
-            Routes.cinema,
-            t.navMovies,
-            PhosphorRegular.filmSlate,
-            PhosphorFill.filmSlate,
-          ),
-          _Entry(
-            Routes.personalVideos,
-            t.navPersonalVideos,
-            PhosphorRegular.monitorPlay,
-            PhosphorFill.monitorPlay,
-          ),
-        ],
-      ),
-      (
-        t.navSectionFocus,
-        [
-          _Entry(
-            Routes.focus,
-            t.navPodcasts,
-            PhosphorRegular.graduationCap,
-            PhosphorFill.graduationCap,
-          ),
-          _Entry(
-            Routes.audiobooks,
-            t.navAudiobooks,
-            PhosphorRegular.bookOpenText,
-            PhosphorFill.bookOpenText,
-          ),
-        ],
-      ),
-      if (missing > 0 || duplicates > 0 || onHealth)
-        (
-          t.navSectionLibrary,
-          [
-            if (missing > 0 || location == Routes.missing)
-              _Entry(
-                Routes.missing,
-                t.navMissing,
-                PhosphorRegular.linkBreak,
-                PhosphorFill.linkBreak,
-                count: missing > 0 ? _group(missing) : null,
-                warn: true,
-              ),
-            if (duplicates > 0 || location == Routes.duplicates)
-              _Entry(
-                Routes.duplicates,
-                t.navDuplicates,
-                PhosphorRegular.copy,
-                PhosphorFill.copy,
-                count: duplicates > 0 ? _group(duplicates) : null,
-              ),
-          ],
-        ),
     ];
+    final groups = inGet
+        ? getGroups
+        : <(String?, List<_Entry>)>[
+            (
+              null,
+              [
+                _Entry(
+                  Routes.listenHome,
+                  t.navHome,
+                  PhosphorRegular.house,
+                  PhosphorFill.house,
+                ),
+                // W-03, under Home in the Cinema & Focus mockups.
+                _Entry(
+                  Routes.history,
+                  t.navHistory,
+                  PhosphorRegular.clockCounterClockwise,
+                  PhosphorFill.clockCounterClockwise,
+                ),
+              ],
+            ),
+            (
+              t.navSectionMusic,
+              [
+                _Entry(
+                  Routes.albums,
+                  t.navAlbums,
+                  PhosphorRegular.vinylRecord,
+                  PhosphorFill.vinylRecord,
+                ),
+                _Entry(
+                  Routes.artists,
+                  t.navArtists,
+                  PhosphorRegular.user,
+                  PhosphorFill.user,
+                ),
+                _Entry(
+                  Routes.tracks,
+                  t.navTracks,
+                  PhosphorRegular.musicNote,
+                  PhosphorFill.musicNote,
+                  count: tracks == null ? null : _group(tracks),
+                ),
+                _Entry(
+                  Routes.playlists,
+                  t.navPlaylists,
+                  PhosphorRegular.queue,
+                  PhosphorFill.queue,
+                  count: playlists == null ? null : _group(playlists),
+                ),
+                _Entry(
+                  Routes.favorites,
+                  t.navFavorites,
+                  PhosphorRegular.heart,
+                  PhosphorFill.heart,
+                  count: favorites == null ? null : _group(favorites),
+                ),
+              ],
+            ),
+            (
+              t.navSectionCinema,
+              [
+                _Entry(
+                  Routes.cinema,
+                  t.navMovies,
+                  PhosphorRegular.filmSlate,
+                  PhosphorFill.filmSlate,
+                ),
+                _Entry(
+                  Routes.personalVideos,
+                  t.navPersonalVideos,
+                  PhosphorRegular.monitorPlay,
+                  PhosphorFill.monitorPlay,
+                ),
+              ],
+            ),
+            (
+              t.navSectionFocus,
+              [
+                _Entry(
+                  Routes.focus,
+                  t.navPodcasts,
+                  PhosphorRegular.graduationCap,
+                  PhosphorFill.graduationCap,
+                ),
+                _Entry(
+                  Routes.audiobooks,
+                  t.navAudiobooks,
+                  PhosphorRegular.bookOpenText,
+                  PhosphorFill.bookOpenText,
+                ),
+              ],
+            ),
+            if (missing > 0 || duplicates > 0 || onHealth)
+              (
+                t.navSectionLibrary,
+                [
+                  if (missing > 0 || location == Routes.missing)
+                    _Entry(
+                      Routes.missing,
+                      t.navMissing,
+                      PhosphorRegular.linkBreak,
+                      PhosphorFill.linkBreak,
+                      count: missing > 0 ? _group(missing) : null,
+                      warn: true,
+                    ),
+                  if (duplicates > 0 || location == Routes.duplicates)
+                    _Entry(
+                      Routes.duplicates,
+                      t.navDuplicates,
+                      PhosphorRegular.copy,
+                      PhosphorFill.copy,
+                      count: duplicates > 0 ? _group(duplicates) : null,
+                    ),
+                ],
+              ),
+          ];
 
     return Container(
       width: collapsed ? 64 : 232,
@@ -226,13 +274,18 @@ class Sidebar extends ConsumerWidget {
                           // The Focus player and program pages too.
                           (e.route == Routes.focus &&
                               (location == Routes.focusPlayer ||
-                                  location == Routes.focusProgram)),
+                                  location == Routes.focusProgram)) ||
+                          // The analysis of a link belongs to Obtenir's home.
+                          (e.route == Routes.get &&
+                              location == Routes.getAnalysis),
                       collapsed: collapsed,
+                      teal: inGet,
                     ),
                 ],
               ],
             ),
           ),
+          if (inGet && !collapsed) const _DownloadsCard(),
           _NavItem(
             entry: _Entry(
               Routes.settings,
@@ -264,7 +317,11 @@ class _NavItem extends StatelessWidget {
     required this.entry,
     required this.active,
     required this.collapsed,
+    this.teal = false,
   });
+
+  /// Obtenir lights its active entry in teal, as the Tauri app.
+  final bool teal;
 
   final _Entry entry;
   final bool active;
@@ -300,7 +357,7 @@ class _NavItem extends StatelessWidget {
               filled: entry.filled,
               active: active,
               size: 20,
-              color: active ? c.coral : c.muted,
+              color: active ? (teal ? c.accentStrong : c.coral) : c.muted,
             ),
             if (!collapsed) ...[
               const SizedBox(width: 12),
@@ -312,7 +369,25 @@ class _NavItem extends StatelessWidget {
                   style: MmType.label.copyWith(color: active ? c.fg : c.muted),
                 ),
               ),
-              if (entry.count != null && entry.warn)
+              if (entry.count != null && entry.accent)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.accentSubtle,
+                    borderRadius: BorderRadius.circular(MmRadius.xs),
+                  ),
+                  child: Text(
+                    entry.count!,
+                    style: MmType.monoStyle(
+                      size: 11,
+                      color: c.chipText,
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                )
+              else if (entry.count != null && entry.warn)
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6),
                   decoration: BoxDecoration(
@@ -441,6 +516,84 @@ class _SpaceSwitch extends StatelessWidget {
         border: Border.all(color: c.line),
       ),
       child: collapsed ? Column(children: children) : Row(children: children),
+    );
+  }
+}
+
+/// Downloads at a glance (Tauri sidebar card): what runs, the speed, the
+/// overall progress and what waits; opens Téléchargements.
+class _DownloadsCard extends ConsumerWidget {
+  const _DownloadsCard();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final s = ref.watch(downloadsSummaryProvider);
+    final lang = Localizations.localeOf(context).languageCode;
+    final head = s.running.isNotEmpty
+        ? t.getSumRunning(s.running.length)
+        : s.offline
+        ? t.getSumOffline
+        : s.active.isNotEmpty
+        ? t.getSumPaused
+        : t.getSumIdle;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 6),
+      child: Pressable(
+        onTap: () => context.go(Routes.getDownloads),
+        semanticLabel: head,
+        borderRadius: BorderRadius.circular(18),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: c.line),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      head,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.captionStrong.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: c.fg,
+                      ),
+                    ),
+                  ),
+                  if (s.running.isNotEmpty)
+                    Text(
+                      formatSpeed(s.speed, lang: lang),
+                      style: MmType.monoStyle(size: 12, color: c.accentStrong),
+                    ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(MmRadius.pill),
+                child: LinearProgressIndicator(
+                  value: s.overallPercent / 100,
+                  minHeight: 3,
+                  color: c.accent,
+                  backgroundColor: c.line,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                t.getSumQueue(s.queued.length),
+                style: MmType.caption.copyWith(fontSize: 11.5, color: c.muted),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -32,6 +32,10 @@ abstract final class PhosphorRegular {
     0xe08e,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData arrowsClockwise = IconData(
+    0xe094,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData arrowsOutSimple = IconData(
     0xe0a6,
     fontFamily: 'PhosphorRegular',
@@ -103,6 +107,10 @@ abstract final class PhosphorRegular {
     0xe1a0,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData closedCaptioning = IconData(
+    0xe1a4,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData copy = IconData(0xe1ca, fontFamily: 'PhosphorRegular');
   static const IconData cornersIn = IconData(
     0xe1ce,
@@ -165,6 +173,10 @@ abstract final class PhosphorRegular {
     0xe8c2,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData filmStrip = IconData(
+    0xe792,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData folder = IconData(
     0xe24a,
     fontFamily: 'PhosphorRegular',
@@ -220,6 +232,14 @@ abstract final class PhosphorRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const IconData heart = IconData(0xe2a8, fontFamily: 'PhosphorRegular');
+  static const IconData highDefinition = IconData(
+    0xea8e,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData hourglass = IconData(
+    0xe2b2,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData hourglassSimple = IconData(
     0xe2ba,
     fontFamily: 'PhosphorRegular',
@@ -240,6 +260,10 @@ abstract final class PhosphorRegular {
   static const IconData info = IconData(0xe2ce, fontFamily: 'PhosphorRegular');
   static const IconData keyboard = IconData(
     0xe2d8,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData lightbulb = IconData(
+    0xe2dc,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData lightning = IconData(
@@ -324,6 +348,10 @@ abstract final class PhosphorRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const IconData pause = IconData(0xe39e, fontFamily: 'PhosphorRegular');
+  static const IconData pauseCircle = IconData(
+    0xe3a0,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData pencilSimple = IconData(
     0xe3b4,
     fontFamily: 'PhosphorRegular',
@@ -375,6 +403,10 @@ abstract final class PhosphorRegular {
   );
   static const IconData sealCheck = IconData(
     0xe606,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData shareNetwork = IconData(
+    0xe408,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData shieldCheck = IconData(
@@ -515,6 +547,10 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData arrowUp = IconData(0xe08e, fontFamily: 'PhosphorFill');
+  static const IconData arrowsClockwise = IconData(
+    0xe094,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData arrowsOutSimple = IconData(
     0xe0a6,
     fontFamily: 'PhosphorFill',
@@ -577,6 +613,10 @@ abstract final class PhosphorFill {
     0xe1a0,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData closedCaptioning = IconData(
+    0xe1a4,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData copy = IconData(0xe1ca, fontFamily: 'PhosphorFill');
   static const IconData cornersIn = IconData(
     0xe1ce,
@@ -622,6 +662,10 @@ abstract final class PhosphorFill {
   static const IconData fileText = IconData(0xe23a, fontFamily: 'PhosphorFill');
   static const IconData filmSlate = IconData(
     0xe8c2,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData filmStrip = IconData(
+    0xe792,
     fontFamily: 'PhosphorFill',
   );
   static const IconData folder = IconData(0xe24a, fontFamily: 'PhosphorFill');
@@ -670,6 +714,14 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData heart = IconData(0xe2a8, fontFamily: 'PhosphorFill');
+  static const IconData highDefinition = IconData(
+    0xea8e,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData hourglass = IconData(
+    0xe2b2,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData hourglassSimple = IconData(
     0xe2ba,
     fontFamily: 'PhosphorFill',
@@ -686,6 +738,10 @@ abstract final class PhosphorFill {
   );
   static const IconData info = IconData(0xe2ce, fontFamily: 'PhosphorFill');
   static const IconData keyboard = IconData(0xe2d8, fontFamily: 'PhosphorFill');
+  static const IconData lightbulb = IconData(
+    0xe2dc,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData lightning = IconData(
     0xe2de,
     fontFamily: 'PhosphorFill',
@@ -765,6 +821,10 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData pause = IconData(0xe39e, fontFamily: 'PhosphorFill');
+  static const IconData pauseCircle = IconData(
+    0xe3a0,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData pencilSimple = IconData(
     0xe3b4,
     fontFamily: 'PhosphorFill',
@@ -801,6 +861,10 @@ abstract final class PhosphorFill {
   );
   static const IconData sealCheck = IconData(
     0xe606,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData shareNetwork = IconData(
+    0xe408,
     fontFamily: 'PhosphorFill',
   );
   static const IconData shieldCheck = IconData(

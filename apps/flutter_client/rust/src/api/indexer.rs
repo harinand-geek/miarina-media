@@ -21,6 +21,33 @@ struct Indexer {
     runtime: tokio::runtime::Runtime,
     library: Library,
     has_ffmpeg: bool,
+    /// Shared with the download manager (Obtenir): one connection.
+    storage: Arc<Mutex<Storage>>,
+    components: Components,
+}
+
+/// What the download manager (Obtenir) shares with the indexing: runtime,
+/// database connection, library and media tools.
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) struct Shared {
+    pub db: String,
+    pub runtime: tokio::runtime::Handle,
+    pub storage: Arc<Mutex<Storage>>,
+    pub library: Library,
+    pub components: Components,
+}
+
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn shared() -> Result<Shared> {
+    with_indexer(|i| {
+        Ok(Shared {
+            db: i.db.clone(),
+            runtime: i.runtime.handle().clone(),
+            storage: i.storage.clone(),
+            library: i.library.clone(),
+            components: i.components.clone(),
+        })
+    })
 }
 
 static INDEXER: Mutex<Option<Indexer>> = Mutex::new(None);
@@ -78,8 +105,8 @@ pub fn indexer_start(db_path: String, data_dir: String, tools_dir: Option<String
     let has_ffmpeg = components.ffmpeg_dir().is_some();
     let storage = Arc::new(Mutex::new(Storage::open(Path::new(&db_path))?));
     let library = Library::new(
-        storage,
-        components,
+        storage.clone(),
+        components.clone(),
         data.join("thumbnails"),
         Arc::new(|| {
             GENERATION.fetch_add(1, Ordering::Relaxed);
@@ -96,6 +123,8 @@ pub fn indexer_start(db_path: String, data_dir: String, tools_dir: Option<String
         runtime,
         library,
         has_ffmpeg,
+        storage,
+        components,
     });
     Ok(())
 }

@@ -1967,4 +1967,503 @@ class L10nFr extends L10n {
   @override
   String get favoritesEmptyBody =>
       'Touchez le cœur d\'un titre, dans Titres ou En lecture, pour le retrouver ici.';
+
+  @override
+  String get getNavHome => 'Accueil';
+
+  @override
+  String get getNavDownloads => 'Téléchargements';
+
+  @override
+  String get getNavBrowser => 'Navigateur';
+
+  @override
+  String get getNavTorrents => 'Torrents';
+
+  @override
+  String get getNavHistory => 'Historique';
+
+  @override
+  String get getHomeTitle => 'Du lien à votre bibliothèque';
+
+  @override
+  String get getHomeSub =>
+      'Collez un lien, choisissez le format, écoutez ou regardez hors ligne.';
+
+  @override
+  String get getLinkLabel => 'Lien du média';
+
+  @override
+  String get getPaste => 'Coller';
+
+  @override
+  String get getAnalyze => 'Analyser';
+
+  @override
+  String get getHintPaste => 'pour coller et analyser';
+
+  @override
+  String get getHintDrop => 'Glissez un lien dans la fenêtre';
+
+  @override
+  String get getHintExt => 'Ou envoyez-le depuis l’extension Chrome/Edge';
+
+  @override
+  String get getQAudio => 'Audio seul';
+
+  @override
+  String get getQAudioDesc => 'MP3 jusqu’à 320 kbps, FLAC';
+
+  @override
+  String get getQPlaylist => 'Playlist';
+
+  @override
+  String get getQPlaylistDesc => 'Choisir les éléments';
+
+  @override
+  String get getQBatch => 'Plusieurs liens';
+
+  @override
+  String get getQBatchDesc => 'Un lien par ligne';
+
+  @override
+  String get getQTorrent => 'Torrent / magnet';
+
+  @override
+  String get getQTorrentDesc => 'Fichiers et partage maîtrisés';
+
+  @override
+  String get getContinue => 'Reprendre';
+
+  @override
+  String get getSeeLibrary => 'Voir la bibliothèque';
+
+  @override
+  String get getContinueEmpty =>
+      'Ce que vous commencez à lire ou regarder reprendra ici.';
+
+  @override
+  String get getRecent => 'Récemment téléchargés';
+
+  @override
+  String get getHomeEmpty => 'Vos téléchargements apparaîtront ici.';
+
+  @override
+  String getPlayTitle(String title) {
+    return 'Lire $title';
+  }
+
+  @override
+  String getMinutesLeft(int n) {
+    return 'Reste $n min';
+  }
+
+  @override
+  String get getLinkEmpty => 'Collez un lien à analyser.';
+
+  @override
+  String get getLinkTooLong => 'Ce lien est trop long.';
+
+  @override
+  String get getLinkMalformed =>
+      'Ce lien semble incomplet. Vérifiez qu’il commence par « https:// ».';
+
+  @override
+  String get getLinkScheme => 'Seuls les liens http et https sont acceptés.';
+
+  @override
+  String get getLinkCredentials =>
+      'Les liens contenant un nom d’utilisateur ou un mot de passe ne sont pas acceptés.';
+
+  @override
+  String get getLinkMissingHttps => 'Il manque « https:// » à ce lien.';
+
+  @override
+  String get getAddHttps => 'Ajouter https://';
+
+  @override
+  String get getClipboardEmpty =>
+      'Le presse-papiers est vide. Copiez d’abord un lien.';
+
+  @override
+  String get getPlanned => 'PRÉVU';
+
+  @override
+  String get getPlannedHint =>
+      'Prévu dans un prochain lot : pas encore disponible.';
+
+  @override
+  String get getBack => 'Retour';
+
+  @override
+  String get getFmtVideo => 'Vidéo';
+
+  @override
+  String get getFmtSubs => 'Sous-titres';
+
+  @override
+  String get getNoVideoFormats =>
+      'Cette source ne propose pas de format vidéo.';
+
+  @override
+  String get getNoAudioFormats =>
+      'Cette source ne propose pas de format audio seul.';
+
+  @override
+  String get getNoSubsFormats => 'Cette source ne propose pas de sous-titres.';
+
+  @override
+  String getUpTo(String q) {
+    return 'Jusqu’à $q';
+  }
+
+  @override
+  String get getSubsPlanned => 'Sous-titres : téléchargement prévu (DL-08)';
+
+  @override
+  String get getNoteAudio =>
+      'La conversion suit le téléchargement ; sa progression est affichée à part.';
+
+  @override
+  String get getNoteVideo => 'Tailles indiquées par la source, ou estimées.';
+
+  @override
+  String get getNeedsFfmpeg =>
+      'Installez FFmpeg pour obtenir plus de qualités (vidéo et audio fusionnés) et la conversion MP3.';
+
+  @override
+  String get getDirectResume =>
+      'Fichier direct · reprise possible si interrompu';
+
+  @override
+  String get getDirectNoResume =>
+      'Fichier direct · pas de reprise si interrompu';
+
+  @override
+  String getOriginalFile(String ext) {
+    return '$ext · fichier d’origine';
+  }
+
+  @override
+  String get getTagRecommended => 'Recommandé';
+
+  @override
+  String get getTagBest => 'Meilleure qualité';
+
+  @override
+  String get getChange => 'Changer';
+
+  @override
+  String get getAddToQueue => 'Ajouter à la file';
+
+  @override
+  String get getStarting => 'Démarrage…';
+
+  @override
+  String getDownloadSize(String size) {
+    return 'Télécharger · $size';
+  }
+
+  @override
+  String get getDownload => 'Télécharger';
+
+  @override
+  String getAddedToQueue(String q) {
+    return 'Ajouté à la file · $q';
+  }
+
+  @override
+  String get getView => 'Voir';
+
+  @override
+  String get getPrepTitle => 'Préparation de votre fichier';
+
+  @override
+  String getPrepElapsed(int n) {
+    return '$n s';
+  }
+
+  @override
+  String getPrepStage1(String host) {
+    return 'Lecture du lien sur $host…';
+  }
+
+  @override
+  String get getPrepStage2 =>
+      'Recherche des qualités vidéo et audio disponibles…';
+
+  @override
+  String get getPrepStage3 =>
+      'Certains sites répondent plus lentement. Merci de patienter, ça continue.';
+
+  @override
+  String get getPrepStage4 =>
+      'Toujours en cours. Les vidéos longues ou très demandées peuvent prendre plus de temps.';
+
+  @override
+  String get getPrepThisSite => 'ce site';
+
+  @override
+  String get getPrepTip => 'ASTUCE';
+
+  @override
+  String get getPrepTip1 =>
+      'Choisissez « Audio seul » pour ne garder que la musique, dans un fichier plus léger.';
+
+  @override
+  String get getPrepTip2 =>
+      'Vos téléchargements arrivent directement dans la bibliothèque.';
+
+  @override
+  String get getPrepTip3 =>
+      'Les qualités proposées sont celles que la source publie, rien n’est inventé.';
+
+  @override
+  String get getPrepTip4 =>
+      'Plusieurs titres ? Ajoutez-les « À la file » : ils se téléchargent chacun leur tour.';
+
+  @override
+  String get getNoMediaTitle => 'Aucun média téléchargeable trouvé';
+
+  @override
+  String get getNoMediaBody =>
+      'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.';
+
+  @override
+  String getNoMediaReason(String reason) {
+    return 'Raison : $reason';
+  }
+
+  @override
+  String get getWhyNetwork =>
+      'le site n’a pas pu être joint ; vérifiez le lien et votre connexion';
+
+  @override
+  String getWhyHttp(String status) {
+    return 'le site a refusé la demande (HTTP $status)';
+  }
+
+  @override
+  String get getWhyPlatform =>
+      'la lecture des pages web n’est pas disponible sur cet appareil';
+
+  @override
+  String get getTryAgain => 'Réessayer';
+
+  @override
+  String get getToolsNeeded => 'Cette page a besoin des outils média';
+
+  @override
+  String get getToolsBody =>
+      'Miarina Media lit les pages web avec yt-dlp et fusionne ou convertit les fichiers avec FFmpeg. Ils sont téléchargés une fois depuis leurs publications officielles et contrôlés avec une empreinte SHA-256 fixe avant usage.';
+
+  @override
+  String getBytesOf(String done, String total) {
+    return '$done sur $total';
+  }
+
+  @override
+  String get getNotNow => 'Plus tard';
+
+  @override
+  String get getDownloadingShort => 'Téléchargement…';
+
+  @override
+  String getDownloadTools(String size) {
+    return 'Télécharger les outils · $size';
+  }
+
+  @override
+  String getTabActive(int n) {
+    return 'En cours · $n';
+  }
+
+  @override
+  String getTabDone(int n) {
+    return 'Terminés · $n';
+  }
+
+  @override
+  String getTabFailed(int n) {
+    return 'Échecs · $n';
+  }
+
+  @override
+  String getDlSubRunning(int n, String speed) {
+    return '$n en cours · $speed · reprise automatique si la source l’accepte';
+  }
+
+  @override
+  String get getDlSubPaused => 'Tout est en pause';
+
+  @override
+  String getDlSubIdle(int n) {
+    return 'Rien en cours · jusqu’à $n à la fois';
+  }
+
+  @override
+  String get getPauseAll => 'Tout mettre en pause';
+
+  @override
+  String get getResumeAll => 'Tout reprendre';
+
+  @override
+  String get getDlNothing => 'Rien ici pour le moment.';
+
+  @override
+  String getActRetry(String title) {
+    return 'Réessayer $title';
+  }
+
+  @override
+  String getActResume(String title) {
+    return 'Reprendre $title';
+  }
+
+  @override
+  String getActStart(String title) {
+    return 'Démarrer $title maintenant';
+  }
+
+  @override
+  String getActPause(String title) {
+    return 'Mettre en pause $title';
+  }
+
+  @override
+  String get getCannotPause =>
+      'Impossible de mettre en pause pendant la préparation du fichier';
+
+  @override
+  String getRemoveNamed(String title) {
+    return 'Retirer $title';
+  }
+
+  @override
+  String getCancelNamed(String title) {
+    return 'Annuler $title';
+  }
+
+  @override
+  String get getCancelTitle => 'Annuler le téléchargement ?';
+
+  @override
+  String getCancelBody(String title) {
+    return '$title sera retiré de la file et ses fichiers partiels supprimés.';
+  }
+
+  @override
+  String get getCancelConfirm => 'Annuler le téléchargement';
+
+  @override
+  String get getKeepDownloading => 'Continuer';
+
+  @override
+  String getActRestart(String title) {
+    return 'Recommencer $title depuis le début';
+  }
+
+  @override
+  String get getOpenFolder => 'Ouvrir le dossier';
+
+  @override
+  String get getShowInFolder => 'Afficher dans le dossier';
+
+  @override
+  String get getStDone => 'Terminé';
+
+  @override
+  String get getFileGone => 'Ce fichier n’est plus dans la bibliothèque.';
+
+  @override
+  String get getStFailed => 'Échec';
+
+  @override
+  String getStResumeAt(int n) {
+    return 'reprise $n %';
+  }
+
+  @override
+  String get getStOffline => 'En pause · hors ligne';
+
+  @override
+  String getStRetry(int n) {
+    return 'Connexion perdue · nouvel essai $n s';
+  }
+
+  @override
+  String get getStDownloading => 'Téléchargement';
+
+  @override
+  String get getStConverting => 'Conversion';
+
+  @override
+  String getStConvertingTo(String ext) {
+    return 'Conversion $ext';
+  }
+
+  @override
+  String getStFinalizing(String ext) {
+    return 'Finalisation $ext';
+  }
+
+  @override
+  String get getStStep => 'étape 2/2 · ffmpeg';
+
+  @override
+  String get getStPaused => 'En pause';
+
+  @override
+  String get getStPausedRestart => 'En pause · redémarrera';
+
+  @override
+  String get getStDiskFull => 'Échec · disque plein';
+
+  @override
+  String get getStAccessDenied => 'Échec · dossier non accessible';
+
+  @override
+  String get getStDiskFullHint => 'libérez de l’espace puis réessayez';
+
+  @override
+  String get getStAccessDeniedHint => 'choisissez un autre dossier';
+
+  @override
+  String get getStAnalyzing => 'Analyse des formats…';
+
+  @override
+  String get getStQueued => 'En attente';
+
+  @override
+  String get getWhyDiskFull => 'Disque plein';
+
+  @override
+  String get getWhyNoSpace => 'Espace disque insuffisant pour ce fichier';
+
+  @override
+  String get getWhyDenied =>
+      'Dossier de destination non accessible en écriture';
+
+  @override
+  String getSumRunning(int n) {
+    return '$n en cours';
+  }
+
+  @override
+  String get getSumOffline => 'En pause · hors ligne';
+
+  @override
+  String get getSumPaused => 'Tout en pause';
+
+  @override
+  String get getSumIdle => 'Aucun téléchargement';
+
+  @override
+  String getSumQueue(int n) {
+    return '$n en attente';
+  }
+
+  @override
+  String get getDirRefused =>
+      'Ce dossier n’accepte pas de fichiers. Choisissez-en un autre.';
 }

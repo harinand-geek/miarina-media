@@ -3132,6 +3132,828 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Touchez le cœur d\'un titre, dans Titres ou En lecture, pour le retrouver ici.'**
   String get favoritesEmptyBody;
+
+  /// No description provided for @getNavHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accueil'**
+  String get getNavHome;
+
+  /// No description provided for @getNavDownloads.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements'**
+  String get getNavDownloads;
+
+  /// No description provided for @getNavBrowser.
+  ///
+  /// In fr, this message translates to:
+  /// **'Navigateur'**
+  String get getNavBrowser;
+
+  /// No description provided for @getNavTorrents.
+  ///
+  /// In fr, this message translates to:
+  /// **'Torrents'**
+  String get getNavTorrents;
+
+  /// No description provided for @getNavHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get getNavHistory;
+
+  /// No description provided for @getHomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Du lien à votre bibliothèque'**
+  String get getHomeTitle;
+
+  /// No description provided for @getHomeSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collez un lien, choisissez le format, écoutez ou regardez hors ligne.'**
+  String get getHomeSub;
+
+  /// No description provided for @getLinkLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien du média'**
+  String get getLinkLabel;
+
+  /// No description provided for @getPaste.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coller'**
+  String get getPaste;
+
+  /// No description provided for @getAnalyze.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser'**
+  String get getAnalyze;
+
+  /// No description provided for @getHintPaste.
+  ///
+  /// In fr, this message translates to:
+  /// **'pour coller et analyser'**
+  String get getHintPaste;
+
+  /// No description provided for @getHintDrop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glissez un lien dans la fenêtre'**
+  String get getHintDrop;
+
+  /// No description provided for @getHintExt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou envoyez-le depuis l’extension Chrome/Edge'**
+  String get getHintExt;
+
+  /// No description provided for @getQAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audio seul'**
+  String get getQAudio;
+
+  /// No description provided for @getQAudioDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'MP3 jusqu’à 320 kbps, FLAC'**
+  String get getQAudioDesc;
+
+  /// No description provided for @getQPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlist'**
+  String get getQPlaylist;
+
+  /// No description provided for @getQPlaylistDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir les éléments'**
+  String get getQPlaylistDesc;
+
+  /// No description provided for @getQBatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs liens'**
+  String get getQBatch;
+
+  /// No description provided for @getQBatchDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un lien par ligne'**
+  String get getQBatchDesc;
+
+  /// No description provided for @getQTorrent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Torrent / magnet'**
+  String get getQTorrent;
+
+  /// No description provided for @getQTorrentDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichiers et partage maîtrisés'**
+  String get getQTorrentDesc;
+
+  /// No description provided for @getContinue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get getContinue;
+
+  /// No description provided for @getSeeLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir la bibliothèque'**
+  String get getSeeLibrary;
+
+  /// No description provided for @getContinueEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que vous commencez à lire ou regarder reprendra ici.'**
+  String get getContinueEmpty;
+
+  /// No description provided for @getRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récemment téléchargés'**
+  String get getRecent;
+
+  /// No description provided for @getHomeEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos téléchargements apparaîtront ici.'**
+  String get getHomeEmpty;
+
+  /// No description provided for @getPlayTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire {title}'**
+  String getPlayTitle(String title);
+
+  /// No description provided for @getMinutesLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste {n} min'**
+  String getMinutesLeft(int n);
+
+  /// No description provided for @getLinkEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collez un lien à analyser.'**
+  String get getLinkEmpty;
+
+  /// No description provided for @getLinkTooLong.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien est trop long.'**
+  String get getLinkTooLong;
+
+  /// No description provided for @getLinkMalformed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien semble incomplet. Vérifiez qu’il commence par « https:// ».'**
+  String get getLinkMalformed;
+
+  /// No description provided for @getLinkScheme.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuls les liens http et https sont acceptés.'**
+  String get getLinkScheme;
+
+  /// No description provided for @getLinkCredentials.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les liens contenant un nom d’utilisateur ou un mot de passe ne sont pas acceptés.'**
+  String get getLinkCredentials;
+
+  /// No description provided for @getLinkMissingHttps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il manque « https:// » à ce lien.'**
+  String get getLinkMissingHttps;
+
+  /// No description provided for @getAddHttps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter https://'**
+  String get getAddHttps;
+
+  /// No description provided for @getClipboardEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le presse-papiers est vide. Copiez d’abord un lien.'**
+  String get getClipboardEmpty;
+
+  /// No description provided for @getPlanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'PRÉVU'**
+  String get getPlanned;
+
+  /// No description provided for @getPlannedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévu dans un prochain lot : pas encore disponible.'**
+  String get getPlannedHint;
+
+  /// No description provided for @getBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get getBack;
+
+  /// No description provided for @getFmtVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get getFmtVideo;
+
+  /// No description provided for @getFmtSubs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres'**
+  String get getFmtSubs;
+
+  /// No description provided for @getNoVideoFormats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette source ne propose pas de format vidéo.'**
+  String get getNoVideoFormats;
+
+  /// No description provided for @getNoAudioFormats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette source ne propose pas de format audio seul.'**
+  String get getNoAudioFormats;
+
+  /// No description provided for @getNoSubsFormats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette source ne propose pas de sous-titres.'**
+  String get getNoSubsFormats;
+
+  /// No description provided for @getUpTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jusqu’à {q}'**
+  String getUpTo(String q);
+
+  /// No description provided for @getSubsPlanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres : téléchargement prévu (DL-08)'**
+  String get getSubsPlanned;
+
+  /// No description provided for @getNoteAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'La conversion suit le téléchargement ; sa progression est affichée à part.'**
+  String get getNoteAudio;
+
+  /// No description provided for @getNoteVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tailles indiquées par la source, ou estimées.'**
+  String get getNoteVideo;
+
+  /// No description provided for @getNeedsFfmpeg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installez FFmpeg pour obtenir plus de qualités (vidéo et audio fusionnés) et la conversion MP3.'**
+  String get getNeedsFfmpeg;
+
+  /// No description provided for @getDirectResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier direct · reprise possible si interrompu'**
+  String get getDirectResume;
+
+  /// No description provided for @getDirectNoResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier direct · pas de reprise si interrompu'**
+  String get getDirectNoResume;
+
+  /// No description provided for @getOriginalFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'{ext} · fichier d’origine'**
+  String getOriginalFile(String ext);
+
+  /// No description provided for @getTagRecommended.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommandé'**
+  String get getTagRecommended;
+
+  /// No description provided for @getTagBest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Meilleure qualité'**
+  String get getTagBest;
+
+  /// No description provided for @getChange.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer'**
+  String get getChange;
+
+  /// No description provided for @getAddToQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à la file'**
+  String get getAddToQueue;
+
+  /// No description provided for @getStarting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage…'**
+  String get getStarting;
+
+  /// No description provided for @getDownloadSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger · {size}'**
+  String getDownloadSize(String size);
+
+  /// No description provided for @getDownload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger'**
+  String get getDownload;
+
+  /// No description provided for @getAddedToQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouté à la file · {q}'**
+  String getAddedToQueue(String q);
+
+  /// No description provided for @getView.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get getView;
+
+  /// No description provided for @getPrepTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de votre fichier'**
+  String get getPrepTitle;
+
+  /// No description provided for @getPrepElapsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} s'**
+  String getPrepElapsed(int n);
+
+  /// No description provided for @getPrepStage1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture du lien sur {host}…'**
+  String getPrepStage1(String host);
+
+  /// No description provided for @getPrepStage2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche des qualités vidéo et audio disponibles…'**
+  String get getPrepStage2;
+
+  /// No description provided for @getPrepStage3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Certains sites répondent plus lentement. Merci de patienter, ça continue.'**
+  String get getPrepStage3;
+
+  /// No description provided for @getPrepStage4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toujours en cours. Les vidéos longues ou très demandées peuvent prendre plus de temps.'**
+  String get getPrepStage4;
+
+  /// No description provided for @getPrepThisSite.
+  ///
+  /// In fr, this message translates to:
+  /// **'ce site'**
+  String get getPrepThisSite;
+
+  /// No description provided for @getPrepTip.
+  ///
+  /// In fr, this message translates to:
+  /// **'ASTUCE'**
+  String get getPrepTip;
+
+  /// No description provided for @getPrepTip1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez « Audio seul » pour ne garder que la musique, dans un fichier plus léger.'**
+  String get getPrepTip1;
+
+  /// No description provided for @getPrepTip2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos téléchargements arrivent directement dans la bibliothèque.'**
+  String get getPrepTip2;
+
+  /// No description provided for @getPrepTip3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les qualités proposées sont celles que la source publie, rien n’est inventé.'**
+  String get getPrepTip3;
+
+  /// No description provided for @getPrepTip4.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs titres ? Ajoutez-les « À la file » : ils se téléchargent chacun leur tour.'**
+  String get getPrepTip4;
+
+  /// No description provided for @getNoMediaTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun média téléchargeable trouvé'**
+  String get getNoMediaTitle;
+
+  /// No description provided for @getNoMediaBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.'**
+  String get getNoMediaBody;
+
+  /// No description provided for @getNoMediaReason.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raison : {reason}'**
+  String getNoMediaReason(String reason);
+
+  /// No description provided for @getWhyNetwork.
+  ///
+  /// In fr, this message translates to:
+  /// **'le site n’a pas pu être joint ; vérifiez le lien et votre connexion'**
+  String get getWhyNetwork;
+
+  /// No description provided for @getWhyHttp.
+  ///
+  /// In fr, this message translates to:
+  /// **'le site a refusé la demande (HTTP {status})'**
+  String getWhyHttp(String status);
+
+  /// No description provided for @getWhyPlatform.
+  ///
+  /// In fr, this message translates to:
+  /// **'la lecture des pages web n’est pas disponible sur cet appareil'**
+  String get getWhyPlatform;
+
+  /// No description provided for @getTryAgain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer'**
+  String get getTryAgain;
+
+  /// No description provided for @getToolsNeeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette page a besoin des outils média'**
+  String get getToolsNeeded;
+
+  /// No description provided for @getToolsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina Media lit les pages web avec yt-dlp et fusionne ou convertit les fichiers avec FFmpeg. Ils sont téléchargés une fois depuis leurs publications officielles et contrôlés avec une empreinte SHA-256 fixe avant usage.'**
+  String get getToolsBody;
+
+  /// No description provided for @getBytesOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} sur {total}'**
+  String getBytesOf(String done, String total);
+
+  /// No description provided for @getNotNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get getNotNow;
+
+  /// No description provided for @getDownloadingShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement…'**
+  String get getDownloadingShort;
+
+  /// No description provided for @getDownloadTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger les outils · {size}'**
+  String getDownloadTools(String size);
+
+  /// No description provided for @getTabActive.
+  ///
+  /// In fr, this message translates to:
+  /// **'En cours · {n}'**
+  String getTabActive(int n);
+
+  /// No description provided for @getTabDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminés · {n}'**
+  String getTabDone(int n);
+
+  /// No description provided for @getTabFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échecs · {n}'**
+  String getTabFailed(int n);
+
+  /// No description provided for @getDlSubRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} en cours · {speed} · reprise automatique si la source l’accepte'**
+  String getDlSubRunning(int n, String speed);
+
+  /// No description provided for @getDlSubPaused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout est en pause'**
+  String get getDlSubPaused;
+
+  /// No description provided for @getDlSubIdle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien en cours · jusqu’à {n} à la fois'**
+  String getDlSubIdle(int n);
+
+  /// No description provided for @getPauseAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout mettre en pause'**
+  String get getPauseAll;
+
+  /// No description provided for @getResumeAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout reprendre'**
+  String get getResumeAll;
+
+  /// No description provided for @getDlNothing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ici pour le moment.'**
+  String get getDlNothing;
+
+  /// No description provided for @getActRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayer {title}'**
+  String getActRetry(String title);
+
+  /// No description provided for @getActResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre {title}'**
+  String getActResume(String title);
+
+  /// No description provided for @getActStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer {title} maintenant'**
+  String getActStart(String title);
+
+  /// No description provided for @getActPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre en pause {title}'**
+  String getActPause(String title);
+
+  /// No description provided for @getCannotPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Impossible de mettre en pause pendant la préparation du fichier'**
+  String get getCannotPause;
+
+  /// No description provided for @getRemoveNamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer {title}'**
+  String getRemoveNamed(String title);
+
+  /// No description provided for @getCancelNamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler {title}'**
+  String getCancelNamed(String title);
+
+  /// No description provided for @getCancelTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le téléchargement ?'**
+  String get getCancelTitle;
+
+  /// No description provided for @getCancelBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{title} sera retiré de la file et ses fichiers partiels supprimés.'**
+  String getCancelBody(String title);
+
+  /// No description provided for @getCancelConfirm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler le téléchargement'**
+  String get getCancelConfirm;
+
+  /// No description provided for @getKeepDownloading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer'**
+  String get getKeepDownloading;
+
+  /// No description provided for @getActRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recommencer {title} depuis le début'**
+  String getActRestart(String title);
+
+  /// No description provided for @getOpenFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le dossier'**
+  String get getOpenFolder;
+
+  /// No description provided for @getShowInFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher dans le dossier'**
+  String get getShowInFolder;
+
+  /// No description provided for @getStDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get getStDone;
+
+  /// No description provided for @getFileGone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier n’est plus dans la bibliothèque.'**
+  String get getFileGone;
+
+  /// No description provided for @getStFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec'**
+  String get getStFailed;
+
+  /// No description provided for @getStResumeAt.
+  ///
+  /// In fr, this message translates to:
+  /// **'reprise {n} %'**
+  String getStResumeAt(int n);
+
+  /// No description provided for @getStOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause · hors ligne'**
+  String get getStOffline;
+
+  /// No description provided for @getStRetry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connexion perdue · nouvel essai {n} s'**
+  String getStRetry(int n);
+
+  /// No description provided for @getStDownloading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement'**
+  String get getStDownloading;
+
+  /// No description provided for @getStConverting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion'**
+  String get getStConverting;
+
+  /// No description provided for @getStConvertingTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion {ext}'**
+  String getStConvertingTo(String ext);
+
+  /// No description provided for @getStFinalizing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finalisation {ext}'**
+  String getStFinalizing(String ext);
+
+  /// No description provided for @getStStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'étape 2/2 · ffmpeg'**
+  String get getStStep;
+
+  /// No description provided for @getStPaused.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause'**
+  String get getStPaused;
+
+  /// No description provided for @getStPausedRestart.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause · redémarrera'**
+  String get getStPausedRestart;
+
+  /// No description provided for @getStDiskFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec · disque plein'**
+  String get getStDiskFull;
+
+  /// No description provided for @getStAccessDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec · dossier non accessible'**
+  String get getStAccessDenied;
+
+  /// No description provided for @getStDiskFullHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'libérez de l’espace puis réessayez'**
+  String get getStDiskFullHint;
+
+  /// No description provided for @getStAccessDeniedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'choisissez un autre dossier'**
+  String get getStAccessDeniedHint;
+
+  /// No description provided for @getStAnalyzing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse des formats…'**
+  String get getStAnalyzing;
+
+  /// No description provided for @getStQueued.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get getStQueued;
+
+  /// No description provided for @getWhyDiskFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disque plein'**
+  String get getWhyDiskFull;
+
+  /// No description provided for @getWhyNoSpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace disque insuffisant pour ce fichier'**
+  String get getWhyNoSpace;
+
+  /// No description provided for @getWhyDenied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier de destination non accessible en écriture'**
+  String get getWhyDenied;
+
+  /// No description provided for @getSumRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} en cours'**
+  String getSumRunning(int n);
+
+  /// No description provided for @getSumOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause · hors ligne'**
+  String get getSumOffline;
+
+  /// No description provided for @getSumPaused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout en pause'**
+  String get getSumPaused;
+
+  /// No description provided for @getSumIdle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun téléchargement'**
+  String get getSumIdle;
+
+  /// No description provided for @getSumQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} en attente'**
+  String getSumQueue(int n);
+
+  /// No description provided for @getDirRefused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce dossier n’accepte pas de fichiers. Choisissez-en un autre.'**
+  String get getDirRefused;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

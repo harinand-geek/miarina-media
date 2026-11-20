@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/get/get_data.dart';
 import 'package:miarina_media/features/health/health_data.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/playlists/playlists_data.dart';
@@ -762,4 +763,143 @@ DuplicateVersion version(
   codec: codec,
   lossless: lossless,
   bitrateKbps: kbps,
+);
+
+/// Obtenir in memory: link checks like the core, a scripted analysis,
+/// recorded requests and events pushed by the test.
+class FakeGetApi implements GetApi {
+  FakeGetApi({this.analysis});
+
+  Analysis? analysis;
+  final events_ = StreamController<GetEvent>.broadcast();
+  final started = <StartRequest>[];
+  final actions = <(String, String)>[];
+  final pauses = <bool>[];
+  var tasks_ = <TaskInfo>[];
+  var history_ = <HistoryInfo>[];
+  var installs = 0;
+  var analyzed = <String>[];
+  var dir = r'C:\Users\Hery\Downloads\Miarina';
+
+  /// When set, the manager starts only once it completes.
+  Completer<void>? startGate;
+
+  /// When set, the analysis fails with it.
+  Object? analysisError;
+
+  @override
+  Future<void> start() async => startGate?.future;
+
+  @override
+  Stream<GetEvent> events() => events_.stream;
+
+  @override
+  Future<LinkCheck> checkLink(String url) async {
+    final v = url.trim();
+    String? error;
+    if (v.isEmpty) {
+      error = 'empty';
+    } else if (v.contains('@')) {
+      error = 'contains_credentials';
+    } else if (v.contains('://') && !RegExp(r'^https?://').hasMatch(v)) {
+      error = 'unsupported_scheme';
+    } else if (!RegExp(r'^https?://[^/\s]+\.[^/\s]+').hasMatch(v)) {
+      error = 'malformed';
+    }
+    return LinkCheck(
+      url: error == null ? v : null,
+      host: error == null ? Uri.parse(v).host : null,
+      error: error,
+    );
+  }
+
+  @override
+  Future<Analysis> analyze(String url) async {
+    analyzed.add(url);
+    if (analysisError != null) throw analysisError!;
+    return analysis!;
+  }
+
+  @override
+  Future<void> installTools() async => installs++;
+
+  @override
+  Future<TaskInfo> startDownload(StartRequest request) async {
+    started.add(request);
+    return taskInfo('t${started.length}', request.title, state: 'queued');
+  }
+
+  @override
+  Future<List<TaskInfo>> tasks() async => tasks_;
+
+  @override
+  Future<List<HistoryInfo>> history() async => history_;
+
+  @override
+  Future<void> action(String id, String action) async =>
+      actions.add((id, action));
+
+  @override
+  Future<void> move(String id, int index) async {}
+
+  @override
+  Future<void> pauseAll(bool pause) async => pauses.add(pause);
+
+  @override
+  Future<GetSettings> settings() async => GetSettings(
+    downloadDir: dir,
+    concurrency: 3,
+    resourceMode: 'balanced',
+    maxDownloads: 3,
+  );
+
+  @override
+  Future<GetSettings> setDownloadDir(String path) async {
+    dir = path;
+    return settings();
+  }
+}
+
+TaskInfo taskInfo(
+  String id,
+  String title, {
+  String state = 'downloading',
+  int position = 0,
+  int? total,
+  int downloaded = 0,
+  bool audio = false,
+  String format = 'MP4 · 1080p',
+}) => TaskInfo(
+  id: id,
+  url: 'https://example.org/$id',
+  sourceHost: 'example.org',
+  title: title,
+  isAudio: audio,
+  engine: 'ytdlp',
+  formatLabel: format,
+  state: state,
+  position: position,
+  destDir: r'C:\Users\Hery\Downloads\Miarina',
+  fileName: '$title.${audio ? 'mp3' : 'mp4'}',
+  totalBytes: total == null ? null : BigInt.from(total),
+  downloadedBytes: BigInt.from(downloaded),
+  supportsResume: true,
+  createdAt: 0,
+);
+
+GetEvent getEvent(
+  GetEventKind kind, {
+  String id = '',
+  TaskInfo? task,
+  HistoryInfo? history,
+}) => GetEvent(
+  kind: kind,
+  id: id,
+  downloaded: BigInt.zero,
+  bytesPerSec: 0,
+  supportsResume: false,
+  retryInSecs: BigInt.zero,
+  offline: false,
+  task: task,
+  history: history,
 );

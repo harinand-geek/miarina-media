@@ -4069,9 +4069,11 @@ dependencies = [
  "flutter_rust_bridge",
  "library",
  "media-core",
+ "resource-manager",
  "serde_json",
  "storage",
  "tokio",
+ "tokio-util",
  "webview2-com",
  "windows",
 ]

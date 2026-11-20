@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../design/theme.dart';
 import '../design/tokens.dart';
 import '../features/focus/focus_data.dart';
+import '../features/get/get_data.dart';
 import '../features/import/import_data.dart';
 import '../features/mini/mini_player.dart' show TaskbarSync;
 import '../features/settings/settings_data.dart';
@@ -22,6 +23,11 @@ class MiarinaApp extends ConsumerWidget {
     // Followed folders are scanned at launch; screens refresh as the
     // background worker reads them (W-O1).
     ref.watch(indexingProvider);
+    // Obtenir: the download manager starts with the app, so queued and
+    // interrupted downloads resume (rebuilt only when it becomes ready).
+    if (ref.watch(desktopShellProvider)) {
+      ref.watch(downloadsProvider.select((s) => s.ready));
+    }
     final look = ref.watch(appearanceProvider).value ?? const AppearancePrefs();
     return MaterialApp.router(
       title: 'Miarina Media',

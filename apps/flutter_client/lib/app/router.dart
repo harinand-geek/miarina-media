@@ -13,6 +13,7 @@ import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
+import '../features/get/get_screens.dart';
 import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
 import '../features/import/welcome_screen.dart';
@@ -54,6 +55,11 @@ abstract final class Routes {
   static const missing = '/listen/library/missing';
   static const duplicates = '/listen/library/duplicates';
   static const get = '/get';
+  static const getAnalysis = '/get/analysis';
+  static const getDownloads = '/get/downloads';
+  static const getBrowser = '/get/browser';
+  static const getTorrents = '/get/torrents';
+  static const getHistory = '/get/history';
   static const settings = '/settings';
   static const now = '/now';
   static const player = '/player';
@@ -224,7 +230,41 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           if (desktop)
             screen(Routes.focusPlayer, () => const FocusPlayerScreen()),
-          screen(Routes.get, () => const ComingSoon(screenId: 'Obtenir')),
+          screen(Routes.get, () => const GetHomeScreen()),
+          GoRoute(
+            path: Routes.getAnalysis,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: GetAnalysisScreen(
+                key: ValueKey(state.uri.toString()),
+                url: state.uri.queryParameters['url'] ?? '',
+                tab: state.uri.queryParameters['tab'] ?? 'video',
+              ),
+            ),
+          ),
+          GoRoute(
+            path: Routes.getDownloads,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: DownloadsScreen(
+                key: ValueKey(state.uri.toString()),
+                tab: state.uri.queryParameters['tab'] ?? 'active',
+              ),
+            ),
+          ),
+          // Not ported yet from the Tauri app: said so, nothing simulated.
+          screen(
+            Routes.getBrowser,
+            () => const ComingSoon(screenId: 'Obtenir · Navigateur'),
+          ),
+          screen(
+            Routes.getTorrents,
+            () => const ComingSoon(screenId: 'Obtenir · Torrents'),
+          ),
+          screen(
+            Routes.getHistory,
+            () => const ComingSoon(screenId: 'Obtenir · Historique'),
+          ),
           screen(Routes.settings, () => const SettingsScreen()),
           GoRoute(
             path: '${Routes.settings}/:section',

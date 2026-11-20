@@ -31,6 +31,16 @@ const _extras = [
   'monitor-play',
   'book-open-text',
   'hourglass-simple',
+  // Obtenir, ported from the Tauri app (movie, hub, lightbulb, closed_caption,
+  // high_quality, sync, pause_circle, hourglass_empty).
+  'film-strip',
+  'share-network',
+  'lightbulb',
+  'closed-captioning',
+  'high-definition',
+  'arrows-clockwise',
+  'pause-circle',
+  'hourglass',
 ];
 
 void main(List<String> args) {

@@ -1117,5 +1117,365 @@
   "miniUnpin": "Ne plus garder au premier plan",
   "miniExpand": "Agrandir la fenêtre",
   "favoritesEmptyTitle": "Aucun favori pour l'instant",
-  "favoritesEmptyBody": "Touchez le cœur d'un titre, dans Titres ou En lecture, pour le retrouver ici."
+  "favoritesEmptyBody": "Touchez le cœur d'un titre, dans Titres ou En lecture, pour le retrouver ici.",
+  "getNavHome": "Accueil",
+  "getNavDownloads": "Téléchargements",
+  "getNavBrowser": "Navigateur",
+  "getNavTorrents": "Torrents",
+  "getNavHistory": "Historique",
+  "getHomeTitle": "Du lien à votre bibliothèque",
+  "getHomeSub": "Collez un lien, choisissez le format, écoutez ou regardez hors ligne.",
+  "getLinkLabel": "Lien du média",
+  "getPaste": "Coller",
+  "getAnalyze": "Analyser",
+  "getHintPaste": "pour coller et analyser",
+  "getHintDrop": "Glissez un lien dans la fenêtre",
+  "getHintExt": "Ou envoyez-le depuis l’extension Chrome/Edge",
+  "getQAudio": "Audio seul",
+  "getQAudioDesc": "MP3 jusqu’à 320 kbps, FLAC",
+  "getQPlaylist": "Playlist",
+  "getQPlaylistDesc": "Choisir les éléments",
+  "getQBatch": "Plusieurs liens",
+  "getQBatchDesc": "Un lien par ligne",
+  "getQTorrent": "Torrent / magnet",
+  "getQTorrentDesc": "Fichiers et partage maîtrisés",
+  "getContinue": "Reprendre",
+  "getSeeLibrary": "Voir la bibliothèque",
+  "getContinueEmpty": "Ce que vous commencez à lire ou regarder reprendra ici.",
+  "getRecent": "Récemment téléchargés",
+  "getHomeEmpty": "Vos téléchargements apparaîtront ici.",
+  "getPlayTitle": "Lire {title}",
+  "@getPlayTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getMinutesLeft": "Reste {n} min",
+  "@getMinutesLeft": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getLinkEmpty": "Collez un lien à analyser.",
+  "getLinkTooLong": "Ce lien est trop long.",
+  "getLinkMalformed": "Ce lien semble incomplet. Vérifiez qu’il commence par « https:// ».",
+  "getLinkScheme": "Seuls les liens http et https sont acceptés.",
+  "getLinkCredentials": "Les liens contenant un nom d’utilisateur ou un mot de passe ne sont pas acceptés.",
+  "getLinkMissingHttps": "Il manque « https:// » à ce lien.",
+  "getAddHttps": "Ajouter https://",
+  "getClipboardEmpty": "Le presse-papiers est vide. Copiez d’abord un lien.",
+  "getPlanned": "PRÉVU",
+  "getPlannedHint": "Prévu dans un prochain lot : pas encore disponible.",
+  "getBack": "Retour",
+  "getFmtVideo": "Vidéo",
+  "getFmtSubs": "Sous-titres",
+  "getNoVideoFormats": "Cette source ne propose pas de format vidéo.",
+  "getNoAudioFormats": "Cette source ne propose pas de format audio seul.",
+  "getNoSubsFormats": "Cette source ne propose pas de sous-titres.",
+  "getUpTo": "Jusqu’à {q}",
+  "@getUpTo": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "getSubsPlanned": "Sous-titres : téléchargement prévu (DL-08)",
+  "getNoteAudio": "La conversion suit le téléchargement ; sa progression est affichée à part.",
+  "getNoteVideo": "Tailles indiquées par la source, ou estimées.",
+  "getNeedsFfmpeg": "Installez FFmpeg pour obtenir plus de qualités (vidéo et audio fusionnés) et la conversion MP3.",
+  "getDirectResume": "Fichier direct · reprise possible si interrompu",
+  "getDirectNoResume": "Fichier direct · pas de reprise si interrompu",
+  "getOriginalFile": "{ext} · fichier d’origine",
+  "@getOriginalFile": {
+    "placeholders": {
+      "ext": {
+        "type": "String"
+      }
+    }
+  },
+  "getTagRecommended": "Recommandé",
+  "getTagBest": "Meilleure qualité",
+  "getChange": "Changer",
+  "getAddToQueue": "Ajouter à la file",
+  "getStarting": "Démarrage…",
+  "getDownloadSize": "Télécharger · {size}",
+  "@getDownloadSize": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "getDownload": "Télécharger",
+  "getAddedToQueue": "Ajouté à la file · {q}",
+  "@getAddedToQueue": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "getView": "Voir",
+  "getPrepTitle": "Préparation de votre fichier",
+  "getPrepElapsed": "{n} s",
+  "@getPrepElapsed": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getPrepStage1": "Lecture du lien sur {host}…",
+  "@getPrepStage1": {
+    "placeholders": {
+      "host": {
+        "type": "String"
+      }
+    }
+  },
+  "getPrepStage2": "Recherche des qualités vidéo et audio disponibles…",
+  "getPrepStage3": "Certains sites répondent plus lentement. Merci de patienter, ça continue.",
+  "getPrepStage4": "Toujours en cours. Les vidéos longues ou très demandées peuvent prendre plus de temps.",
+  "getPrepThisSite": "ce site",
+  "getPrepTip": "ASTUCE",
+  "getPrepTip1": "Choisissez « Audio seul » pour ne garder que la musique, dans un fichier plus léger.",
+  "getPrepTip2": "Vos téléchargements arrivent directement dans la bibliothèque.",
+  "getPrepTip3": "Les qualités proposées sont celles que la source publie, rien n’est inventé.",
+  "getPrepTip4": "Plusieurs titres ? Ajoutez-les « À la file » : ils se téléchargent chacun leur tour.",
+  "getNoMediaTitle": "Aucun média téléchargeable trouvé",
+  "getNoMediaBody": "Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.",
+  "getNoMediaReason": "Raison : {reason}",
+  "@getNoMediaReason": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "getWhyNetwork": "le site n’a pas pu être joint ; vérifiez le lien et votre connexion",
+  "getWhyHttp": "le site a refusé la demande (HTTP {status})",
+  "@getWhyHttp": {
+    "placeholders": {
+      "status": {
+        "type": "String"
+      }
+    }
+  },
+  "getWhyPlatform": "la lecture des pages web n’est pas disponible sur cet appareil",
+  "getTryAgain": "Réessayer",
+  "getToolsNeeded": "Cette page a besoin des outils média",
+  "getToolsBody": "Miarina Media lit les pages web avec yt-dlp et fusionne ou convertit les fichiers avec FFmpeg. Ils sont téléchargés une fois depuis leurs publications officielles et contrôlés avec une empreinte SHA-256 fixe avant usage.",
+  "getBytesOf": "{done} sur {total}",
+  "@getBytesOf": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "getNotNow": "Plus tard",
+  "getDownloadingShort": "Téléchargement…",
+  "getDownloadTools": "Télécharger les outils · {size}",
+  "@getDownloadTools": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "getTabActive": "En cours · {n}",
+  "@getTabActive": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getTabDone": "Terminés · {n}",
+  "@getTabDone": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getTabFailed": "Échecs · {n}",
+  "@getTabFailed": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getDlSubRunning": "{n} en cours · {speed} · reprise automatique si la source l’accepte",
+  "@getDlSubRunning": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "speed": {
+        "type": "String"
+      }
+    }
+  },
+  "getDlSubPaused": "Tout est en pause",
+  "getDlSubIdle": "Rien en cours · jusqu’à {n} à la fois",
+  "@getDlSubIdle": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getPauseAll": "Tout mettre en pause",
+  "getResumeAll": "Tout reprendre",
+  "getDlNothing": "Rien ici pour le moment.",
+  "getActRetry": "Réessayer {title}",
+  "@getActRetry": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getActResume": "Reprendre {title}",
+  "@getActResume": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getActStart": "Démarrer {title} maintenant",
+  "@getActStart": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getActPause": "Mettre en pause {title}",
+  "@getActPause": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getCannotPause": "Impossible de mettre en pause pendant la préparation du fichier",
+  "getRemoveNamed": "Retirer {title}",
+  "@getRemoveNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getCancelNamed": "Annuler {title}",
+  "@getCancelNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getCancelTitle": "Annuler le téléchargement ?",
+  "getCancelBody": "{title} sera retiré de la file et ses fichiers partiels supprimés.",
+  "@getCancelBody": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getCancelConfirm": "Annuler le téléchargement",
+  "getKeepDownloading": "Continuer",
+  "getActRestart": "Recommencer {title} depuis le début",
+  "@getActRestart": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getOpenFolder": "Ouvrir le dossier",
+  "getShowInFolder": "Afficher dans le dossier",
+  "getStDone": "Terminé",
+  "getFileGone": "Ce fichier n’est plus dans la bibliothèque.",
+  "getStFailed": "Échec",
+  "getStResumeAt": "reprise {n} %",
+  "@getStResumeAt": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getStOffline": "En pause · hors ligne",
+  "getStRetry": "Connexion perdue · nouvel essai {n} s",
+  "@getStRetry": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getStDownloading": "Téléchargement",
+  "getStConverting": "Conversion",
+  "getStConvertingTo": "Conversion {ext}",
+  "@getStConvertingTo": {
+    "placeholders": {
+      "ext": {
+        "type": "String"
+      }
+    }
+  },
+  "getStFinalizing": "Finalisation {ext}",
+  "@getStFinalizing": {
+    "placeholders": {
+      "ext": {
+        "type": "String"
+      }
+    }
+  },
+  "getStStep": "étape 2/2 · ffmpeg",
+  "getStPaused": "En pause",
+  "getStPausedRestart": "En pause · redémarrera",
+  "getStDiskFull": "Échec · disque plein",
+  "getStAccessDenied": "Échec · dossier non accessible",
+  "getStDiskFullHint": "libérez de l’espace puis réessayez",
+  "getStAccessDeniedHint": "choisissez un autre dossier",
+  "getStAnalyzing": "Analyse des formats…",
+  "getStQueued": "En attente",
+  "getWhyDiskFull": "Disque plein",
+  "getWhyNoSpace": "Espace disque insuffisant pour ce fichier",
+  "getWhyDenied": "Dossier de destination non accessible en écriture",
+  "getSumRunning": "{n} en cours",
+  "@getSumRunning": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getSumOffline": "En pause · hors ligne",
+  "getSumPaused": "Tout en pause",
+  "getSumIdle": "Aucun téléchargement",
+  "getSumQueue": "{n} en attente",
+  "@getSumQueue": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "getDirRefused": "Ce dossier n’accepte pas de fichiers. Choisissez-en un autre."
 }
