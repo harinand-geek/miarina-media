@@ -1115,5 +1115,7 @@
   },
   "miniPin": "Garder au premier plan",
   "miniUnpin": "Ne plus garder au premier plan",
-  "miniExpand": "Agrandir la fenêtre"
+  "miniExpand": "Agrandir la fenêtre",
+  "favoritesEmptyTitle": "Aucun favori pour l'instant",
+  "favoritesEmptyBody": "Touchez le cœur d'un titre, dans Titres ou En lecture, pour le retrouver ici."
 }

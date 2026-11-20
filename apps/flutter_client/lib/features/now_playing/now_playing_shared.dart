@@ -43,6 +43,7 @@ Future<void> toggleCurrentFavorite(WidgetRef ref) async {
   final next = !entry.favorite;
   await ref.read(libraryApiProvider).setFavorite(id, favorite: next);
   ref.read(queueProvider.notifier).markFavorite(id, favorite: next);
+  ref.invalidate(favoritesCountProvider);
 }
 
 /// Blurred cover behind the player (σ 60) under a dark veil so text keeps a

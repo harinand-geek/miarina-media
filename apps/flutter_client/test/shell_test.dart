@@ -121,12 +121,47 @@ void main() {
     expect(library.favoriteCalls, [(1, true)]);
   });
 
-  testWidgets('a section that is not built yet says so', (tester) async {
+  testWidgets('Favoris: the favorite tracks, counted in the sidebar', (
+    tester,
+  ) async {
     await pumpApp(tester);
+    // One favorite in the fixtures, counted next to the entry.
+    final entry = find.ancestor(
+      of: find.text('Favoris').first,
+      matching: find.byType(Row),
+    );
+    expect(
+      find.descendant(of: entry.first, matching: find.text('1')),
+      findsOneWidget,
+    );
     await tester.tap(find.text('Favoris').first);
     await settle(tester);
-    expect(find.text('Cet écran arrive bientôt'), findsOneWidget);
-    expect(find.text('W-M1c'), findsOneWidget);
+    expect(find.text('Échos'), findsOneWidget);
+    expect(find.text('Basse marée'), findsNothing);
+    expect(find.text('1 titre'), findsOneWidget);
+
+    // The heart taken off: the row stays (it can be put back), the count
+    // follows.
+    await tester.tap(find.bySemanticsLabel('Retirer des favoris').first);
+    await settle(tester);
+    expect(library.favoriteCalls.last, (2, false));
+    expect(find.text('Échos'), findsOneWidget);
+    expect(
+      find.descendant(of: entry.first, matching: find.text('0')),
+      findsOneWidget,
+    );
+
+    // "Tous" leads back to Titres.
+    await tester.tap(find.text('Tous'));
+    await settle(tester);
+    expect(find.text('Basse marée'), findsOneWidget);
+  });
+
+  testWidgets('Favoris without favorites says how to add one', (tester) async {
+    library = FakeLibraryApi([track(1, 'Basse marée')]);
+    await pumpApp(tester, start: Routes.favorites);
+    expect(find.text("Aucun favori pour l'instant"), findsOneWidget);
+    expect(find.text('Titres'), findsWidgets);
   });
 
   testWidgets('below 1280 px the sidebar keeps only icons', (tester) async {

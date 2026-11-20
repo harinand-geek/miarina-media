@@ -126,6 +126,15 @@ final libraryStatsProvider = FutureProvider<LibrarySummary>(
   (ref) => ref.watch(libraryApiProvider).summary(),
 );
 
+/// Number of favorite tracks (sidebar, Favoris). Read again when a heart
+/// changes and with every library refresh.
+final favoritesCountProvider = FutureProvider<int>((ref) async {
+  final page = await ref
+      .watch(libraryApiProvider)
+      .tracks(search: '', favoritesOnly: true, offset: 0, limit: 1);
+  return page.total.toInt();
+});
+
 QueueEntry queueEntryOf(LibraryItem item, {String? unknownArtist}) =>
     QueueEntry(
       source: MediaSource.file(item.path, title: item.title),

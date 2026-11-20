@@ -1952,4 +1952,11 @@ class L10nEn extends L10n {
 
   @override
   String get miniExpand => 'Restore the full window';
+
+  @override
+  String get favoritesEmptyTitle => 'No favorites yet';
+
+  @override
+  String get favoritesEmptyBody =>
+      'Tap the heart of a track, in Tracks or Now playing, to find it here.';
 }

@@ -141,6 +141,7 @@ class LibraryFoldersController extends AsyncNotifier<List<WatchedFolder>> {
 /// Every screen built on the library reads it again.
 void refreshLibraryWith(void Function(ProviderOrFamily) invalidate) {
   invalidate(libraryStatsProvider);
+  invalidate(favoritesCountProvider);
   invalidate(groupsProvider);
   invalidate(cinemaLibraryProvider);
   invalidate(focusLibraryProvider);

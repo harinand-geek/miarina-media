@@ -182,7 +182,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ),
           ),
-          screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
+          screen(Routes.favorites, () => const TracksScreen(favorites: true)),
           screen(Routes.history, () => const HistoryScreen()),
           screen(Routes.missing, () => const MissingScreen()),
           screen(Routes.duplicates, () => const DuplicatesScreen()),

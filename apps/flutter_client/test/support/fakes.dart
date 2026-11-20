@@ -277,8 +277,12 @@ class FakeLibraryApi implements LibraryApi {
   }
 
   @override
-  Future<void> setFavorite(int mediaId, {required bool favorite}) async =>
-      favoriteCalls.add((mediaId, favorite));
+  Future<void> setFavorite(int mediaId, {required bool favorite}) async {
+    favoriteCalls.add((mediaId, favorite));
+    // Applied, as the core does.
+    final i = items.indexWhere((e) => e.id == mediaId);
+    if (i >= 0) items[i] = items[i].withFavorite(favorite);
+  }
 
   final addedFiles = <String>[];
 

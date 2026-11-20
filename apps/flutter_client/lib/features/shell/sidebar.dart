@@ -45,6 +45,7 @@ class Sidebar extends ConsumerWidget {
     final t = L10n.of(context);
     final tracks = ref.watch(libraryStatsProvider).value?.audioCount.toInt();
     final playlists = ref.watch(playlistsProvider).value?.length;
+    final favorites = ref.watch(favoritesCountProvider).value;
     final inGet = location.startsWith(Routes.get);
     // W-O2: shown when there is something to look at (or while on it).
     final health = ref.watch(healthCountsProvider).value;
@@ -106,6 +107,7 @@ class Sidebar extends ConsumerWidget {
             t.navFavorites,
             PhosphorRegular.heart,
             PhosphorFill.heart,
+            count: favorites == null ? null : _group(favorites),
           ),
         ],
       ),

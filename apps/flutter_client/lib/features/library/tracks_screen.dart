@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../health/health_screens.dart' show locateMissing;
@@ -23,9 +24,13 @@ import 'groups.dart';
 import 'library_data.dart';
 
 /// W-M1c Titres: every audio track of the library, sorted by title, in a
-/// virtualised table loaded page by page.
+/// virtualised table loaded page by page. [favorites]: the Favoris entry of
+/// the sidebar, the same table limited to favorite tracks (the "Favoris"
+/// chip of Titres leads there).
 class TracksScreen extends ConsumerStatefulWidget {
-  const TracksScreen({super.key});
+  const TracksScreen({super.key, this.favorites = false});
+
+  final bool favorites;
 
   @override
   ConsumerState<TracksScreen> createState() => _TracksScreenState();
@@ -38,7 +43,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
   bool _loading = false;
   Object? _error;
   String _search = '';
-  bool _favoritesOnly = false;
+  late final bool _favoritesOnly = widget.favorites;
   int? _selected;
   int _generation = 0;
   Timer? _debounce;
@@ -119,6 +124,9 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
     await ref
         .read(libraryApiProvider)
         .setFavorite(item.id, favorite: !item.favorite);
+    // In Favoris the row stays until the next visit: a heart tapped by
+    // mistake can be put back.
+    ref.invalidate(favoritesCountProvider);
     if (!mounted) return;
     setState(() {
       _items[index] = item.withFavorite(!item.favorite);
@@ -166,7 +174,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    t.navTracks,
+                    widget.favorites ? t.navFavorites : t.navTracks,
                     style: MmType.display.copyWith(color: c.fg),
                   ),
                   const SizedBox(height: 2),
@@ -191,19 +199,15 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
               _Chip(
                 label: t.filterAll,
                 on: !_favoritesOnly,
-                onTap: () {
-                  _favoritesOnly = false;
-                  _reload();
-                },
+                onTap: _favoritesOnly ? () => context.go(Routes.tracks) : null,
               ),
               const SizedBox(width: 8),
               _Chip(
                 label: t.navFavorites,
                 on: _favoritesOnly,
-                onTap: () {
-                  _favoritesOnly = true;
-                  _reload();
-                },
+                onTap: _favoritesOnly
+                    ? null
+                    : () => context.go(Routes.favorites),
               ),
             ],
           ),
@@ -224,7 +228,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
           child: Text(
-            t.navTracks,
+            widget.favorites ? t.navFavorites : t.navTracks,
             style: MmType.titleLg.copyWith(fontSize: 20, color: c.fg),
           ),
         ),
@@ -247,20 +251,16 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
                 label: t.filterAll,
                 on: !_favoritesOnly,
                 height: 34,
-                onTap: () {
-                  _favoritesOnly = false;
-                  _reload();
-                },
+                onTap: _favoritesOnly ? () => context.go(Routes.tracks) : null,
               ),
               const SizedBox(width: 8),
               _Chip(
                 label: t.navFavorites,
                 on: _favoritesOnly,
                 height: 34,
-                onTap: () {
-                  _favoritesOnly = true;
-                  _reload();
-                },
+                onTap: _favoritesOnly
+                    ? null
+                    : () => context.go(Routes.favorites),
               ),
             ],
           ),
@@ -391,6 +391,13 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       return LibraryErrorView(error: _error!, onRetry: _reload);
     }
     if (_items.isEmpty && _loading) return const SkeletonList();
+    if (_items.isEmpty && _favoritesOnly && _search.isEmpty) {
+      return LibraryMessage(
+        icon: PhosphorRegular.heart,
+        title: t.favoritesEmptyTitle,
+        body: t.favoritesEmptyBody,
+      );
+    }
     if (_items.isEmpty) {
       return LibraryEmpty(
         icon: PhosphorRegular.musicNotesMinus,
@@ -743,7 +750,7 @@ class _Chip extends StatelessWidget {
 
   final String label;
   final bool on;
-  final VoidCallback onTap;
+  final VoidCallback? onTap;
   final double height;
 
   @override

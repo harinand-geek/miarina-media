@@ -3120,6 +3120,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Agrandir la fenêtre'**
   String get miniExpand;
+
+  /// No description provided for @favoritesEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun favori pour l\'instant'**
+  String get favoritesEmptyTitle;
+
+  /// No description provided for @favoritesEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez le cœur d\'un titre, dans Titres ou En lecture, pour le retrouver ici.'**
+  String get favoritesEmptyBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

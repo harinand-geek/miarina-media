@@ -503,5 +503,7 @@
   "duplicatesFound": "{count, plural, =0{No duplicates found} =1{1 title in several versions} other{{count} titles in several versions}}",
   "miniPin": "Keep on top",
   "miniUnpin": "Stop keeping on top",
-  "miniExpand": "Restore the full window"
+  "miniExpand": "Restore the full window",
+  "favoritesEmptyTitle": "No favorites yet",
+  "favoritesEmptyBody": "Tap the heart of a track, in Tracks or Now playing, to find it here."
 }

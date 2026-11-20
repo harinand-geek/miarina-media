@@ -1960,4 +1960,11 @@ class L10nFr extends L10n {
 
   @override
   String get miniExpand => 'Agrandir la fenêtre';
+
+  @override
+  String get favoritesEmptyTitle => 'Aucun favori pour l\'instant';
+
+  @override
+  String get favoritesEmptyBody =>
+      'Touchez le cœur d\'un titre, dans Titres ou En lecture, pour le retrouver ici.';
 }
