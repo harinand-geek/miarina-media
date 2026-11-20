@@ -3208,4 +3208,22 @@ class L10nEn extends L10n {
 
   @override
   String get keyCtrlI => 'Ctrl I';
+
+  @override
+  String get markSeasonSeen => 'Mark season as watched';
+
+  @override
+  String get markSeasonUnseen => 'Mark season as not watched';
+
+  @override
+  String get markSeriesSeen => 'Mark series as watched';
+
+  @override
+  String get markSeriesUnseen => 'Mark series as not watched';
+
+  @override
+  String get markSeen => 'Mark as watched';
+
+  @override
+  String get markUnseen => 'Mark as not watched';
 }

@@ -1,3 +1,5 @@
+import 'package:flutter/gestures.dart';
+
 import 'dart:convert';
 
 import 'package:flutter/services.dart';
@@ -143,6 +145,7 @@ void main() {
         overrides: [
           mediaEngineProvider.overrideWithValue(FakeEngine()),
           playbackStoreProvider.overrideWithValue(store),
+          settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
         ],
       );
       addTearDown(c.dispose);
@@ -150,6 +153,34 @@ void main() {
       expect(w.recent, [12, 11]);
       expect(w.seen, {11});
       expect(w.resume, {12: const Duration(seconds: 30)});
+    });
+
+    test('marks: the latest of a mark and a play decides', () async {
+      final at = DateTime.now().millisecondsSinceEpoch;
+      final store = FakePlaybackStore()
+        ..values[historyKey] = jsonEncode([
+          {...played(12, position: 30), 'at': at - 1000},
+          {...played(11, position: 3000), 'at': at + 60000},
+        ])
+        ..values[positionKey(12)] = '30';
+      final settings = FakeSettingsStore()
+        ..values['videoSeenMarks'] = {
+          '12': [true, at], // after its play: seen, no resume point
+          '11': [false, at], // played to the end later: seen again
+          '13': [true, at], // never played: seen
+        };
+      final c = ProviderContainer(
+        overrides: [
+          mediaEngineProvider.overrideWithValue(FakeEngine()),
+          playbackStoreProvider.overrideWithValue(store),
+          settingsStoreProvider.overrideWithValue(settings),
+        ],
+      );
+      addTearDown(c.dispose);
+      final w = await c.read(watchStateProvider.future);
+      expect(w.seen, {11, 12, 13});
+      expect(w.resume, isEmpty);
+      expect(w.recent, [12, 11], reason: 'nothing added to the history');
     });
   });
 
@@ -261,7 +292,7 @@ void main() {
       expect(find.text('Reprendre S1 · É2 à 0:30'), findsOneWidget);
       expect(find.text('Depuis le début'), findsOneWidget);
       expect(find.text('Saison 1'), findsOneWidget);
-      expect(find.text('1 vus sur 3'), findsOneWidget);
+      expect(find.text('1 vus sur 3 · '), findsOneWidget);
       expect(find.text('É1 · Départ'), findsOneWidget);
       expect(find.text('Vu'), findsOneWidget);
       expect(find.text('É3 · Épisode 3'), findsOneWidget);
@@ -273,6 +304,41 @@ void main() {
       expect(engine.starts.last, const Duration(seconds: 30));
       expect(engine.opened.last.uri, Uri.file(e2.item.path));
       expect(find.byType(WatchScreen), findsOneWidget);
+    });
+
+    testWidgets('season, series and episode marked watched or not', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        start: '${Routes.series}?name=Les%20Hautes%20Terres',
+      );
+      await tester.tap(find.text('Marquer la saison comme vue'));
+      await settle(tester);
+      expect(find.text('3 vus sur 3 · '), findsOneWidget);
+      expect(find.text('Vu'), findsNWidgets(3));
+      expect(find.text('Marquer la saison comme non vue'), findsOneWidget);
+
+      // Right click: É1 back to not watched.
+      await tester.tap(find.text('É1 · Départ'), buttons: kSecondaryButton);
+      await settle(tester);
+      await tester.tap(find.text('Marquer comme non vu'));
+      await settle(tester);
+      expect(find.text('2 vus sur 3 · '), findsOneWidget);
+
+      // "⋯": the whole series.
+      await tester.tap(find.bySemanticsLabel("Plus d'options"));
+      await settle(tester);
+      await tester.tap(find.text('Marquer la série comme vue'));
+      await settle(tester);
+      expect(find.text('3 vus sur 3 · '), findsOneWidget);
+      await tester.tap(find.bySemanticsLabel("Plus d'options"));
+      await settle(tester);
+      await tester.tap(find.text('Marquer la série comme non vue'));
+      await settle(tester);
+      expect(find.text('0 vus sur 3 · '), findsOneWidget);
+      // The resume point was only hidden while marked watched.
+      expect(find.text('Reprendre S1 · É2 à 0:30'), findsOneWidget);
     });
 
     testWidgets('from the start ignores the resume point, in episode order', (

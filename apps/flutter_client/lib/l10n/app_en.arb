@@ -858,5 +858,11 @@
   "errCoverRefused": "This picture cannot be used as a cover (format or size).",
   "errLibrary": "The library could not make this change.",
   "coverImageType": "Pictures",
-  "keyCtrlI": "Ctrl I"
+  "keyCtrlI": "Ctrl I",
+  "markSeasonSeen": "Mark season as watched",
+  "markSeasonUnseen": "Mark season as not watched",
+  "markSeriesSeen": "Mark series as watched",
+  "markSeriesUnseen": "Mark series as not watched",
+  "markSeen": "Mark as watched",
+  "markUnseen": "Mark as not watched"
 }

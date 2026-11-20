@@ -1898,5 +1898,11 @@
   "errCoverRefused": "Cette image ne peut pas servir de pochette (format ou taille).",
   "errLibrary": "La bibliothèque n’a pas pu faire ce changement.",
   "coverImageType": "Images",
-  "keyCtrlI": "Ctrl I"
+  "keyCtrlI": "Ctrl I",
+  "markSeasonSeen": "Marquer la saison comme vue",
+  "markSeasonUnseen": "Marquer la saison comme non vue",
+  "markSeriesSeen": "Marquer la série comme vue",
+  "markSeriesUnseen": "Marquer la série comme non vue",
+  "markSeen": "Marquer comme vu",
+  "markUnseen": "Marquer comme non vu"
 }

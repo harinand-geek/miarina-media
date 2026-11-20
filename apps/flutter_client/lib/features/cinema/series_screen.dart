@@ -13,6 +13,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/cinema.dart';
+import '../get/get_screens.dart' show revealProvider;
 import '../library/groups.dart';
 import '../playback/playback.dart';
 import 'cinema_data.dart';
@@ -69,6 +70,10 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
         if ((e.season ?? 1) == season) e,
     ];
     final seenCount = inSeason.where((e) => watch.isSeen(e.item.id)).length;
+    final allSeen = s.episodes.every((e) => watch.isSeen(e.item.id));
+    void mark(Iterable<CinemaItem> eps, {required bool seen}) => ref
+        .read(seenMarksProvider.notifier)
+        .mark([for (final e in eps) e.item.id], seen: seen);
 
     Future<void> play(CinemaItem e, {bool fromStart = false}) async {
       await playVideos(
@@ -87,6 +92,16 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
       mobile: mobile,
       target: target,
       onPlay: play,
+      menu: _SeriesMenu(
+        allSeen: allSeen,
+        onMark: () => mark(s.episodes, seen: !allSeen),
+        onReveal: Platform.isWindows
+            ? () => ref.read(revealProvider)(
+                s.episodes.first.item.path,
+                select: true,
+              )
+            : null,
+      ),
     );
 
     final tabs = Container(
@@ -113,8 +128,26 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
             ),
           ),
           Text(
-            t.seenOf(seenCount, inSeason.length),
+            '${t.seenOf(seenCount, inSeason.length)} · ',
             style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
+          ),
+          Pressable(
+            onTap: () => mark(inSeason, seen: seenCount < inSeason.length),
+            semanticLabel: seenCount < inSeason.length
+                ? t.markSeasonSeen
+                : t.markSeasonUnseen,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 6),
+              child: Text(
+                seenCount < inSeason.length
+                    ? t.markSeasonSeen
+                    : t.markSeasonUnseen,
+                style: MmType.captionStrong.copyWith(
+                  fontSize: 12.5,
+                  color: c.fg,
+                ),
+              ),
+            ),
           ),
         ],
       ),
@@ -146,6 +179,12 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
                     watch: watch,
                     current: inSeason[i] == target?.episode,
                     onTap: () => play(inSeason[i]),
+                    onMenu: (at) => _episodeMenu(
+                      inSeason[i],
+                      at,
+                      seen: watch.isSeen(inSeason[i].item.id),
+                      onPlay: () => play(inSeason[i]),
+                    ),
                   ),
                   childCount: inSeason.length,
                 ),
@@ -154,6 +193,142 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
           ],
         );
       },
+    );
+  }
+}
+
+extension on _SeriesScreenState {
+  /// Right click (long press on Android) on an episode.
+  Future<void> _episodeMenu(
+    CinemaItem e,
+    Offset at, {
+    required bool seen,
+    required VoidCallback onPlay,
+  }) async {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final overlay =
+        Overlay.of(context).context.findRenderObject()! as RenderBox;
+    PopupMenuItem<int> item(int v, IconData icon, String label) =>
+        PopupMenuItem<int>(
+          value: v,
+          height: 34,
+          child: Row(
+            children: [
+              Icon(icon, size: 18, color: c.muted),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: MmType.label.copyWith(
+                  color: c.fg,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        );
+    final choice = await showMenu<int>(
+      context: context,
+      position: RelativeRect.fromRect(
+        at & const Size(1, 1),
+        Offset.zero & overlay.size,
+      ),
+      color: c.surface2,
+      constraints: const BoxConstraints(minWidth: 230),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: c.overlayBorder),
+      ),
+      menuPadding: const EdgeInsets.all(6),
+      items: [
+        if (!e.item.missing) item(0, PhosphorFill.play, t.playSelection),
+        item(
+          1,
+          seen ? PhosphorRegular.circle : PhosphorRegular.checkCircle,
+          seen ? t.markUnseen : t.markSeen,
+        ),
+        if (Platform.isWindows && !e.item.missing)
+          item(2, PhosphorRegular.folderOpen, t.showInExplorer),
+      ],
+    );
+    switch (choice) {
+      case 0:
+        onPlay();
+      case 1:
+        await ref.read(seenMarksProvider.notifier).mark([
+          e.item.id,
+        ], seen: !seen);
+      case 2:
+        await ref.read(revealProvider)(e.item.path, select: true);
+    }
+  }
+}
+
+/// "⋯" of the series header: the whole series seen or not, its folder.
+class _SeriesMenu extends StatelessWidget {
+  const _SeriesMenu({
+    required this.allSeen,
+    required this.onMark,
+    required this.onReveal,
+  });
+
+  final bool allSeen;
+  final VoidCallback onMark;
+  final VoidCallback? onReveal;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    Widget label(String text) =>
+        Text(text, style: MmType.label.copyWith(color: c.fg));
+    return MenuAnchor(
+      style: MenuStyle(
+        backgroundColor: WidgetStatePropertyAll(c.surface2),
+        shape: WidgetStatePropertyAll(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+            side: BorderSide(color: c.overlayBorder),
+          ),
+        ),
+      ),
+      menuChildren: [
+        MenuItemButton(
+          leadingIcon: Icon(
+            allSeen ? PhosphorRegular.circle : PhosphorRegular.checkCircle,
+            size: 18,
+            color: c.muted,
+          ),
+          onPressed: onMark,
+          child: label(allSeen ? t.markSeriesUnseen : t.markSeriesSeen),
+        ),
+        if (onReveal != null)
+          MenuItemButton(
+            leadingIcon: Icon(
+              PhosphorRegular.folderOpen,
+              size: 18,
+              color: c.muted,
+            ),
+            onPressed: onReveal,
+            child: label(t.showInExplorer),
+          ),
+      ],
+      builder: (context, menu, _) => Pressable(
+        onTap: () => menu.isOpen ? menu.close() : menu.open(),
+        semanticLabel: t.moreOptions,
+        tooltip: t.moreOptions,
+        pressScale: 0.94,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: const BoxDecoration(
+            color: Color(0x1AF5F7FA),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(PhosphorRegular.dotsThree, size: 22, color: c.fg),
+        ),
+      ),
     );
   }
 }
@@ -195,6 +370,7 @@ class _Header extends StatelessWidget {
     required this.mobile,
     required this.target,
     required this.onPlay,
+    required this.menu,
   });
 
   final SeriesDetail detail;
@@ -202,6 +378,9 @@ class _Header extends StatelessWidget {
   final bool mobile;
   final ({CinemaItem episode, Duration? resumeAt})? target;
   final Future<void> Function(CinemaItem, {bool fromStart}) onPlay;
+
+  /// "⋯" after the buttons (mockup W-C2).
+  final Widget menu;
 
   @override
   Widget build(BuildContext context) {
@@ -305,12 +484,12 @@ class _Header extends StatelessWidget {
             ],
           ),
         ],
-        if (mainLabel != null && ep != null) ...[
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 10,
-            runSpacing: 8,
-            children: [
+        const SizedBox(height: 14),
+        Wrap(
+          spacing: 10,
+          runSpacing: 8,
+          children: [
+            if (mainLabel != null && ep != null) ...[
               _HeaderButton(
                 label: mainLabel,
                 primary: true,
@@ -322,8 +501,9 @@ class _Header extends StatelessWidget {
                   onTap: () => onPlay(ep, fromStart: true),
                 ),
             ],
-          ),
-        ],
+            menu,
+          ],
+        ),
       ],
     );
 
@@ -529,12 +709,16 @@ class _EpisodeRow extends StatelessWidget {
     required this.watch,
     required this.current,
     required this.onTap,
+    required this.onMenu,
   });
 
   final CinemaItem episode;
   final WatchState watch;
   final bool current;
   final VoidCallback onTap;
+
+  /// Right click / long press: the episode's menu at that point.
+  final ValueChanged<Offset> onMenu;
 
   @override
   Widget build(BuildContext context) {
@@ -561,92 +745,96 @@ class _EpisodeRow extends StatelessWidget {
       line = t.subtitlesLangs(e.subtitleLanguages.join(', '));
     }
 
-    return Pressable(
-      onTap: e.item.missing ? null : onTap,
-      semanticLabel: episodeTitle(t, e),
-      borderRadius: BorderRadius.circular(MmRadius.lg),
-      hoverColor: c.surface,
-      child: Opacity(
-        opacity: e.item.missing ? 0.72 : 1,
-        child: Container(
-          padding: const EdgeInsets.all(8),
-          decoration: BoxDecoration(
-            color: current ? c.surface : Colors.transparent,
-            borderRadius: BorderRadius.circular(MmRadius.lg),
-            border: Border.all(color: current ? c.line : Colors.transparent),
-          ),
-          child: Row(
-            children: [
-              Stack(
-                children: [
-                  CoverArt(
-                    size: 128,
-                    aspectRatio: 16 / 9,
-                    radius: 10,
-                    shadow: false,
-                    seed: e.item.id,
-                    imagePath: e.item.thumbnail,
-                  ),
-                  if (seen)
-                    Positioned(
-                      right: 6,
-                      top: 6,
-                      child: Icon(
-                        PhosphorFill.checkCircle,
-                        size: 18,
-                        color: c.accent,
-                      ),
-                    ),
-                  if (seen || at != null)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.vertical(
-                          bottom: Radius.circular(10),
-                        ),
-                        child: PictureProgress(
-                          value: progressOf(e, watch),
-                          height: 3,
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+    return GestureDetector(
+      onSecondaryTapUp: (d) => onMenu(d.globalPosition),
+      onLongPressStart: (d) => onMenu(d.globalPosition),
+      child: Pressable(
+        onTap: e.item.missing ? null : onTap,
+        semanticLabel: episodeTitle(t, e),
+        borderRadius: BorderRadius.circular(MmRadius.lg),
+        hoverColor: c.surface,
+        child: Opacity(
+          opacity: e.item.missing ? 0.72 : 1,
+          child: Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: current ? c.surface : Colors.transparent,
+              borderRadius: BorderRadius.circular(MmRadius.lg),
+              border: Border.all(color: current ? c.line : Colors.transparent),
+            ),
+            child: Row(
+              children: [
+                Stack(
                   children: [
-                    Text(
-                      episodeTitle(t, e),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: MmType.heading.copyWith(color: c.fg),
+                    CoverArt(
+                      size: 128,
+                      aspectRatio: 16 / 9,
+                      radius: 10,
+                      shadow: false,
+                      seed: e.item.id,
+                      imagePath: e.item.thumbnail,
                     ),
-                    if (line != null)
-                      Text(
-                        line,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MmType.caption.copyWith(
-                          fontSize: 12.5,
-                          color: lineColor,
+                    if (seen)
+                      Positioned(
+                        right: 6,
+                        top: 6,
+                        child: Icon(
+                          PhosphorFill.checkCircle,
+                          size: 18,
+                          color: c.accent,
+                        ),
+                      ),
+                    if (seen || at != null)
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.vertical(
+                            bottom: Radius.circular(10),
+                          ),
+                          child: PictureProgress(
+                            value: progressOf(e, watch),
+                            height: 3,
+                          ),
                         ),
                       ),
                   ],
                 ),
-              ),
-              if (total != null) ...[
-                const SizedBox(width: 8),
-                Text(
-                  formatClock(total),
-                  style: MmType.monoStyle(size: 12, color: c.muted),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        episodeTitle(t, e),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.heading.copyWith(color: c.fg),
+                      ),
+                      if (line != null)
+                        Text(
+                          line,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MmType.caption.copyWith(
+                            fontSize: 12.5,
+                            color: lineColor,
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
+                if (total != null) ...[
+                  const SizedBox(width: 8),
+                  Text(
+                    formatClock(total),
+                    style: MmType.monoStyle(size: 12, color: c.muted),
+                  ),
+                ],
               ],
-            ],
+            ),
           ),
         ),
       ),

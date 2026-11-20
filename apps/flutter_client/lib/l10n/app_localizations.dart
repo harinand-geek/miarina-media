@@ -5250,6 +5250,42 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ctrl I'**
   String get keyCtrlI;
+
+  /// No description provided for @markSeasonSeen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer la saison comme vue'**
+  String get markSeasonSeen;
+
+  /// No description provided for @markSeasonUnseen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer la saison comme non vue'**
+  String get markSeasonUnseen;
+
+  /// No description provided for @markSeriesSeen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer la série comme vue'**
+  String get markSeriesSeen;
+
+  /// No description provided for @markSeriesUnseen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer la série comme non vue'**
+  String get markSeriesUnseen;
+
+  /// No description provided for @markSeen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme vu'**
+  String get markSeen;
+
+  /// No description provided for @markUnseen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Marquer comme non vu'**
+  String get markUnseen;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

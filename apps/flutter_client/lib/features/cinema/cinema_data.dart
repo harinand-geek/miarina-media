@@ -5,6 +5,7 @@ import '../../src/rust/api/cinema.dart';
 import '../library/library_data.dart';
 import '../playback/playback.dart';
 import '../playback/playback_memory.dart';
+import '../playback/settings_store.dart';
 
 /// What the Cinema screens need from the core; tests use an in-memory one.
 abstract interface class CinemaApi {
@@ -71,6 +72,58 @@ class WatchState {
   bool isSeen(int id) => seen.contains(id);
 }
 
+/// Seen / not seen as the user marked it ("Marquer la saison comme vue",
+/// "Marquer comme non vu"): id → (seen, when, ms). A later play decides
+/// again; nothing is added to the play history.
+final seenMarksProvider =
+    AsyncNotifierProvider<SeenMarks, Map<int, (bool, int)>>(SeenMarks.new);
+
+class SeenMarks extends AsyncNotifier<Map<int, (bool, int)>> {
+  static const key = 'videoSeenMarks';
+
+  /// Marks kept at most (the oldest go first).
+  static const max = 5000;
+
+  @override
+  Future<Map<int, (bool, int)>> build() async {
+    Object? raw;
+    try {
+      raw = await ref.read(settingsStoreProvider).read(key);
+    } catch (_) {}
+    final out = <int, (bool, int)>{};
+    if (raw is Map) {
+      for (final e in raw.entries) {
+        final id = int.tryParse('${e.key}');
+        final v = e.value;
+        if (id != null && v is List && v.length == 2 && v[0] is bool) {
+          final at = v[1];
+          if (at is int) out[id] = (v[0] as bool, at);
+        }
+      }
+    }
+    return out;
+  }
+
+  /// Marks [ids] seen or not seen, now.
+  Future<void> mark(Iterable<int> ids, {required bool seen}) async {
+    final now = DateTime.now().millisecondsSinceEpoch;
+    final next = {...?state.value};
+    for (final id in ids) {
+      next.remove(id);
+      next[id] = (seen, now);
+    }
+    while (next.length > max) {
+      next.remove(next.keys.first);
+    }
+    state = AsyncData(next);
+    try {
+      await ref.read(settingsStoreProvider).write(key, {
+        for (final e in next.entries) '${e.key}': [e.value.$1, e.value.$2],
+      });
+    } catch (_) {}
+  }
+}
+
 /// Watched / started state of one kind of media ('video' or 'audio').
 final playStateProvider = FutureProvider.family<WatchState, String>((
   ref,
@@ -80,19 +133,36 @@ final playStateProvider = FutureProvider.family<WatchState, String>((
   // player closes.
   ref.watch(queueProvider.select((q) => q.current?.libraryId));
   final memory = ref.watch(playbackMemoryProvider);
+  // Watched before any await, so a change of marks recomputes this.
+  final marksFuture = kind == 'video'
+      ? ref.watch(seenMarksProvider.future)
+      : Future.value(const <int, (bool, int)>{});
   final history = await memory.history();
+  final marks = await marksFuture;
   final resume = <int, Duration>{};
   final seen = <int>{};
   final recent = <int>[];
+  final playedAt = <int, int>{};
   for (final e in history.where((e) => e.kind == kind)) {
     if (recent.contains(e.id)) continue;
     recent.add(e.id);
+    playedAt[e.id] = e.at.millisecondsSinceEpoch;
     if (reachedEnd(e)) {
       seen.add(e.id);
       continue;
     }
     final at = await memory.savedPosition(e.id);
     if (at != null) resume[e.id] = at;
+  }
+  // The user's mark wins unless the video was played after it.
+  for (final MapEntry(key: id, value: (marked, at)) in marks.entries) {
+    if ((playedAt[id] ?? -1) > at) continue;
+    if (marked) {
+      seen.add(id);
+      resume.remove(id);
+    } else {
+      seen.remove(id);
+    }
   }
   return WatchState(resume: resume, seen: seen, recent: recent);
 });
