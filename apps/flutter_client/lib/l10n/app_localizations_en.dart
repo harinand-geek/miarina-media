@@ -145,13 +145,6 @@ class L10nEn extends L10n {
   String get windowClose => 'Close';
 
   @override
-  String get comingSoonTitle => 'This screen is coming soon';
-
-  @override
-  String get comingSoonBody =>
-      'It will be built from the approved design in an upcoming lot. Nothing is simulated meanwhile.';
-
-  @override
   String tracksSummary(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -209,9 +202,6 @@ class L10nEn extends L10n {
 
   @override
   String get playAll => 'Play all';
-
-  @override
-  String get comingSoonShort => 'Coming soon';
 
   @override
   String get nowPlaying => 'Now playing';
@@ -2766,4 +2756,160 @@ class L10nEn extends L10n {
   String getReorderNamed(String title) {
     return 'Reorder $title (Alt + Up and Down arrows, or drag)';
   }
+
+  @override
+  String get torCapped => 'Sharing capped, in KB/s';
+
+  @override
+  String get torChecking => 'Checking files';
+
+  @override
+  String torDoneMeta(String size) {
+    return 'Done · $size';
+  }
+
+  @override
+  String torDoneSharing(String size) {
+    return 'Done · $size · sharing';
+  }
+
+  @override
+  String get torDown => 'Down';
+
+  @override
+  String get torDownLimit => 'Download limit';
+
+  @override
+  String get torEmpty => 'Your torrents will appear here.';
+
+  @override
+  String get torEnable => 'Enable session';
+
+  @override
+  String get torError => 'Error · the transfer stopped';
+
+  @override
+  String get torFailed => 'The operation could not be completed.';
+
+  @override
+  String get torInactive => 'Session stopped';
+
+  @override
+  String get torInspect => 'Inspect link';
+
+  @override
+  String get torLeft => 'Left';
+
+  @override
+  String get torLimitsSaved => 'Limits applied';
+
+  @override
+  String get torMagnet => 'Magnet link';
+
+  @override
+  String get torOpenFile => 'Open .torrent';
+
+  @override
+  String torPausedMeta(String done, String total) {
+    return 'Paused · $done / $total';
+  }
+
+  @override
+  String get torPeers => 'Peers';
+
+  @override
+  String get torPreviewNote =>
+      'Files are saved in a new folder under your download folder / Torrents. Small boundary pieces of unselected files may also be written.';
+
+  @override
+  String get torRatio => 'Ratio';
+
+  @override
+  String get torRatioDesc => 'Stop sharing above';
+
+  @override
+  String get torRemove => 'Remove';
+
+  @override
+  String get torRemoveBody =>
+      'The downloaded files will be kept. The transfer and sharing will stop.';
+
+  @override
+  String torRemoveNamed(String name) {
+    return 'Remove $name';
+  }
+
+  @override
+  String get torRemoveTitle => 'Remove torrent?';
+
+  @override
+  String get torResume => 'Resume';
+
+  @override
+  String get torSeedDesc => 'Stop after time';
+
+  @override
+  String get torSeedTime => 'Seeding time';
+
+  @override
+  String get torSequential => 'Download pieces in order';
+
+  @override
+  String get torSessionOff => 'Session stopped';
+
+  @override
+  String get torSessionOn => 'Session on';
+
+  @override
+  String get torSessionSharing => 'Session on · sharing';
+
+  @override
+  String get torSharing => 'Sharing';
+
+  @override
+  String get torStart => 'Start download';
+
+  @override
+  String get torStopAll => 'Stop all and sharing';
+
+  @override
+  String get torStopSharing => 'Stop sharing';
+
+  @override
+  String get torSub =>
+      'Add a magnet link or a .torrent file. Torrents share downloaded pieces with peers, even after completion: sharing is shown and you can stop it at any time.';
+
+  @override
+  String get torTargetRatio => 'Target ratio';
+
+  @override
+  String get torUnlimited => '0 = unlimited, in KB/s';
+
+  @override
+  String get torUp => 'Up';
+
+  @override
+  String get torUpLimit => 'Upload limit';
+
+  @override
+  String get torWait => 'Please wait…';
+
+  @override
+  String get torLinkInvalid => 'This magnet link is not valid.';
+
+  @override
+  String get torDuplicate => 'This torrent is already in the list.';
+
+  @override
+  String get torSelection => 'Select at least one file.';
+
+  @override
+  String get torSessionChanged =>
+      'The session changed: inspect the link again.';
+
+  @override
+  String get torPlannedHint => 'Planned for a later lot: not available yet.';
+
+  @override
+  String get torPlanned => 'PLANNED';
 }

@@ -45,8 +45,6 @@
   "windowMaximize": "Agrandir",
   "windowRestore": "Restaurer",
   "windowClose": "Fermer",
-  "comingSoonTitle": "Cet écran arrive bientôt",
-  "comingSoonBody": "Il sera construit d'après la maquette validée, dans un prochain lot. Rien n'est simulé en attendant.",
   "tracksSummary": "{count, plural, =0{Aucun titre} =1{1 titre} other{{count} titres}}",
   "@tracksSummary": {
     "placeholders": {
@@ -70,7 +68,6 @@
   "filterAll": "Tous",
   "filterTracks": "Filtrer les titres",
   "playAll": "Tout lire",
-  "comingSoonShort": "Bientôt disponible",
   "nowPlaying": "En lecture",
   "back": "Retour",
   "tabQueue": "File",
@@ -1671,5 +1668,84 @@
         "type": "String"
       }
     }
-  }
+  },
+  "torCapped": "Partage plafonné, en Ko/s",
+  "torChecking": "Vérification des fichiers",
+  "torDoneMeta": "Terminé · {size}",
+  "@torDoneMeta": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "torDoneSharing": "Terminé · {size} · partage en cours",
+  "@torDoneSharing": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "torDown": "Reçu",
+  "torDownLimit": "Limite de réception",
+  "torEmpty": "Vos torrents apparaîtront ici.",
+  "torEnable": "Activer la session",
+  "torError": "Erreur · le transfert s’est arrêté",
+  "torFailed": "L’opération n’a pas pu aboutir.",
+  "torInactive": "Session arrêtée",
+  "torInspect": "Analyser le lien",
+  "torLeft": "Reste",
+  "torLimitsSaved": "Limites appliquées",
+  "torMagnet": "Lien magnet",
+  "torOpenFile": "Ouvrir un .torrent",
+  "torPausedMeta": "En pause · {done} / {total}",
+  "@torPausedMeta": {
+    "placeholders": {
+      "done": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "torPeers": "Pairs",
+  "torPreviewNote": "Les fichiers sont enregistrés dans un nouveau dossier, sous votre dossier de téléchargement / Torrents. De petits morceaux en bordure de fichiers non choisis peuvent aussi être écrits.",
+  "torRatio": "Ratio",
+  "torRatioDesc": "Arrêt du partage au-delà",
+  "torRemove": "Retirer",
+  "torRemoveBody": "Les fichiers téléchargés sont conservés. Le transfert et le partage s’arrêtent.",
+  "torRemoveNamed": "Retirer {name}",
+  "@torRemoveNamed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "torRemoveTitle": "Retirer ce torrent ?",
+  "torResume": "Reprendre",
+  "torSeedDesc": "Arrêt après la durée",
+  "torSeedTime": "Durée de partage",
+  "torSequential": "Télécharger les morceaux dans l’ordre",
+  "torSessionOff": "Session arrêtée",
+  "torSessionOn": "Session active",
+  "torSessionSharing": "Session active · partage en cours",
+  "torSharing": "Partage",
+  "torStart": "Démarrer le téléchargement",
+  "torStopAll": "Arrêter tout et le partage",
+  "torStopSharing": "Arrêter le partage",
+  "torSub": "Ajoutez un lien magnet ou un fichier .torrent. Un torrent partage les morceaux téléchargés avec d’autres pairs, y compris après la fin : le partage est affiché et vous pouvez l’arrêter à tout moment.",
+  "torTargetRatio": "Ratio cible",
+  "torUnlimited": "0 = illimité, en Ko/s",
+  "torUp": "Envoyé",
+  "torUpLimit": "Limite d’envoi",
+  "torWait": "Patientez…",
+  "torLinkInvalid": "Ce lien magnet n’est pas valide.",
+  "torDuplicate": "Ce torrent est déjà dans la liste.",
+  "torSelection": "Sélectionnez au moins un fichier.",
+  "torSessionChanged": "La session a changé : analysez le lien à nouveau.",
+  "torPlannedHint": "Prévu dans un prochain lot : pas encore disponible.",
+  "torPlanned": "PRÉVU"
 }

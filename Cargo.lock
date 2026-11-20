@@ -4068,6 +4068,7 @@ dependencies = [
  "download-engine",
  "flutter_rust_bridge",
  "library",
+ "mdm-torrent",
  "media-core",
  "resource-manager",
  "serde",

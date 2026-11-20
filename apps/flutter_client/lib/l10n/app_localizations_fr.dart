@@ -145,13 +145,6 @@ class L10nFr extends L10n {
   String get windowClose => 'Fermer';
 
   @override
-  String get comingSoonTitle => 'Cet écran arrive bientôt';
-
-  @override
-  String get comingSoonBody =>
-      'Il sera construit d\'après la maquette validée, dans un prochain lot. Rien n\'est simulé en attendant.';
-
-  @override
   String tracksSummary(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
@@ -209,9 +202,6 @@ class L10nFr extends L10n {
 
   @override
   String get playAll => 'Tout lire';
-
-  @override
-  String get comingSoonShort => 'Bientôt disponible';
 
   @override
   String get nowPlaying => 'En lecture';
@@ -2788,4 +2778,161 @@ class L10nFr extends L10n {
   String getReorderNamed(String title) {
     return 'Réordonner $title (Alt + flèches haut et bas, ou glisser)';
   }
+
+  @override
+  String get torCapped => 'Partage plafonné, en Ko/s';
+
+  @override
+  String get torChecking => 'Vérification des fichiers';
+
+  @override
+  String torDoneMeta(String size) {
+    return 'Terminé · $size';
+  }
+
+  @override
+  String torDoneSharing(String size) {
+    return 'Terminé · $size · partage en cours';
+  }
+
+  @override
+  String get torDown => 'Reçu';
+
+  @override
+  String get torDownLimit => 'Limite de réception';
+
+  @override
+  String get torEmpty => 'Vos torrents apparaîtront ici.';
+
+  @override
+  String get torEnable => 'Activer la session';
+
+  @override
+  String get torError => 'Erreur · le transfert s’est arrêté';
+
+  @override
+  String get torFailed => 'L’opération n’a pas pu aboutir.';
+
+  @override
+  String get torInactive => 'Session arrêtée';
+
+  @override
+  String get torInspect => 'Analyser le lien';
+
+  @override
+  String get torLeft => 'Reste';
+
+  @override
+  String get torLimitsSaved => 'Limites appliquées';
+
+  @override
+  String get torMagnet => 'Lien magnet';
+
+  @override
+  String get torOpenFile => 'Ouvrir un .torrent';
+
+  @override
+  String torPausedMeta(String done, String total) {
+    return 'En pause · $done / $total';
+  }
+
+  @override
+  String get torPeers => 'Pairs';
+
+  @override
+  String get torPreviewNote =>
+      'Les fichiers sont enregistrés dans un nouveau dossier, sous votre dossier de téléchargement / Torrents. De petits morceaux en bordure de fichiers non choisis peuvent aussi être écrits.';
+
+  @override
+  String get torRatio => 'Ratio';
+
+  @override
+  String get torRatioDesc => 'Arrêt du partage au-delà';
+
+  @override
+  String get torRemove => 'Retirer';
+
+  @override
+  String get torRemoveBody =>
+      'Les fichiers téléchargés sont conservés. Le transfert et le partage s’arrêtent.';
+
+  @override
+  String torRemoveNamed(String name) {
+    return 'Retirer $name';
+  }
+
+  @override
+  String get torRemoveTitle => 'Retirer ce torrent ?';
+
+  @override
+  String get torResume => 'Reprendre';
+
+  @override
+  String get torSeedDesc => 'Arrêt après la durée';
+
+  @override
+  String get torSeedTime => 'Durée de partage';
+
+  @override
+  String get torSequential => 'Télécharger les morceaux dans l’ordre';
+
+  @override
+  String get torSessionOff => 'Session arrêtée';
+
+  @override
+  String get torSessionOn => 'Session active';
+
+  @override
+  String get torSessionSharing => 'Session active · partage en cours';
+
+  @override
+  String get torSharing => 'Partage';
+
+  @override
+  String get torStart => 'Démarrer le téléchargement';
+
+  @override
+  String get torStopAll => 'Arrêter tout et le partage';
+
+  @override
+  String get torStopSharing => 'Arrêter le partage';
+
+  @override
+  String get torSub =>
+      'Ajoutez un lien magnet ou un fichier .torrent. Un torrent partage les morceaux téléchargés avec d’autres pairs, y compris après la fin : le partage est affiché et vous pouvez l’arrêter à tout moment.';
+
+  @override
+  String get torTargetRatio => 'Ratio cible';
+
+  @override
+  String get torUnlimited => '0 = illimité, en Ko/s';
+
+  @override
+  String get torUp => 'Envoyé';
+
+  @override
+  String get torUpLimit => 'Limite d’envoi';
+
+  @override
+  String get torWait => 'Patientez…';
+
+  @override
+  String get torLinkInvalid => 'Ce lien magnet n’est pas valide.';
+
+  @override
+  String get torDuplicate => 'Ce torrent est déjà dans la liste.';
+
+  @override
+  String get torSelection => 'Sélectionnez au moins un fichier.';
+
+  @override
+  String get torSessionChanged =>
+      'La session a changé : analysez le lien à nouveau.';
+
+  @override
+  String get torPlannedHint =>
+      'Prévu dans un prochain lot : pas encore disponible.';
+
+  @override
+  String get torPlanned => 'PRÉVU';
 }

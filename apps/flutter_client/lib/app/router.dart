@@ -11,7 +11,6 @@ import '../features/cinema/cinema_screen.dart';
 import '../features/cinema/personal_videos_screen.dart';
 import '../features/cinema/series_screen.dart';
 import '../features/cinema/watch_screen.dart';
-import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/get/get_history_screen.dart';
@@ -22,6 +21,7 @@ import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/settings/settings_screen.dart';
+import '../features/torrents/torrents_screen.dart';
 import '../features/home/listen_home_screen.dart';
 import '../features/library/albums_screen.dart';
 import '../features/library/group_screen.dart';
@@ -256,10 +256,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           // Not ported yet from the Tauri app: said so, nothing simulated.
           screen(Routes.getBrowser, () => const BrowserScreen()),
-          screen(
-            Routes.getTorrents,
-            () => const ComingSoon(screenId: 'Obtenir · Torrents'),
-          ),
+          screen(Routes.getTorrents, () => const TorrentsScreen()),
           screen(Routes.getHistory, () => const GetHistoryScreen()),
           screen(Routes.settings, () => const SettingsScreen()),
           GoRoute(

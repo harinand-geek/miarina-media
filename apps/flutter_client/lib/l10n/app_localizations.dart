@@ -367,18 +367,6 @@ abstract class L10n {
   /// **'Fermer'**
   String get windowClose;
 
-  /// No description provided for @comingSoonTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cet écran arrive bientôt'**
-  String get comingSoonTitle;
-
-  /// No description provided for @comingSoonBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Il sera construit d\'après la maquette validée, dans un prochain lot. Rien n\'est simulé en attendant.'**
-  String get comingSoonBody;
-
   /// No description provided for @tracksSummary.
   ///
   /// In fr, this message translates to:
@@ -474,12 +462,6 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Tout lire'**
   String get playAll;
-
-  /// No description provided for @comingSoonShort.
-  ///
-  /// In fr, this message translates to:
-  /// **'Bientôt disponible'**
-  String get comingSoonShort;
 
   /// No description provided for @nowPlaying.
   ///
@@ -4512,6 +4494,294 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Réordonner {title} (Alt + flèches haut et bas, ou glisser)'**
   String getReorderNamed(String title);
+
+  /// No description provided for @torCapped.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage plafonné, en Ko/s'**
+  String get torCapped;
+
+  /// No description provided for @torChecking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérification des fichiers'**
+  String get torChecking;
+
+  /// No description provided for @torDoneMeta.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé · {size}'**
+  String torDoneMeta(String size);
+
+  /// No description provided for @torDoneSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé · {size} · partage en cours'**
+  String torDoneSharing(String size);
+
+  /// No description provided for @torDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reçu'**
+  String get torDown;
+
+  /// No description provided for @torDownLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite de réception'**
+  String get torDownLimit;
+
+  /// No description provided for @torEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos torrents apparaîtront ici.'**
+  String get torEmpty;
+
+  /// No description provided for @torEnable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer la session'**
+  String get torEnable;
+
+  /// No description provided for @torError.
+  ///
+  /// In fr, this message translates to:
+  /// **'Erreur · le transfert s’est arrêté'**
+  String get torError;
+
+  /// No description provided for @torFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’opération n’a pas pu aboutir.'**
+  String get torFailed;
+
+  /// No description provided for @torInactive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session arrêtée'**
+  String get torInactive;
+
+  /// No description provided for @torInspect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser le lien'**
+  String get torInspect;
+
+  /// No description provided for @torLeft.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reste'**
+  String get torLeft;
+
+  /// No description provided for @torLimitsSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limites appliquées'**
+  String get torLimitsSaved;
+
+  /// No description provided for @torMagnet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien magnet'**
+  String get torMagnet;
+
+  /// No description provided for @torOpenFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir un .torrent'**
+  String get torOpenFile;
+
+  /// No description provided for @torPausedMeta.
+  ///
+  /// In fr, this message translates to:
+  /// **'En pause · {done} / {total}'**
+  String torPausedMeta(String done, String total);
+
+  /// No description provided for @torPeers.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pairs'**
+  String get torPeers;
+
+  /// No description provided for @torPreviewNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les fichiers sont enregistrés dans un nouveau dossier, sous votre dossier de téléchargement / Torrents. De petits morceaux en bordure de fichiers non choisis peuvent aussi être écrits.'**
+  String get torPreviewNote;
+
+  /// No description provided for @torRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio'**
+  String get torRatio;
+
+  /// No description provided for @torRatioDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêt du partage au-delà'**
+  String get torRatioDesc;
+
+  /// No description provided for @torRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get torRemove;
+
+  /// No description provided for @torRemoveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les fichiers téléchargés sont conservés. Le transfert et le partage s’arrêtent.'**
+  String get torRemoveBody;
+
+  /// No description provided for @torRemoveNamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer {name}'**
+  String torRemoveNamed(String name);
+
+  /// No description provided for @torRemoveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer ce torrent ?'**
+  String get torRemoveTitle;
+
+  /// No description provided for @torResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get torResume;
+
+  /// No description provided for @torSeedDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêt après la durée'**
+  String get torSeedDesc;
+
+  /// No description provided for @torSeedTime.
+  ///
+  /// In fr, this message translates to:
+  /// **'Durée de partage'**
+  String get torSeedTime;
+
+  /// No description provided for @torSequential.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger les morceaux dans l’ordre'**
+  String get torSequential;
+
+  /// No description provided for @torSessionOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session arrêtée'**
+  String get torSessionOff;
+
+  /// No description provided for @torSessionOn.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session active'**
+  String get torSessionOn;
+
+  /// No description provided for @torSessionSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Session active · partage en cours'**
+  String get torSessionSharing;
+
+  /// No description provided for @torSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partage'**
+  String get torSharing;
+
+  /// No description provided for @torStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer le téléchargement'**
+  String get torStart;
+
+  /// No description provided for @torStopAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter tout et le partage'**
+  String get torStopAll;
+
+  /// No description provided for @torStopSharing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter le partage'**
+  String get torStopSharing;
+
+  /// No description provided for @torSub.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez un lien magnet ou un fichier .torrent. Un torrent partage les morceaux téléchargés avec d’autres pairs, y compris après la fin : le partage est affiché et vous pouvez l’arrêter à tout moment.'**
+  String get torSub;
+
+  /// No description provided for @torTargetRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ratio cible'**
+  String get torTargetRatio;
+
+  /// No description provided for @torUnlimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'0 = illimité, en Ko/s'**
+  String get torUnlimited;
+
+  /// No description provided for @torUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyé'**
+  String get torUp;
+
+  /// No description provided for @torUpLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite d’envoi'**
+  String get torUpLimit;
+
+  /// No description provided for @torWait.
+  ///
+  /// In fr, this message translates to:
+  /// **'Patientez…'**
+  String get torWait;
+
+  /// No description provided for @torLinkInvalid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce lien magnet n’est pas valide.'**
+  String get torLinkInvalid;
+
+  /// No description provided for @torDuplicate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce torrent est déjà dans la liste.'**
+  String get torDuplicate;
+
+  /// No description provided for @torSelection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sélectionnez au moins un fichier.'**
+  String get torSelection;
+
+  /// No description provided for @torSessionChanged.
+  ///
+  /// In fr, this message translates to:
+  /// **'La session a changé : analysez le lien à nouveau.'**
+  String get torSessionChanged;
+
+  /// No description provided for @torPlannedHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prévu dans un prochain lot : pas encore disponible.'**
+  String get torPlannedHint;
+
+  /// No description provided for @torPlanned.
+  ///
+  /// In fr, this message translates to:
+  /// **'PRÉVU'**
+  String get torPlanned;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

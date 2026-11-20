@@ -32,6 +32,8 @@ url.workspace = true
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
 
 [target.'cfg(windows)'.dependencies]
+# Torrents (Obtenir): the engine the Tauri app uses on Windows, vendored.
+mdm-torrent = { path = "../../../vendor/misterdownloadmanager-source/crates/torrent" }
 # Same versions as the Tauri app (apps/client/src-tauri/Cargo.toml).
 webview2-com = "=0.39.1"
 windows = { version = "=0.62.2", features = [

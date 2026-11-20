@@ -17,6 +17,7 @@ import 'api/library.dart';
 import 'api/playlists.dart';
 import 'api/search.dart';
 import 'api/settings.dart';
+import 'api/torrents.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -255,6 +256,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Int64List dco_decode_list_prim_i_64_strict(dynamic raw);
 
   @protected
+  List<int> dco_decode_list_prim_u_32_loose(dynamic raw);
+
+  @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
@@ -271,6 +278,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ToolStatus> dco_decode_list_tool_status(dynamic raw);
+
+  @protected
+  List<TorrentFile> dco_decode_list_torrent_file(dynamic raw);
+
+  @protected
+  List<TorrentRow> dco_decode_list_torrent_row(dynamic raw);
 
   @protected
   MediaInfo dco_decode_media_info(dynamic raw);
@@ -367,6 +380,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ToolStatus dco_decode_tool_status(dynamic raw);
+
+  @protected
+  TorrentFile dco_decode_torrent_file(dynamic raw);
+
+  @protected
+  TorrentPreview dco_decode_torrent_preview(dynamic raw);
+
+  @protected
+  TorrentRow dco_decode_torrent_row(dynamic raw);
+
+  @protected
+  TorrentSnapshot dco_decode_torrent_snapshot(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -644,6 +669,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Int64List sse_decode_list_prim_i_64_strict(SseDeserializer deserializer);
 
   @protected
+  List<int> sse_decode_list_prim_u_32_loose(SseDeserializer deserializer);
+
+  @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
@@ -664,6 +695,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<ToolStatus> sse_decode_list_tool_status(SseDeserializer deserializer);
+
+  @protected
+  List<TorrentFile> sse_decode_list_torrent_file(SseDeserializer deserializer);
+
+  @protected
+  List<TorrentRow> sse_decode_list_torrent_row(SseDeserializer deserializer);
 
   @protected
   MediaInfo sse_decode_media_info(SseDeserializer deserializer);
@@ -780,6 +817,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   ToolStatus sse_decode_tool_status(SseDeserializer deserializer);
+
+  @protected
+  TorrentFile sse_decode_torrent_file(SseDeserializer deserializer);
+
+  @protected
+  TorrentPreview sse_decode_torrent_preview(SseDeserializer deserializer);
+
+  @protected
+  TorrentRow sse_decode_torrent_row(SseDeserializer deserializer);
+
+  @protected
+  TorrentSnapshot sse_decode_torrent_snapshot(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -1136,6 +1185,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_prim_u_32_loose(
+    List<int> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -1165,6 +1226,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_tool_status(
     List<ToolStatus> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_torrent_file(
+    List<TorrentFile> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_torrent_row(
+    List<TorrentRow> self,
     SseSerializer serializer,
   );
 
@@ -1308,6 +1381,24 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_tool_status(ToolStatus self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_torrent_file(TorrentFile self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_torrent_preview(
+    TorrentPreview self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_torrent_row(TorrentRow self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_torrent_snapshot(
+    TorrentSnapshot self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
