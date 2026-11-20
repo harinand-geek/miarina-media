@@ -13,6 +13,7 @@ import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
+import '../features/get/get_history_screen.dart';
 import '../features/get/get_screens.dart';
 import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
@@ -261,10 +262,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             Routes.getTorrents,
             () => const ComingSoon(screenId: 'Obtenir · Torrents'),
           ),
-          screen(
-            Routes.getHistory,
-            () => const ComingSoon(screenId: 'Obtenir · Historique'),
-          ),
+          screen(Routes.getHistory, () => const GetHistoryScreen()),
           screen(Routes.settings, () => const SettingsScreen()),
           GoRoute(
             path: '${Routes.settings}/:section',

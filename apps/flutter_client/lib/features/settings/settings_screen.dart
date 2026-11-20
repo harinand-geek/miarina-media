@@ -15,6 +15,7 @@ import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
 import '../health/health_data.dart';
+import '../get/download_settings.dart';
 import '../history/history_data.dart';
 import '../import/import_data.dart';
 import '../import/welcome_screen.dart';
@@ -30,6 +31,7 @@ enum SettingsSection {
   appearance,
   playback,
   library,
+  downloads,
   shortcuts,
   data,
   about,
@@ -42,6 +44,7 @@ String sectionLabel(L10n t, SettingsSection s) => switch (s) {
   SettingsSection.appearance => t.setAppearance,
   SettingsSection.playback => t.setPlayback,
   SettingsSection.library => t.setLibrary,
+  SettingsSection.downloads => t.setDownloads,
   SettingsSection.shortcuts => t.setShortcuts,
   SettingsSection.data => t.setData,
   SettingsSection.about => t.setAbout,
@@ -208,6 +211,7 @@ class _SectionPage extends ConsumerWidget {
       SettingsSection.playback => const _Playback(),
       SettingsSection.shortcuts => const ShortcutsView(),
       SettingsSection.library => const _Library(),
+      SettingsSection.downloads => const DownloadSettings(),
       SettingsSection.data => const _Data(),
       SettingsSection.about => const _About(),
     };

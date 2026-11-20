@@ -2466,4 +2466,154 @@ class L10nFr extends L10n {
   @override
   String get getDirRefused =>
       'Ce dossier n’accepte pas de fichiers. Choisissez-en un autre.';
+
+  @override
+  String get getHistKind => 'Type d’historique';
+
+  @override
+  String get getHistDownloads => 'Téléchargements';
+
+  @override
+  String get getHistPlays => 'Lectures';
+
+  @override
+  String get getClearHistory => 'Effacer l’historique';
+
+  @override
+  String get getClearDlTitle => 'Effacer l’historique des téléchargements ?';
+
+  @override
+  String get getClearDlBody =>
+      'La liste des téléchargements passés est effacée. Les fichiers déjà enregistrés dans votre bibliothèque ne sont pas supprimés.';
+
+  @override
+  String get getHistEmptyDl =>
+      'Les téléchargements terminés, échoués ou annulés apparaissent ici.';
+
+  @override
+  String get getHistNoteDl => 'Effacer l’historique ne supprime aucun fichier.';
+
+  @override
+  String getFailedBecause(String reason) {
+    return 'Échec · $reason';
+  }
+
+  @override
+  String get getStCanceled => 'Annulé';
+
+  @override
+  String getActionsFor(String title) {
+    return 'Actions pour $title';
+  }
+
+  @override
+  String get getCopySourceLink => 'Copier le lien source';
+
+  @override
+  String get getLinkCopied => 'Lien source copié';
+
+  @override
+  String get getToday => 'Aujourd’hui';
+
+  @override
+  String get getYesterday => 'Hier';
+
+  @override
+  String get setDownloads => 'Téléchargements';
+
+  @override
+  String get getSaveTo => 'Enregistrer dans';
+
+  @override
+  String get getDefaultVideoQuality => 'Qualité vidéo par défaut';
+
+  @override
+  String get getDefaultVideoQualityDesc =>
+      'Qualité inférieure si indisponible.';
+
+  @override
+  String get getDefaultAudio => 'Format audio par défaut';
+
+  @override
+  String get getSimultaneous => 'Téléchargements simultanés';
+
+  @override
+  String get getSimultaneousDesc => 'Les suivants attendent dans la file.';
+
+  @override
+  String get getSpeedLimit => 'Limite de vitesse';
+
+  @override
+  String get getDownloadSubs => 'Télécharger les sous-titres';
+
+  @override
+  String get getDownloadSubsDesc =>
+      'Langue de l’interface en priorité, si disponible.';
+
+  @override
+  String get getResourceMode => 'Mode de ressources';
+
+  @override
+  String get getModeEco => 'Éco';
+
+  @override
+  String get getModeBalanced => 'Équilibré';
+
+  @override
+  String get getModePerformance => 'Performance';
+
+  @override
+  String getModeDesc(int n, int c) {
+    return '$n téléchargement(s) simultané(s), $c conversion(s) à la fois.';
+  }
+
+  @override
+  String get getMediaTools => 'Outils média';
+
+  @override
+  String get getAutoUpdated => 'mise à jour automatique';
+
+  @override
+  String get getIncludedVerified => 'Inclus · vérifié';
+
+  @override
+  String get getInstalledVerified => 'Installé · vérifié';
+
+  @override
+  String getToDownload(String size) {
+    return '$size à télécharger';
+  }
+
+  @override
+  String get getToolsInstalled => 'Outils média installés et vérifiés';
+
+  @override
+  String get getUpdCheck => 'Rechercher une mise à jour';
+
+  @override
+  String get getUpdChecking => 'Recherche…';
+
+  @override
+  String getYtdlpLatest(String v) {
+    return 'yt-dlp est à jour ($v)';
+  }
+
+  @override
+  String getYtdlpUpdated(String v) {
+    return 'yt-dlp mis à jour en $v · signature vérifiée';
+  }
+
+  @override
+  String get getUpdFailed =>
+      'La mise à jour de yt-dlp n’a pas pu se faire. Réessayez plus tard.';
+
+  @override
+  String get getInstallFailed =>
+      'Les outils n’ont pas pu être téléchargés. Vérifiez la connexion puis réessayez.';
+
+  @override
+  String get getLess => 'Moins';
+
+  @override
+  String get getMore => 'Plus';
 }

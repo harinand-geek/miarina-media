@@ -2447,4 +2447,152 @@ class L10nEn extends L10n {
   @override
   String get getDirRefused =>
       'This folder does not accept files. Choose another one.';
+
+  @override
+  String get getHistKind => 'History type';
+
+  @override
+  String get getHistDownloads => 'Downloads';
+
+  @override
+  String get getHistPlays => 'Plays';
+
+  @override
+  String get getClearHistory => 'Clear history';
+
+  @override
+  String get getClearDlTitle => 'Clear download history?';
+
+  @override
+  String get getClearDlBody =>
+      'This removes the list of past downloads. Files already saved in your library are not deleted.';
+
+  @override
+  String get getHistEmptyDl =>
+      'Finished, failed and cancelled downloads appear here.';
+
+  @override
+  String get getHistNoteDl => 'Clearing history deletes no files.';
+
+  @override
+  String getFailedBecause(String reason) {
+    return 'Failed · $reason';
+  }
+
+  @override
+  String get getStCanceled => 'Cancelled';
+
+  @override
+  String getActionsFor(String title) {
+    return 'Actions for $title';
+  }
+
+  @override
+  String get getCopySourceLink => 'Copy source link';
+
+  @override
+  String get getLinkCopied => 'Source link copied';
+
+  @override
+  String get getToday => 'Today';
+
+  @override
+  String get getYesterday => 'Yesterday';
+
+  @override
+  String get setDownloads => 'Downloads';
+
+  @override
+  String get getSaveTo => 'Save to';
+
+  @override
+  String get getDefaultVideoQuality => 'Default video quality';
+
+  @override
+  String get getDefaultVideoQualityDesc =>
+      'Falls back to a lower quality when unavailable.';
+
+  @override
+  String get getDefaultAudio => 'Default audio format';
+
+  @override
+  String get getSimultaneous => 'Simultaneous downloads';
+
+  @override
+  String get getSimultaneousDesc => 'Others wait in the queue.';
+
+  @override
+  String get getSpeedLimit => 'Speed limit';
+
+  @override
+  String get getDownloadSubs => 'Download subtitles';
+
+  @override
+  String get getDownloadSubsDesc => 'Interface language first, when available.';
+
+  @override
+  String get getResourceMode => 'Resource mode';
+
+  @override
+  String get getModeEco => 'Eco';
+
+  @override
+  String get getModeBalanced => 'Balanced';
+
+  @override
+  String get getModePerformance => 'Performance';
+
+  @override
+  String getModeDesc(int n, int c) {
+    return '$n simultaneous download(s), $c conversion(s) at a time.';
+  }
+
+  @override
+  String get getMediaTools => 'Media tools';
+
+  @override
+  String get getAutoUpdated => 'updates automatically';
+
+  @override
+  String get getIncludedVerified => 'Included · verified';
+
+  @override
+  String get getInstalledVerified => 'Installed · verified';
+
+  @override
+  String getToDownload(String size) {
+    return '$size download';
+  }
+
+  @override
+  String get getToolsInstalled => 'Media tools installed and verified';
+
+  @override
+  String get getUpdCheck => 'Check for updates';
+
+  @override
+  String get getUpdChecking => 'Checking…';
+
+  @override
+  String getYtdlpLatest(String v) {
+    return 'yt-dlp is up to date ($v)';
+  }
+
+  @override
+  String getYtdlpUpdated(String v) {
+    return 'yt-dlp updated to $v · signature verified';
+  }
+
+  @override
+  String get getUpdFailed => 'yt-dlp could not be updated. Try again later.';
+
+  @override
+  String get getInstallFailed =>
+      'The tools could not be downloaded. Check the connection and try again.';
+
+  @override
+  String get getLess => 'Fewer';
+
+  @override
+  String get getMore => 'More';
 }

@@ -340,6 +340,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   WebviewSpikeInfo dco_decode_webview_spike_info(dynamic raw);
 
   @protected
+  YtDlpUpdate dco_decode_yt_dlp_update(dynamic raw);
+
+  @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
@@ -695,6 +698,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   WebviewSpikeInfo sse_decode_webview_spike_info(SseDeserializer deserializer);
+
+  @protected
+  YtDlpUpdate sse_decode_yt_dlp_update(SseDeserializer deserializer);
 
   @protected
   void sse_encode_AnyhowException(
@@ -1154,6 +1160,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     WebviewSpikeInfo self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_yt_dlp_update(YtDlpUpdate self, SseSerializer serializer);
 }
 
 // Section: wire_class

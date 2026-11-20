@@ -23,7 +23,8 @@ export '../../src/rust/api/get.dart'
         MediaInfo,
         StartRequest,
         TaskInfo,
-        ToolStatus;
+        ToolStatus,
+        YtDlpUpdate;
 
 /// Obtenir in the core (download manager); tests use an in-memory one.
 abstract interface class GetApi {
@@ -40,6 +41,11 @@ abstract interface class GetApi {
   Future<void> pauseAll(bool pause);
   Future<GetSettings> settings();
   Future<GetSettings> setDownloadDir(String path);
+  Future<GetSettings> setConcurrency(int value);
+  Future<GetSettings> setResourceMode(String mode);
+  Future<List<ToolStatus>> tools();
+  Future<YtDlpUpdate> updateYtDlp();
+  Future<void> clearHistory();
 }
 
 /// Where downloads go until the user picks another folder: Téléchargements
@@ -105,6 +111,23 @@ class RustGetApi implements GetApi {
   @override
   Future<GetSettings> setDownloadDir(String path) =>
       getSetDownloadDir(path: path);
+
+  @override
+  Future<GetSettings> setConcurrency(int value) =>
+      getSetConcurrency(value: value);
+
+  @override
+  Future<GetSettings> setResourceMode(String mode) =>
+      getSetResourceMode(mode: mode);
+
+  @override
+  Future<List<ToolStatus>> tools() => getTools();
+
+  @override
+  Future<YtDlpUpdate> updateYtDlp() => getUpdateYtdlp();
+
+  @override
+  Future<void> clearHistory() async => getClearHistory();
 }
 
 final getApiProvider = Provider<GetApi>(RustGetApi.new);
@@ -392,6 +415,12 @@ class DownloadsController extends Notifier<DownloadsState> {
   Future<void> move(String id, int index) => _api.move(id, index);
 
   Future<void> pauseAll(bool pause) => _api.pauseAll(pause);
+
+  /// Forgets past downloads; files are not deleted.
+  Future<void> clearHistory() async {
+    await _api.clearHistory();
+    state = state.copyWith(history: const []);
+  }
 }
 
 /// Download folder and limits (settings table, shared with the Tauri app).

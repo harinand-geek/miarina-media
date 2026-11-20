@@ -848,15 +848,50 @@ class FakeGetApi implements GetApi {
   @override
   Future<GetSettings> settings() async => GetSettings(
     downloadDir: dir,
-    concurrency: 3,
-    resourceMode: 'balanced',
-    maxDownloads: 3,
+    concurrency: concurrency,
+    resourceMode: mode,
+    maxDownloads: mode == 'eco' ? 1 : concurrency,
+    maxConversions: mode == 'eco' ? 1 : 2,
+    maxConcurrency: 8,
   );
 
   @override
   Future<GetSettings> setDownloadDir(String path) async {
     dir = path;
     return settings();
+  }
+
+  var concurrency = 3;
+  var mode = 'balanced';
+  var tools_ = <ToolStatus>[];
+  var updates = 0;
+  var cleared = 0;
+
+  @override
+  Future<GetSettings> setConcurrency(int value) async {
+    concurrency = value;
+    return settings();
+  }
+
+  @override
+  Future<GetSettings> setResourceMode(String m) async {
+    mode = m;
+    return settings();
+  }
+
+  @override
+  Future<List<ToolStatus>> tools() async => tools_;
+
+  @override
+  Future<YtDlpUpdate> updateYtDlp() async {
+    updates++;
+    return YtDlpUpdate(updated: false, version: '2026.08.19');
+  }
+
+  @override
+  Future<void> clearHistory() async {
+    cleared++;
+    history_ = [];
   }
 }
 

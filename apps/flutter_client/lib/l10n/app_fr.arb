@@ -1477,5 +1477,94 @@
       }
     }
   },
-  "getDirRefused": "Ce dossier n’accepte pas de fichiers. Choisissez-en un autre."
+  "getDirRefused": "Ce dossier n’accepte pas de fichiers. Choisissez-en un autre.",
+  "getHistKind": "Type d’historique",
+  "getHistDownloads": "Téléchargements",
+  "getHistPlays": "Lectures",
+  "getClearHistory": "Effacer l’historique",
+  "getClearDlTitle": "Effacer l’historique des téléchargements ?",
+  "getClearDlBody": "La liste des téléchargements passés est effacée. Les fichiers déjà enregistrés dans votre bibliothèque ne sont pas supprimés.",
+  "getHistEmptyDl": "Les téléchargements terminés, échoués ou annulés apparaissent ici.",
+  "getHistNoteDl": "Effacer l’historique ne supprime aucun fichier.",
+  "getFailedBecause": "Échec · {reason}",
+  "@getFailedBecause": {
+    "placeholders": {
+      "reason": {
+        "type": "String"
+      }
+    }
+  },
+  "getStCanceled": "Annulé",
+  "getActionsFor": "Actions pour {title}",
+  "@getActionsFor": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "getCopySourceLink": "Copier le lien source",
+  "getLinkCopied": "Lien source copié",
+  "getToday": "Aujourd’hui",
+  "getYesterday": "Hier",
+  "setDownloads": "Téléchargements",
+  "getSaveTo": "Enregistrer dans",
+  "getDefaultVideoQuality": "Qualité vidéo par défaut",
+  "getDefaultVideoQualityDesc": "Qualité inférieure si indisponible.",
+  "getDefaultAudio": "Format audio par défaut",
+  "getSimultaneous": "Téléchargements simultanés",
+  "getSimultaneousDesc": "Les suivants attendent dans la file.",
+  "getSpeedLimit": "Limite de vitesse",
+  "getDownloadSubs": "Télécharger les sous-titres",
+  "getDownloadSubsDesc": "Langue de l’interface en priorité, si disponible.",
+  "getResourceMode": "Mode de ressources",
+  "getModeEco": "Éco",
+  "getModeBalanced": "Équilibré",
+  "getModePerformance": "Performance",
+  "getModeDesc": "{n} téléchargement(s) simultané(s), {c} conversion(s) à la fois.",
+  "@getModeDesc": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      },
+      "c": {
+        "type": "int"
+      }
+    }
+  },
+  "getMediaTools": "Outils média",
+  "getAutoUpdated": "mise à jour automatique",
+  "getIncludedVerified": "Inclus · vérifié",
+  "getInstalledVerified": "Installé · vérifié",
+  "getToDownload": "{size} à télécharger",
+  "@getToDownload": {
+    "placeholders": {
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "getToolsInstalled": "Outils média installés et vérifiés",
+  "getUpdCheck": "Rechercher une mise à jour",
+  "getUpdChecking": "Recherche…",
+  "getYtdlpLatest": "yt-dlp est à jour ({v})",
+  "@getYtdlpLatest": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "getYtdlpUpdated": "yt-dlp mis à jour en {v} · signature vérifiée",
+  "@getYtdlpUpdated": {
+    "placeholders": {
+      "v": {
+        "type": "String"
+      }
+    }
+  },
+  "getUpdFailed": "La mise à jour de yt-dlp n’a pas pu se faire. Réessayez plus tard.",
+  "getInstallFailed": "Les outils n’ont pas pu être téléchargés. Vérifiez la connexion puis réessayez.",
+  "getLess": "Moins",
+  "getMore": "Plus"
 }

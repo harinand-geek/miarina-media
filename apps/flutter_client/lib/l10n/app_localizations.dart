@@ -3954,6 +3954,270 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ce dossier n’accepte pas de fichiers. Choisissez-en un autre.'**
   String get getDirRefused;
+
+  /// No description provided for @getHistKind.
+  ///
+  /// In fr, this message translates to:
+  /// **'Type d’historique'**
+  String get getHistKind;
+
+  /// No description provided for @getHistDownloads.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements'**
+  String get getHistDownloads;
+
+  /// No description provided for @getHistPlays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lectures'**
+  String get getHistPlays;
+
+  /// No description provided for @getClearHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l’historique'**
+  String get getClearHistory;
+
+  /// No description provided for @getClearDlTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l’historique des téléchargements ?'**
+  String get getClearDlTitle;
+
+  /// No description provided for @getClearDlBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La liste des téléchargements passés est effacée. Les fichiers déjà enregistrés dans votre bibliothèque ne sont pas supprimés.'**
+  String get getClearDlBody;
+
+  /// No description provided for @getHistEmptyDl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les téléchargements terminés, échoués ou annulés apparaissent ici.'**
+  String get getHistEmptyDl;
+
+  /// No description provided for @getHistNoteDl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l’historique ne supprime aucun fichier.'**
+  String get getHistNoteDl;
+
+  /// No description provided for @getFailedBecause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec · {reason}'**
+  String getFailedBecause(String reason);
+
+  /// No description provided for @getStCanceled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annulé'**
+  String get getStCanceled;
+
+  /// No description provided for @getActionsFor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Actions pour {title}'**
+  String getActionsFor(String title);
+
+  /// No description provided for @getCopySourceLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier le lien source'**
+  String get getCopySourceLink;
+
+  /// No description provided for @getLinkCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lien source copié'**
+  String get getLinkCopied;
+
+  /// No description provided for @getToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aujourd’hui'**
+  String get getToday;
+
+  /// No description provided for @getYesterday.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hier'**
+  String get getYesterday;
+
+  /// No description provided for @setDownloads.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements'**
+  String get setDownloads;
+
+  /// No description provided for @getSaveTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer dans'**
+  String get getSaveTo;
+
+  /// No description provided for @getDefaultVideoQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité vidéo par défaut'**
+  String get getDefaultVideoQuality;
+
+  /// No description provided for @getDefaultVideoQualityDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité inférieure si indisponible.'**
+  String get getDefaultVideoQualityDesc;
+
+  /// No description provided for @getDefaultAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format audio par défaut'**
+  String get getDefaultAudio;
+
+  /// No description provided for @getSimultaneous.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements simultanés'**
+  String get getSimultaneous;
+
+  /// No description provided for @getSimultaneousDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les suivants attendent dans la file.'**
+  String get getSimultaneousDesc;
+
+  /// No description provided for @getSpeedLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Limite de vitesse'**
+  String get getSpeedLimit;
+
+  /// No description provided for @getDownloadSubs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger les sous-titres'**
+  String get getDownloadSubs;
+
+  /// No description provided for @getDownloadSubsDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Langue de l’interface en priorité, si disponible.'**
+  String get getDownloadSubsDesc;
+
+  /// No description provided for @getResourceMode.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mode de ressources'**
+  String get getResourceMode;
+
+  /// No description provided for @getModeEco.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éco'**
+  String get getModeEco;
+
+  /// No description provided for @getModeBalanced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibré'**
+  String get getModeBalanced;
+
+  /// No description provided for @getModePerformance.
+  ///
+  /// In fr, this message translates to:
+  /// **'Performance'**
+  String get getModePerformance;
+
+  /// No description provided for @getModeDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} téléchargement(s) simultané(s), {c} conversion(s) à la fois.'**
+  String getModeDesc(int n, int c);
+
+  /// No description provided for @getMediaTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils média'**
+  String get getMediaTools;
+
+  /// No description provided for @getAutoUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'mise à jour automatique'**
+  String get getAutoUpdated;
+
+  /// No description provided for @getIncludedVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclus · vérifié'**
+  String get getIncludedVerified;
+
+  /// No description provided for @getInstalledVerified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installé · vérifié'**
+  String get getInstalledVerified;
+
+  /// No description provided for @getToDownload.
+  ///
+  /// In fr, this message translates to:
+  /// **'{size} à télécharger'**
+  String getToDownload(String size);
+
+  /// No description provided for @getToolsInstalled.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils média installés et vérifiés'**
+  String get getToolsInstalled;
+
+  /// No description provided for @getUpdCheck.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher une mise à jour'**
+  String get getUpdCheck;
+
+  /// No description provided for @getUpdChecking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherche…'**
+  String get getUpdChecking;
+
+  /// No description provided for @getYtdlpLatest.
+  ///
+  /// In fr, this message translates to:
+  /// **'yt-dlp est à jour ({v})'**
+  String getYtdlpLatest(String v);
+
+  /// No description provided for @getYtdlpUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'yt-dlp mis à jour en {v} · signature vérifiée'**
+  String getYtdlpUpdated(String v);
+
+  /// No description provided for @getUpdFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La mise à jour de yt-dlp n’a pas pu se faire. Réessayez plus tard.'**
+  String get getUpdFailed;
+
+  /// No description provided for @getInstallFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les outils n’ont pas pu être téléchargés. Vérifiez la connexion puis réessayez.'**
+  String get getInstallFailed;
+
+  /// No description provided for @getLess.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moins'**
+  String get getLess;
+
+  /// No description provided for @getMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus'**
+  String get getMore;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

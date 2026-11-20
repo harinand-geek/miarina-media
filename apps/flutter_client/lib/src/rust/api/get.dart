@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `clean_text`, `cpu_count`, `direct_analysis`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `ready`, `settings_of`, `should_extract`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `apply_limits`, `check_ytdlp_update`, `clean_text`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `ready`, `settings_of`, `should_extract`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
 
 /// Starts the download manager on the indexing runtime (call after
@@ -62,6 +62,21 @@ Future<GetSettings> getSettings() =>
 /// Folder chosen by the user: must exist and accept files.
 Future<GetSettings> getSetDownloadDir({required String path}) =>
     RustLib.instance.api.crateApiGetGetSetDownloadDir(path: path);
+
+Future<GetSettings> getSetConcurrency({required int value}) =>
+    RustLib.instance.api.crateApiGetGetSetConcurrency(value: value);
+
+/// eco, balanced or performance.
+Future<GetSettings> getSetResourceMode({required String mode}) =>
+    RustLib.instance.api.crateApiGetGetSetResourceMode(mode: mode);
+
+/// yt-dlp, FFmpeg and the others: version, licence, installed or shipped.
+Future<List<ToolStatus>> getTools() =>
+    RustLib.instance.api.crateApiGetGetTools();
+
+/// Settings › Téléchargements › "Rechercher une mise à jour" (Windows).
+Future<YtDlpUpdate> getUpdateYtdlp() =>
+    RustLib.instance.api.crateApiGetGetUpdateYtdlp();
 
 /// Plain structs and enums only: the bridge then needs no generated
 /// sealed classes on the Dart side.
@@ -235,13 +250,21 @@ class GetSettings {
 
   /// eco, balanced, performance.
   final String resourceMode;
+
+  /// Limits the mode applies (downloads, conversions at once).
   final int maxDownloads;
+  final int maxConversions;
+
+  /// Bounds of `concurrency`.
+  final int maxConcurrency;
 
   const GetSettings({
     required this.downloadDir,
     required this.concurrency,
     required this.resourceMode,
     required this.maxDownloads,
+    required this.maxConversions,
+    required this.maxConcurrency,
   });
 
   @override
@@ -249,7 +272,9 @@ class GetSettings {
       downloadDir.hashCode ^
       concurrency.hashCode ^
       resourceMode.hashCode ^
-      maxDownloads.hashCode;
+      maxDownloads.hashCode ^
+      maxConversions.hashCode ^
+      maxConcurrency.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -259,7 +284,9 @@ class GetSettings {
           downloadDir == other.downloadDir &&
           concurrency == other.concurrency &&
           resourceMode == other.resourceMode &&
-          maxDownloads == other.maxDownloads;
+          maxDownloads == other.maxDownloads &&
+          maxConversions == other.maxConversions &&
+          maxConcurrency == other.maxConcurrency;
 }
 
 class HistoryInfo {
@@ -272,6 +299,9 @@ class HistoryInfo {
   final BigInt? totalBytes;
   final BigInt doneBytes;
   final bool completed;
+
+  /// The user cancelled it (failed otherwise, when not completed).
+  final bool canceled;
   final String? reason;
   final String? finalPath;
   final PlatformInt64 finishedAt;
@@ -286,6 +316,7 @@ class HistoryInfo {
     this.totalBytes,
     required this.doneBytes,
     required this.completed,
+    required this.canceled,
     this.reason,
     this.finalPath,
     required this.finishedAt,
@@ -302,6 +333,7 @@ class HistoryInfo {
       totalBytes.hashCode ^
       doneBytes.hashCode ^
       completed.hashCode ^
+      canceled.hashCode ^
       reason.hashCode ^
       finalPath.hashCode ^
       finishedAt.hashCode;
@@ -320,6 +352,7 @@ class HistoryInfo {
           totalBytes == other.totalBytes &&
           doneBytes == other.doneBytes &&
           completed == other.completed &&
+          canceled == other.canceled &&
           reason == other.reason &&
           finalPath == other.finalPath &&
           finishedAt == other.finishedAt;
@@ -580,36 +613,66 @@ class TaskInfo {
 }
 
 class ToolStatus {
+  /// yt_dlp, ffmpeg, quickjs, libvlc.
+  final String id;
   final String name;
   final String version;
   final String license;
   final BigInt downloadBytes;
   final bool installed;
 
+  /// Shipped with the application rather than downloaded.
+  final bool bundled;
+
   const ToolStatus({
+    required this.id,
     required this.name,
     required this.version,
     required this.license,
     required this.downloadBytes,
     required this.installed,
+    required this.bundled,
   });
 
   @override
   int get hashCode =>
+      id.hashCode ^
       name.hashCode ^
       version.hashCode ^
       license.hashCode ^
       downloadBytes.hashCode ^
-      installed.hashCode;
+      installed.hashCode ^
+      bundled.hashCode;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       other is ToolStatus &&
           runtimeType == other.runtimeType &&
+          id == other.id &&
           name == other.name &&
           version == other.version &&
           license == other.license &&
           downloadBytes == other.downloadBytes &&
-          installed == other.installed;
+          installed == other.installed &&
+          bundled == other.bundled;
+}
+
+class YtDlpUpdate {
+  /// A newer version was installed (its signature verified).
+  final bool updated;
+  final String version;
+
+  const YtDlpUpdate({required this.updated, required this.version});
+
+  @override
+  int get hashCode => updated.hashCode ^ version.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is YtDlpUpdate &&
+          runtimeType == other.runtimeType &&
+          updated == other.updated &&
+          version == other.version;
 }

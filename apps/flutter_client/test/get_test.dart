@@ -256,6 +256,8 @@ void main() {
         detail: '',
         tools: [
           ToolStatus(
+            id: 'yt_dlp',
+            bundled: false,
             name: 'yt-dlp',
             version: '2026.10.01',
             license: 'Unlicense',
@@ -333,6 +335,7 @@ void main() {
           formatLabel: 'MP4 · 1080p',
           doneBytes: BigInt.from(356 * mb),
           completed: true,
+          canceled: false,
           finishedAt: 0,
         ),
       ];
@@ -392,6 +395,138 @@ void main() {
       await settle(tester);
       expect(find.text('Big Buck Bunny'), findsOneWidget);
       expect(find.text('Terminé'), findsOneWidget);
+    });
+    HistoryInfo entry(
+      int id,
+      String title, {
+      required DateTime at,
+      bool completed = true,
+      bool canceled = false,
+      String? reason,
+      String format = 'MP4 · 1080p',
+    }) => HistoryInfo(
+      id: id,
+      taskId: 't$id',
+      url: 'https://example.org/$id',
+      title: title,
+      sourceHost: 'example.org',
+      formatLabel: format,
+      totalBytes: BigInt.from(356 * mb),
+      doneBytes: BigInt.from(356 * mb),
+      completed: completed,
+      canceled: canceled,
+      reason: reason,
+      finishedAt: at.millisecondsSinceEpoch,
+    );
+
+    testWidgets('history: by day, menu, clearing keeps the files', (
+      tester,
+    ) async {
+      final now = DateTime.now();
+      get.history_ = [
+        entry(1, 'Big Buck Bunny', at: now),
+        entry(
+          2,
+          'Live stream',
+          at: now,
+          completed: false,
+          reason: 'the disk is full',
+        ),
+        entry(
+          3,
+          'Elephants Dream',
+          at: now.subtract(const Duration(days: 1)),
+          completed: false,
+          canceled: true,
+        ),
+      ];
+      await pumpApp(tester, Routes.getHistory);
+      expect(find.text('AUJOURD’HUI'), findsOneWidget);
+      expect(find.text('HIER'), findsOneWidget);
+      expect(find.text('MP4 · 1080p · 356 Mo · example.org'), findsOneWidget);
+      expect(find.text('Échec · Disque plein'), findsOneWidget);
+      expect(find.text('Annulé · example.org'), findsOneWidget);
+      expect(
+        find.text('Effacer l’historique ne supprime aucun fichier.'),
+        findsOneWidget,
+      );
+
+      // The cancelled one is analyzed again from its link.
+      await tester.tap(find.byTooltip('Actions pour Elephants Dream'));
+      await settle(tester);
+      await tester.tap(find.text('Réessayer').last);
+      await settle(tester);
+      expect(get.analyzed, ['https://example.org/3']);
+
+      await tester.tap(find.text('Historique').first);
+      await settle(tester);
+      await tester.tap(find.text('Effacer l’historique'));
+      await settle(tester);
+      expect(
+        find.text('Effacer l’historique des téléchargements ?'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Effacer l’historique').last);
+      await settle(tester);
+      expect(get.cleared, 1);
+      expect(
+        find.text(
+          'Les téléchargements terminés, échoués ou annulés apparaissent ici.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('settings: folder, simultaneous, resource mode, tools', (
+      tester,
+    ) async {
+      get.tools_ = [
+        ToolStatus(
+          id: 'yt_dlp',
+          name: 'yt-dlp',
+          version: '2026.08.19',
+          license: 'Unlicense',
+          downloadBytes: BigInt.from(17 * mb),
+          installed: true,
+          bundled: true,
+        ),
+        ToolStatus(
+          id: 'ffmpeg',
+          name: 'FFmpeg',
+          version: '8.0',
+          license: 'GPL-3.0',
+          downloadBytes: BigInt.from(90 * mb),
+          installed: false,
+          bundled: false,
+        ),
+      ];
+      await pumpApp(tester, '${Routes.settings}/downloads');
+      expect(find.text(r'C:\Users\Hery\Downloads\Miarina'), findsOneWidget);
+      expect(find.text('3'), findsOneWidget);
+      await tester.tap(
+        find.bySemanticsLabel('Téléchargements simultanés · Plus'),
+      );
+      await settle(tester);
+      expect(get.concurrency, 4);
+      expect(find.text('4'), findsOneWidget);
+
+      // Eco changes the real limits, and says so.
+      await tester.tap(find.text('Éco'));
+      await settle(tester);
+      expect(get.mode, 'eco');
+      expect(
+        find.text(
+          '1 téléchargement(s) simultané(s), 1 conversion(s) à la fois.',
+        ),
+        findsOneWidget,
+      );
+
+      expect(find.text('Inclus · vérifié'), findsOneWidget);
+      expect(find.text('8.0 · GPL-3.0 · 90 Mo à télécharger'), findsOneWidget);
+      await tester.tap(find.text('Rechercher une mise à jour'));
+      await settle(tester);
+      expect(get.updates, 1);
+      expect(find.text('yt-dlp est à jour (2026.08.19)'), findsOneWidget);
     });
   });
 }

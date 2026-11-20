@@ -109,11 +109,15 @@ pub struct MediaInfo {
 }
 
 pub struct ToolStatus {
+    /// yt_dlp, ffmpeg, quickjs, libvlc.
+    pub id: String,
     pub name: String,
     pub version: String,
     pub license: String,
     pub download_bytes: u64,
     pub installed: bool,
+    /// Shipped with the application rather than downloaded.
+    pub bundled: bool,
 }
 
 pub enum AnalysisStatus {
@@ -192,6 +196,8 @@ pub struct HistoryInfo {
     pub total_bytes: Option<u64>,
     pub done_bytes: u64,
     pub completed: bool,
+    /// The user cancelled it (failed otherwise, when not completed).
+    pub canceled: bool,
     pub reason: Option<String>,
     pub final_path: Option<String>,
     pub finished_at: i64,
@@ -260,7 +266,11 @@ pub struct GetSettings {
     pub concurrency: u32,
     /// eco, balanced, performance.
     pub resource_mode: String,
+    /// Limits the mode applies (downloads, conversions at once).
     pub max_downloads: u32,
+    pub max_conversions: u32,
+    /// Bounds of `concurrency`.
+    pub max_concurrency: u32,
 }
 
 fn task_info(r: TaskRecord) -> TaskInfo {
@@ -298,6 +308,7 @@ fn history_info(h: HistoryEntry) -> HistoryInfo {
         total_bytes: h.total_bytes,
         done_bytes: h.done_bytes,
         completed: h.status == HistoryStatus::Completed,
+        canceled: h.status == HistoryStatus::Canceled,
         reason: h.reason,
         final_path: h.final_path,
         finished_at: h.finished_at,
@@ -333,7 +344,37 @@ fn settings_of(storage: &storage::Storage, default_dir: &Path) -> GetSettings {
         }
         .into(),
         max_downloads: applied.max_downloads as u32,
+        max_conversions: applied.max_conversions as u32,
+        max_concurrency: resource_manager::MAX_USER_DOWNLOADS as u32,
     }
+}
+
+fn current_limits(storage: &storage::Storage) -> resource_manager::Limits {
+    let concurrency = storage
+        .setting::<usize>(KEY_CONCURRENCY)
+        .ok()
+        .flatten()
+        .unwrap_or(DEFAULT_CONCURRENCY);
+    let mode = storage
+        .setting::<ResourceMode>(KEY_RESOURCE_MODE)
+        .ok()
+        .flatten()
+        .unwrap_or_default();
+    limits(mode, platform(), concurrency, cpu_count())
+}
+
+/// Applies the stored settings to the running manager and library: Eco /
+/// Balanced / Performance change real limits, not labels.
+fn apply_limits(g: &Getter) -> GetSettings {
+    let storage = lock(&g.storage);
+    let applied = current_limits(&storage);
+    g.manager.set_limits(applied);
+    g.library.set_limits(library::WorkLimits {
+        max_conversions: applied.max_conversions,
+        thumbnail_px: applied.thumbnail_px,
+        ffmpeg_threads: applied.ffmpeg_threads,
+    });
+    settings_of(&storage, &g.default_dir)
 }
 
 fn platform() -> Platform {
@@ -362,16 +403,7 @@ pub fn get_start(default_dir: String) -> Result<()> {
     let http = HttpEngine::new()?;
     let ytdlp = YtDlpEngine::new(parts.components.clone());
     let default_dir = PathBuf::from(default_dir);
-    let settings = settings_of(&lock(&parts.storage), &default_dir);
-    let applied = {
-        let storage = lock(&parts.storage);
-        let mode = storage
-            .setting::<ResourceMode>(KEY_RESOURCE_MODE)
-            .ok()
-            .flatten()
-            .unwrap_or_default();
-        limits(mode, platform(), settings.concurrency as usize, cpu_count())
-    };
+    let applied = current_limits(&lock(&parts.storage));
     let (tx, mut rx) = mpsc::channel::<ManagerEvent>(EVENT_BUFFER);
     let manager = Manager::new(
         parts.storage.clone(),
@@ -430,6 +462,10 @@ pub fn get_start(default_dir: String) -> Result<()> {
     {
         let _enter = parts.runtime.enter();
         manager.start()?;
+    }
+    // Windows: keep yt-dlp current (verified updates, at most daily).
+    if cfg!(windows) {
+        parts.runtime.spawn(daily_ytdlp_updates());
     }
     *guard = Some(Arc::new(Getter {
         db: parts.db,
@@ -550,6 +586,11 @@ fn tools_status(ytdlp: &YtDlpEngine) -> Vec<ToolStatus> {
         .status()
         .into_iter()
         .map(|c| ToolStatus {
+            id: serde_json::to_value(c.id)
+                .ok()
+                .and_then(|v| v.as_str().map(str::to_owned))
+                .unwrap_or_default(),
+            bundled: c.bundled,
             name: c.name.to_owned(),
             version: c.version,
             license: c.license.to_owned(),
@@ -791,7 +832,12 @@ pub fn get_start_download(request: StartRequest) -> Result<TaskInfo> {
 }
 
 pub fn get_tasks() -> Result<Vec<TaskInfo>> {
-    Ok(getter()?.manager.tasks()?.into_iter().map(task_info).collect())
+    Ok(getter()?
+        .manager
+        .tasks()?
+        .into_iter()
+        .map(task_info)
+        .collect())
 }
 
 pub fn get_history(limit: u32) -> Result<Vec<HistoryInfo>> {
@@ -860,6 +906,100 @@ pub fn get_set_download_dir(path: String) -> Result<GetSettings> {
     Ok(settings_of(&storage, &g.default_dir))
 }
 
+// ------------------------------------------------------- settings, tools
+
+pub fn get_set_concurrency(value: u32) -> Result<GetSettings> {
+    let g = getter()?;
+    let value = (value as usize).clamp(1, resource_manager::MAX_USER_DOWNLOADS);
+    lock(&g.storage).set_setting(KEY_CONCURRENCY, &value)?;
+    let _enter = g.runtime.enter();
+    Ok(apply_limits(&g))
+}
+
+/// eco, balanced or performance.
+pub fn get_set_resource_mode(mode: String) -> Result<GetSettings> {
+    let g = getter()?;
+    let mode = match mode.as_str() {
+        "eco" => ResourceMode::Eco,
+        "balanced" => ResourceMode::Balanced,
+        "performance" => ResourceMode::Performance,
+        other => return Err(anyhow!("unknown mode: {other}")),
+    };
+    lock(&g.storage).set_setting(KEY_RESOURCE_MODE, &mode)?;
+    let _enter = g.runtime.enter();
+    Ok(apply_limits(&g))
+}
+
+/// yt-dlp, FFmpeg and the others: version, licence, installed or shipped.
+pub fn get_tools() -> Result<Vec<ToolStatus>> {
+    Ok(tools_status(&getter()?.ytdlp))
+}
+
+pub struct YtDlpUpdate {
+    /// A newer version was installed (its signature verified).
+    pub updated: bool,
+    pub version: String,
+}
+
+/// When yt-dlp was last checked for updates (ms since the epoch).
+const KEY_YTDLP_CHECKED_AT: &str = "ytdlp_checked_at";
+/// At most one automatic check a day.
+const YTDLP_CHECK_INTERVAL_MS: i64 = 24 * 60 * 60 * 1000;
+
+async fn check_ytdlp_update(g: &Getter) -> Result<YtDlpUpdate> {
+    let _guard = g.install_lock.lock().await;
+    let outcome = g
+        .ytdlp
+        .components()
+        .update_ytdlp(&CancellationToken::new())
+        .await?;
+    let _ = lock(&g.storage).set_setting(KEY_YTDLP_CHECKED_AT, &now_ms());
+    Ok(match outcome {
+        download_engine::ytdlp::update::UpdateOutcome::UpToDate { version } => YtDlpUpdate {
+            updated: false,
+            version,
+        },
+        download_engine::ytdlp::update::UpdateOutcome::Updated { version } => YtDlpUpdate {
+            updated: true,
+            version,
+        },
+    })
+}
+
+/// Settings › Téléchargements › "Rechercher une mise à jour" (Windows).
+pub fn get_update_ytdlp() -> Result<YtDlpUpdate> {
+    if !cfg!(windows) {
+        return Err(anyhow!("unsupported_platform"));
+    }
+    let g = getter()?;
+    let runtime = g.runtime.clone();
+    runtime.block_on(async move { check_ytdlp_update(&g).await })
+}
+
+/// As the Tauri app: two minutes after start, then hourly, a check at most
+/// once a day when yt-dlp is installed.
+async fn daily_ytdlp_updates() {
+    use std::time::Duration;
+    tokio::time::sleep(Duration::from_secs(120)).await;
+    loop {
+        if let Ok(g) = getter()
+            && g.ytdlp.available()
+        {
+            let last: i64 = lock(&g.storage)
+                .setting(KEY_YTDLP_CHECKED_AT)
+                .ok()
+                .flatten()
+                .unwrap_or(0);
+            if now_ms() - last >= YTDLP_CHECK_INTERVAL_MS
+                && let Err(err) = check_ytdlp_update(&g).await
+            {
+                eprintln!("yt-dlp update check failed: {err}");
+            }
+        }
+        tokio::time::sleep(Duration::from_secs(3600)).await;
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -871,7 +1011,9 @@ mod tests {
         assert!(ok.error.is_none());
         assert_eq!(get_check_link(" ".into()).error.as_deref(), Some("empty"));
         assert_eq!(
-            get_check_link("ftp://example.org/a".into()).error.as_deref(),
+            get_check_link("ftp://example.org/a".into())
+                .error
+                .as_deref(),
             Some("unsupported_scheme")
         );
         assert_eq!(
@@ -894,7 +1036,11 @@ mod tests {
         get_start(var("MM_GET_DIR")).unwrap();
         let url = var("MM_GET_URL");
         let analysis = get_analyze(url.clone()).unwrap();
-        assert!(matches!(analysis.status, AnalysisStatus::Ready), "{}", analysis.code);
+        assert!(
+            matches!(analysis.status, AnalysisStatus::Ready),
+            "{}",
+            analysis.code
+        );
         let info = analysis.info.unwrap();
         assert_eq!(info.engine, "http");
         let format = info.audio.first().or(info.video.first()).unwrap();
@@ -912,7 +1058,11 @@ mod tests {
         .unwrap();
         let mut done = None;
         for _ in 0..600 {
-            if let Some(h) = get_history(20).unwrap().into_iter().find(|h| h.task_id == task.id) {
+            if let Some(h) = get_history(20)
+                .unwrap()
+                .into_iter()
+                .find(|h| h.task_id == task.id)
+            {
                 done = Some(h);
                 break;
             }
