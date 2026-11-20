@@ -35,5 +35,8 @@ windows-sys = { version = "0.61.2", features = [
 ] }
 
 [dev-dependencies]
+# Build tool only (examples/fetch_tools --flutter): unpacks the pinned libmpv
+# .7z archive. Not part of any app.
+sevenz-rust2 = { version = "0.25.0", default-features = false, features = ["util"] }
 tempfile = "3.27.0"
 tokio = { version = "1.53.2", features = ["full", "test-util"] }

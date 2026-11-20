@@ -28,7 +28,7 @@ Points de conformité :
 
 Client Flutter (`apps/flutter_client`, décision 0007) : Manrope et JetBrains Mono en TTF variables du dépôt google/fonts (OFL 1.1, textes livrés dans `assets/fonts/OFL-*.txt`) ; icônes **Phosphor** 2.1.2 (`@phosphor-icons/web`, MIT, texte dans `assets/icons/LICENSE-Phosphor.txt`), sous-ensemble choisi au build par Flutter. Les fichiers de licence sont déclarés comme ressources pour l'écran « À propos / Licences ».
 
-Client Flutter, moteurs de lecture (preuve de concept, à réauditer avant toute version publique) : `media_kit` / `media_kit_video` (MIT) et libmpv livré par `media_kit_libs_windows_video` (build du 2023-09-24, GPL ou LGPL selon la configuration, **à remplacer** par une build vérifiée, voir `docs/flutter-poc.md`) ; AndroidX Media3 1.11.1 (Apache-2.0) ; `flutter_rust_bridge` 2.13.0 (MIT) ; `window_manager` 0.7.0 / `nativeapi` 0.6.1 (MIT) ; `flutter_riverpod` 3.5 (MIT) ; `go_router` 18.1 et `file_selector` 1.1 (BSD-3-Clause, The Flutter Authors). Licences relevées dans les paquets le 2026-11-19.
+Client Flutter, moteurs de lecture : `media_kit` / `media_kit_video` (MIT). **libmpv** (Windows, plan R2, 2026-11-21) : la build de 2023 téléchargée par `media_kit_libs_windows_video` (contrôle MD5 seulement, FFmpeg ancien) est **remplacée** à l'assemblage par la build officielle `mpv-dev-x86_64-20261111-git-bcde6b93cc` de shinchiro/mpv-winbuild-cmake, épinglée par SHA-256 (`273c079b…8452`, empreinte publiée par GitHub) dans `examples/fetch_tools.rs --flutter` ; licence **GPL-2.0-or-later** (configuration par défaut de mpv), utilisée sous GPL-3.0, compatible avec la licence GPL-3.0-only de Miarina Media ; sources correspondantes : révision mpv `bcde6b93cc` et scripts de build au tag `20261111` (à recopier sur notre serveur avec chaque version publiée, comme FFmpeg). Lecture vérifiée avec media_kit dans l'app assemblée ; AndroidX Media3 1.11.1 (Apache-2.0) ; `flutter_rust_bridge` 2.13.0 (MIT) ; `window_manager` 0.7.0 / `nativeapi` 0.6.1 (MIT) ; `flutter_riverpod` 3.5 (MIT) ; `go_router` 18.1 et `file_selector` 1.1 (BSD-3-Clause, The Flutter Authors). Licences relevées dans les paquets le 2026-11-19.
 
 ## 3. Principales dépendances applicatives (à auditer en Phase 6)
 
@@ -46,3 +46,13 @@ Ajout du lot L03 (2026-11-11) : `androidx.media3:media3-session` 1.11.1 (Apache-
 ## 4. Contenus
 
 Miarina Media ne contourne ni DRM, ni paywall, ni authentification : les formats marqués DRM sont exclus des propositions, les pages privées ou nécessitant un compte sont signalées comme non supportées. Les tests de bout en bout utilisent exclusivement des contenus sous licence libre (Blender Foundation, CC BY 3.0).
+
+## 5. Version Flutter Windows (plan R2, 2026-11-21)
+
+Assemblage : `apps/flutter_client/tool/stage_windows.ps1` (après `flutter build windows --release`, jamais une build pointée sur un dossier de test).
+
+- Outils dans `tools\` comme la 0.1.x : yt-dlp, FFmpeg (LGPL), QuickJS-NG, mêmes versions et empreintes (`fetch_tools --flutter`, sans libVLC : le lecteur Flutter utilise libmpv). Notice propre à l'app Flutter : `apps/flutter_client/windows/notices/THIRD-PARTY-TOOLS.txt`, avec `LGPL-3.0.txt`, `GPL-3.0.txt`, `QuickJS-NG-LICENSE.txt` et `MDM-NOTICE.txt` (moteur torrent mdm-torrent, GPL-3.0-or-later).
+- Bibliothèques d'exécution Visual C++ (`msvcp140.dll`, `vcruntime140.dll`, `vcruntime140_1.dll`) copiées à côté de l'exécutable, depuis le dossier Redist de Visual Studio (« Distributable Code » de la licence Visual Studio) ; chargées depuis ce dossier (vérifié).
+- Outil de build ajouté : `sevenz-rust2` 0.25.0 (Apache-2.0, sans fonctionnalités par défaut), dépendance de développement de `download-engine` pour ouvrir l'archive .7z de libmpv ; il n'entre dans aucune application.
+- Taille installée : 333,5 Mio (dont FFmpeg ~138 Mio).
+- **Code source** : Miarina Media est sous GPL-3.0-only, ainsi que libmpv et mdm-torrent : toute version binaire publiée doit être accompagnée de sa source correspondante. Le dépôt GitHub n'est pas public (vérifié le 2026-11-21) ; la notice indique donc une archive `MiarinaMedia-VERSION-source.zip` publiée à côté de l'installateur (lot R6), avec les sources de libmpv et FFmpeg ou leur copie. La même obligation vaut pour la 0.1.11 déjà publiée (sa notice renvoie au dépôt GitHub) : décision du propriétaire attendue.

@@ -25,7 +25,7 @@
 | Lot | Contenu | Public ? |
 |---|---|---|
 | R1 | Données partagées avec la 0.1.x, migration avec sauvegarde, test sur données de démonstration — **fait le 2026-11-21** | non |
-| R2 | Outils et bibliothèques inclus, licences | non |
+| R2 | Outils et bibliothèques inclus, licences — **fait le 2026-11-21** (libmpv récente épinglée ; source GPL à publier avec chaque version, voir `docs/licenses.md` §5) | non |
 | R3 | Mises à jour intégrées et écran Réglages › Mises à jour | non |
 | R4 | Installateur NSIS 0.2.0 remplaçant la 0.1.x | non |
 | R5 | Recette complète sur canal de test local, mesures | non |

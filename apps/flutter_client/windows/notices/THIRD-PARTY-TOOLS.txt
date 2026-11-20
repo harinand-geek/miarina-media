@@ -1,0 +1,63 @@
+Miarina Media - third-party components shipped with the application
+==================================================================
+
+Miarina Media runs yt-dlp, FFmpeg and QuickJS-NG as separate processes
+(this folder); its player loads libmpv (libmpv-2.dll, next to
+miarina_media.exe). None of them is modified. Each file was taken from the
+official release below and checked against a pinned SHA-256 digest before
+being packaged.
+
+Miarina Media itself is free software under the GNU General Public License,
+version 3 only (GPL-3.0.txt in this folder). The complete corresponding
+source of this version is published next to its installer:
+https://media.miarina.org/downloads/MiarinaMedia-{VERSION}-source.zip
+
+yt-dlp 2026.08.19  (tools/yt-dlp/)
+  License: The Unlicense (public domain). The executable is built with
+  PyInstaller and contains a Python runtime and libraries under their own
+  licenses (PSF, MIT, BSD, MPL and others).
+  Release: https://github.com/yt-dlp/yt-dlp/releases/tag/2026.08.19
+  Source:  https://github.com/yt-dlp/yt-dlp
+  Archive SHA-256: 66674953fe251b89f4d08c5f0e35e0728679bd67ab3d7d05c0562af101dd3e7a
+
+FFmpeg n8.1.2-50-g1a748fe2cd, LGPL shared build  (tools/ffmpeg/)
+  License: GNU Lesser General Public License, version 3 or later
+  (built with --enable-version3, without --enable-gpl).
+  License texts: LGPL-3.0.txt and GPL-3.0.txt in this folder
+                 (https://www.gnu.org/licenses/)
+  Binaries and corresponding source (build scripts and FFmpeg revision):
+    https://github.com/BtbN/FFmpeg-Builds/releases/tag/autobuild-2026-08-31-13-27
+    https://github.com/BtbN/FFmpeg-Builds
+  FFmpeg project: https://ffmpeg.org
+  Archive SHA-256: e9712ffbdb03ef71bbab660c75b835bfe698ef6fad0247c76d8d394a39a3db63
+
+QuickJS-NG 0.17.0  (tools/quickjs/)
+  JavaScript engine yt-dlp uses to answer YouTube's challenges.
+  License: MIT (text and copyright notices in QuickJS-NG-LICENSE.txt).
+  Release: https://github.com/quickjs-ng/quickjs/releases/tag/v0.17.0
+  Source:  https://github.com/quickjs-ng/quickjs
+  File SHA-256: 2aeabf0092c3262d6b2609824418f7dd7ed1f1df939f73b2b15645230cac0d77
+
+libmpv, mpv git bcde6b93cc, build 20261111  (libmpv-2.dll)
+  Playback engine of the player (through the MIT-licensed media_kit
+  packages). The build includes FFmpeg and other libraries.
+  License: GNU General Public License, version 2 or later, as mpv is
+  configured by default; used here under version 3 (GPL-3.0.txt).
+  Binaries: https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/20261111
+            (mpv-dev-x86_64-20261111-git-bcde6b93cc.7z)
+  Corresponding source: mpv revision bcde6b93cc
+            (https://github.com/mpv-player/mpv) and the build scripts with
+            every library version, tag 20261111 of
+            https://github.com/shinchiro/mpv-winbuild-cmake
+  Archive SHA-256: 273c079b11ea5575822f972756f4c9a71149a5c10130353abeb8586738938452
+
+Microsoft Visual C++ runtime  (msvcp140.dll, vcruntime140.dll,
+vcruntime140_1.dll, next to miarina_media.exe)
+  Redistributed unmodified as "Distributable Code" under the Microsoft
+  Visual Studio license terms.
+
+You may replace the FFmpeg DLLs in tools/ffmpeg/ or libmpv-2.dll with your
+own compatible build, as their licenses allow. Note that Miarina Media only
+uses the tools folder whose name matches the pinned digest.
+
+Questions: https://media.miarina.org
