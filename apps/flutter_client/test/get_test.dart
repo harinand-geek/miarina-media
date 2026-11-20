@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -311,6 +312,47 @@ void main() {
       expect(find.text('Aucun média téléchargeable trouvé'), findsOneWidget);
       expect(find.textContaining('Anyhow'), findsNothing);
       expect(find.textContaining('backtrace'), findsNothing);
+    });
+
+    testWidgets('the queue is reordered with Alt + arrows or by dragging', (
+      tester,
+    ) async {
+      get.tasks_ = [
+        taskInfo('a', 'Tears of Steel', total: 100 * mb),
+        taskInfo('c', 'Charge', state: 'queued', position: 1),
+        taskInfo('d', 'Spring', state: 'queued', position: 2),
+        taskInfo('e', 'Clair de Lune', state: 'queued', position: 3),
+      ];
+      await pumpApp(tester, Routes.getDownloads);
+      // Only waiting rows have a handle.
+      expect(find.byTooltip(RegExp('^Réordonner Tears')), findsNothing);
+
+      // Charge one place down: to Spring's place among open tasks.
+      // The handle is the thumbnail (its tooltip names it).
+      Finder handle(String title) => find.byTooltip(
+        'Réordonner $title (Alt + flèches haut et bas, ou glisser)',
+      );
+      await tester.tap(handle('Charge'));
+      await tester.pump();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await settle(tester);
+      expect(get.moves, [('c', 2)]);
+
+      // The first waiting row cannot go above the queue.
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await settle(tester);
+      expect(get.moves, [('c', 2)], reason: 'already first: no move');
+
+      // Clair de Lune dragged onto Charge.
+      final from = tester.getCenter(handle('Clair de Lune'));
+      final to = tester.getCenter(find.text('Charge'));
+      await tester.dragFrom(from, to - from);
+      await settle(tester);
+      expect(get.moves.last, ('e', 1));
     });
 
     testWidgets('downloads: live progress, actions, lists', (tester) async {

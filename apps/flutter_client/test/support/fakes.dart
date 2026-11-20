@@ -841,7 +841,9 @@ class FakeGetApi implements GetApi {
       actions.add((id, action));
 
   @override
-  Future<void> move(String id, int index) async {}
+  Future<void> move(String id, int index) async => moves.add((id, index));
+
+  final moves = <(String, int)>[];
 
   @override
   Future<void> pauseAll(bool pause) async => pauses.add(pause);

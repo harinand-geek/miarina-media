@@ -734,5 +734,6 @@
   "brFavRemove": "Remove from favorites",
   "brFavAdded": "Added to favorites",
   "brFavRemoved": "Removed from favorites",
-  "brSites": "Sites"
+  "brSites": "Sites",
+  "getReorderNamed": "Reorder {title} (Alt + Up and Down arrows, or drag)"
 }

@@ -4506,6 +4506,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Sites'**
   String get brSites;
+
+  /// No description provided for @getReorderNamed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réordonner {title} (Alt + flèches haut et bas, ou glisser)'**
+  String getReorderNamed(String title);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1663,5 +1663,13 @@
   "brFavRemove": "Retirer des favoris",
   "brFavAdded": "Ajouté aux favoris",
   "brFavRemoved": "Retiré des favoris",
-  "brSites": "Sites"
+  "brSites": "Sites",
+  "getReorderNamed": "Réordonner {title} (Alt + flèches haut et bas, ou glisser)",
+  "@getReorderNamed": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  }
 }

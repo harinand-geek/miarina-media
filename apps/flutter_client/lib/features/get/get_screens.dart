@@ -2092,6 +2092,10 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
       for (final h in state.history)
         if (h.completed) h,
     ];
+    final queuedIds = [
+      for (final x in active)
+        if (x.queued) x.id,
+    ];
     final anyRunning = active.any((x) => x.running);
     final anyPaused = active.any((x) => x.state == 'paused');
     // A retry countdown needs the clock.
@@ -2121,7 +2125,7 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
     };
     final rows = <Widget>[
       if (_tab == 'active')
-        for (final x in active) _TaskRow(task: x),
+        for (final x in active) _TaskRow(task: x, queuedIds: queuedIds),
       if (_tab == 'failed') ...[
         for (final x in failedTasks) _TaskRow(task: x),
         for (final h in failedHistory) _FailedHistoryRow(entry: h),
@@ -2237,9 +2241,12 @@ class _Action {
 }
 
 class _TaskRow extends ConsumerWidget {
-  const _TaskRow({required this.task});
+  const _TaskRow({required this.task, this.queuedIds = const []});
 
   final DownloadTask task;
+
+  /// Waiting tasks in queue order (they can be reordered).
+  final List<String> queuedIds;
 
   Future<void> _confirmCancel(BuildContext context, WidgetRef ref) async {
     final t = L10n.of(context);
@@ -2362,8 +2369,34 @@ class _TaskRow extends ConsumerWidget {
       percent: task.state == 'queued' ? null : '${task.percent.floor()}%',
       progress: _Progress(value: value, color: barColor),
       actions: actions,
+      reorder: task.queued
+          ? _Reorder(
+              id: task.id,
+              label: t.getReorderNamed(title),
+              onMove: (delta) {
+                final at = queuedIds.indexOf(task.id);
+                final to = at + delta;
+                if (at >= 0 && to >= 0 && to < queuedIds.length) {
+                  _moveTo(ref, task.id, queuedIds[to]);
+                }
+              },
+              onDrop: (from) => _moveTo(ref, from, task.id),
+            )
+          : null,
     );
   }
+}
+
+/// Moves `id` to the place of `target` in the manager's order of open
+/// tasks (as the Tauri app).
+void _moveTo(WidgetRef ref, String id, String target) {
+  if (id == target) return;
+  final open = [
+    for (final t in ref.read(downloadsProvider).ordered)
+      if (t.open) t.id,
+  ];
+  final index = open.indexOf(target);
+  if (index >= 0) ref.read(downloadsProvider.notifier).move(id, index);
 }
 
 class _DoneRow extends ConsumerWidget {
@@ -2444,6 +2477,7 @@ class _Row extends StatelessWidget {
     required this.percent,
     required this.progress,
     required this.actions,
+    this.reorder,
   });
 
   final String? thumbnail;
@@ -2455,10 +2489,14 @@ class _Row extends StatelessWidget {
   final Widget? progress;
   final List<_Action> actions;
 
+  /// Waiting rows: the thumbnail is a handle (Alt + arrows, or drag it
+  /// onto another waiting row).
+  final _Reorder? reorder;
+
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
-    return Container(
+    final row = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
         color: c.surface,
@@ -2467,7 +2505,12 @@ class _Row extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _Thumb(path: thumbnail, audio: audio, width: 72),
+          reorder == null
+              ? _Thumb(path: thumbnail, audio: audio, width: 72)
+              : _Handle(
+                  reorder: reorder!,
+                  thumb: _Thumb(path: thumbnail, audio: audio, width: 72),
+                ),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -2550,6 +2593,119 @@ class _Row extends StatelessWidget {
               ),
             ),
         ],
+      ),
+    );
+    final r = reorder;
+    if (r == null) return row;
+    return DragTarget<String>(
+      onWillAcceptWithDetails: (d) => d.data != r.id,
+      onAcceptWithDetails: (d) => r.onDrop(d.data),
+      builder: (context, candidates, _) => candidates.isEmpty
+          ? row
+          : DecoratedBox(
+              position: DecorationPosition.foreground,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(MmRadius.lg),
+                border: Border.all(color: c.accent, width: 2),
+              ),
+              child: row,
+            ),
+    );
+  }
+}
+
+/// How a waiting row moves in the queue.
+class _Reorder {
+  const _Reorder({
+    required this.id,
+    required this.label,
+    required this.onMove,
+    required this.onDrop,
+  });
+
+  final String id;
+  final String label;
+
+  /// -1 up, 1 down (Alt + arrows).
+  final void Function(int delta) onMove;
+
+  /// Another waiting row dropped on this one.
+  final void Function(String from) onDrop;
+}
+
+class _Handle extends StatefulWidget {
+  const _Handle({required this.reorder, required this.thumb});
+
+  final _Reorder reorder;
+  final Widget thumb;
+
+  @override
+  State<_Handle> createState() => _HandleState();
+}
+
+class _HandleState extends State<_Handle> {
+  bool _focused = false;
+  final _focus = FocusNode(debugLabel: 'reorder');
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final r = widget.reorder;
+    return Tooltip(
+      message: r.label,
+      child: Draggable<String>(
+        data: r.id,
+        // Vertical, as the list: a plain click stays a click (focus).
+        affinity: Axis.vertical,
+        feedback: Opacity(opacity: 0.85, child: widget.thumb),
+        childWhenDragging: Opacity(opacity: 0.4, child: widget.thumb),
+        child: Focus(
+          focusNode: _focus,
+          onFocusChange: (f) => setState(() => _focused = f),
+          onKeyEvent: (node, e) {
+            if (e is! KeyDownEvent || !HardwareKeyboard.instance.isAltPressed) {
+              return KeyEventResult.ignored;
+            }
+            if (e.logicalKey == LogicalKeyboardKey.arrowUp) {
+              r.onMove(-1);
+              return KeyEventResult.handled;
+            }
+            if (e.logicalKey == LogicalKeyboardKey.arrowDown) {
+              r.onMove(1);
+              return KeyEventResult.handled;
+            }
+            return KeyEventResult.ignored;
+          },
+          child: Semantics(
+            label: r.label,
+            button: true,
+            child: Listener(
+              // A press selects the handle for Alt + arrows (raw pointer:
+              // the drag recognizer does not compete with it).
+              onPointerDown: (_) => _focus.requestFocus(),
+              child: MouseRegion(
+                cursor: SystemMouseCursors.grab,
+                child: DecoratedBox(
+                  position: DecorationPosition.foreground,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(MmRadius.md),
+                    border: Border.all(
+                      color: _focused ? c.accent : Colors.transparent,
+                      width: 2,
+                    ),
+                  ),
+                  child: widget.thumb,
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }

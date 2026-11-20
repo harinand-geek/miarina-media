@@ -2783,4 +2783,9 @@ class L10nFr extends L10n {
 
   @override
   String get brSites => 'Sites';
+
+  @override
+  String getReorderNamed(String title) {
+    return 'Réordonner $title (Alt + flèches haut et bas, ou glisser)';
+  }
 }
