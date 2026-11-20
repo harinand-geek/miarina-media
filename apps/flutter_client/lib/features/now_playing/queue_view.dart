@@ -9,6 +9,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
+import '../playlists/playlists_screen.dart' show showAddToPlaylistDialog;
 
 /// Queue (W-M3 « File », A-03b): the current entry, then what comes next,
 /// reordered with the handle (or Alt+↑/↓), removed with ×.
@@ -45,114 +46,181 @@ class QueueView extends ConsumerWidget {
       ),
     );
 
+    // "Enregistrer en playlist": the whole queue in play order, files of the
+    // library only (a stream or a file outside it has no place there).
+    final saved = [
+      for (final i in q.order)
+        if (q.entries[i].libraryId != null) q.entries[i].libraryId!,
+    ];
+
     return Padding(
       padding: padding,
-      child: CustomScrollView(
-        slivers: [
-          if (current != null) ...[
-            SliverToBoxAdapter(child: label(t.nowCurrent)),
-            SliverToBoxAdapter(
-              child: Container(
-                height: rowHeight + 4,
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: c.surface,
-                  borderRadius: BorderRadius.circular(MmRadius.lg),
-                ),
-                child: Row(
-                  children: [
-                    CoverArt(
-                      size: 36,
-                      radius: 8,
-                      seed: current.seed,
-                      shadow: false,
-                      child: Icon(
-                        PhosphorFill.equalizer,
-                        size: 16,
-                        color: c.coralStrong,
+      child: Column(
+        children: [
+          Expanded(
+            child: CustomScrollView(
+              slivers: [
+                if (current != null) ...[
+                  SliverToBoxAdapter(child: label(t.nowCurrent)),
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: rowHeight + 4,
+                      padding: const EdgeInsets.symmetric(horizontal: 8),
+                      decoration: BoxDecoration(
+                        color: c.surface,
+                        borderRadius: BorderRadius.circular(MmRadius.lg),
+                      ),
+                      child: Row(
+                        children: [
+                          CoverArt(
+                            size: 36,
+                            radius: 8,
+                            seed: current.seed,
+                            shadow: false,
+                            child: Icon(
+                              PhosphorFill.equalizer,
+                              size: 16,
+                              color: c.coralStrong,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _Titles(entry: current, highlight: true),
+                          ),
+                          if (current.duration != null)
+                            Text(
+                              formatClock(current.duration!),
+                              style: MmType.monoStyle(size: 12, color: c.muted),
+                            ),
+                        ],
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(child: _Titles(entry: current, highlight: true)),
-                    if (current.duration != null)
-                      Text(
-                        formatClock(current.duration!),
-                        style: MmType.monoStyle(size: 12, color: c.muted),
-                      ),
-                  ],
+                  ),
+                  const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                ],
+                SliverToBoxAdapter(
+                  child: label(
+                    t.upNext,
+                    trailing: upcoming.isEmpty
+                        ? null
+                        : Pressable(
+                            onTap: queue.clearUpcoming,
+                            semanticLabel: t.clearQueue,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              child: Text(
+                                t.clearQueue,
+                                style: MmType.captionStrong.copyWith(
+                                  color: c.muted,
+                                ),
+                              ),
+                            ),
+                          ),
+                  ),
                 ),
-              ),
-            ),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
-          ],
-          SliverToBoxAdapter(
-            child: label(
-              t.upNext,
-              trailing: upcoming.isEmpty
-                  ? null
-                  : Pressable(
-                      onTap: queue.clearUpcoming,
-                      semanticLabel: t.clearQueue,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
-                        ),
-                        child: Text(
-                          t.clearQueue,
-                          style: MmType.captionStrong.copyWith(color: c.muted),
-                        ),
+                if (upcoming.isEmpty)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(8),
+                      child: Text(
+                        t.upNextEmpty,
+                        style: MmType.bodySm.copyWith(color: c.muted),
                       ),
                     ),
+                  )
+                else
+                  SliverReorderableList(
+                    itemCount: upcoming.length,
+                    onReorderItem: queue.moveUpcoming,
+                    proxyDecorator: (child, index, anim) => Material(
+                      color: Colors.transparent,
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          color: c.surface2,
+                          borderRadius: BorderRadius.circular(MmRadius.md),
+                          border: Border.all(color: c.accent),
+                          boxShadow: MmShadows.menu,
+                        ),
+                        child: child,
+                      ),
+                    ),
+                    itemBuilder: (context, i) => _UpcomingRow(
+                      key: ValueKey('${upcoming[i].source.uri}#$i'),
+                      index: i,
+                      entry: upcoming[i],
+                      height: rowHeight,
+                      onPlay: () => queue.playUpcoming(i),
+                      onRemove: () => queue.removeUpcoming(i),
+                      onMove: (delta) => queue.moveUpcoming(
+                        i,
+                        (i + delta).clamp(0, upcoming.length - 1),
+                      ),
+                    ),
+                  ),
+                const SliverToBoxAdapter(child: SizedBox(height: 14)),
+                SliverToBoxAdapter(
+                  child: _SmartQueueCard(
+                    title: t.smartQueueTitle,
+                    body: t.smartQueueBody,
+                  ),
+                ),
+              ],
             ),
           ),
-          if (upcoming.isEmpty)
-            SliverToBoxAdapter(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Text(
-                  t.upNextEmpty,
-                  style: MmType.bodySm.copyWith(color: c.muted),
-                ),
-              ),
-            )
-          else
-            SliverReorderableList(
-              itemCount: upcoming.length,
-              onReorderItem: queue.moveUpcoming,
-              proxyDecorator: (child, index, anim) => Material(
-                color: Colors.transparent,
-                child: DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: c.surface2,
-                    borderRadius: BorderRadius.circular(MmRadius.md),
-                    border: Border.all(color: c.accent),
-                    boxShadow: MmShadows.menu,
-                  ),
-                  child: child,
-                ),
-              ),
-              itemBuilder: (context, i) => _UpcomingRow(
-                key: ValueKey('${upcoming[i].source.uri}#$i'),
-                index: i,
-                entry: upcoming[i],
-                height: rowHeight,
-                onPlay: () => queue.playUpcoming(i),
-                onRemove: () => queue.removeUpcoming(i),
-                onMove: (delta) => queue.moveUpcoming(
-                  i,
-                  (i + delta).clamp(0, upcoming.length - 1),
-                ),
-              ),
-            ),
-          const SliverToBoxAdapter(child: SizedBox(height: 14)),
-          SliverToBoxAdapter(
-            child: _SmartQueueCard(
-              title: t.smartQueueTitle,
-              body: t.smartQueueBody,
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 12, 14, 4),
+            child: _SaveButton(
+              label: t.saveAsPlaylist,
+              onTap: saved.isEmpty
+                  ? null
+                  : () => showAddToPlaylistDialog(context, ref, saved),
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Full-width pill under the queue (mockup W-M3 « File »).
+class _SaveButton extends StatelessWidget {
+  const _SaveButton({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      child: Opacity(
+        opacity: onTap == null ? 0.5 : 1,
+        child: Container(
+          height: 34,
+          decoration: BoxDecoration(
+            color: c.fg.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(MmRadius.pill),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(PhosphorRegular.listPlus, size: 17, color: c.fg),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: MmType.captionStrong.copyWith(
+                  fontSize: 12.5,
+                  color: c.fg,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -3107,4 +3107,7 @@ class L10nFr extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get saveAsPlaylist => 'Enregistrer en playlist';
 }

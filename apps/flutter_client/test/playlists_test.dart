@@ -192,4 +192,41 @@ void main() {
     await settle(tester);
     expect(engine.opened.last.uri, Uri.file(b.path));
   });
+
+  testWidgets('W-M3 queue: the queue saved into a playlist', (tester) async {
+    await pumpApp(tester, start: '${Routes.now}?tab=queue');
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MiarinaApp)),
+    );
+    expect(
+      tester
+          .widget<Opacity>(
+            find
+                .ancestor(
+                  of: find.text('Enregistrer en playlist'),
+                  matching: find.byType(Opacity),
+                )
+                .first,
+          )
+          .opacity,
+      0.5,
+      reason: 'nothing to save yet',
+    );
+    await container.read(queueProvider.notifier).playAll([
+      queueEntryOf(b),
+      queueEntryOf(a),
+      queueEntryOf(d),
+    ]);
+    await settle(tester);
+
+    await tester.tap(find.text('Enregistrer en playlist'));
+    await settle(tester);
+    await tester.tap(find.text('Route du Sud'));
+    await settle(tester);
+    final south = playlists.names.entries
+        .firstWhere((e) => e.value == 'Route du Sud')
+        .key;
+    expect(playlists.entries[south], [4, 2, 1, 4], reason: 'in play order');
+    expect(find.text('3 titres ajoutés à « Route du Sud »'), findsOneWidget);
+  });
 }

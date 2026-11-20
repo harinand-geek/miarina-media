@@ -5016,6 +5016,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{count, plural, =1{écouté 1 fois} other{écouté {count} fois}}'**
   String playedTimes(int count);
+
+  /// No description provided for @saveAsPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer en playlist'**
+  String get saveAsPlaylist;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

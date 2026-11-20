@@ -819,5 +819,6 @@
   "viewGrid": "Grid",
   "viewList": "List",
   "playsCount": "{count, plural, =1{1 play} other{{count} plays}}",
-  "playedTimes": "{count, plural, =1{played once} other{played {count} times}}"
+  "playedTimes": "{count, plural, =1{played once} other{played {count} times}}",
+  "saveAsPlaylist": "Save as playlist"
 }
