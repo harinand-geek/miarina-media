@@ -203,16 +203,26 @@ pub fn library_groups(db_path: String, by: String) -> Result<Vec<LibraryGroup>> 
         other => return Err(anyhow!("unknown grouping: {other}")),
     };
     with_db(&db_path, |db| {
+        // Artists: their own picture from their folders, else the first
+        // cover (handoff D5; nothing fetched online).
+        let pictures = if by == GroupBy::AlbumArtist {
+            crate::artist_image::artist_pictures(&db.artist_track_paths()?)
+        } else {
+            Default::default()
+        };
         Ok(db
             .media_groups(by)?
             .into_iter()
             .map(|g| LibraryGroup {
+                thumbnail: pictures
+                    .get(&g.name.to_lowercase())
+                    .cloned()
+                    .or(g.thumbnail),
                 name: g.name,
                 detail: g.detail,
                 count: g.count,
                 duration_secs: g.duration_secs,
                 year: g.year,
-                thumbnail: g.thumbnail,
                 added_at: g.added_at,
                 plays: g.plays,
                 size_bytes: g.size_bytes,

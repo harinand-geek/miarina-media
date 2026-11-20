@@ -1,4 +1,5 @@
 pub mod api;
+mod artist_image;
 mod browser;
 mod cinema;
 mod focus;

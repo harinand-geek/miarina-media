@@ -759,6 +759,18 @@ impl Storage {
         .map_err(Into::into)
     }
 
+    /// Paths of the present audio tracks with the artist they are grouped
+    /// under by [`GroupBy::AlbumArtist`] (artist pictures, W-M1b).
+    pub fn artist_track_paths(&self) -> Result<Vec<(String, String)>> {
+        let key = artist_key("");
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT {key}, path FROM media              WHERE kind = 'audio' AND missing = 0 AND {key} IS NOT NULL"
+        ))?;
+        stmt.query_map([], |r| Ok((r.get(0)?, r.get(1)?)))?
+            .collect::<rusqlite::Result<_>>()
+            .map_err(Into::into)
+    }
+
     fn media_folders(&self) -> Result<Vec<MediaGroup>> {
         let mut stmt = self.conn.prepare(
             "SELECT path, coalesce(duration_secs, 0.0), thumbnail FROM media \
