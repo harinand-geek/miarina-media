@@ -1,6 +1,7 @@
 pub mod api;
+mod browser;
 mod cinema;
 mod focus;
-mod m3u;
 mod frb_generated;
+mod m3u;
 mod webview_spike;

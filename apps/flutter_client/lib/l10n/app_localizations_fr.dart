@@ -2616,4 +2616,105 @@ class L10nFr extends L10n {
 
   @override
   String get getMore => 'Plus';
+
+  @override
+  String get brAddressPh => 'Rechercher ou saisir une adresse web';
+
+  @override
+  String brCloseTab(String title) {
+    return 'Fermer l’onglet $title';
+  }
+
+  @override
+  String get brNewTab => 'Nouvel onglet (Ctrl T)';
+
+  @override
+  String get brStartTab => 'Nouvel onglet';
+
+  @override
+  String get brStop => 'Arrêter le chargement';
+
+  @override
+  String get brBack => 'Précédent';
+
+  @override
+  String get brForward => 'Suivant';
+
+  @override
+  String get brReload => 'Recharger';
+
+  @override
+  String get brHome => 'Page de démarrage';
+
+  @override
+  String get brMediaOne => '1 média';
+
+  @override
+  String brMediaMany(int n) {
+    return '$n médias';
+  }
+
+  @override
+  String get brStartTitle => 'Rechercher ou ouvrir une page web';
+
+  @override
+  String get brStartBody =>
+      'Quand une page contient une vidéo ou un fichier audio, une barre de téléchargement apparaît sous la page.';
+
+  @override
+  String get brLegalHint =>
+      'Téléchargez seulement les médias qui vous appartiennent ou que vous avez le droit d’enregistrer.';
+
+  @override
+  String brDownloadFound(int n) {
+    return 'Télécharger les médias trouvés sur cette page ($n)';
+  }
+
+  @override
+  String brMediaFound(int n) {
+    return '$n médias trouvés';
+  }
+
+  @override
+  String get brMediaFoundOne => '1 média trouvé';
+
+  @override
+  String get brChooseMedia => 'Choisir le média et le format';
+
+  @override
+  String get brSheetTitle => 'Télécharger depuis cette page';
+
+  @override
+  String get brKindVideo => 'Vidéo';
+
+  @override
+  String get brKindAudio => 'Audio';
+
+  @override
+  String get brKindHls => 'Flux (HLS)';
+
+  @override
+  String get brKindDash => 'Flux (DASH)';
+
+  @override
+  String get brKindPage => 'Lecteur de la page';
+
+  @override
+  String get brItemProtected =>
+      'Cet élément est peut-être protégé ou demande une connexion. Essayez un autre élément de la page.';
+
+  @override
+  String get brClosePanel => 'Fermer le panneau';
+
+  @override
+  String get brTooManyTabs =>
+      '12 onglets au plus : fermez-en un pour en ouvrir un autre.';
+
+  @override
+  String get brUnsupported =>
+      'Seules les pages web (http, https) s’ouvrent dans le navigateur.';
+
+  @override
+  String get brUnavailable =>
+      'Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu.';
 }

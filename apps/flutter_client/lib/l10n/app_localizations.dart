@@ -4218,6 +4218,180 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Plus'**
   String get getMore;
+
+  /// No description provided for @brAddressPh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher ou saisir une adresse web'**
+  String get brAddressPh;
+
+  /// No description provided for @brCloseTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer l’onglet {title}'**
+  String brCloseTab(String title);
+
+  /// No description provided for @brNewTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel onglet (Ctrl T)'**
+  String get brNewTab;
+
+  /// No description provided for @brStartTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvel onglet'**
+  String get brStartTab;
+
+  /// No description provided for @brStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter le chargement'**
+  String get brStop;
+
+  /// No description provided for @brBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précédent'**
+  String get brBack;
+
+  /// No description provided for @brForward.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get brForward;
+
+  /// No description provided for @brReload.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recharger'**
+  String get brReload;
+
+  /// No description provided for @brHome.
+  ///
+  /// In fr, this message translates to:
+  /// **'Page de démarrage'**
+  String get brHome;
+
+  /// No description provided for @brMediaOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 média'**
+  String get brMediaOne;
+
+  /// No description provided for @brMediaMany.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} médias'**
+  String brMediaMany(int n);
+
+  /// No description provided for @brStartTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher ou ouvrir une page web'**
+  String get brStartTitle;
+
+  /// No description provided for @brStartBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand une page contient une vidéo ou un fichier audio, une barre de téléchargement apparaît sous la page.'**
+  String get brStartBody;
+
+  /// No description provided for @brLegalHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargez seulement les médias qui vous appartiennent ou que vous avez le droit d’enregistrer.'**
+  String get brLegalHint;
+
+  /// No description provided for @brDownloadFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger les médias trouvés sur cette page ({n})'**
+  String brDownloadFound(int n);
+
+  /// No description provided for @brMediaFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} médias trouvés'**
+  String brMediaFound(int n);
+
+  /// No description provided for @brMediaFoundOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'1 média trouvé'**
+  String get brMediaFoundOne;
+
+  /// No description provided for @brChooseMedia.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir le média et le format'**
+  String get brChooseMedia;
+
+  /// No description provided for @brSheetTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger depuis cette page'**
+  String get brSheetTitle;
+
+  /// No description provided for @brKindVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get brKindVideo;
+
+  /// No description provided for @brKindAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audio'**
+  String get brKindAudio;
+
+  /// No description provided for @brKindHls.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flux (HLS)'**
+  String get brKindHls;
+
+  /// No description provided for @brKindDash.
+  ///
+  /// In fr, this message translates to:
+  /// **'Flux (DASH)'**
+  String get brKindDash;
+
+  /// No description provided for @brKindPage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecteur de la page'**
+  String get brKindPage;
+
+  /// No description provided for @brItemProtected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cet élément est peut-être protégé ou demande une connexion. Essayez un autre élément de la page.'**
+  String get brItemProtected;
+
+  /// No description provided for @brClosePanel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer le panneau'**
+  String get brClosePanel;
+
+  /// No description provided for @brTooManyTabs.
+  ///
+  /// In fr, this message translates to:
+  /// **'12 onglets au plus : fermez-en un pour en ouvrir un autre.'**
+  String get brTooManyTabs;
+
+  /// No description provided for @brUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seules les pages web (http, https) s’ouvrent dans le navigateur.'**
+  String get brUnsupported;
+
+  /// No description provided for @brUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu.'**
+  String get brUnavailable;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

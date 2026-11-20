@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/theme.dart';
 import '../design/tokens.dart';
+import '../features/browser/browser_screen.dart';
 import '../features/cinema/cinema_screen.dart';
 import '../features/cinema/personal_videos_screen.dart';
 import '../features/cinema/series_screen.dart';
@@ -254,10 +255,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
           // Not ported yet from the Tauri app: said so, nothing simulated.
-          screen(
-            Routes.getBrowser,
-            () => const ComingSoon(screenId: 'Obtenir · Navigateur'),
-          ),
+          screen(Routes.getBrowser, () => const BrowserScreen()),
           screen(
             Routes.getTorrents,
             () => const ComingSoon(screenId: 'Obtenir · Torrents'),

@@ -1,0 +1,300 @@
+import 'dart:async';
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import '../../src/rust/api/browser.dart' as rust;
+import '../../src/rust/frb_generated.dart' show RustLib;
+import '../get/get_data.dart' show downloadsProvider;
+import '../library/library_data.dart' show dataDirProvider;
+
+export '../../src/rust/api/browser.dart'
+    show BrowserEvent, BrowserSnapshot, BrowserTab, DetectedMediaInfo;
+
+/// The built-in browser in the core (WebView2 pages); tests use a fake.
+abstract interface class BrowserApi {
+  /// False when the pages cannot live on this thread.
+  Future<bool> init();
+  Stream<rust.BrowserEvent> events();
+  rust.BrowserSnapshot snapshot();
+
+  /// Physical pixels of the window's client area.
+  void show(int x, int y, int width, int height);
+  void hide();
+
+  /// The address opened; throws with `not_a_web_address` or
+  /// `unsupported_address`.
+  String navigate(String address);
+  void nav(String action);
+  void tabNew([String? url]);
+  void tabClose(int id);
+  void tabSelect(int id);
+  void cycle(int step);
+  void scan();
+}
+
+class RustBrowserApi implements BrowserApi {
+  RustBrowserApi(this._ref);
+
+  final Ref _ref;
+
+  @override
+  Future<bool> init() async {
+    if (!Platform.isWindows || !RustLib.instance.initialized) return false;
+    // The browser shares the database opened by the download manager.
+    await _ref.read(downloadsProvider.notifier).started;
+    return rust.browserInit(dataDir: await _ref.read(dataDirProvider.future));
+  }
+
+  @override
+  Stream<rust.BrowserEvent> events() => rust.browserEvents();
+
+  @override
+  rust.BrowserSnapshot snapshot() => rust.browserSnapshot();
+
+  @override
+  void show(int x, int y, int width, int height) =>
+      rust.browserShow(x: x, y: y, width: width, height: height);
+
+  @override
+  void hide() => rust.browserHide();
+
+  @override
+  String navigate(String address) => rust.browserNavigate(address: address);
+
+  @override
+  void nav(String action) => rust.browserNav(action: action);
+
+  @override
+  void tabNew([String? url]) => rust.browserTabNew(url: url);
+
+  @override
+  void tabClose(int id) => rust.browserTabClose(id: id);
+
+  @override
+  void tabSelect(int id) => rust.browserTabSelect(id: id);
+
+  @override
+  void cycle(int step) => rust.browserCycle(step: step);
+
+  @override
+  void scan() => rust.browserScan();
+}
+
+final browserApiProvider = Provider<BrowserApi>(RustBrowserApi.new);
+
+/// Something the page asked of the screen (focus the address, analyze a
+/// file it offered…), numbered so the same request twice is seen twice.
+@immutable
+class BrowserSignal {
+  const BrowserSignal(this.serial, {this.shortcut, this.download});
+
+  final int serial;
+  final String? shortcut;
+  final String? download;
+}
+
+@immutable
+class BrowserState {
+  const BrowserState({this.available, this.snapshot, this.signal});
+
+  /// Null while starting.
+  final bool? available;
+  final rust.BrowserSnapshot? snapshot;
+  final BrowserSignal? signal;
+
+  BrowserState copyWith({
+    bool? available,
+    rust.BrowserSnapshot? snapshot,
+    BrowserSignal? signal,
+  }) => BrowserState(
+    available: available ?? this.available,
+    snapshot: snapshot ?? this.snapshot,
+    signal: signal ?? this.signal,
+  );
+}
+
+final browserProvider = NotifierProvider<BrowserController, BrowserState>(
+  BrowserController.new,
+);
+
+class BrowserController extends Notifier<BrowserState> {
+  StreamSubscription<rust.BrowserEvent>? _events;
+  int _serial = 0;
+
+  BrowserApi get api => ref.read(browserApiProvider);
+
+  @override
+  BrowserState build() {
+    ref.onDispose(() => _events?.cancel());
+    unawaited(_start());
+    return const BrowserState();
+  }
+
+  Future<void> _start() async {
+    try {
+      final ok = await api.init();
+      if (!ok) {
+        state = state.copyWith(available: false);
+        return;
+      }
+      _events = api.events().listen(_apply);
+      state = state.copyWith(available: true, snapshot: api.snapshot());
+    } catch (e) {
+      debugPrint('browser not started: $e');
+      state = state.copyWith(available: false);
+    }
+  }
+
+  void _apply(rust.BrowserEvent e) {
+    // WebView2 could not start (runtime missing): the screen says so.
+    if (e.shortcut == 'unavailable') {
+      state = state.copyWith(available: false);
+      return;
+    }
+    if (e.snapshot != null) state = state.copyWith(snapshot: e.snapshot);
+    // A popup: a new tab, outside the page's own callback.
+    if (e.openTab != null) _guard(() => api.tabNew(e.openTab));
+    if (e.shortcut != null || e.download != null) {
+      state = state.copyWith(
+        signal: BrowserSignal(
+          ++_serial,
+          shortcut: e.shortcut,
+          download: e.download,
+        ),
+      );
+    }
+  }
+
+  /// Runs a browser call; a refused one (12 tabs, not a web page) is
+  /// reported with its code.
+  String? _guard(void Function() call) {
+    try {
+      call();
+      return null;
+    } catch (e) {
+      return '$e';
+    }
+  }
+
+  /// Null when opened, else the reason (`not_a_web_address`,
+  /// `unsupported_address`).
+  String? navigate(String address) => _guard(() => api.navigate(address));
+
+  void nav(String action) => _guard(() => api.nav(action));
+
+  /// Null when opened, else `too_many_tabs`.
+  String? tabNew([String? url]) => _guard(() => api.tabNew(url));
+
+  void tabClose(int id) => _guard(() => api.tabClose(id));
+
+  void tabSelect(int id) => _guard(() => api.tabSelect(id));
+
+  void cycle(int step) => _guard(() => api.cycle(step));
+}
+
+/// Something the user can download from the current page.
+@immutable
+class Candidate {
+  const Candidate({
+    required this.url,
+    required this.kind,
+    required this.title,
+    required this.detail,
+    this.sizeBytes,
+  });
+
+  /// What gets analyzed: a media address, or the page itself (extractor).
+  final String url;
+
+  /// video, audio, hls, dash, page.
+  final String kind;
+  final String title;
+  final String detail;
+  final int? sizeBytes;
+}
+
+String _decode(String name) {
+  try {
+    return Uri.decodeComponent(name);
+  } catch (_) {
+    return name;
+  }
+}
+
+String hostOf(String url) => Uri.tryParse(url)?.host ?? '';
+
+/// Media found on the page, plus the page itself when it plays a stream
+/// only the extractor can read (as the Tauri app).
+List<Candidate> candidatesOf(rust.BrowserSnapshot s) => [
+  if (s.streamPlayer && s.url.isNotEmpty)
+    Candidate(
+      url: s.url,
+      kind: 'page',
+      title: s.title.isNotEmpty ? s.title : hostOf(s.url),
+      detail: hostOf(s.url),
+    ),
+  for (final m in s.media)
+    Candidate(
+      url: m.url,
+      kind: m.kind,
+      title: m.name.isNotEmpty ? _decode(m.name) : m.host,
+      detail: m.host,
+      sizeBytes: m.sizeBytes?.toInt(),
+    ),
+];
+
+int _heightIn(String title) =>
+    int.tryParse(
+      RegExp(
+            r'(\d{3,4})p(?![a-z])',
+            caseSensitive: false,
+          ).firstMatch(title)?.group(1) ??
+          '',
+    ) ??
+    0;
+
+/// Pre-selected item: the page player, else the best video variant up to
+/// 1080p, else the first video, else the first item.
+Candidate? mainCandidate(List<Candidate> list) {
+  for (final c in list) {
+    if (c.kind == 'page') return c;
+  }
+  final videos = [
+    for (final c in list)
+      if (c.kind == 'video') c,
+  ];
+  final sized = [
+    for (final c in videos)
+      if (_heightIn(c.title) > 0 && _heightIn(c.title) <= 1080) c,
+  ]..sort((a, b) => _heightIn(b.title).compareTo(_heightIn(a.title)));
+  if (sized.isNotEmpty) return sized.first;
+  if (videos.isNotEmpty) return videos.first;
+  return list.isEmpty ? null : list.first;
+}
+
+/// Address bar: host in full color, the rest muted.
+({String host, String rest, bool secure}) splitAddress(String url) {
+  final u = Uri.tryParse(url);
+  if (u == null || u.host.isEmpty) return (host: url, rest: '', secure: false);
+  final path = u.path == '/' ? '' : u.path;
+  final query = u.hasQuery ? '?${u.query}' : '';
+  return (
+    host: u.hasPort ? '${u.host}:${u.port}' : u.host,
+    rest: '$path$query',
+    secure: u.scheme == 'https',
+  );
+}
+
+/// Sites offered on the start page (as the Tauri app).
+const startSites = [
+  ('YouTube', 'https://m.youtube.com'),
+  ('Google', 'https://www.google.com'),
+  ('Wikimedia Commons', 'https://commons.wikimedia.org'),
+  ('Internet Archive', 'https://archive.org'),
+  ('Vimeo', 'https://vimeo.com'),
+  ('Dailymotion', 'https://www.dailymotion.com'),
+  ('SoundCloud', 'https://soundcloud.com'),
+  ('Facebook', 'https://m.facebook.com'),
+];

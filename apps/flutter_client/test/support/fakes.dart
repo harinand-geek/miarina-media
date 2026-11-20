@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
+import 'package:miarina_media/features/browser/browser_data.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/get/get_data.dart';
@@ -938,3 +939,105 @@ GetEvent getEvent(
   task: task,
   history: history,
 );
+
+/// The built-in browser in memory: tabs and pages as the core reports
+/// them, every call recorded.
+class FakeBrowserApi implements BrowserApi {
+  final events_ = StreamController<BrowserEvent>.broadcast();
+  final shows = <(int, int, int, int)>[];
+  var hides = 0;
+  final navigated = <String>[];
+  final actions = <String>[];
+  var newTabs = <String?>[];
+  late BrowserSnapshot current = snap();
+
+  static BrowserSnapshot snap({
+    String kind = 'start',
+    String url = '',
+    String title = '',
+    List<DetectedMediaInfo> media = const [],
+    bool streamPlayer = false,
+    int tabs = 1,
+  }) => BrowserSnapshot(
+    kind: kind,
+    url: url,
+    title: title,
+    loading: false,
+    canGoBack: kind == 'web',
+    canGoForward: false,
+    media: media,
+    streamPlayer: streamPlayer,
+    tabs: [
+      for (var i = 1; i <= tabs; i++)
+        BrowserTab(
+          id: i,
+          kind: i == tabs ? kind : 'start',
+          title: i == tabs ? title : '',
+          url: i == tabs ? url : '',
+          media: i == tabs ? media.length : 0,
+          loading: false,
+          active: i == tabs,
+        ),
+    ],
+  );
+
+  /// The core reports a change.
+  void push(BrowserSnapshot s) {
+    current = s;
+    events_.add(BrowserEvent(snapshot: s));
+  }
+
+  @override
+  Future<bool> init() async => true;
+
+  @override
+  Stream<BrowserEvent> events() => events_.stream;
+
+  @override
+  BrowserSnapshot snapshot() => current;
+
+  @override
+  void show(int x, int y, int width, int height) =>
+      shows.add((x, y, width, height));
+
+  @override
+  void hide() => hides++;
+
+  @override
+  String navigate(String address) {
+    navigated.add(address);
+    if (address.startsWith('file:')) throw Exception('unsupported_address');
+    push(snap(kind: 'web', url: address, title: 'Page'));
+    return address;
+  }
+
+  @override
+  void nav(String action) => actions.add(action);
+
+  @override
+  void tabNew([String? url]) {
+    newTabs.add(url);
+    push(snap(tabs: current.tabs.length + 1));
+  }
+
+  @override
+  void tabClose(int id) => actions.add('close $id');
+
+  @override
+  void tabSelect(int id) => actions.add('select $id');
+
+  @override
+  void cycle(int step) => actions.add('cycle $step');
+
+  @override
+  void scan() {}
+}
+
+DetectedMediaInfo detected(String url, {String kind = 'video', int? size}) =>
+    DetectedMediaInfo(
+      kind: kind,
+      url: url,
+      host: Uri.parse(url).host,
+      name: url.split('/').last,
+      sizeBytes: size == null ? null : BigInt.from(size),
+    );

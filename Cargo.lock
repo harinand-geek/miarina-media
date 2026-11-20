@@ -4070,10 +4070,12 @@ dependencies = [
  "library",
  "media-core",
  "resource-manager",
+ "serde",
  "serde_json",
  "storage",
  "tokio",
  "tokio-util",
+ "url",
  "webview2-com",
  "windows",
 ]

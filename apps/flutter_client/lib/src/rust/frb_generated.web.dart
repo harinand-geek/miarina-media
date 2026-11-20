@@ -6,6 +6,7 @@
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
+import 'api/browser.dart';
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
@@ -36,6 +37,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<BrowserEvent> dco_decode_StreamSink_browser_event_Sse(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<GetEvent> dco_decode_StreamSink_get_event_Sse(dynamic raw);
 
   @protected
@@ -49,6 +55,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   bool dco_decode_bool(dynamic raw);
+
+  @protected
+  BrowserSnapshot dco_decode_box_autoadd_browser_snapshot(dynamic raw);
 
   @protected
   CinemaItem dco_decode_box_autoadd_cinema_item(dynamic raw);
@@ -93,6 +102,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  BrowserEvent dco_decode_browser_event(dynamic raw);
+
+  @protected
+  BrowserSnapshot dco_decode_browser_snapshot(dynamic raw);
+
+  @protected
+  BrowserTab dco_decode_browser_tab(dynamic raw);
+
+  @protected
   CinemaItem dco_decode_cinema_item(dynamic raw);
 
   @protected
@@ -100,6 +118,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaLibrary dco_decode_cinema_library(dynamic raw);
+
+  @protected
+  DetectedMediaInfo dco_decode_detected_media_info(dynamic raw);
 
   @protected
   DetectedMediaItem dco_decode_detected_media_item(dynamic raw);
@@ -174,7 +195,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<BrowserTab> dco_decode_list_browser_tab(dynamic raw);
+
+  @protected
   List<CinemaItem> dco_decode_list_cinema_item(dynamic raw);
+
+  @protected
+  List<DetectedMediaInfo> dco_decode_list_detected_media_info(dynamic raw);
 
   @protected
   List<DetectedMediaItem> dco_decode_list_detected_media_item(dynamic raw);
@@ -247,6 +274,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  BrowserSnapshot? dco_decode_opt_box_autoadd_browser_snapshot(dynamic raw);
 
   @protected
   CinemaItem? dco_decode_opt_box_autoadd_cinema_item(dynamic raw);
@@ -348,6 +378,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<BrowserEvent> sse_decode_StreamSink_browser_event_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<GetEvent> sse_decode_StreamSink_get_event_Sse(
     SseDeserializer deserializer,
   );
@@ -363,6 +398,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  BrowserSnapshot sse_decode_box_autoadd_browser_snapshot(
+    SseDeserializer deserializer,
+  );
 
   @protected
   CinemaItem sse_decode_box_autoadd_cinema_item(SseDeserializer deserializer);
@@ -413,6 +453,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  BrowserEvent sse_decode_browser_event(SseDeserializer deserializer);
+
+  @protected
+  BrowserSnapshot sse_decode_browser_snapshot(SseDeserializer deserializer);
+
+  @protected
+  BrowserTab sse_decode_browser_tab(SseDeserializer deserializer);
+
+  @protected
   CinemaItem sse_decode_cinema_item(SseDeserializer deserializer);
 
   @protected
@@ -420,6 +469,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaLibrary sse_decode_cinema_library(SseDeserializer deserializer);
+
+  @protected
+  DetectedMediaInfo sse_decode_detected_media_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   DetectedMediaItem sse_decode_detected_media_item(
@@ -496,7 +550,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
+  List<BrowserTab> sse_decode_list_browser_tab(SseDeserializer deserializer);
+
+  @protected
   List<CinemaItem> sse_decode_list_cinema_item(SseDeserializer deserializer);
+
+  @protected
+  List<DetectedMediaInfo> sse_decode_list_detected_media_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<DetectedMediaItem> sse_decode_list_detected_media_item(
@@ -589,6 +651,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  BrowserSnapshot? sse_decode_opt_box_autoadd_browser_snapshot(
+    SseDeserializer deserializer,
+  );
 
   @protected
   CinemaItem? sse_decode_opt_box_autoadd_cinema_item(
@@ -711,6 +778,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_browser_event_Sse(
+    RustStreamSink<BrowserEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_get_event_Sse(
     RustStreamSink<GetEvent> self,
     SseSerializer serializer,
@@ -730,6 +803,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_browser_snapshot(
+    BrowserSnapshot self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_cinema_item(
@@ -804,6 +883,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_browser_event(BrowserEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_browser_snapshot(
+    BrowserSnapshot self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_browser_tab(BrowserTab self, SseSerializer serializer);
+
+  @protected
   void sse_encode_cinema_item(CinemaItem self, SseSerializer serializer);
 
   @protected
@@ -811,6 +902,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_cinema_library(CinemaLibrary self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_detected_media_info(
+    DetectedMediaInfo self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_detected_media_item(
@@ -894,8 +991,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_browser_tab(
+    List<BrowserTab> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_cinema_item(
     List<CinemaItem> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_detected_media_info(
+    List<DetectedMediaInfo> self,
     SseSerializer serializer,
   );
 
@@ -1030,6 +1139,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_browser_snapshot(
+    BrowserSnapshot? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_cinema_item(

@@ -2595,4 +2595,104 @@ class L10nEn extends L10n {
 
   @override
   String get getMore => 'More';
+
+  @override
+  String get brAddressPh => 'Search or type a web address';
+
+  @override
+  String brCloseTab(String title) {
+    return 'Close tab $title';
+  }
+
+  @override
+  String get brNewTab => 'New tab (Ctrl T)';
+
+  @override
+  String get brStartTab => 'New tab';
+
+  @override
+  String get brStop => 'Stop loading';
+
+  @override
+  String get brBack => 'Back';
+
+  @override
+  String get brForward => 'Forward';
+
+  @override
+  String get brReload => 'Reload';
+
+  @override
+  String get brHome => 'Start page';
+
+  @override
+  String get brMediaOne => '1 media';
+
+  @override
+  String brMediaMany(int n) {
+    return '$n media';
+  }
+
+  @override
+  String get brStartTitle => 'Search or open a web page';
+
+  @override
+  String get brStartBody =>
+      'When a page has a video or audio file, a download bar appears below the page.';
+
+  @override
+  String get brLegalHint =>
+      'Only download media you own or have permission to save.';
+
+  @override
+  String brDownloadFound(int n) {
+    return 'Download media found on this page ($n)';
+  }
+
+  @override
+  String brMediaFound(int n) {
+    return '$n media found';
+  }
+
+  @override
+  String get brMediaFoundOne => '1 media found';
+
+  @override
+  String get brChooseMedia => 'Choose media and format';
+
+  @override
+  String get brSheetTitle => 'Download from this page';
+
+  @override
+  String get brKindVideo => 'Video';
+
+  @override
+  String get brKindAudio => 'Audio';
+
+  @override
+  String get brKindHls => 'Stream (HLS)';
+
+  @override
+  String get brKindDash => 'Stream (DASH)';
+
+  @override
+  String get brKindPage => 'Page player';
+
+  @override
+  String get brItemProtected =>
+      'This item may be protected or need a login. Try another item on the page.';
+
+  @override
+  String get brClosePanel => 'Close the panel';
+
+  @override
+  String get brTooManyTabs => '12 tabs at most: close one to open another.';
+
+  @override
+  String get brUnsupported =>
+      'Only web pages (http, https) open in the browser.';
+
+  @override
+  String get brUnavailable =>
+      'The browser could not start: WebView2 is missing or did not answer.';
 }

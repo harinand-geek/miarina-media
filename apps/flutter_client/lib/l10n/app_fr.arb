@@ -1566,5 +1566,62 @@
   "getUpdFailed": "La mise à jour de yt-dlp n’a pas pu se faire. Réessayez plus tard.",
   "getInstallFailed": "Les outils n’ont pas pu être téléchargés. Vérifiez la connexion puis réessayez.",
   "getLess": "Moins",
-  "getMore": "Plus"
+  "getMore": "Plus",
+  "brAddressPh": "Rechercher ou saisir une adresse web",
+  "brCloseTab": "Fermer l’onglet {title}",
+  "@brCloseTab": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "brNewTab": "Nouvel onglet (Ctrl T)",
+  "brStartTab": "Nouvel onglet",
+  "brStop": "Arrêter le chargement",
+  "brBack": "Précédent",
+  "brForward": "Suivant",
+  "brReload": "Recharger",
+  "brHome": "Page de démarrage",
+  "brMediaOne": "1 média",
+  "brMediaMany": "{n} médias",
+  "@brMediaMany": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brStartTitle": "Rechercher ou ouvrir une page web",
+  "brStartBody": "Quand une page contient une vidéo ou un fichier audio, une barre de téléchargement apparaît sous la page.",
+  "brLegalHint": "Téléchargez seulement les médias qui vous appartiennent ou que vous avez le droit d’enregistrer.",
+  "brDownloadFound": "Télécharger les médias trouvés sur cette page ({n})",
+  "@brDownloadFound": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brMediaFound": "{n} médias trouvés",
+  "@brMediaFound": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brMediaFoundOne": "1 média trouvé",
+  "brChooseMedia": "Choisir le média et le format",
+  "brSheetTitle": "Télécharger depuis cette page",
+  "brKindVideo": "Vidéo",
+  "brKindAudio": "Audio",
+  "brKindHls": "Flux (HLS)",
+  "brKindDash": "Flux (DASH)",
+  "brKindPage": "Lecteur de la page",
+  "brItemProtected": "Cet élément est peut-être protégé ou demande une connexion. Essayez un autre élément de la page.",
+  "brClosePanel": "Fermer le panneau",
+  "brTooManyTabs": "12 onglets au plus : fermez-en un pour en ouvrir un autre.",
+  "brUnsupported": "Seules les pages web (http, https) s’ouvrent dans le navigateur.",
+  "brUnavailable": "Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu."
 }

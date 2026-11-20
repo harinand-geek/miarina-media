@@ -13,6 +13,7 @@ crate-type = ["cdylib", "staticlib"]
 [dependencies]
 anyhow = "1.0"
 flutter_rust_bridge = "=2.13.0"
+serde.workspace = true
 serde_json.workspace = true
 storage = { path = "../../../crates/storage" }
 # Library indexing (W-O1): the same crates as the Tauri app.
@@ -23,6 +24,8 @@ tokio = { version = "1.53.2", features = ["rt-multi-thread"] }
 media-core = { path = "../../../crates/media-core" }
 resource-manager = { path = "../../../crates/resource-manager" }
 tokio-util = { version = "0.7.19", default-features = false }
+# Built-in browser: addresses (same crate as the core and the Tauri app).
+url.workspace = true
 
 [lints.rust]
 # flutter_rust_bridge's generated code uses this cfg.
@@ -33,5 +36,6 @@ unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
 webview2-com = "=0.39.1"
 windows = { version = "=0.62.2", features = [
     "Win32_System_Threading",
+    "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
 ] }

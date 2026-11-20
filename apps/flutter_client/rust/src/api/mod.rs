@@ -1,3 +1,4 @@
+pub mod browser;
 pub mod browser_spike;
 pub mod cinema;
 pub mod focus;
