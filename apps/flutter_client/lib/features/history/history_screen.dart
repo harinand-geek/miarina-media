@@ -4,12 +4,14 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/cinema.dart';
 import '../cinema/cinema_screen.dart' show resumeTitle;
+import '../common/state_views.dart';
 import '../cinema/cinema_widgets.dart';
 import '../common/open_media.dart';
 import '../focus/focus_screen.dart' show kindLabel;
@@ -121,13 +123,12 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
 
     Widget body;
     if (history.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${history.error}',
+      body = LibraryErrorView(
+        error: history.error!,
+        onRetry: () => ref.invalidate(historyProvider),
       );
     } else if (!history.hasValue) {
-      body = const SizedBox.shrink();
+      body = SkeletonList(rowHeight: 60, padding: mobile ? 16 : 32);
     } else if (rows.isEmpty) {
       body = LibraryMessage(
         icon: PhosphorRegular.clockCounterClockwise,

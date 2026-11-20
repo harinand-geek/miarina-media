@@ -6,7 +6,9 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/state_views.dart';
 import '../../src/rust/api/library.dart';
 import 'groups.dart';
 import 'library_data.dart';
@@ -53,15 +55,17 @@ class GroupsScreen extends ConsumerWidget {
 
     Widget body;
     if (groups.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${groups.error}',
+      body = LibraryErrorView(
+        error: groups.error!,
+        onRetry: () => ref.invalidate(groupsProvider(kind)),
       );
     } else if (groups.isLoading && list.isEmpty) {
-      body = const SizedBox.shrink();
+      body = SkeletonGrid(
+        minTile: albums ? 168 : 140,
+        padding: mobile ? 16 : 32,
+      );
     } else if (list.isEmpty) {
-      body = LibraryMessage(
+      body = LibraryEmpty(
         icon: albums ? PhosphorRegular.vinylRecord : PhosphorRegular.user,
         title: albums ? t.albumsEmptyTitle : t.artistsEmptyTitle,
         body: albums ? t.albumsEmptyBody : t.artistsEmptyBody,

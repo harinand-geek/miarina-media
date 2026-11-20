@@ -16,6 +16,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/state_views.dart';
 import '../../src/rust/api/focus.dart';
 import '../cinema/watch_screen.dart' show speedLabel;
 import '../playback/playback.dart';
@@ -536,6 +537,12 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
         transport,
         const SizedBox(height: 22),
         chips,
+        const SizedBox(height: 18),
+        // W-E3 when the file stopped with an error.
+        const Align(
+          alignment: Alignment.centerLeft,
+          child: PlaybackErrorOverlay(),
+        ),
       ],
     );
 

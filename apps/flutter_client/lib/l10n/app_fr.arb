@@ -799,5 +799,26 @@
       }
     }
   },
-  "close": "Fermer"
+  "close": "Fermer",
+  "emptyOpenFiles": "Ouvrir des fichiers…",
+  "emptyFormats": "Formats lus : MP3, M4A, FLAC, OGG, Opus, WAV, AAC, et en vidéo MP4, MKV, WebM, MOV, AVI.",
+  "emptyNote": "Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.",
+  "mediaFiles": "Fichiers audio et vidéo",
+  "errFormatTitle": "Format non pris en charge",
+  "errFormatBody": "Le moteur ne sait pas décoder ce fichier. Le fichier n'est pas modifié.",
+  "errDamagedTitle": "Fichier endommagé",
+  "errDamagedBody": "La lecture s'est arrêtée : une partie du fichier semble illisible. Le fichier n'est pas modifié.",
+  "errAccessTitle": "Accès refusé",
+  "errAccessBody": "Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.",
+  "errMissingTitle": "Fichier introuvable",
+  "errMissingBody": "Le fichier a été déplacé, renommé, ou son disque est débranché. Il garde sa place dans la bibliothèque.",
+  "errPlaybackTitle": "Lecture impossible",
+  "errPlaybackBody": "Ce fichier n'a pas pu être lu. Rien n'a été modifié.",
+  "errLibraryRepairTitle": "Bibliothèque à réparer",
+  "errLibraryRepairBody": "L'index de la bibliothèque n'a pas pu s'ouvrir. Vos fichiers ne sont pas touchés.",
+  "errLibraryTitle": "La bibliothèque ne s'ouvre pas",
+  "errLibraryBody": "Rien n'a été modifié. Réessayez ; si cela continue, copiez les détails pour le support.",
+  "copyDetails": "Copier les détails",
+  "detailsCopied": "Détails copiés",
+  "skipNext": "Passer au suivant"
 }

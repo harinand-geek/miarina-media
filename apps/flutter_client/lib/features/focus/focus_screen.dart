@@ -5,15 +5,16 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/focus.dart';
+import '../common/state_views.dart';
 import '../cinema/cinema_data.dart';
 import '../cinema/cinema_widgets.dart';
 import '../cinema/watch_screen.dart' show speedLabel;
-import '../library/groups.dart';
 import '../playback/playback.dart';
 import '../search/search_screen.dart' show SearchButton;
 import 'focus_data.dart';
@@ -141,15 +142,14 @@ class _FocusScreenState extends ConsumerState<FocusScreen> {
 
     Widget body;
     if (lib.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${lib.error}',
+      body = LibraryErrorView(
+        error: lib.error!,
+        onRetry: () => ref.invalidate(focusLibraryProvider),
       );
     } else if (data == null) {
-      body = const SizedBox.shrink();
+      body = SkeletonList(rowHeight: 64, padding: mobile ? 16 : 32);
     } else if (data.programs.isEmpty) {
-      body = LibraryMessage(
+      body = LibraryEmpty(
         icon: PhosphorRegular.graduationCap,
         title: t.focusEmptyTitle,
         body: t.focusEmptyBody,

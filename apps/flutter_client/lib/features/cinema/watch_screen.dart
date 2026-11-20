@@ -10,6 +10,7 @@ import 'package:window_manager/window_manager.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../common/state_views.dart';
 import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
@@ -227,15 +228,12 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                   style: MmType.bodySm.copyWith(color: c.muted),
                 ),
               ),
-            if (snap.error != null)
+            // W-E3: what happened, the file is kept, skip or copy details.
+            if (snap.status == PlaybackStatus.error && snap.error != null)
               Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24),
-                  child: Text(
-                    t.playbackUnsupported,
-                    textAlign: TextAlign.center,
-                    style: MmType.body.copyWith(color: c.fgSoft),
-                  ),
+                  child: PlaybackErrorView(error: snap.error!),
                 ),
               ),
           ],

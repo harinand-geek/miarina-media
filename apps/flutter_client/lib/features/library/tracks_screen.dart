@@ -7,6 +7,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../common/state_views.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
@@ -380,19 +382,15 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
 
   Widget _body(MmColors c, L10n t, int? playingId, bool compact) {
     if (_error != null) {
-      return _Message(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '$_error',
-        action: t.retry,
-        onAction: _reload,
-      );
+      return LibraryErrorView(error: _error!, onRetry: _reload);
     }
-    if (_items.isEmpty && !_loading) {
-      return _Message(
+    if (_items.isEmpty && _loading) return const SkeletonList();
+    if (_items.isEmpty) {
+      return LibraryEmpty(
         icon: PhosphorRegular.musicNotesMinus,
         title: t.tracksEmptyTitle,
         body: t.tracksEmptyBody,
+        onAdded: _reload,
       );
     }
     return Focus(
@@ -763,70 +761,6 @@ class _Chip extends StatelessWidget {
             fontSize: 12.5,
             color: on ? c.coralStrong : c.muted,
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _Message extends StatelessWidget {
-  const _Message({
-    required this.icon,
-    required this.title,
-    required this.body,
-    this.action,
-    this.onAction,
-  });
-
-  final IconData icon;
-  final String title;
-  final String body;
-  final String? action;
-  final VoidCallback? onAction;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    return Center(
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 420),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 40, color: c.faintIcon),
-            const SizedBox(height: 14),
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: MmType.title.copyWith(color: c.fg),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              body,
-              textAlign: TextAlign.center,
-              style: MmType.bodySm.copyWith(color: c.muted),
-            ),
-            if (action != null) ...[
-              const SizedBox(height: 16),
-              Pressable(
-                onTap: onAction,
-                semanticLabel: action,
-                child: Container(
-                  height: 34,
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(MmRadius.pill),
-                    border: Border.all(color: c.lineStrong),
-                  ),
-                  child: Text(
-                    action!,
-                    style: MmType.labelStrong.copyWith(color: c.fg),
-                  ),
-                ),
-              ),
-            ],
-          ],
         ),
       ),
     );

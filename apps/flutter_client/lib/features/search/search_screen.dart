@@ -7,6 +7,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
@@ -15,6 +16,7 @@ import '../../src/rust/api/cinema.dart';
 import '../../src/rust/api/library.dart';
 import '../../src/rust/api/search.dart';
 import '../cinema/cinema_screen.dart' show resumeTitle;
+import '../common/state_views.dart';
 import '../cinema/cinema_widgets.dart';
 import '../common/open_media.dart';
 import '../focus/focus_data.dart';
@@ -140,13 +142,12 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         body: t.searchHint,
       );
     } else if (data!.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${data.error}',
+      body = LibraryErrorView(
+        error: data.error!,
+        onRetry: () => ref.invalidate(searchProvider(q)),
       );
     } else if (d == null) {
-      body = const SizedBox.shrink();
+      body = SkeletonList(padding: mobile ? 16 : 32);
     } else if (d.isEmpty) {
       body = LibraryMessage(
         icon: PhosphorRegular.magnifyingGlass,

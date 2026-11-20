@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../../app/launch_args.dart' show fileTitle;
 import '../../engine/media_engine.dart';
 import '../../src/rust/api/library.dart';
 import '../playback/playback.dart';
@@ -46,6 +47,10 @@ abstract interface class LibraryApi {
   Future<List<LibraryGroup>> groups(GroupKind kind);
   Future<void> setFavorite(int mediaId, {required bool favorite});
   Future<LibrarySummary> summary();
+
+  /// Adds a local file to the library (title from its name, tags and
+  /// technical details read later) and returns its id.
+  Future<int> addFile(String path, {required bool isVideo});
 }
 
 enum GroupKind { album, artist }
@@ -100,6 +105,18 @@ class RustLibraryApi implements LibraryApi {
   @override
   Future<LibrarySummary> summary() async =>
       librarySummary(dbPath: await _db, limit: 0);
+
+  @override
+  Future<int> addFile(String path, {required bool isVideo}) async {
+    final file = File(path);
+    return (await libraryAddFile(
+      dbPath: await _db,
+      path: file.absolute.path,
+      title: fileTitle(path),
+      isVideo: isVideo,
+      sizeBytes: BigInt.from(await file.length()),
+    )).toInt();
+  }
 }
 
 final libraryApiProvider = Provider<LibraryApi>(RustLibraryApi.new);

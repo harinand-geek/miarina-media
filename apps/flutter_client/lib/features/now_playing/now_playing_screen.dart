@@ -7,6 +7,7 @@ import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/state_views.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
 import 'lyrics_view.dart';
@@ -241,6 +242,13 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
               ),
             ],
           ),
+        ),
+        // W-E3 when the file stopped with an error.
+        const Positioned(
+          left: 24,
+          right: 24,
+          bottom: 24,
+          child: Center(child: PlaybackErrorOverlay()),
         ),
       ],
     );

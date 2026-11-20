@@ -12,6 +12,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
+import '../common/state_views.dart';
 import '../playback/playback.dart';
 import 'lyrics_view.dart';
 import 'now_playing_shared.dart';
@@ -415,6 +416,13 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                 ),
               ),
               body,
+              // W-E3 when the file stopped with an error.
+              const Positioned(
+                left: 16,
+                right: 16,
+                bottom: 24,
+                child: Center(child: PlaybackErrorOverlay()),
+              ),
             ],
           ),
         ),

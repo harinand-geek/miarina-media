@@ -55,13 +55,20 @@ class _NowPlayingInfo extends ConsumerStatefulWidget {
 }
 
 class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
-  final _cover = GlobalKey();
+  // One key per track: while the bar cross-fades from one track to the
+  // next, both covers are on screen and a key may only be used once.
+  GlobalKey _cover = GlobalKey();
+  Uri? _coverOf;
 
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final entry = ref.watch(queueProvider.select((q) => q.current));
+    if (entry?.source.uri != _coverOf) {
+      _coverOf = entry?.source.uri;
+      _cover = GlobalKey();
+    }
     final row = AnimatedSwitcher(
       duration: MmMotion.of(context).screen,
       switchInCurve: MmMotion.standard,

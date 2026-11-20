@@ -7,10 +7,11 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/cinema.dart';
-import '../library/groups.dart';
+import '../common/state_views.dart';
 import '../search/search_screen.dart' show SearchButton;
 import '../playback/playback.dart';
 import 'cinema_data.dart';
@@ -174,15 +175,18 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
 
     Widget body;
     if (lib.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${lib.error}',
+      body = LibraryErrorView(
+        error: lib.error!,
+        onRetry: () => ref.invalidate(cinemaLibraryProvider),
       );
     } else if (data == null) {
-      body = const SizedBox.shrink();
+      body = SkeletonGrid(
+        aspectRatio: 2 / 3,
+        minTile: 128,
+        padding: mobile ? 20 : 32,
+      );
     } else if (data.films.isEmpty && data.series.isEmpty) {
-      body = LibraryMessage(
+      body = LibraryEmpty(
         icon: PhosphorRegular.filmSlate,
         title: t.cinemaEmptyTitle,
         body: t.cinemaEmptyBody,

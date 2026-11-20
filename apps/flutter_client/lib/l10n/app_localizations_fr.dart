@@ -1429,4 +1429,76 @@ class L10nFr extends L10n {
 
   @override
   String get close => 'Fermer';
+
+  @override
+  String get emptyOpenFiles => 'Ouvrir des fichiers…';
+
+  @override
+  String get emptyFormats =>
+      'Formats lus : MP3, M4A, FLAC, OGG, Opus, WAV, AAC, et en vidéo MP4, MKV, WebM, MOV, AVI.';
+
+  @override
+  String get emptyNote =>
+      'Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.';
+
+  @override
+  String get mediaFiles => 'Fichiers audio et vidéo';
+
+  @override
+  String get errFormatTitle => 'Format non pris en charge';
+
+  @override
+  String get errFormatBody =>
+      'Le moteur ne sait pas décoder ce fichier. Le fichier n\'est pas modifié.';
+
+  @override
+  String get errDamagedTitle => 'Fichier endommagé';
+
+  @override
+  String get errDamagedBody =>
+      'La lecture s\'est arrêtée : une partie du fichier semble illisible. Le fichier n\'est pas modifié.';
+
+  @override
+  String get errAccessTitle => 'Accès refusé';
+
+  @override
+  String get errAccessBody =>
+      'Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.';
+
+  @override
+  String get errMissingTitle => 'Fichier introuvable';
+
+  @override
+  String get errMissingBody =>
+      'Le fichier a été déplacé, renommé, ou son disque est débranché. Il garde sa place dans la bibliothèque.';
+
+  @override
+  String get errPlaybackTitle => 'Lecture impossible';
+
+  @override
+  String get errPlaybackBody =>
+      'Ce fichier n\'a pas pu être lu. Rien n\'a été modifié.';
+
+  @override
+  String get errLibraryRepairTitle => 'Bibliothèque à réparer';
+
+  @override
+  String get errLibraryRepairBody =>
+      'L\'index de la bibliothèque n\'a pas pu s\'ouvrir. Vos fichiers ne sont pas touchés.';
+
+  @override
+  String get errLibraryTitle => 'La bibliothèque ne s\'ouvre pas';
+
+  @override
+  String get errLibraryBody =>
+      'Rien n\'a été modifié. Réessayez ; si cela continue, copiez les détails pour le support.';
+
+  @override
+  String get copyDetails => 'Copier les détails';
+
+  @override
+  String get detailsCopied => 'Détails copiés';
+
+  @override
+  String get skipNext => 'Passer au suivant';
 }

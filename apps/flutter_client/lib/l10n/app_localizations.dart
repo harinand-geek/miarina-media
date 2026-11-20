@@ -2424,6 +2424,132 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Fermer'**
   String get close;
+
+  /// No description provided for @emptyOpenFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir des fichiers…'**
+  String get emptyOpenFiles;
+
+  /// No description provided for @emptyFormats.
+  ///
+  /// In fr, this message translates to:
+  /// **'Formats lus : MP3, M4A, FLAC, OGG, Opus, WAV, AAC, et en vidéo MP4, MKV, WebM, MOV, AVI.'**
+  String get emptyFormats;
+
+  /// No description provided for @emptyNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.'**
+  String get emptyNote;
+
+  /// No description provided for @mediaFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichiers audio et vidéo'**
+  String get mediaFiles;
+
+  /// No description provided for @errFormatTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format non pris en charge'**
+  String get errFormatTitle;
+
+  /// No description provided for @errFormatBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le moteur ne sait pas décoder ce fichier. Le fichier n\'est pas modifié.'**
+  String get errFormatBody;
+
+  /// No description provided for @errDamagedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier endommagé'**
+  String get errDamagedTitle;
+
+  /// No description provided for @errDamagedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La lecture s\'est arrêtée : une partie du fichier semble illisible. Le fichier n\'est pas modifié.'**
+  String get errDamagedBody;
+
+  /// No description provided for @errAccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès refusé'**
+  String get errAccessTitle;
+
+  /// No description provided for @errAccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.'**
+  String get errAccessBody;
+
+  /// No description provided for @errMissingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier introuvable'**
+  String get errMissingTitle;
+
+  /// No description provided for @errMissingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier a été déplacé, renommé, ou son disque est débranché. Il garde sa place dans la bibliothèque.'**
+  String get errMissingBody;
+
+  /// No description provided for @errPlaybackTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture impossible'**
+  String get errPlaybackTitle;
+
+  /// No description provided for @errPlaybackBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier n\'a pas pu être lu. Rien n\'a été modifié.'**
+  String get errPlaybackBody;
+
+  /// No description provided for @errLibraryRepairTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque à réparer'**
+  String get errLibraryRepairTitle;
+
+  /// No description provided for @errLibraryRepairBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'index de la bibliothèque n\'a pas pu s\'ouvrir. Vos fichiers ne sont pas touchés.'**
+  String get errLibraryRepairBody;
+
+  /// No description provided for @errLibraryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La bibliothèque ne s\'ouvre pas'**
+  String get errLibraryTitle;
+
+  /// No description provided for @errLibraryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n\'a été modifié. Réessayez ; si cela continue, copiez les détails pour le support.'**
+  String get errLibraryBody;
+
+  /// No description provided for @copyDetails.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier les détails'**
+  String get copyDetails;
+
+  /// No description provided for @detailsCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Détails copiés'**
+  String get detailsCopied;
+
+  /// No description provided for @skipNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer au suivant'**
+  String get skipNext;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

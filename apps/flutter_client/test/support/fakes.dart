@@ -277,6 +277,25 @@ class FakeLibraryApi implements LibraryApi {
   Future<void> setFavorite(int mediaId, {required bool favorite}) async =>
       favoriteCalls.add((mediaId, favorite));
 
+  final addedFiles = <String>[];
+
+  @override
+  Future<int> addFile(String path, {required bool isVideo}) async {
+    addedFiles.add(path);
+    final id = 1000 + addedFiles.length;
+    items.add(
+      LibraryItem(
+        id: id,
+        title: path.split(RegExp(r'[\\/]')).last.split('.').first,
+        path: path,
+        isVideo: isVideo,
+        missing: false,
+        favorite: false,
+      ),
+    );
+    return id;
+  }
+
   @override
   Future<LibrarySummary> summary() async => LibrarySummary(
     schemaVersion: 9,

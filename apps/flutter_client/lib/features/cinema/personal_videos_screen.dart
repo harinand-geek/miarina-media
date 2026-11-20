@@ -6,9 +6,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
-import '../library/groups.dart';
+import '../common/state_views.dart';
 import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_screen.dart';
@@ -55,15 +56,18 @@ class PersonalVideosScreen extends ConsumerWidget {
 
     Widget body;
     if (lib.hasError) {
-      body = LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${lib.error}',
+      body = LibraryErrorView(
+        error: lib.error!,
+        onRetry: () => ref.invalidate(cinemaLibraryProvider),
       );
     } else if (!lib.hasValue) {
-      body = const SizedBox.shrink();
+      body = SkeletonGrid(
+        aspectRatio: 16 / 9,
+        minTile: 240,
+        padding: mobile ? 16 : 32,
+      );
     } else if (videos.isEmpty) {
-      body = LibraryMessage(
+      body = LibraryEmpty(
         icon: PhosphorRegular.monitorPlay,
         title: t.personalEmptyTitle,
         body: t.personalEmptyBody,

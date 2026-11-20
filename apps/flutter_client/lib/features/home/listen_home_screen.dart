@@ -5,6 +5,8 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../common/state_views.dart';
+import '../../design/widgets/states.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
@@ -33,13 +35,12 @@ class ListenHomeScreen extends ConsumerWidget {
     final mobile = width < 720;
     final home = data.value;
     if (data.hasError) {
-      return LibraryMessage(
-        icon: PhosphorRegular.warningCircle,
-        title: t.libraryError,
-        body: '${data.error}',
+      return LibraryErrorView(
+        error: data.error!,
+        onRetry: () => ref.invalidate(homeProvider),
       );
     }
-    if (home == null) return const SizedBox.shrink();
+    if (home == null) return const SkeletonGrid(minTile: 240);
     if (mobile) return _MobileHome(home: home);
 
     final body = home.isEmpty

@@ -1424,4 +1424,76 @@ class L10nEn extends L10n {
 
   @override
   String get close => 'Close';
+
+  @override
+  String get emptyOpenFiles => 'Open files…';
+
+  @override
+  String get emptyFormats =>
+      'Formats read: MP3, M4A, FLAC, OGG, Opus, WAV, AAC, and for video MP4, MKV, WebM, MOV, AVI.';
+
+  @override
+  String get emptyNote =>
+      'Downloading with Miarina? What you get arrives here automatically.';
+
+  @override
+  String get mediaFiles => 'Audio and video files';
+
+  @override
+  String get errFormatTitle => 'Format not supported';
+
+  @override
+  String get errFormatBody =>
+      'The engine cannot decode this file. The file is not changed.';
+
+  @override
+  String get errDamagedTitle => 'Damaged file';
+
+  @override
+  String get errDamagedBody =>
+      'Playback stopped: part of the file seems unreadable. The file is not changed.';
+
+  @override
+  String get errAccessTitle => 'Access denied';
+
+  @override
+  String get errAccessBody =>
+      'The system does not let Miarina read this file. Other files still work.';
+
+  @override
+  String get errMissingTitle => 'File not found';
+
+  @override
+  String get errMissingBody =>
+      'The file was moved, renamed, or its drive is unplugged. It keeps its place in the library.';
+
+  @override
+  String get errPlaybackTitle => 'Cannot play';
+
+  @override
+  String get errPlaybackBody =>
+      'This file could not be played. Nothing was changed.';
+
+  @override
+  String get errLibraryRepairTitle => 'Library needs repair';
+
+  @override
+  String get errLibraryRepairBody =>
+      'The library index could not open. Your files are not touched.';
+
+  @override
+  String get errLibraryTitle => 'The library does not open';
+
+  @override
+  String get errLibraryBody =>
+      'Nothing was changed. Try again; if it keeps happening, copy the details for support.';
+
+  @override
+  String get copyDetails => 'Copy the details';
+
+  @override
+  String get detailsCopied => 'Details copied';
+
+  @override
+  String get skipNext => 'Skip to next';
 }
