@@ -63,7 +63,11 @@ mod platform {
         let on_window_thread =
             unsafe { GetWindowThreadProcessId(parent, None) } == unsafe { GetCurrentThreadId() };
 
-        let data_dir = HSTRING::from(std::env::temp_dir().join("miarina-webview2-poc").as_os_str());
+        let data_dir = HSTRING::from(
+            std::env::temp_dir()
+                .join("miarina-webview2-poc")
+                .as_os_str(),
+        );
         let (tx, rx) = mpsc::channel();
         CreateCoreWebView2EnvironmentCompletedHandler::wait_for_async_operation(
             Box::new(move |handler| unsafe {
@@ -124,7 +128,10 @@ mod platform {
                 let headers = response.Headers()?;
                 let header = |name: PCWSTR| {
                     let mut value = PWSTR::null();
-                    headers.GetHeader(name, &mut value).ok().map(|()| take(value))
+                    headers
+                        .GetHeader(name, &mut value)
+                        .ok()
+                        .map(|()| take(value))
                 };
                 let content_type = header(w!("Content-Type")).unwrap_or_default();
                 let total = header(w!("Content-Length")).and_then(|v| v.trim().parse().ok());

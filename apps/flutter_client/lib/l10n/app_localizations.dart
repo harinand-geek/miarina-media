@@ -5022,6 +5022,234 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Enregistrer en playlist'**
   String get saveAsPlaylist;
+
+  /// No description provided for @editTags.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les tags'**
+  String get editTags;
+
+  /// No description provided for @tagFromName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplir depuis le nom du fichier'**
+  String get tagFromName;
+
+  /// No description provided for @tagRename.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renommer le fichier « Artiste - Titre »'**
+  String get tagRename;
+
+  /// No description provided for @fTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre'**
+  String get fTitle;
+
+  /// No description provided for @fArtist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Artiste'**
+  String get fArtist;
+
+  /// No description provided for @fAlbumArtist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Artiste de l’album'**
+  String get fAlbumArtist;
+
+  /// No description provided for @fAlbum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Album'**
+  String get fAlbum;
+
+  /// No description provided for @fYear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Année'**
+  String get fYear;
+
+  /// No description provided for @fGenre.
+  ///
+  /// In fr, this message translates to:
+  /// **'Genre'**
+  String get fGenre;
+
+  /// No description provided for @fTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'N° de piste'**
+  String get fTrack;
+
+  /// No description provided for @fDisc.
+  ///
+  /// In fr, this message translates to:
+  /// **'N° de disque'**
+  String get fDisc;
+
+  /// No description provided for @fComment.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commentaire'**
+  String get fComment;
+
+  /// No description provided for @fLyrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paroles (facultatif)'**
+  String get fLyrics;
+
+  /// No description provided for @fLyricsPh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collez le texte ou le contenu d’un fichier .lrc'**
+  String get fLyricsPh;
+
+  /// No description provided for @tagNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier un tag ne change pas la qualité audio ou vidéo.'**
+  String get tagNote;
+
+  /// No description provided for @renameNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier sera renommé : {name}'**
+  String renameNote(String name);
+
+  /// No description provided for @tagWrite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)'**
+  String get tagWrite;
+
+  /// No description provided for @tagWriteUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce format garde ses tags dans la bibliothèque Miarina seulement.'**
+  String get tagWriteUnsupported;
+
+  /// No description provided for @tagsSavedFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tags écrits dans le fichier.'**
+  String get tagsSavedFile;
+
+  /// No description provided for @tagsSavedLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tags enregistrés dans la bibliothèque. Fichier inchangé.'**
+  String get tagsSavedLibrary;
+
+  /// No description provided for @invalidNumber.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre entier attendu'**
+  String get invalidNumber;
+
+  /// No description provided for @coverChoose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir une image…'**
+  String get coverChoose;
+
+  /// No description provided for @coverSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miniature de la source'**
+  String get coverSource;
+
+  /// No description provided for @coverNoSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'La source n’a pas fourni de miniature'**
+  String get coverNoSource;
+
+  /// No description provided for @coverRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer la pochette'**
+  String get coverRemove;
+
+  /// No description provided for @coverNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune pochette'**
+  String get coverNone;
+
+  /// No description provided for @coverWorking.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation de la pochette…'**
+  String get coverWorking;
+
+  /// No description provided for @coverNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'JPEG, PNG, WebP, BMP ou GIF. Réduite à 1000 px et gardée dans la bibliothèque, appliquée tout de suite ; le fichier n’est pas modifié.'**
+  String get coverNote;
+
+  /// No description provided for @coverUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pochette mise à jour'**
+  String get coverUpdated;
+
+  /// No description provided for @coverRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pochette retirée'**
+  String get coverRemoved;
+
+  /// No description provided for @errTagsUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce type de fichier ne prend pas de tags : rien n’a été enregistré.'**
+  String get errTagsUnsupported;
+
+  /// No description provided for @errTagsWrite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les tags n’ont pas pu être écrits dans le fichier : rien n’a été enregistré.'**
+  String get errTagsWrite;
+
+  /// No description provided for @errInvalidName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce nom ne peut pas être utilisé.'**
+  String get errInvalidName;
+
+  /// No description provided for @errNotInLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce titre n’est plus dans la bibliothèque.'**
+  String get errNotInLibrary;
+
+  /// No description provided for @errCoverRefused.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette image ne peut pas servir de pochette (format ou taille).'**
+  String get errCoverRefused;
+
+  /// No description provided for @errLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'La bibliothèque n’a pas pu faire ce changement.'**
+  String get errLibrary;
+
+  /// No description provided for @coverImageType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Images'**
+  String get coverImageType;
+
+  /// No description provided for @keyCtrlI.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ctrl I'**
+  String get keyCtrlI;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

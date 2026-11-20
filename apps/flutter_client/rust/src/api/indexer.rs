@@ -228,5 +228,70 @@ mod tests {
         // Without FFmpeg, durations and pictures wait.
         assert!(!status.has_ffmpeg);
         assert_eq!(status.to_probe, 1);
+
+        // Tag editor (api/tags.rs) on the running library: library only
+        // (not real audio), file renamed "Artist - Title" first.
+        let id = shared()
+            .unwrap()
+            .storage
+            .lock()
+            .unwrap()
+            .media_paths()
+            .unwrap()[0]
+            .0;
+        let sheet = crate::api::tags::tags_get(id).unwrap();
+        assert!(sheet.writable, "an .mp3 takes tags");
+        let saved = crate::api::tags::tags_save(
+            id,
+            crate::api::tags::TagFields {
+                title: Some("Seuil".into()),
+                artist: Some("Nafy Rakoto".into()),
+                album: None,
+                album_artist: None,
+                year: Some(2024),
+                genre: None,
+                track_no: Some(5),
+                disc_no: None,
+                comment: None,
+                lyrics: None,
+            },
+            false,
+            Some("Nafy Rakoto - Seuil".into()),
+        )
+        .unwrap();
+        assert!(saved.path.ends_with("Nafy Rakoto - Seuil.mp3"));
+        assert!(std::path::Path::new(&saved.path).is_file());
+        assert_eq!((saved.title.as_str(), saved.track_no), ("Seuil", Some(5)));
+        let again = crate::api::tags::tags_get(id).unwrap();
+        assert_eq!(again.fields.year, Some(2024));
+        // Writing into a file that is not real audio fails, nothing saved.
+        let err = crate::api::tags::tags_save(
+            id,
+            crate::api::tags::TagFields {
+                title: Some("Autre".into()),
+                artist: None,
+                album: None,
+                album_artist: None,
+                year: None,
+                genre: None,
+                track_no: None,
+                disc_no: None,
+                comment: None,
+                lyrics: None,
+            },
+            true,
+            None,
+        )
+        .err()
+        .expect("refused");
+        assert_eq!(err.to_string(), "tags_write");
+        assert_eq!(
+            crate::api::tags::tags_get(id)
+                .unwrap()
+                .fields
+                .title
+                .as_deref(),
+            Some("Seuil")
+        );
     }
 }

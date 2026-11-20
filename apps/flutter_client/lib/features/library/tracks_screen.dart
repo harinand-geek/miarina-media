@@ -27,6 +27,7 @@ import '../settings/settings_data.dart';
 import '../../app/router.dart';
 import 'groups.dart';
 import 'library_data.dart';
+import 'tag_editor.dart';
 
 /// W-M1c Titres: every audio track of the library, sorted by title, in a
 /// virtualised table loaded page by page. [favorites]: the Favoris entry of
@@ -192,6 +193,19 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
   Future<void> _addToPlaylist() =>
       showAddToPlaylistDialog(context, ref, [for (final i in _chosen) i.id]);
 
+  /// « Modifier les tags » (Ctrl I): one row; the table shows the result.
+  Future<void> _editTags() async {
+    final chosen = _chosen;
+    if (chosen.length != 1) return;
+    final updated = await showTagEditor(context, chosen.single);
+    if (updated == null || !mounted) return;
+    ref
+      ..invalidate(groupsProvider(GroupKind.album))
+      ..invalidate(groupsProvider(GroupKind.artist));
+    final i = _items.indexWhere((e) => e.id == updated.id);
+    if (i >= 0) setState(() => _items[i] = updated);
+  }
+
   Future<void> _reveal() async {
     final chosen = _chosen;
     if (chosen.length != 1) return;
@@ -331,9 +345,16 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         ),
         _item(_Act.queue, PhosphorRegular.queue, t.addToQueue),
         _item(_Act.playlist, PhosphorRegular.listPlus, t.addToPlaylist),
-        if (single != null && Platform.isWindows) ...[
+        if (single != null) ...[
           const PopupMenuDivider(height: 9),
-          _item(_Act.reveal, PhosphorRegular.folderOpen, t.showInExplorer),
+          _item(
+            _Act.tags,
+            PhosphorRegular.notePencil,
+            t.editTags,
+            keys: t.keyCtrlI,
+          ),
+          if (Platform.isWindows)
+            _item(_Act.reveal, PhosphorRegular.folderOpen, t.showInExplorer),
         ],
         const PopupMenuDivider(height: 9),
         _item(
@@ -359,6 +380,8 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         unawaited(_enqueue(next: false));
       case _Act.playlist:
         unawaited(_addToPlaylist());
+      case _Act.tags:
+        unawaited(_editTags());
       case _Act.reveal:
         unawaited(_reveal());
       case _Act.remove:
@@ -460,6 +483,10 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       } else {
         _play(s < 0 ? 0 : s);
       }
+    } else if (key == LogicalKeyboardKey.keyI &&
+        keys.isControlPressed &&
+        _chosen.length == 1) {
+      unawaited(_editTags());
     } else if (key == LogicalKeyboardKey.delete && _chosen.isNotEmpty) {
       unawaited(_remove());
     } else if ((key == LogicalKeyboardKey.contextMenu ||
@@ -1149,7 +1176,7 @@ class _TrackRow extends StatelessWidget {
 /// Quick filters of Titres, one at a time.
 enum _Quick { neverPlayed, hiRes, addedThisMonth }
 
-enum _Act { play, playNext, queue, playlist, reveal, remove }
+enum _Act { play, playNext, queue, playlist, tags, reveal, remove }
 
 /// Favorite heart: 1 → 1.15 → 1 and fill in 180 ms (handoff §03).
 class _Heart extends StatelessWidget {

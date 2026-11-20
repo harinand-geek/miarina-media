@@ -3086,4 +3086,126 @@ class L10nEn extends L10n {
 
   @override
   String get saveAsPlaylist => 'Save as playlist';
+
+  @override
+  String get editTags => 'Edit tags';
+
+  @override
+  String get tagFromName => 'Fill from file name';
+
+  @override
+  String get tagRename => 'Rename file “Artist - Title”';
+
+  @override
+  String get fTitle => 'Title';
+
+  @override
+  String get fArtist => 'Artist';
+
+  @override
+  String get fAlbumArtist => 'Album artist';
+
+  @override
+  String get fAlbum => 'Album';
+
+  @override
+  String get fYear => 'Year';
+
+  @override
+  String get fGenre => 'Genre';
+
+  @override
+  String get fTrack => 'Track #';
+
+  @override
+  String get fDisc => 'Disc #';
+
+  @override
+  String get fComment => 'Comment';
+
+  @override
+  String get fLyrics => 'Lyrics (optional)';
+
+  @override
+  String get fLyricsPh => 'Paste text or the content of an .lrc file';
+
+  @override
+  String get tagNote => 'Editing tags does not change audio or video quality.';
+
+  @override
+  String renameNote(String name) {
+    return 'File will be renamed: $name';
+  }
+
+  @override
+  String get tagWrite =>
+      'Also write to the file (otherwise: Miarina library only)';
+
+  @override
+  String get tagWriteUnsupported =>
+      'This format keeps its tags in the Miarina library only.';
+
+  @override
+  String get tagsSavedFile => 'Tags written to the file.';
+
+  @override
+  String get tagsSavedLibrary => 'Tags saved in the library. File unchanged.';
+
+  @override
+  String get invalidNumber => 'Whole number expected';
+
+  @override
+  String get coverChoose => 'Choose an image…';
+
+  @override
+  String get coverSource => 'Source thumbnail';
+
+  @override
+  String get coverNoSource => 'The source gave no thumbnail';
+
+  @override
+  String get coverRemove => 'Remove cover';
+
+  @override
+  String get coverNone => 'No cover';
+
+  @override
+  String get coverWorking => 'Preparing the cover…';
+
+  @override
+  String get coverNote =>
+      'JPEG, PNG, WebP, BMP or GIF. Resized to 1000 px and kept in the library, applied at once; the file is not changed.';
+
+  @override
+  String get coverUpdated => 'Cover updated';
+
+  @override
+  String get coverRemoved => 'Cover removed';
+
+  @override
+  String get errTagsUnsupported =>
+      'Tags cannot be written into this file type; they were not saved.';
+
+  @override
+  String get errTagsWrite =>
+      'The tags could not be written into the file; they were not saved.';
+
+  @override
+  String get errInvalidName => 'This name cannot be used.';
+
+  @override
+  String get errNotInLibrary => 'This item is no longer in the library.';
+
+  @override
+  String get errCoverRefused =>
+      'This picture cannot be used as a cover (format or size).';
+
+  @override
+  String get errLibrary => 'The library could not make this change.';
+
+  @override
+  String get coverImageType => 'Pictures';
+
+  @override
+  String get keyCtrlI => 'Ctrl I';
 }

@@ -3110,4 +3110,128 @@ class L10nFr extends L10n {
 
   @override
   String get saveAsPlaylist => 'Enregistrer en playlist';
+
+  @override
+  String get editTags => 'Modifier les tags';
+
+  @override
+  String get tagFromName => 'Remplir depuis le nom du fichier';
+
+  @override
+  String get tagRename => 'Renommer le fichier « Artiste - Titre »';
+
+  @override
+  String get fTitle => 'Titre';
+
+  @override
+  String get fArtist => 'Artiste';
+
+  @override
+  String get fAlbumArtist => 'Artiste de l’album';
+
+  @override
+  String get fAlbum => 'Album';
+
+  @override
+  String get fYear => 'Année';
+
+  @override
+  String get fGenre => 'Genre';
+
+  @override
+  String get fTrack => 'N° de piste';
+
+  @override
+  String get fDisc => 'N° de disque';
+
+  @override
+  String get fComment => 'Commentaire';
+
+  @override
+  String get fLyrics => 'Paroles (facultatif)';
+
+  @override
+  String get fLyricsPh => 'Collez le texte ou le contenu d’un fichier .lrc';
+
+  @override
+  String get tagNote =>
+      'Modifier un tag ne change pas la qualité audio ou vidéo.';
+
+  @override
+  String renameNote(String name) {
+    return 'Le fichier sera renommé : $name';
+  }
+
+  @override
+  String get tagWrite =>
+      'Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)';
+
+  @override
+  String get tagWriteUnsupported =>
+      'Ce format garde ses tags dans la bibliothèque Miarina seulement.';
+
+  @override
+  String get tagsSavedFile => 'Tags écrits dans le fichier.';
+
+  @override
+  String get tagsSavedLibrary =>
+      'Tags enregistrés dans la bibliothèque. Fichier inchangé.';
+
+  @override
+  String get invalidNumber => 'Nombre entier attendu';
+
+  @override
+  String get coverChoose => 'Choisir une image…';
+
+  @override
+  String get coverSource => 'Miniature de la source';
+
+  @override
+  String get coverNoSource => 'La source n’a pas fourni de miniature';
+
+  @override
+  String get coverRemove => 'Retirer la pochette';
+
+  @override
+  String get coverNone => 'Aucune pochette';
+
+  @override
+  String get coverWorking => 'Préparation de la pochette…';
+
+  @override
+  String get coverNote =>
+      'JPEG, PNG, WebP, BMP ou GIF. Réduite à 1000 px et gardée dans la bibliothèque, appliquée tout de suite ; le fichier n’est pas modifié.';
+
+  @override
+  String get coverUpdated => 'Pochette mise à jour';
+
+  @override
+  String get coverRemoved => 'Pochette retirée';
+
+  @override
+  String get errTagsUnsupported =>
+      'Ce type de fichier ne prend pas de tags : rien n’a été enregistré.';
+
+  @override
+  String get errTagsWrite =>
+      'Les tags n’ont pas pu être écrits dans le fichier : rien n’a été enregistré.';
+
+  @override
+  String get errInvalidName => 'Ce nom ne peut pas être utilisé.';
+
+  @override
+  String get errNotInLibrary => 'Ce titre n’est plus dans la bibliothèque.';
+
+  @override
+  String get errCoverRefused =>
+      'Cette image ne peut pas servir de pochette (format ou taille).';
+
+  @override
+  String get errLibrary => 'La bibliothèque n’a pas pu faire ce changement.';
+
+  @override
+  String get coverImageType => 'Images';
+
+  @override
+  String get keyCtrlI => 'Ctrl I';
 }

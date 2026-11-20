@@ -14,6 +14,7 @@ import 'api/library.dart';
 import 'api/playlists.dart';
 import 'api/search.dart';
 import 'api/settings.dart';
+import 'api/tags.dart';
 import 'api/torrents.dart';
 
 import 'dart:async';
@@ -93,6 +94,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   StartRequest dco_decode_box_autoadd_start_request(dynamic raw);
+
+  @protected
+  TagFields dco_decode_box_autoadd_tag_fields(dynamic raw);
 
   @protected
   TaskInfo dco_decode_box_autoadd_task_info(dynamic raw);
@@ -380,6 +384,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StartRequest dco_decode_start_request(dynamic raw);
 
   @protected
+  TagFields dco_decode_tag_fields(dynamic raw);
+
+  @protected
+  TagSheet dco_decode_tag_sheet(dynamic raw);
+
+  @protected
   TaskInfo dco_decode_task_info(dynamic raw);
 
   @protected
@@ -486,6 +496,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StartRequest sse_decode_box_autoadd_start_request(
     SseDeserializer deserializer,
   );
+
+  @protected
+  TagFields sse_decode_box_autoadd_tag_fields(SseDeserializer deserializer);
 
   @protected
   TaskInfo sse_decode_box_autoadd_task_info(SseDeserializer deserializer);
@@ -823,6 +836,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StartRequest sse_decode_start_request(SseDeserializer deserializer);
 
   @protected
+  TagFields sse_decode_tag_fields(SseDeserializer deserializer);
+
+  @protected
+  TagSheet sse_decode_tag_sheet(SseDeserializer deserializer);
+
+  @protected
   TaskInfo sse_decode_task_info(SseDeserializer deserializer);
 
   @protected
@@ -960,6 +979,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_start_request(
     StartRequest self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_tag_fields(
+    TagFields self,
     SseSerializer serializer,
   );
 
@@ -1397,6 +1422,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_start_request(StartRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tag_fields(TagFields self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_tag_sheet(TagSheet self, SseSerializer serializer);
 
   @protected
   void sse_encode_task_info(TaskInfo self, SseSerializer serializer);

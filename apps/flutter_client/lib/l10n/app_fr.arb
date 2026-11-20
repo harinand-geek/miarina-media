@@ -1853,5 +1853,50 @@
       }
     }
   },
-  "saveAsPlaylist": "Enregistrer en playlist"
+  "saveAsPlaylist": "Enregistrer en playlist",
+  "editTags": "Modifier les tags",
+  "tagFromName": "Remplir depuis le nom du fichier",
+  "tagRename": "Renommer le fichier « Artiste - Titre »",
+  "fTitle": "Titre",
+  "fArtist": "Artiste",
+  "fAlbumArtist": "Artiste de l’album",
+  "fAlbum": "Album",
+  "fYear": "Année",
+  "fGenre": "Genre",
+  "fTrack": "N° de piste",
+  "fDisc": "N° de disque",
+  "fComment": "Commentaire",
+  "fLyrics": "Paroles (facultatif)",
+  "fLyricsPh": "Collez le texte ou le contenu d’un fichier .lrc",
+  "tagNote": "Modifier un tag ne change pas la qualité audio ou vidéo.",
+  "renameNote": "Le fichier sera renommé : {name}",
+  "@renameNote": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tagWrite": "Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)",
+  "tagWriteUnsupported": "Ce format garde ses tags dans la bibliothèque Miarina seulement.",
+  "tagsSavedFile": "Tags écrits dans le fichier.",
+  "tagsSavedLibrary": "Tags enregistrés dans la bibliothèque. Fichier inchangé.",
+  "invalidNumber": "Nombre entier attendu",
+  "coverChoose": "Choisir une image…",
+  "coverSource": "Miniature de la source",
+  "coverNoSource": "La source n’a pas fourni de miniature",
+  "coverRemove": "Retirer la pochette",
+  "coverNone": "Aucune pochette",
+  "coverWorking": "Préparation de la pochette…",
+  "coverNote": "JPEG, PNG, WebP, BMP ou GIF. Réduite à 1000 px et gardée dans la bibliothèque, appliquée tout de suite ; le fichier n’est pas modifié.",
+  "coverUpdated": "Pochette mise à jour",
+  "coverRemoved": "Pochette retirée",
+  "errTagsUnsupported": "Ce type de fichier ne prend pas de tags : rien n’a été enregistré.",
+  "errTagsWrite": "Les tags n’ont pas pu être écrits dans le fichier : rien n’a été enregistré.",
+  "errInvalidName": "Ce nom ne peut pas être utilisé.",
+  "errNotInLibrary": "Ce titre n’est plus dans la bibliothèque.",
+  "errCoverRefused": "Cette image ne peut pas servir de pochette (format ou taille).",
+  "errLibrary": "La bibliothèque n’a pas pu faire ce changement.",
+  "coverImageType": "Images",
+  "keyCtrlI": "Ctrl I"
 }
