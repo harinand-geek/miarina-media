@@ -9,6 +9,7 @@ import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../library/library_data.dart';
+import '../playlists/playlists_data.dart';
 
 class _Entry {
   const _Entry(this.route, this.label, this.icon, this.filled, {this.count});
@@ -32,6 +33,7 @@ class Sidebar extends ConsumerWidget {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final tracks = ref.watch(libraryStatsProvider).value?.audioCount.toInt();
+    final playlists = ref.watch(playlistsProvider).value?.length;
     final inGet = location.startsWith(Routes.get);
 
     final groups = <(String?, List<_Entry>)>[
@@ -80,6 +82,7 @@ class Sidebar extends ConsumerWidget {
             t.navPlaylists,
             PhosphorRegular.queue,
             PhosphorFill.queue,
+            count: playlists == null ? null : _group(playlists),
           ),
           _Entry(
             Routes.favorites,
@@ -170,7 +173,8 @@ class Sidebar extends ConsumerWidget {
                           location == e.route ||
                           // Album and artist pages keep their list lit.
                           ((e.route == Routes.albums ||
-                                  e.route == Routes.artists) &&
+                                  e.route == Routes.artists ||
+                                  e.route == Routes.playlists) &&
                               location.startsWith('${e.route}/')) ||
                           // Series pages and the player sit under Films &
                           // séries.

@@ -2214,6 +2214,216 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.'**
   String get aboutLocal;
+
+  /// No description provided for @playlistNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle'**
+  String get playlistNew;
+
+  /// No description provided for @playlistImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer M3U'**
+  String get playlistImport;
+
+  /// No description provided for @playlistExport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter'**
+  String get playlistExport;
+
+  /// No description provided for @playlistModified.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlist · modifiée {when}'**
+  String playlistModified(String when);
+
+  /// No description provided for @agoNow.
+  ///
+  /// In fr, this message translates to:
+  /// **'à l\'instant'**
+  String get agoNow;
+
+  /// No description provided for @agoMinutes.
+  ///
+  /// In fr, this message translates to:
+  /// **'il y a {count} min'**
+  String agoMinutes(int count);
+
+  /// No description provided for @agoHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'il y a {count} h'**
+  String agoHours(int count);
+
+  /// No description provided for @agoDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{hier} other{il y a {count} jours}}'**
+  String agoDays(int count);
+
+  /// No description provided for @titlesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{aucun titre} =1{1 titre} other{{count} titres}}'**
+  String titlesCount(int count);
+
+  /// No description provided for @missingCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 titre introuvable} other{{count} titres introuvables}}'**
+  String missingCount(int count);
+
+  /// No description provided for @addTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des titres'**
+  String get addTracks;
+
+  /// No description provided for @playlistHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glisser pour réordonner · Alt+↑/↓ au clavier · Suppr retire de la playlist (le fichier reste)'**
+  String get playlistHint;
+
+  /// No description provided for @newPlaylistTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle playlist'**
+  String get newPlaylistTitle;
+
+  /// No description provided for @playlistName.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nom'**
+  String get playlistName;
+
+  /// No description provided for @addQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Ajouter le titre de la file d\'attente} other{Ajouter les {count} titres de la file d\'attente}}'**
+  String addQueue(int count);
+
+  /// No description provided for @smartPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlist intelligente (règles)'**
+  String get smartPlaylist;
+
+  /// No description provided for @create.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créer'**
+  String get create;
+
+  /// No description provided for @rename.
+  ///
+  /// In fr, this message translates to:
+  /// **'Renommer'**
+  String get rename;
+
+  /// No description provided for @save.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get save;
+
+  /// No description provided for @deletePlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer la playlist'**
+  String get deletePlaylist;
+
+  /// No description provided for @deletePlaylistTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer « {name} » ?'**
+  String deletePlaylistTitle(String name);
+
+  /// No description provided for @deletePlaylistBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La playlist est supprimée. Les fichiers restent dans la bibliothèque.'**
+  String get deletePlaylistBody;
+
+  /// No description provided for @delete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer'**
+  String get delete;
+
+  /// No description provided for @importDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {name} » : {added} titres ajoutés, {skipped} introuvables ou en ligne.'**
+  String importDone(String name, int added, int skipped);
+
+  /// No description provided for @exportDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlist enregistrée : {path}'**
+  String exportDone(String path);
+
+  /// No description provided for @playlistsEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune playlist'**
+  String get playlistsEmptyTitle;
+
+  /// No description provided for @playlistsEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Créez une playlist ou importez un fichier M3U.'**
+  String get playlistsEmptyBody;
+
+  /// No description provided for @playlistEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette playlist est vide. Ajoutez des titres.'**
+  String get playlistEmpty;
+
+  /// No description provided for @addedShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouté'**
+  String get addedShort;
+
+  /// No description provided for @removeFromPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de la playlist'**
+  String get removeFromPlaylist;
+
+  /// No description provided for @moveUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Monter'**
+  String get moveUp;
+
+  /// No description provided for @moveDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Descendre'**
+  String get moveDown;
+
+  /// No description provided for @playlistFileType.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlist M3U'**
+  String get playlistFileType;
+
+  /// No description provided for @playlistActionFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'opération n\'a pas abouti : {error}'**
+  String playlistActionFailed(String error);
+
+  /// No description provided for @close.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get close;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

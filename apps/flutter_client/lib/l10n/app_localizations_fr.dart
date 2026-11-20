@@ -1274,4 +1274,159 @@ class L10nFr extends L10n {
   @override
   String get aboutLocal =>
       'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.';
+
+  @override
+  String get playlistNew => 'Nouvelle';
+
+  @override
+  String get playlistImport => 'Importer M3U';
+
+  @override
+  String get playlistExport => 'Exporter';
+
+  @override
+  String playlistModified(String when) {
+    return 'Playlist · modifiée $when';
+  }
+
+  @override
+  String get agoNow => 'à l\'instant';
+
+  @override
+  String agoMinutes(int count) {
+    return 'il y a $count min';
+  }
+
+  @override
+  String agoHours(int count) {
+    return 'il y a $count h';
+  }
+
+  @override
+  String agoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'il y a $count jours',
+      one: 'hier',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String titlesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres',
+      one: '1 titre',
+      zero: 'aucun titre',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres introuvables',
+      one: '1 titre introuvable',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTracks => 'Ajouter des titres';
+
+  @override
+  String get playlistHint =>
+      'Glisser pour réordonner · Alt+↑/↓ au clavier · Suppr retire de la playlist (le fichier reste)';
+
+  @override
+  String get newPlaylistTitle => 'Nouvelle playlist';
+
+  @override
+  String get playlistName => 'Nom';
+
+  @override
+  String addQueue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Ajouter les $count titres de la file d\'attente',
+      one: 'Ajouter le titre de la file d\'attente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smartPlaylist => 'Playlist intelligente (règles)';
+
+  @override
+  String get create => 'Créer';
+
+  @override
+  String get rename => 'Renommer';
+
+  @override
+  String get save => 'Enregistrer';
+
+  @override
+  String get deletePlaylist => 'Supprimer la playlist';
+
+  @override
+  String deletePlaylistTitle(String name) {
+    return 'Supprimer « $name » ?';
+  }
+
+  @override
+  String get deletePlaylistBody =>
+      'La playlist est supprimée. Les fichiers restent dans la bibliothèque.';
+
+  @override
+  String get delete => 'Supprimer';
+
+  @override
+  String importDone(String name, int added, int skipped) {
+    return '« $name » : $added titres ajoutés, $skipped introuvables ou en ligne.';
+  }
+
+  @override
+  String exportDone(String path) {
+    return 'Playlist enregistrée : $path';
+  }
+
+  @override
+  String get playlistsEmptyTitle => 'Aucune playlist';
+
+  @override
+  String get playlistsEmptyBody =>
+      'Créez une playlist ou importez un fichier M3U.';
+
+  @override
+  String get playlistEmpty => 'Cette playlist est vide. Ajoutez des titres.';
+
+  @override
+  String get addedShort => 'Ajouté';
+
+  @override
+  String get removeFromPlaylist => 'Retirer de la playlist';
+
+  @override
+  String get moveUp => 'Monter';
+
+  @override
+  String get moveDown => 'Descendre';
+
+  @override
+  String get playlistFileType => 'Playlist M3U';
+
+  @override
+  String playlistActionFailed(String error) {
+    return 'L\'opération n\'a pas abouti : $error';
+  }
+
+  @override
+  String get close => 'Fermer';
 }

@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/playlists/playlists_data.dart';
 import 'package:miarina_media/features/search/search_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
@@ -11,6 +12,7 @@ import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/cinema.dart';
 import 'package:miarina_media/src/rust/api/focus.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
+import 'package:miarina_media/src/rust/api/playlists.dart';
 import 'package:miarina_media/src/rust/api/search.dart';
 
 class FakePlaybackStore implements PlaybackStore {
@@ -463,4 +465,79 @@ class FakeSearchApi implements SearchApi {
       total: BigInt.from(found.length),
     );
   }
+}
+
+/// Playlists in memory, same rules as the core (order kept, duplicates
+/// allowed, removing never touches the library).
+class FakePlaylistApi implements PlaylistApi {
+  FakePlaylistApi(this.library);
+
+  final List<LibraryItem> library;
+  final names = <int, String>{};
+  final entries = <int, List<int>>{};
+  var _next = 1;
+
+  int seed(String name, List<int> ids) {
+    final id = _next++;
+    names[id] = name;
+    entries[id] = [...ids];
+    return id;
+  }
+
+  LibraryItem _item(int id) => library.firstWhere((i) => i.id == id);
+
+  PlaylistInfo _info(int id) {
+    final items = entries[id]!.map(_item).toList();
+    return PlaylistInfo(
+      id: id,
+      name: names[id]!,
+      count: items.length,
+      durationSecs: items.fold(0.0, (t, i) => t + (i.durationSecs ?? 0)),
+      covers: const [],
+      updatedAt: DateTime.now().millisecondsSinceEpoch,
+    );
+  }
+
+  @override
+  Future<List<PlaylistInfo>> list() async => [
+    for (final id in names.keys) _info(id),
+  ];
+
+  @override
+  Future<PlaylistDetail?> get(int id) async => names.containsKey(id)
+      ? PlaylistDetail(info: _info(id), items: entries[id]!.map(_item).toList())
+      : null;
+
+  @override
+  Future<PlaylistInfo> create(String name, List<int> mediaIds) async =>
+      _info(seed(name, mediaIds));
+
+  @override
+  Future<void> rename(int id, String name) async => names[id] = name;
+
+  @override
+  Future<void> delete(int id) async {
+    names.remove(id);
+    entries.remove(id);
+  }
+
+  @override
+  Future<void> add(int id, List<int> mediaIds) async =>
+      entries[id]!.addAll(mediaIds);
+
+  @override
+  Future<void> remove(int id, int index) async => entries[id]!.removeAt(index);
+
+  @override
+  Future<void> move(int id, int from, int to) async {
+    final list = entries[id]!;
+    list.insert(to, list.removeAt(from));
+  }
+
+  @override
+  Future<ImportReport> importM3u(String path) async =>
+      throw UnimplementedError('file dialogs are not used in widget tests');
+
+  @override
+  Future<void> exportM3u(int id, String path) async {}
 }

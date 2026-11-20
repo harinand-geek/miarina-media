@@ -7,6 +7,7 @@ import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
 import 'api/library.dart';
+import 'api/playlists.dart';
 import 'api/search.dart';
 import 'api/settings.dart';
 
@@ -54,6 +55,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem dco_decode_box_autoadd_library_item(dynamic raw);
 
   @protected
+  PlaylistDetail dco_decode_box_autoadd_playlist_detail(dynamic raw);
+
+  @protected
   SeriesDetail dco_decode_box_autoadd_series_detail(dynamic raw);
 
   @protected
@@ -96,6 +100,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
+  ImportReport dco_decode_import_report(dynamic raw);
+
+  @protected
   LibraryGroup dco_decode_library_group(dynamic raw);
 
   @protected
@@ -127,6 +134,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<LibraryItem> dco_decode_list_library_item(dynamic raw);
+
+  @protected
+  List<PlaylistInfo> dco_decode_list_playlist_info(dynamic raw);
+
+  @protected
+  Int64List dco_decode_list_prim_i_64_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -162,6 +175,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem? dco_decode_opt_box_autoadd_library_item(dynamic raw);
 
   @protected
+  PlaylistDetail? dco_decode_opt_box_autoadd_playlist_detail(dynamic raw);
+
+  @protected
   SeriesDetail? dco_decode_opt_box_autoadd_series_detail(dynamic raw);
 
   @protected
@@ -169,6 +185,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
+
+  @protected
+  PlaylistDetail dco_decode_playlist_detail(dynamic raw);
+
+  @protected
+  PlaylistInfo dco_decode_playlist_info(dynamic raw);
 
   @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
@@ -231,6 +253,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   LibraryItem sse_decode_box_autoadd_library_item(SseDeserializer deserializer);
 
   @protected
+  PlaylistDetail sse_decode_box_autoadd_playlist_detail(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   SeriesDetail sse_decode_box_autoadd_series_detail(
     SseDeserializer deserializer,
   );
@@ -277,6 +304,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
+  ImportReport sse_decode_import_report(SseDeserializer deserializer);
+
+  @protected
   LibraryGroup sse_decode_library_group(SseDeserializer deserializer);
 
   @protected
@@ -314,6 +344,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<LibraryItem> sse_decode_list_library_item(SseDeserializer deserializer);
+
+  @protected
+  List<PlaylistInfo> sse_decode_list_playlist_info(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  Int64List sse_decode_list_prim_i_64_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -361,6 +399,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  PlaylistDetail? sse_decode_opt_box_autoadd_playlist_detail(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   SeriesDetail? sse_decode_opt_box_autoadd_series_detail(
     SseDeserializer deserializer,
   );
@@ -370,6 +413,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
+  PlaylistDetail sse_decode_playlist_detail(SseDeserializer deserializer);
+
+  @protected
+  PlaylistInfo sse_decode_playlist_info(SseDeserializer deserializer);
 
   @protected
   (String, String?) sse_decode_record_string_opt_string(
@@ -449,6 +498,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_playlist_detail(
+    PlaylistDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_series_detail(
     SeriesDetail self,
     SseSerializer serializer,
@@ -495,6 +550,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_import_report(ImportReport self, SseSerializer serializer);
 
   @protected
   void sse_encode_library_group(LibraryGroup self, SseSerializer serializer);
@@ -547,6 +605,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_library_item(
     List<LibraryItem> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_playlist_info(
+    List<PlaylistInfo> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_prim_i_64_strict(
+    Int64List self,
     SseSerializer serializer,
   );
 
@@ -608,6 +678,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_playlist_detail(
+    PlaylistDetail? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_series_detail(
     SeriesDetail? self,
     SseSerializer serializer,
@@ -618,6 +694,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_playlist_detail(
+    PlaylistDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_playlist_info(PlaylistInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_record_string_opt_string(

@@ -14,6 +14,7 @@ import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/history/history_screen.dart';
+import '../features/playlists/playlists_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/home/listen_home_screen.dart';
@@ -37,6 +38,7 @@ abstract final class Routes {
   static const artist = '/listen/music/artists/artist';
   static const tracks = '/listen/music/tracks';
   static const playlists = '/listen/music/playlists';
+  static const playlist = '/listen/music/playlists/playlist';
   static const favorites = '/listen/music/favorites';
   static const cinema = '/listen/cinema';
   static const series = '/listen/cinema/series';
@@ -157,7 +159,24 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ),
           ),
-          screen(Routes.playlists, () => const ComingSoon(screenId: 'W-M5')),
+          GoRoute(
+            path: Routes.playlists,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: const ValueKey('playlists'),
+              child: PlaylistsScreen(
+                selected: int.tryParse(state.uri.queryParameters['id'] ?? ''),
+              ),
+            ),
+          ),
+          GoRoute(
+            path: Routes.playlist,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: PlaylistPage(
+                id: int.tryParse(state.uri.queryParameters['id'] ?? '') ?? -1,
+              ),
+            ),
+          ),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
           screen(Routes.history, () => const HistoryScreen()),
           GoRoute(

@@ -681,5 +681,123 @@
   "aboutLicenses": "Licences des composants",
   "aboutLicensesBody": "Polices, icônes et bibliothèques intégrées",
   "show": "Afficher",
-  "aboutLocal": "Tout reste sur cet appareil : pas de compte, pas d'envoi de données."
+  "aboutLocal": "Tout reste sur cet appareil : pas de compte, pas d'envoi de données.",
+  "playlistNew": "Nouvelle",
+  "playlistImport": "Importer M3U",
+  "playlistExport": "Exporter",
+  "playlistModified": "Playlist · modifiée {when}",
+  "@playlistModified": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "agoNow": "à l'instant",
+  "agoMinutes": "il y a {count} min",
+  "@agoMinutes": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "agoHours": "il y a {count} h",
+  "@agoHours": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "agoDays": "{count, plural, =1{hier} other{il y a {count} jours}}",
+  "@agoDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "titlesCount": "{count, plural, =0{aucun titre} =1{1 titre} other{{count} titres}}",
+  "@titlesCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingCount": "{count, plural, =1{1 titre introuvable} other{{count} titres introuvables}}",
+  "@missingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "addTracks": "Ajouter des titres",
+  "playlistHint": "Glisser pour réordonner · Alt+↑/↓ au clavier · Suppr retire de la playlist (le fichier reste)",
+  "newPlaylistTitle": "Nouvelle playlist",
+  "playlistName": "Nom",
+  "addQueue": "{count, plural, =1{Ajouter le titre de la file d'attente} other{Ajouter les {count} titres de la file d'attente}}",
+  "@addQueue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "smartPlaylist": "Playlist intelligente (règles)",
+  "create": "Créer",
+  "rename": "Renommer",
+  "save": "Enregistrer",
+  "deletePlaylist": "Supprimer la playlist",
+  "deletePlaylistTitle": "Supprimer « {name} » ?",
+  "@deletePlaylistTitle": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deletePlaylistBody": "La playlist est supprimée. Les fichiers restent dans la bibliothèque.",
+  "delete": "Supprimer",
+  "importDone": "« {name} » : {added} titres ajoutés, {skipped} introuvables ou en ligne.",
+  "@importDone": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "added": {
+        "type": "int"
+      },
+      "skipped": {
+        "type": "int"
+      }
+    }
+  },
+  "exportDone": "Playlist enregistrée : {path}",
+  "@exportDone": {
+    "placeholders": {
+      "path": {
+        "type": "String"
+      }
+    }
+  },
+  "playlistsEmptyTitle": "Aucune playlist",
+  "playlistsEmptyBody": "Créez une playlist ou importez un fichier M3U.",
+  "playlistEmpty": "Cette playlist est vide. Ajoutez des titres.",
+  "addedShort": "Ajouté",
+  "removeFromPlaylist": "Retirer de la playlist",
+  "moveUp": "Monter",
+  "moveDown": "Descendre",
+  "playlistFileType": "Playlist M3U",
+  "playlistActionFailed": "L'opération n'a pas abouti : {error}",
+  "@playlistActionFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "close": "Fermer"
 }

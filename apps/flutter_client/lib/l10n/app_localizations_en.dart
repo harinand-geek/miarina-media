@@ -1270,4 +1270,158 @@ class L10nEn extends L10n {
   @override
   String get aboutLocal =>
       'Everything stays on this device: no account, no data sent.';
+
+  @override
+  String get playlistNew => 'New';
+
+  @override
+  String get playlistImport => 'Import M3U';
+
+  @override
+  String get playlistExport => 'Export';
+
+  @override
+  String playlistModified(String when) {
+    return 'Playlist · changed $when';
+  }
+
+  @override
+  String get agoNow => 'just now';
+
+  @override
+  String agoMinutes(int count) {
+    return '$count min ago';
+  }
+
+  @override
+  String agoHours(int count) {
+    return '$count h ago';
+  }
+
+  @override
+  String agoDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days ago',
+      one: 'yesterday',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String titlesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count tracks',
+      one: '1 track',
+      zero: 'no tracks',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count missing tracks',
+      one: '1 missing track',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get addTracks => 'Add tracks';
+
+  @override
+  String get playlistHint =>
+      'Drag to reorder · Alt+↑/↓ on the keyboard · Del removes from the playlist (the file stays)';
+
+  @override
+  String get newPlaylistTitle => 'New playlist';
+
+  @override
+  String get playlistName => 'Name';
+
+  @override
+  String addQueue(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Add the $count tracks of the queue',
+      one: 'Add the track of the queue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get smartPlaylist => 'Smart playlist (rules)';
+
+  @override
+  String get create => 'Create';
+
+  @override
+  String get rename => 'Rename';
+
+  @override
+  String get save => 'Save';
+
+  @override
+  String get deletePlaylist => 'Delete the playlist';
+
+  @override
+  String deletePlaylistTitle(String name) {
+    return 'Delete “$name”?';
+  }
+
+  @override
+  String get deletePlaylistBody =>
+      'The playlist is deleted. The files stay in the library.';
+
+  @override
+  String get delete => 'Delete';
+
+  @override
+  String importDone(String name, int added, int skipped) {
+    return '“$name”: $added tracks added, $skipped missing or online.';
+  }
+
+  @override
+  String exportDone(String path) {
+    return 'Playlist saved: $path';
+  }
+
+  @override
+  String get playlistsEmptyTitle => 'No playlists';
+
+  @override
+  String get playlistsEmptyBody => 'Create a playlist or import an M3U file.';
+
+  @override
+  String get playlistEmpty => 'This playlist is empty. Add tracks.';
+
+  @override
+  String get addedShort => 'Added';
+
+  @override
+  String get removeFromPlaylist => 'Remove from the playlist';
+
+  @override
+  String get moveUp => 'Move up';
+
+  @override
+  String get moveDown => 'Move down';
+
+  @override
+  String get playlistFileType => 'M3U playlist';
+
+  @override
+  String playlistActionFailed(String error) {
+    return 'The operation failed: $error';
+  }
+
+  @override
+  String get close => 'Close';
 }

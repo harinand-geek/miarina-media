@@ -223,10 +223,7 @@ void main() {
       );
       await tester.tap(find.text('Remplacer'));
       await settle(tester);
-      expect(
-        find.bySemanticsLabel(RegExp('^Sous-titres : M')),
-        findsOneWidget,
-      );
+      expect(find.bySemanticsLabel(RegExp('^Sous-titres : M')), findsOneWidget);
       expect(
         find.bySemanticsLabel(RegExp('^Couper le son : Aucune')),
         findsOneWidget,
