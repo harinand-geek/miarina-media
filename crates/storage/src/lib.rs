@@ -13,7 +13,7 @@ mod upgrade;
 pub use browser_history::{VISITS_MAX, VISITS_PAGE_MAX, Visit};
 pub use media::{
     GroupBy, IndexProgress, MediaGroup, MediaPage, MediaProbe, MediaQuery, MediaRecord, MediaSort,
-    MediaStats, MediaTags, NewMedia, fts_query,
+    MediaStats, MediaTags, NewMedia, artist_key, fts_query,
 };
 pub use playback::{
     PLAYBACK_IMPORTED, PLAYBACK_ROWS_MAX, PLAYBACK_VALUE_MAX, is_playback_key, position_key,

@@ -298,7 +298,16 @@ class _Header extends ConsumerWidget {
                           Wrap(
                             crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
-                              if (artist != null)
+                              // A compilation's "Various Artists" is not
+                              // an artist page (its tracks go to their own).
+                              if (artist != null && group?.compilation == true)
+                                Text(
+                                  artist,
+                                  style: MmType.labelStrong.copyWith(
+                                    color: c.fg,
+                                  ),
+                                )
+                              else if (artist != null)
                                 Pressable(
                                   onTap: () => openGroup(context, ref, (
                                     kind: GroupKind.artist,

@@ -126,8 +126,22 @@ impl MediaTags {
 #[serde(rename_all = "snake_case")]
 pub enum GroupBy {
     Album,
+    /// By track artist (the Tauri app's grouping).
     Artist,
+    /// By album artist, so featurings do not split an artist (W-M1b);
+    /// compilation tracks ("Various Artists") go to their track artist.
+    AlbumArtist,
     Folder,
+}
+
+/// The artist a track is grouped under with [`GroupBy::AlbumArtist`];
+/// `prefix` is the table alias ("m." or "").
+pub fn artist_key(prefix: &str) -> String {
+    format!(
+        "(CASE WHEN {prefix}album_artist IS NOT NULL \
+          AND lower(trim({prefix}album_artist)) NOT IN ({VARIOUS}) \
+          THEN {prefix}album_artist ELSE {prefix}artist END)"
+    )
 }
 
 /// One album, artist or folder of the music library.
@@ -184,6 +198,8 @@ pub struct MediaQuery {
     /// Tracks of one album / artist / folder (sub-folders included).
     pub album: Option<String>,
     pub artist: Option<String>,
+    /// Tracks grouped under this artist by [`GroupBy::AlbumArtist`].
+    pub artist_group: Option<String>,
     pub folder: Option<String>,
     /// Favorites only (COM-06).
     pub favorites: bool,
@@ -389,6 +405,10 @@ impl Storage {
                 .push("(m.artist = ? COLLATE NOCASE OR m.album_artist = ? COLLATE NOCASE)".into());
             values.push(Value::Text(artist.clone()));
             values.push(Value::Text(artist.clone()));
+        }
+        if let Some(name) = &query.artist_group {
+            conditions.push(format!("{} = ? COLLATE NOCASE", artist_key("m.")));
+            values.push(Value::Text(name.clone()));
         }
         if query.favorites {
             conditions.push("m.favorite = 1".into());
@@ -706,6 +726,16 @@ impl Storage {
                  FROM media WHERE kind = 'audio' AND missing = 0 AND artist IS NOT NULL \
                  GROUP BY artist COLLATE NOCASE ORDER BY artist COLLATE NOCASE"
             ),
+            GroupBy::AlbumArtist => {
+                let key = artist_key("");
+                format!(
+                    "SELECT min({key}), CAST(count(DISTINCT album COLLATE NOCASE) AS TEXT), \
+                     count(*), coalesce(sum(duration_secs), 0.0), max(year), max(thumbnail), \
+                     {AGGREGATES}, 0 \
+                     FROM media WHERE kind = 'audio' AND missing = 0 AND {key} IS NOT NULL \
+                     GROUP BY {key} COLLATE NOCASE ORDER BY {key} COLLATE NOCASE"
+                )
+            }
             GroupBy::Folder => return self.media_folders(),
         };
         let mut stmt = self.conn.prepare(&sql)?;

@@ -176,7 +176,7 @@ pub fn library_tracks(
             kind: Some(MediaKind::Audio),
             favorites: favorites_only,
             album,
-            artist,
+            artist_group: artist,
             sort,
             reverse,
             added_since,
@@ -198,7 +198,8 @@ pub fn library_tracks(
 pub fn library_groups(db_path: String, by: String) -> Result<Vec<LibraryGroup>> {
     let by = match by.as_str() {
         "album" => GroupBy::Album,
-        "artist" => GroupBy::Artist,
+        // W-M1b: grouped by album artist, featurings stay with the artist.
+        "artist" => GroupBy::AlbumArtist,
         other => return Err(anyhow!("unknown grouping: {other}")),
     };
     with_db(&db_path, |db| {

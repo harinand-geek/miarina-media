@@ -938,3 +938,65 @@ fn groups_carry_what_albums_filter_and_sort_on() {
         .unwrap();
     assert_eq!(top.items[0].title, "Deux", "most played first");
 }
+
+#[test]
+fn artists_group_by_album_artist_except_compilations() {
+    let storage = Storage::open_in_memory().unwrap();
+    let tag = |path: &str, artist: &str, album: &str, album_artist: Option<&str>| {
+        let r = audio(&storage, path, path);
+        storage
+            .update_media_tags(
+                r.id,
+                &MediaTags {
+                    title: Some(path.into()),
+                    artist: Some(artist.into()),
+                    album: Some(album.into()),
+                    album_artist: album_artist.map(Into::into),
+                    ..Default::default()
+                },
+            )
+            .unwrap();
+    };
+    tag("C:/1.mp3", "Nafy Rakoto", "Saisons", Some("Nafy Rakoto"));
+    tag(
+        "C:/2.mp3",
+        "Nafy Rakoto, Toky",
+        "Saisons",
+        Some("Nafy Rakoto"),
+    );
+    tag("C:/3.mp3", "Toky", "Hits", Some("Various Artists"));
+    tag("C:/4.mp3", "Iony", "Ville", None);
+
+    let names = |by| {
+        storage
+            .media_groups(by)
+            .unwrap()
+            .into_iter()
+            .map(|g| (g.name, g.count))
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(
+        names(GroupBy::AlbumArtist),
+        [
+            ("Iony".to_owned(), 1),
+            ("Nafy Rakoto".to_owned(), 2),
+            ("Toky".to_owned(), 1)
+        ],
+        "the featuring stays with Nafy; the compilation track goes to Toky"
+    );
+    assert_eq!(names(GroupBy::Artist).len(), 4, "track artists unchanged");
+
+    let of = |name: &str| {
+        storage
+            .query_media(&MediaQuery {
+                artist_group: Some(name.into()),
+                ..Default::default()
+            })
+            .unwrap()
+            .total
+    };
+    assert_eq!(
+        (of("nafy rakoto"), of("Toky"), of("Various Artists")),
+        (2, 1, 0)
+    );
+}

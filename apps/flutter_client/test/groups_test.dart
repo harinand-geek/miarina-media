@@ -199,4 +199,19 @@ void main() {
       reason: 'never played: only in the full list',
     );
   });
+
+  testWidgets('the album artist of a compilation is not a link', (
+    tester,
+  ) async {
+    library.compilations = {'été 2024'};
+    await pumpApp(
+      tester,
+      '${Routes.album}?name=${Uri.encodeComponent('Été 2024')}',
+    );
+    expect(find.text('Toky'), findsWidgets);
+    await tester.tap(find.text('Toky').first);
+    await settle(tester);
+    expect(find.text('Été 2024'), findsWidgets, reason: 'still on the album');
+    expect(find.text('Les plus écoutés'), findsNothing);
+  });
 }
