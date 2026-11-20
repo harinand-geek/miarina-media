@@ -4,16 +4,21 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/licenses.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
+import '../../design/widgets/logo.dart';
 import '../../design/widgets/pressable.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart';
-import '../library/groups.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
+import '../history/history_data.dart';
+import '../history/history_screen.dart' show confirmClearHistory;
+import '../library/library_data.dart';
 import '../playback/playback.dart';
+import '../shortcuts/shortcuts_view.dart';
 import '../now_playing/now_playing_screen.dart' show lastLocationProvider;
 import 'settings_data.dart';
 
@@ -133,50 +138,52 @@ class _SettingsNav extends ConsumerWidget {
           ),
         ),
         for (final s in SettingsSection.values)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 2),
-            child: Pressable(
-              onTap: s == current
-                  ? null
-                  : () => mobile
-                        ? context.push(sectionPath(s))
-                        : context.go(sectionPath(s)),
-              selected: s == current,
-              semanticLabel: sectionLabel(t, s),
-              borderRadius: BorderRadius.circular(MmRadius.pill),
-              hoverColor: c.cardHover,
-              child: Container(
-                height: mobile ? 52 : 38,
-                padding: const EdgeInsets.symmetric(horizontal: 14),
-                decoration: BoxDecoration(
-                  color: s == current ? c.surface : Colors.transparent,
-                  borderRadius: BorderRadius.circular(MmRadius.pill),
-                  border: Border.all(
-                    color: s == current ? c.line : Colors.transparent,
+          // Keyboard shortcuts are a desktop matter.
+          if (!mobile || s != SettingsSection.shortcuts)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 2),
+              child: Pressable(
+                onTap: s == current
+                    ? null
+                    : () => mobile
+                          ? context.push(sectionPath(s))
+                          : context.go(sectionPath(s)),
+                selected: s == current,
+                semanticLabel: sectionLabel(t, s),
+                borderRadius: BorderRadius.circular(MmRadius.pill),
+                hoverColor: c.cardHover,
+                child: Container(
+                  height: mobile ? 52 : 38,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                  decoration: BoxDecoration(
+                    color: s == current ? c.surface : Colors.transparent,
+                    borderRadius: BorderRadius.circular(MmRadius.pill),
+                    border: Border.all(
+                      color: s == current ? c.line : Colors.transparent,
+                    ),
                   ),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        sectionLabel(t, s),
-                        style: MmType.label.copyWith(
-                          fontSize: mobile ? 15 : 13.5,
-                          color: s == current ? c.fg : c.fgSoft,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          sectionLabel(t, s),
+                          style: MmType.label.copyWith(
+                            fontSize: mobile ? 15 : 13.5,
+                            color: s == current ? c.fg : c.fgSoft,
+                          ),
                         ),
                       ),
-                    ),
-                    if (mobile)
-                      Icon(
-                        PhosphorRegular.caretRight,
-                        size: 18,
-                        color: c.faint,
-                      ),
-                  ],
+                      if (mobile)
+                        Icon(
+                          PhosphorRegular.caretRight,
+                          size: 18,
+                          color: c.faint,
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
       ],
     );
   }
@@ -196,14 +203,10 @@ class _SectionPage extends ConsumerWidget {
       SettingsSection.general => const _General(),
       SettingsSection.appearance => const _Appearance(),
       SettingsSection.playback => const _Playback(),
-      _ => Padding(
-        padding: const EdgeInsets.only(top: 24),
-        child: LibraryMessage(
-          icon: PhosphorRegular.gearSix,
-          title: t.comingSoonTitle,
-          body: t.comingSoonBody,
-        ),
-      ),
+      SettingsSection.shortcuts => const ShortcutsView(),
+      SettingsSection.library => const _Library(),
+      SettingsSection.data => const _Data(),
+      SettingsSection.about => const _About(),
     };
     return ListView(
       padding: EdgeInsets.fromLTRB(
@@ -240,7 +243,9 @@ class _SectionPage extends ConsumerWidget {
                     ),
                   ),
                 Text(
-                  sectionLabel(t, section),
+                  section == SettingsSection.shortcuts
+                      ? t.keysTitle
+                      : sectionLabel(t, section),
                   style: MmType.display.copyWith(color: c.fg),
                 ),
                 const SizedBox(height: 18),
@@ -754,6 +759,215 @@ class _Playback extends ConsumerWidget {
                   onChanged: (v) => engine(withEngine(e, sidecarSubtitles: v)),
                 ),
               ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _PathRow extends StatelessWidget {
+  const _PathRow({required this.title, required this.body, required this.path});
+
+  final String title;
+  final String body;
+  final String? path;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final p = path;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: MmType.labelStrong.copyWith(color: c.fg)),
+                const SizedBox(height: 2),
+                Text(
+                  body,
+                  style: MmType.caption.copyWith(
+                    fontSize: 12.5,
+                    color: c.muted,
+                  ),
+                ),
+                if (p != null) ...[
+                  const SizedBox(height: 6),
+                  SelectableText(
+                    p,
+                    style: MmType.monoStyle(size: 11.5, color: c.fgSoft),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          // Windows: shown in Explorer (arguments passed as a list, never a
+          // shell string).
+          if (p != null && Platform.isWindows) ...[
+            const SizedBox(width: 16),
+            _OutlinedAction(
+              label: t.openFolder,
+              onTap: () => Process.run('explorer.exe', [p]),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _Library extends ConsumerWidget {
+  const _Library();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final stats = ref.watch(libraryStatsProvider).value;
+    Widget count(String label, BigInt? n) => SettingsRow(
+      title: label,
+      control: Text(
+        n == null ? '…' : '$n',
+        style: MmType.monoStyle(size: 13, weight: 700, color: c.fg),
+      ),
+    );
+    return SettingsGroup(
+      rows: [
+        count(t.libraryTracks, stats?.audioCount),
+        count(t.libraryVideos, stats?.videoCount),
+      ],
+    );
+  }
+}
+
+class _Data extends ConsumerWidget {
+  const _Data();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = L10n.of(context);
+    final dir = ref.watch(dataDirProvider).value;
+    final hasHistory = ref.watch(historyProvider).value?.isNotEmpty ?? false;
+    return SettingsGroup(
+      rows: [
+        _PathRow(title: t.dataFolder, body: t.dataFolderBody, path: dir),
+        SettingsRow(
+          title: t.playHistory,
+          body: t.playHistoryBody,
+          control: _OutlinedAction(
+            label: t.historyClear,
+            onTap: hasHistory ? () => confirmClearHistory(context, ref) : null,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OutlinedAction extends StatelessWidget {
+  const _OutlinedAction({required this.label, required this.onTap});
+
+  final String label;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      child: Opacity(
+        opacity: onTap == null ? 0.5 : 1,
+        child: Container(
+          height: 34,
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(MmRadius.pill),
+            border: Border.all(color: c.lineStrong),
+          ),
+          child: Center(
+            widthFactor: 1,
+            child: Text(
+              label,
+              style: MmType.labelStrong.copyWith(fontSize: 13, color: c.fg),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Version given at build time (--dart-define=MM_VERSION=...); a local build
+/// says it is one.
+const appVersion = String.fromEnvironment('MM_VERSION');
+
+class _About extends StatelessWidget {
+  const _About();
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final version = appVersion.isEmpty ? t.aboutDevBuild : appVersion;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const MiarinaLogo(size: 48),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.appTitle, style: MmType.title.copyWith(color: c.fg)),
+                  Text(
+                    t.aboutLocal,
+                    style: MmType.bodySm.copyWith(color: c.muted),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 22),
+        SettingsGroup(
+          rows: [
+            SettingsRow(
+              title: t.aboutVersion,
+              control: Text(
+                version,
+                style: MmType.monoStyle(size: 12.5, color: c.fg),
+              ),
+            ),
+            SettingsRow(
+              title: t.aboutLicense,
+              control: Text(
+                'GPL-3.0-only',
+                style: MmType.monoStyle(size: 12.5, color: c.fg),
+              ),
+            ),
+            SettingsRow(
+              title: t.aboutLicenses,
+              body: t.aboutLicensesBody,
+              control: _OutlinedAction(
+                label: t.show,
+                onTap: () {
+                  registerAssetLicenses();
+                  showLicensePage(
+                    context: context,
+                    applicationName: t.appTitle,
+                    applicationVersion: version,
+                    applicationLegalese: 'GPL-3.0-only',
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ],

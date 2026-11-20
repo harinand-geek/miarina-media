@@ -110,6 +110,7 @@ class EngineCapabilities {
     this.exclusiveAudio = false,
     this.sidecarSubtitles = false,
     this.subtitleLanguage = false,
+    this.frameStep = false,
   });
 
   final bool video;
@@ -128,6 +129,9 @@ class EngineCapabilities {
   final bool exclusiveAudio;
   final bool sidecarSubtitles;
   final bool subtitleLanguage;
+
+  /// One picture forward while paused (the '.' key).
+  final bool frameStep;
 }
 
 class PlaybackError {
@@ -275,6 +279,9 @@ abstract interface class MediaEngine {
   /// Outputs the user can choose from ('auto' first); empty when the
   /// platform decides alone.
   Future<List<AudioOutput>> audioOutputs();
+
+  /// Shows the next picture and stays paused (video only).
+  Future<void> frameStep();
 
   /// Applies the playback settings to what plays and what will.
   Future<void> applyPreferences(EnginePreferences preferences);

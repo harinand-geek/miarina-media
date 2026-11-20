@@ -29,49 +29,6 @@ class HistoryScreen extends ConsumerStatefulWidget {
 class _HistoryScreenState extends ConsumerState<HistoryScreen> {
   HistorySection? _filter;
 
-  Future<void> _confirmClear() async {
-    final t = L10n.of(context);
-    final c = MmColors.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: c.surface2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(MmRadius.sheet),
-          side: BorderSide(color: c.overlayBorder),
-        ),
-        title: Text(
-          t.historyClearTitle,
-          style: MmType.title.copyWith(color: c.fg),
-        ),
-        content: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 420),
-          child: Text(
-            t.historyClearBody,
-            style: MmType.body.copyWith(color: c.fgSoft),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(
-              t.cancel,
-              style: MmType.labelStrong.copyWith(color: c.fg),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(
-              t.clear,
-              style: MmType.labelStrong.copyWith(color: c.danger),
-            ),
-          ),
-        ],
-      ),
-    );
-    if (ok == true) await clearHistory(ref);
-  }
-
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
@@ -133,7 +90,9 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               ),
               const SizedBox(width: 12),
               Pressable(
-                onTap: (history.value?.isEmpty ?? true) ? null : _confirmClear,
+                onTap: (history.value?.isEmpty ?? true)
+                    ? null
+                    : () => confirmClearHistory(context, ref),
                 semanticLabel: t.historyClear,
                 child: Container(
                   height: 36,
@@ -404,4 +363,49 @@ class _HistoryLine extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Asks before forgetting the plays (files, favorites and resume points
+/// are kept).
+Future<void> confirmClearHistory(BuildContext context, WidgetRef ref) async {
+  final t = L10n.of(context);
+  final c = MmColors.of(context);
+  final ok = await showDialog<bool>(
+    context: context,
+    builder: (context) => AlertDialog(
+      backgroundColor: c.surface2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MmRadius.sheet),
+        side: BorderSide(color: c.overlayBorder),
+      ),
+      title: Text(
+        t.historyClearTitle,
+        style: MmType.title.copyWith(color: c.fg),
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 420),
+        child: Text(
+          t.historyClearBody,
+          style: MmType.body.copyWith(color: c.fgSoft),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(false),
+          child: Text(
+            t.cancel,
+            style: MmType.labelStrong.copyWith(color: c.fg),
+          ),
+        ),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(true),
+          child: Text(
+            t.clear,
+            style: MmType.labelStrong.copyWith(color: c.danger),
+          ),
+        ),
+      ],
+    ),
+  );
+  if (ok == true) await clearHistory(ref);
 }

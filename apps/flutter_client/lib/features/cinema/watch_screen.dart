@@ -16,6 +16,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
+import '../shortcuts/keymap.dart';
 import 'cinema_data.dart';
 
 /// Full screen of the video player (W-C4). On Windows it also switches the
@@ -140,19 +141,10 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
     if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
-    final k = e.logicalKey;
-    final queue = ref.read(queueProvider.notifier);
     final full = ref.read(videoFullscreenProvider.notifier);
     _wake();
-    if (k == LogicalKeyboardKey.space || k == LogicalKeyboardKey.keyK) {
-      queue.togglePlay();
-    } else if (k == LogicalKeyboardKey.arrowLeft) {
-      _skip(const Duration(seconds: -10));
-    } else if (k == LogicalKeyboardKey.arrowRight) {
-      _skip(const Duration(seconds: 10));
-    } else if (k == LogicalKeyboardKey.keyF && e is KeyDownEvent) {
-      full.toggle();
-    } else if (k == LogicalKeyboardKey.escape && e is KeyDownEvent) {
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      if (e is! KeyDownEvent) return KeyEventResult.handled;
       if (_menu != null) {
         setState(() => _menu = null);
       } else if (ref.read(videoFullscreenProvider)) {
@@ -160,12 +152,26 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
       } else {
         _leave();
       }
-    } else if (k == LogicalKeyboardKey.keyC && e is KeyDownEvent) {
-      _toggleMenu(_Menu.subtitles);
-    } else if (k == LogicalKeyboardKey.keyA && e is KeyDownEvent) {
-      _toggleMenu(_Menu.audio);
-    } else {
-      return KeyEventResult.ignored;
+      return KeyEventResult.handled;
+    }
+    // Keys from Settings › Shortcuts: the player's own first (F, C, A, .),
+    // then the global ones it answers itself; the rest goes to the window.
+    final map = ref.read(keymapProvider).value ?? const Keymap();
+    final action = map.actionFor(e, const {ShortcutScope.video});
+    final repeat = e is KeyRepeatEvent;
+    switch (action) {
+      case ShortcutAction.fullscreen when !repeat:
+        full.toggle();
+      case ShortcutAction.subtitles when !repeat:
+        _toggleMenu(_Menu.subtitles);
+      case ShortcutAction.audioTrack when !repeat:
+        _toggleMenu(_Menu.audio);
+      case ShortcutAction.frameStep:
+        ref.read(mediaEngineProvider)?.frameStep();
+      case null:
+        return KeyEventResult.ignored;
+      default:
+        return KeyEventResult.handled;
     }
     return KeyEventResult.handled;
   }

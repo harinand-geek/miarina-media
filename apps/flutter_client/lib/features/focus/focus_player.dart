@@ -19,6 +19,7 @@ import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/focus.dart';
 import '../cinema/watch_screen.dart' show speedLabel;
 import '../playback/playback.dart';
+import '../shortcuts/keymap.dart';
 import 'focus_data.dart';
 import 'focus_screen.dart';
 
@@ -134,19 +135,24 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
     if (e is! KeyDownEvent && e is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
     }
-    final k = e.logicalKey;
-    if (k == LogicalKeyboardKey.space) {
-      ref.read(queueProvider.notifier).togglePlay();
-    } else if (k == LogicalKeyboardKey.arrowLeft) {
-      _skip(const Duration(seconds: -10));
-    } else if (k == LogicalKeyboardKey.arrowRight) {
-      _skip(const Duration(seconds: 30));
-    } else if (k == LogicalKeyboardKey.keyB && e is KeyDownEvent) {
-      _bookmark();
-    } else if (k == LogicalKeyboardKey.escape && e is KeyDownEvent) {
-      _leave();
-    } else {
-      return KeyEventResult.ignored;
+    if (e.logicalKey == LogicalKeyboardKey.escape) {
+      if (e is KeyDownEvent) _leave();
+      return KeyEventResult.handled;
+    }
+    // Keys from Settings › Shortcuts. Long format: forward is +30 s here.
+    final map = ref.read(keymapProvider).value ?? const Keymap();
+    switch (map.actionFor(e, const {
+      ShortcutScope.focus,
+      ShortcutScope.global,
+    })) {
+      case ShortcutAction.bookmark:
+        if (e is KeyDownEvent) _bookmark();
+      case ShortcutAction.seekBack:
+        _skip(const Duration(seconds: -10));
+      case ShortcutAction.seekForward:
+        _skip(const Duration(seconds: 30));
+      default:
+        return KeyEventResult.ignored;
     }
     return KeyEventResult.handled;
   }

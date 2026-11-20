@@ -195,6 +195,9 @@ class Media3Engine implements MediaEngine {
   Future<List<AudioOutput>> audioOutputs() async => const [];
 
   @override
+  Future<void> frameStep() async {}
+
+  @override
   Future<void> applyPreferences(EnginePreferences p) =>
       _methods.invokeMethod<void>('setPreferredSubtitle', {
         'language': p.subtitleLanguage,

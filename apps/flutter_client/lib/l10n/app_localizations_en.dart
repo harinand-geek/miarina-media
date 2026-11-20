@@ -1113,4 +1113,161 @@ class L10nEn extends L10n {
 
   @override
   String get p1Badge => 'P1';
+
+  @override
+  String get keyPlayPause => 'Play / pause';
+
+  @override
+  String get keyPrevious => 'Previous track';
+
+  @override
+  String get keyNext => 'Next track';
+
+  @override
+  String get keySeekBack => 'Back 10 s';
+
+  @override
+  String get keySeekForward => 'Forward 10 s';
+
+  @override
+  String get keyVolumeUp => 'Volume up';
+
+  @override
+  String get keyVolumeDown => 'Volume down';
+
+  @override
+  String get keyMute => 'Mute';
+
+  @override
+  String get keySearch => 'Search';
+
+  @override
+  String get keyBack => 'Back';
+
+  @override
+  String get keyForward => 'Forward';
+
+  @override
+  String get keyToggleSidebar => 'Collapse the sidebar';
+
+  @override
+  String get keyNowPlaying => 'Now playing';
+
+  @override
+  String get keyFullscreen => 'Full screen';
+
+  @override
+  String get keySubtitles => 'Subtitles';
+
+  @override
+  String get keyAudioTrack => 'Audio track';
+
+  @override
+  String get keyFrameStep => 'Next frame (paused)';
+
+  @override
+  String get keyBookmark => 'Add a bookmark';
+
+  @override
+  String get keyLyrics => 'Lyrics';
+
+  @override
+  String get keyMiniPlayer => 'Mini player';
+
+  @override
+  String get keySpeedDown => 'Speed −';
+
+  @override
+  String get keySpeedUp => 'Speed +';
+
+  @override
+  String get keysPlayback => 'Playback';
+
+  @override
+  String get keysNavigation => 'Navigation';
+
+  @override
+  String get keysVideo => 'Video';
+
+  @override
+  String get keysFocus => 'Focus and windows';
+
+  @override
+  String get keysTitle => 'Keyboard shortcuts';
+
+  @override
+  String get keysSearch => 'Search shortcuts';
+
+  @override
+  String get keysReset => 'Restore defaults';
+
+  @override
+  String get keysHint =>
+      'Click a key to change it; a conflict is shown before it is saved. Esc cancels.';
+
+  @override
+  String get keyPress => 'Press a key…';
+
+  @override
+  String get keyNone => 'None';
+
+  @override
+  String get keyShift => 'Shift';
+
+  @override
+  String get keySpace => 'Space';
+
+  @override
+  String keyConflict(String key, String action) {
+    return '$key is already used by “$action”.';
+  }
+
+  @override
+  String get keyReplace => 'Replace';
+
+  @override
+  String get keyRemove => 'Remove the key';
+
+  @override
+  String get libraryTracks => 'Audio files';
+
+  @override
+  String get libraryVideos => 'Videos';
+
+  @override
+  String get dataFolder => 'Data folder';
+
+  @override
+  String get dataFolderBody => 'Library database, settings and covers';
+
+  @override
+  String get openFolder => 'Open the folder';
+
+  @override
+  String get playHistory => 'Play history';
+
+  @override
+  String get playHistoryBody => 'Plays and positions shown in History';
+
+  @override
+  String get aboutVersion => 'Version';
+
+  @override
+  String get aboutDevBuild => 'Development build';
+
+  @override
+  String get aboutLicense => 'License';
+
+  @override
+  String get aboutLicenses => 'Component licenses';
+
+  @override
+  String get aboutLicensesBody => 'Bundled fonts, icons and libraries';
+
+  @override
+  String get show => 'Show';
+
+  @override
+  String get aboutLocal =>
+      'Everything stays on this device: no account, no data sent.';
 }

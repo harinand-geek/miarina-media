@@ -39,6 +39,7 @@ class MpvEngine implements MediaEngine {
     exclusiveAudio: true,
     sidecarSubtitles: true,
     subtitleLanguage: true,
+    frameStep: true,
   );
 
   /// mpv wants the 2- and 3-letter codes a file may use.
@@ -62,6 +63,12 @@ class MpvEngine implements MediaEngine {
             : (d.description.isEmpty ? d.name : d.description),
       ),
   ];
+
+  @override
+  Future<void> frameStep() async {
+    final native = _player.platform;
+    if (native is mk.NativePlayer) await native.command(['frame-step']);
+  }
 
   @override
   Future<void> applyPreferences(EnginePreferences p) async {

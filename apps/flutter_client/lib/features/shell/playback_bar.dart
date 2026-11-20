@@ -14,6 +14,7 @@ import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
+import '../shortcuts/global_shortcuts.dart';
 
 /// Windows playback bar (Handoff, shell): 80 px, full width, always visible;
 /// grid 320 / 1fr / 320. Below 1024 px the side columns shrink.
@@ -277,8 +278,6 @@ class _SideControls extends ConsumerStatefulWidget {
 }
 
 class _SideControlsState extends ConsumerState<_SideControls> {
-  double _beforeMute = 1;
-
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
@@ -325,14 +324,7 @@ class _SideControlsState extends ConsumerState<_SideControls> {
           size: 20,
           label: muted ? t.unmute : t.mute,
           color: c.muted,
-          onTap: () {
-            if (muted) {
-              engine?.setVolume(_beforeMute <= 0.001 ? 1 : _beforeMute);
-            } else {
-              _beforeMute = volume;
-              engine?.setVolume(0);
-            }
-          },
+          onTap: () => ref.read(muteProvider.notifier).toggle(),
         ),
         const SizedBox(width: 10),
         SizedBox(

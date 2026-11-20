@@ -1116,4 +1116,162 @@ class L10nFr extends L10n {
 
   @override
   String get p1Badge => 'P1';
+
+  @override
+  String get keyPlayPause => 'Lecture / pause';
+
+  @override
+  String get keyPrevious => 'Titre précédent';
+
+  @override
+  String get keyNext => 'Titre suivant';
+
+  @override
+  String get keySeekBack => 'Reculer de 10 s';
+
+  @override
+  String get keySeekForward => 'Avancer de 10 s';
+
+  @override
+  String get keyVolumeUp => 'Monter le volume';
+
+  @override
+  String get keyVolumeDown => 'Baisser le volume';
+
+  @override
+  String get keyMute => 'Couper le son';
+
+  @override
+  String get keySearch => 'Rechercher';
+
+  @override
+  String get keyBack => 'Retour';
+
+  @override
+  String get keyForward => 'Avant';
+
+  @override
+  String get keyToggleSidebar => 'Replier la barre latérale';
+
+  @override
+  String get keyNowPlaying => 'En lecture';
+
+  @override
+  String get keyFullscreen => 'Plein écran';
+
+  @override
+  String get keySubtitles => 'Sous-titres';
+
+  @override
+  String get keyAudioTrack => 'Piste audio';
+
+  @override
+  String get keyFrameStep => 'Image suivante (pause)';
+
+  @override
+  String get keyBookmark => 'Ajouter un signet';
+
+  @override
+  String get keyLyrics => 'Paroles';
+
+  @override
+  String get keyMiniPlayer => 'Mini-lecteur';
+
+  @override
+  String get keySpeedDown => 'Vitesse −';
+
+  @override
+  String get keySpeedUp => 'Vitesse +';
+
+  @override
+  String get keysPlayback => 'Lecture';
+
+  @override
+  String get keysNavigation => 'Navigation';
+
+  @override
+  String get keysVideo => 'Vidéo';
+
+  @override
+  String get keysFocus => 'Focus et fenêtres';
+
+  @override
+  String get keysTitle => 'Raccourcis clavier';
+
+  @override
+  String get keysSearch => 'Rechercher un raccourci';
+
+  @override
+  String get keysReset => 'Rétablir les valeurs';
+
+  @override
+  String get keysHint =>
+      'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule.';
+
+  @override
+  String get keyPress => 'Appuyez sur une touche…';
+
+  @override
+  String get keyNone => 'Aucune';
+
+  @override
+  String get keyShift => 'Maj';
+
+  @override
+  String get keySpace => 'Espace';
+
+  @override
+  String keyConflict(String key, String action) {
+    return '$key est déjà utilisé par « $action ».';
+  }
+
+  @override
+  String get keyReplace => 'Remplacer';
+
+  @override
+  String get keyRemove => 'Retirer la touche';
+
+  @override
+  String get libraryTracks => 'Titres audio';
+
+  @override
+  String get libraryVideos => 'Vidéos';
+
+  @override
+  String get dataFolder => 'Dossier des données';
+
+  @override
+  String get dataFolderBody => 'Base de la bibliothèque, réglages et pochettes';
+
+  @override
+  String get openFolder => 'Ouvrir le dossier';
+
+  @override
+  String get playHistory => 'Historique de lecture';
+
+  @override
+  String get playHistoryBody =>
+      'Lectures et positions affichées dans Historique';
+
+  @override
+  String get aboutVersion => 'Version';
+
+  @override
+  String get aboutDevBuild => 'Version de développement';
+
+  @override
+  String get aboutLicense => 'Licence';
+
+  @override
+  String get aboutLicenses => 'Licences des composants';
+
+  @override
+  String get aboutLicensesBody => 'Polices, icônes et bibliothèques intégrées';
+
+  @override
+  String get show => 'Afficher';
+
+  @override
+  String get aboutLocal =>
+      'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.';
 }

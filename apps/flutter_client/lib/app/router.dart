@@ -108,7 +108,11 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ShellRoute(
         builder: (context, state, child) => desktop
-            ? DesktopShell(location: state.uri.path, child: child)
+            ? DesktopShell(
+                location: state.uri.path,
+                uri: state.uri.toString(),
+                child: child,
+              )
             : MobileShell(location: state.uri.path, child: child),
         routes: [
           screen(Routes.listenHome, () => const ListenHomeScreen()),

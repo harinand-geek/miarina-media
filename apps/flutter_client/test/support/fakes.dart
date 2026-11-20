@@ -66,6 +66,7 @@ class FakeEngine implements MediaEngine {
     exclusiveAudio: true,
     sidecarSubtitles: true,
     subtitleLanguage: true,
+    frameStep: true,
   );
 
   @override
@@ -160,6 +161,11 @@ class FakeEngine implements MediaEngine {
 
   @override
   Future<List<AudioOutput>> audioOutputs() async => outputs;
+
+  int frameSteps = 0;
+
+  @override
+  Future<void> frameStep() async => frameSteps++;
 
   @override
   Future<void> applyPreferences(EnginePreferences p) async => preferences = p;

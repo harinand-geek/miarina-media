@@ -1908,6 +1908,312 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'P1'**
   String get p1Badge;
+
+  /// No description provided for @keyPlayPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture / pause'**
+  String get keyPlayPause;
+
+  /// No description provided for @keyPrevious.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre précédent'**
+  String get keyPrevious;
+
+  /// No description provided for @keyNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre suivant'**
+  String get keyNext;
+
+  /// No description provided for @keySeekBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reculer de 10 s'**
+  String get keySeekBack;
+
+  /// No description provided for @keySeekForward.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancer de 10 s'**
+  String get keySeekForward;
+
+  /// No description provided for @keyVolumeUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Monter le volume'**
+  String get keyVolumeUp;
+
+  /// No description provided for @keyVolumeDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Baisser le volume'**
+  String get keyVolumeDown;
+
+  /// No description provided for @keyMute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper le son'**
+  String get keyMute;
+
+  /// No description provided for @keySearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get keySearch;
+
+  /// No description provided for @keyBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour'**
+  String get keyBack;
+
+  /// No description provided for @keyForward.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avant'**
+  String get keyForward;
+
+  /// No description provided for @keyToggleSidebar.
+  ///
+  /// In fr, this message translates to:
+  /// **'Replier la barre latérale'**
+  String get keyToggleSidebar;
+
+  /// No description provided for @keyNowPlaying.
+  ///
+  /// In fr, this message translates to:
+  /// **'En lecture'**
+  String get keyNowPlaying;
+
+  /// No description provided for @keyFullscreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plein écran'**
+  String get keyFullscreen;
+
+  /// No description provided for @keySubtitles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sous-titres'**
+  String get keySubtitles;
+
+  /// No description provided for @keyAudioTrack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Piste audio'**
+  String get keyAudioTrack;
+
+  /// No description provided for @keyFrameStep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Image suivante (pause)'**
+  String get keyFrameStep;
+
+  /// No description provided for @keyBookmark.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un signet'**
+  String get keyBookmark;
+
+  /// No description provided for @keyLyrics.
+  ///
+  /// In fr, this message translates to:
+  /// **'Paroles'**
+  String get keyLyrics;
+
+  /// No description provided for @keyMiniPlayer.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mini-lecteur'**
+  String get keyMiniPlayer;
+
+  /// No description provided for @keySpeedDown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vitesse −'**
+  String get keySpeedDown;
+
+  /// No description provided for @keySpeedUp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vitesse +'**
+  String get keySpeedUp;
+
+  /// No description provided for @keysPlayback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture'**
+  String get keysPlayback;
+
+  /// No description provided for @keysNavigation.
+  ///
+  /// In fr, this message translates to:
+  /// **'Navigation'**
+  String get keysNavigation;
+
+  /// No description provided for @keysVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get keysVideo;
+
+  /// No description provided for @keysFocus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Focus et fenêtres'**
+  String get keysFocus;
+
+  /// No description provided for @keysTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Raccourcis clavier'**
+  String get keysTitle;
+
+  /// No description provided for @keysSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un raccourci'**
+  String get keysSearch;
+
+  /// No description provided for @keysReset.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rétablir les valeurs'**
+  String get keysReset;
+
+  /// No description provided for @keysHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule.'**
+  String get keysHint;
+
+  /// No description provided for @keyPress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez sur une touche…'**
+  String get keyPress;
+
+  /// No description provided for @keyNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune'**
+  String get keyNone;
+
+  /// No description provided for @keyShift.
+  ///
+  /// In fr, this message translates to:
+  /// **'Maj'**
+  String get keyShift;
+
+  /// No description provided for @keySpace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Espace'**
+  String get keySpace;
+
+  /// No description provided for @keyConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'{key} est déjà utilisé par « {action} ».'**
+  String keyConflict(String key, String action);
+
+  /// No description provided for @keyReplace.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplacer'**
+  String get keyReplace;
+
+  /// No description provided for @keyRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer la touche'**
+  String get keyRemove;
+
+  /// No description provided for @libraryTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titres audio'**
+  String get libraryTracks;
+
+  /// No description provided for @libraryVideos.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéos'**
+  String get libraryVideos;
+
+  /// No description provided for @dataFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier des données'**
+  String get dataFolder;
+
+  /// No description provided for @dataFolderBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Base de la bibliothèque, réglages et pochettes'**
+  String get dataFolderBody;
+
+  /// No description provided for @openFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le dossier'**
+  String get openFolder;
+
+  /// No description provided for @playHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique de lecture'**
+  String get playHistory;
+
+  /// No description provided for @playHistoryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lectures et positions affichées dans Historique'**
+  String get playHistoryBody;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version'**
+  String get aboutVersion;
+
+  /// No description provided for @aboutDevBuild.
+  ///
+  /// In fr, this message translates to:
+  /// **'Version de développement'**
+  String get aboutDevBuild;
+
+  /// No description provided for @aboutLicense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licence'**
+  String get aboutLicense;
+
+  /// No description provided for @aboutLicenses.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licences des composants'**
+  String get aboutLicenses;
+
+  /// No description provided for @aboutLicensesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Polices, icônes et bibliothèques intégrées'**
+  String get aboutLicensesBody;
+
+  /// No description provided for @show.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher'**
+  String get show;
+
+  /// No description provided for @aboutLocal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.'**
+  String get aboutLocal;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
