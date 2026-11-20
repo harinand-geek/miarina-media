@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
@@ -11,6 +12,7 @@ import '../../design/tokens.dart';
 import '../../design/widgets/logo.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../cinema/cinema_widgets.dart' show PillSegment;
 import '../get/get_data.dart';
 import '../get/get_screens.dart' show bytes;
 import 'browser_data.dart';
@@ -38,6 +40,16 @@ class BrowserScreen extends ConsumerStatefulWidget {
 class _BrowserScreenState extends ConsumerState<BrowserScreen> {
   final _address = GlobalKey<_AddressFieldState>();
   bool _panel = false;
+
+  /// What the history tab shows: history or favorites.
+  String _historyView = 'history';
+
+  void _openHistory(String view) {
+    final t = L10n.of(context);
+    setState(() => _historyView = view);
+    if (_browser.tabHistory() != null) _toast(context, t.brTooManyTabs);
+  }
+
   Timer? _scan;
 
   BrowserController get _browser => ref.read(browserProvider.notifier);
@@ -71,6 +83,8 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
         _browser.cycle(1);
       case 'Ctrl+Shift+Tab':
         _browser.cycle(-1);
+      case 'Ctrl+H':
+        _openHistory('history');
       case 'F5':
         _browser.nav('reload');
     }
@@ -137,6 +151,8 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
         ): () =>
             _shortcut('Ctrl+Shift+Tab'),
         const SingleActivator(LogicalKeyboardKey.f5): () => _shortcut('F5'),
+        const SingleActivator(LogicalKeyboardKey.keyH, control: true): () =>
+            _shortcut('Ctrl+H'),
       },
       child: Focus(
         autofocus: true,
@@ -146,6 +162,7 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
             _TabStrip(snapshot: s, onNew: _newTab),
             _Toolbar(
               snapshot: s,
+              onHistory: _openHistory,
               address: _address,
               mediaCount: candidates.length,
               onMedia: () => setState(() => _panel = !_panel),
@@ -160,6 +177,13 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
                             // A new rectangle whenever the panel or strip
                             // changes the room left for the page.
                             key: ValueKey('page-$panel'),
+                          )
+                        : s.kind == 'history'
+                        ? _HistoryTab(
+                            view: _historyView,
+                            onView: (v) => setState(() => _historyView = v),
+                            onOpen: (url) => _browser.navigate(url),
+                            onHidden: () => ref.read(browserApiProvider).hide(),
                           )
                         : _StartPage(
                             onOpen: (a) => _browser.navigate(a),
@@ -217,7 +241,9 @@ class _TabStrip extends ConsumerWidget {
                     tab: tab,
                     onTap: () => browser.tabSelect(tab.id),
                     onClose: () => browser.tabClose(tab.id),
-                    label: tab.kind == 'web' && tab.title.isNotEmpty
+                    label: tab.kind == 'history'
+                        ? t.brHistory
+                        : tab.kind == 'web' && tab.title.isNotEmpty
                         ? tab.title
                         : tab.kind == 'web'
                         ? hostOf(tab.url)
@@ -336,12 +362,14 @@ class _TabChip extends StatelessWidget {
 class _Toolbar extends ConsumerWidget {
   const _Toolbar({
     required this.snapshot,
+    required this.onHistory,
     required this.address,
     required this.mediaCount,
     required this.onMedia,
   });
 
   final BrowserSnapshot snapshot;
+  final void Function(String view) onHistory;
   final GlobalKey<_AddressFieldState> address;
   final int mediaCount;
   final VoidCallback onMedia;
@@ -353,6 +381,8 @@ class _Toolbar extends ConsumerWidget {
     final browser = ref.read(browserProvider.notifier);
     final s = snapshot;
     final web = s.kind == 'web';
+    final starred =
+        web && ref.watch(browserFavoritesProvider).any((f) => f.url == s.url);
     Widget button(IconData icon, String label, VoidCallback? onTap) => Tooltip(
       message: label,
       child: Pressable(
@@ -407,6 +437,44 @@ class _Toolbar extends ConsumerWidget {
               mediaCount: mediaCount,
               onMedia: onMedia,
             ),
+          ),
+          const SizedBox(width: 6),
+          Tooltip(
+            message: starred ? t.brFavRemove : t.brFavAdd,
+            child: Pressable(
+              onTap: web
+                  ? () {
+                      final added = ref
+                          .read(browserFavoritesProvider.notifier)
+                          .toggle(s.url, s.title);
+                      _toast(context, added ? t.brFavAdded : t.brFavRemoved);
+                    }
+                  : null,
+              semanticLabel: starred ? t.brFavRemove : t.brFavAdd,
+              selected: starred,
+              child: Opacity(
+                opacity: web ? 1 : 0.35,
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: Icon(
+                    starred ? PhosphorFill.star : PhosphorRegular.star,
+                    size: 20,
+                    color: starred ? c.warning : c.muted,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          button(
+            PhosphorRegular.bookmarksSimple,
+            t.brFavorites,
+            () => onHistory('favorites'),
+          ),
+          button(
+            PhosphorRegular.clockCounterClockwise,
+            t.brHistory,
+            () => onHistory('history'),
           ),
         ],
       ),
@@ -630,17 +698,17 @@ class _PageHostState extends ConsumerState<_PageHost> {
   }
 }
 
-class _StartPage extends StatefulWidget {
+class _StartPage extends ConsumerStatefulWidget {
   const _StartPage({required this.onOpen, required this.onHidden});
 
   final void Function(String address) onOpen;
   final VoidCallback onHidden;
 
   @override
-  State<_StartPage> createState() => _StartPageState();
+  ConsumerState<_StartPage> createState() => _StartPageState();
 }
 
-class _StartPageState extends State<_StartPage> {
+class _StartPageState extends ConsumerState<_StartPage> {
   @override
   void initState() {
     super.initState();
@@ -652,6 +720,7 @@ class _StartPageState extends State<_StartPage> {
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
+    final favorites = ref.watch(browserFavoritesProvider);
     return ListView(
       padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
       children: [
@@ -674,59 +743,77 @@ class _StartPageState extends State<_StartPage> {
           ),
         ),
         const SizedBox(height: 32),
-        Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 720),
-            child: Wrap(
-              alignment: WrapAlignment.center,
-              runSpacing: 16,
-              children: [
-                for (final (name, address) in startSites)
-                  SizedBox(
-                    width: 180,
-                    child: Pressable(
-                      onTap: () => widget.onOpen(address),
-                      semanticLabel: name,
-                      borderRadius: BorderRadius.circular(MmRadius.lg),
-                      hoverColor: c.cardHover,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 6),
-                        child: Column(
-                          children: [
-                            // Letter tiles: no third-party logos are
-                            // shipped (nor loaded from the network).
-                            Container(
-                              width: 48,
-                              height: 48,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: c.surface2,
-                                shape: BoxShape.circle,
-                              ),
-                              child: Text(
-                                name[0],
-                                style: MmType.heading.copyWith(
-                                  fontSize: 18,
-                                  color: c.accent,
+        for (final (head, sites) in [
+          if (favorites.isNotEmpty)
+            (t.brFavorites, [for (final f in favorites) (f.title, f.url)]),
+          (favorites.isEmpty ? null : t.brSites, startSites),
+        ]) ...[
+          if (head != null)
+            Center(
+              child: SizedBox(
+                width: 720,
+                child: Text(
+                  head.toUpperCase(),
+                  style: MmType.overline.copyWith(color: c.muted),
+                ),
+              ),
+            ),
+          const SizedBox(height: 12),
+          Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 720),
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                runSpacing: 16,
+                children: [
+                  for (final (name, address) in sites)
+                    SizedBox(
+                      width: 180,
+                      child: Pressable(
+                        onTap: () => widget.onOpen(address),
+                        semanticLabel: name,
+                        borderRadius: BorderRadius.circular(MmRadius.lg),
+                        hoverColor: c.cardHover,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 6),
+                          child: Column(
+                            children: [
+                              // Letter tiles: no third-party logos are
+                              // shipped (nor loaded from the network).
+                              Container(
+                                width: 48,
+                                height: 48,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: c.surface2,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  name[0],
+                                  style: MmType.heading.copyWith(
+                                    fontSize: 18,
+                                    color: c.accent,
+                                  ),
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              name,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: MmType.caption.copyWith(color: c.muted),
-                            ),
-                          ],
+                              const SizedBox(height: 8),
+                              Text(
+                                name,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: MmType.caption.copyWith(color: c.muted),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
+          const SizedBox(height: 24),
+        ],
         const SizedBox(height: 48),
         Text(
           t.brLegalHint,
@@ -1133,6 +1220,384 @@ class _PanelButton extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The history and favorites tab (NAV-03, ported from the Tauri app):
+/// visited pages by day and starred pages, searchable. Kept on this device;
+/// clearing it deletes no file, download or favorite.
+class _HistoryTab extends ConsumerStatefulWidget {
+  const _HistoryTab({
+    required this.view,
+    required this.onView,
+    required this.onOpen,
+    required this.onHidden,
+  });
+
+  final String view;
+  final ValueChanged<String> onView;
+  final void Function(String url) onOpen;
+  final VoidCallback onHidden;
+
+  @override
+  ConsumerState<_HistoryTab> createState() => _HistoryTabState();
+}
+
+class _HistoryTabState extends ConsumerState<_HistoryTab> {
+  String _query = '';
+  Timer? _debounce;
+  List<BrowserVisit>? _visits;
+
+  BrowserApi get _api => ref.read(browserApiProvider);
+
+  @override
+  void initState() {
+    super.initState();
+    // No page above this tab.
+    WidgetsBinding.instance.addPostFrameCallback((_) => widget.onHidden());
+    _load();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    super.dispose();
+  }
+
+  void _load() {
+    try {
+      _visits = _api.history(_query);
+    } catch (_) {
+      _visits = const [];
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _search(String q) {
+    _query = q;
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 150), _load);
+  }
+
+  Future<void> _clear() async {
+    final t = L10n.of(context);
+    final c = MmColors.of(context);
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: c.surface2,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(MmRadius.sheet),
+          side: BorderSide(color: c.overlayBorder),
+        ),
+        title: Text(t.brClearTitle, style: MmType.title.copyWith(color: c.fg)),
+        content: Text(
+          t.brClearBody,
+          style: MmType.body.copyWith(color: c.fgSoft),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              t.cancel,
+              style: MmType.labelStrong.copyWith(color: c.fg),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              t.brClearHistory,
+              style: MmType.labelStrong.copyWith(color: c.danger),
+            ),
+          ),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      _api.historyClear();
+    } catch (_) {}
+    _load();
+    if (mounted) _toast(context, t.brCleared);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final history = widget.view == 'history';
+    final q = _query.trim().toLowerCase();
+    final favorites = ref
+        .watch(browserFavoritesProvider)
+        .where(
+          (f) =>
+              q.isEmpty ||
+              f.title.toLowerCase().contains(q) ||
+              f.url.toLowerCase().contains(q),
+        )
+        .toList();
+    final visits = _visits ?? const <BrowserVisit>[];
+    final empty = history
+        ? _visits != null && visits.isEmpty
+        : favorites.isEmpty;
+    final locale = Localizations.localeOf(context).toString();
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    String dayLabel(DateTime d) {
+      final diff = today.difference(d).inDays;
+      if (diff == 0) return t.getToday;
+      if (diff == 1) return t.getYesterday;
+      return DateFormat.MMMMEEEEd(locale).format(d);
+    }
+
+    final groups = <DateTime, List<BrowserVisit>>{};
+    for (final v in visits) {
+      final at = DateTime.fromMillisecondsSinceEpoch(v.visitedAt);
+      (groups[DateTime(at.year, at.month, at.day)] ??= []).add(v);
+    }
+
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 900),
+        child: ListView(
+          padding: const EdgeInsets.fromLTRB(32, 28, 32, 32),
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    history ? t.brHistory : t.brFavorites,
+                    style: MmType.display.copyWith(fontSize: 24, color: c.fg),
+                  ),
+                ),
+                PillSegment<String>(
+                  values: [
+                    ('history', t.brHistory),
+                    ('favorites', t.brFavorites),
+                  ],
+                  selected: widget.view,
+                  onChanged: widget.onView,
+                ),
+                if (history) ...[
+                  const SizedBox(width: 12),
+                  Pressable(
+                    onTap: visits.isEmpty && _query.isEmpty ? null : _clear,
+                    semanticLabel: t.brClearHistory,
+                    child: Opacity(
+                      opacity: visits.isEmpty && _query.isEmpty ? 0.5 : 1,
+                      child: Container(
+                        height: 34,
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(MmRadius.sm),
+                          border: Border.all(color: c.lineStrong),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(PhosphorRegular.trash, size: 18, color: c.fg),
+                            const SizedBox(width: 8),
+                            Text(
+                              t.brClearHistory,
+                              style: MmType.labelStrong.copyWith(
+                                fontSize: 13,
+                                color: c.fg,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+            const SizedBox(height: 20),
+            Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: c.surface,
+                borderRadius: BorderRadius.circular(MmRadius.sm),
+                border: Border.all(color: c.lineStrong),
+              ),
+              child: Row(
+                children: [
+                  Icon(
+                    PhosphorRegular.magnifyingGlass,
+                    size: 18,
+                    color: c.muted,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      key: const ValueKey('browser-history-search'),
+                      onChanged: _search,
+                      style: MmType.bodySm.copyWith(color: c.fg),
+                      cursorColor: c.accent,
+                      decoration: InputDecoration(
+                        isDense: true,
+                        border: InputBorder.none,
+                        hintText: t.brHistorySearch,
+                        hintStyle: MmType.bodySm.copyWith(color: c.muted),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 20),
+            if (empty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 40),
+                child: Text(
+                  q.isNotEmpty
+                      ? t.brNoMatch(_query.trim())
+                      : history
+                      ? t.brHistoryEmpty
+                      : t.brFavoritesEmpty,
+                  textAlign: TextAlign.center,
+                  style: MmType.bodySm.copyWith(color: c.muted),
+                ),
+              )
+            else if (history)
+              for (final MapEntry(key: day, value: entries)
+                  in groups.entries) ...[
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 4),
+                  child: Text(
+                    dayLabel(day).toUpperCase(),
+                    style: MmType.overline.copyWith(color: c.muted),
+                  ),
+                ),
+                for (final v in entries)
+                  _PageRow(
+                    title: v.title.isNotEmpty ? v.title : hostOf(v.url),
+                    url: v.url,
+                    time: DateFormat.Hm(
+                      locale,
+                    ).format(DateTime.fromMillisecondsSinceEpoch(v.visitedAt)),
+                    onOpen: () => widget.onOpen(v.url),
+                    removeLabel: t.brDeleteVisit(
+                      v.title.isNotEmpty ? v.title : hostOf(v.url),
+                    ),
+                    onRemove: () {
+                      try {
+                        _api.historyDelete(v.id);
+                      } catch (_) {}
+                      _load();
+                    },
+                  ),
+                const SizedBox(height: 12),
+              ]
+            else
+              for (final f in favorites)
+                _PageRow(
+                  title: f.title,
+                  url: f.url,
+                  onOpen: () => widget.onOpen(f.url),
+                  removeLabel: t.brRemoveFavorite(f.title),
+                  onRemove: () => ref
+                      .read(browserFavoritesProvider.notifier)
+                      .toggle(f.url, f.title),
+                ),
+            const SizedBox(height: 12),
+            Text(
+              t.brHistoryNote,
+              style: MmType.caption.copyWith(fontSize: 12, color: c.muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PageRow extends StatelessWidget {
+  const _PageRow({
+    required this.title,
+    required this.url,
+    required this.onOpen,
+    required this.removeLabel,
+    required this.onRemove,
+    this.time,
+  });
+
+  final String title;
+  final String url;
+  final String? time;
+  final VoidCallback onOpen;
+  final String removeLabel;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    return Row(
+      children: [
+        if (time != null)
+          SizedBox(
+            width: 44,
+            child: Text(
+              time!,
+              style: MmType.monoStyle(size: 11.5, color: c.muted),
+            ),
+          ),
+        Expanded(
+          child: Tooltip(
+            message: url,
+            child: Pressable(
+              onTap: onOpen,
+              semanticLabel: title,
+              hoverColor: c.surface,
+              borderRadius: BorderRadius.circular(MmRadius.sm),
+              child: SizedBox(
+                height: 44,
+                child: Row(
+                  children: [
+                    Icon(PhosphorRegular.globe, size: 18, color: c.muted),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.labelStrong.copyWith(
+                          fontSize: 13.5,
+                          color: c.fg,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Text(
+                        hostOf(url),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.monoStyle(size: 11.5, color: c.muted),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+        Tooltip(
+          message: removeLabel,
+          child: Pressable(
+            onTap: onRemove,
+            semanticLabel: removeLabel,
+            child: SizedBox(
+              width: 32,
+              height: 32,
+              child: Icon(PhosphorRegular.x, size: 18, color: c.muted),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

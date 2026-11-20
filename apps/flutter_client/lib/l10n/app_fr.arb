@@ -1623,5 +1623,45 @@
   "brClosePanel": "Fermer le panneau",
   "brTooManyTabs": "12 onglets au plus : fermez-en un pour en ouvrir un autre.",
   "brUnsupported": "Seules les pages web (http, https) s’ouvrent dans le navigateur.",
-  "brUnavailable": "Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu."
+  "brUnavailable": "Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu.",
+  "brHistory": "Historique",
+  "brFavorites": "Favoris",
+  "brHistoryViews": "Historique ou favoris",
+  "brHistorySearch": "Rechercher dans les pages visitées",
+  "brNoMatch": "Rien ne correspond à « {q} ».",
+  "@brNoMatch": {
+    "placeholders": {
+      "q": {
+        "type": "String"
+      }
+    }
+  },
+  "brHistoryEmpty": "Les pages que vous visitez apparaissent ici.",
+  "brFavoritesEmpty": "Ajoutez une page aux favoris avec l’étoile de la barre d’adresse.",
+  "brHistoryNote": "Gardé sur cet appareil seulement. L’effacer ne supprime aucun fichier ni téléchargement.",
+  "brDeleteVisit": "Retirer {title} de l’historique",
+  "@brDeleteVisit": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "brRemoveFavorite": "Retirer {title} des favoris",
+  "@brRemoveFavorite": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "brClearTitle": "Effacer l’historique du navigateur ?",
+  "brClearBody": "Les pages visitées sont oubliées. Les téléchargements, la bibliothèque et les favoris restent.",
+  "brCleared": "Historique du navigateur effacé",
+  "brClearHistory": "Effacer l’historique",
+  "brFavAdd": "Ajouter aux favoris",
+  "brFavRemove": "Retirer des favoris",
+  "brFavAdded": "Ajouté aux favoris",
+  "brFavRemoved": "Retiré des favoris",
+  "brSites": "Sites"
 }

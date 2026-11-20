@@ -10,7 +10,13 @@ import '../get/get_data.dart' show downloadsProvider;
 import '../library/library_data.dart' show dataDirProvider;
 
 export '../../src/rust/api/browser.dart'
-    show BrowserEvent, BrowserSnapshot, BrowserTab, DetectedMediaInfo;
+    show
+        BrowserEvent,
+        BrowserFavorite,
+        BrowserSnapshot,
+        BrowserTab,
+        BrowserVisit,
+        DetectedMediaInfo;
 
 /// The built-in browser in the core (WebView2 pages); tests use a fake.
 abstract interface class BrowserApi {
@@ -32,6 +38,16 @@ abstract interface class BrowserApi {
   void tabSelect(int id);
   void cycle(int step);
   void scan();
+
+  /// Selects the history and favorites tab (opened if needed).
+  void tabHistory();
+  List<rust.BrowserFavorite> favorites();
+
+  /// Stars or unstars a web page; the new list.
+  List<rust.BrowserFavorite> favoriteToggle(String url, String title);
+  List<rust.BrowserVisit> history(String query);
+  void historyDelete(int id);
+  void historyClear();
 }
 
 class RustBrowserApi implements BrowserApi {
@@ -80,6 +96,26 @@ class RustBrowserApi implements BrowserApi {
 
   @override
   void scan() => rust.browserScan();
+
+  @override
+  void tabHistory() => rust.browserTabHistory();
+
+  @override
+  List<rust.BrowserFavorite> favorites() => rust.browserFavorites();
+
+  @override
+  List<rust.BrowserFavorite> favoriteToggle(String url, String title) =>
+      rust.browserFavoriteToggle(url: url, title: title);
+
+  @override
+  List<rust.BrowserVisit> history(String query) =>
+      rust.browserHistory(query: query, limit: 500);
+
+  @override
+  void historyDelete(int id) => rust.browserHistoryDelete(id: id);
+
+  @override
+  void historyClear() => rust.browserHistoryClear();
 }
 
 final browserApiProvider = Provider<BrowserApi>(RustBrowserApi.new);
@@ -192,6 +228,44 @@ class BrowserController extends Notifier<BrowserState> {
   void tabSelect(int id) => _guard(() => api.tabSelect(id));
 
   void cycle(int step) => _guard(() => api.cycle(step));
+
+  /// Null when shown, else `too_many_tabs`.
+  String? tabHistory() => _guard(api.tabHistory);
+}
+
+/// Starred pages (newest first), shared by the toolbar star, the start
+/// page and the favorites tab.
+final browserFavoritesProvider =
+    NotifierProvider<FavoritesController, List<rust.BrowserFavorite>>(
+      FavoritesController.new,
+    );
+
+class FavoritesController extends Notifier<List<rust.BrowserFavorite>> {
+  @override
+  List<rust.BrowserFavorite> build() {
+    // Read once the browser is up.
+    if (ref.watch(browserProvider.select((s) => s.available)) != true) {
+      return const [];
+    }
+    try {
+      return ref.read(browserApiProvider).favorites();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  bool has(String url) => state.any((f) => f.url == url);
+
+  /// True when the page is now a favorite.
+  bool toggle(String url, String title) {
+    final had = has(url);
+    try {
+      state = ref.read(browserApiProvider).favoriteToggle(url, title);
+    } catch (_) {
+      return had;
+    }
+    return !had;
+  }
 }
 
 /// Something the user can download from the current page.

@@ -11,8 +11,9 @@ use anyhow::{Result, anyhow};
 use storage::Storage;
 
 use super::address::{AddressError, is_web, resolve_address};
+use super::favorites::{Favorite, KEY_FAVORITES, checked, toggle};
 use super::state::{Inner, KEY_TABS, MAX_TABS, SavedTabs, TabKind};
-use crate::api::browser::{BrowserEvent, BrowserSnapshot};
+use crate::api::browser::{BrowserEvent, BrowserFavorite, BrowserSnapshot, BrowserVisit};
 use crate::frb_generated::StreamSink;
 
 static STATE: LazyLock<Mutex<Inner>> = LazyLock::new(Default::default);
@@ -225,6 +226,93 @@ pub fn cycle(step: isize) -> Result<()> {
         Some(id) => tab_select(id),
         None => Ok(()),
     }
+}
+
+/// Selects the history tab, opened if needed (one at most).
+pub fn tab_history() -> Result<()> {
+    let existing = update(|s| {
+        s.tabs
+            .iter()
+            .find(|t| t.kind == TabKind::History)
+            .map(|t| t.id)
+    });
+    if let Some(id) = existing {
+        return tab_select(id);
+    }
+    if update(|s| s.tabs.len()) >= MAX_TABS {
+        return Err(anyhow!("too_many_tabs"));
+    }
+    update(|s| {
+        let id = s.add(TabKind::History);
+        s.select(id);
+    });
+    platform::layout();
+    publish();
+    persist();
+    Ok(())
+}
+
+fn db() -> Result<Arc<Mutex<Storage>>> {
+    storage().ok_or_else(|| anyhow!("browser not initialized"))
+}
+
+fn favorites_of(db: &Storage) -> Vec<Favorite> {
+    db.setting::<Vec<Favorite>>(KEY_FAVORITES)
+        .ok()
+        .flatten()
+        .unwrap_or_default()
+}
+
+fn favorite_out(list: Vec<Favorite>) -> Vec<BrowserFavorite> {
+    list.into_iter()
+        .map(|f| BrowserFavorite {
+            url: f.url,
+            title: f.title,
+        })
+        .collect()
+}
+
+pub fn favorites() -> Result<Vec<BrowserFavorite>> {
+    let db = db()?;
+    Ok(favorite_out(favorites_of(&lock(&db))))
+}
+
+pub fn favorite_toggle(url: &str, title: &str) -> Result<Vec<BrowserFavorite>> {
+    let favorite = checked(url, title).ok_or_else(|| anyhow!("invalid_favorite"))?;
+    let db = db()?;
+    let db = lock(&db);
+    let mut list = favorites_of(&db);
+    toggle(&mut list, favorite);
+    db.set_setting(KEY_FAVORITES, &list)?;
+    Ok(favorite_out(list))
+}
+
+/// Longest search accepted.
+const QUERY_MAX: usize = 200;
+
+pub fn history(query: &str, limit: u32) -> Result<Vec<BrowserVisit>> {
+    let query: String = query.chars().take(QUERY_MAX).collect();
+    let db = db()?;
+    let visits = lock(&db).visits(&query, limit.min(storage::VISITS_PAGE_MAX))?;
+    Ok(visits
+        .into_iter()
+        .map(|v| BrowserVisit {
+            id: v.id,
+            url: v.url,
+            title: v.title,
+            visited_at: v.visited_at,
+        })
+        .collect())
+}
+
+pub fn history_delete(id: i64) -> Result<()> {
+    let db = db()?;
+    Ok(lock(&db).delete_visit(id)?)
+}
+
+pub fn history_clear() -> Result<u32> {
+    let db = db()?;
+    Ok(lock(&db).clear_visits()? as u32)
 }
 
 pub fn scan() {

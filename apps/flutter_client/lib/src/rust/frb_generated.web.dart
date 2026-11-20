@@ -105,10 +105,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BrowserEvent dco_decode_browser_event(dynamic raw);
 
   @protected
+  BrowserFavorite dco_decode_browser_favorite(dynamic raw);
+
+  @protected
   BrowserSnapshot dco_decode_browser_snapshot(dynamic raw);
 
   @protected
   BrowserTab dco_decode_browser_tab(dynamic raw);
+
+  @protected
+  BrowserVisit dco_decode_browser_visit(dynamic raw);
 
   @protected
   CinemaItem dco_decode_cinema_item(dynamic raw);
@@ -195,7 +201,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
+  List<BrowserFavorite> dco_decode_list_browser_favorite(dynamic raw);
+
+  @protected
   List<BrowserTab> dco_decode_list_browser_tab(dynamic raw);
+
+  @protected
+  List<BrowserVisit> dco_decode_list_browser_visit(dynamic raw);
 
   @protected
   List<CinemaItem> dco_decode_list_cinema_item(dynamic raw);
@@ -456,10 +468,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   BrowserEvent sse_decode_browser_event(SseDeserializer deserializer);
 
   @protected
+  BrowserFavorite sse_decode_browser_favorite(SseDeserializer deserializer);
+
+  @protected
   BrowserSnapshot sse_decode_browser_snapshot(SseDeserializer deserializer);
 
   @protected
   BrowserTab sse_decode_browser_tab(SseDeserializer deserializer);
+
+  @protected
+  BrowserVisit sse_decode_browser_visit(SseDeserializer deserializer);
 
   @protected
   CinemaItem sse_decode_cinema_item(SseDeserializer deserializer);
@@ -550,7 +568,17 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
+  List<BrowserFavorite> sse_decode_list_browser_favorite(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<BrowserTab> sse_decode_list_browser_tab(SseDeserializer deserializer);
+
+  @protected
+  List<BrowserVisit> sse_decode_list_browser_visit(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<CinemaItem> sse_decode_list_cinema_item(SseDeserializer deserializer);
@@ -886,6 +914,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_browser_event(BrowserEvent self, SseSerializer serializer);
 
   @protected
+  void sse_encode_browser_favorite(
+    BrowserFavorite self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_browser_snapshot(
     BrowserSnapshot self,
     SseSerializer serializer,
@@ -893,6 +927,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_browser_tab(BrowserTab self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_browser_visit(BrowserVisit self, SseSerializer serializer);
 
   @protected
   void sse_encode_cinema_item(CinemaItem self, SseSerializer serializer);
@@ -991,8 +1028,20 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_browser_favorite(
+    List<BrowserFavorite> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_browser_tab(
     List<BrowserTab> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_browser_visit(
+    List<BrowserVisit> self,
     SseSerializer serializer,
   );
 

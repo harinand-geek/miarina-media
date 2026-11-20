@@ -2695,4 +2695,70 @@ class L10nEn extends L10n {
   @override
   String get brUnavailable =>
       'The browser could not start: WebView2 is missing or did not answer.';
+
+  @override
+  String get brHistory => 'History';
+
+  @override
+  String get brFavorites => 'Favorites';
+
+  @override
+  String get brHistoryViews => 'History or favorites';
+
+  @override
+  String get brHistorySearch => 'Search visited pages';
+
+  @override
+  String brNoMatch(String q) {
+    return 'Nothing matches “$q”.';
+  }
+
+  @override
+  String get brHistoryEmpty => 'Pages you visit appear here.';
+
+  @override
+  String get brFavoritesEmpty =>
+      'Star a page in the address bar to add it to favorites.';
+
+  @override
+  String get brHistoryNote =>
+      'Kept on this device only. Clearing it deletes no file or download.';
+
+  @override
+  String brDeleteVisit(String title) {
+    return 'Remove $title from history';
+  }
+
+  @override
+  String brRemoveFavorite(String title) {
+    return 'Remove $title from favorites';
+  }
+
+  @override
+  String get brClearTitle => 'Clear browser history?';
+
+  @override
+  String get brClearBody =>
+      'Visited pages are forgotten. Downloads, the library and favorites stay.';
+
+  @override
+  String get brCleared => 'Browser history cleared';
+
+  @override
+  String get brClearHistory => 'Clear history';
+
+  @override
+  String get brFavAdd => 'Add to favorites';
+
+  @override
+  String get brFavRemove => 'Remove from favorites';
+
+  @override
+  String get brFavAdded => 'Added to favorites';
+
+  @override
+  String get brFavRemoved => 'Removed from favorites';
+
+  @override
+  String get brSites => 'Sites';
 }

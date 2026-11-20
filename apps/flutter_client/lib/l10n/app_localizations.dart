@@ -4392,6 +4392,120 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu.'**
   String get brUnavailable;
+
+  /// No description provided for @brHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique'**
+  String get brHistory;
+
+  /// No description provided for @brFavorites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Favoris'**
+  String get brFavorites;
+
+  /// No description provided for @brHistoryViews.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique ou favoris'**
+  String get brHistoryViews;
+
+  /// No description provided for @brHistorySearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher dans les pages visitées'**
+  String get brHistorySearch;
+
+  /// No description provided for @brNoMatch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien ne correspond à « {q} ».'**
+  String brNoMatch(String q);
+
+  /// No description provided for @brHistoryEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les pages que vous visitez apparaissent ici.'**
+  String get brHistoryEmpty;
+
+  /// No description provided for @brFavoritesEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez une page aux favoris avec l’étoile de la barre d’adresse.'**
+  String get brFavoritesEmpty;
+
+  /// No description provided for @brHistoryNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gardé sur cet appareil seulement. L’effacer ne supprime aucun fichier ni téléchargement.'**
+  String get brHistoryNote;
+
+  /// No description provided for @brDeleteVisit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer {title} de l’historique'**
+  String brDeleteVisit(String title);
+
+  /// No description provided for @brRemoveFavorite.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer {title} des favoris'**
+  String brRemoveFavorite(String title);
+
+  /// No description provided for @brClearTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l’historique du navigateur ?'**
+  String get brClearTitle;
+
+  /// No description provided for @brClearBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les pages visitées sont oubliées. Les téléchargements, la bibliothèque et les favoris restent.'**
+  String get brClearBody;
+
+  /// No description provided for @brCleared.
+  ///
+  /// In fr, this message translates to:
+  /// **'Historique du navigateur effacé'**
+  String get brCleared;
+
+  /// No description provided for @brClearHistory.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer l’historique'**
+  String get brClearHistory;
+
+  /// No description provided for @brFavAdd.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter aux favoris'**
+  String get brFavAdd;
+
+  /// No description provided for @brFavRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer des favoris'**
+  String get brFavRemove;
+
+  /// No description provided for @brFavAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouté aux favoris'**
+  String get brFavAdded;
+
+  /// No description provided for @brFavRemoved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retiré des favoris'**
+  String get brFavRemoved;
+
+  /// No description provided for @brSites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sites'**
+  String get brSites;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

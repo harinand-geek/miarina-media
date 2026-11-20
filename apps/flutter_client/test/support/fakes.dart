@@ -1031,6 +1031,47 @@ class FakeBrowserApi implements BrowserApi {
 
   @override
   void scan() {}
+
+  var favorites_ = <BrowserFavorite>[];
+  var visits = <BrowserVisit>[];
+  var historyTabs = 0;
+  var cleared = 0;
+
+  @override
+  void tabHistory() {
+    historyTabs++;
+    push(snap(kind: 'history', tabs: current.tabs.length));
+  }
+
+  @override
+  List<BrowserFavorite> favorites() => favorites_;
+
+  @override
+  List<BrowserFavorite> favoriteToggle(String url, String title) {
+    final at = favorites_.indexWhere((f) => f.url == url);
+    favorites_ = at >= 0
+        ? ([...favorites_]..removeAt(at))
+        : [BrowserFavorite(url: url, title: title), ...favorites_];
+    return favorites_;
+  }
+
+  @override
+  List<BrowserVisit> history(String query) => [
+    for (final v in visits)
+      if (query.isEmpty ||
+          v.title.toLowerCase().contains(query.toLowerCase()) ||
+          v.url.contains(query))
+        v,
+  ];
+
+  @override
+  void historyDelete(int id) => visits.removeWhere((v) => v.id == id);
+
+  @override
+  void historyClear() {
+    cleared++;
+    visits = [];
+  }
 }
 
 DetectedMediaInfo detected(String url, {String kind = 'video', int? size}) =>

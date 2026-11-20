@@ -225,5 +225,94 @@ void main() {
         findsOneWidget,
       );
     });
+    testWidgets('favorites: the star, then the start page and the tab', (
+      tester,
+    ) async {
+      await pumpApp(tester);
+      await tester.tap(find.text('Internet Archive'));
+      await settle(tester);
+      await tester.tap(find.bySemanticsLabel('Ajouter aux favoris'));
+      await settle(tester);
+      expect(browser.favorites_.single.url, 'https://archive.org');
+      expect(find.text('Ajouté aux favoris'), findsOneWidget);
+      expect(find.bySemanticsLabel('Retirer des favoris'), findsOneWidget);
+
+      // Back on the start page: favorites come first.
+      browser.push(FakeBrowserApi.snap());
+      await settle(tester);
+      expect(find.text('FAVORIS'), findsOneWidget);
+      expect(find.text('SITES'), findsOneWidget);
+
+      // The favorites tab, from the toolbar.
+      await tester.tap(find.bySemanticsLabel('Favoris').last);
+      await settle(tester);
+      expect(browser.historyTabs, 1);
+      expect(find.text('Page'), findsOneWidget, reason: 'the starred title');
+      await tester.tap(find.bySemanticsLabel('Retirer Page des favoris'));
+      await settle(tester);
+      expect(browser.favorites_, isEmpty);
+      expect(
+        find.text(
+          'Ajoutez une page aux favoris avec l’étoile de la barre d’adresse.',
+        ),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('history: by day, search, remove, clear', (tester) async {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      browser.visits = [
+        BrowserVisit(
+          id: 1,
+          url: 'https://commons.wikimedia.org/wiki/File:Sintel.webm',
+          title: 'Sintel',
+          visitedAt: now,
+        ),
+        BrowserVisit(
+          id: 2,
+          url: 'https://archive.org/details/x',
+          title: 'Internet Archive',
+          visitedAt: now - const Duration(days: 1).inMilliseconds,
+        ),
+      ];
+      await pumpApp(tester);
+      // Ctrl+H while the app had the keyboard: the history tab.
+      browser.events_.add(BrowserEvent(shortcut: 'Ctrl+H'));
+      await settle(tester);
+      expect(browser.historyTabs, 1);
+      expect(find.text('AUJOURD’HUI'), findsOneWidget);
+      expect(find.text('HIER'), findsOneWidget);
+      expect(find.text('Sintel'), findsOneWidget);
+      expect(find.text('commons.wikimedia.org'), findsOneWidget);
+      // No page above the tab.
+      expect(browser.hides, greaterThan(0));
+
+      await tester.enterText(
+        find.byKey(const ValueKey('browser-history-search')),
+        'sintel',
+      );
+      await tester.pump(const Duration(milliseconds: 200));
+      await settle(tester);
+      expect(find.text('Internet Archive'), findsNothing);
+
+      await tester.tap(find.bySemanticsLabel('Retirer Sintel de l’historique'));
+      await settle(tester);
+      expect(browser.visits.map((v) => v.id), [2]);
+      expect(find.text('Rien ne correspond à « sintel ».'), findsOneWidget);
+
+      await tester.enterText(
+        find.byKey(const ValueKey('browser-history-search')),
+        '',
+      );
+      await tester.pump(const Duration(milliseconds: 200));
+      await settle(tester);
+      await tester.tap(find.text('Effacer l’historique'));
+      await settle(tester);
+      expect(find.text('Effacer l’historique du navigateur ?'), findsOneWidget);
+      await tester.tap(find.text('Effacer l’historique').last);
+      await settle(tester);
+      expect(browser.cleared, 1);
+      expect(find.text('Historique du navigateur effacé'), findsOneWidget);
+    });
   });
 }

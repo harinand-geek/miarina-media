@@ -57,6 +57,10 @@ abstract final class PhosphorRegular {
     0xe0ea,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData bookmarksSimple = IconData(
+    0xe5f0,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData camera = IconData(
     0xe10e,
     fontFamily: 'PhosphorRegular',
@@ -470,6 +474,7 @@ abstract final class PhosphorRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const IconData stack = IconData(0xe466, fontFamily: 'PhosphorRegular');
+  static const IconData star = IconData(0xe46a, fontFamily: 'PhosphorRegular');
   static const IconData subtitles = IconData(
     0xe1a8,
     fontFamily: 'PhosphorRegular',
@@ -570,6 +575,10 @@ abstract final class PhosphorFill {
   );
   static const IconData bookmarkSimple = IconData(
     0xe0ea,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData bookmarksSimple = IconData(
+    0xe5f0,
     fontFamily: 'PhosphorFill',
   );
   static const IconData camera = IconData(0xe10e, fontFamily: 'PhosphorFill');
@@ -916,6 +925,7 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData stack = IconData(0xe466, fontFamily: 'PhosphorFill');
+  static const IconData star = IconData(0xe46a, fontFamily: 'PhosphorFill');
   static const IconData subtitles = IconData(
     0xe1a8,
     fontFamily: 'PhosphorFill',

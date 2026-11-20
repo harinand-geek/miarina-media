@@ -134,3 +134,52 @@ pub fn browser_cycle(step: i32) -> Result<()> {
 pub fn browser_scan() {
     imp::scan();
 }
+
+pub struct BrowserFavorite {
+    pub url: String,
+    pub title: String,
+}
+
+pub struct BrowserVisit {
+    pub id: i64,
+    pub url: String,
+    pub title: String,
+    /// Milliseconds since the epoch.
+    pub visited_at: i64,
+}
+
+/// Selects the history and favorites tab, opened if needed.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_tab_history() -> Result<()> {
+    imp::tab_history()
+}
+
+/// Starred pages, newest first.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_favorites() -> Result<Vec<BrowserFavorite>> {
+    imp::favorites()
+}
+
+/// Stars or unstars a web page; returns the new list.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_favorite_toggle(url: String, title: String) -> Result<Vec<BrowserFavorite>> {
+    imp::favorite_toggle(&url, &title)
+}
+
+/// Visited pages, newest first; `query` matches the title or the address.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_history(query: String, limit: u32) -> Result<Vec<BrowserVisit>> {
+    imp::history(&query, limit)
+}
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_history_delete(id: i64) -> Result<()> {
+    imp::history_delete(id)
+}
+
+/// Forgets the visited pages (downloads, library and favorites stay);
+/// returns how many.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_history_clear() -> Result<u32> {
+    imp::history_clear()
+}

@@ -65,6 +65,40 @@ void browserCycle({required int step}) =>
 /// seconds).
 void browserScan() => RustLib.instance.api.crateApiBrowserBrowserScan();
 
+/// Selects the history and favorites tab, opened if needed.
+void browserTabHistory() =>
+    RustLib.instance.api.crateApiBrowserBrowserTabHistory();
+
+/// Starred pages, newest first.
+List<BrowserFavorite> browserFavorites() =>
+    RustLib.instance.api.crateApiBrowserBrowserFavorites();
+
+/// Stars or unstars a web page; returns the new list.
+List<BrowserFavorite> browserFavoriteToggle({
+  required String url,
+  required String title,
+}) => RustLib.instance.api.crateApiBrowserBrowserFavoriteToggle(
+  url: url,
+  title: title,
+);
+
+/// Visited pages, newest first; `query` matches the title or the address.
+List<BrowserVisit> browserHistory({
+  required String query,
+  required int limit,
+}) => RustLib.instance.api.crateApiBrowserBrowserHistory(
+  query: query,
+  limit: limit,
+);
+
+void browserHistoryDelete({required PlatformInt64 id}) =>
+    RustLib.instance.api.crateApiBrowserBrowserHistoryDelete(id: id);
+
+/// Forgets the visited pages (downloads, library and favorites stay);
+/// returns how many.
+int browserHistoryClear() =>
+    RustLib.instance.api.crateApiBrowserBrowserHistoryClear();
+
 /// A change of the browser, or a shortcut pressed while the page had the
 /// keyboard (Ctrl+L, Ctrl+T, Ctrl+W, Ctrl+Tab, Ctrl+Shift+Tab, Ctrl+H, F5).
 class BrowserEvent {
@@ -101,6 +135,24 @@ class BrowserEvent {
           shortcut == other.shortcut &&
           openTab == other.openTab &&
           download == other.download;
+}
+
+class BrowserFavorite {
+  final String url;
+  final String title;
+
+  const BrowserFavorite({required this.url, required this.title});
+
+  @override
+  int get hashCode => url.hashCode ^ title.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BrowserFavorite &&
+          runtimeType == other.runtimeType &&
+          url == other.url &&
+          title == other.title;
 }
 
 /// The selected tab, and the list of tabs.
@@ -203,6 +255,36 @@ class BrowserTab {
           media == other.media &&
           loading == other.loading &&
           active == other.active;
+}
+
+class BrowserVisit {
+  final PlatformInt64 id;
+  final String url;
+  final String title;
+
+  /// Milliseconds since the epoch.
+  final PlatformInt64 visitedAt;
+
+  const BrowserVisit({
+    required this.id,
+    required this.url,
+    required this.title,
+    required this.visitedAt,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^ url.hashCode ^ title.hashCode ^ visitedAt.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BrowserVisit &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          url == other.url &&
+          title == other.title &&
+          visitedAt == other.visitedAt;
 }
 
 class DetectedMediaInfo {

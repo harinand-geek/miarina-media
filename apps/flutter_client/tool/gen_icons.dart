@@ -41,6 +41,9 @@ const _extras = [
   'arrows-clockwise',
   'pause-circle',
   'hourglass',
+  // Browser favorites (star, bookmarks).
+  'star',
+  'bookmarks-simple',
 ];
 
 void main(List<String> args) {

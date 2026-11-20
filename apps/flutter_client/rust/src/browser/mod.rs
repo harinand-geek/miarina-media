@@ -2,5 +2,6 @@
 //! of Windows, behind `api::browser`.
 
 pub mod address;
+pub mod favorites;
 pub mod state;
 pub mod webview;

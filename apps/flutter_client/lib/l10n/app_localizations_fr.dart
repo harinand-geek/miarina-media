@@ -2717,4 +2717,70 @@ class L10nFr extends L10n {
   @override
   String get brUnavailable =>
       'Le navigateur n’a pas pu démarrer : WebView2 est introuvable ou n’a pas répondu.';
+
+  @override
+  String get brHistory => 'Historique';
+
+  @override
+  String get brFavorites => 'Favoris';
+
+  @override
+  String get brHistoryViews => 'Historique ou favoris';
+
+  @override
+  String get brHistorySearch => 'Rechercher dans les pages visitées';
+
+  @override
+  String brNoMatch(String q) {
+    return 'Rien ne correspond à « $q ».';
+  }
+
+  @override
+  String get brHistoryEmpty => 'Les pages que vous visitez apparaissent ici.';
+
+  @override
+  String get brFavoritesEmpty =>
+      'Ajoutez une page aux favoris avec l’étoile de la barre d’adresse.';
+
+  @override
+  String get brHistoryNote =>
+      'Gardé sur cet appareil seulement. L’effacer ne supprime aucun fichier ni téléchargement.';
+
+  @override
+  String brDeleteVisit(String title) {
+    return 'Retirer $title de l’historique';
+  }
+
+  @override
+  String brRemoveFavorite(String title) {
+    return 'Retirer $title des favoris';
+  }
+
+  @override
+  String get brClearTitle => 'Effacer l’historique du navigateur ?';
+
+  @override
+  String get brClearBody =>
+      'Les pages visitées sont oubliées. Les téléchargements, la bibliothèque et les favoris restent.';
+
+  @override
+  String get brCleared => 'Historique du navigateur effacé';
+
+  @override
+  String get brClearHistory => 'Effacer l’historique';
+
+  @override
+  String get brFavAdd => 'Ajouter aux favoris';
+
+  @override
+  String get brFavRemove => 'Retirer des favoris';
+
+  @override
+  String get brFavAdded => 'Ajouté aux favoris';
+
+  @override
+  String get brFavRemoved => 'Retiré des favoris';
+
+  @override
+  String get brSites => 'Sites';
 }
