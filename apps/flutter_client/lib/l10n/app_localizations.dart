@@ -1318,7 +1318,7 @@ abstract class L10n {
   /// No description provided for @bookmarksHint.
   ///
   /// In fr, this message translates to:
-  /// **'B ajoute un signet à la position courante.'**
+  /// **'B ajoute un signet à la position courante. Exportables en texte avec le cours.'**
   String get bookmarksHint;
 
   /// No description provided for @bookmarkRemove.
@@ -5310,6 +5310,42 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Capturer l’image à {time}'**
   String coverFrame(String time);
+
+  /// No description provided for @bookmarkAddNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter une note…'**
+  String get bookmarkAddNote;
+
+  /// No description provided for @bookmarkEditNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier la note…'**
+  String get bookmarkEditNote;
+
+  /// No description provided for @bookmarkNoteTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Note du signet à {time}'**
+  String bookmarkNoteTitle(String time);
+
+  /// No description provided for @bookmarksExport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter…'**
+  String get bookmarksExport;
+
+  /// No description provided for @bookmarksExported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Signets enregistrés : {path}'**
+  String bookmarksExported(String path);
+
+  /// No description provided for @bookmarksExportFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les signets n’ont pas pu être enregistrés dans ce dossier.'**
+  String get bookmarksExportFailed;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

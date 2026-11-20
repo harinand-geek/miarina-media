@@ -484,7 +484,7 @@
   "bookmarks": "Signets",
   "bookmarkNoNote": "Signet sans note",
   "bookmarksEmpty": "Aucun signet pour l'instant.",
-  "bookmarksHint": "B ajoute un signet à la position courante.",
+  "bookmarksHint": "B ajoute un signet à la position courante. Exportables en texte avec le cours.",
   "bookmarkRemove": "Supprimer le signet",
   "chaptersNone": "Ce fichier n'a pas de chapitres.",
   "transcript": "Texte",
@@ -1912,6 +1912,26 @@
   "@coverFrame": {
     "placeholders": {
       "time": {
+        "type": "String"
+      }
+    }
+  },
+  "bookmarkAddNote": "Ajouter une note…",
+  "bookmarkEditNote": "Modifier la note…",
+  "bookmarkNoteTitle": "Note du signet à {time}",
+  "bookmarksExport": "Exporter…",
+  "bookmarksExported": "Signets enregistrés : {path}",
+  "bookmarksExportFailed": "Les signets n’ont pas pu être enregistrés dans ce dossier.",
+  "@bookmarkNoteTitle": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "@bookmarksExported": {
+    "placeholders": {
+      "path": {
         "type": "String"
       }
     }

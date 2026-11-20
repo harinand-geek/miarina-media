@@ -797,7 +797,8 @@ class L10nFr extends L10n {
   String get bookmarksEmpty => 'Aucun signet pour l\'instant.';
 
   @override
-  String get bookmarksHint => 'B ajoute un signet à la position courante.';
+  String get bookmarksHint =>
+      'B ajoute un signet à la position courante. Exportables en texte avec le cours.';
 
   @override
   String get bookmarkRemove => 'Supprimer le signet';
@@ -3266,4 +3267,27 @@ class L10nFr extends L10n {
   String coverFrame(String time) {
     return 'Capturer l’image à $time';
   }
+
+  @override
+  String get bookmarkAddNote => 'Ajouter une note…';
+
+  @override
+  String get bookmarkEditNote => 'Modifier la note…';
+
+  @override
+  String bookmarkNoteTitle(String time) {
+    return 'Note du signet à $time';
+  }
+
+  @override
+  String get bookmarksExport => 'Exporter…';
+
+  @override
+  String bookmarksExported(String path) {
+    return 'Signets enregistrés : $path';
+  }
+
+  @override
+  String get bookmarksExportFailed =>
+      'Les signets n’ont pas pu être enregistrés dans ce dossier.';
 }

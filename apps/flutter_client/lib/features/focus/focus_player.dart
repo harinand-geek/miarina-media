@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -89,6 +90,9 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
   _Tab _tab = _Tab.bookmarks;
   late final ProviderContainer _container;
 
+  /// The bookmark just added (seconds): highlighted, "Ajouter une note…".
+  int? _fresh;
+
   @override
   void initState() {
     super.initState();
@@ -124,10 +128,12 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
     final id = ref.read(queueProvider).current?.libraryId;
     final engine = ref.read(mediaEngineProvider);
     if (id == null || engine == null) return;
-    await ref
-        .read(focusMemoryProvider.notifier)
-        .addMark(id, engine.current.position);
-    setState(() => _tab = _Tab.bookmarks);
+    final at = engine.current.position;
+    await ref.read(focusMemoryProvider.notifier).addMark(id, at);
+    setState(() {
+      _tab = _Tab.bookmarks;
+      _fresh = at.inSeconds;
+    });
   }
 
   void _leave() => context.canPop() ? context.pop() : context.go(Routes.focus);
@@ -552,6 +558,7 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
       snap: snap,
       marks: marks,
       entry: entry,
+      fresh: _fresh,
     );
 
     final content = mobile
@@ -677,6 +684,7 @@ class _SidePanel extends ConsumerWidget {
     required this.snap,
     required this.marks,
     required this.entry,
+    this.fresh,
   });
 
   final _Tab tab;
@@ -684,6 +692,9 @@ class _SidePanel extends ConsumerWidget {
   final PlaybackSnapshot snap;
   final List<Bookmark> marks;
   final QueueEntry entry;
+
+  /// The bookmark just added (seconds).
+  final int? fresh;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -763,8 +774,15 @@ class _SidePanel extends ConsumerWidget {
                         for (final b in marks)
                           _BookmarkRow(
                             mark: b,
+                            fresh: b.at == fresh,
                             chapter: _chapterTitle(snap, b.at),
                             onTap: () => engine?.seek(Duration(seconds: b.at)),
+                            onNote: () => editBookmarkNote(
+                              context,
+                              ref,
+                              entry.libraryId!,
+                              b,
+                            ),
                             onRemove: () => ref
                                 .read(focusMemoryProvider.notifier)
                                 .removeMark(entry.libraryId!, b.at),
@@ -774,9 +792,28 @@ class _SidePanel extends ConsumerWidget {
             ),
             Padding(
               padding: const EdgeInsets.fromLTRB(18, 12, 18, 16),
-              child: Text(
-                t.bookmarksHint,
-                style: MmType.caption.copyWith(color: c.faint),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Text(
+                      t.bookmarksHint,
+                      style: MmType.caption.copyWith(color: c.faint),
+                    ),
+                  ),
+                  if (marks.isNotEmpty)
+                    Pressable(
+                      onTap: () => _export(context, ref),
+                      semanticLabel: t.bookmarksExport,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: Text(
+                          t.bookmarksExport,
+                          style: MmType.captionStrong.copyWith(color: c.fg),
+                        ),
+                      ),
+                    ),
+                ],
               ),
             ),
           ],
@@ -869,6 +906,33 @@ class _SidePanel extends ConsumerWidget {
     );
   }
 
+  /// "Exporter…": the bookmarks as a text file chosen by the user.
+  Future<void> _export(BuildContext context, WidgetRef ref) async {
+    final t = L10n.of(context);
+    final messenger = ScaffoldMessenger.maybeOf(context);
+    final uri = entry.source.uri;
+    final text = bookmarksText(
+      title: entry.title,
+      path: uri.isScheme('file') ? uri.toFilePath() : '$uri',
+      marks: marks,
+      chapterOf: (at) => _chapterTitle(snap, at),
+      clock: (at) => formatClock(Duration(seconds: at)),
+    );
+    try {
+      final saved = await ref.read(textSaverProvider)(
+        '${entry.title} - ${t.bookmarks}.txt',
+        text,
+      );
+      if (saved != null) {
+        messenger?.showSnackBar(
+          SnackBar(content: Text(t.bookmarksExported(saved))),
+        );
+      }
+    } catch (_) {
+      messenger?.showSnackBar(SnackBar(content: Text(t.bookmarksExportFailed)));
+    }
+  }
+
   static String? _chapterTitle(PlaybackSnapshot s, int at) {
     final i = s.chapterAt(Duration(seconds: at));
     return i < 0 ? null : s.chapters[i].title;
@@ -878,27 +942,38 @@ class _SidePanel extends ConsumerWidget {
 class _BookmarkRow extends StatelessWidget {
   const _BookmarkRow({
     required this.mark,
+    required this.fresh,
     required this.chapter,
     required this.onTap,
+    required this.onNote,
     required this.onRemove,
   });
 
   final Bookmark mark;
+
+  /// Just added: teal, with "Ajouter une note…" (mockup W-F2).
+  final bool fresh;
   final String? chapter;
   final VoidCallback onTap;
+  final VoidCallback onNote;
   final VoidCallback onRemove;
 
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
+    final addNote = fresh && mark.note == null;
     return Pressable(
       onTap: onTap,
       semanticLabel: '${t.bookmark} ${formatClock(Duration(seconds: mark.at))}',
       borderRadius: BorderRadius.circular(MmRadius.md),
-      hoverColor: c.cardHover,
-      child: Padding(
+      hoverColor: fresh ? null : c.cardHover,
+      child: Container(
         padding: const EdgeInsets.fromLTRB(10, 10, 4, 10),
+        decoration: BoxDecoration(
+          color: fresh ? c.accentSubtle : null,
+          borderRadius: BorderRadius.circular(MmRadius.md),
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -909,7 +984,7 @@ class _BookmarkRow extends StatelessWidget {
                 style: MmType.monoStyle(
                   size: 12.5,
                   weight: 700,
-                  color: c.coralStrong,
+                  color: fresh ? c.accent : c.coralStrong,
                 ),
               ),
             ),
@@ -921,24 +996,79 @@ class _BookmarkRow extends StatelessWidget {
                     chapter ?? t.bookmark,
                     style: MmType.labelStrong.copyWith(color: c.fg),
                   ),
-                  Text(
-                    mark.note ?? t.bookmarkNoNote,
-                    style: MmType.caption.copyWith(
-                      fontSize: 12.5,
-                      color: c.muted,
+                  if (addNote)
+                    Pressable(
+                      onTap: onNote,
+                      semanticLabel: t.bookmarkAddNote,
+                      child: Text(
+                        t.bookmarkAddNote,
+                        style: MmType.caption.copyWith(
+                          fontSize: 12.5,
+                          color: c.accent,
+                        ),
+                      ),
+                    )
+                  else
+                    Text(
+                      mark.note ?? t.bookmarkNoNote,
+                      style: MmType.caption.copyWith(
+                        fontSize: 12.5,
+                        color: c.muted,
+                      ),
                     ),
-                  ),
                 ],
               ),
             ),
-            Pressable(
-              onTap: onRemove,
-              tooltip: t.bookmarkRemove,
-              semanticLabel: t.bookmarkRemove,
-              child: SizedBox(
-                width: 32,
-                height: 32,
-                child: Icon(PhosphorRegular.x, size: 16, color: c.faint),
+            MenuAnchor(
+              style: MenuStyle(
+                backgroundColor: WidgetStatePropertyAll(c.surface2),
+                shape: WidgetStatePropertyAll(
+                  RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    side: BorderSide(color: c.overlayBorder),
+                  ),
+                ),
+              ),
+              menuChildren: [
+                MenuItemButton(
+                  leadingIcon: Icon(
+                    PhosphorRegular.notePencil,
+                    size: 18,
+                    color: c.muted,
+                  ),
+                  onPressed: onNote,
+                  child: Text(
+                    mark.note == null ? t.bookmarkAddNote : t.bookmarkEditNote,
+                    style: MmType.label.copyWith(color: c.fg),
+                  ),
+                ),
+                MenuItemButton(
+                  leadingIcon: Icon(
+                    PhosphorRegular.trashSimple,
+                    size: 18,
+                    color: c.danger,
+                  ),
+                  onPressed: onRemove,
+                  child: Text(
+                    t.bookmarkRemove,
+                    style: MmType.label.copyWith(color: c.danger),
+                  ),
+                ),
+              ],
+              builder: (context, menu, _) => Pressable(
+                onTap: () => menu.isOpen ? menu.close() : menu.open(),
+                tooltip: t.moreOptions,
+                semanticLabel:
+                    '${t.moreOptions} ${formatClock(Duration(seconds: mark.at))}',
+                child: SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: Icon(
+                    PhosphorRegular.dotsThree,
+                    size: 18,
+                    color: c.faint,
+                  ),
+                ),
               ),
             ),
           ],
@@ -947,6 +1077,124 @@ class _BookmarkRow extends StatelessWidget {
     );
   }
 }
+
+/// "Ajouter une note…" / "Modifier la note…" of a bookmark.
+Future<void> editBookmarkNote(
+  BuildContext context,
+  WidgetRef ref,
+  int id,
+  Bookmark mark,
+) async {
+  final note = await showDialog<String>(
+    context: context,
+    builder: (_) => _NoteDialog(initial: mark.note ?? '', at: mark.at),
+  );
+  if (note == null) return;
+  await ref.read(focusMemoryProvider.notifier).setNote(id, mark.at, note);
+}
+
+class _NoteDialog extends StatefulWidget {
+  const _NoteDialog({required this.initial, required this.at});
+
+  final String initial;
+  final int at;
+
+  @override
+  State<_NoteDialog> createState() => _NoteDialogState();
+}
+
+class _NoteDialogState extends State<_NoteDialog> {
+  late final _text = TextEditingController(text: widget.initial);
+
+  @override
+  void dispose() {
+    _text.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    void save() => Navigator.of(context).pop(_text.text);
+    return AlertDialog(
+      backgroundColor: c.surface2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(MmRadius.sheet),
+        side: BorderSide(color: c.overlayBorder),
+      ),
+      title: Text(
+        t.bookmarkNoteTitle(formatClock(Duration(seconds: widget.at))),
+        style: MmType.title.copyWith(color: c.fg),
+      ),
+      content: SizedBox(
+        width: 420,
+        child: TextField(
+          key: const ValueKey('bookmark-note'),
+          controller: _text,
+          autofocus: true,
+          maxLength: FocusMemory.maxNote,
+          minLines: 2,
+          maxLines: 4,
+          style: MmType.body.copyWith(color: c.fg),
+          cursorColor: c.accent,
+          onSubmitted: (_) => save(),
+          decoration: InputDecoration(
+            hintText: t.bookmarkAddNote,
+            hintStyle: MmType.body.copyWith(color: c.faint),
+            filled: true,
+            fillColor: c.bg,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(MmRadius.md),
+              borderSide: BorderSide(color: c.line),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(MmRadius.md),
+              borderSide: BorderSide(color: c.accent),
+            ),
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(
+            t.cancel,
+            style: MmType.labelStrong.copyWith(color: c.fg),
+          ),
+        ),
+        FilledButton(
+          style: FilledButton.styleFrom(
+            backgroundColor: c.accent,
+            foregroundColor: const Color(0xFF062320),
+          ),
+          onPressed: save,
+          child: Text(t.save, style: MmType.labelStrong),
+        ),
+      ],
+    );
+  }
+}
+
+/// Saves a text file where the user chooses; its path, or null when the
+/// dialog is canceled (tests answer it).
+final textSaverProvider =
+    Provider<Future<String?> Function(String name, String text)>(
+      (_) => (name, text) async {
+        final location = await getSaveLocation(
+          suggestedName: name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_'),
+          acceptedTypeGroups: const [
+            XTypeGroup(label: 'Texte', extensions: ['txt']),
+          ],
+        );
+        if (location == null) return null;
+        final path = location.path.toLowerCase().endsWith('.txt')
+            ? location.path
+            : '${location.path}.txt';
+        await File(path).writeAsString(text);
+        return path;
+      },
+    );
 
 class _TranscriptView extends ConsumerStatefulWidget {
   const _TranscriptView({required this.path});

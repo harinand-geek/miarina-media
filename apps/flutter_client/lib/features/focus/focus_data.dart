@@ -218,6 +218,21 @@ class FocusMemory {
     return FocusMemory(rates: rates, marks: next);
   }
 
+  /// The note of the bookmark at [at] (empty = no note), at most
+  /// [maxNote] characters.
+  FocusMemory withNote(int id, int at, String? note) {
+    final text = note?.trim() ?? '';
+    final clean = text.isEmpty
+        ? null
+        : text.substring(0, text.length.clamp(0, maxNote));
+    final list = [
+      for (final b in marksOf(id))
+        b.at == at ? Bookmark(at: b.at, note: clean) : b,
+    ];
+    if (list.isEmpty) return this;
+    return FocusMemory(rates: rates, marks: {...marks, id: list});
+  }
+
   FocusMemory withoutMark(int id, int at) {
     final list = [...marksOf(id)]..removeWhere((b) => b.at == at);
     final next = {...marks};
@@ -256,6 +271,9 @@ class FocusMemoryController extends AsyncNotifier<FocusMemory> {
 
   Future<void> removeMark(int id, int at) async =>
       _save((await future).withoutMark(id, at));
+
+  Future<void> setNote(int id, int at, String? note) async =>
+      _save((await future).withNote(id, at, note));
 }
 
 /// Applies the remembered speed when a Focus item starts, and goes back to
@@ -282,4 +300,20 @@ Duration leftAt(Duration total, Duration position, double rate) {
   final left = total - position;
   if (left.isNegative) return Duration.zero;
   return Duration(milliseconds: (left.inMilliseconds / rate).round());
+}
+
+/// Bookmarks as plain text, to keep with the course ("Exportables en texte
+/// avec le cours"): the title, the file, then one line per bookmark.
+String bookmarksText({
+  required String title,
+  required String path,
+  required List<Bookmark> marks,
+  required String? Function(int at) chapterOf,
+  required String Function(int at) clock,
+}) {
+  final lines = [title, path, ''];
+  for (final b in marks) {
+    lines.add([clock(b.at), ?chapterOf(b.at), ?b.note].join(' · '));
+  }
+  return '${lines.join('\n')}\n';
 }

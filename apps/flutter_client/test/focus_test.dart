@@ -99,6 +99,8 @@ void main() {
     });
   });
 
+  final exported = <(String, String)>[];
+
   group('screens', () {
     late FakeEngine engine;
     late FakePlaybackStore store;
@@ -127,6 +129,10 @@ void main() {
             settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
             lyricsLoaderProvider.overrideWithValue((_) async => null),
             transcriptLoaderProvider.overrideWithValue((_) async => null),
+            textSaverProvider.overrideWithValue((name, text) async {
+              exported.add((name, text));
+              return 'D:\\Cours\\$name';
+            }),
             playbackStoreProvider.overrideWithValue(store),
             initialRouteProvider.overrideWithValue(start),
           ],
@@ -138,6 +144,7 @@ void main() {
 
     setUp(() {
       engine = FakeEngine();
+      exported.clear();
       final now = DateTime(2026, 11, 19, 20).millisecondsSinceEpoch;
       Map<String, Object> played(int id, int position, double duration) => {
         'id': id,
@@ -233,7 +240,7 @@ void main() {
         [1120],
       );
       expect(find.text('18:40'), findsWidgets);
-      expect(find.text('Signet sans note'), findsOneWidget);
+      expect(find.text('Ajouter une note…'), findsOneWidget, reason: 'new');
 
       engine.emit(
         engine.current.copyWith(
@@ -259,6 +266,64 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       await settle(tester);
       expect(engine.seeks.last, const Duration(minutes: 41, seconds: 30));
+    });
+
+    testWidgets('W-F2: a note on the new bookmark, edited, then exported', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: Routes.focus);
+      await tester.tap(find.text('Cours 7 · Ordonnancement').last);
+      await settle(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyB);
+      await settle(tester);
+
+      await tester.tap(find.text('Ajouter une note…'));
+      await settle(tester);
+      expect(find.text('Note du signet à 18:40'), findsOneWidget);
+      await tester.enterText(
+        find.byKey(const ValueKey('bookmark-note')),
+        '  À revoir avant l’examen ',
+      );
+      await tester.tap(find.text('Enregistrer'));
+      await settle(tester);
+      expect(find.text('À revoir avant l’examen'), findsOneWidget);
+      expect(
+        FocusMemory.parse(store.values[FocusMemory.storeKey]).marksOf(107),
+        [const Bookmark(at: 1120, note: 'À revoir avant l’examen')],
+      );
+
+      // "⋯": edit, then cleared = no note.
+      await tester.tap(find.bySemanticsLabel("Plus d'options 18:40"));
+      await settle(tester);
+      await tester.tap(find.text('Modifier la note…'));
+      await settle(tester);
+      await tester.enterText(find.byKey(const ValueKey('bookmark-note')), '');
+      await tester.tap(find.text('Enregistrer'));
+      await settle(tester);
+      expect(
+        FocusMemory.parse(store.values[FocusMemory.storeKey]).marksOf(107),
+        [const Bookmark(at: 1120)],
+      );
+
+      await tester.tap(find.text('Exporter…'));
+      await settle(tester);
+      final (name, text) = exported.single;
+      expect(name, 'Cours 7 · Ordonnancement - Signets.txt');
+      expect(text.split('\n').first, 'Cours 7 · Ordonnancement');
+      expect(text, contains('18:40\n'));
+      expect(
+        find.textContaining(r'Signets enregistrés : D:\Cours'),
+        findsOneWidget,
+      );
+
+      await tester.tap(find.bySemanticsLabel("Plus d'options 18:40"));
+      await settle(tester);
+      await tester.tap(find.text('Supprimer le signet'));
+      await settle(tester);
+      expect(
+        FocusMemory.parse(store.values[FocusMemory.storeKey]).marksOf(107),
+        isEmpty,
+      );
     });
 
     testWidgets('music after Focus goes back to normal speed', (tester) async {

@@ -795,7 +795,8 @@ class L10nEn extends L10n {
   String get bookmarksEmpty => 'No bookmarks yet.';
 
   @override
-  String get bookmarksHint => 'B adds a bookmark at the current position.';
+  String get bookmarksHint =>
+      'B adds a bookmark at the current position. Exportable as text with the course.';
 
   @override
   String get bookmarkRemove => 'Remove the bookmark';
@@ -3240,4 +3241,27 @@ class L10nEn extends L10n {
   String coverFrame(String time) {
     return 'Capture frame at $time';
   }
+
+  @override
+  String get bookmarkAddNote => 'Add a note…';
+
+  @override
+  String get bookmarkEditNote => 'Edit the note…';
+
+  @override
+  String bookmarkNoteTitle(String time) {
+    return 'Bookmark note at $time';
+  }
+
+  @override
+  String get bookmarksExport => 'Export…';
+
+  @override
+  String bookmarksExported(String path) {
+    return 'Bookmarks saved: $path';
+  }
+
+  @override
+  String get bookmarksExportFailed =>
+      'The bookmarks could not be saved in this folder.';
 }

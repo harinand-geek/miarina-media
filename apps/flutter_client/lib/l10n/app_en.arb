@@ -203,7 +203,7 @@
   "bookmarks": "Bookmarks",
   "bookmarkNoNote": "Bookmark without a note",
   "bookmarksEmpty": "No bookmarks yet.",
-  "bookmarksHint": "B adds a bookmark at the current position.",
+  "bookmarksHint": "B adds a bookmark at the current position. Exportable as text with the course.",
   "bookmarkRemove": "Remove the bookmark",
   "chaptersNone": "This file has no chapters.",
   "transcript": "Text",
@@ -868,5 +868,11 @@
   "fDirector": "Director / author",
   "fSeries": "Series / collection",
   "fLicense": "License / comment",
-  "coverFrame": "Capture frame at {time}"
+  "coverFrame": "Capture frame at {time}",
+  "bookmarkAddNote": "Add a note…",
+  "bookmarkEditNote": "Edit the note…",
+  "bookmarkNoteTitle": "Bookmark note at {time}",
+  "bookmarksExport": "Export…",
+  "bookmarksExported": "Bookmarks saved: {path}",
+  "bookmarksExportFailed": "The bookmarks could not be saved in this folder."
 }
