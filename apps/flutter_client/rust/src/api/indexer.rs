@@ -45,6 +45,11 @@ pub struct IndexStatus {
     pub has_ffmpeg: bool,
 }
 
+/// The running library (indexing must have started).
+pub(crate) fn running_library() -> Result<Library> {
+    with_indexer(|i| Ok(i.library.clone()))
+}
+
 fn with_indexer<R>(f: impl FnOnce(&Indexer) -> Result<R>) -> Result<R> {
     let guard = INDEXER
         .lock()
@@ -105,10 +110,10 @@ pub fn indexer_scan(folders: Vec<String>) -> Result<ScanTotals> {
         restored: 0,
     };
     for folder in folders {
+        // A folder that is not there (drive unplugged) is scanned too: its
+        // entries are marked missing (W-O2), never deleted, and come back
+        // at the next scan once it is.
         let path = PathBuf::from(&folder);
-        if !path.is_dir() {
-            continue;
-        }
         let report = library.scan(&path)?;
         totals.added += report.added as u32;
         totals.missing += report.missing as u32;

@@ -1633,4 +1633,322 @@ class L10nFr extends L10n {
 
   @override
   String get noFolders => 'Aucun dossier suivi pour l\'instant.';
+
+  @override
+  String get navSectionLibrary => 'Bibliothèque';
+
+  @override
+  String get navMissing => 'Introuvables';
+
+  @override
+  String get navDuplicates => 'Doublons';
+
+  @override
+  String get healthGroup => 'État de la bibliothèque';
+
+  @override
+  String get missingTitle => 'Fichiers introuvables';
+
+  @override
+  String missingSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count éléments n\'ont pas été trouvés au dernier passage. Rien n\'a été supprimé.',
+      one: '1 élément n\'a pas été trouvé au dernier passage. Rien n\'a été supprimé.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingVolumeTitle(String volume) {
+    return 'Disque $volume déconnecté';
+  }
+
+  @override
+  String missingVolumeBody(int count, String folder) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count éléments de $folder. Ils réapparaîtront au branchement.',
+      one: '1 élément de $folder. Il réapparaîtra au branchement.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingMovedTitle => 'Dossier probablement renommé';
+
+  @override
+  String missingMovedBody(int count, String folder) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count fichiers retrouvés dans $folder, avec le même nom et la même taille.',
+      one:
+          '1 fichier retrouvé dans $folder, avec le même nom et la même taille.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLostTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers introuvables',
+      one: '1 fichier introuvable',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLostBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Aucune correspondance trouvée. Ils ont peut-être été supprimés.',
+      one: 'Aucune correspondance trouvée. Il a peut-être été supprimé.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingRelocate => 'Relocaliser…';
+
+  @override
+  String get missingHide => 'Masquer';
+
+  @override
+  String get missingUpdatePaths => 'Mettre à jour les chemins';
+
+  @override
+  String get missingIgnore => 'Ignorer';
+
+  @override
+  String get missingLocate => 'Localiser…';
+
+  @override
+  String get missingSearchFolder => 'Chercher dans un dossier…';
+
+  @override
+  String get missingRemove => 'Retirer de la bibliothèque';
+
+  @override
+  String get missingStatusVolume => 'disque absent';
+
+  @override
+  String get missingStatusFound => '→ trouvé';
+
+  @override
+  String get missingStatusLost => 'introuvable';
+
+  @override
+  String missingMore(int count) {
+    return 'et $count autres';
+  }
+
+  @override
+  String missingHiddenGroups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count groupes masqués',
+      one: '1 groupe masqué',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingShowAll => 'Tout afficher';
+
+  @override
+  String get missingEmptyTitle => 'Tous vos fichiers sont là';
+
+  @override
+  String get missingEmptyBody =>
+      'Les fichiers déplacés ou rangés sur un disque débranché apparaîtront ici. Rien n\'est jamais supprimé automatiquement.';
+
+  @override
+  String missingPathsUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count chemins mis à jour',
+      one: '1 chemin mis à jour',
+      zero: 'Aucun chemin mis à jour',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingFoundCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers retrouvés',
+      one: '1 fichier retrouvé',
+      zero: 'Aucun fichier retrouvé',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLeftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count toujours introuvables',
+      one: '1 toujours introuvable',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingRemoveTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Retirer ces $count fichiers de la bibliothèque ?',
+      one: 'Retirer ce fichier de la bibliothèque ?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingRemoveBody =>
+      'Ils quittent la bibliothèque, les playlists et la reprise de lecture. Aucun fichier n\'est supprimé du disque : s\'ils réapparaissent, ouvrez-les pour les ajouter à nouveau.';
+
+  @override
+  String get remove => 'Retirer';
+
+  @override
+  String missingSkipped(String title) {
+    return '« $title » est introuvable, titre suivant';
+  }
+
+  @override
+  String missingSkippedLast(String title) {
+    return '« $title » est introuvable';
+  }
+
+  @override
+  String get locate => 'Localiser';
+
+  @override
+  String get fileLocated => 'Fichier retrouvé';
+
+  @override
+  String get locateFailed =>
+      'Ce fichier ne peut pas être utilisé à la place de l\'original.';
+
+  @override
+  String get duplicatesTitle => 'Doublons';
+
+  @override
+  String duplicatesSubtitle(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count groupes · $size récupérables · même titre, même artiste, même durée',
+      one:
+          '1 groupe · $size récupérables · même titre, même artiste, même durée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duplicatesKeepBest => 'Garder la meilleure qualité partout';
+
+  @override
+  String duplicateVersions(int count) {
+    return '$count versions';
+  }
+
+  @override
+  String get duplicateKeep => 'Garder';
+
+  @override
+  String get duplicateHide => 'Masquer';
+
+  @override
+  String get duplicateTrash => 'Mettre à la Corbeille…';
+
+  @override
+  String get duplicatesNote =>
+      'Par défaut, les doublons sont seulement masqués de la bibliothèque : le fichier reste sur le disque. La suppression va dans la Corbeille Windows.';
+
+  @override
+  String duplicatesHideAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Masquer les $count doublons',
+      one: 'Masquer le doublon',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String duplicatesHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count doublons masqués, leurs playlists passent à la version gardée',
+      one: '1 doublon masqué, ses playlists passent à la version gardée',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duplicateTrashTitle => 'Mettre ce fichier à la Corbeille ?';
+
+  @override
+  String get duplicateTrashBody =>
+      'Ses playlists et son favori passent à la version gardée. Vous pourrez le récupérer depuis la Corbeille Windows.';
+
+  @override
+  String get duplicateTrashed => 'Fichier mis à la Corbeille';
+
+  @override
+  String get duplicatesEmptyTitle => 'Aucun doublon';
+
+  @override
+  String get duplicatesEmptyBody =>
+      'Les titres présents en plusieurs versions (même titre, même artiste, même durée) apparaîtront ici.';
+
+  @override
+  String get duplicatesNeedFfmpeg =>
+      'Les durées sont lues par FFmpeg, absent de cette installation : la recherche de doublons attend.';
+
+  @override
+  String sizeKb(String n) {
+    return '$n Ko';
+  }
+
+  @override
+  String sizeMb(String n) {
+    return '$n Mo';
+  }
+
+  @override
+  String sizeGb(String n) {
+    return '$n Go';
+  }
+
+  @override
+  String duplicatesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres présents en plusieurs versions',
+      one: '1 titre présent en plusieurs versions',
+      zero: 'Aucun doublon trouvé',
+    );
+    return '$_temp0';
+  }
 }

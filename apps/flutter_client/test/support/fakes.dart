@@ -4,6 +4,7 @@ import 'package:flutter/widgets.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/health/health_data.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/playlists/playlists_data.dart';
 import 'package:miarina_media/features/search/search_data.dart';
@@ -614,3 +615,147 @@ class FakeIndexerApi implements IndexerApi {
   Future<void> setFocusFolders(List<String> folders) async =>
       focusFolders = folders;
 }
+
+/// Library health (W-O2) in memory: missing groups and duplicates, with
+/// every call recorded.
+class FakeHealthApi implements HealthApi {
+  FakeHealthApi({
+    List<MissingGroupInfo> missing = const [],
+    List<DuplicateSet> duplicates = const [],
+    this.absent = const {},
+  }) : groups = [...missing],
+       sets = [...duplicates];
+
+  final List<MissingGroupInfo> groups;
+  final List<DuplicateSet> sets;
+
+  /// Library ids whose file is gone (checked before playing).
+  final Set<int> absent;
+  final relocated = <(int, String)>[];
+  final searched = <(List<int>, String)>[];
+  final removed = <int>[];
+  final setAsides = <(int, int, bool)>[];
+  final checked = <int>[];
+
+  void _forget(Iterable<int> ids) {
+    for (var i = groups.length - 1; i >= 0; i--) {
+      final g = groups[i];
+      final left = [
+        for (final f in g.files)
+          if (!ids.contains(f.id)) f,
+      ];
+      if (left.isEmpty) {
+        groups.removeAt(i);
+      } else if (left.length != g.files.length) {
+        groups[i] = MissingGroupInfo(
+          cause: g.cause,
+          key: g.key,
+          folder: g.folder,
+          target: g.target,
+          files: left,
+        );
+      }
+    }
+  }
+
+  @override
+  Future<List<MissingGroupInfo>> missing() async => [...groups];
+
+  @override
+  Future<void> relocate(int id, String file) async {
+    relocated.add((id, file));
+    _forget([id]);
+  }
+
+  @override
+  Future<int> relocateFound(List<int> ids, List<String> files) async {
+    for (var i = 0; i < ids.length; i++) {
+      relocated.add((ids[i], files[i]));
+    }
+    _forget(ids);
+    return ids.length;
+  }
+
+  @override
+  Future<RelocateResult> relocateIn(List<int> ids, String folder) async {
+    searched.add((ids, folder));
+    // The first one is found there, the others not.
+    _forget(ids.take(1));
+    return RelocateResult(found: 1, left: ids.length - 1);
+  }
+
+  @override
+  Future<void> remove(List<int> ids) async {
+    removed.addAll(ids);
+    _forget(ids);
+  }
+
+  @override
+  Future<List<DuplicateSet>> duplicates() async => [...sets];
+
+  @override
+  Future<void> setAside(int keep, int drop, {bool deleteFile = false}) async {
+    setAsides.add((keep, drop, deleteFile));
+    for (var i = sets.length - 1; i >= 0; i--) {
+      final s = sets[i];
+      final left = [
+        for (final v in s.versions)
+          if (v.item.id != drop) v,
+      ];
+      if (left.length < 2) {
+        sets.removeAt(i);
+      } else {
+        sets[i] = DuplicateSet(
+          isVideo: s.isVideo,
+          title: s.title,
+          artist: s.artist,
+          album: s.album,
+          versions: left,
+        );
+      }
+    }
+  }
+
+  /// Times the sidebar badges were read (each library refresh).
+  var countReads = 0;
+
+  @override
+  Future<HealthCounts> counts() async {
+    countReads++;
+    return HealthCounts(
+      missing: BigInt.from(groups.fold<int>(0, (n, g) => n + g.files.length)),
+      duplicates: sets.length,
+    );
+  }
+
+  @override
+  Future<bool> check(int id) async {
+    checked.add(id);
+    return !absent.contains(id);
+  }
+}
+
+DuplicateVersion version(
+  int id,
+  String path, {
+  required int size,
+  String codec = 'mp3',
+  bool lossless = false,
+  int? kbps,
+}) => DuplicateVersion(
+  item: LibraryItem(
+    id: id,
+    title: 'Marée haute',
+    path: path,
+    isVideo: false,
+    durationSecs: 240,
+    artist: 'Nafy Rakoto',
+    album: 'Saisons de sel',
+    missing: false,
+    favorite: false,
+  ),
+  sizeBytes: BigInt.from(size),
+  codec: codec,
+  lossless: lossless,
+  bitrateKbps: kbps,
+);

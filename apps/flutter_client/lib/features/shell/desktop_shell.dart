@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../app/router.dart';
 import '../../design/tokens.dart';
 import '../cinema/watch_screen.dart';
+import '../health/health_screens.dart' show MissingSkipListener;
 import '../shortcuts/global_shortcuts.dart';
 import '../now_playing/now_playing_screen.dart';
 import 'playback_bar.dart';
@@ -48,36 +49,38 @@ class DesktopShell extends ConsumerWidget {
     final welcome = location == Routes.welcome;
     final content = KeyedSubtree(key: _content, child: child);
     // Keyboard shortcuts of the whole window (W-S3), Ctrl K included.
-    return GlobalShortcuts(
-      // W-C4: the full-screen player alone, the window in full screen.
-      child: watching && ref.watch(videoFullscreenProvider)
-          ? Scaffold(backgroundColor: c.video, body: content)
-          : Scaffold(
-              backgroundColor: c.bg,
-              body: Column(
-                children: [
-                  TitleBar(
-                    sideWidth: collapsed ? 64 : 232,
-                    location: location,
-                    search: !welcome,
-                  ),
-                  Expanded(
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Settings brings its own navigation (W-S1…S3).
-                        if (!location.startsWith(Routes.settings) && !welcome)
-                          Sidebar(location: location, collapsed: collapsed),
-                        Expanded(child: ClipRect(child: content)),
-                      ],
+    return MissingSkipListener(
+      child: GlobalShortcuts(
+        // W-C4: the full-screen player alone, the window in full screen.
+        child: watching && ref.watch(videoFullscreenProvider)
+            ? Scaffold(backgroundColor: c.video, body: content)
+            : Scaffold(
+                backgroundColor: c.bg,
+                body: Column(
+                  children: [
+                    TitleBar(
+                      sideWidth: collapsed ? 64 : 232,
+                      location: location,
+                      search: !welcome,
                     ),
-                  ),
-                  // W-C3 and W-F2 have their own controls.
-                  if (!watching && location != Routes.focusPlayer && !welcome)
-                    const PlaybackBar(),
-                ],
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Settings brings its own navigation (W-S1…S3).
+                          if (!location.startsWith(Routes.settings) && !welcome)
+                            Sidebar(location: location, collapsed: collapsed),
+                          Expanded(child: ClipRect(child: content)),
+                        ],
+                      ),
+                    ),
+                    // W-C3 and W-F2 have their own controls.
+                    if (!watching && location != Routes.focusPlayer && !welcome)
+                      const PlaybackBar(),
+                  ],
+                ),
               ),
-            ),
+      ),
     );
   }
 }

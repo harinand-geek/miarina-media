@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 import '../../src/rust/api/indexer.dart';
 import '../cinema/cinema_data.dart';
 import '../focus/focus_data.dart';
+import '../health/health_data.dart';
 import '../home/home_data.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
@@ -145,6 +146,9 @@ void refreshLibraryWith(void Function(ProviderOrFamily) invalidate) {
   invalidate(focusLibraryProvider);
   invalidate(homeProvider);
   invalidate(playlistsProvider);
+  invalidate(missingProvider);
+  invalidate(duplicatesProvider);
+  invalidate(healthCountsProvider);
 }
 
 /// Starts indexing at launch: the followed folders are scanned again in the
@@ -159,6 +163,9 @@ final indexingProvider = Provider<void>((ref) {
   Future<void> run() async {
     try {
       await api.start();
+      // Read before the scan: a scan and worker done within the first poll
+      // would otherwise never refresh the screens.
+      seen = await api.generation();
       final folders = await ref.read(libraryFoldersProvider.future);
       await api.setFocusFolders([
         for (final f in folders)
@@ -169,7 +176,7 @@ final indexingProvider = Provider<void>((ref) {
       }
       poll = Timer.periodic(const Duration(seconds: 2), (_) async {
         final g = await api.generation();
-        if (seen != null && g != seen) refreshLibraryWith(ref.invalidate);
+        if (g != seen) refreshLibraryWith(ref.invalidate);
         seen = g;
       });
     } catch (e) {

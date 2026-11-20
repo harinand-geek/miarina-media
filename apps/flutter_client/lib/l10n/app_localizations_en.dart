@@ -1627,4 +1627,320 @@ class L10nEn extends L10n {
 
   @override
   String get noFolders => 'No followed folders yet.';
+
+  @override
+  String get navSectionLibrary => 'Library';
+
+  @override
+  String get navMissing => 'Missing';
+
+  @override
+  String get navDuplicates => 'Duplicates';
+
+  @override
+  String get healthGroup => 'Library health';
+
+  @override
+  String get missingTitle => 'Missing files';
+
+  @override
+  String missingSubtitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count items were not found at the last check. Nothing was deleted.',
+      one: '1 item was not found at the last check. Nothing was deleted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingVolumeTitle(String volume) {
+    return 'Drive $volume disconnected';
+  }
+
+  @override
+  String missingVolumeBody(int count, String folder) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count items from $folder. They come back when the drive is connected.',
+      one: '1 item from $folder. It comes back when the drive is connected.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingMovedTitle => 'Folder probably renamed';
+
+  @override
+  String missingMovedBody(int count, String folder) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files found in $folder, with the same name and size.',
+      one: '1 file found in $folder, with the same name and size.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLostTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files not found',
+      one: '1 file not found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLostBody(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'No match found. They may have been deleted.',
+      one: 'No match found. It may have been deleted.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingRelocate => 'Relocate…';
+
+  @override
+  String get missingHide => 'Hide';
+
+  @override
+  String get missingUpdatePaths => 'Update paths';
+
+  @override
+  String get missingIgnore => 'Ignore';
+
+  @override
+  String get missingLocate => 'Locate…';
+
+  @override
+  String get missingSearchFolder => 'Search a folder…';
+
+  @override
+  String get missingRemove => 'Remove from library';
+
+  @override
+  String get missingStatusVolume => 'drive absent';
+
+  @override
+  String get missingStatusFound => '→ found';
+
+  @override
+  String get missingStatusLost => 'not found';
+
+  @override
+  String missingMore(int count) {
+    return 'and $count more';
+  }
+
+  @override
+  String missingHiddenGroups(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count hidden groups',
+      one: '1 hidden group',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingShowAll => 'Show all';
+
+  @override
+  String get missingEmptyTitle => 'All your files are here';
+
+  @override
+  String get missingEmptyBody =>
+      'Files that were moved or sit on an unplugged drive show up here. Nothing is ever deleted automatically.';
+
+  @override
+  String missingPathsUpdated(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count paths updated',
+      one: '1 path updated',
+      zero: 'No path updated',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingFoundCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files found',
+      one: '1 file found',
+      zero: 'No file found',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingLeftCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count still missing',
+      one: '1 still missing',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String missingRemoveTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Remove these $count files from the library?',
+      one: 'Remove this file from the library?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get missingRemoveBody =>
+      'They leave the library, the playlists and resume points. No file is deleted from disk: if they turn up again, open them to add them back.';
+
+  @override
+  String get remove => 'Remove';
+
+  @override
+  String missingSkipped(String title) {
+    return '“$title” can’t be found, playing the next one';
+  }
+
+  @override
+  String missingSkippedLast(String title) {
+    return '“$title” can’t be found';
+  }
+
+  @override
+  String get locate => 'Locate';
+
+  @override
+  String get fileLocated => 'File located';
+
+  @override
+  String get locateFailed =>
+      'This file can’t be used in place of the original.';
+
+  @override
+  String get duplicatesTitle => 'Duplicates';
+
+  @override
+  String duplicatesSubtitle(int count, String size) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count groups · $size to recover · same title, artist and duration',
+      one: '1 group · $size to recover · same title, artist and duration',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duplicatesKeepBest => 'Keep the best quality everywhere';
+
+  @override
+  String duplicateVersions(int count) {
+    return '$count versions';
+  }
+
+  @override
+  String get duplicateKeep => 'Keep';
+
+  @override
+  String get duplicateHide => 'Hide';
+
+  @override
+  String get duplicateTrash => 'Move to Recycle Bin…';
+
+  @override
+  String get duplicatesNote =>
+      'By default, duplicates are only hidden from the library: the file stays on disk. Deleting sends it to the Windows Recycle Bin.';
+
+  @override
+  String duplicatesHideAll(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hide the $count duplicates',
+      one: 'Hide the duplicate',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String duplicatesHidden(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$count duplicates hidden, their playlists now use the kept version',
+      one: '1 duplicate hidden, its playlists now use the kept version',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get duplicateTrashTitle => 'Move this file to the Recycle Bin?';
+
+  @override
+  String get duplicateTrashBody =>
+      'Its playlists and favorite move to the kept version. You can restore it from the Windows Recycle Bin.';
+
+  @override
+  String get duplicateTrashed => 'File moved to the Recycle Bin';
+
+  @override
+  String get duplicatesEmptyTitle => 'No duplicates';
+
+  @override
+  String get duplicatesEmptyBody =>
+      'Titles present in several versions (same title, artist and duration) show up here.';
+
+  @override
+  String get duplicatesNeedFfmpeg =>
+      'Durations are read by FFmpeg, which this installation lacks: the duplicate search waits for it.';
+
+  @override
+  String sizeKb(String n) {
+    return '$n KB';
+  }
+
+  @override
+  String sizeMb(String n) {
+    return '$n MB';
+  }
+
+  @override
+  String sizeGb(String n) {
+    return '$n GB';
+  }
+
+  @override
+  String duplicatesFound(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titles in several versions',
+      one: '1 title in several versions',
+      zero: 'No duplicates found',
+    );
+    return '$_temp0';
+  }
 }

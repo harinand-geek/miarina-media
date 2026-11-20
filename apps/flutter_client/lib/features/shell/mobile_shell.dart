@@ -11,6 +11,7 @@ import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
+import '../health/health_screens.dart' show MissingSkipListener;
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
 
@@ -29,6 +30,18 @@ class MobileShell extends ConsumerWidget {
     final hasMedia = ref.watch(queueProvider.select((q) => q.current != null));
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final navHeight = 72 + bottomInset;
+    return MissingSkipListener(
+      child: _scaffold(context, c, hasMedia, navHeight, bottomInset),
+    );
+  }
+
+  Widget _scaffold(
+    BuildContext context,
+    MmColors c,
+    bool hasMedia,
+    double navHeight,
+    double bottomInset,
+  ) {
     return Scaffold(
       backgroundColor: c.bg,
       body: Stack(

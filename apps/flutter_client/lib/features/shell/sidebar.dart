@@ -8,16 +8,27 @@ import '../../design/tokens.dart';
 import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../health/health_data.dart';
 import '../library/library_data.dart';
 import '../playlists/playlists_data.dart';
 
 class _Entry {
-  const _Entry(this.route, this.label, this.icon, this.filled, {this.count});
+  const _Entry(
+    this.route,
+    this.label,
+    this.icon,
+    this.filled, {
+    this.count,
+    this.warn = false,
+  });
   final String route;
   final String label;
   final IconData icon;
   final IconData filled;
   final String? count;
+
+  /// Amber badge: something needs the user (missing files).
+  final bool warn;
 }
 
 /// Windows sidebar of the Listen space (Handoff, "Navigation cible"):
@@ -35,6 +46,12 @@ class Sidebar extends ConsumerWidget {
     final tracks = ref.watch(libraryStatsProvider).value?.audioCount.toInt();
     final playlists = ref.watch(playlistsProvider).value?.length;
     final inGet = location.startsWith(Routes.get);
+    // W-O2: shown when there is something to look at (or while on it).
+    final health = ref.watch(healthCountsProvider).value;
+    final missing = health?.missing.toInt() ?? 0;
+    final duplicates = health?.duplicates ?? 0;
+    final onHealth =
+        location == Routes.missing || location == Routes.duplicates;
 
     final groups = <(String?, List<_Entry>)>[
       (
@@ -126,6 +143,29 @@ class Sidebar extends ConsumerWidget {
           ),
         ],
       ),
+      if (missing > 0 || duplicates > 0 || onHealth)
+        (
+          t.navSectionLibrary,
+          [
+            if (missing > 0 || location == Routes.missing)
+              _Entry(
+                Routes.missing,
+                t.navMissing,
+                PhosphorRegular.linkBreak,
+                PhosphorFill.linkBreak,
+                count: missing > 0 ? _group(missing) : null,
+                warn: true,
+              ),
+            if (duplicates > 0 || location == Routes.duplicates)
+              _Entry(
+                Routes.duplicates,
+                t.navDuplicates,
+                PhosphorRegular.copy,
+                PhosphorFill.copy,
+                count: duplicates > 0 ? _group(duplicates) : null,
+              ),
+          ],
+        ),
     ];
 
     return Container(
@@ -270,7 +310,23 @@ class _NavItem extends StatelessWidget {
                   style: MmType.label.copyWith(color: active ? c.fg : c.muted),
                 ),
               ),
-              if (entry.count != null)
+              if (entry.count != null && entry.warn)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 6),
+                  decoration: BoxDecoration(
+                    color: c.warningSubtle,
+                    borderRadius: BorderRadius.circular(MmRadius.pill),
+                  ),
+                  child: Text(
+                    entry.count!,
+                    style: MmType.caption.copyWith(
+                      fontSize: 11.5,
+                      fontWeight: FontWeight.w700,
+                      color: c.warning,
+                    ),
+                  ),
+                )
+              else if (entry.count != null)
                 Text(
                   entry.count!,
                   style: MmType.caption.copyWith(

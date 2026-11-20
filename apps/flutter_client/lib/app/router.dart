@@ -13,6 +13,7 @@ import '../features/cinema/watch_screen.dart';
 import '../features/common/coming_soon.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
+import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
 import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
@@ -50,6 +51,8 @@ abstract final class Routes {
   static const focusProgram = '/listen/focus/program';
   static const focusPlayer = '/listen/focus/player';
   static const audiobooks = '/listen/focus/books';
+  static const missing = '/listen/library/missing';
+  static const duplicates = '/listen/library/duplicates';
   static const get = '/get';
   static const settings = '/settings';
   static const now = '/now';
@@ -181,6 +184,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           screen(Routes.favorites, () => const ComingSoon(screenId: 'W-M1c')),
           screen(Routes.history, () => const HistoryScreen()),
+          screen(Routes.missing, () => const MissingScreen()),
+          screen(Routes.duplicates, () => const DuplicatesScreen()),
           screen(Routes.welcome, () => const WelcomeScreen()),
           GoRoute(
             path: Routes.search,

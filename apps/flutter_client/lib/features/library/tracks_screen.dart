@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../health/health_screens.dart' show locateMissing;
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../common/state_views.dart';
@@ -102,6 +103,11 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
 
   void _play(int index) {
     final t = L10n.of(context);
+    // W-O2: a missing file is located rather than played.
+    if (_items[index].missing) {
+      unawaited(locateMissing(context, ref, _items[index].id));
+      return;
+    }
     final entries = [
       for (final i in _items) queueEntryOf(i, unknownArtist: t.unknownArtist),
     ];
@@ -347,7 +353,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
                         ),
                         Text(
                           item.missing
-                              ? t.fileMissing
+                              ? '${t.fileMissing} · ${t.locate}'
                               : (item.artist ?? t.unknownArtist),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -557,7 +563,9 @@ class _TrackRow extends StatelessWidget {
                         ),
                         if (item.missing)
                           Text(
-                            t.fileMissing,
+                            '${t.fileMissing} · ${t.locate}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                             style: MmType.caption.copyWith(
                               color: c.warning,
                               fontSize: 11.5,

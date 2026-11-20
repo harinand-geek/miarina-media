@@ -2754,6 +2754,354 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Aucun dossier suivi pour l\'instant.'**
   String get noFolders;
+
+  /// No description provided for @navSectionLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque'**
+  String get navSectionLibrary;
+
+  /// No description provided for @navMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Introuvables'**
+  String get navMissing;
+
+  /// No description provided for @navDuplicates.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doublons'**
+  String get navDuplicates;
+
+  /// No description provided for @healthGroup.
+  ///
+  /// In fr, this message translates to:
+  /// **'État de la bibliothèque'**
+  String get healthGroup;
+
+  /// No description provided for @missingTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichiers introuvables'**
+  String get missingTitle;
+
+  /// No description provided for @missingSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 élément n\'a pas été trouvé au dernier passage. Rien n\'a été supprimé.} other{{count} éléments n\'ont pas été trouvés au dernier passage. Rien n\'a été supprimé.}}'**
+  String missingSubtitle(int count);
+
+  /// No description provided for @missingVolumeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Disque {volume} déconnecté'**
+  String missingVolumeTitle(String volume);
+
+  /// No description provided for @missingVolumeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 élément de {folder}. Il réapparaîtra au branchement.} other{{count} éléments de {folder}. Ils réapparaîtront au branchement.}}'**
+  String missingVolumeBody(int count, String folder);
+
+  /// No description provided for @missingMovedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier probablement renommé'**
+  String get missingMovedTitle;
+
+  /// No description provided for @missingMovedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 fichier retrouvé dans {folder}, avec le même nom et la même taille.} other{{count} fichiers retrouvés dans {folder}, avec le même nom et la même taille.}}'**
+  String missingMovedBody(int count, String folder);
+
+  /// No description provided for @missingLostTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 fichier introuvable} other{{count} fichiers introuvables}}'**
+  String missingLostTitle(int count);
+
+  /// No description provided for @missingLostBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Aucune correspondance trouvée. Il a peut-être été supprimé.} other{Aucune correspondance trouvée. Ils ont peut-être été supprimés.}}'**
+  String missingLostBody(int count);
+
+  /// No description provided for @missingRelocate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Relocaliser…'**
+  String get missingRelocate;
+
+  /// No description provided for @missingHide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer'**
+  String get missingHide;
+
+  /// No description provided for @missingUpdatePaths.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à jour les chemins'**
+  String get missingUpdatePaths;
+
+  /// No description provided for @missingIgnore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ignorer'**
+  String get missingIgnore;
+
+  /// No description provided for @missingLocate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localiser…'**
+  String get missingLocate;
+
+  /// No description provided for @missingSearchFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher dans un dossier…'**
+  String get missingSearchFolder;
+
+  /// No description provided for @missingRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de la bibliothèque'**
+  String get missingRemove;
+
+  /// No description provided for @missingStatusVolume.
+  ///
+  /// In fr, this message translates to:
+  /// **'disque absent'**
+  String get missingStatusVolume;
+
+  /// No description provided for @missingStatusFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'→ trouvé'**
+  String get missingStatusFound;
+
+  /// No description provided for @missingStatusLost.
+  ///
+  /// In fr, this message translates to:
+  /// **'introuvable'**
+  String get missingStatusLost;
+
+  /// No description provided for @missingMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'et {count} autres'**
+  String missingMore(int count);
+
+  /// No description provided for @missingHiddenGroups.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 groupe masqué} other{{count} groupes masqués}}'**
+  String missingHiddenGroups(int count);
+
+  /// No description provided for @missingShowAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout afficher'**
+  String get missingShowAll;
+
+  /// No description provided for @missingEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous vos fichiers sont là'**
+  String get missingEmptyTitle;
+
+  /// No description provided for @missingEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les fichiers déplacés ou rangés sur un disque débranché apparaîtront ici. Rien n\'est jamais supprimé automatiquement.'**
+  String get missingEmptyBody;
+
+  /// No description provided for @missingPathsUpdated.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun chemin mis à jour} =1{1 chemin mis à jour} other{{count} chemins mis à jour}}'**
+  String missingPathsUpdated(int count);
+
+  /// No description provided for @missingFoundCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun fichier retrouvé} =1{1 fichier retrouvé} other{{count} fichiers retrouvés}}'**
+  String missingFoundCount(int count);
+
+  /// No description provided for @missingLeftCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 toujours introuvable} other{{count} toujours introuvables}}'**
+  String missingLeftCount(int count);
+
+  /// No description provided for @missingRemoveTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Retirer ce fichier de la bibliothèque ?} other{Retirer ces {count} fichiers de la bibliothèque ?}}'**
+  String missingRemoveTitle(int count);
+
+  /// No description provided for @missingRemoveBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ils quittent la bibliothèque, les playlists et la reprise de lecture. Aucun fichier n\'est supprimé du disque : s\'ils réapparaissent, ouvrez-les pour les ajouter à nouveau.'**
+  String get missingRemoveBody;
+
+  /// No description provided for @remove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get remove;
+
+  /// No description provided for @missingSkipped.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {title} » est introuvable, titre suivant'**
+  String missingSkipped(String title);
+
+  /// No description provided for @missingSkippedLast.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {title} » est introuvable'**
+  String missingSkippedLast(String title);
+
+  /// No description provided for @locate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Localiser'**
+  String get locate;
+
+  /// No description provided for @fileLocated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier retrouvé'**
+  String get fileLocated;
+
+  /// No description provided for @locateFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier ne peut pas être utilisé à la place de l\'original.'**
+  String get locateFailed;
+
+  /// No description provided for @duplicatesTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Doublons'**
+  String get duplicatesTitle;
+
+  /// No description provided for @duplicatesSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 groupe · {size} récupérables · même titre, même artiste, même durée} other{{count} groupes · {size} récupérables · même titre, même artiste, même durée}}'**
+  String duplicatesSubtitle(int count, String size);
+
+  /// No description provided for @duplicatesKeepBest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder la meilleure qualité partout'**
+  String get duplicatesKeepBest;
+
+  /// No description provided for @duplicateVersions.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count} versions'**
+  String duplicateVersions(int count);
+
+  /// No description provided for @duplicateKeep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder'**
+  String get duplicateKeep;
+
+  /// No description provided for @duplicateHide.
+  ///
+  /// In fr, this message translates to:
+  /// **'Masquer'**
+  String get duplicateHide;
+
+  /// No description provided for @duplicateTrash.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre à la Corbeille…'**
+  String get duplicateTrash;
+
+  /// No description provided for @duplicatesNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Par défaut, les doublons sont seulement masqués de la bibliothèque : le fichier reste sur le disque. La suppression va dans la Corbeille Windows.'**
+  String get duplicatesNote;
+
+  /// No description provided for @duplicatesHideAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Masquer le doublon} other{Masquer les {count} doublons}}'**
+  String duplicatesHideAll(int count);
+
+  /// No description provided for @duplicatesHidden.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 doublon masqué, ses playlists passent à la version gardée} other{{count} doublons masqués, leurs playlists passent à la version gardée}}'**
+  String duplicatesHidden(int count);
+
+  /// No description provided for @duplicateTrashTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mettre ce fichier à la Corbeille ?'**
+  String get duplicateTrashTitle;
+
+  /// No description provided for @duplicateTrashBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ses playlists et son favori passent à la version gardée. Vous pourrez le récupérer depuis la Corbeille Windows.'**
+  String get duplicateTrashBody;
+
+  /// No description provided for @duplicateTrashed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier mis à la Corbeille'**
+  String get duplicateTrashed;
+
+  /// No description provided for @duplicatesEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun doublon'**
+  String get duplicatesEmptyTitle;
+
+  /// No description provided for @duplicatesEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les titres présents en plusieurs versions (même titre, même artiste, même durée) apparaîtront ici.'**
+  String get duplicatesEmptyBody;
+
+  /// No description provided for @duplicatesNeedFfmpeg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les durées sont lues par FFmpeg, absent de cette installation : la recherche de doublons attend.'**
+  String get duplicatesNeedFfmpeg;
+
+  /// No description provided for @sizeKb.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} Ko'**
+  String sizeKb(String n);
+
+  /// No description provided for @sizeMb.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} Mo'**
+  String sizeMb(String n);
+
+  /// No description provided for @sizeGb.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} Go'**
+  String sizeGb(String n);
+
+  /// No description provided for @duplicatesFound.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun doublon trouvé} =1{1 titre présent en plusieurs versions} other{{count} titres présents en plusieurs versions}}'**
+  String duplicatesFound(int count);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

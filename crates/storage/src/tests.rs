@@ -611,3 +611,55 @@ fn index_progress_counts_the_work_left() {
     let p = storage.index_progress().unwrap();
     assert_eq!((p.total, p.to_tag, p.to_probe, p.unreadable), (2, 1, 0, 1));
 }
+
+#[test]
+fn library_health_lists_missing_files_and_moves_links() {
+    let storage = Storage::open_in_memory().unwrap();
+    let add = |path: &str, title: &str, size| {
+        storage
+            .upsert_media(&NewMedia {
+                path: path.into(),
+                title: title.into(),
+                kind: MediaKind::Audio,
+                source_host: None,
+                source_url: None,
+                task_id: None,
+                size_bytes: size,
+            })
+            .unwrap()
+            .id
+    };
+    let old = add("D:/Musique/Nafy/05 Seuil.flac", "Seuil", 900);
+    let new = add("D:/Musique/Nafy (2024)/05 Seuil.flac", "Seuil", 900);
+    let other = add("D:/Musique/Toky/Kabary.mp3", "Kabary", 40);
+    let copy = add("C:/Music/kabary.mp3", "kabary ", 30);
+    storage.set_media_missing(old, true).unwrap();
+
+    assert_eq!(storage.missing_count().unwrap(), 1);
+    let missing = storage.missing_media().unwrap();
+    assert_eq!(missing.iter().map(|m| m.id).collect::<Vec<_>>(), [old]);
+    let present = storage.present_files().unwrap();
+    assert_eq!(present.len(), 3);
+    assert!(present.contains(&(new, "D:/Musique/Nafy (2024)/05 Seuil.flac".into(), 900)));
+
+    // Only titles shared by entries with a duration are candidates.
+    assert!(storage.duplicate_candidates().unwrap().is_empty());
+    let probe = MediaProbe {
+        duration_secs: Some(201.0),
+        ..MediaProbe::default()
+    };
+    for id in [other, copy] {
+        storage.set_media_probe(id, &probe, None).unwrap();
+    }
+    let dupes = storage.duplicate_candidates().unwrap();
+    assert_eq!(dupes.iter().map(|m| m.id).collect::<Vec<_>>(), [other, copy]);
+
+    // The playlist entry and the favorite follow the kept version.
+    let list = storage.create_playlist("Soir", &[copy, other]).unwrap();
+    storage.set_favorite(copy, true).unwrap();
+    storage.transfer_media_links(copy, other).unwrap();
+    storage.remove_media(copy).unwrap();
+    let items = storage.playlist(list.id).unwrap().items;
+    assert_eq!(items.iter().map(|m| m.id).collect::<Vec<_>>(), [other, other]);
+    assert!(storage.media(other).unwrap().favorite);
+}

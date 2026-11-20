@@ -891,5 +891,226 @@
       }
     }
   },
-  "noFolders": "Aucun dossier suivi pour l'instant."
+  "noFolders": "Aucun dossier suivi pour l'instant.",
+  "navSectionLibrary": "Bibliothèque",
+  "navMissing": "Introuvables",
+  "navDuplicates": "Doublons",
+  "healthGroup": "État de la bibliothèque",
+  "missingTitle": "Fichiers introuvables",
+  "missingSubtitle": "{count, plural, =1{1 élément n'a pas été trouvé au dernier passage. Rien n'a été supprimé.} other{{count} éléments n'ont pas été trouvés au dernier passage. Rien n'a été supprimé.}}",
+  "@missingSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingVolumeTitle": "Disque {volume} déconnecté",
+  "@missingVolumeTitle": {
+    "placeholders": {
+      "volume": {
+        "type": "String"
+      }
+    }
+  },
+  "missingVolumeBody": "{count, plural, =1{1 élément de {folder}. Il réapparaîtra au branchement.} other{{count} éléments de {folder}. Ils réapparaîtront au branchement.}}",
+  "@missingVolumeBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "missingMovedTitle": "Dossier probablement renommé",
+  "missingMovedBody": "{count, plural, =1{1 fichier retrouvé dans {folder}, avec le même nom et la même taille.} other{{count} fichiers retrouvés dans {folder}, avec le même nom et la même taille.}}",
+  "@missingMovedBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "missingLostTitle": "{count, plural, =1{1 fichier introuvable} other{{count} fichiers introuvables}}",
+  "@missingLostTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingLostBody": "{count, plural, =1{Aucune correspondance trouvée. Il a peut-être été supprimé.} other{Aucune correspondance trouvée. Ils ont peut-être été supprimés.}}",
+  "@missingLostBody": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingRelocate": "Relocaliser…",
+  "missingHide": "Masquer",
+  "missingUpdatePaths": "Mettre à jour les chemins",
+  "missingIgnore": "Ignorer",
+  "missingLocate": "Localiser…",
+  "missingSearchFolder": "Chercher dans un dossier…",
+  "missingRemove": "Retirer de la bibliothèque",
+  "missingStatusVolume": "disque absent",
+  "missingStatusFound": "→ trouvé",
+  "missingStatusLost": "introuvable",
+  "missingMore": "et {count} autres",
+  "@missingMore": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingHiddenGroups": "{count, plural, =1{1 groupe masqué} other{{count} groupes masqués}}",
+  "@missingHiddenGroups": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingShowAll": "Tout afficher",
+  "missingEmptyTitle": "Tous vos fichiers sont là",
+  "missingEmptyBody": "Les fichiers déplacés ou rangés sur un disque débranché apparaîtront ici. Rien n'est jamais supprimé automatiquement.",
+  "missingPathsUpdated": "{count, plural, =0{Aucun chemin mis à jour} =1{1 chemin mis à jour} other{{count} chemins mis à jour}}",
+  "@missingPathsUpdated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingFoundCount": "{count, plural, =0{Aucun fichier retrouvé} =1{1 fichier retrouvé} other{{count} fichiers retrouvés}}",
+  "@missingFoundCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingLeftCount": "{count, plural, =1{1 toujours introuvable} other{{count} toujours introuvables}}",
+  "@missingLeftCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingRemoveTitle": "{count, plural, =1{Retirer ce fichier de la bibliothèque ?} other{Retirer ces {count} fichiers de la bibliothèque ?}}",
+  "@missingRemoveTitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "missingRemoveBody": "Ils quittent la bibliothèque, les playlists et la reprise de lecture. Aucun fichier n'est supprimé du disque : s'ils réapparaissent, ouvrez-les pour les ajouter à nouveau.",
+  "remove": "Retirer",
+  "missingSkipped": "« {title} » est introuvable, titre suivant",
+  "@missingSkipped": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "missingSkippedLast": "« {title} » est introuvable",
+  "@missingSkippedLast": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "locate": "Localiser",
+  "fileLocated": "Fichier retrouvé",
+  "locateFailed": "Ce fichier ne peut pas être utilisé à la place de l'original.",
+  "duplicatesTitle": "Doublons",
+  "duplicatesSubtitle": "{count, plural, =1{1 groupe · {size} récupérables · même titre, même artiste, même durée} other{{count} groupes · {size} récupérables · même titre, même artiste, même durée}}",
+  "@duplicatesSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "size": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicatesKeepBest": "Garder la meilleure qualité partout",
+  "duplicateVersions": "{count} versions",
+  "@duplicateVersions": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicateKeep": "Garder",
+  "duplicateHide": "Masquer",
+  "duplicateTrash": "Mettre à la Corbeille…",
+  "duplicatesNote": "Par défaut, les doublons sont seulement masqués de la bibliothèque : le fichier reste sur le disque. La suppression va dans la Corbeille Windows.",
+  "duplicatesHideAll": "{count, plural, =1{Masquer le doublon} other{Masquer les {count} doublons}}",
+  "@duplicatesHideAll": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicatesHidden": "{count, plural, =1{1 doublon masqué, ses playlists passent à la version gardée} other{{count} doublons masqués, leurs playlists passent à la version gardée}}",
+  "@duplicatesHidden": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "duplicateTrashTitle": "Mettre ce fichier à la Corbeille ?",
+  "duplicateTrashBody": "Ses playlists et son favori passent à la version gardée. Vous pourrez le récupérer depuis la Corbeille Windows.",
+  "duplicateTrashed": "Fichier mis à la Corbeille",
+  "duplicatesEmptyTitle": "Aucun doublon",
+  "duplicatesEmptyBody": "Les titres présents en plusieurs versions (même titre, même artiste, même durée) apparaîtront ici.",
+  "duplicatesNeedFfmpeg": "Les durées sont lues par FFmpeg, absent de cette installation : la recherche de doublons attend.",
+  "sizeKb": "{n} Ko",
+  "@sizeKb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeMb": "{n} Mo",
+  "@sizeMb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "sizeGb": "{n} Go",
+  "@sizeGb": {
+    "placeholders": {
+      "n": {
+        "type": "String"
+      }
+    }
+  },
+  "duplicatesFound": "{count, plural, =0{Aucun doublon trouvé} =1{1 titre présent en plusieurs versions} other{{count} titres présents en plusieurs versions}}",
+  "@duplicatesFound": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

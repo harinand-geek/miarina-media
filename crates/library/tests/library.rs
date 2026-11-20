@@ -688,3 +688,94 @@ fn listed_files_are_indexed_and_vanished_ones_marked_missing() {
     );
     assert_eq!(titles(&h), ["Clip", "Own", "Song"]);
 }
+
+#[test]
+fn a_renamed_folder_is_followed_without_losing_links() {
+    let h = harness();
+    let old = h.root.join("Nafy");
+    std::fs::create_dir_all(&old).unwrap();
+    std::fs::write(old.join("05 Seuil.mp3"), b"seuil-bytes").unwrap();
+    std::fs::write(old.join("06 Fin.mp3"), b"fin").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let seuil = id_of(&h, &old.join("05 Seuil.mp3"));
+    let fin = id_of(&h, &old.join("06 Fin.mp3"));
+    {
+        let s = h.storage.lock().unwrap();
+        s.create_playlist("Soir", &[seuil]).unwrap();
+        s.set_favorite(seuil, true).unwrap();
+    }
+
+    // The folder is renamed: the scan sees two new files, two missing.
+    let new = h.root.join("Nafy (2024)");
+    std::fs::rename(&old, &new).unwrap();
+    h.library.scan(&h.root).unwrap();
+    let groups = h.library.missing_report().unwrap();
+    assert_eq!(groups.len(), 1);
+    assert_eq!(groups[0].cause, library::health::MissingCause::Moved);
+    assert_eq!(groups[0].target.as_deref(), Some(new.to_str().unwrap()));
+    for f in &groups[0].files {
+        let found = f.found.as_deref().unwrap();
+        h.library.relocate(f.record.id, Path::new(found)).unwrap();
+    }
+
+    // The old entries now point at the new files; the duplicates are gone.
+    let s = h.storage.lock().unwrap();
+    assert_eq!(s.missing_count().unwrap(), 0);
+    assert_eq!(s.present_files().unwrap().len(), 2);
+    let moved = s.media(seuil).unwrap();
+    assert_eq!(Path::new(&moved.path), new.join("05 Seuil.mp3"));
+    assert!(moved.favorite);
+    let list = s.playlists().unwrap()[0].id;
+    assert_eq!(s.playlist(list).unwrap().items[0].id, seuil);
+    assert!(s.media(fin).is_ok());
+}
+
+#[test]
+fn missing_files_are_searched_in_a_chosen_folder() {
+    let h = harness();
+    std::fs::write(h.root.join("Rova.mp4"), b"rova").unwrap();
+    std::fs::write(h.root.join("Mena.mp4"), b"mena").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let rova = id_of(&h, &h.root.join("Rova.mp4"));
+    let mena = id_of(&h, &h.root.join("Mena.mp4"));
+
+    // Moved by hand to a folder the library does not follow.
+    let elsewhere = h.root.parent().unwrap().join("Disque");
+    std::fs::create_dir_all(elsewhere.join("Films")).unwrap();
+    std::fs::rename(h.root.join("Rova.mp4"), elsewhere.join("Films").join("Rova.mp4")).unwrap();
+    std::fs::remove_file(h.root.join("Mena.mp4")).unwrap();
+    // Same name, other content: not taken.
+    std::fs::write(elsewhere.join("Mena.mp4"), b"other").unwrap();
+    h.library.scan(&h.root).unwrap();
+
+    let report = h.library.relocate_in(&[rova, mena], &elsewhere).unwrap();
+    assert_eq!((report.found, report.left), (1, 1));
+    let s = h.storage.lock().unwrap();
+    assert!(!s.media(rova).unwrap().missing);
+    assert!(s.media(mena).unwrap().missing);
+}
+
+#[test]
+fn a_duplicate_set_aside_hands_its_links_to_the_kept_one() {
+    let h = harness();
+    std::fs::write(h.root.join("Kabary.mp3"), b"best").unwrap();
+    std::fs::write(h.root.join("kabary (1).mp3"), b"copy").unwrap();
+    h.library.scan(&h.root).unwrap();
+    let keep = id_of(&h, &h.root.join("Kabary.mp3"));
+    let copy = id_of(&h, &h.root.join("kabary (1).mp3"));
+    h.storage
+        .lock()
+        .unwrap()
+        .create_playlist("Route", &[copy])
+        .unwrap();
+
+    assert!(h.library.set_aside_duplicate(keep, keep, false).is_err());
+    h.library.set_aside_duplicate(keep, copy, false).unwrap();
+    // Hidden only: the file stays and scans do not bring it back.
+    assert!(h.root.join("kabary (1).mp3").exists());
+    h.library.scan(&h.root).unwrap();
+    let s = h.storage.lock().unwrap();
+    assert!(s.media(copy).is_err());
+    let list = s.playlists().unwrap()[0].id;
+    assert_eq!(s.playlist(list).unwrap().items[0].id, keep);
+}

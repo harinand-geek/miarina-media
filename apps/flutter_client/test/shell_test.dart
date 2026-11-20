@@ -94,7 +94,7 @@ void main() {
     }
     expect(find.text('3 titres'), findsOneWidget);
     expect(find.text('Basse marée'), findsOneWidget);
-    expect(find.text('Fichier introuvable'), findsOneWidget);
+    expect(find.text('Fichier introuvable · Localiser'), findsOneWidget);
     expect(find.text('Rien en lecture'), findsOneWidget);
   });
 

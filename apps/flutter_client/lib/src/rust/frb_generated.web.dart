@@ -9,6 +9,7 @@
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
 import 'api/focus.dart';
+import 'api/health.dart';
 import 'api/indexer.dart';
 import 'api/library.dart';
 import 'api/playlists.dart';
@@ -82,6 +83,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   DetectedMediaItem dco_decode_detected_media_item(dynamic raw);
 
   @protected
+  DuplicateSet dco_decode_duplicate_set(dynamic raw);
+
+  @protected
+  DuplicateVersion dco_decode_duplicate_version(dynamic raw);
+
+  @protected
   double dco_decode_f_64(dynamic raw);
 
   @protected
@@ -95,6 +102,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusProgram dco_decode_focus_program(dynamic raw);
+
+  @protected
+  HealthCounts dco_decode_health_counts(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
@@ -130,6 +140,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<DetectedMediaItem> dco_decode_list_detected_media_item(dynamic raw);
 
   @protected
+  List<DuplicateSet> dco_decode_list_duplicate_set(dynamic raw);
+
+  @protected
+  List<DuplicateVersion> dco_decode_list_duplicate_version(dynamic raw);
+
+  @protected
   List<FocusItem> dco_decode_list_focus_item(dynamic raw);
 
   @protected
@@ -140,6 +156,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<LibraryItem> dco_decode_list_library_item(dynamic raw);
+
+  @protected
+  List<MissingFileInfo> dco_decode_list_missing_file_info(dynamic raw);
+
+  @protected
+  List<MissingGroupInfo> dco_decode_list_missing_group_info(dynamic raw);
 
   @protected
   List<PlaylistInfo> dco_decode_list_playlist_info(dynamic raw);
@@ -158,6 +180,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<SeriesSummary> dco_decode_list_series_summary(dynamic raw);
+
+  @protected
+  MissingCause dco_decode_missing_cause(dynamic raw);
+
+  @protected
+  MissingFileInfo dco_decode_missing_file_info(dynamic raw);
+
+  @protected
+  MissingGroupInfo dco_decode_missing_group_info(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -200,6 +231,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
+
+  @protected
+  RelocateResult dco_decode_relocate_result(dynamic raw);
 
   @protected
   ScanTotals dco_decode_scan_totals(dynamic raw);
@@ -292,6 +326,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  DuplicateSet sse_decode_duplicate_set(SseDeserializer deserializer);
+
+  @protected
+  DuplicateVersion sse_decode_duplicate_version(SseDeserializer deserializer);
+
+  @protected
   double sse_decode_f_64(SseDeserializer deserializer);
 
   @protected
@@ -305,6 +345,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusProgram sse_decode_focus_program(SseDeserializer deserializer);
+
+  @protected
+  HealthCounts sse_decode_health_counts(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
@@ -342,6 +385,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<DuplicateSet> sse_decode_list_duplicate_set(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<DuplicateVersion> sse_decode_list_duplicate_version(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FocusItem> sse_decode_list_focus_item(SseDeserializer deserializer);
 
   @protected
@@ -356,6 +409,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<LibraryItem> sse_decode_list_library_item(SseDeserializer deserializer);
+
+  @protected
+  List<MissingFileInfo> sse_decode_list_missing_file_info(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<MissingGroupInfo> sse_decode_list_missing_group_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<PlaylistInfo> sse_decode_list_playlist_info(
@@ -380,6 +443,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<SeriesSummary> sse_decode_list_series_summary(
     SseDeserializer deserializer,
   );
+
+  @protected
+  MissingCause sse_decode_missing_cause(SseDeserializer deserializer);
+
+  @protected
+  MissingFileInfo sse_decode_missing_file_info(SseDeserializer deserializer);
+
+  @protected
+  MissingGroupInfo sse_decode_missing_group_info(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -436,6 +508,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   (String, String?) sse_decode_record_string_opt_string(
     SseDeserializer deserializer,
   );
+
+  @protected
+  RelocateResult sse_decode_relocate_result(SseDeserializer deserializer);
 
   @protected
   ScanTotals sse_decode_scan_totals(SseDeserializer deserializer);
@@ -546,6 +621,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_duplicate_set(DuplicateSet self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_duplicate_version(
+    DuplicateVersion self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_f_64(double self, SseSerializer serializer);
 
   @protected
@@ -559,6 +643,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_focus_program(FocusProgram self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_health_counts(HealthCounts self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
@@ -603,6 +690,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_duplicate_set(
+    List<DuplicateSet> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_duplicate_version(
+    List<DuplicateVersion> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_focus_item(
     List<FocusItem> self,
     SseSerializer serializer,
@@ -623,6 +722,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_library_item(
     List<LibraryItem> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_missing_file_info(
+    List<MissingFileInfo> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_missing_group_info(
+    List<MissingGroupInfo> self,
     SseSerializer serializer,
   );
 
@@ -659,6 +770,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_series_summary(
     List<SeriesSummary> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_missing_cause(MissingCause self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_missing_file_info(
+    MissingFileInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_missing_group_info(
+    MissingGroupInfo self,
     SseSerializer serializer,
   );
 
@@ -725,6 +851,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_record_string_opt_string(
     (String, String?) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_relocate_result(
+    RelocateResult self,
     SseSerializer serializer,
   );
 

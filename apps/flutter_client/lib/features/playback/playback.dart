@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
+import '../health/health_data.dart';
 import 'playback_memory.dart';
 
 /// One playable entry of the queue, with what the bars display.
@@ -145,9 +146,52 @@ final queueProvider = NotifierProvider<QueueController, QueueState>(
   QueueController.new,
 );
 
+/// Whether a library entry's file is still there, checked just before it
+/// plays (the core marks it missing otherwise). In doubt: present.
+final presenceCheckProvider = Provider<Future<bool> Function(int libraryId)>((
+  ref,
+) {
+  final api = ref.watch(healthApiProvider);
+  return (id) async {
+    try {
+      return await api.check(id);
+    } catch (_) {
+      return true;
+    }
+  };
+});
+
+/// A library file found missing when its turn came (W-O2, "Fichier
+/// manquant" flow): the queue went on with the next one and the shell
+/// shows « introuvable, titre suivant » with "Localiser".
+@immutable
+class SkippedMissing {
+  const SkippedMissing(this.entry, {required this.next});
+
+  final QueueEntry entry;
+
+  /// Another entry was played instead.
+  final bool next;
+}
+
+final skippedMissingProvider =
+    NotifierProvider<SkippedMissingNotifier, SkippedMissing?>(
+      SkippedMissingNotifier.new,
+    );
+
+class SkippedMissingNotifier extends Notifier<SkippedMissing?> {
+  @override
+  SkippedMissing? build() => null;
+
+  void report(SkippedMissing skipped) => state = skipped;
+}
+
 class QueueController extends Notifier<QueueState> {
   StreamSubscription<PlaybackSnapshot>? _ended;
   final _random = math.Random();
+
+  /// Missing files skipped in a row: never more than the queue holds.
+  int _skipped = 0;
 
   MediaEngine? get _engine => ref.read(mediaEngineProvider);
 
@@ -308,6 +352,24 @@ class QueueController extends Notifier<QueueState> {
     final entry = state.current;
     final engine = _engine;
     if (entry == null || engine == null) return;
+    final id = entry.libraryId;
+    if (id != null && !await ref.read(presenceCheckProvider)(id)) {
+      // Another entry was chosen meanwhile: that load goes on.
+      if (!identical(state.current, entry)) return;
+      final canSkip =
+          _skipped < state.order.length &&
+          state.position + 1 < state.order.length;
+      ref
+          .read(skippedMissingProvider.notifier)
+          .report(SkippedMissing(entry, next: canSkip));
+      if (canSkip) {
+        _skipped++;
+        state = state.copyWith(position: state.position + 1);
+        return _load(fromStart: fromStart);
+      }
+      // Last one: opened anyway, the player shows "Fichier introuvable".
+    }
+    _skipped = 0;
     final memory = ref.read(playbackMemoryProvider);
     final start = fromStart ? null : await memory.startFor(entry);
     // Before open(): the previous track's position is saved from the last

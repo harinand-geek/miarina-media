@@ -698,6 +698,66 @@ impl Storage {
             .map_err(Into::into)
     }
 
+    /// Entries whose file was not found at the last check (W-O2), by path.
+    pub fn missing_media(&self) -> Result<Vec<MediaRecord>> {
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT {COLUMNS} FROM media WHERE missing = 1 ORDER BY path"
+        ))?;
+        stmt.query_map([], row_to_media)?.map(|r| r?).collect()
+    }
+
+    pub fn missing_count(&self) -> Result<u64> {
+        Ok(self.conn.query_row(
+            "SELECT count(*) FROM media WHERE missing = 1",
+            [],
+            |r| r.get::<_, i64>(0),
+        )? as u64)
+    }
+
+    /// Present files as (id, path, size): a missing entry whose name and
+    /// size match one of them was probably moved.
+    pub fn present_files(&self) -> Result<Vec<(i64, String, u64)>> {
+        let mut stmt = self
+            .conn
+            .prepare("SELECT id, path, size_bytes FROM media WHERE missing = 0")?;
+        stmt.query_map([], |r| {
+            Ok((r.get(0)?, r.get(1)?, r.get::<_, i64>(2)?.max(0) as u64))
+        })?
+        .collect::<rusqlite::Result<_>>()
+        .map_err(Into::into)
+    }
+
+    /// Present entries with a known duration whose kind and title (ASCII
+    /// case ignored) are shared with another one: possible duplicates,
+    /// sorted out by the caller.
+    pub fn duplicate_candidates(&self) -> Result<Vec<MediaRecord>> {
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT {COLUMNS} FROM media \
+             WHERE missing = 0 AND duration_secs IS NOT NULL \
+             AND (kind, lower(trim(title))) IN ( \
+               SELECT kind, lower(trim(title)) FROM media \
+               WHERE missing = 0 AND duration_secs IS NOT NULL \
+               GROUP BY 1, 2 HAVING count(*) > 1) \
+             ORDER BY id"
+        ))?;
+        stmt.query_map([], row_to_media)?.map(|r| r?).collect()
+    }
+
+    /// Moves what the user attached to `from` (playlist entries, favorite)
+    /// onto `to`, before `from` leaves the library.
+    pub fn transfer_media_links(&self, from: i64, to: i64) -> Result<()> {
+        self.conn.execute(
+            "UPDATE playlist_items SET media_id = ?2 WHERE media_id = ?1",
+            params![from, to],
+        )?;
+        self.conn.execute(
+            "UPDATE media SET favorite = 1 WHERE id = ?2 \
+             AND EXISTS (SELECT 1 FROM media WHERE id = ?1 AND favorite = 1)",
+            params![from, to],
+        )?;
+        Ok(())
+    }
+
     /// Thumbnail files referenced by the library.
     pub fn thumbnail_paths(&self) -> Result<Vec<String>> {
         let mut stmt = self

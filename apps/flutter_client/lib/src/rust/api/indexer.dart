@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `with_indexer`
+// These functions are ignored because they are not marked as `pub`: `running_library`, `with_indexer`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Indexer`
 
 /// Starts indexing for `db_path` (again only if the database changed).

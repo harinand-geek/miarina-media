@@ -14,6 +14,7 @@ import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
+import '../health/health_data.dart';
 import '../history/history_data.dart';
 import '../import/import_data.dart';
 import '../import/welcome_screen.dart';
@@ -831,6 +832,9 @@ class _Library extends ConsumerWidget {
     final t = L10n.of(context);
     final folders = ref.watch(libraryFoldersProvider).value ?? const [];
     final status = ref.watch(indexStatusProvider).value;
+    final health = ref.watch(healthCountsProvider).value;
+    final missing = health?.missing.toInt() ?? 0;
+    final duplicates = health?.duplicates ?? 0;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -874,6 +878,35 @@ class _Library extends ConsumerWidget {
         ),
         const SizedBox(height: 22),
         if (status != null) ScanProgressCard(status: status),
+        // W-O2: reachable from here even when the sidebar shows nothing.
+        const SizedBox(height: 26),
+        Text(
+          t.healthGroup.toUpperCase(),
+          style: MmType.overline.copyWith(color: c.muted),
+        ),
+        const SizedBox(height: 10),
+        SettingsGroup(
+          rows: [
+            SettingsRow(
+              title: t.missingTitle,
+              body: missing > 0
+                  ? t.missingSubtitle(missing)
+                  : t.missingEmptyTitle,
+              control: _OutlinedAction(
+                label: t.show,
+                onTap: () => context.go(Routes.missing),
+              ),
+            ),
+            SettingsRow(
+              title: t.duplicatesTitle,
+              body: t.duplicatesFound(duplicates),
+              control: _OutlinedAction(
+                label: t.show,
+                onTap: () => context.go(Routes.duplicates),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
