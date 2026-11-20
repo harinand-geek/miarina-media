@@ -3252,4 +3252,18 @@ class L10nFr extends L10n {
 
   @override
   String get markUnseen => 'Marquer comme non vu';
+
+  @override
+  String get fDirector => 'Réalisateur / auteur';
+
+  @override
+  String get fSeries => 'Série / collection';
+
+  @override
+  String get fLicense => 'Licence / commentaire';
+
+  @override
+  String coverFrame(String time) {
+    return 'Capturer l’image à $time';
+  }
 }

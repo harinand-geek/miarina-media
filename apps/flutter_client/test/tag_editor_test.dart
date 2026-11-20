@@ -73,8 +73,13 @@ class FakeTagsApi implements TagsApi {
   }
 
   @override
-  Future<LibraryItem> cover(int id, String from, {String? image}) async {
-    covers.add((from, image));
+  Future<LibraryItem> cover(
+    int id,
+    String from, {
+    String? image,
+    double? atSecs,
+  }) async {
+    covers.add((from, image ?? atSecs?.toString()));
     return LibraryItem(
       id: item.id,
       title: item.title,

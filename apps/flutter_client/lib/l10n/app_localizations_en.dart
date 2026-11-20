@@ -3226,4 +3226,18 @@ class L10nEn extends L10n {
 
   @override
   String get markUnseen => 'Mark as not watched';
+
+  @override
+  String get fDirector => 'Director / author';
+
+  @override
+  String get fSeries => 'Series / collection';
+
+  @override
+  String get fLicense => 'License / comment';
+
+  @override
+  String coverFrame(String time) {
+    return 'Capture frame at $time';
+  }
 }

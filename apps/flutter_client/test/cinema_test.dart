@@ -13,6 +13,8 @@ import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/cinema/watch_screen.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
+import 'package:miarina_media/src/rust/api/library.dart';
+import 'package:miarina_media/features/library/tag_editor.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
@@ -187,6 +189,7 @@ void main() {
   group('screens', () {
     late FakeEngine engine;
     late FakePlaybackStore store;
+    late _FakeTags tags;
 
     Future<void> pumpApp(
       WidgetTester tester, {
@@ -212,6 +215,7 @@ void main() {
             settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
             lyricsLoaderProvider.overrideWithValue((_) async => null),
             playbackStoreProvider.overrideWithValue(store),
+            tagsApiProvider.overrideWithValue(tags),
             initialRouteProvider.overrideWithValue(start),
           ],
           child: const MiarinaApp(),
@@ -222,6 +226,7 @@ void main() {
 
     setUp(() {
       engine = FakeEngine();
+      tags = _FakeTags();
       // E1 watched, E2 stopped at 0:30.
       store = FakePlaybackStore()
         ..values[historyKey] = jsonEncode([
@@ -341,6 +346,38 @@ void main() {
       expect(find.text('Reprendre S1 · É2 à 0:30'), findsOneWidget);
     });
 
+    testWidgets('a film: right click, watched, its tags and a frame', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: Routes.cinema, size: const Size(1280, 1400));
+      await tester.tap(
+        find.text('Le Dernier Ferry'),
+        buttons: kSecondaryButton,
+      );
+      await settle(tester);
+      await tester.tap(find.text('Modifier les tags'));
+      await settle(tester);
+      // Video fields of the Tauri editor, no lyrics.
+      expect(find.text('Réalisateur / auteur'), findsOneWidget);
+      expect(find.text('Série / collection'), findsOneWidget);
+      expect(find.text('Licence / commentaire'), findsOneWidget);
+      expect(find.text('Paroles (facultatif)'), findsNothing);
+      expect(
+        find.text(
+          'Ce format garde ses tags dans la bibliothèque Miarina seulement.',
+        ),
+        findsOneWidget,
+      );
+      // Never played: a tenth of the way in (102 min).
+      await tester.tap(find.text('Capturer l’image à 10:12'));
+      await settle(tester);
+      expect(tags.covers.single, ('frame', 612.0));
+      await tester.tap(find.text('Enregistrer'));
+      await settle(tester);
+      expect(tags.saved.single.$1, 'Le Dernier Ferry');
+      expect(tags.saved.single.$2, isFalse, reason: 'library only');
+    });
+
     testWidgets('from the start ignores the resume point, in episode order', (
       tester,
     ) async {
@@ -455,4 +492,50 @@ void main() {
       expect([for (final e in q.entries) e.libraryId], [11, 12, 13]);
     });
   });
+}
+
+/// The core's tag editor for videos: library only, every call recorded.
+class _FakeTags implements TagsApi {
+  final covers = <(String, double?)>[];
+  final saved = <(String?, bool)>[];
+
+  @override
+  Future<TagSheet> get(int id) async => const TagSheet(
+    fields: TagFields(title: 'Le Dernier Ferry', year: 2021),
+    writable: false,
+    hasSourceCover: false,
+  );
+
+  LibraryItem _item(int id) => LibraryItem(
+    id: id,
+    title: 'Le Dernier Ferry',
+    path: 'D:/Vidéos/Le Dernier Ferry.mkv',
+    isVideo: true,
+    missing: false,
+    favorite: false,
+    plays: 0,
+    thumbnail: 'C:/covers/$id.jpg',
+  );
+
+  @override
+  Future<LibraryItem> save(
+    int id,
+    TagFields fields, {
+    required bool writeToFile,
+    String? renameTo,
+  }) async {
+    saved.add((fields.title, writeToFile));
+    return _item(id);
+  }
+
+  @override
+  Future<LibraryItem> cover(
+    int id,
+    String from, {
+    String? image,
+    double? atSecs,
+  }) async {
+    covers.add((from, atSecs));
+    return _item(id);
+  }
 }

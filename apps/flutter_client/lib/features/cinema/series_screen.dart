@@ -19,6 +19,7 @@ import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_screen.dart';
 import 'cinema_widgets.dart';
+import 'video_menu.dart';
 
 /// W-C2 series page: 300 px header on the local fanart, what can be chosen
 /// before playing (subtitle files, picture format), explicit resume button,
@@ -179,7 +180,9 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
                     watch: watch,
                     current: inSeason[i] == target?.episode,
                     onTap: () => play(inSeason[i]),
-                    onMenu: (at) => _episodeMenu(
+                    onMenu: (at) => showVideoMenu(
+                      context,
+                      ref,
                       inSeason[i],
                       at,
                       seen: watch.isSeen(inSeason[i].item.id),
@@ -194,74 +197,6 @@ class _SeriesScreenState extends ConsumerState<SeriesScreen> {
         );
       },
     );
-  }
-}
-
-extension on _SeriesScreenState {
-  /// Right click (long press on Android) on an episode.
-  Future<void> _episodeMenu(
-    CinemaItem e,
-    Offset at, {
-    required bool seen,
-    required VoidCallback onPlay,
-  }) async {
-    final c = MmColors.of(context);
-    final t = L10n.of(context);
-    final overlay =
-        Overlay.of(context).context.findRenderObject()! as RenderBox;
-    PopupMenuItem<int> item(int v, IconData icon, String label) =>
-        PopupMenuItem<int>(
-          value: v,
-          height: 34,
-          child: Row(
-            children: [
-              Icon(icon, size: 18, color: c.muted),
-              const SizedBox(width: 10),
-              Text(
-                label,
-                style: MmType.label.copyWith(
-                  color: c.fg,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
-                ),
-              ),
-            ],
-          ),
-        );
-    final choice = await showMenu<int>(
-      context: context,
-      position: RelativeRect.fromRect(
-        at & const Size(1, 1),
-        Offset.zero & overlay.size,
-      ),
-      color: c.surface2,
-      constraints: const BoxConstraints(minWidth: 230),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-        side: BorderSide(color: c.overlayBorder),
-      ),
-      menuPadding: const EdgeInsets.all(6),
-      items: [
-        if (!e.item.missing) item(0, PhosphorFill.play, t.playSelection),
-        item(
-          1,
-          seen ? PhosphorRegular.circle : PhosphorRegular.checkCircle,
-          seen ? t.markUnseen : t.markSeen,
-        ),
-        if (Platform.isWindows && !e.item.missing)
-          item(2, PhosphorRegular.folderOpen, t.showInExplorer),
-      ],
-    );
-    switch (choice) {
-      case 0:
-        onPlay();
-      case 1:
-        await ref.read(seenMarksProvider.notifier).mark([
-          e.item.id,
-        ], seen: !seen);
-      case 2:
-        await ref.read(revealProvider)(e.item.path, select: true);
-    }
   }
 }
 

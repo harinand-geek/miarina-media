@@ -17,6 +17,7 @@ import '../search/search_screen.dart' show SearchButton;
 import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_widgets.dart';
+import 'video_menu.dart';
 
 enum CinemaFilter { all, films, series }
 
@@ -346,6 +347,15 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
             padding: EdgeInsets.symmetric(horizontal: pad),
             sliver: grid(films.length, (i) {
               final f = films[i];
+              Future<void> playFilm(int i) async {
+                await playVideos(
+                  ref.read(queueProvider.notifier),
+                  films,
+                  start: i,
+                );
+                if (context.mounted) openPlayer(context);
+              }
+
               return VideoTile(
                 width: poster,
                 aspectRatio: 2 / 3,
@@ -359,14 +369,15 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
                 seed: f.item.title.hashCode,
                 progress: progressOf(f, watch),
                 dimmed: f.item.missing,
-                onTap: () async {
-                  await playVideos(
-                    ref.read(queueProvider.notifier),
-                    films,
-                    start: i,
-                  );
-                  if (context.mounted) openPlayer(context);
-                },
+                onTap: () => playFilm(i),
+                onMenu: (at) => showVideoMenu(
+                  context,
+                  ref,
+                  f,
+                  at,
+                  seen: watch.isSeen(f.item.id),
+                  onPlay: () => playFilm(i),
+                ),
               );
             }),
           ),
@@ -397,6 +408,11 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
     final at = watch.resumeOf(v.item.id) ?? Duration.zero;
     final total = durationOf(v);
     final left = total == null ? null : total - at;
+    Future<void> play() async {
+      await playVideo(ref, t, v);
+      if (context.mounted) openPlayer(context);
+    }
+
     return VideoTile(
       width: width,
       aspectRatio: 16 / 9,
@@ -410,10 +426,15 @@ class _CinemaScreenState extends ConsumerState<CinemaScreen> {
       topRight: left == null || left.isNegative
           ? null
           : PicturePill(t.minutesShort(math.max(1, left.inMinutes))),
-      onTap: () async {
-        await playVideo(ref, t, v);
-        if (context.mounted) openPlayer(context);
-      },
+      onTap: () => play(),
+      onMenu: (at) => showVideoMenu(
+        context,
+        ref,
+        v,
+        at,
+        seen: watch.isSeen(v.item.id),
+        onPlay: play,
+      ),
     );
   }
 }

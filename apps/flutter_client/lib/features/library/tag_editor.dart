@@ -7,6 +7,7 @@ import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
+import '../../design/widgets/track_bar.dart' show formatClock;
 import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart';
 import '../../src/rust/api/tags.dart' as rust;
@@ -27,8 +28,13 @@ abstract interface class TagsApi {
     String? renameTo,
   });
 
-  /// [from]: image (with [image]), source, none.
-  Future<LibraryItem> cover(int id, String from, {String? image});
+  /// [from]: image (with [image]), source, frame (at [atSecs]), none.
+  Future<LibraryItem> cover(
+    int id,
+    String from, {
+    String? image,
+    double? atSecs,
+  });
 }
 
 class RustTagsApi implements TagsApi {
@@ -61,9 +67,14 @@ class RustTagsApi implements TagsApi {
   }
 
   @override
-  Future<LibraryItem> cover(int id, String from, {String? image}) async {
+  Future<LibraryItem> cover(
+    int id,
+    String from, {
+    String? image,
+    double? atSecs,
+  }) async {
     _ready();
-    return rust.tagsCover(id: id, from: from, image: image);
+    return rust.tagsCover(id: id, from: from, image: image, atSecs: atSecs);
   }
 }
 
@@ -158,17 +169,23 @@ rust.TagFields _fieldsOf(Map<String, String> d) {
 }
 
 /// Opens « Modifier les tags » for [item]; the updated entry when saved
-/// (or when only the cover changed), null otherwise.
-Future<LibraryItem?> showTagEditor(BuildContext context, LibraryItem item) =>
-    showDialog<LibraryItem>(
-      context: context,
-      builder: (_) => _TagEditor(item: item),
-    );
+/// (or when only the cover changed), null otherwise. A video gets its own
+/// fields (director, series, licence) and [frameAt]: where "Capturer
+/// l'image" takes its picture.
+Future<LibraryItem?> showTagEditor(
+  BuildContext context,
+  LibraryItem item, {
+  Duration? frameAt,
+}) => showDialog<LibraryItem>(
+  context: context,
+  builder: (_) => _TagEditor(item: item, frameAt: frameAt),
+);
 
 class _TagEditor extends ConsumerStatefulWidget {
-  const _TagEditor({required this.item});
+  const _TagEditor({required this.item, this.frameAt});
 
   final LibraryItem item;
+  final Duration? frameAt;
 
   @override
   ConsumerState<_TagEditor> createState() => _TagEditorState();
@@ -275,7 +292,7 @@ class _TagEditorState extends ConsumerState<_TagEditor> {
     }
   }
 
-  Future<void> _cover(String from) async {
+  Future<void> _cover(String from, {double? atSecs}) async {
     final t = L10n.of(context);
     final messenger = ScaffoldMessenger.maybeOf(context);
     String? image;
@@ -287,7 +304,7 @@ class _TagEditorState extends ConsumerState<_TagEditor> {
     try {
       final updated = await ref
           .read(tagsApiProvider)
-          .cover(_item.id, from, image: image);
+          .cover(_item.id, from, image: image, atSecs: atSecs);
       if (!mounted) return;
       setState(() {
         _item = updated;
@@ -372,8 +389,29 @@ class _TagEditorState extends ConsumerState<_TagEditor> {
       ],
     );
 
+    final video = _item.isVideo;
     final form = sheet == null || original == null
         ? const SizedBox(height: 160)
+        : video
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              field('title', t.fTitle, wide: true),
+              const SizedBox(height: 12),
+              pair(field('artist', t.fDirector), field('year', t.fYear)),
+              const SizedBox(height: 12),
+              pair(field('genre', t.fGenre), field('album', t.fSeries)),
+              const SizedBox(height: 12),
+              field('comment', t.fLicense, wide: true),
+              const SizedBox(height: 10),
+              Text(
+                _rename && renameTo != null
+                    ? t.renameNote('$renameTo.$_ext')
+                    : t.tagNote,
+                style: MmType.caption.copyWith(fontSize: 12, color: c.muted),
+              ),
+            ],
+          )
         : Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -438,6 +476,14 @@ class _TagEditorState extends ConsumerState<_TagEditor> {
         false,
         (sheet?.hasSourceCover ?? false) ? null : t.coverNoSource,
       ),
+      if (video && widget.frameAt != null)
+        (
+          PhosphorRegular.camera,
+          t.coverFrame(formatClock(widget.frameAt!)),
+          () => _cover('frame', atSecs: widget.frameAt!.inMilliseconds / 1000),
+          false,
+          null as String?,
+        ),
       if (_item.thumbnail != null)
         (
           PhosphorRegular.imageBroken,
@@ -457,6 +503,7 @@ class _TagEditorState extends ConsumerState<_TagEditor> {
             children: [
               CoverArt(
                 size: 220,
+                aspectRatio: video ? 2 / 3 : 1,
                 radius: MmRadius.md,
                 seed: _item.id,
                 imagePath: _item.thumbnail,

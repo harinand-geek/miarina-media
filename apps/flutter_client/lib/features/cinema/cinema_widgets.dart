@@ -100,6 +100,7 @@ class VideoTile extends StatefulWidget {
     this.radius = MmRadius.md,
     this.semanticLabel,
     this.dimmed = false,
+    this.onMenu,
   });
 
   final double width;
@@ -118,6 +119,9 @@ class VideoTile extends StatefulWidget {
 
   /// Missing file: shown at .72 opacity, like the track rows.
   final bool dimmed;
+
+  /// Right click / long press: the video's menu at that point.
+  final ValueChanged<Offset>? onMenu;
 
   @override
   State<VideoTile> createState() => _VideoTileState();
@@ -159,49 +163,54 @@ class _VideoTileState extends State<VideoTile> {
         if (w.topLeft != null) Positioned(left: 8, top: 8, child: w.topLeft!),
       ],
     );
-    return MouseRegion(
-      onEnter: (_) => setState(() => _hover = true),
-      onExit: (_) => setState(() => _hover = false),
-      child: Pressable(
-        onTap: w.onTap,
-        semanticLabel: w.semanticLabel ?? w.title,
-        pressScale: 0.98,
-        borderRadius: BorderRadius.circular(w.radius),
-        child: Opacity(
-          opacity: w.dimmed ? 0.72 : 1,
-          child: AnimatedContainer(
-            duration: motion.hover,
-            curve: MmMotion.standard,
-            transform: Matrix4.translationValues(
-              0,
-              _hover && !motion.reduced ? -3 : 0,
-              0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                picture,
-                const SizedBox(height: 8),
-                Text(
-                  w.title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.heading.copyWith(
-                    fontSize: w.aspectRatio < 1 ? 13 : 14,
-                    color: c.fg,
-                  ),
-                ),
-                if (w.subtitle != null)
+    final menu = w.onMenu;
+    return GestureDetector(
+      onSecondaryTapUp: menu == null ? null : (d) => menu(d.globalPosition),
+      onLongPressStart: menu == null ? null : (d) => menu(d.globalPosition),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hover = true),
+        onExit: (_) => setState(() => _hover = false),
+        child: Pressable(
+          onTap: w.onTap,
+          semanticLabel: w.semanticLabel ?? w.title,
+          pressScale: 0.98,
+          borderRadius: BorderRadius.circular(w.radius),
+          child: Opacity(
+            opacity: w.dimmed ? 0.72 : 1,
+            child: AnimatedContainer(
+              duration: motion.hover,
+              curve: MmMotion.standard,
+              transform: Matrix4.translationValues(
+                0,
+                _hover && !motion.reduced ? -3 : 0,
+                0,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  picture,
+                  const SizedBox(height: 8),
                   Text(
-                    w.subtitle!,
+                    w.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: MmType.caption.copyWith(
-                      fontSize: w.aspectRatio < 1 ? 12 : 12.5,
-                      color: c.muted,
+                    style: MmType.heading.copyWith(
+                      fontSize: w.aspectRatio < 1 ? 13 : 14,
+                      color: c.fg,
                     ),
                   ),
-              ],
+                  if (w.subtitle != null)
+                    Text(
+                      w.subtitle!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.caption.copyWith(
+                        fontSize: w.aspectRatio < 1 ? 12 : 12.5,
+                        color: c.muted,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ),

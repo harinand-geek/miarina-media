@@ -15,6 +15,7 @@ import '../playback/playback.dart';
 import 'cinema_data.dart';
 import 'cinema_screen.dart';
 import 'cinema_widgets.dart';
+import 'video_menu.dart';
 
 /// "Vidéos perso" (sidebar, Cinema group): short videos, newest first, as
 /// 16:9 tiles. The handoff has no dedicated mockup; it reuses the W-C1
@@ -96,6 +97,15 @@ class PersonalVideosScreen extends ConsumerWidget {
             itemBuilder: (context, i) {
               final v = videos[i];
               final d = durationOf(v);
+              Future<void> playAt(int i) async {
+                await playVideos(
+                  ref.read(queueProvider.notifier),
+                  videos,
+                  start: i,
+                );
+                if (context.mounted) openPlayer(context);
+              }
+
               return VideoTile(
                 width: tile,
                 aspectRatio: 16 / 9,
@@ -108,14 +118,15 @@ class PersonalVideosScreen extends ConsumerWidget {
                 progress: progressOf(v, watch),
                 dimmed: v.item.missing,
                 topRight: d == null ? null : PicturePill(formatClock(d)),
-                onTap: () async {
-                  await playVideos(
-                    ref.read(queueProvider.notifier),
-                    videos,
-                    start: i,
-                  );
-                  if (context.mounted) openPlayer(context);
-                },
+                onTap: () => playAt(i),
+                onMenu: (at) => showVideoMenu(
+                  context,
+                  ref,
+                  v,
+                  at,
+                  seen: watch.isSeen(v.item.id),
+                  onPlay: () => playAt(i),
+                ),
               );
             },
           );

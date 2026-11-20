@@ -864,5 +864,9 @@
   "markSeriesSeen": "Mark series as watched",
   "markSeriesUnseen": "Mark series as not watched",
   "markSeen": "Mark as watched",
-  "markUnseen": "Mark as not watched"
+  "markUnseen": "Mark as not watched",
+  "fDirector": "Director / author",
+  "fSeries": "Series / collection",
+  "fLicense": "License / comment",
+  "coverFrame": "Capture frame at {time}"
 }

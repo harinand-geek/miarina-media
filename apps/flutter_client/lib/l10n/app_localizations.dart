@@ -5286,6 +5286,30 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Marquer comme non vu'**
   String get markUnseen;
+
+  /// No description provided for @fDirector.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réalisateur / auteur'**
+  String get fDirector;
+
+  /// No description provided for @fSeries.
+  ///
+  /// In fr, this message translates to:
+  /// **'Série / collection'**
+  String get fSeries;
+
+  /// No description provided for @fLicense.
+  ///
+  /// In fr, this message translates to:
+  /// **'Licence / commentaire'**
+  String get fLicense;
+
+  /// No description provided for @coverFrame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capturer l’image à {time}'**
+  String coverFrame(String time);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

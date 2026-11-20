@@ -1904,5 +1904,16 @@
   "markSeriesSeen": "Marquer la série comme vue",
   "markSeriesUnseen": "Marquer la série comme non vue",
   "markSeen": "Marquer comme vu",
-  "markUnseen": "Marquer comme non vu"
+  "markUnseen": "Marquer comme non vu",
+  "fDirector": "Réalisateur / auteur",
+  "fSeries": "Série / collection",
+  "fLicense": "Licence / commentaire",
+  "coverFrame": "Capturer l’image à {time}",
+  "@coverFrame": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }
