@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show AppExitType;
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -171,7 +172,10 @@ class _TitleBarState extends State<TitleBar> {
             icon: PhosphorRegular.x,
             label: t.windowClose,
             close: true,
-            onTap: () => _window?.close(),
+            // Asks to close like Alt+F4, so the exit guard runs first.
+            onTap: () => ServicesBinding.instance.exitApplication(
+              AppExitType.cancelable,
+            ),
           ),
         ],
       ),

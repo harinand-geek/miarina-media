@@ -47,6 +47,15 @@ struct Getter {
 static GETTER: Mutex<Option<Arc<Getter>>> = Mutex::new(None);
 static SINK: Mutex<Option<StreamSink<GetEvent>>> = Mutex::new(None);
 
+/// App closing (`api/app.rs`): running downloads flush their partial
+/// files so they stay resumable. Nothing to do when Obtenir never started.
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn shutdown_downloads() {
+    if let Ok(g) = getter() {
+        g.runtime.block_on(g.manager.shutdown());
+    }
+}
+
 fn getter() -> Result<Arc<Getter>> {
     GETTER
         .lock()

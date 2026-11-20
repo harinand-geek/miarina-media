@@ -9,6 +9,7 @@ import '../features/import/import_data.dart';
 import '../features/mini/mini_player.dart' show TaskbarSync;
 import '../features/settings/settings_data.dart';
 import '../l10n/app_localizations.dart';
+import 'exit_guard.dart';
 import 'router.dart';
 
 class MiarinaApp extends ConsumerWidget {
@@ -52,8 +53,9 @@ class MiarinaApp extends ConsumerWidget {
             ),
             disableAnimations: media.disableAnimations || look.reduceMotion,
           ),
-          // Taskbar thumbnail buttons follow the queue (W-M4, Windows).
-          child: TaskbarSync(child: child!),
+          // Taskbar thumbnail buttons follow the queue (W-M4, Windows);
+          // closing stops torrents and flushes downloads first.
+          child: ExitGuard(child: TaskbarSync(child: child!)),
         );
       },
       localizationsDelegates: const [

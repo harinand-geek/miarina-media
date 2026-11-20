@@ -6,6 +6,7 @@
 // Static analysis wrongly picks the IO variant, thus ignore this
 // ignore_for_file: argument_type_not_assignable
 
+import 'api/app.dart';
 import 'api/browser.dart';
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
