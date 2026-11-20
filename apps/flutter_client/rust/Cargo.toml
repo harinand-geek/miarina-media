@@ -41,3 +41,7 @@ windows = { version = "=0.62.2", features = [
     "Win32_UI_Input_KeyboardAndMouse",
     "Win32_UI_WindowsAndMessaging",
 ] }
+
+[dev-dependencies]
+# Test-only: older or newer database files (same version as crates/storage).
+rusqlite = { version = "0.40.2", features = ["bundled"] }

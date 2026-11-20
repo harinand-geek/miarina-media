@@ -133,6 +133,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CinemaLibrary dco_decode_cinema_library(dynamic raw);
 
   @protected
+  DatabaseOpen dco_decode_database_open(dynamic raw);
+
+  @protected
   DetectedMediaInfo dco_decode_detected_media_info(dynamic raw);
 
   @protected
@@ -533,6 +536,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaLibrary sse_decode_cinema_library(SseDeserializer deserializer);
+
+  @protected
+  DatabaseOpen sse_decode_database_open(SseDeserializer deserializer);
 
   @protected
   DetectedMediaInfo sse_decode_detected_media_info(
@@ -1030,6 +1036,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_cinema_library(CinemaLibrary self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_database_open(DatabaseOpen self, SseSerializer serializer);
 
   @protected
   void sse_encode_detected_media_info(

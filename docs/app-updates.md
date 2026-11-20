@@ -40,6 +40,7 @@ Settings › Updates › Channel: Stable (default) or Beta. Stable reads `/updat
 - Migrations run in a single transaction: if one fails, the database keeps its previous schema.
 - A database whose schema is **newer** than the running build (an older version reinstalled over a newer one) is not opened and not modified.
 - In these cases Windows shows a message (French or English, from the Windows display language) saying what happened, that the data was not changed and where the copy is, then exits. On Windows the database is opened before the Tauri app is built (`data_guard::open_early`), so the message appears without a window: a message box shown inside Tauri's `setup` made the app abort during the L09 recette. Android: the start fails (no dedicated screen yet; the Android splash/migration design is in `design/design_handoff_splash`).
+- The Flutter app (0.2.x, Windows) uses the same folder and the same rules: `app_open_database` (`apps/flutter_client/rust/src/api/app.rs`) opens the database once at launch with `open_upgrading`, before anything else reads it, and `app/database_problem.dart` shows the same messages in a window instead of a message box.
 - Manual recovery: close the app, rename `miarina.db` (and its `-wal`/`-shm` files), copy the chosen backup to `miarina.db`, then start the version that matches the copy's schema (the file name says it) or a newer one.
 
 ## Keys (UPD-07)

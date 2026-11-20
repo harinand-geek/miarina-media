@@ -3264,4 +3264,30 @@ class L10nEn extends L10n {
   @override
   String get bookmarksExportFailed =>
       'The bookmarks could not be saved in this folder.';
+
+  @override
+  String get dbProblemTitle => 'Your library was not opened';
+
+  @override
+  String dbTooNew(String found, String supported) {
+    return 'This library was updated by a newer version of Miarina Media: this version cannot open it safely (schema $found, this version supports up to schema $supported).\n\nYour data was not changed. Install the latest version of Miarina Media.';
+  }
+
+  @override
+  String dbUpgradeFailed(String backup, String reason) {
+    return 'Updating your library failed. The update was rolled back: your data was not changed.\n\nBackup copy: $backup\nDetails: $reason\n\nReinstall the previous version of Miarina Media to keep using this library.';
+  }
+
+  @override
+  String get dbNoBackup => 'none';
+
+  @override
+  String dbBackupFailed(String reason) {
+    return 'Miarina Media could not copy your library before updating it: the update was not applied and your data was not changed.\n\nCheck the free disk space, then start Miarina Media again.\nDetails: $reason';
+  }
+
+  @override
+  String dbOpenFailed(String file, String reason) {
+    return 'The Miarina Media library could not be opened.\n\nFile: $file\nDetails: $reason';
+  }
 }

@@ -5346,6 +5346,42 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Les signets n’ont pas pu être enregistrés dans ce dossier.'**
   String get bookmarksExportFailed;
+
+  /// No description provided for @dbProblemTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre bibliothèque n’a pas été ouverte'**
+  String get dbProblemTitle;
+
+  /// No description provided for @dbTooNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette bibliothèque a été mise à jour par une version plus récente de Miarina Media : cette version ne peut pas l’ouvrir sans risque (schéma {found}, cette version s’arrête au schéma {supported}).\n\nVos données n’ont pas été modifiées. Installez la version la plus récente de Miarina Media.'**
+  String dbTooNew(String found, String supported);
+
+  /// No description provided for @dbUpgradeFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La mise à jour de votre bibliothèque a échoué. Elle a été annulée : vos données n’ont pas été modifiées.\n\nCopie de sauvegarde : {backup}\nDétail : {reason}\n\nRéinstallez la version précédente de Miarina Media pour continuer à utiliser cette bibliothèque.'**
+  String dbUpgradeFailed(String backup, String reason);
+
+  /// No description provided for @dbNoBackup.
+  ///
+  /// In fr, this message translates to:
+  /// **'aucune'**
+  String get dbNoBackup;
+
+  /// No description provided for @dbBackupFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina Media n’a pas pu copier votre bibliothèque avant de la mettre à jour : la mise à jour n’a pas été faite et vos données n’ont pas été modifiées.\n\nVérifiez l’espace libre sur le disque puis relancez Miarina Media.\nDétail : {reason}'**
+  String dbBackupFailed(String reason);
+
+  /// No description provided for @dbOpenFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La bibliothèque de Miarina Media n’a pas pu être ouverte.\n\nFichier : {file}\nDétail : {reason}'**
+  String dbOpenFailed(String file, String reason);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

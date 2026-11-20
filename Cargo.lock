@@ -4071,6 +4071,7 @@ dependencies = [
  "mdm-torrent",
  "media-core",
  "resource-manager",
+ "rusqlite",
  "serde",
  "serde_json",
  "storage",

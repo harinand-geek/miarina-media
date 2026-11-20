@@ -3290,4 +3290,30 @@ class L10nFr extends L10n {
   @override
   String get bookmarksExportFailed =>
       'Les signets n’ont pas pu être enregistrés dans ce dossier.';
+
+  @override
+  String get dbProblemTitle => 'Votre bibliothèque n’a pas été ouverte';
+
+  @override
+  String dbTooNew(String found, String supported) {
+    return 'Cette bibliothèque a été mise à jour par une version plus récente de Miarina Media : cette version ne peut pas l’ouvrir sans risque (schéma $found, cette version s’arrête au schéma $supported).\n\nVos données n’ont pas été modifiées. Installez la version la plus récente de Miarina Media.';
+  }
+
+  @override
+  String dbUpgradeFailed(String backup, String reason) {
+    return 'La mise à jour de votre bibliothèque a échoué. Elle a été annulée : vos données n’ont pas été modifiées.\n\nCopie de sauvegarde : $backup\nDétail : $reason\n\nRéinstallez la version précédente de Miarina Media pour continuer à utiliser cette bibliothèque.';
+  }
+
+  @override
+  String get dbNoBackup => 'aucune';
+
+  @override
+  String dbBackupFailed(String reason) {
+    return 'Miarina Media n’a pas pu copier votre bibliothèque avant de la mettre à jour : la mise à jour n’a pas été faite et vos données n’ont pas été modifiées.\n\nVérifiez l’espace libre sur le disque puis relancez Miarina Media.\nDétail : $reason';
+  }
+
+  @override
+  String dbOpenFailed(String file, String reason) {
+    return 'La bibliothèque de Miarina Media n’a pas pu être ouverte.\n\nFichier : $file\nDétail : $reason';
+  }
 }

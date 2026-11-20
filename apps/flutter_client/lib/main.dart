@@ -6,6 +6,7 @@ import 'package:material_ui/material_ui.dart';
 import 'package:window_manager/window_manager.dart';
 
 import 'app/app.dart';
+import 'app/database_problem.dart';
 import 'app/launch_args.dart';
 import 'app/router.dart';
 import 'engine/engine_factory.dart';
@@ -17,6 +18,7 @@ import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
 import 'features/mini/mini_player.dart' show miniPlayerProvider;
 import 'features/playback/playback.dart';
+import 'src/rust/api/app.dart' show appOpenDatabase;
 import 'src/rust/api/library.dart';
 import 'src/rust/frb_generated.dart';
 
@@ -29,6 +31,14 @@ Future<void> main(List<String> args) async {
   await RustLib.init();
   initializeEngines();
   if (Platform.isWindows) _setUpWindow();
+
+  // UPD-10: the database is opened once, before anything reads it: copied
+  // before its schema changes, never opened when a newer version wrote it.
+  final opened = await appOpenDatabase(dataDir: await appDataDir());
+  if (opened.issue.isNotEmpty) {
+    runApp(DatabaseProblemApp(open: opened));
+    return;
+  }
 
   final container = ProviderContainer();
   runApp(

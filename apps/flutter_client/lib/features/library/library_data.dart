@@ -8,16 +8,22 @@ import '../../engine/media_engine.dart';
 import '../../src/rust/api/library.dart';
 import '../playback/playback.dart';
 
-/// Where the library database lives. Development builds point MM_DATA_DIR at
-/// a scratch folder (or a copy of a 0.1.x data folder); the live Tauri
-/// database is never opened while both apps coexist.
-final dataDirProvider = FutureProvider<String>((ref) async {
+/// Where the app keeps its data. Windows: the 0.1.x folder,
+/// `%APPDATA%\org.miarina.media`, so a 0.1.x library, its settings,
+/// downloads and torrents carry over (plan R1). Development builds point
+/// MM_DATA_DIR at a scratch folder; they never open the real one.
+Future<String> appDataDir() async {
   const override = String.fromEnvironment('MM_DATA_DIR');
   if (override.isNotEmpty) return override;
-  final dir = await getApplicationSupportDirectory();
+  final roaming = Platform.isWindows ? Platform.environment['APPDATA'] : null;
+  final dir = roaming != null && roaming.isNotEmpty
+      ? Directory('$roaming${Platform.pathSeparator}org.miarina.media')
+      : await getApplicationSupportDirectory();
   await dir.create(recursive: true);
   return dir.path;
-});
+}
+
+final dataDirProvider = FutureProvider<String>((ref) => appDataDir());
 
 final dbPathProvider = FutureProvider<String>(
   (ref) async =>

@@ -874,5 +874,11 @@
   "bookmarkNoteTitle": "Bookmark note at {time}",
   "bookmarksExport": "Export…",
   "bookmarksExported": "Bookmarks saved: {path}",
-  "bookmarksExportFailed": "The bookmarks could not be saved in this folder."
+  "bookmarksExportFailed": "The bookmarks could not be saved in this folder.",
+  "dbProblemTitle": "Your library was not opened",
+  "dbTooNew": "This library was updated by a newer version of Miarina Media: this version cannot open it safely (schema {found}, this version supports up to schema {supported}).\n\nYour data was not changed. Install the latest version of Miarina Media.",
+  "dbUpgradeFailed": "Updating your library failed. The update was rolled back: your data was not changed.\n\nBackup copy: {backup}\nDetails: {reason}\n\nReinstall the previous version of Miarina Media to keep using this library.",
+  "dbNoBackup": "none",
+  "dbBackupFailed": "Miarina Media could not copy your library before updating it: the update was not applied and your data was not changed.\n\nCheck the free disk space, then start Miarina Media again.\nDetails: {reason}",
+  "dbOpenFailed": "The Miarina Media library could not be opened.\n\nFile: {file}\nDetails: {reason}"
 }

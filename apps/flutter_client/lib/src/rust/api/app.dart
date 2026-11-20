@@ -9,3 +9,67 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 /// Called once when the window is closing; never fails the closing.
 Future<void> appShutdown() => RustLib.instance.api.crateApiAppAppShutdown();
+
+/// Opens `<data_dir>/miarina.db` once at launch, before anything else
+/// reads it: an existing database is copied to `<data_dir>/backups` before
+/// its schema changes, migrations run in one transaction, and a database
+/// from a newer version is left untouched.
+Future<DatabaseOpen> appOpenDatabase({required String dataDir}) =>
+    RustLib.instance.api.crateApiAppAppOpenDatabase(dataDir: dataDir);
+
+/// How opening the app database went (UPD-10, as the Tauri app).
+class DatabaseOpen {
+  /// Empty when the database is ready; else "too_new" (written by a newer
+  /// version), "upgrade_failed" (rolled back), "backup" (no copy could be
+  /// made, nothing changed) or "open" (cannot be opened).
+  final String issue;
+  final String dbPath;
+
+  /// Schema before and after opening.
+  final PlatformInt64 from;
+  final PlatformInt64 to;
+
+  /// Schema found in a too new database, and the newest this build knows.
+  final PlatformInt64 found;
+  final PlatformInt64 supported;
+
+  /// Copy taken before migrating.
+  final String? backup;
+  final String? detail;
+
+  const DatabaseOpen({
+    required this.issue,
+    required this.dbPath,
+    required this.from,
+    required this.to,
+    required this.found,
+    required this.supported,
+    this.backup,
+    this.detail,
+  });
+
+  @override
+  int get hashCode =>
+      issue.hashCode ^
+      dbPath.hashCode ^
+      from.hashCode ^
+      to.hashCode ^
+      found.hashCode ^
+      supported.hashCode ^
+      backup.hashCode ^
+      detail.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DatabaseOpen &&
+          runtimeType == other.runtimeType &&
+          issue == other.issue &&
+          dbPath == other.dbPath &&
+          from == other.from &&
+          to == other.to &&
+          found == other.found &&
+          supported == other.supported &&
+          backup == other.backup &&
+          detail == other.detail;
+}
