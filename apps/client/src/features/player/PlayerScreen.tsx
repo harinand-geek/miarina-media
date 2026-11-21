@@ -14,9 +14,8 @@ import { useSettings } from '../../stores/settings';
 import { useUi } from '../../stores/ui';
 import { openLibrary } from '../../app/navigation';
 import { durationLabel, folderOf, formatLabel, qualityLabel } from '../library/format';
-import { MediaThumb } from '../library/MediaThumb';
 import { openFiles } from '../library/openMedia';
-import NowPlayingScreen from './NowPlayingScreen';
+import NowPlayingScreen, { QueuePanel } from './NowPlayingScreen';
 import { PlayButton, VolumeControl } from './parts';
 import { formatRate, nextRate } from './playbackRate';
 import { SeekBar } from './SeekBar';
@@ -78,29 +77,48 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   const rate = usePlayer((s) => s.rate);
   const queue = usePlayer((s) => s.queue);
   const index = usePlayer((s) => s.index);
-  const { toggle, seek, skip, setRate, retry, setSurface, playAt, previous, next } =
-    usePlayer.getState();
+  const { toggle, seek, skip, setRate, retry, setSurface, previous, next } = usePlayer.getState();
   const pushToast = useUi((s) => s.pushToast);
   const fullscreen = useUi((s) => s.playerFullscreen);
   const mounted = useRef(true);
   const changingFullscreen = useRef(false);
   const wide = useMediaQuery('(min-width: 1280px)');
-  const [panelOpen, setPanelOpen] = useState(false);
+  const [panelOpen, setPanelOpen] = useState<boolean | null>(null);
   const [tracksOpen, setTracksOpen] = useState(false);
   const nativeVideo = usePlayer((s) => s.nativeVideo);
   const hasTracks = usePlayer((s) => !!s.tracks);
   const lang = useSettings((s) => s.lang);
-  const showPanel = (tracksOpen && hasTracks) || (!fullscreen && (wide || panelOpen));
+  const showPanel = (tracksOpen && hasTracks) || (!fullscreen && (panelOpen ?? wide));
   const pipSupported =
     !nativeVideo && typeof document !== 'undefined' && document.pictureInPictureEnabled === true;
   const hasFile = nativeVideo || !!backend.mediaUrl(item.path);
-  const upNext = queue.slice(index + 1, index + 6);
+  const shuffle = usePlayer((s) => s.shuffle);
+  const repeat = usePlayer((s) => s.repeat);
+  const [controlsVisible, setControlsVisible] = useState(true);
+  const controlsBusy = useRef(false);
+  const hideTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const reveal = () => {
+    setControlsVisible(true);
+    clearTimeout(hideTimer.current);
+    hideTimer.current = setTimeout(() => {
+      if (!controlsBusy.current) setControlsVisible(false);
+    }, 2500);
+  };
+  useEffect(() => {
+    hideTimer.current = setTimeout(() => {
+      if (!controlsBusy.current) setControlsVisible(false);
+    }, 2500);
+    return () => clearTimeout(hideTimer.current);
+  }, [fullscreen]);
+  const hideChrome = fullscreen && playing && !controlsVisible;
 
   const toggleFullscreen = async (on = !fullscreen) => {
     if (changingFullscreen.current) return;
+    reveal();
     changingFullscreen.current = true;
     try {
       await setFullscreen(on);
+      if (on) setTracksOpen(false);
       if (mounted.current) useUi.setState({ playerFullscreen: on });
       else if (on) await setFullscreen(false);
     } catch {
@@ -130,6 +148,10 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   useEffect(() => {
     if (!nativeVideo) return;
     return backend.onNativePlayerClick((kind) => {
+      if (kind === 'move') {
+        reveal();
+        return;
+      }
       if (kind === 'dblclick') void toggleFullscreenRef.current();
       else usePlayer.getState().toggle();
     });
@@ -158,11 +180,11 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
   const tech = [formatLabel(item), qualityLabel(item), item.sourceHost].filter(Boolean).join(' · ');
 
   return (
-    <div className="flex min-h-0 flex-1">
+    <div className="flex min-h-0 flex-1" onPointerMove={reveal} onFocusCapture={reveal}>
       <div className="flex min-w-0 flex-1 flex-col text-fg">
         {/* A native picture (libVLC) covers what is drawn under it: the
             title stays above the picture instead of over it. */}
-        {nativeVideo && (
+        {nativeVideo && !fullscreen && (
           <div className="flex h-12 shrink-0 items-center gap-3 bg-player-chrome px-5">
             {!fullscreen && (
               <IconButton
@@ -192,7 +214,7 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             </span>
           )}
           <div
-            hidden={nativeVideo}
+            hidden={nativeVideo || hideChrome}
             className="absolute inset-x-0 top-0 flex h-16 items-center gap-3 bg-gradient-to-b from-black/60 to-transparent px-5 text-[#F5F7FA]"
           >
             {!fullscreen && (
@@ -223,7 +245,26 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
             </div>
           )}
         </div>
-        <div className="flex flex-col gap-2 border-t border-divider bg-player-chrome px-5 pb-3.5 pt-2.5">
+        <div
+          hidden={hideChrome}
+          onPointerEnter={() => {
+            controlsBusy.current = true;
+          }}
+          onPointerLeave={() => {
+            controlsBusy.current = false;
+            reveal();
+          }}
+          onFocusCapture={() => {
+            controlsBusy.current = true;
+          }}
+          onBlurCapture={(e) => {
+            if (!e.currentTarget.contains(e.relatedTarget)) {
+              controlsBusy.current = false;
+              reveal();
+            }
+          }}
+          className="flex flex-col gap-2 border-t border-divider bg-player-chrome px-5 pb-3.5 pt-2.5"
+        >
           <div className="flex items-center gap-3 font-mono text-[12px] text-muted tabular">
             <span>{formatClock(position)}</span>
             <div className="flex-1">
@@ -276,7 +317,7 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
               fill
               size={40}
               iconSize={22}
-              disabled={index + 1 >= queue.length}
+              disabled={index + 1 >= queue.length && repeat !== 'all'}
               onClick={next}
             />
             <VolumeControl t={t} width={90} />
@@ -312,14 +353,17 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
                 void video?.requestPictureInPicture?.().catch(() => {});
               }}
             />
-            {!wide && !fullscreen && (
+            {!fullscreen && (
               <IconButton
                 icon="view_sidebar"
-                label={t('detailsPanel')}
-                aria-pressed={panelOpen}
+                label={t('queue')}
+                aria-pressed={showPanel}
                 size={40}
                 iconSize={22}
-                onClick={() => setPanelOpen((o) => !o)}
+                onClick={() => {
+                  setPanelOpen(!showPanel);
+                  if (showPanel) setTracksOpen(false);
+                }}
               />
             )}
             <IconButton
@@ -338,54 +382,66 @@ function VideoPlayer({ item }: { item: MediaRecord }) {
           aria-label={t('detailsPanel')}
           className="flex w-[300px] shrink-0 flex-col overflow-auto border-l border-divider bg-bg"
         >
-          <TracksPanel lang={lang} />
-          <div className="flex flex-col gap-2.5 border-b border-divider p-[18px]">
-            <span className="text-overline font-bold uppercase tracking-[0.06em] text-muted">
-              {t('file')}
-            </span>
-            <dl className="m-0 grid grid-cols-[90px_1fr] gap-y-2 text-[12.5px]">
-              <dt className="text-muted">{t('format')}</dt>
-              <dd className="m-0">{formatLabel(item)}</dd>
-              {item.width && item.height && (
-                <>
-                  <dt className="text-muted">{t('resolution')}</dt>
-                  <dd className="m-0">
-                    {item.width} × {item.height}
-                  </dd>
-                </>
+          <div className="flex shrink-0 items-center gap-2 border-b border-divider p-3">
+            <button
+              className="flex-1 text-left text-[13px] font-bold"
+              onClick={() => setTracksOpen(false)}
+            >
+              {t('queue')} · {queue.length}
+            </button>
+            <IconButton
+              icon="shuffle"
+              label={t('shuffle')}
+              aria-pressed={shuffle}
+              className={shuffle ? '!text-coral-strong' : ''}
+              onClick={() => usePlayer.getState().setShuffle(!shuffle)}
+            />
+            <IconButton
+              icon={repeat === 'one' ? 'repeat_one' : 'repeat'}
+              label={t(
+                repeat === 'off' ? 'repeatOff' : repeat === 'all' ? 'repeatAll' : 'repeatOne',
               )}
-              <dt className="text-muted">{t('size')}</dt>
-              <dd className="m-0">{formatBytes(item.sizeBytes)}</dd>
-              <dt className="text-muted">{t('location')}</dt>
-              <dd className="m-0 break-all font-mono text-[11.5px]" title={item.path}>
-                {folderOf(item.path)}
-              </dd>
-            </dl>
+              aria-pressed={repeat !== 'off'}
+              className={repeat !== 'off' ? '!text-coral-strong' : ''}
+              onClick={() => usePlayer.getState().cycleRepeat()}
+            />
+            <IconButton
+              icon="info"
+              label={t('detailsPanel')}
+              aria-pressed={tracksOpen}
+              onClick={() => setTracksOpen((v) => !v)}
+            />
           </div>
-          <div className="flex flex-col gap-1 px-2.5 py-[18px]">
-            <span className="px-2 pb-2 text-overline font-bold uppercase tracking-[0.06em] text-muted">
-              {t('upNext')}
-            </span>
-            {upNext.length === 0 && (
-              <p className="m-0 px-2 text-[12.5px] text-muted">{t('queueEmpty')}</p>
-            )}
-            {upNext.map((u, i) => (
-              <button
-                key={u.id}
-                type="button"
-                onClick={() => playAt(index + 1 + i)}
-                className="flex gap-2.5 rounded-sm p-2 text-left hover:bg-surface"
-              >
-                <MediaThumb media={u} className="h-[45px] w-20 rounded-xs" />
-                <span className="flex min-w-0 flex-col gap-0.5">
-                  <span className="truncate text-[12.5px] font-semibold">{u.title}</span>
-                  <span className="text-[11.5px] text-muted">
-                    {durationLabel(u.durationSecs)} · {qualityLabel(u)}
-                  </span>
+          {!tracksOpen ? (
+            <QueuePanel />
+          ) : (
+            <>
+              <TracksPanel lang={lang} />
+              <div className="flex flex-col gap-2.5 border-b border-divider p-[18px]">
+                <span className="text-overline font-bold uppercase tracking-[0.06em] text-muted">
+                  {t('file')}
                 </span>
-              </button>
-            ))}
-          </div>
+                <dl className="m-0 grid grid-cols-[90px_1fr] gap-y-2 text-[12.5px]">
+                  <dt className="text-muted">{t('format')}</dt>
+                  <dd className="m-0">{formatLabel(item)}</dd>
+                  {item.width && item.height && (
+                    <>
+                      <dt className="text-muted">{t('resolution')}</dt>
+                      <dd className="m-0">
+                        {item.width} × {item.height}
+                      </dd>
+                    </>
+                  )}
+                  <dt className="text-muted">{t('size')}</dt>
+                  <dd className="m-0">{formatBytes(item.sizeBytes)}</dd>
+                  <dt className="text-muted">{t('location')}</dt>
+                  <dd className="m-0 break-all font-mono text-[11.5px]" title={item.path}>
+                    {folderOf(item.path)}
+                  </dd>
+                </dl>
+              </div>
+            </>
+          )}
         </aside>
       )}
     </div>

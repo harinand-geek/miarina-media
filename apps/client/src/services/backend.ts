@@ -176,7 +176,7 @@ export interface Backend {
   ): Promise<void>;
   onNativePlayerState(cb: (e: NativePlayerStateEvent) => void): () => void;
   onNativePlayerTracks(cb: (e: NativePlayerTracksEvent) => void): () => void;
-  onNativePlayerClick(cb: (kind: 'click' | 'dblclick') => void): () => void;
+  onNativePlayerClick(cb: (kind: 'click' | 'dblclick' | 'move') => void): () => void;
   /** Windows: opens a tab (start page, an address, or the history tab). */
   browserTabNew(options?: { kind?: 'history'; address?: string }): Promise<number>;
   browserTabClose(id: number): Promise<void>;
@@ -378,8 +378,8 @@ class TauriBackend implements Backend {
     onEvent<NativePlayerStateEvent>('native-player://state', cb);
   onNativePlayerTracks = (cb: (e: NativePlayerTracksEvent) => void) =>
     onEvent<NativePlayerTracksEvent>('native-player://tracks', cb);
-  onNativePlayerClick = (cb: (kind: 'click' | 'dblclick') => void) =>
-    onEvent<'click' | 'dblclick'>('native-player://click', cb);
+  onNativePlayerClick = (cb: (kind: 'click' | 'dblclick' | 'move') => void) =>
+    onEvent<'click' | 'dblclick' | 'move'>('native-player://click', cb);
   browserTabNew = (options: { kind?: 'history'; address?: string } = {}) =>
     call<number>('browser_tab_new', {
       kind: options.kind ?? null,

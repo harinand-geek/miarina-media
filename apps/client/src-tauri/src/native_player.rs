@@ -299,7 +299,8 @@ mod imp {
     use windows::Win32::UI::WindowsAndMessaging::{
         CS_DBLCLKS, CreateWindowExW, DefWindowProcW, HWND_TOP, RegisterClassW, SW_HIDE,
         SWP_NOACTIVATE, SWP_SHOWWINDOW, SetWindowPos, ShowWindow, WINDOW_EX_STYLE,
-        WM_LBUTTONDBLCLK, WM_LBUTTONUP, WNDCLASSW, WS_CHILD, WS_CLIPCHILDREN, WS_CLIPSIBLINGS,
+        WM_LBUTTONDBLCLK, WM_LBUTTONUP, WM_MOUSEMOVE, WNDCLASSW, WS_CHILD, WS_CLIPCHILDREN,
+        WS_CLIPSIBLINGS,
     };
     use windows::core::{HSTRING, PCSTR, PCWSTR, w};
 
@@ -606,6 +607,18 @@ mod imp {
     unsafe extern "system" fn video_proc(h: HWND, m: u32, w: WPARAM, l: LPARAM) -> LRESULT {
         // Clicks on the picture go to the interface (play / pause, full
         // screen); keyboard focus stays with it.
+        // Bound motion notifications; never steal keyboard focus on hover.
+        if m == WM_MOUSEMOVE {
+            static LAST_MOVE: Mutex<Option<Instant>> = Mutex::new(None);
+            if let Ok(mut last) = LAST_MOVE.lock() {
+                if last.is_none_or(|at| at.elapsed() >= Duration::from_millis(150)) {
+                    *last = Some(Instant::now());
+                    if let Some(app) = APP.get() {
+                        let _ = app.emit_to("main", CLICK_EVENT, "move");
+                    }
+                }
+            }
+        }
         let event = match m {
             WM_LBUTTONUP => Some("click"),
             WM_LBUTTONDBLCLK => Some("dblclick"),

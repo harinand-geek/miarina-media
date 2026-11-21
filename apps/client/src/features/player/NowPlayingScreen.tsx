@@ -5,6 +5,7 @@ import { Icon } from '../../components/Icon';
 import { formatClock } from '../../hooks/usePlaybackClock';
 import { useT, type Translate } from '../../i18n';
 import { isActive, usePlayer, type SleepTimer } from '../../stores/player';
+import { backend } from '../../services/backend';
 import { useUi } from '../../stores/ui';
 import { openLibrary } from '../../app/navigation';
 import { durationLabel } from '../library/format';
@@ -221,7 +222,7 @@ function SidePanel() {
   );
 }
 
-function QueuePanel() {
+export function QueuePanel() {
   const t = useT();
   const queue = usePlayer((s) => s.queue);
   const index = usePlayer((s) => s.index);
@@ -232,6 +233,7 @@ function QueuePanel() {
   const [dropAt, setDropAt] = useState<number | null>(null);
 
   const onRowKey = (e: KeyboardEvent<HTMLLIElement>, i: number) => {
+    if (e.target !== e.currentTarget) return;
     if (e.altKey && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
       e.preventDefault();
       const to = i + (e.key === 'ArrowUp' ? -1 : 1);
@@ -258,8 +260,21 @@ function QueuePanel() {
     <>
       <div className="flex-1 overflow-auto p-2.5">
         <span className="block px-2.5 py-2 text-[11px] font-bold uppercase tracking-[0.06em] text-faint">
-          {t('upNext')}
+          {t('queue')}
         </span>
+        <Button
+          size="sm"
+          onClick={() => {
+            void backend
+              .libraryOpenFiles()
+              .then((items) => {
+                for (const item of items) usePlayer.getState().enqueue(item);
+              })
+              .catch(() => pushToast({ tone: 'error', message: t('errRead') }));
+          }}
+        >
+          {t('openFiles')}
+        </Button>
         {queue.length === 0 && (
           <p className="m-0 px-2.5 text-[12.5px] text-muted">{t('queueEmpty')}</p>
         )}

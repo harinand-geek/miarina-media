@@ -1,6 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import { PlayerHost } from '../features/player/PlayerHost';
 import { createNativeEngine, reportOf } from '../features/player/nativeEngine';
 import { backend, resetMockBackend } from '../services/backend';
 import type {
@@ -176,4 +177,51 @@ describe('tracks panel (WIN-05, WIN-06)', () => {
       }),
     ).toBeDisabled();
   });
+});
+
+it('hides native video while search results are open and restores it on close', () => {
+  const frame = vi.spyOn(backend, 'nativePlayerFrame').mockResolvedValue(undefined);
+  const surface = document.createElement('div');
+  vi.spyOn(surface, 'getBoundingClientRect').mockReturnValue({
+    left: 0,
+    top: 40,
+    width: 800,
+    height: 450,
+  } as DOMRect);
+  usePlayer.setState({ media: video, nativeVideo: true, surface, state: 'playing' });
+  const { unmount } = render(<PlayerHost />);
+  act(() => usePlayer.setState({ nativeVideo: true }));
+  expect(frame).toHaveBeenLastCalledWith({ x: 0, y: 40, width: 800, height: 450 }, true);
+  act(() => useUi.setState({ searchOpen: true }));
+  expect(frame).toHaveBeenLastCalledWith({ x: 0, y: 0, width: 0, height: 0 }, false);
+  expect(usePlayer.getState().state).toBe('playing');
+  act(() => useUi.setState({ searchOpen: false }));
+  expect(frame).toHaveBeenLastCalledWith({ x: 0, y: 40, width: 800, height: 450 }, true);
+  unmount();
+});
+
+it('hides fullscreen chrome after inactivity and restores it on native mouse motion', () => {
+  vi.useFakeTimers();
+  let notify: (kind: 'click' | 'dblclick' | 'move') => void = () => {};
+  vi.spyOn(backend, 'onNativePlayerClick').mockImplementation((cb) => {
+    notify = cb;
+    return () => {};
+  });
+  usePlayer.setState({
+    media: video,
+    queue: [video],
+    index: 0,
+    nativeVideo: true,
+    state: 'playing',
+  });
+  useUi.setState({ playerFullscreen: true });
+  const { unmount } = render(<PlayerScreen />);
+  const slider = screen.getByRole('slider', { name: 'Playback position' });
+  expect(slider).toBeVisible();
+  act(() => vi.advanceTimersByTime(2600));
+  expect(slider).not.toBeVisible();
+  act(() => notify('move'));
+  expect(slider).toBeVisible();
+  unmount();
+  vi.useRealTimers();
 });

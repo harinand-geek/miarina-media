@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.11',
+  version: '0.1.12',
   windows: {
-    version: '0.1.11',
-    name: 'MiarinaMedia-0.1.11-x64-setup.exe',
-    size: '91,2 Mio',
-    sha256: '0e912bc1605184bf4c58db934ef560b169e980f9804cd19fc4380ece0f2222b7',
+    version: '0.1.12',
+    name: 'MiarinaMedia-0.1.12-x64-setup.exe',
+    size: '91,3 Mio',
+    sha256: '9e3047b2ec3e7bde4a0323190a71f4982fcf8566a9487ba23c943e35272dd27b',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
@@ -50,9 +50,20 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.1.12 · Windows',
+    date: 'Préversion de test · 16 novembre 2026',
+    current: true,
+    items: [
+      'Plein écran : titre masqué et commandes qui disparaissent après inactivité',
+      'Barre de lecture déplaçable par glissement',
+      'Liste de lecture complète dans le panneau droit : ajout, réorganisation, retrait et sauvegarde',
+      'Résultats de recherche visibles et cliquables pendant la lecture vidéo native',
+      'Android reste en version 0.1.11',
+    ],
+  },
+  {
     name: '0.1.11 · Windows et Android',
     date: 'Préversion de test · 15 novembre 2026',
-    current: true,
     items: [
       'Le lecteur d’abord : l’application s’ouvre sur la musique ; Android : barre Musique, Vidéos, Téléchargements ; Windows : espace Écouter en premier',
       'Une seule recherche : titres et vidéos de l’appareil d’abord, puis YouTube ou le web, liens collés analysés ; logos des sites',

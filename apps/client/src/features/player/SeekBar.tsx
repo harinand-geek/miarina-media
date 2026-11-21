@@ -1,3 +1,4 @@
+import { useRef, useState } from 'react';
 import { formatClock } from '../../hooks/usePlaybackClock';
 
 interface SeekBarProps {
@@ -26,8 +27,12 @@ export function SeekBar({
   tone = 'accent',
   label = 'Seek',
 }: SeekBarProps) {
+  const [preview, setPreview] = useState<number | null>(null);
+  const pointer = useRef<number | null>(null);
+  const shown = preview ?? time;
+  const clamp = (value: number) => Math.max(0, Math.min(duration, value));
   const coral = tone === 'coral';
-  const pct = duration > 0 ? (time / duration) * 100 : 0;
+  const pct = duration > 0 ? (shown / duration) * 100 : 0;
   const bufPct =
     buffered !== undefined && duration > 0 ? Math.min(100, (buffered / duration) * 100) : 0;
 
@@ -38,23 +43,54 @@ export function SeekBar({
       aria-label={label}
       aria-valuemin={0}
       aria-valuemax={duration}
-      aria-valuenow={Math.round(time)}
-      aria-valuetext={`${formatClock(time)} of ${formatClock(duration)}`}
-      onClick={(e) => {
+      aria-valuenow={Math.round(shown)}
+      aria-valuetext={`${formatClock(shown)} of ${formatClock(duration)}`}
+      aria-disabled={duration <= 0}
+      onPointerDown={(e) => {
+        if (e.button !== 0 || duration <= 0) return;
+        e.preventDefault();
+        e.currentTarget.focus();
+        pointer.current = e.pointerId;
+        e.currentTarget.setPointerCapture(e.pointerId);
         const r = e.currentTarget.getBoundingClientRect();
-        onSeek(((e.clientX - r.left) / r.width) * duration);
+        if (r.width > 0) setPreview(clamp(((e.clientX - r.left) / r.width) * duration));
+      }}
+      onPointerMove={(e) => {
+        if (pointer.current !== e.pointerId) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        if (r.width > 0) setPreview(clamp(((e.clientX - r.left) / r.width) * duration));
+      }}
+      onPointerUp={(e) => {
+        if (pointer.current !== e.pointerId) return;
+        const r = e.currentTarget.getBoundingClientRect();
+        pointer.current = null;
+        setPreview(null);
+        e.currentTarget.releasePointerCapture(e.pointerId);
+        if (r.width > 0) onSeek(clamp(((e.clientX - r.left) / r.width) * duration));
+      }}
+      onPointerCancel={() => {
+        pointer.current = null;
+        setPreview(null);
+      }}
+      onLostPointerCapture={() => {
+        pointer.current = null;
+        setPreview(null);
       }}
       onKeyDown={(e) => {
+        if (duration <= 0) return;
         const step = { ArrowLeft: -10, ArrowRight: 10 }[e.key];
         if (step !== undefined) {
           e.preventDefault();
           e.stopPropagation();
-          onSeek(time + step);
-        } else if (e.key === 'Home') onSeek(0);
-        else if (e.key === 'End') onSeek(duration - 1);
+          onSeek(clamp(shown + step));
+        } else if (e.key === 'Home' || e.key === 'End') {
+          e.preventDefault();
+          e.stopPropagation();
+          onSeek(e.key === 'Home' ? 0 : duration);
+        }
       }}
       className="relative flex cursor-pointer items-center"
-      style={{ height: hitHeight }}
+      style={{ height: Math.max(24, hitHeight), touchAction: 'none' }}
     >
       <div className="absolute inset-x-0 h-1 rounded-full bg-line" />
       {buffered !== undefined && (

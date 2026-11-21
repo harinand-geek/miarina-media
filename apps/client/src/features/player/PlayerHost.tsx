@@ -58,7 +58,9 @@ export function PlayerHost() {
   const surface = usePlayer((s) => s.surface);
   const nativeVideo = usePlayer((s) => s.nativeVideo);
   const failed = usePlayer((s) => s.state === 'error');
-  const covered = useUi((s) => !!s.confirm || !!s.tagEditor || !!s.removal || !!s.playlistDialog);
+  const covered = useUi(
+    (s) => s.searchOpen || !!s.confirm || !!s.tagEditor || !!s.removal || !!s.playlistDialog,
+  );
   const [box, setBox] = useState<CSSProperties | null>(null);
   const showPicture = !!surface && kind === 'video';
 
