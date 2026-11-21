@@ -3471,11 +3471,4 @@ class L10nEn extends L10n {
 
   @override
   String get deviceDeniedSettings => 'Open Android settings';
-
-  @override
-  String get getSoonTitle => 'Get is coming in a later beta';
-
-  @override
-  String get getSoonBody =>
-      'This beta plays the music and videos on the phone. Downloading from a link comes next; meanwhile it is still available in Miarina Media 0.1.11, installed alongside.';
 }

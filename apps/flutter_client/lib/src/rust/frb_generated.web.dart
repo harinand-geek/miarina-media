@@ -67,7 +67,13 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnalysisStatus dco_decode_analysis_status(dynamic raw);
 
   @protected
+  AndroidTools dco_decode_android_tools(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
+
+  @protected
+  AndroidTools dco_decode_box_autoadd_android_tools(dynamic raw);
 
   @protected
   BrowserSnapshot dco_decode_box_autoadd_browser_snapshot(dynamic raw);
@@ -497,7 +503,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnalysisStatus sse_decode_analysis_status(SseDeserializer deserializer);
 
   @protected
+  AndroidTools sse_decode_android_tools(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  AndroidTools sse_decode_box_autoadd_android_tools(
+    SseDeserializer deserializer,
+  );
 
   @protected
   BrowserSnapshot sse_decode_box_autoadd_browser_snapshot(
@@ -1008,7 +1022,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_android_tools(AndroidTools self, SseSerializer serializer);
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_android_tools(
+    AndroidTools self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_browser_snapshot(

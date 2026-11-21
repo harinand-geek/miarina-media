@@ -3499,11 +3499,4 @@ class L10nFr extends L10n {
 
   @override
   String get deviceDeniedSettings => 'Ouvrir les paramètres Android';
-
-  @override
-  String get getSoonTitle => 'Obtenir arrive dans une prochaine bêta';
-
-  @override
-  String get getSoonBody =>
-      'Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté.';
 }

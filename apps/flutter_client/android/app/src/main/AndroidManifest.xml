@@ -41,6 +41,13 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
+            <!-- "Share to Miarina Media": a link shared from any app opens its
+                 analysis in Obtenir (design_handoff_android_v2, 01). -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
             <!-- "Open with Miarina Media": music and videos from other apps. -->
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />

@@ -930,7 +930,5 @@
   "deviceAccessAllow": "Allow access",
   "deviceDeniedTitle": "File access denied",
   "deviceDeniedBody": "Without this permission, Miarina Media cannot see the music and videos on the phone. Your playlists are kept.",
-  "deviceDeniedSettings": "Open Android settings",
-  "getSoonTitle": "Get is coming in a later beta",
-  "getSoonBody": "This beta plays the music and videos on the phone. Downloading from a link comes next; meanwhile it is still available in Miarina Media 0.1.11, installed alongside."
+  "deviceDeniedSettings": "Open Android settings"
 }

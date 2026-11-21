@@ -111,7 +111,21 @@ const _openWith = MethodChannel('org.miarina.media/open_with');
 /// of the phone's media index plays as its library entry; any other one
 /// (attachment, download list) plays from its address under its name.
 Future<void> _openHanded(ProviderContainer container, Object? raw) async {
-  if (raw is! Map || raw['uri'] is! String) return;
+  if (raw is! Map) return;
+  // A link shared from another app: its analysis in Obtenir.
+  final link = raw['link'];
+  if (link is String) {
+    container
+        .read(routerProvider)
+        .go(
+          Uri(
+            path: Routes.getAnalysis,
+            queryParameters: {'url': link},
+          ).toString(),
+        );
+    return;
+  }
+  if (raw['uri'] is! String) return;
   final path = raw['path'];
   if (path is String && File(path).existsSync()) {
     await _openLaunchFile(container, path);

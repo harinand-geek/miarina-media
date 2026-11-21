@@ -157,11 +157,8 @@ void main() {
     ]);
   });
 
-  testWidgets('other tabs are not gated; Obtenir says it comes later', (
-    tester,
-  ) async {
-    await pumpPhone(tester, start: Routes.get);
+  testWidgets('other tabs are not gated', (tester) async {
+    await pumpPhone(tester, start: Routes.focus);
     expect(find.byType(AskAccessView), findsNothing);
-    expect(find.text('Obtenir arrive dans une prochaine bêta'), findsOneWidget);
   });
 }

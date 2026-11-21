@@ -20,7 +20,11 @@ pub(crate) struct PlatformReading {
 /// `(media, thumbnail to write, longest edge)` → reading, `None` when the
 /// file could not be read.
 pub(crate) type ProbeCall = Arc<
-    dyn Fn(String, Option<String>, u32) -> Pin<Box<dyn Future<Output = Option<PlatformReading>> + Send>>
+    dyn Fn(
+            String,
+            Option<String>,
+            u32,
+        ) -> Pin<Box<dyn Future<Output = Option<PlatformReading>> + Send>>
         + Send
         + Sync,
 >;

@@ -5682,18 +5682,6 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ouvrir les paramètres Android'**
   String get deviceDeniedSettings;
-
-  /// No description provided for @getSoonTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Obtenir arrive dans une prochaine bêta'**
-  String get getSoonTitle;
-
-  /// No description provided for @getSoonBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté.'**
-  String get getSoonBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

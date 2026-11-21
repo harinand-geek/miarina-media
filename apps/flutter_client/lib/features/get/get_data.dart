@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../src/rust/api/get.dart';
@@ -48,6 +49,10 @@ abstract interface class GetApi {
   Future<void> clearHistory();
 }
 
+/// Android side of Obtenir (`MediaToolsChannel.kt`): extractor, folders and
+/// the phone's media index.
+const androidMediaTools = MethodChannel('org.miarina.media/media_tools');
+
 /// Where downloads go until the user picks another folder: Téléchargements
 /// \Miarina, as in the Tauri app.
 String defaultDownloadDir() {
@@ -70,7 +75,32 @@ class RustGetApi implements GetApi {
       dataDir: await _ref.read(dataDirProvider.future),
       toolsDir: toolsDir(),
     );
-    await getStart(defaultDir: defaultDownloadDir());
+    if (!Platform.isAndroid) {
+      await getStart(defaultDir: defaultDownloadDir());
+      return;
+    }
+    // Android: the APK's extractor is unpacked first; it also says where
+    // downloads go (Movies/Miarina, Music/Miarina on Android 11+).
+    final raw = await androidMediaTools.invokeMapMethod<String, Object?>(
+      'prepare',
+    );
+    String at(String key) => raw![key]! as String;
+    await getStart(defaultDir: at('videoDir'));
+    await getSetAndroidTools(
+      tools: AndroidTools(
+        python: at('python'),
+        script: at('script'),
+        ffmpeg: at('ffmpeg'),
+        quickjs: at('quickjs'),
+        pythonHome: at('pythonHome'),
+        libraryPath: at('libraryPath'),
+        certificates: at('certificates'),
+        temp: at('temp'),
+        bin: at('bin'),
+        audioDir: raw!['audioDir'] as String?,
+        stagingDir: raw['stagingDir'] as String?,
+      ),
+    );
   }
 
   @override
@@ -369,6 +399,16 @@ class DownloadsController extends Notifier<DownloadsState> {
           tasks.remove(record.id);
         } else {
           tasks[record.id] = DownloadTask.fromRecord(record, tasks[record.id]);
+        }
+        // Android: a finished download joins the phone's media index
+        // (gallery, other players), as in the Tauri app.
+        final done = record.finalPath;
+        if (Platform.isAndroid && record.state == 'completed' && done != null) {
+          unawaited(
+            androidMediaTools
+                .invokeMethod<bool>('publish', {'path': done})
+                .catchError((Object _) => false),
+          );
         }
       case GetEventKind.removed:
         tasks.remove(e.id);

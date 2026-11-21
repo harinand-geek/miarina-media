@@ -53,6 +53,13 @@ class OpenWithChannel(
    * file is in the phone's media index (so the library entry is found).
    */
   private fun describe(intent: Intent?): Map<String, Any?>? {
+    // A link shared from another app ("Share to Miarina Media"): its first
+    // web address, checked again by the core before anything is fetched.
+    if (intent?.action == Intent.ACTION_SEND) {
+      val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return null
+      val link = WEB_LINK.find(text)?.value ?: return null
+      return mapOf("link" to link)
+    }
     if (intent?.action != Intent.ACTION_VIEW) return null
     val uri = intent.data ?: return null
     if (uri.scheme != "content" && uri.scheme != "file") return null
@@ -73,6 +80,10 @@ class OpenWithChannel(
     } catch (e: Exception) {
       null
     }
+  }
+
+  private companion object {
+    val WEB_LINK = Regex("""https?://\S+""")
   }
 
   /** The file's path for a MediaStore entry or a file:// URI, else null. */

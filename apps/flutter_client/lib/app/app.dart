@@ -27,9 +27,7 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(indexingProvider);
     // Obtenir: the download manager starts with the app, so queued and
     // interrupted downloads resume (rebuilt only when it becomes ready).
-    if (ref.watch(desktopShellProvider)) {
-      ref.watch(downloadsProvider.select((s) => s.ready));
-    }
+    ref.watch(downloadsProvider.select((s) => s.ready));
     final look = ref.watch(appearanceProvider).value ?? const AppearancePrefs();
     return MaterialApp.router(
       title: 'Miarina Media',

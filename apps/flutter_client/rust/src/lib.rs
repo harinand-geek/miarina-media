@@ -1,3 +1,5 @@
+#[cfg(target_os = "android")]
+mod android_tls;
 pub mod api;
 mod artist_image;
 mod browser;

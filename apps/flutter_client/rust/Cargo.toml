@@ -54,6 +54,13 @@ windows = { version = "=0.62.2", features = [
     "Win32_UI_WindowsAndMessaging",
 ] }
 
+[target.'cfg(target_os = "android")'.dependencies]
+# TLS on Android uses the system trust store (rustls-platform-verifier needs
+# the JVM handles, given by NativeBridge.initTls). Same versions as the
+# Tauri app.
+jni = "=0.22.4"
+rustls-platform-verifier = "=0.7.1"
+
 [dev-dependencies]
 # Test-only: older or newer database files (same version as crates/storage).
 rusqlite = { version = "0.40.2", features = ["bundled"] }

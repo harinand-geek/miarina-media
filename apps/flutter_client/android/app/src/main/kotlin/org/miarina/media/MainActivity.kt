@@ -12,6 +12,7 @@ class MainActivity : FlutterActivity() {
   private var deviceMedia: DeviceMediaChannel? = null
   private var mediaProbe: MediaProbeChannel? = null
   private var openWith: OpenWithChannel? = null
+  private var mediaTools: MediaToolsChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -43,6 +44,8 @@ class MainActivity : FlutterActivity() {
         .withEndAction { provider.remove() }
         .start()
     }
+    // HTTPS of the Rust core (Obtenir) checks the Android trust store.
+    NativeBridge.init(this)
     super.onCreate(savedInstanceState)
   }
 
@@ -57,6 +60,7 @@ class MainActivity : FlutterActivity() {
     deviceMedia = DeviceMediaChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     mediaProbe = MediaProbeChannel(flutterEngine.dartExecutor.binaryMessenger)
     openWith = OpenWithChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    mediaTools = MediaToolsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   // "Open with" while the app runs (singleTop): the new file plays.
@@ -85,6 +89,8 @@ class MainActivity : FlutterActivity() {
     mediaProbe = null
     openWith?.dispose()
     openWith = null
+    mediaTools?.dispose()
+    mediaTools = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

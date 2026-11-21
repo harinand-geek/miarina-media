@@ -2110,7 +2110,5 @@
   "deviceAccessAllow": "Autoriser l'accès",
   "deviceDeniedTitle": "Accès aux fichiers refusé",
   "deviceDeniedBody": "Sans cette autorisation, Miarina Media ne voit pas la musique et les vidéos du téléphone. Vos playlists sont conservées.",
-  "deviceDeniedSettings": "Ouvrir les paramètres Android",
-  "getSoonTitle": "Obtenir arrive dans une prochaine bêta",
-  "getSoonBody": "Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté."
+  "deviceDeniedSettings": "Ouvrir les paramètres Android"
 }

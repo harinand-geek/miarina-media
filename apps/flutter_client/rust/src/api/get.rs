@@ -41,6 +41,9 @@ struct Getter {
     ytdlp: YtDlpEngine,
     library: Library,
     default_dir: PathBuf,
+    /// Android: audio downloads go to Music/Miarina (video: `default_dir`,
+    /// Movies/Miarina), as in the Tauri app.
+    audio_dir: Mutex<Option<PathBuf>>,
     install_lock: Arc<tokio::sync::Mutex<()>>,
 }
 
@@ -496,6 +499,7 @@ pub fn get_start(default_dir: String) -> Result<()> {
         ytdlp,
         library: parts.library,
         default_dir,
+        audio_dir: Mutex::new(None),
         install_lock: Arc::new(tokio::sync::Mutex::new(())),
     }));
     Ok(())
@@ -621,7 +625,9 @@ fn tools_status(ytdlp: &YtDlpEngine) -> Vec<ToolStatus> {
 }
 
 async fn extractor_analysis(g: &Getter, url: &ValidatedUrl) -> Result<Analysis> {
-    if !cfg!(windows) {
+    // Android: the extractor ships in the APK (get_set_android_tools); without
+    // it (tools not unpacked) there is nothing to install from here.
+    if !cfg!(windows) && !g.ytdlp.available() {
         return Ok(Analysis::no_media("platform".into(), String::new()));
     }
     if !g.ytdlp.available() {
@@ -806,6 +812,50 @@ fn new_task_id() -> String {
     )
 }
 
+/// Android: the APK's extractor (Python, yt-dlp, FFmpeg, QuickJS unpacked by
+/// `MediaToolsChannel.kt`), and the download folders.
+pub struct AndroidTools {
+    pub python: String,
+    pub script: String,
+    pub ffmpeg: String,
+    pub quickjs: String,
+    pub python_home: String,
+    pub library_path: String,
+    pub certificates: String,
+    pub temp: String,
+    pub bin: String,
+    /// Music/Miarina (shared storage, Android 11+), `None` elsewhere.
+    pub audio_dir: Option<String>,
+    /// Temporary files: the app's own folder on the same storage, since the
+    /// shared folders only accept media files.
+    pub staging_dir: Option<String>,
+}
+
+/// Android: hands the extractor and the folders to Obtenir (after
+/// `get_start`). Refused when a packaged tool is missing.
+pub fn get_set_android_tools(tools: AndroidTools) -> Result<()> {
+    let g = getter()?;
+    g.ytdlp
+        .set_android_runtime(download_engine::ytdlp::runtime::AndroidRuntime {
+            python: PathBuf::from(tools.python),
+            script: PathBuf::from(tools.script),
+            ffmpeg: PathBuf::from(tools.ffmpeg),
+            quickjs: PathBuf::from(tools.quickjs),
+            python_home: PathBuf::from(tools.python_home),
+            library_path: tools.library_path,
+            certificates: PathBuf::from(tools.certificates),
+            temp: PathBuf::from(tools.temp),
+            bin: PathBuf::from(tools.bin),
+        })
+        .map_err(|e| anyhow!(e.to_string()))?;
+    *lock(&g.audio_dir) = tools.audio_dir.map(PathBuf::from);
+    if let Some(dir) = tools.staging_dir {
+        std::fs::create_dir_all(&dir)?;
+        g.manager.set_staging_dir(PathBuf::from(dir));
+    }
+    Ok(())
+}
+
 pub fn get_start_download(request: StartRequest) -> Result<TaskInfo> {
     let g = getter()?;
     let url = validate_media_url(&request.url).map_err(|e| anyhow!(e.to_string()))?;
@@ -825,7 +875,10 @@ pub fn get_start_download(request: StartRequest) -> Result<TaskInfo> {
     };
     let title: String = request.title.chars().take(300).collect();
     let file_name = sanitize_filename(&title, &request.extension)?;
-    let dest_dir = settings_of(&lock(&g.storage), &g.default_dir).download_dir;
+    let dest_dir = match (&kind, lock(&g.audio_dir).as_ref()) {
+        (MediaKind::Audio, Some(dir)) => dir.to_string_lossy().into_owned(),
+        _ => settings_of(&lock(&g.storage), &g.default_dir).download_dir,
+    };
     std::fs::create_dir_all(&dest_dir)?;
     let task = NewTask {
         id: new_task_id(),

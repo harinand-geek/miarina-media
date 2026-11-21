@@ -34,6 +34,11 @@ Future<Analysis> getAnalyze({required String url}) =>
 Future<void> getInstallTools() =>
     RustLib.instance.api.crateApiGetGetInstallTools();
 
+/// Android: hands the extractor and the folders to Obtenir (after
+/// `get_start`). Refused when a packaged tool is missing.
+Future<void> getSetAndroidTools({required AndroidTools tools}) =>
+    RustLib.instance.api.crateApiGetGetSetAndroidTools(tools: tools);
+
 Future<TaskInfo> getStartDownload({required StartRequest request}) =>
     RustLib.instance.api.crateApiGetGetStartDownload(request: request);
 
@@ -126,6 +131,72 @@ enum AnalysisStatus {
 
   /// The page needs yt-dlp, not installed (consent before downloading it).
   needsTools,
+}
+
+/// Android: the APK's extractor (Python, yt-dlp, FFmpeg, QuickJS unpacked by
+/// `MediaToolsChannel.kt`), and the download folders.
+class AndroidTools {
+  final String python;
+  final String script;
+  final String ffmpeg;
+  final String quickjs;
+  final String pythonHome;
+  final String libraryPath;
+  final String certificates;
+  final String temp;
+  final String bin;
+
+  /// Music/Miarina (shared storage, Android 11+), `None` elsewhere.
+  final String? audioDir;
+
+  /// Temporary files: the app's own folder on the same storage, since the
+  /// shared folders only accept media files.
+  final String? stagingDir;
+
+  const AndroidTools({
+    required this.python,
+    required this.script,
+    required this.ffmpeg,
+    required this.quickjs,
+    required this.pythonHome,
+    required this.libraryPath,
+    required this.certificates,
+    required this.temp,
+    required this.bin,
+    this.audioDir,
+    this.stagingDir,
+  });
+
+  @override
+  int get hashCode =>
+      python.hashCode ^
+      script.hashCode ^
+      ffmpeg.hashCode ^
+      quickjs.hashCode ^
+      pythonHome.hashCode ^
+      libraryPath.hashCode ^
+      certificates.hashCode ^
+      temp.hashCode ^
+      bin.hashCode ^
+      audioDir.hashCode ^
+      stagingDir.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AndroidTools &&
+          runtimeType == other.runtimeType &&
+          python == other.python &&
+          script == other.script &&
+          ffmpeg == other.ffmpeg &&
+          quickjs == other.quickjs &&
+          pythonHome == other.pythonHome &&
+          libraryPath == other.libraryPath &&
+          certificates == other.certificates &&
+          temp == other.temp &&
+          bin == other.bin &&
+          audioDir == other.audioDir &&
+          stagingDir == other.stagingDir;
 }
 
 class FormatOffer {
