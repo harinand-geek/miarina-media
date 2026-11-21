@@ -153,7 +153,7 @@ void main() {
     await pumpApp(tester, page);
     await tester.tap(find.text('Rechercher une mise à jour'));
     await settle(tester);
-    expect(find.text('Miarina 0.2.1 est disponible'), findsWidgets);
+    expect(find.text('Miarina Media 0.2.1 est disponible'), findsWidgets);
     expect(find.text('•  Lecteur plus rapide'), findsOneWidget);
     expect(find.textContaining('canal Stable'), findsOneWidget);
 
@@ -228,7 +228,7 @@ void main() {
     await pumpApp(tester, Routes.listenHome);
     await tester.pump(const Duration(seconds: 16));
     await settle(tester);
-    expect(find.text('Miarina 0.2.1 est disponible'), findsOneWidget);
+    expect(find.text('Miarina Media 0.2.1 est disponible'), findsOneWidget);
     await tester.tap(find.text('Voir'));
     await settle(tester);
     expect(find.text('Installer maintenant'), findsNothing);

@@ -364,7 +364,7 @@ void main() {
       expect(find.text('Paroles (facultatif)'), findsNothing);
       expect(
         find.text(
-          'Ce format garde ses tags dans la bibliothèque Miarina seulement.',
+          'Ce format garde ses tags dans la bibliothèque Miarina Media seulement.',
         ),
         findsOneWidget,
       );

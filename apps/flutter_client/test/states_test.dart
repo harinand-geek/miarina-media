@@ -146,7 +146,7 @@ void main() {
       expect(find.textContaining('MP3, M4A, FLAC'), findsOneWidget);
       expect(
         find.text(
-          'Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici '
+          'Vous téléchargez avec Miarina Media ? Les fichiers obtenus arrivent ici '
           'automatiquement.',
         ),
         findsOneWidget,

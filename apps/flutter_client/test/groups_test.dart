@@ -166,7 +166,7 @@ void main() {
     await tester.tap(find.text('Compilations'));
     await settle(tester);
     expect(inOrder(tester, albums), ['Été 2024']);
-    await tester.tap(find.text('Téléchargés avec Miarina'));
+    await tester.tap(find.text('Téléchargés avec Miarina Media'));
     await settle(tester);
     expect(inOrder(tester, albums), ['Ville lente']);
     await tester.tap(find.text('Tous'));
