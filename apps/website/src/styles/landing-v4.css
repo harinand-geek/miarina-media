@@ -1,13 +1,15 @@
-/* Landing page v4 (design/design_handoff_landing_v4): Nocturne structure with
-   the logo v2.0 colours. Teal is for getting media and actions, coral for
-   playback only. No inline style anywhere (CSP): changing values are classes,
+/* Landing page v4 (design/design_handoff_landing_v4): Nocturne structure,
+   coloured and typeset as the app (design_handoff_lecture_ecouter, tokens
+   of the Windows 0.2.0 app). Teal is for getting media and actions, coral
+   for playback only. No inline style anywhere (CSP): changing values are classes,
    data attributes and CSS properties set from script. Manrope is used for
    the text (allowed by the handoff, avoids hosting another font). */
 
 .lp {
   --color-bg: #101820;
   --color-surface: #182530;
-  --color-text: #e9e9ed;
+  --color-surface-2: #1f2f3b;
+  --color-text: #f5f7fa;
   --color-accent: #35c9bd;
   --color-accent-200: oklch(0.93 0.06 185);
   --color-accent-300: oklch(0.87 0.09 185);
@@ -17,22 +19,28 @@
   --color-accent-900: oklch(0.27 0.045 190);
   --color-accent-100: oklch(0.97 0.03 185);
   --mm-play: #ff7a45;
-  --mm-play-300: oklch(0.86 0.08 45);
-  --mm-play-900: oklch(0.3 0.06 40);
-  --color-neutral-100: #f3f5fe;
-  --color-neutral-300: #cfd3e5;
-  --color-neutral-400: #b2b6ca;
-  --color-neutral-500: #9397ab;
-  --color-neutral-600: #75798c;
-  --color-neutral-700: #595d6c;
-  --color-neutral-800: #3f424d;
-  --color-divider: color-mix(in srgb, #e9e9ed 16%, transparent);
-  /* 0.1.11: rounder shapes, as in the app. */
-  --radius-md: 16px;
+  --mm-play-300: #ff9166;
+  --mm-play-900: #3a2620;
+  /* The app's slate scale: fg, muted, faint, then its lines. 500 is a
+     lighter faint (#64748b is 3.8:1 on the page; small text needs 4.5). */
+  --color-neutral-100: #f5f7fa;
+  --color-neutral-300: #cbd5e1;
+  --color-neutral-400: #94a3b8;
+  --color-neutral-500: #8494a9;
+  --color-neutral-600: #64748b;
+  --color-neutral-700: #2a3d4e;
+  --color-neutral-800: #243545;
+  --color-divider: #243545;
+  /* App warning tone, used for the Beta channel. */
+  --mm-beta: #e8b04b;
+  --mm-beta-bg: #2b2616;
+  --mm-beta-line: #4a3f1f;
+  /* App radii (4 / 8 / 12 / 14 / 18 / 24 / 999) and shadows. */
+  --radius-md: 18px;
   --radius-lg: 24px;
-  --shadow-sm: 0 0 0 1px #3f424d;
-  --shadow-md: 0 0 0 1px #595d6c, 0 6px 18px rgba(0, 0, 0, 0.55);
-  --shadow-lg: 0 0 0 1px #9397ab, 0 16px 40px rgba(0, 0, 0, 0.65);
+  --shadow-sm: 0 0 0 1px #243545;
+  --shadow-md: 0 0 0 1px #2a3d4e, 0 12px 32px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 0 0 1px #2a3d4e, 0 24px 64px rgba(0, 0, 0, 0.5);
   --gutter: clamp(20px, 5vw, 72px);
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -65,11 +73,15 @@
   outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
+/* App type scale: display and section titles 800, titles 700. */
 :where(.lp) h1,
-:where(.lp) h2,
+:where(.lp) h2 {
+  font-weight: 800;
+  margin: 0;
+}
 :where(.lp) h3,
 :where(.lp) h4 {
-  font-weight: 500;
+  font-weight: 700;
   margin: 0;
 }
 :where(.lp) p {
@@ -110,12 +122,12 @@
 }
 /* Filled, as the app's main actions. */
 .lp .btn-primary {
-  color: #0b1a1e;
+  color: #062320;
   background: var(--color-accent);
   border-color: var(--color-accent);
 }
 .lp .btn-primary:hover {
-  color: #0b1a1e;
+  color: #062320;
   background: var(--color-accent-400);
   box-shadow: 0 10px 28px -10px color-mix(in srgb, var(--color-accent) 70%, transparent);
 }
@@ -156,6 +168,11 @@
 .lp .tag-neutral {
   background: var(--color-neutral-800);
   color: var(--color-neutral-100);
+}
+.lp .tag-beta {
+  background: var(--mm-beta-bg);
+  color: var(--mm-beta);
+  box-shadow: inset 0 0 0 1px var(--mm-beta-line);
 }
 
 /* Logo v2.0 */
@@ -389,8 +406,10 @@
   align-items: center;
 }
 .lp-hero h1 {
-  font-size: clamp(44px, 6.2vw, 84px);
-  line-height: 1.04;
+  /* Weight 800 as the app's display style: a little smaller and with more
+     leading than before, so capital accents (É) clear the line above. */
+  font-size: clamp(42px, 5.6vw, 76px);
+  line-height: 1.1;
   letter-spacing: -0.03em;
   margin-left: -0.04em;
 }
@@ -754,7 +773,7 @@
 }
 .hd-now-title {
   font-size: 13.5px;
-  font-weight: 500;
+  font-weight: 600;
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1118,6 +1137,71 @@
   min-height: 48px;
 }
 
+/* Windows 0.2.0 on the Beta channel */
+.lp-beta-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px clamp(32px, 6vw, 96px);
+  align-items: flex-end;
+}
+.lp-beta-head > div {
+  flex: 1 1 min(420px, 100%);
+}
+.lp-beta .lp-kicker {
+  color: var(--mm-beta);
+}
+.lp-beta .lp-kicker::before {
+  background: var(--mm-beta);
+}
+.lp-beta .lp-h2 {
+  margin-top: 22px;
+  max-width: 18ch;
+  font-size: clamp(30px, 3.6vw, 46px);
+}
+.lp-beta-lead {
+  flex: 1 1 min(380px, 100%);
+  font-size: 15.5px;
+  line-height: 26px;
+  color: color-mix(in srgb, var(--color-text) 78%, transparent);
+}
+.lp-beta-points {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr));
+  gap: 14px;
+  margin-top: 44px;
+}
+.lp-beta-point {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 22px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+.lp-beta-point h3 {
+  font-size: 17px;
+  line-height: 24px;
+  letter-spacing: -0.01em;
+}
+.lp-beta-point p {
+  font-size: 14.5px;
+  line-height: 23px;
+  color: var(--color-neutral-400);
+}
+.lp-beta-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px 22px;
+  margin-top: 28px;
+}
+.lp-beta-foot p {
+  font-size: 14px;
+  line-height: 22px;
+  color: var(--color-neutral-400);
+}
+
 /* Download */
 .lp-download {
   display: flex;
@@ -1182,6 +1266,14 @@
   color: var(--color-accent-100);
   background: var(--color-accent-800);
 }
+.lp-dl-badge.is-beta {
+  color: var(--mm-beta);
+  background: var(--mm-beta-bg);
+  box-shadow: inset 0 0 0 1px var(--mm-beta-line);
+}
+.lp-dl-row.is-beta .lp-dl-icon {
+  color: var(--mm-beta);
+}
 .lp-dl-icon {
   font-size: 30px;
   color: var(--color-neutral-300);
@@ -1195,7 +1287,7 @@
 }
 .lp-dl-title {
   font-size: 19px;
-  font-weight: 500;
+  font-weight: 700;
 }
 .lp-dl-req {
   font-size: 13px;
@@ -1293,6 +1385,9 @@
 }
 .vl-tab[data-kind='current'] .vl-dot {
   background: var(--color-accent);
+}
+.vl-tab[data-kind='beta'] .vl-dot {
+  background: var(--mm-beta);
 }
 .vl-tab[data-kind='planned'] .vl-dot {
   background: transparent;

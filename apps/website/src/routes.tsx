@@ -31,7 +31,7 @@ export const ROUTES: Route[] = [
       title: 'Miarina Media',
       description:
         'Téléchargez une fois, écoutez hors ligne. Bibliothèque et lecteur sur Windows et Android.',
-      image: '/assets/img/windows-hero.jpg?v=0111',
+      image: '/assets/img/windows-hero.jpg?v=020',
     },
   },
   {
@@ -45,7 +45,7 @@ export const ROUTES: Route[] = [
     og: {
       title: 'Miarina Media',
       description: 'Download once, listen offline. Library and player on Windows and Android.',
-      image: '/assets/img/windows-hero.jpg?v=0111',
+      image: '/assets/img/windows-hero.jpg?v=020',
     },
   },
   {

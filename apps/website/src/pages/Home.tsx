@@ -126,7 +126,9 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
               </a>
             ))}
           </div>
-          <p className="lp-meta">{t.heroMeta(RELEASE.windows.version, RELEASE.android.version)}</p>
+          <p className="lp-meta">
+            {t.heroMeta(RELEASE.windows.version, RELEASE.android.version, RELEASE.beta.version)}
+          </p>
         </div>
         <div className="lp-demo" data-reveal="120">
           <HeroDemo text={t.demo} />
@@ -187,6 +189,37 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
         <Showcase text={t} />
       </section>
 
+      <section id="beta" className="lp-section lp-beta">
+        <div className="lp-beta-head">
+          <div>
+            <div className="lp-kicker" data-reveal="0">
+              {t.beta.kicker}
+            </div>
+            <h2 className="lp-h2" data-reveal="60">
+              {t.beta.title}
+            </h2>
+          </div>
+          <p className="lp-beta-lead" data-reveal="120">
+            {t.beta.lead}
+          </p>
+        </div>
+        <div className="lp-beta-points">
+          {t.beta.points.map(([title, text]) => (
+            <div key={title} className="lp-beta-point" data-reveal="0">
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </div>
+          ))}
+        </div>
+        <div className="lp-beta-foot" data-reveal="0">
+          <a href="#telecharger-beta" className="btn btn-secondary">
+            <Icon name="download" />
+            {t.beta.cta}
+          </a>
+          <p>{t.beta.how}</p>
+        </div>
+      </section>
+
       <div className="lp-rule" />
 
       <section id="telecharger" className="lp-section lp-download">
@@ -221,6 +254,25 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
               </a>
             </div>
           ))}
+          <div id="telecharger-beta" className="lp-dl-row is-beta" data-reveal="60">
+            <Icon name="desktop_windows" className="lp-dl-icon" />
+            <div className="lp-dl-info">
+              <span className="lp-dl-title">
+                Windows {RELEASE.beta.version}{' '}
+                <span className="lp-dl-badge is-beta">{t.dlBetaBadge}</span>
+              </span>
+              <span className="lp-dl-req">
+                {t.dlBetaReq} · {RELEASE.beta.size}
+              </span>
+              <span className="lp-dl-hash">
+                {RELEASE.beta.name} · SHA-256 {RELEASE.beta.sha256}
+              </span>
+            </div>
+            <a href={downloadUrl(RELEASE.beta)} className="btn btn-secondary" download>
+              <Icon name="download" />
+              {t.dlWindowsCta}
+            </a>
+          </div>
           <p className="lp-dl-note">{t.dlNote}</p>
         </div>
       </section>

@@ -26,7 +26,7 @@ export interface LandingText {
   sub: string;
   ctaWindows: string;
   ctaAndroid: string;
-  heroMeta: (windows: string, android: string) => string;
+  heroMeta: (windows: string, android: string, beta: string) => string;
   demo: {
     get: string;
     listen: string;
@@ -42,6 +42,15 @@ export interface LandingText {
   featKicker: string;
   featTitle: string;
   groups: [FeatureGroup, FeatureGroup];
+  /** Windows 0.2.0 on the Beta channel. */
+  beta: {
+    kicker: string;
+    title: string;
+    lead: string;
+    points: [string, string][];
+    how: string;
+    cta: string;
+  };
   libKicker: string;
   libTitle: string;
   libBody: string;
@@ -56,9 +65,12 @@ export interface LandingText {
   dlNote: string;
   /** Badge on the visitor's platform. */
   dlSuggested: string;
+  dlBetaReq: string;
+  dlBetaBadge: string;
   verKicker: string;
   verTitle: string;
   verCurrent: string;
+  verBeta: string;
   verPlanned: string;
   verNext: string;
   verFrenchOnly?: string;
@@ -83,7 +95,8 @@ export const LANDING: Record<Lang, LandingText> = {
     sub: 'Collez un lien, choisissez le format, gardez le fichier. Miarina Media range vidéos et musique dans une bibliothèque sur votre appareil et les lit dans son propre lecteur : albums, playlists, pistes audio, sous-titres et égaliseur. Sur Windows et Android.',
     ctaWindows: 'Télécharger pour Windows',
     ctaAndroid: 'Android (APK)',
-    heroMeta: (w, a) => `Windows ${w} · Android ${a} · préversions gratuites`,
+    heroMeta: (w, a, b) =>
+      `Windows ${w} · Android ${a} · préversions gratuites · Windows ${b} en bêta`,
     demo: {
       get: 'Obtenir',
       listen: 'Écouter',
@@ -162,6 +175,31 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
       },
     ],
+    beta: {
+      kicker: 'Windows 0.2.0 · bêta',
+      title: 'Une nouvelle application Windows, à essayer.',
+      lead: 'La 0.2.0 refait toute l’application Windows. Elle s’installe par-dessus la 0.1.x, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
+      points: [
+        [
+          'Musique, Cinéma, Focus',
+          'L’espace Écouter en trois sections : albums et artistes, films et séries, podcasts, cours et livres audio. L’accueil reprend où vous en étiez.',
+        ],
+        [
+          'Une bibliothèque plus fine',
+          'Tri, sélection multiple, filtres (jamais écoutés, hi-res), format affiché (FLAC 24/96), nombre d’écoutes, éditeur de tags et de pochettes.',
+        ],
+        [
+          'En lecture',
+          'Paroles synchronisées depuis un fichier .lrc, file enregistrable en playlist, égaliseur, vitesse, minuteur et mini-lecteur.',
+        ],
+        [
+          'Ce qui change encore',
+          'L’extension pour Chrome et Edge n’est pas reprise. L’installateur est plus gros (113 Mio). Android reste en 0.1.11.',
+        ],
+      ],
+      how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur.',
+      cta: 'Essayer la bêta',
+    },
     libKicker: 'Bibliothèque et lecteur',
     libTitle: 'Tout ce que vous gardez, au même endroit.',
     libBody:
@@ -170,12 +208,12 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'album',
         'Windows · Albums',
-        'Bibliothèque Windows : albums, artistes, dossiers et playlists, avec les pochettes des fichiers et un éditeur de tags.',
+        'Windows 0.2.0 (bêta) : albums, artistes, titres, playlists et favoris, avec les pochettes des fichiers, des filtres et un éditeur de tags.',
       ],
       [
         'play_circle',
         'Windows · En lecture',
-        'Le lecteur libVLC lit aussi MKV, HEVC et AVI, avec pistes audio, sous-titres, vitesse, égaliseur et minuteur. La lecture reprend où vous l’aviez laissée.',
+        'Windows 0.2.0 (bêta) : paroles synchronisées, file de lecture, égaliseur, vitesse et minuteur. La lecture reprend où vous l’aviez laissée.',
       ],
       [
         'android',
@@ -184,8 +222,8 @@ export const LANDING: Record<Lang, LandingText> = {
       ],
     ],
     shotAlts: [
-      'Bibliothèque musicale Windows : albums d’œuvres libres avec leurs pochettes',
-      'Lecteur Windows : un album en lecture, avec égaliseur, vitesse et minuteur',
+      'Bibliothèque musicale Windows 0.2.0 : albums d’œuvres libres avec leurs pochettes',
+      'Lecteur Windows 0.2.0 : un concerto en lecture, avec sa pochette et la file de lecture',
       'Android : la musique de Miarina Media, titres et onglets',
     ],
     dlTitle: 'Télécharger Miarina Media',
@@ -194,6 +232,8 @@ export const LANDING: Record<Lang, LandingText> = {
     dlWindowsReq: 'Windows 10 / 11 · 64 bits',
     dlAndroidReq: 'Android 7.0 et plus · 64 bits (ARM)',
     dlSuggested: 'Pour cet appareil',
+    dlBetaReq: 'Windows 10 / 11 · 64 bits · nouvelle application, remplace la 0.1.x',
+    dlBetaBadge: 'Bêta',
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
@@ -201,6 +241,7 @@ export const LANDING: Record<Lang, LandingText> = {
     verKicker: 'Journal des versions',
     verTitle: 'Ce qui a changé, version par version.',
     verCurrent: 'Actuelle',
+    verBeta: 'Bêta',
     verPlanned: 'Prévu',
     verNext: 'Prochaines',
     legal:
@@ -221,7 +262,7 @@ export const LANDING: Record<Lang, LandingText> = {
     sub: 'Paste a link, pick a format, keep the file. Miarina Media files your videos and music in a library on your device and plays them in its own player: albums, playlists, audio tracks, subtitles and equalizer. On Windows and Android.',
     ctaWindows: 'Download for Windows',
     ctaAndroid: 'Android (APK)',
-    heroMeta: (w, a) => `Windows ${w} · Android ${a} · free previews`,
+    heroMeta: (w, a, b) => `Windows ${w} · Android ${a} · free previews · Windows ${b} in beta`,
     demo: {
       get: 'Get',
       listen: 'Listen',
@@ -297,6 +338,31 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
       },
     ],
+    beta: {
+      kicker: 'Windows 0.2.0 · beta',
+      title: 'A new Windows app, ready to try.',
+      lead: '0.2.0 rebuilds the whole Windows app. It installs over 0.1.x, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
+      points: [
+        [
+          'Music, Cinema, Focus',
+          'The Listen space in three sections: albums and artists, films and series, podcasts, courses and audiobooks. Home picks up where you left off.',
+        ],
+        [
+          'A finer library',
+          'Sorting, multi-select, filters (never played, hi-res), format shown (FLAC 24/96), play counts, tag and cover editor.',
+        ],
+        [
+          'Now playing',
+          'Synced lyrics from a .lrc file, a queue you can save as a playlist, equalizer, speed, sleep timer and mini player.',
+        ],
+        [
+          'Still changing',
+          'The Chrome and Edge extension is not carried over. The installer is larger (113 MiB). Android stays on 0.1.11.',
+        ],
+      ],
+      how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer.',
+      cta: 'Try the beta',
+    },
     libKicker: 'Library and player',
     libTitle: 'Everything you keep, in one place.',
     libBody:
@@ -305,12 +371,12 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'album',
         'Windows · Albums',
-        'Windows library: albums, artists, folders and playlists, with the files’ cover art and a tag editor.',
+        'Windows 0.2.0 (beta): albums, artists, songs, playlists and favourites, with the files’ cover art, filters and a tag editor.',
       ],
       [
         'play_circle',
         'Windows · Now playing',
-        'The libVLC player also handles MKV, HEVC and AVI, with audio tracks, subtitles, speed, equalizer and sleep timer. Playback resumes where you left off.',
+        'Windows 0.2.0 (beta): synced lyrics, play queue, equalizer, speed and sleep timer. Playback resumes where you left off.',
       ],
       [
         'android',
@@ -319,8 +385,8 @@ export const LANDING: Record<Lang, LandingText> = {
       ],
     ],
     shotAlts: [
-      'Windows music library: albums of freely licensed works with their covers',
-      'Windows player: an album playing, with equalizer, speed and sleep timer',
+      'Windows 0.2.0 music library: albums of freely licensed works with their covers',
+      'Windows 0.2.0 player: a concerto playing, with its cover and the play queue',
       'Android: Miarina Media’s music, songs and tabs',
     ],
     dlTitle: 'Download Miarina Media',
@@ -328,6 +394,8 @@ export const LANDING: Record<Lang, LandingText> = {
     dlWindowsReq: 'Windows 10 / 11 · 64-bit',
     dlAndroidReq: 'Android 7.0 or later · 64-bit (ARM)',
     dlSuggested: 'For this device',
+    dlBetaReq: 'Windows 10 / 11 · 64-bit · new app, replaces 0.1.x',
+    dlBetaBadge: 'Beta',
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:
@@ -335,6 +403,7 @@ export const LANDING: Record<Lang, LandingText> = {
     verKicker: 'Release notes',
     verTitle: 'What changed, release by release.',
     verCurrent: 'Current',
+    verBeta: 'Beta',
     verPlanned: 'Planned',
     verNext: 'Upcoming',
     verFrenchOnly: 'Release notes are written in French.',
@@ -353,6 +422,7 @@ export function englishDate(text: string): string {
   };
   return text
     .replace('Préversion de test', 'Test preview')
+    .replace('Bêta', 'Beta')
     .replace('En préparation', 'In progress')
     .replace(
       /(\d+) (octobre|novembre|décembre) (\d+)/,

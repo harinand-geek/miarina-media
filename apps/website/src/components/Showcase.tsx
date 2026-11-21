@@ -88,7 +88,7 @@ export function Showcase({ text }: { text: LandingText }) {
         <div className="sc-screen">
           <img
             className="sc-img sc-img-library"
-            src="/assets/img/windows-library.jpg?v=0111"
+            src="/assets/img/windows-library.jpg?v=020"
             width={1280}
             height={800}
             loading="lazy"
@@ -96,7 +96,7 @@ export function Showcase({ text }: { text: LandingText }) {
           />
           <img
             className="sc-img sc-img-player"
-            src="/assets/img/windows-hero.jpg?v=0111"
+            src="/assets/img/windows-hero.jpg?v=020"
             width={1280}
             height={800}
             loading="lazy"

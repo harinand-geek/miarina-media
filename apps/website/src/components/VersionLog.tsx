@@ -58,7 +58,7 @@ export function VersionLog({ lang, text }: { lang: Lang; text: LandingText }) {
               aria-controls="ver-panel"
               tabIndex={i === selected ? 0 : -1}
               className="vl-tab"
-              data-kind={r.current ? 'current' : r.planned ? 'planned' : 'past'}
+              data-kind={r.current ? 'current' : r.beta ? 'beta' : r.planned ? 'planned' : 'past'}
               onClick={() => setSelected(i)}
             >
               <span className="vl-dot" />
@@ -77,6 +77,7 @@ export function VersionLog({ lang, text }: { lang: Lang; text: LandingText }) {
         <div className="vl-head">
           <h3>{title(release.name, release.planned)}</h3>
           {release.current && <span className="tag tag-accent">{text.verCurrent}</span>}
+          {release.beta && <span className="tag tag-beta">{text.verBeta}</span>}
           {release.planned && <span className="tag tag-neutral">{text.verPlanned}</span>}
         </div>
         <p className="vl-date">{en ? englishDate(release.date) : release.date}</p>

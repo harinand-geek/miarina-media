@@ -12,6 +12,45 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
+        <h2>Application Windows 0.2.0 (bêta)</h2>
+        <p>
+          La version 0.2.0 pour Windows est sous GPL-3.0-only, comme les précédentes. Ses sources
+          exactes et ses scripts de construction sont à l’étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.0">v0.2.0</a> du dépôt,
+          et dans l’
+          <a href="/downloads/MiarinaMedia-0.2.0-source.tar.gz">
+            archive du code de l’application Windows 0.2.0
+          </a>
+          , avec le sous-module Mister Download Manager. Elle est construite avec Flutter (licence
+          BSD) et flutter_rust_bridge (MIT) ; son interface utilise les icônes Phosphor (MIT) et son
+          lecteur, media_kit (MIT) et libmpv. yt-dlp, FFmpeg et QuickJS-NG sont les mêmes que
+          ci-dessous ; libVLC et l’extension pour Chrome et Edge n’en font pas partie.
+        </p>
+        <ul>
+          <li>
+            <strong>libmpv</strong>, révision mpv <code>bcde6b93cc</code>, build 20261111 de
+            mpv-winbuild-cmake — GNU GPL 2.0 ou ultérieure, utilisée sous GPL 3.0. Cette build
+            contient FFmpeg et d’autres bibliothèques, sous leurs propres licences. Binaires :{' '}
+            <a href="https://github.com/shinchiro/mpv-winbuild-cmake/releases/tag/20261111">
+              mpv-winbuild-cmake 20261111
+            </a>{' '}
+            ; sources : <a href="https://github.com/mpv-player/mpv">mpv</a> (révision{' '}
+            <code>bcde6b93cc</code>) et les scripts de construction de l’étiquette 20261111, avec la
+            version de chaque bibliothèque.
+          </li>
+          <li>
+            <strong>Bibliothèques d’exécution Visual C++</strong> (Microsoft) — redistribuées sans
+            modification, selon les termes de la licence Visual Studio.
+          </li>
+        </ul>
+        <p>
+          <a href="/downloads/MiarinaMedia-0.1.12-source.tar.gz">
+            Archive du code de l’application Windows 0.1.12
+          </a>{' '}
+          — sources exactes de cette compilation, aussi à l’étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.1.12">v0.1.12</a> du
+          dépôt.
+        </p>
         <h2>Applications Windows et Android 0.1.11</h2>
         <p>
           Le code MIARINA des applications Windows et Android est sous GPL-3.0-only. Les sources de

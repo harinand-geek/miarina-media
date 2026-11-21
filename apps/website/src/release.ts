@@ -18,6 +18,13 @@ export const RELEASE = {
     size: '91,3 Mio',
     sha256: '9e3047b2ec3e7bde4a0323190a71f4982fcf8566a9487ba23c943e35272dd27b',
   } satisfies ReleaseFile,
+  /** Windows on the Beta channel, offered next to the stable build. */
+  beta: {
+    version: '0.2.0',
+    name: 'MiarinaMedia-0.2.0-x64-setup.exe',
+    size: '112,9 Mio',
+    sha256: 'ebebd208e1e0217aa0bf5446148f0b7872276fd8fed1050edf663f97857ed758',
+  } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
     name: 'MiarinaMedia-0.1.11.apk',
@@ -34,6 +41,8 @@ export interface Release {
   name: string;
   date: string;
   current?: boolean;
+  /** Published on the Beta channel only. */
+  beta?: boolean;
   planned?: boolean;
   items: string[];
 }
@@ -47,6 +56,22 @@ export const CHANGELOG: Release[] = [
       'Android : essais sur téléphone réel (Bluetooth, appels, écran verrouillé) et autres qualités audio',
       'Android : onglets et historique du navigateur, import et export M3U',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.0 · Windows',
+    date: 'Bêta · 21 novembre 2026',
+    beta: true,
+    items: [
+      'Nouvelle application Windows, entièrement refaite ; elle s’installe par-dessus la 0.1.x, dans le même dossier, avec les mêmes raccourcis',
+      'Bibliothèque, playlists, favoris, historique, reprises et réglages repris ; copie de sauvegarde de la bibliothèque avant sa mise à jour',
+      'Écouter en trois sections : Musique, Cinéma (films et séries, épisodes vus ou en cours) et Focus (podcasts, cours, livres audio, signets avec notes) ; accueil avec reprise et listes automatiques',
+      'Musique : titres triables, sélection multiple, filtres (jamais écoutés, hi-res, ajoutés ce mois), format affiché (FLAC 24/96, MP3 320), nombre d’écoutes ; artistes regroupés par artiste de l’album, avec leur image si elle est dans vos dossiers',
+      'En lecture : paroles synchronisées depuis un fichier .lrc, file enregistrable en playlist, égaliseur, vitesse, minuteur, mini-lecteur',
+      'Éditeur de tags et de pochettes, pour la musique et les vidéos',
+      'Nouveau moteur de lecture (libmpv) ; fermeture propre, téléchargements et torrents arrêtés avant de quitter',
+      'L’extension pour Chrome et Edge n’est pas reprise dans cette version : l’installateur la retire',
+      'Installateur plus gros (113 Mio) ; Android reste en version 0.1.11',
     ],
   },
   {
