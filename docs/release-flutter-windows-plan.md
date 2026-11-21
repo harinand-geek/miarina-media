@@ -64,15 +64,18 @@ Montage : 0.1.11 recompilée depuis son commit (`9793497`, dossier de travail s�
 
 Non couvert ici : une mise à jour 0.2.0 → 0.2.x par la mise à jour intégrée de l'app Flutter sur le canal de test (même code et mêmes tests que 0.1.x, vérifié en R3 sur le vrai manifeste public) ; à refaire à la première 0.2.x. Point à suivre en bêta : un accueil encore vide à 10 s au premier lancement après mise à jour, vu une fois sur trois.
 
-## R6 préparé (2026-11-21), en attente de l'accord final
+## R6 publié (2026-11-21) — 0.2.0 sur le canal Bêta
 
-Rien n'est envoyé. Construit depuis le commit `a6062fb` (étiquette locale `v0.2.0`, à pousser à la publication), sans dossier de test (`stage_windows.ps1` le vérifie) :
+Revue du propriétaire avant publication (corrigée et recompilée) : icône Miarina dans l'exécutable (l'icône du modèle Flutter restait), numéro de version intégré (`MM_VERSION` ; sans lui, « Version de développement » et mises à jour intégrées coupées ; `stage_windows.ps1` refuse désormais une telle build), pochettes sans image = logo Miarina Media en faible opacité, À propos (écosystème Miarina, miarina.org ; développeur © 2026 Harinjaka, cv.harinjaka.org), mode clair (carte Reprendre, En lecture, compteurs des listes automatiques), l'app nommée « Miarina Media » dans tous les textes.
+
+Construit depuis `1d4e6d7` (étiquette `v0.2.0`, poussée) :
 
 | Fichier | Taille | SHA-256 |
 |---|---|---|
-| `MiarinaMedia-0.2.0-x64-setup.exe` | 118 349 899 octets (112,9 Mio) | `ebebd208e1e0217aa0bf5446148f0b7872276fd8fed1050edf663f97857ed758` |
-| `MiarinaMedia-0.2.0-source.tar.gz` (dépôt au commit construit et sous-module `46bb3bcd`) | 36,1 Mo | `bfb5d9d83507d6da3587d2e4615c0cc93643f4d7bc413a3da352c74b5433a05b` |
+| `MiarinaMedia-0.2.0-x64-setup.exe` | 118 398 995 octets (112,9 Mio) | `eca6587a6dcf4b7b3e3877603c619a425b51b04bc4b26866edd7884b85d82acb` |
+| `MiarinaMedia-0.2.0-source.tar.gz` (dépôt au commit construit et sous-module `46bb3bcd`) | 36 Mo | `8dc85eaf86edf4fe2dc8dd17987c50d3384771cfaf09fdfb59c112b516c95645` |
 
-- Manifeste **Bêta** signé avec la clé de publication : Windows 0.2.0, Android 0.1.11 inchangé (même APK publié). Publié à `/updates/beta.json` (absent du serveur aujourd'hui) ; `/updates/stable.json` (0.1.12) n'est pas touché.
-- Site : couleurs et typographie de l'app, section et ligne de téléchargement 0.2.0 bêta, captures 0.2.0 sur la bibliothèque de démonstration, page Licences (composants et sources 0.2.0). La version stable proposée en premier reste 0.1.12.
-- Ordre de publication : envoi par morceaux vérifiés, `publish-0.2.0.sh files`, `site`, contrôle `verify-app-update.mjs` sur le manifeste local, `manifest`, contrôle sur l'adresse publique, puis étiquette `v0.2.0` poussée.
+- `/updates/beta.json` publié (Windows 0.2.0, Android 0.1.11 inchangé), vérifié à son adresse publique avec `verify-app-update.mjs` ; `/updates/stable.json` inchangé (0.1.12).
+- Site publié (sauvegarde de l'ancien : `/root/miarina-site-before-0.2.0-20261121-092353.tar.gz`) : couleurs et typographie de l'app, section et téléchargement 0.2.0 bêta, captures 0.2.0, Licences.
+- Installé sur le PC du propriétaire par-dessus sa 0.1.12 (bibliothèque migrée avec copie `backups/miarina-schema9-….db`).
+- Suite : passage sur Stable après quelques jours sans problème (nouveau `stable.json` signé, notes, site).
