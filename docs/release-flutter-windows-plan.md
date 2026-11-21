@@ -28,7 +28,7 @@
 | R2 | Outils et bibliothèques inclus, licences — **fait le 2026-11-21** (libmpv récente épinglée ; source GPL à publier avec chaque version, voir `docs/licenses.md` §5) | non |
 | R3 | Mises à jour intégrées et écran Réglages › Mises à jour — **fait le 2026-11-21** | non |
 | R4 | Installateur NSIS 0.2.0 remplaçant la 0.1.x — **fait le 2026-11-21** (112,9 Mio ; détails ci-dessous) | non |
-| R5 | Recette complète sur canal de test local, mesures | non |
+| R5 | Recette complète sur canal de test local, mesures — **fait le 2026-11-21** (détails ci-dessous) | non |
 | R6 | Publication (après accord) : artefact, manifeste, site | **oui** |
 
 Chaque lot est commité et poussé sur `main` comme les précédents.
@@ -51,3 +51,15 @@ Chaque lot est commité et poussé sur `main` comme les précédents.
 - Vérifié avec l'identité de recette (`-Recette` ; app compilée avec `MM_APP_ID`) : installation silencieuse, entrée « Programmes et fonctionnalités » (éditeur MIARINA, 0.2.0, taille), raccourcis menu Démarrer et bureau, lancement de l'app installée et fermeture propre, désinstallation silencieuse (dossier, entrée et raccourcis retirés, données gardées par défaut) ; installation réelle 0.1.12 du propriétaire inchangée.
 - **Incident** : l'essai a utilisé l'identité de la recette L09 (`org.miarina.media.recette`), dont les données de test étaient conservées sur ce PC ; le nettoyage les a supprimées (non récupérables ; données réelles non touchées). Correctif : identité neuve `org.miarina.media.recette.flutter`, et scripts qui s'arrêtent si une trace de l'identité existe déjà et ne suppriment que ce qu'ils ont créé.
 - Reste pour R5 : le passage 0.1.11 → 0.2.0 par l'installateur et par la mise à jour intégrée, sur une installation de recette.
+
+## Recette (R5, 2026-11-21)
+
+Montage : 0.1.11 recompilée depuis son commit (`9793497`, dossier de travail séparé) avec l'identité de recette `org.miarina.media.recette.flutter` et le canal de test (serveur en boucle locale `127.0.0.1:8743` avec ETag et plages, clé de test jetable) ; 0.2.0 de recette (`MM_APP_ID`, installateur `-Recette`) ; base 0.1.11 de démonstration (schéma 9). Scripts arrêtés si une trace de l'identité existe, nettoyage limité à ce qu'ils créent ; installation réelle et données du propriétaire vérifiées inchangées à chaque essai.
+
+| Scénario | Résultat |
+|---|---|
+| A. 0.1.11 installée, lancée, puis installateur 0.2.0 par-dessus (silencieux) ; trois fois | entrée « Programmes et fonctionnalités » 0.2.0, même exécutable, raccourcis gardés ; libVLC, passerelle et extension de la 0.1.x retirées ; premier lancement : copie `backups/miarina-schema9-….db`, base au schéma 10, mêmes comptes (19 médias, 5 positions, 5 réglages) ; accueil avec reprise, favoris et écoutes ; fermeture propre ; désinstallation complète |
+| B. Mise à jour intégrée de 0.1.11 | manifeste signé lu, 0.2.0 proposée, téléchargée (118 385 419 octets) et vérifiée (SHA-256 identique à l'installateur 0.2.0), « Installer maintenant » : l'installateur part du fichier téléchargé et 0.1.11 se ferme ; le même fichier, lancé en silencieux (l'assistant attend des clics, ses pages ont été vérifiées en L09), installe 0.2.0 ; au premier lancement, le cache de mise à jour de 0.1.11 est nettoyé et la base migrée (schéma 10, 19 médias) |
+| Mesures | voir `docs/performance.md` (section du 2026-11-21) |
+
+Non couvert ici : une mise à jour 0.2.0 → 0.2.x par la mise à jour intégrée de l'app Flutter sur le canal de test (même code et mêmes tests que 0.1.x, vérifié en R3 sur le vrai manifeste public) ; à refaire à la première 0.2.x. Point à suivre en bêta : un accueil encore vide à 10 s au premier lancement après mise à jour, vu une fois sur trois.

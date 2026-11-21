@@ -66,3 +66,18 @@ Même machine (Core i5-8300H 4 cœurs / 8 fils, 16 Go, SSD, Intel UHD 630 + GTX 
 ## Preuve de concept Flutter — 2026-11-19
 
 Mesures du client Flutter de test (`apps/flutter_client`, Flutter 3.50, libmpv sous Windows, Media3 sous Android) : voir [flutter-poc.md](flutter-poc.md#mesures-relevées). Résumé : dossier Windows release 72,8 Mo ; fenêtre visible en 1,4–1,9 s ; lecture MKV 1080p H.264 ~323 Mo privés, CPU 3–5 % ; APK ARM64 15,9 Mo sans cœur Rust ni outils ; émulateur Android : démarrage à froid 1,5 s, 69 Mo PSS au repos. Pas encore de mesure sur le téléphone de référence ni de comparaison à contenu identique avec la 0.1.11.
+
+## Version Flutter 0.2.0 comparée à 0.1.11 — 2026-11-21 (plan R5)
+
+Même machine (Intel Core i5-8300H, 4 cœurs / 8 fils, 16 Go, Windows 11 Pro 10.0.22000). Versions de **recette** installées par leurs installateurs (identité `org.miarina.media.recette.flutter`), même bibliothèque de démonstration (19 médias après le premier lancement de 0.1.11), mode Balanced. Trois séries d'essais, valeurs relevées à chaque série.
+
+| Mesure | 0.1.11 (Tauri, WebView2) | 0.2.0 (Flutter) | Méthode |
+|---|---|---|---|
+| Installateur | 91,2 Mio | 112,9 Mio | taille du fichier NSIS |
+| Taille installée | ~251 Mio (estimée par l'installateur) | 334 Mio | somme des fichiers installés |
+| Fenêtre créée, premier lancement | 381 – 477 ms | 2 077 – 2 812 ms (après mise à jour : copie de sauvegarde et migration de la base au schéma 10 comprises) | `Start-Process` jusqu'à `MainWindowHandle ≠ 0` |
+| Fenêtre créée, lancement suivant | 77 ms | 1 220 – 1 354 ms | idem |
+| Mémoire privée, 10 s après le lancement, au repos | 202 – 216 Mio (7 processus : app et WebView2) | 191 – 194 Mio (1 processus) | somme des `PrivateMemorySize64` de l'arbre de processus |
+| Working set, idem | 379 – 401 Mio | 184 – 189 Mio | somme des `WorkingSet64` de l'arbre |
+
+Lecture : la 0.2.0 ouvre sa fenêtre plus tard parce qu'elle l'affiche une fois la base ouverte et l'interface prête (contenu visible dès 5 s dans les captures, y compris au premier lancement), alors que la 0.1.11 crée sa fenêtre tout de suite puis charge son interface web dedans ; les deux mesures « fenêtre créée » ne mesurent donc pas la même chose. La mémoire totale est voisine en privé et nettement plus basse en working set (un seul processus, pas de WebView2 au repos). À suivre en bêta : un essai sur trois a montré, au premier lancement après la mise à jour, un accueil encore vide à 10 s (barre latérale affichée, compteurs absents) ; non reproduit dans les deux essais suivants (accueil complet à 5 s).
