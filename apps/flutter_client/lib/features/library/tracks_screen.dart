@@ -801,6 +801,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
                     radius: 10,
                     seed: item.id,
                     shadow: false,
+                    imagePath: item.thumbnail,
                     child: playing
                         ? Icon(
                             PhosphorFill.equalizer,
@@ -1091,6 +1092,7 @@ class _TrackRow extends StatelessWidget {
                         radius: 6,
                         seed: item.id,
                         shadow: false,
+                        imagePath: item.thumbnail,
                       ),
                       const SizedBox(width: 10),
                       Expanded(

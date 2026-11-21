@@ -77,6 +77,7 @@ class QueueView extends ConsumerWidget {
                             radius: 8,
                             seed: current.seed,
                             shadow: false,
+                            imagePath: current.artwork,
                             child: Icon(
                               PhosphorFill.equalizer,
                               size: 16,
@@ -336,6 +337,7 @@ class _UpcomingRowState extends State<_UpcomingRow> {
                   radius: 8,
                   seed: widget.entry.seed,
                   shadow: false,
+                  imagePath: widget.entry.artwork,
                 ),
                 const SizedBox(width: 12),
                 Expanded(child: _Titles(entry: widget.entry)),

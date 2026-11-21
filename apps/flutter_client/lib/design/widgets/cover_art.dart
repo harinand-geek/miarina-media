@@ -84,6 +84,9 @@ class CoverArt extends StatelessWidget {
                 fit: StackFit.expand,
                 children: [
                   picture,
+                  // Keeps the overlay icon readable over a real picture.
+                  if (picture != hatch)
+                    const ColoredBox(color: Color(0x990D141B)),
                   Center(child: child),
                 ],
               ),
