@@ -9,8 +9,8 @@ being packaged.
 
 Miarina Media itself is free software under the GNU General Public License,
 version 3 only (GPL-3.0.txt in this folder). The complete corresponding
-source of this version is published next to its installer:
-https://media.miarina.org/downloads/MiarinaMedia-{VERSION}-source.zip
+source of this version (tag v{VERSION}), with its build scripts:
+https://github.com/harinand-geek/miarina-media/tree/v{VERSION}
 
 yt-dlp 2026.08.19  (tools/yt-dlp/)
   License: The Unlicense (public domain). The executable is built with

@@ -40,6 +40,7 @@ Chaque lot est commité et poussé sur `main` comme les précédents.
 3. **La 0.1.12 (app Tauri) n'est pas publiée** : remplacée par la 0.2.0 ; ses fichiers en cours restent dans l'arbre de travail, non commités.
 4. **Recette sur données de démonstration** : une base 0.1.11 de démonstration est fabriquée ; les vraies données du propriétaire ne sont jamais utilisées.
 5. **Accord final avant R6** : rien n'est envoyé sur le serveur ni sur le site sans cet accord.
+6. **Code source** (2026-11-21) : le dépôt GitHub est public ; chaque version publiée reçoit une étiquette `vVERSION` sur le commit construit (R6), indiquée dans la notice.
 
 ## Installateur (R4, 2026-11-21)
 
