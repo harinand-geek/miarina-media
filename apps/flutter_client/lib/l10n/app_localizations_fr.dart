@@ -1046,7 +1046,7 @@ class L10nFr extends L10n {
   String get audioOutput => 'Sortie audio';
 
   @override
-  String get audioOutputBody => 'Périphérique utilisé par Miarina';
+  String get audioOutputBody => 'Périphérique utilisé par Miarina Media';
 
   @override
   String get systemDefault => 'Système par défaut';
@@ -1437,7 +1437,7 @@ class L10nFr extends L10n {
 
   @override
   String get emptyNote =>
-      'Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.';
+      'Vous téléchargez avec Miarina Media ? Les fichiers obtenus arrivent ici automatiquement.';
 
   @override
   String get mediaFiles => 'Fichiers audio et vidéo';
@@ -1461,7 +1461,7 @@ class L10nFr extends L10n {
 
   @override
   String get errAccessBody =>
-      'Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.';
+      'Le système ne laisse pas Miarina Media lire ce fichier. Les autres fichiers fonctionnent.';
 
   @override
   String get errMissingTitle => 'Fichier introuvable';
@@ -1538,7 +1538,7 @@ class L10nFr extends L10n {
 
   @override
   String get foldersBody =>
-      'Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.';
+      'Miarina Media lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.';
 
   @override
   String folderFiles(int count) {
@@ -2225,7 +2225,7 @@ class L10nFr extends L10n {
 
   @override
   String get getNoMediaBody =>
-      'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.';
+      'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina Media ne contourne pas ces protections.';
 
   @override
   String getNoMediaReason(String reason) {
@@ -3071,7 +3071,7 @@ class L10nFr extends L10n {
   String get filterLossless => 'FLAC / hi-res';
 
   @override
-  String get filterDownloaded => 'Téléchargés avec Miarina';
+  String get filterDownloaded => 'Téléchargés avec Miarina Media';
 
   @override
   String get filterCompilations => 'Compilations';
@@ -3172,11 +3172,11 @@ class L10nFr extends L10n {
 
   @override
   String get tagWrite =>
-      'Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)';
+      'Écrire aussi dans le fichier (sinon : bibliothèque Miarina Media seulement)';
 
   @override
   String get tagWriteUnsupported =>
-      'Ce format garde ses tags dans la bibliothèque Miarina seulement.';
+      'Ce format garde ses tags dans la bibliothèque Miarina Media seulement.';
 
   @override
   String get tagsSavedFile => 'Tags écrits dans le fichier.';
@@ -3334,7 +3334,7 @@ class L10nFr extends L10n {
 
   @override
   String updAvailable(String v) {
-    return 'Miarina $v est disponible';
+    return 'Miarina Media $v est disponible';
   }
 
   @override
@@ -3413,7 +3413,7 @@ class L10nFr extends L10n {
 
   @override
   String get updWindowsNote =>
-      'Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.';
+      'Windows ferme Miarina Media et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.';
 
   @override
   String get updChecking => 'Recherche…';
@@ -3458,4 +3458,52 @@ class L10nFr extends L10n {
   @override
   String get updDevBuild =>
       'Version de développement : les mises à jour sont désactivées.';
+
+  @override
+  String get deviceAccessTitle =>
+      'Accédez à la musique et aux vidéos de ce téléphone';
+
+  @override
+  String get deviceAccessBody =>
+      'Miarina Media lit vos fichiers sur l\'appareil. Rien n\'est envoyé, aucun compte n\'est nécessaire.';
+
+  @override
+  String get deviceAccessMusic => 'Musique et audio';
+
+  @override
+  String get deviceAccessMusicBody =>
+      'Pour afficher vos albums, podcasts et cours.';
+
+  @override
+  String get deviceAccessVideo => 'Vidéos';
+
+  @override
+  String get deviceAccessVideoBody => 'Pour vos films, séries et vidéos perso.';
+
+  @override
+  String get deviceAccessNotif => 'Notifications';
+
+  @override
+  String get deviceAccessNotifBody =>
+      'Pour les commandes de lecture sur l\'écran verrouillé.';
+
+  @override
+  String get deviceAccessAllow => 'Autoriser l\'accès';
+
+  @override
+  String get deviceDeniedTitle => 'Accès aux fichiers refusé';
+
+  @override
+  String get deviceDeniedBody =>
+      'Sans cette autorisation, Miarina Media ne voit pas la musique et les vidéos du téléphone. Vos playlists sont conservées.';
+
+  @override
+  String get deviceDeniedSettings => 'Ouvrir les paramètres Android';
+
+  @override
+  String get getSoonTitle => 'Obtenir arrive dans une prochaine bêta';
+
+  @override
+  String get getSoonBody =>
+      'Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté.';
 }

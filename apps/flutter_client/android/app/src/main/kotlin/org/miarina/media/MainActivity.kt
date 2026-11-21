@@ -9,6 +9,9 @@ import io.flutter.embedding.engine.FlutterEngine
 
 class MainActivity : FlutterActivity() {
   private var engine: Media3EnginePlugin? = null
+  private var deviceMedia: DeviceMediaChannel? = null
+  private var mediaProbe: MediaProbeChannel? = null
+  private var openWith: OpenWithChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -51,11 +54,37 @@ class MainActivity : FlutterActivity() {
   override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
     super.configureFlutterEngine(flutterEngine)
     engine = Media3EnginePlugin(this, flutterEngine.dartExecutor.binaryMessenger, flutterEngine.renderer)
+    deviceMedia = DeviceMediaChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    mediaProbe = MediaProbeChannel(flutterEngine.dartExecutor.binaryMessenger)
+    openWith = OpenWithChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+  }
+
+  // "Open with" while the app runs (singleTop): the new file plays.
+  override fun onNewIntent(intent: android.content.Intent) {
+    super.onNewIntent(intent)
+    setIntent(intent)
+    openWith?.onNewIntent(intent)
+  }
+
+  @Deprecated("Activity result API not used: one request at a time")
+  override fun onRequestPermissionsResult(
+    requestCode: Int,
+    permissions: Array<out String>,
+    grantResults: IntArray,
+  ) {
+    super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+    deviceMedia?.onPermissionsResult(requestCode)
   }
 
   override fun cleanUpFlutterEngine(flutterEngine: FlutterEngine) {
     engine?.dispose()
     engine = null
+    deviceMedia?.dispose()
+    deviceMedia = null
+    mediaProbe?.dispose()
+    mediaProbe = null
+    openWith?.dispose()
+    openWith = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

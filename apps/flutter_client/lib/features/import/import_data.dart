@@ -2,11 +2,13 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderOrFamily;
 
 import '../../src/rust/api/indexer.dart';
 import '../cinema/cinema_data.dart';
+import '../device_media/device_media.dart';
 import '../focus/focus_data.dart';
 import '../health/health_data.dart';
 import '../home/home_data.dart';
@@ -47,6 +49,9 @@ class WatchedFolder {
 abstract interface class IndexerApi {
   Future<void> start();
   Future<ScanTotals> scan(List<String> folders);
+
+  /// Android (A-06): the phone's media listed by MediaStore.
+  Future<ScanTotals> syncListed(List<String> paths);
   Future<int> count(String folder);
   Future<IndexStatus> status();
   Future<BigInt> generation();
@@ -59,15 +64,26 @@ class RustIndexerApi implements IndexerApi {
   final Ref _ref;
 
   @override
-  Future<void> start() async => indexerStart(
-    dbPath: await _ref.read(dbPathProvider.future),
-    dataDir: await _ref.read(dataDirProvider.future),
-    toolsDir: toolsDir(),
-  );
+  Future<void> start() async {
+    await indexerStart(
+      dbPath: await _ref.read(dbPathProvider.future),
+      dataDir: await _ref.read(dataDirProvider.future),
+      toolsDir: toolsDir(),
+    );
+    // Android: durations, codecs and pictures read by the platform
+    // (MediaMetadataRetriever) instead of FFmpeg, as the Tauri app does.
+    if (Platform.isAndroid) {
+      await indexerSetPlatformProber(probe: androidProbe);
+    }
+  }
 
   @override
   Future<ScanTotals> scan(List<String> folders) =>
       indexerScan(folders: folders);
+
+  @override
+  Future<ScanTotals> syncListed(List<String> paths) =>
+      indexerSyncListed(paths: paths);
 
   @override
   Future<int> count(String folder) => indexerCount(folder: folder);
@@ -82,6 +98,41 @@ class RustIndexerApi implements IndexerApi {
   @override
   Future<void> setFocusFolders(List<String> folders) =>
       indexerSetFocusFolders(folders: folders);
+}
+
+const _probeChannel = MethodChannel('org.miarina.media/media_probe');
+
+/// One file read by Android (`MediaProbeChannel.kt`); `null` when it cannot
+/// be read.
+Future<PlatformProbe?> androidProbe(
+  String media,
+  String? thumbnail,
+  int maxPx,
+) async {
+  try {
+    final raw = await _probeChannel.invokeMethod<Map<Object?, Object?>>(
+      'probe',
+      {'path': media, 'thumbnail': thumbnail, 'maxPx': maxPx},
+    );
+    if (raw == null) return null;
+    int? n(String key) => (raw[key] as num?)?.toInt();
+    return PlatformProbe(
+      durationSecs: (raw['durationSecs'] as num?)?.toDouble(),
+      width: n('width'),
+      height: n('height'),
+      videoCodec: raw['videoCodec'] as String?,
+      audioCodec: raw['audioCodec'] as String?,
+      container: raw['container'] as String?,
+      hasVideo: raw['hasVideo'] == true,
+      sampleRate: n('sampleRate'),
+      bitDepth: n('bitDepth'),
+      bitRate: n('bitRate'),
+      thumbnailWritten: raw['thumbnailWritten'] == true,
+    );
+  } catch (e) {
+    debugPrint('probe failed: $e');
+    return null;
+  }
 }
 
 /// `tools/` next to the executable: FFmpeg shipped with the app, laid out
@@ -155,7 +206,8 @@ void refreshLibraryWith(void Function(ProviderOrFamily) invalidate) {
 /// Starts indexing at launch: the followed folders are scanned again in the
 /// background (new files in, vanished ones marked missing), then the
 /// library screens refresh whenever the worker changes rows (checked every
-/// 2 s, one cheap read). Watched by the app root on Windows.
+/// 2 s, one cheap read). Watched by the app root; on Android the phone's
+/// media are indexed instead of followed folders.
 final indexingProvider = Provider<void>((ref) {
   final api = ref.watch(indexerApiProvider);
   Timer? poll;
@@ -174,6 +226,10 @@ final indexingProvider = Provider<void>((ref) {
       ]);
       if (folders.isNotEmpty) {
         unawaited(api.scan([for (final f in folders) f.path]));
+      }
+      // Android: the phone's media, when the user allowed it (A-06).
+      if (ref.read(deviceMediaSupportedProvider)) {
+        unawaited(ref.read(deviceMediaProvider.notifier).sync());
       }
       poll = Timer.periodic(const Duration(seconds: 2), (_) async {
         final g = await api.generation();

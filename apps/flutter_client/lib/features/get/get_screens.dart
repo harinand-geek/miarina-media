@@ -12,6 +12,7 @@ import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
+import '../../design/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
 import '../common/open_media.dart';
 import '../home/home_data.dart';
@@ -188,6 +189,22 @@ class _Progress extends StatelessWidget {
 // --------------------------------------------------------------------- home
 
 /// Windows v2 screen 1: from link to library.
+/// Android beta: Obtenir is not built yet there (extractor, notifications);
+/// the tab says so instead of offering what does not work.
+class GetSoonScreen extends StatelessWidget {
+  const GetSoonScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = L10n.of(context);
+    return EmptyState(
+      icon: PhosphorRegular.downloadSimple,
+      title: t.getSoonTitle,
+      body: t.getSoonBody,
+    );
+  }
+}
+
 class GetHomeScreen extends ConsumerStatefulWidget {
   const GetHomeScreen({super.key});
 

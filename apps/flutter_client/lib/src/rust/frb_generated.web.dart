@@ -41,6 +41,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  FutureOr<PlatformProbe?> Function(String, String?, int)
+  dco_decode_DartFn_Inputs_String_opt_String_u_32_Output_opt_box_autoadd_platform_probe_AnyhowException(
+    dynamic raw,
+  );
+
+  @protected
+  Object dco_decode_DartOpaque(dynamic raw);
+
+  @protected
   RustStreamSink<BrowserEvent> dco_decode_StreamSink_browser_event_Sse(
     dynamic raw,
   );
@@ -89,6 +98,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MediaInfo dco_decode_box_autoadd_media_info(dynamic raw);
+
+  @protected
+  PlatformProbe dco_decode_box_autoadd_platform_probe(dynamic raw);
 
   @protected
   PlaylistDetail dco_decode_box_autoadd_playlist_detail(dynamic raw);
@@ -197,6 +209,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   IndexStatus dco_decode_index_status(dynamic raw);
+
+  @protected
+  PlatformInt64 dco_decode_isize(dynamic raw);
 
   @protected
   LibraryGroup dco_decode_library_group(dynamic raw);
@@ -346,6 +361,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   MediaInfo? dco_decode_opt_box_autoadd_media_info(dynamic raw);
 
   @protected
+  PlatformProbe? dco_decode_opt_box_autoadd_platform_probe(dynamic raw);
+
+  @protected
   PlaylistDetail? dco_decode_opt_box_autoadd_playlist_detail(dynamic raw);
 
   @protected
@@ -362,6 +380,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   UpdateRelease? dco_decode_opt_box_autoadd_update_release(dynamic raw);
+
+  @protected
+  PlatformProbe dco_decode_platform_probe(dynamic raw);
 
   @protected
   PlaylistDetail dco_decode_playlist_detail(dynamic raw);
@@ -442,6 +463,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   UpdateStatusInfo dco_decode_update_status_info(dynamic raw);
 
   @protected
+  BigInt dco_decode_usize(dynamic raw);
+
+  @protected
   WebviewSpikeInfo dco_decode_webview_spike_info(dynamic raw);
 
   @protected
@@ -449,6 +473,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
+
+  @protected
+  Object sse_decode_DartOpaque(SseDeserializer deserializer);
 
   @protected
   RustStreamSink<BrowserEvent> sse_decode_StreamSink_browser_event_Sse(
@@ -503,6 +530,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MediaInfo sse_decode_box_autoadd_media_info(SseDeserializer deserializer);
+
+  @protected
+  PlatformProbe sse_decode_box_autoadd_platform_probe(
+    SseDeserializer deserializer,
+  );
 
   @protected
   PlaylistDetail sse_decode_box_autoadd_playlist_detail(
@@ -623,6 +655,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   IndexStatus sse_decode_index_status(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64 sse_decode_isize(SseDeserializer deserializer);
 
   @protected
   LibraryGroup sse_decode_library_group(SseDeserializer deserializer);
@@ -812,6 +847,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  PlatformProbe? sse_decode_opt_box_autoadd_platform_probe(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   PlaylistDetail? sse_decode_opt_box_autoadd_playlist_detail(
     SseDeserializer deserializer,
   );
@@ -834,6 +874,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   UpdateRelease? sse_decode_opt_box_autoadd_update_release(
     SseDeserializer deserializer,
   );
+
+  @protected
+  PlatformProbe sse_decode_platform_probe(SseDeserializer deserializer);
 
   @protected
   PlaylistDetail sse_decode_playlist_detail(SseDeserializer deserializer);
@@ -916,6 +959,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   UpdateStatusInfo sse_decode_update_status_info(SseDeserializer deserializer);
 
   @protected
+  BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
   WebviewSpikeInfo sse_decode_webview_spike_info(SseDeserializer deserializer);
 
   @protected
@@ -926,6 +972,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     AnyhowException self,
     SseSerializer serializer,
   );
+
+  @protected
+  void
+  sse_encode_DartFn_Inputs_String_opt_String_u_32_Output_opt_box_autoadd_platform_probe_AnyhowException(
+    FutureOr<PlatformProbe?> Function(String, String?, int) self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_DartOpaque(Object self, SseSerializer serializer);
 
   @protected
   void sse_encode_StreamSink_browser_event_Sse(
@@ -1005,6 +1061,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_media_info(
     MediaInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_platform_probe(
+    PlatformProbe self,
     SseSerializer serializer,
   );
 
@@ -1148,6 +1210,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_index_status(IndexStatus self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_isize(PlatformInt64 self, SseSerializer serializer);
 
   @protected
   void sse_encode_library_group(LibraryGroup self, SseSerializer serializer);
@@ -1411,6 +1476,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_platform_probe(
+    PlatformProbe? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_playlist_detail(
     PlaylistDetail? self,
     SseSerializer serializer,
@@ -1439,6 +1510,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     UpdateRelease? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_platform_probe(PlatformProbe self, SseSerializer serializer);
 
   @protected
   void sse_encode_playlist_detail(
@@ -1538,6 +1612,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     UpdateStatusInfo self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_usize(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_webview_spike_info(

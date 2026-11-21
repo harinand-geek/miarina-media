@@ -12,6 +12,8 @@ use download_engine::components::Components;
 use library::Library;
 use storage::{GroupBy, Storage};
 
+use flutter_rust_bridge::DartFnFuture;
+
 use super::library::with_db;
 
 struct Indexer {
@@ -151,6 +153,76 @@ pub fn indexer_scan(folders: Vec<String>) -> Result<ScanTotals> {
     library.refresh();
     GENERATION.fetch_add(1, Ordering::Relaxed);
     Ok(totals)
+}
+
+/// Android (A-06): indexes the phone's music and videos listed by MediaStore
+/// (absolute paths, read only), as the Tauri app does; entries no longer
+/// listed are marked missing, never deleted.
+pub fn indexer_sync_listed(paths: Vec<String>) -> Result<ScanTotals> {
+    let library = with_indexer(|i| Ok(i.library.clone()))?;
+    let listed: Vec<PathBuf> = paths.into_iter().map(PathBuf::from).collect();
+    let report = library.sync_listed(&listed)?;
+    library.refresh();
+    GENERATION.fetch_add(1, Ordering::Relaxed);
+    Ok(ScanTotals {
+        added: report.added as u32,
+        missing: report.missing as u32,
+        restored: report.restored as u32,
+    })
+}
+
+/// What Android read from a file (MediaMetadataRetriever): durations,
+/// picture size, codecs, audio quality, and whether the picture asked for
+/// (cover or video frame) was written.
+pub struct PlatformProbe {
+    pub duration_secs: Option<f64>,
+    pub width: Option<u32>,
+    pub height: Option<u32>,
+    pub video_codec: Option<String>,
+    pub audio_codec: Option<String>,
+    pub container: Option<String>,
+    pub has_video: bool,
+    pub sample_rate: Option<u32>,
+    pub bit_depth: Option<u32>,
+    pub bit_rate: Option<u32>,
+    pub thumbnail_written: bool,
+}
+
+/// Android: the platform reads technical details and pictures instead of
+/// FFmpeg (as the Tauri app does). `probe(media, thumbnail, max_px)` answers
+/// `None` for a file it cannot read.
+pub fn indexer_set_platform_prober(
+    probe: impl Fn(String, Option<String>, u32) -> DartFnFuture<Option<PlatformProbe>>
+    + Send
+    + Sync
+    + 'static,
+) -> Result<()> {
+    let probe = Arc::new(probe);
+    let call: crate::platform_prober::ProbeCall = Arc::new(move |media, thumbnail, max_px| {
+        let fut = probe(media, thumbnail, max_px);
+        Box::pin(async move {
+            fut.await.map(|p| crate::platform_prober::PlatformReading {
+                probe: storage::MediaProbe {
+                    duration_secs: p.duration_secs,
+                    width: p.width,
+                    height: p.height,
+                    video_codec: p.video_codec,
+                    audio_codec: p.audio_codec,
+                    container: p.container,
+                    has_video: p.has_video,
+                    sample_rate: p.sample_rate,
+                    bit_depth: p.bit_depth,
+                    bit_rate: p.bit_rate,
+                },
+                thumbnail_written: p.thumbnail_written,
+            })
+        })
+    });
+    with_indexer(|i| {
+        i.library
+            .set_prober(Arc::new(crate::platform_prober::PlatformProber(call)));
+        Ok(())
+    })
 }
 
 /// Media files a folder holds (what a scan would find), for the import list.

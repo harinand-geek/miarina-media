@@ -653,6 +653,16 @@ class FakeIndexerApi implements IndexerApi {
     return ScanTotals(added: added, missing: 0, restored: 0);
   }
 
+  final synced = <List<String>>[];
+
+  @override
+  Future<ScanTotals> syncListed(List<String> paths) async {
+    synced.add(paths);
+    _total = paths.length;
+    _generation += BigInt.one;
+    return ScanTotals(added: paths.length, missing: 0, restored: 0);
+  }
+
   @override
   Future<int> count(String folder) async => files[folder] ?? 0;
 

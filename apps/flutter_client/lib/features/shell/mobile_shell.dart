@@ -11,6 +11,7 @@ import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
+import '../device_media/device_media_view.dart';
 import '../health/health_screens.dart' show MissingSkipListener;
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
@@ -48,7 +49,16 @@ class MobileShell extends ConsumerWidget {
         children: [
           Positioned.fill(
             bottom: navHeight + (hasMedia ? 72 : 0),
-            child: SafeArea(bottom: false, child: child),
+            child: SafeArea(
+              bottom: false,
+              // Musique without the phone's media: A-06 / A-07.
+              child: DeviceMediaGate(
+                active:
+                    location.startsWith('/listen/music') ||
+                    location == Routes.listenHome,
+                child: child,
+              ),
+            ),
           ),
           AnimatedPositioned(
             duration: MmMotion.of(context).sheetSettle,

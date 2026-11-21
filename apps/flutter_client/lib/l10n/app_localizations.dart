@@ -1768,7 +1768,7 @@ abstract class L10n {
   /// No description provided for @audioOutputBody.
   ///
   /// In fr, this message translates to:
-  /// **'Périphérique utilisé par Miarina'**
+  /// **'Périphérique utilisé par Miarina Media'**
   String get audioOutputBody;
 
   /// No description provided for @systemDefault.
@@ -2434,7 +2434,7 @@ abstract class L10n {
   /// No description provided for @emptyNote.
   ///
   /// In fr, this message translates to:
-  /// **'Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.'**
+  /// **'Vous téléchargez avec Miarina Media ? Les fichiers obtenus arrivent ici automatiquement.'**
   String get emptyNote;
 
   /// No description provided for @mediaFiles.
@@ -2476,7 +2476,7 @@ abstract class L10n {
   /// No description provided for @errAccessBody.
   ///
   /// In fr, this message translates to:
-  /// **'Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.'**
+  /// **'Le système ne laisse pas Miarina Media lire ce fichier. Les autres fichiers fonctionnent.'**
   String get errAccessBody;
 
   /// No description provided for @errMissingTitle.
@@ -2614,7 +2614,7 @@ abstract class L10n {
   /// No description provided for @foldersBody.
   ///
   /// In fr, this message translates to:
-  /// **'Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.'**
+  /// **'Miarina Media lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.'**
   String get foldersBody;
 
   /// No description provided for @folderFiles.
@@ -3574,7 +3574,7 @@ abstract class L10n {
   /// No description provided for @getNoMediaBody.
   ///
   /// In fr, this message translates to:
-  /// **'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.'**
+  /// **'Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina Media ne contourne pas ces protections.'**
   String get getNoMediaBody;
 
   /// No description provided for @getNoMediaReason.
@@ -4978,7 +4978,7 @@ abstract class L10n {
   /// No description provided for @filterDownloaded.
   ///
   /// In fr, this message translates to:
-  /// **'Téléchargés avec Miarina'**
+  /// **'Téléchargés avec Miarina Media'**
   String get filterDownloaded;
 
   /// No description provided for @filterCompilations.
@@ -5134,13 +5134,13 @@ abstract class L10n {
   /// No description provided for @tagWrite.
   ///
   /// In fr, this message translates to:
-  /// **'Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)'**
+  /// **'Écrire aussi dans le fichier (sinon : bibliothèque Miarina Media seulement)'**
   String get tagWrite;
 
   /// No description provided for @tagWriteUnsupported.
   ///
   /// In fr, this message translates to:
-  /// **'Ce format garde ses tags dans la bibliothèque Miarina seulement.'**
+  /// **'Ce format garde ses tags dans la bibliothèque Miarina Media seulement.'**
   String get tagWriteUnsupported;
 
   /// No description provided for @tagsSavedFile.
@@ -5410,7 +5410,7 @@ abstract class L10n {
   /// No description provided for @updAvailable.
   ///
   /// In fr, this message translates to:
-  /// **'Miarina {v} est disponible'**
+  /// **'Miarina Media {v} est disponible'**
   String updAvailable(String v);
 
   /// No description provided for @updBeta.
@@ -5536,7 +5536,7 @@ abstract class L10n {
   /// No description provided for @updWindowsNote.
   ///
   /// In fr, this message translates to:
-  /// **'Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.'**
+  /// **'Windows ferme Miarina Media et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.'**
   String get updWindowsNote;
 
   /// No description provided for @updChecking.
@@ -5610,6 +5610,90 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Version de développement : les mises à jour sont désactivées.'**
   String get updDevBuild;
+
+  /// No description provided for @deviceAccessTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accédez à la musique et aux vidéos de ce téléphone'**
+  String get deviceAccessTitle;
+
+  /// No description provided for @deviceAccessBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina Media lit vos fichiers sur l\'appareil. Rien n\'est envoyé, aucun compte n\'est nécessaire.'**
+  String get deviceAccessBody;
+
+  /// No description provided for @deviceAccessMusic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musique et audio'**
+  String get deviceAccessMusic;
+
+  /// No description provided for @deviceAccessMusicBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour afficher vos albums, podcasts et cours.'**
+  String get deviceAccessMusicBody;
+
+  /// No description provided for @deviceAccessVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéos'**
+  String get deviceAccessVideo;
+
+  /// No description provided for @deviceAccessVideoBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour vos films, séries et vidéos perso.'**
+  String get deviceAccessVideoBody;
+
+  /// No description provided for @deviceAccessNotif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifications'**
+  String get deviceAccessNotif;
+
+  /// No description provided for @deviceAccessNotifBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour les commandes de lecture sur l\'écran verrouillé.'**
+  String get deviceAccessNotifBody;
+
+  /// No description provided for @deviceAccessAllow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser l\'accès'**
+  String get deviceAccessAllow;
+
+  /// No description provided for @deviceDeniedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accès aux fichiers refusé'**
+  String get deviceDeniedTitle;
+
+  /// No description provided for @deviceDeniedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans cette autorisation, Miarina Media ne voit pas la musique et les vidéos du téléphone. Vos playlists sont conservées.'**
+  String get deviceDeniedBody;
+
+  /// No description provided for @deviceDeniedSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir les paramètres Android'**
+  String get deviceDeniedSettings;
+
+  /// No description provided for @getSoonTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir arrive dans une prochaine bêta'**
+  String get getSoonTitle;
+
+  /// No description provided for @getSoonBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté.'**
+  String get getSoonBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

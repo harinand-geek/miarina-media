@@ -236,7 +236,11 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           if (desktop)
             screen(Routes.focusPlayer, () => const FocusPlayerScreen()),
-          screen(Routes.get, () => const GetHomeScreen()),
+          // Android beta: downloads come in a later beta (honest state).
+          screen(
+            Routes.get,
+            () => desktop ? const GetHomeScreen() : const GetSoonScreen(),
+          ),
           GoRoute(
             path: Routes.getAnalysis,
             pageBuilder: (context, state) => _ScreenPage(

@@ -28,6 +28,20 @@ Future<void> indexerStart({
 Future<ScanTotals> indexerScan({required List<String> folders}) =>
     RustLib.instance.api.crateApiIndexerIndexerScan(folders: folders);
 
+/// Android (A-06): indexes the phone's music and videos listed by MediaStore
+/// (absolute paths, read only), as the Tauri app does; entries no longer
+/// listed are marked missing, never deleted.
+Future<ScanTotals> indexerSyncListed({required List<String> paths}) =>
+    RustLib.instance.api.crateApiIndexerIndexerSyncListed(paths: paths);
+
+/// Android: the platform reads technical details and pictures instead of
+/// FFmpeg (as the Tauri app does). `probe(media, thumbnail, max_px)` answers
+/// `None` for a file it cannot read.
+Future<void> indexerSetPlatformProber({
+  required FutureOr<PlatformProbe?> Function(String, String?, int) probe,
+}) =>
+    RustLib.instance.api.crateApiIndexerIndexerSetPlatformProber(probe: probe);
+
 /// Media files a folder holds (what a scan would find), for the import list.
 Future<int> indexerCount({required String folder}) =>
     RustLib.instance.api.crateApiIndexerIndexerCount(folder: folder);
@@ -94,6 +108,68 @@ class IndexStatus {
           video == other.video &&
           albums == other.albums &&
           hasFfmpeg == other.hasFfmpeg;
+}
+
+/// What Android read from a file (MediaMetadataRetriever): durations,
+/// picture size, codecs, audio quality, and whether the picture asked for
+/// (cover or video frame) was written.
+class PlatformProbe {
+  final double? durationSecs;
+  final int? width;
+  final int? height;
+  final String? videoCodec;
+  final String? audioCodec;
+  final String? container;
+  final bool hasVideo;
+  final int? sampleRate;
+  final int? bitDepth;
+  final int? bitRate;
+  final bool thumbnailWritten;
+
+  const PlatformProbe({
+    this.durationSecs,
+    this.width,
+    this.height,
+    this.videoCodec,
+    this.audioCodec,
+    this.container,
+    required this.hasVideo,
+    this.sampleRate,
+    this.bitDepth,
+    this.bitRate,
+    required this.thumbnailWritten,
+  });
+
+  @override
+  int get hashCode =>
+      durationSecs.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      videoCodec.hashCode ^
+      audioCodec.hashCode ^
+      container.hashCode ^
+      hasVideo.hashCode ^
+      sampleRate.hashCode ^
+      bitDepth.hashCode ^
+      bitRate.hashCode ^
+      thumbnailWritten.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PlatformProbe &&
+          runtimeType == other.runtimeType &&
+          durationSecs == other.durationSecs &&
+          width == other.width &&
+          height == other.height &&
+          videoCodec == other.videoCodec &&
+          audioCodec == other.audioCodec &&
+          container == other.container &&
+          hasVideo == other.hasVideo &&
+          sampleRate == other.sampleRate &&
+          bitDepth == other.bitDepth &&
+          bitRate == other.bitRate &&
+          thumbnailWritten == other.thumbnailWritten;
 }
 
 class ScanTotals {

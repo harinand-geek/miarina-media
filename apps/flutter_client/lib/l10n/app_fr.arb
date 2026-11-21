@@ -2098,5 +2098,19 @@
       }
     }
   },
-  "updDevBuild": "Version de développement : les mises à jour sont désactivées."
+  "updDevBuild": "Version de développement : les mises à jour sont désactivées.",
+  "deviceAccessTitle": "Accédez à la musique et aux vidéos de ce téléphone",
+  "deviceAccessBody": "Miarina Media lit vos fichiers sur l'appareil. Rien n'est envoyé, aucun compte n'est nécessaire.",
+  "deviceAccessMusic": "Musique et audio",
+  "deviceAccessMusicBody": "Pour afficher vos albums, podcasts et cours.",
+  "deviceAccessVideo": "Vidéos",
+  "deviceAccessVideoBody": "Pour vos films, séries et vidéos perso.",
+  "deviceAccessNotif": "Notifications",
+  "deviceAccessNotifBody": "Pour les commandes de lecture sur l'écran verrouillé.",
+  "deviceAccessAllow": "Autoriser l'accès",
+  "deviceDeniedTitle": "Accès aux fichiers refusé",
+  "deviceDeniedBody": "Sans cette autorisation, Miarina Media ne voit pas la musique et les vidéos du téléphone. Vos playlists sont conservées.",
+  "deviceDeniedSettings": "Ouvrir les paramètres Android",
+  "getSoonTitle": "Obtenir arrive dans une prochaine bêta",
+  "getSoonBody": "Cette bêta lit la musique et les vidéos du téléphone. Le téléchargement depuis un lien viendra ensuite ; en attendant, il reste disponible dans Miarina Media 0.1.11, installée à côté."
 }

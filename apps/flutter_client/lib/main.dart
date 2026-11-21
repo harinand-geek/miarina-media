@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:window_manager/window_manager.dart';
@@ -56,6 +57,22 @@ Future<void> main(List<String> args) async {
   final media = launch.media;
   if (media != null) await _openLaunchFile(container, media);
 
+  // Android "Open with Miarina Media": the file the app was started with,
+  // then any file handed over while it runs.
+  if (Platform.isAndroid) {
+    _openWith.setMethodCallHandler((call) async {
+      if (call.method == 'open') await _openHanded(container, call.arguments);
+    });
+    try {
+      await _openHanded(
+        container,
+        await _openWith.invokeMethod<Object?>('initial'),
+      );
+    } catch (e) {
+      debugPrint('open with: $e');
+    }
+  }
+
   // Development hook for automated screenshots (no input injection), read
   // only by builds pointed at a scratch MM_DATA_DIR: start in the compact
   // window (W-M4).
@@ -88,9 +105,50 @@ void _setUpWindow() {
   window.center();
 }
 
+const _openWith = MethodChannel('org.miarina.media/open_with');
+
+/// A file handed over by another Android app (`OpenWithChannel.kt`): a file
+/// of the phone's media index plays as its library entry; any other one
+/// (attachment, download list) plays from its address under its name.
+Future<void> _openHanded(ProviderContainer container, Object? raw) async {
+  if (raw is! Map || raw['uri'] is! String) return;
+  final path = raw['path'];
+  if (path is String && File(path).existsSync()) {
+    await _openLaunchFile(container, path);
+    return;
+  }
+  final uri = Uri.parse(raw['uri'] as String);
+  final name = fileTitle(
+    raw['name'] is String
+        ? raw['name'] as String
+        : Uri.decodeComponent(uri.pathSegments.lastOrNull ?? ''),
+  );
+  final mime = raw['mime'] is String ? raw['mime'] as String : '';
+  await _openLaunchFile(
+    container,
+    null,
+    source: MediaSource(uri, title: name),
+    sourceIsVideo: mime.startsWith('video/'),
+  );
+}
+
 /// A known file plays as its library entry (title, cover, favorite, resume
-/// point); an unknown one under its file name.
-Future<void> _openLaunchFile(ProviderContainer container, String path) async {
+/// point); an unknown one under its file name. Android hands over [source]
+/// instead of a path for a file outside the phone's media index.
+Future<void> _openLaunchFile(
+  ProviderContainer container,
+  String? path, {
+  MediaSource? source,
+  bool sourceIsVideo = false,
+}) async {
+  if (path == null) {
+    final s = source!;
+    await container.read(queueProvider.notifier).playAll([
+      QueueEntry(source: s, title: s.title ?? '', isVideo: sourceIsVideo),
+    ]);
+    if (sourceIsVideo) container.read(routerProvider).push(Routes.watch);
+    return;
+  }
   LibraryItem? known;
   try {
     known = await container.read(libraryApiProvider).itemByPath(path);

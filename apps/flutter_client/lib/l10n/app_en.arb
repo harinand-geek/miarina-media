@@ -918,5 +918,19 @@
   "setUpdates": "Updates",
   "updView": "View",
   "updVersion": "Version {v}",
-  "updDevBuild": "Development build: updates are turned off."
+  "updDevBuild": "Development build: updates are turned off.",
+  "deviceAccessTitle": "Access the music and videos on this phone",
+  "deviceAccessBody": "Miarina Media reads your files on the device. Nothing is sent, no account is needed.",
+  "deviceAccessMusic": "Music and audio",
+  "deviceAccessMusicBody": "To show your albums, podcasts and courses.",
+  "deviceAccessVideo": "Videos",
+  "deviceAccessVideoBody": "For your films, series and personal videos.",
+  "deviceAccessNotif": "Notifications",
+  "deviceAccessNotifBody": "For playback controls on the lock screen.",
+  "deviceAccessAllow": "Allow access",
+  "deviceDeniedTitle": "File access denied",
+  "deviceDeniedBody": "Without this permission, Miarina Media cannot see the music and videos on the phone. Your playlists are kept.",
+  "deviceDeniedSettings": "Open Android settings",
+  "getSoonTitle": "Get is coming in a later beta",
+  "getSoonBody": "This beta plays the music and videos on the phone. Downloading from a link comes next; meanwhile it is still available in Miarina Media 0.1.11, installed alongside."
 }
