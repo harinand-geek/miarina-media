@@ -63,3 +63,16 @@ Montage : 0.1.11 recompilée depuis son commit (`9793497`, dossier de travail s�
 | Mesures | voir `docs/performance.md` (section du 2026-11-21) |
 
 Non couvert ici : une mise à jour 0.2.0 → 0.2.x par la mise à jour intégrée de l'app Flutter sur le canal de test (même code et mêmes tests que 0.1.x, vérifié en R3 sur le vrai manifeste public) ; à refaire à la première 0.2.x. Point à suivre en bêta : un accueil encore vide à 10 s au premier lancement après mise à jour, vu une fois sur trois.
+
+## R6 préparé (2026-11-21), en attente de l'accord final
+
+Rien n'est envoyé. Construit depuis le commit `a6062fb` (étiquette locale `v0.2.0`, à pousser à la publication), sans dossier de test (`stage_windows.ps1` le vérifie) :
+
+| Fichier | Taille | SHA-256 |
+|---|---|---|
+| `MiarinaMedia-0.2.0-x64-setup.exe` | 118 349 899 octets (112,9 Mio) | `ebebd208e1e0217aa0bf5446148f0b7872276fd8fed1050edf663f97857ed758` |
+| `MiarinaMedia-0.2.0-source.tar.gz` (dépôt au commit construit et sous-module `46bb3bcd`) | 36,1 Mo | `bfb5d9d83507d6da3587d2e4615c0cc93643f4d7bc413a3da352c74b5433a05b` |
+
+- Manifeste **Bêta** signé avec la clé de publication : Windows 0.2.0, Android 0.1.11 inchangé (même APK publié). Publié à `/updates/beta.json` (absent du serveur aujourd'hui) ; `/updates/stable.json` (0.1.12) n'est pas touché.
+- Site : couleurs et typographie de l'app, section et ligne de téléchargement 0.2.0 bêta, captures 0.2.0 sur la bibliothèque de démonstration, page Licences (composants et sources 0.2.0). La version stable proposée en premier reste 0.1.12.
+- Ordre de publication : envoi par morceaux vérifiés, `publish-0.2.0.sh files`, `site`, contrôle `verify-app-update.mjs` sur le manifeste local, `manifest`, contrôle sur l'adresse publique, puis étiquette `v0.2.0` poussée.
