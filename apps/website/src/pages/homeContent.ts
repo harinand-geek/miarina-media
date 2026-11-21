@@ -67,6 +67,7 @@ export interface LandingText {
   dlSuggested: string;
   dlBetaReq: string;
   dlBetaBadge: string;
+  dlAndroidBetaReq: string;
   verKicker: string;
   verTitle: string;
   verCurrent: string;
@@ -197,7 +198,7 @@ export const LANDING: Record<Lang, LandingText> = {
           'L’extension pour Chrome et Edge n’est pas reprise. L’installateur est plus gros (113 Mio). Android reste en 0.1.11.',
         ],
       ],
-      how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur.',
+      how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur. Sur Android, Miarina Media Bêta s’installe à côté de la 0.1.11.',
       cta: 'Essayer la bêta',
     },
     libKicker: 'Bibliothèque et lecteur',
@@ -234,6 +235,8 @@ export const LANDING: Record<Lang, LandingText> = {
     dlSuggested: 'Pour cet appareil',
     dlBetaReq: 'Windows 10 / 11 · 64 bits · nouvelle application, remplace la 0.1.x',
     dlBetaBadge: 'Bêta',
+    dlAndroidBetaReq:
+      'Android 7.0 et plus · 64 bits (ARM) · lecteur, s’installe à côté de la 0.1.11',
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
@@ -360,7 +363,7 @@ export const LANDING: Record<Lang, LandingText> = {
           'The Chrome and Edge extension is not carried over. The installer is larger (113 MiB). Android stays on 0.1.11.',
         ],
       ],
-      how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer.',
+      how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer. On Android, Miarina Media Beta installs next to 0.1.11.',
       cta: 'Try the beta',
     },
     libKicker: 'Library and player',
@@ -396,6 +399,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlSuggested: 'For this device',
     dlBetaReq: 'Windows 10 / 11 · 64-bit · new app, replaces 0.1.x',
     dlBetaBadge: 'Beta',
+    dlAndroidBetaReq: 'Android 7.0 or later · 64-bit (ARM) · player, installs next to 0.1.11',
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:

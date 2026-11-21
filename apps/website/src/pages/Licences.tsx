@@ -43,6 +43,21 @@ export function Licences() {
             modification, selon les termes de la licence Visual Studio.
           </li>
         </ul>
+        <h2>Application Android 0.2.0 (bêta)</h2>
+        <p>
+          Miarina Media Bêta pour Android est sous GPL-3.0-only. Ses sources exactes sont à
+          l’étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/android-beta-0.2.0">
+            android-beta-0.2.0
+          </a>{' '}
+          du dépôt et dans l’
+          <a href="/downloads/MiarinaMedia-Beta-0.2.0-source.tar.gz">
+            archive du code de la bêta Android 0.2.0
+          </a>
+          . Elle est construite avec Flutter (licence BSD) et flutter_rust_bridge (MIT) ; son
+          lecteur utilise AndroidX Media3 (Apache 2.0) ; son interface, les icônes Phosphor (MIT).
+          Elle n’embarque ni yt-dlp, ni Python, ni FFmpeg.
+        </p>
         <p>
           <a href="/downloads/MiarinaMedia-0.1.12-source.tar.gz">
             Archive du code de l’application Windows 0.1.12

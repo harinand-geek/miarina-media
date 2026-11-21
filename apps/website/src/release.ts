@@ -25,6 +25,13 @@ export const RELEASE = {
     size: '112,9 Mio',
     sha256: 'eca6587a6dcf4b7b3e3877603c619a425b51b04bc4b26866edd7884b85d82acb',
   } satisfies ReleaseFile,
+  /** Android beta, a separate app installed next to the stable one. */
+  androidBeta: {
+    version: '0.2.0',
+    name: 'MiarinaMedia-Beta-0.2.0.apk',
+    size: '35,1 Mio',
+    sha256: '25175de259604e318f48aea2b411c2771e3cc93d4506b42b4db01b5db6c0d9cb',
+  } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
     name: 'MiarinaMedia-0.1.11.apk',
@@ -56,6 +63,19 @@ export const CHANGELOG: Release[] = [
       'Android : essais sur téléphone réel (Bluetooth, appels, écran verrouillé) et autres qualités audio',
       'Android : onglets et historique du navigateur, import et export M3U',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.0 · Android',
+    date: 'Bêta · 21 novembre 2026',
+    beta: true,
+    items: [
+      'Miarina Media Bêta : nouvelle application Android, installée à côté de la 0.1.11 sans la remplacer ni toucher à ses données',
+      'La musique et les vidéos du téléphone, avec votre autorisation et en lecture seule : titres, albums, artistes, pochettes et durées',
+      'Écouter en trois onglets : Musique, Cinéma et Focus, avec le lecteur, le mini-lecteur et les commandes de l’écran verrouillé',
+      '« Ouvrir avec Miarina Media Bêta » pour la musique et les vidéos venant d’autres applications',
+      'Le téléchargement depuis un lien arrive dans une prochaine bêta ; il reste disponible dans la 0.1.11',
+      'Téléphones Android 64 bits (ARM)',
     ],
   },
   {
