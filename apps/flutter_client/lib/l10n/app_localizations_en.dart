@@ -3471,4 +3471,60 @@ class L10nEn extends L10n {
 
   @override
   String get deviceDeniedSettings => 'Open Android settings';
+
+  @override
+  String get dlNotifWaiting => 'Waiting for a free slot';
+
+  @override
+  String get dlNotifAnalyzing => 'Reading the formats…';
+
+  @override
+  String get dlNotifProcessing => 'Preparing the file…';
+
+  @override
+  String dlNotifOf(String done, String total) {
+    return '$done of $total';
+  }
+
+  @override
+  String dlNotifSpeed(String speed) {
+    return '$speed MB/s';
+  }
+
+  @override
+  String get dlNotifLeftSoon => 'less than a minute left';
+
+  @override
+  String dlNotifLeftMin(int minutes) {
+    return '$minutes min left';
+  }
+
+  @override
+  String dlNotifLeftHours(int hours, int minutes) {
+    return '$hours h $minutes min left';
+  }
+
+  @override
+  String get dlNotifTapToPlay => 'tap to play';
+
+  @override
+  String get dlNotifPause => 'Pause';
+
+  @override
+  String get dlNotifCancel => 'Cancel';
+
+  @override
+  String get dlNotifPauseAll => 'Pause all';
+
+  @override
+  String get dlNotifComplete => 'Download complete';
+
+  @override
+  String get dlNotifSeveral => '%d downloading';
+
+  @override
+  String get dlNotifChannelProgress => 'Downloads in progress';
+
+  @override
+  String get dlNotifChannelDone => 'Finished downloads';
 }

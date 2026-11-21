@@ -53,10 +53,17 @@ class OpenWithChannel(
    * file is in the phone's media index (so the library entry is found).
    */
   private fun describe(intent: Intent?): Map<String, Any?>? {
+    // "Download complete · tap to play" (DownloadNotificationsChannel).
+    intent?.getStringExtra(DownloadNotificationsChannel.EXTRA_PLAY_TASK)?.let {
+      intent.removeExtra(DownloadNotificationsChannel.EXTRA_PLAY_TASK)
+      return mapOf("task" to it.take(64))
+    }
     // A link shared from another app ("Share to Miarina Media"): its first
     // web address, checked again by the core before anything is fetched.
     if (intent?.action == Intent.ACTION_SEND) {
-      val text = intent.getStringExtra(Intent.EXTRA_TEXT) ?: return null
+      // Untrusted text from another app: bounded here, parsed and checked
+      // again by the core.
+      val text = intent.getStringExtra(Intent.EXTRA_TEXT)?.take(MAX_SHARED_CHARS) ?: return null
       val link = WEB_LINK.find(text)?.value ?: return null
       return mapOf("link" to link)
     }
@@ -84,6 +91,7 @@ class OpenWithChannel(
 
   private companion object {
     val WEB_LINK = Regex("""https?://\S+""")
+    const val MAX_SHARED_CHARS = 4096
   }
 
   /** The file's path for a MediaStore entry or a file:// URI, else null. */

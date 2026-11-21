@@ -13,6 +13,7 @@ class MainActivity : FlutterActivity() {
   private var mediaProbe: MediaProbeChannel? = null
   private var openWith: OpenWithChannel? = null
   private var mediaTools: MediaToolsChannel? = null
+  private var downloads: DownloadNotificationsChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -61,6 +62,7 @@ class MainActivity : FlutterActivity() {
     mediaProbe = MediaProbeChannel(flutterEngine.dartExecutor.binaryMessenger)
     openWith = OpenWithChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     mediaTools = MediaToolsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    downloads = DownloadNotificationsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   // "Open with" while the app runs (singleTop): the new file plays.
@@ -91,6 +93,8 @@ class MainActivity : FlutterActivity() {
     openWith = null
     mediaTools?.dispose()
     mediaTools = null
+    downloads?.dispose()
+    downloads = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

@@ -5682,6 +5682,102 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ouvrir les paramètres Android'**
   String get deviceDeniedSettings;
+
+  /// No description provided for @dlNotifWaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente d\'une place libre'**
+  String get dlNotifWaiting;
+
+  /// No description provided for @dlNotifAnalyzing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture des formats…'**
+  String get dlNotifAnalyzing;
+
+  /// No description provided for @dlNotifProcessing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation du fichier…'**
+  String get dlNotifProcessing;
+
+  /// No description provided for @dlNotifOf.
+  ///
+  /// In fr, this message translates to:
+  /// **'{done} sur {total}'**
+  String dlNotifOf(String done, String total);
+
+  /// No description provided for @dlNotifSpeed.
+  ///
+  /// In fr, this message translates to:
+  /// **'{speed} Mo/s'**
+  String dlNotifSpeed(String speed);
+
+  /// No description provided for @dlNotifLeftSoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'moins d\'une minute restante'**
+  String get dlNotifLeftSoon;
+
+  /// No description provided for @dlNotifLeftMin.
+  ///
+  /// In fr, this message translates to:
+  /// **'{minutes} min restantes'**
+  String dlNotifLeftMin(int minutes);
+
+  /// No description provided for @dlNotifLeftHours.
+  ///
+  /// In fr, this message translates to:
+  /// **'{hours} h {minutes} min restantes'**
+  String dlNotifLeftHours(int hours, int minutes);
+
+  /// No description provided for @dlNotifTapToPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'toucher pour lire'**
+  String get dlNotifTapToPlay;
+
+  /// No description provided for @dlNotifPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause'**
+  String get dlNotifPause;
+
+  /// No description provided for @dlNotifCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get dlNotifCancel;
+
+  /// No description provided for @dlNotifPauseAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout mettre en pause'**
+  String get dlNotifPauseAll;
+
+  /// No description provided for @dlNotifComplete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargement terminé'**
+  String get dlNotifComplete;
+
+  /// No description provided for @dlNotifSeveral.
+  ///
+  /// In fr, this message translates to:
+  /// **'%d en cours'**
+  String get dlNotifSeveral;
+
+  /// No description provided for @dlNotifChannelProgress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements en cours'**
+  String get dlNotifChannelProgress;
+
+  /// No description provided for @dlNotifChannelDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Téléchargements terminés'**
+  String get dlNotifChannelDone;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -16,6 +16,7 @@ import 'engine/media_engine.dart';
 import 'features/cinema/cinema_data.dart';
 import 'features/cinema/cinema_screen.dart';
 import 'features/focus/focus_data.dart';
+import 'features/get/get_data.dart' show getApiProvider;
 import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
 import 'features/mini/mini_player.dart' show miniPlayerProvider;
@@ -112,6 +113,29 @@ const _openWith = MethodChannel('org.miarina.media/open_with');
 /// (attachment, download list) plays from its address under its name.
 Future<void> _openHanded(ProviderContainer container, Object? raw) async {
   if (raw is! Map) return;
+  // "Download complete · tap to play": the finished file.
+  final task = raw['task'];
+  if (task is String) {
+    try {
+      // A finished task leaves the queue for the history: both are read.
+      final api = container.read(getApiProvider);
+      final done =
+          (await api.tasks())
+              .where((t) => t.id == task)
+              .firstOrNull
+              ?.finalPath ??
+          (await api.history())
+              .where((h) => h.taskId == task && h.completed)
+              .firstOrNull
+              ?.finalPath;
+      if (done != null && File(done).existsSync()) {
+        await _openLaunchFile(container, done);
+      }
+    } catch (e) {
+      debugPrint('open download: $e');
+    }
+    return;
+  }
   // A link shared from another app: its analysis in Obtenir.
   final link = raw['link'];
   if (link is String) {

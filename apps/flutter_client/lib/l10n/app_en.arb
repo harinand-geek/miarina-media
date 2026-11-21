@@ -930,5 +930,21 @@
   "deviceAccessAllow": "Allow access",
   "deviceDeniedTitle": "File access denied",
   "deviceDeniedBody": "Without this permission, Miarina Media cannot see the music and videos on the phone. Your playlists are kept.",
-  "deviceDeniedSettings": "Open Android settings"
+  "deviceDeniedSettings": "Open Android settings",
+  "dlNotifWaiting": "Waiting for a free slot",
+  "dlNotifAnalyzing": "Reading the formats…",
+  "dlNotifProcessing": "Preparing the file…",
+  "dlNotifOf": "{done} of {total}",
+  "dlNotifSpeed": "{speed} MB/s",
+  "dlNotifLeftSoon": "less than a minute left",
+  "dlNotifLeftMin": "{minutes} min left",
+  "dlNotifLeftHours": "{hours} h {minutes} min left",
+  "dlNotifTapToPlay": "tap to play",
+  "dlNotifPause": "Pause",
+  "dlNotifCancel": "Cancel",
+  "dlNotifPauseAll": "Pause all",
+  "dlNotifComplete": "Download complete",
+  "dlNotifSeveral": "%d downloading",
+  "dlNotifChannelProgress": "Downloads in progress",
+  "dlNotifChannelDone": "Finished downloads"
 }

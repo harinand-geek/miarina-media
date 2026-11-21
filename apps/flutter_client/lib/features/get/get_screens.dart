@@ -2084,9 +2084,10 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
       for (final x in all)
         if (x.state == 'failed') x,
     ];
+    // A download the user canceled is not a failure.
     final failedHistory = [
       for (final h in state.history)
-        if (!h.completed) h,
+        if (!h.completed && !h.canceled) h,
     ];
     final done = [
       for (final h in state.history)

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Status bar icon: the logo glyph (logo.svg, 32-unit grid), white. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M13,9.5v13l10,-6.5z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M7.25,10.5h1.5a1.25,1.25 0,0 1,0 2.5h-1.5a1.25,1.25 0,0 1,0 -2.5z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M5.25,14.75h3.5a1.25,1.25 0,0 1,0 2.5h-3.5a1.25,1.25 0,0 1,0 -2.5z"/>
+    <path android:fillColor="#FFFFFFFF" android:pathData="M7.25,19h1.5a1.25,1.25 0,0 1,0 2.5h-1.5a1.25,1.25 0,0 1,0 -2.5z"/>
+</vector>
