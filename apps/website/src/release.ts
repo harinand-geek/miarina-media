@@ -27,10 +27,10 @@ export const RELEASE = {
   } satisfies ReleaseFile,
   /** Android beta, a separate app installed next to the stable one. */
   androidBeta: {
-    version: '0.2.0',
-    name: 'MiarinaMedia-Beta-0.2.0.apk',
-    size: '35,1 Mio',
-    sha256: '25175de259604e318f48aea2b411c2771e3cc93d4506b42b4db01b5db6c0d9cb',
+    version: '0.2.1',
+    name: 'MiarinaMedia-Beta-0.2.1.apk',
+    size: '64,4 Mio',
+    sha256: 'e6b4b0ab8f366956c392d47d250dfc4d845c977fa2f9f0f828c1d14e6f4ba76c',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
@@ -63,6 +63,20 @@ export const CHANGELOG: Release[] = [
       'Android : essais sur téléphone réel (Bluetooth, appels, écran verrouillé) et autres qualités audio',
       'Android : onglets et historique du navigateur, import et export M3U',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.1 · Android',
+    date: 'Bêta · 21 novembre 2026',
+    beta: true,
+    items: [
+      'Téléchargement depuis un lien : collez-le dans Obtenir, ou partagez-le vers Miarina Media Bêta depuis n’importe quelle application',
+      'Analyse du lien et choix du format : vidéo jusqu’à la meilleure qualité proposée, ou audio seul converti en MP3',
+      'Les fichiers vont dans Films/Miarina et Musique/Miarina et rejoignent la bibliothèque et la galerie du téléphone',
+      'Les téléchargements continuent écran éteint, avec la progression, Pause et Annuler dans la notification ; « Téléchargement terminé · toucher pour lire »',
+      'Écrans Obtenir et Téléchargements adaptés au téléphone',
+      'S’installe par-dessus la bêta 0.2.0 en gardant la bibliothèque ; la 0.1.11 reste installée à côté',
+      'APK plus gros (64,4 Mio) : il embarque l’extracteur et FFmpeg, comme la 0.1.11',
     ],
   },
   {

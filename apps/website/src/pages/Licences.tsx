@@ -43,20 +43,34 @@ export function Licences() {
             modification, selon les termes de la licence Visual Studio.
           </li>
         </ul>
-        <h2>Application Android 0.2.0 (bêta)</h2>
+        <h2>Application Android 0.2.1 (bêta)</h2>
         <p>
           Miarina Media Bêta pour Android est sous GPL-3.0-only. Ses sources exactes sont à
           l’étiquette{' '}
-          <a href="https://github.com/harinand-geek/miarina-media/tree/android-beta-0.2.0">
-            android-beta-0.2.0
+          <a href="https://github.com/harinand-geek/miarina-media/tree/android-beta-0.2.1">
+            android-beta-0.2.1
           </a>{' '}
           du dépôt et dans l’
-          <a href="/downloads/MiarinaMedia-Beta-0.2.0-source.tar.gz">
-            archive du code de la bêta Android 0.2.0
+          <a href="/downloads/MiarinaMedia-Beta-0.2.1-source.tar.gz">
+            archive du code de la bêta Android 0.2.1
           </a>
-          . Elle est construite avec Flutter (licence BSD) et flutter_rust_bridge (MIT) ; son
-          lecteur utilise AndroidX Media3 (Apache 2.0) ; son interface, les icônes Phosphor (MIT).
-          Elle n’embarque ni yt-dlp, ni Python, ni FFmpeg.
+          , avec le sous-module Mister Download Manager. Elle est construite avec Flutter (licence
+          BSD) et flutter_rust_bridge (MIT) ; son lecteur utilise AndroidX Media3 (Apache 2.0) ; son
+          interface, les icônes Phosphor (MIT). Comme la 0.1.11, l’APK intègre youtubedl-android
+          0.18.1 (Python, FFmpeg, QuickJS) et yt-dlp 2026.08.19 ; les composants tiers conservent
+          leurs propres licences. L’inventaire des sources correspondant exactement aux
+          bibliothèques natives de youtubedl-android reste incomplet ; le dépôt de l’application ne
+          constitue pas à lui seul un ensemble complet de ces sources.
+        </p>
+        <p>
+          <a href="/downloads/MiarinaMedia-Beta-0.2.0-source.tar.gz">
+            Archive du code de la bêta Android 0.2.0
+          </a>{' '}
+          — lecteur seul, étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/android-beta-0.2.0">
+            android-beta-0.2.0
+          </a>
+          .
         </p>
         <p>
           <a href="/downloads/MiarinaMedia-0.1.12-source.tar.gz">

@@ -236,7 +236,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlBetaReq: 'Windows 10 / 11 · 64 bits · nouvelle application, remplace la 0.1.x',
     dlBetaBadge: 'Bêta',
     dlAndroidBetaReq:
-      'Android 7.0 et plus · 64 bits (ARM) · lecteur, s’installe à côté de la 0.1.11',
+      'Android 7.0 et plus · 64 bits (ARM) · lecteur et téléchargements, s’installe à côté de la 0.1.11',
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
@@ -399,7 +399,8 @@ export const LANDING: Record<Lang, LandingText> = {
     dlSuggested: 'For this device',
     dlBetaReq: 'Windows 10 / 11 · 64-bit · new app, replaces 0.1.x',
     dlBetaBadge: 'Beta',
-    dlAndroidBetaReq: 'Android 7.0 or later · 64-bit (ARM) · player, installs next to 0.1.11',
+    dlAndroidBetaReq:
+      'Android 7.0 or later · 64-bit (ARM) · player and downloads, installs next to 0.1.11',
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:
