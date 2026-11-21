@@ -3,7 +3,7 @@ Miarina Media - third-party components shipped with the application
 
 Miarina Media runs yt-dlp, FFmpeg and QuickJS-NG as separate processes
 (this folder); its player loads libmpv (libmpv-2.dll, next to
-miarina_media.exe). None of them is modified. Each file was taken from the
+miarina-media.exe). None of them is modified. Each file was taken from the
 official release below and checked against a pinned SHA-256 digest before
 being packaged.
 
@@ -52,7 +52,7 @@ libmpv, mpv git bcde6b93cc, build 20261111  (libmpv-2.dll)
   Archive SHA-256: 273c079b11ea5575822f972756f4c9a71149a5c10130353abeb8586738938452
 
 Microsoft Visual C++ runtime  (msvcp140.dll, vcruntime140.dll,
-vcruntime140_1.dll, next to miarina_media.exe)
+vcruntime140_1.dll, next to miarina-media.exe)
   Redistributed unmodified as "Distributable Code" under the Microsoft
   Visual Studio license terms.
 
