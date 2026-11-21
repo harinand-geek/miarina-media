@@ -5778,6 +5778,30 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Téléchargements terminés'**
   String get dlNotifChannelDone;
+
+  /// No description provided for @getPasteLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coller un lien'**
+  String get getPasteLinkTitle;
+
+  /// No description provided for @getAnalyzeLink.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyser le lien'**
+  String get getAnalyzeLink;
+
+  /// No description provided for @getShareHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ou partagez un lien vers Miarina Media depuis n\'importe quelle app.'**
+  String get getShareHint;
+
+  /// No description provided for @getDlCard.
+  ///
+  /// In fr, this message translates to:
+  /// **'{running} en cours · {queued} en attente'**
+  String getDlCard(int running, int queued);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

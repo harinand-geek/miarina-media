@@ -946,5 +946,9 @@
   "dlNotifComplete": "Download complete",
   "dlNotifSeveral": "%d downloading",
   "dlNotifChannelProgress": "Downloads in progress",
-  "dlNotifChannelDone": "Finished downloads"
+  "dlNotifChannelDone": "Finished downloads",
+  "getPasteLinkTitle": "Paste a link",
+  "getAnalyzeLink": "Analyze the link",
+  "getShareHint": "Or share a link to Miarina Media from any app.",
+  "getDlCard": "{running} running · {queued} waiting"
 }

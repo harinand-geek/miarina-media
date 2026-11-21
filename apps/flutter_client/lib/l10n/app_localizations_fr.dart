@@ -3555,4 +3555,19 @@ class L10nFr extends L10n {
 
   @override
   String get dlNotifChannelDone => 'Téléchargements terminés';
+
+  @override
+  String get getPasteLinkTitle => 'Coller un lien';
+
+  @override
+  String get getAnalyzeLink => 'Analyser le lien';
+
+  @override
+  String get getShareHint =>
+      'Ou partagez un lien vers Miarina Media depuis n\'importe quelle app.';
+
+  @override
+  String getDlCard(int running, int queued) {
+    return '$running en cours · $queued en attente';
+  }
 }

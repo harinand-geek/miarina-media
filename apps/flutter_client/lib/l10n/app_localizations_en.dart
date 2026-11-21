@@ -3527,4 +3527,18 @@ class L10nEn extends L10n {
 
   @override
   String get dlNotifChannelDone => 'Finished downloads';
+
+  @override
+  String get getPasteLinkTitle => 'Paste a link';
+
+  @override
+  String get getAnalyzeLink => 'Analyze the link';
+
+  @override
+  String get getShareHint => 'Or share a link to Miarina Media from any app.';
+
+  @override
+  String getDlCard(int running, int queued) {
+    return '$running running · $queued waiting';
+  }
 }

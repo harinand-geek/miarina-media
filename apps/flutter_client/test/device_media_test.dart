@@ -157,6 +157,22 @@ void main() {
     ]);
   });
 
+  testWidgets('Obtenir on a phone: link card, share hint, quick actions', (
+    tester,
+  ) async {
+    await pumpPhone(tester, start: Routes.get);
+    expect(find.text('Coller un lien'), findsOneWidget);
+    expect(find.text('Analyser le lien'), findsOneWidget);
+    expect(
+      find.text(
+        "Ou partagez un lien vers Miarina Media depuis n'importe quelle app.",
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('Audio seul'), findsOneWidget);
+    expect(find.text('PRÉVU'), findsOneWidget);
+  });
+
   testWidgets('other tabs are not gated', (tester) async {
     await pumpPhone(tester, start: Routes.focus);
     expect(find.byType(AskAccessView), findsNothing);

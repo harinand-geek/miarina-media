@@ -21,6 +21,75 @@ import 'get_data.dart';
 // Obtenir, ported to the identical from the Tauri app (screens 1 to 3 of
 // Windows v2: home, analysis, downloads).
 
+/// Phone layout (Android, design_handoff_android_v2): the Windows window is
+/// never narrower than 960 px.
+bool compactGet(BuildContext context) => MediaQuery.sizeOf(context).width < 600;
+
+/// More actions of a download row on a phone: a sheet listing them.
+Future<void> _moreActions(BuildContext context, List<_Action> actions) async {
+  final c = MmColors.of(context);
+  await showModalBottomSheet<void>(
+    context: context,
+    backgroundColor: c.surface2,
+    shape: const RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+    ),
+    builder: (sheet) => SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 10),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: c.lineStrong,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            for (final a in actions)
+              Pressable(
+                onTap: a.onTap == null
+                    ? null
+                    : () {
+                        Navigator.of(sheet).pop();
+                        a.onTap!();
+                      },
+                semanticLabel: a.label,
+                child: Opacity(
+                  opacity: a.onTap == null ? 0.4 : 1,
+                  child: SizedBox(
+                    height: 52,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          Icon(a.icon, size: 22, color: c.muted),
+                          const SizedBox(width: 16),
+                          Expanded(
+                            child: Text(
+                              a.label,
+                              style: MmType.body.copyWith(
+                                fontSize: 15,
+                                color: c.fg,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 String _lang(BuildContext context) =>
     Localizations.localeOf(context).languageCode;
 
@@ -103,6 +172,61 @@ class _Button extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: MmType.labelStrong.copyWith(
                     fontSize: 13.5,
+                    fontWeight: primary ? FontWeight.w700 : FontWeight.w600,
+                    color: fg,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Phone pill buttons (design_handoff_android_v2): 52 high, radius 26.
+class _Pill extends StatelessWidget {
+  const _Pill(this.label, this.onTap, {this.primary = false, this.icon});
+
+  final String label;
+  final VoidCallback? onTap;
+  final bool primary;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final fg = primary ? const Color(0xFF062320) : c.fg;
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      borderRadius: BorderRadius.circular(26),
+      child: Opacity(
+        opacity: onTap == null ? 0.5 : 1,
+        child: Container(
+          height: 52,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: primary ? c.accent : c.surface2,
+            borderRadius: BorderRadius.circular(26),
+            border: primary ? null : Border.all(color: c.lineStrong),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (icon != null) ...[
+                Icon(icon, size: 20, color: fg),
+                const SizedBox(width: 8),
+              ],
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.labelStrong.copyWith(
+                    fontSize: 15,
                     fontWeight: primary ? FontWeight.w700 : FontWeight.w600,
                     color: fg,
                   ),
@@ -281,6 +405,261 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
     setState(() => _issue = null);
   }
 
+  /// Phone (design_handoff_android_v2, 01): the link card, quick actions
+  /// and the downloads card. The browser and the file import are not built
+  /// on Android yet: not shown.
+  Widget _phone(BuildContext context, _LinkIssue? issue) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final summary = ref.watch(downloadsSummaryProvider);
+    final lang = _lang(context);
+    final first = summary.running.isNotEmpty
+        ? summary.running.first
+        : summary.active.isNotEmpty
+        ? summary.active.first
+        : null;
+    Widget tile(
+      IconData icon,
+      String label,
+      VoidCallback? onTap, {
+      bool planned = false,
+    }) {
+      return Expanded(
+        child: Pressable(
+          onTap: onTap,
+          semanticLabel: label,
+          borderRadius: BorderRadius.circular(MmRadius.card),
+          child: Opacity(
+            opacity: onTap == null ? 0.55 : 1,
+            child: Column(
+              children: [
+                Container(
+                  height: 52,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: c.surface,
+                    borderRadius: BorderRadius.circular(MmRadius.card),
+                    border: Border.all(color: c.line),
+                  ),
+                  child: Icon(icon, size: 24, color: c.accent),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.captionStrong.copyWith(color: c.fgSoft),
+                ),
+                if (planned)
+                  Text(
+                    t.getPlanned,
+                    style: MmType.monoStyle(size: 9, color: c.warning),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+      children: [
+        Text(
+          t.tabGet,
+          style: MmType.display.copyWith(fontSize: 22, color: c.fg),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: c.surface,
+            borderRadius: BorderRadius.circular(MmRadius.card),
+            border: Border.all(color: c.line),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                t.getPasteLinkTitle,
+                style: MmType.labelStrong.copyWith(fontSize: 15, color: c.fg),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                height: 52,
+                padding: const EdgeInsets.only(left: 12, right: 6),
+                decoration: BoxDecoration(
+                  color: c.bg,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: issue == null
+                        ? c.lineStrong
+                        : issue.warn
+                        ? c.warning.withValues(alpha: 0.6)
+                        : c.accent,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      PhosphorRegular.link,
+                      size: 20,
+                      color: issue?.warn ?? false ? c.warning : c.muted,
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        key: const ValueKey('get-link'),
+                        controller: _field,
+                        focusNode: _focus,
+                        keyboardType: TextInputType.url,
+                        textInputAction: TextInputAction.go,
+                        onChanged: (_) {
+                          if (_issue != null) setState(() => _issue = null);
+                        },
+                        onSubmitted: (_) => _submit(),
+                        style: MmType.monoStyle(size: 14, color: c.fg),
+                        cursorColor: c.accent,
+                        decoration: InputDecoration(
+                          isDense: true,
+                          border: InputBorder.none,
+                          hintText: 'https://',
+                          hintStyle: MmType.monoStyle(size: 14, color: c.faint),
+                        ),
+                      ),
+                    ),
+                    _Button(
+                      t.getPaste,
+                      _paste,
+                      icon: PhosphorRegular.clipboardText,
+                      height: 40,
+                    ),
+                  ],
+                ),
+              ),
+              if (issue != null) ...[
+                const SizedBox(height: 12),
+                _IssueNote(
+                  issue: issue,
+                  onFix: issue.fix == null
+                      ? null
+                      : () {
+                          _field.text = issue.fix!;
+                          _submit(value: issue.fix);
+                        },
+                ),
+              ],
+              const SizedBox(height: 12),
+              _Pill(
+                t.getAnalyzeLink,
+                _submit,
+                primary: true,
+                icon: PhosphorRegular.arrowRight,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                t.getShareHint,
+                textAlign: TextAlign.center,
+                style: MmType.caption.copyWith(color: c.muted),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            tile(
+              PhosphorRegular.musicNote,
+              t.getQAudio,
+              () => _submit(tab: 'audio'),
+            ),
+            const SizedBox(width: 12),
+            tile(PhosphorRegular.playlist, t.getQPlaylist, null, planned: true),
+            const SizedBox(width: 12),
+            tile(
+              PhosphorRegular.downloadSimple,
+              t.getNavDownloads,
+              () => context.go(Routes.getDownloads),
+            ),
+          ],
+        ),
+        if (first != null) ...[
+          const SizedBox(height: 20),
+          Pressable(
+            onTap: () => context.go(Routes.getDownloads),
+            semanticLabel: t.getNavDownloads,
+            borderRadius: BorderRadius.circular(MmRadius.card),
+            child: Container(
+              padding: const EdgeInsets.all(14),
+              decoration: BoxDecoration(
+                color: c.surface,
+                borderRadius: BorderRadius.circular(MmRadius.card),
+                border: Border.all(color: c.line),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          t.getDlCard(
+                            summary.active.length,
+                            summary.queued.length,
+                          ),
+                          style: MmType.labelStrong.copyWith(
+                            fontSize: 13,
+                            color: c.fg,
+                          ),
+                        ),
+                      ),
+                      if (summary.speed > 0)
+                        Text(
+                          formatSpeed(summary.speed, lang: lang),
+                          style: MmType.monoStyle(size: 12, color: c.accent),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          first.info.title,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: MmType.bodySm.copyWith(color: c.fgSoft),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${first.percent.round()} %',
+                        style: MmType.monoStyle(size: 12, color: c.muted),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(3),
+                    child: LinearProgressIndicator(
+                      value: first.total == null ? null : first.percent / 100,
+                      minHeight: 6,
+                      backgroundColor: c.lineStrong,
+                      color: c.accent,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+        const SizedBox(height: 24),
+        const _RecentSection(),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
@@ -424,6 +803,8 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
         () => context.go(Routes.getTorrents),
       ),
     ];
+
+    if (compactGet(context)) return _phone(context, issue);
 
     return ListView(
       padding: const EdgeInsets.fromLTRB(48, 36, 48, 36),
@@ -1000,7 +1381,9 @@ class _Scroll extends StatelessWidget {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     return ListView(
-      padding: const EdgeInsets.fromLTRB(48, 24, 48, 24),
+      padding: compactGet(context)
+          ? const EdgeInsets.fromLTRB(16, 8, 16, 16)
+          : const EdgeInsets.fromLTRB(48, 24, 48, 24),
       children: [
         Align(
           alignment: Alignment.centerLeft,
@@ -1496,6 +1879,235 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
       ? L10n.of(context).getOriginalFile(f.quality)
       : f.quality;
 
+  Widget _phone(
+    BuildContext context, {
+    required MediaInfo info,
+    required List<FormatOffer> formats,
+    required FormatOffer? format,
+    required bool canDownload,
+    required String source,
+    required int best,
+    required double? duration,
+    required String dir,
+    required String note,
+    required List<(String, IconData, String)> tabs,
+  }) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    // Android saves audio to Music/Miarina and video to Movies/Miarina.
+    final parts = dir.split(RegExp(r'[\\/]')).where((p) => p.isNotEmpty);
+    final shown = _tab == 'audio' && Platform.isAndroid
+        ? 'Music/Miarina'
+        : parts.skip(parts.length > 2 ? parts.length - 2 : 0).join('/');
+    final downloadLabel = _starting
+        ? t.getStarting
+        : format?.sizeBytes != null
+        ? t.getDownloadSize(bytes(context, format!.sizeBytes!.toInt()))
+        : t.getDownload;
+    return Column(
+      children: [
+        Expanded(
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+            children: [
+              Align(
+                alignment: Alignment.centerLeft,
+                child: Pressable(
+                  onTap: () => context.go(Routes.get),
+                  semanticLabel: t.getBack,
+                  child: SizedBox(
+                    height: 40,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          PhosphorRegular.arrowLeft,
+                          size: 20,
+                          color: c.muted,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          t.getBack,
+                          style: MmType.labelStrong.copyWith(
+                            fontSize: 14,
+                            color: c.muted,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: SizedBox(
+                      width: 96,
+                      height: 54,
+                      child: _Thumb(
+                        path: info.thumbnail,
+                        audio: _tab == 'audio',
+                        width: 96,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          info.title,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          style: MmType.title.copyWith(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w800,
+                            color: c.fg,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          [
+                            source,
+                            if (duration != null) etaLabel(duration.round()),
+                            if (best > 0)
+                              t.getUpTo(best >= 2160 ? '4K' : '${best}p'),
+                          ].where((s) => s.isNotEmpty).join(' · '),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: MmType.monoStyle(size: 12, color: c.muted),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              Container(
+                padding: const EdgeInsets.all(3),
+                decoration: BoxDecoration(
+                  color: c.bg,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: c.line),
+                ),
+                child: Row(
+                  children: [
+                    for (final (id, _, label) in tabs)
+                      Expanded(
+                        child: Pressable(
+                          onTap: () => setState(() => _tab = id),
+                          semanticLabel: label,
+                          selected: _tab == id,
+                          child: Container(
+                            height: 34,
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _tab == id
+                                  ? c.lineStrong
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(17),
+                            ),
+                            child: Text(
+                              label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: MmType.labelStrong.copyWith(
+                                fontSize: 13,
+                                color: _tab == id ? c.fg : c.muted,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              if (formats.isEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(MmRadius.lg),
+                    border: Border.all(color: c.lineStrong),
+                  ),
+                  child: Text(switch (_tab) {
+                    'video' => t.getNoVideoFormats,
+                    'audio' => t.getNoAudioFormats,
+                    _ => t.getNoSubsFormats,
+                  }, style: MmType.bodySm.copyWith(color: c.muted)),
+                ),
+              for (final f in formats) ...[
+                _FormatRow(
+                  quality: _quality(context, f),
+                  detail: f.detail,
+                  tag: switch (f.tag) {
+                    'Recommended' => t.getTagRecommended,
+                    null => null,
+                    _ => t.getTagBest,
+                  },
+                  size: f.sizeBytes == null
+                      ? '—'
+                      : bytes(context, f.sizeBytes!.toInt()),
+                  selected: f.id == format?.id,
+                  onTap: () => setState(() => _selected[_tab] = f.id),
+                ),
+                const SizedBox(height: 8),
+              ],
+              const SizedBox(height: 2),
+              Text(note, style: MmType.caption.copyWith(color: c.muted)),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  Icon(PhosphorRegular.folder, size: 20, color: c.muted),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      shown,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.monoStyle(size: 12.5, color: c.muted),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        Container(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          decoration: BoxDecoration(
+            color: c.sidebar,
+            border: Border(top: BorderSide(color: c.line)),
+          ),
+          child: Row(
+            children: [
+              _Pill(
+                t.getAddToQueue,
+                canDownload && !_starting ? () => _start(now: false) : null,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: _Pill(
+                  downloadLabel,
+                  canDownload && !_starting ? () => _start(now: true) : null,
+                  primary: true,
+                  icon: PhosphorRegular.downloadSimple,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   @override
   void initState() {
     super.initState();
@@ -1542,6 +2154,23 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
       ('audio', PhosphorRegular.musicNote, t.getQAudio),
       ('subs', PhosphorRegular.closedCaptioning, t.getFmtSubs),
     ];
+
+    // Phone (design_handoff_android_v2, 03): the format sheet as a page.
+    if (compactGet(context)) {
+      return _phone(
+        context,
+        info: info,
+        formats: formats,
+        format: format,
+        canDownload: canDownload,
+        source: source,
+        best: best,
+        duration: duration,
+        dir: dir,
+        note: note,
+        tabs: tabs,
+      );
+    }
 
     return Column(
       children: [
@@ -1849,7 +2478,7 @@ class _FormatRow extends StatelessWidget {
       hoverColor: selected ? null : c.surface2,
       borderRadius: BorderRadius.circular(MmRadius.lg),
       child: Container(
-        height: 56,
+        height: compactGet(context) ? 60 : 56,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: selected ? c.accentSubtle : c.surface,
@@ -1881,46 +2510,94 @@ class _FormatRow extends StatelessWidget {
                   : null,
             ),
             const SizedBox(width: 14),
-            SizedBox(
-              width: 150,
-              child: Text(
-                quality,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: MmType.labelStrong.copyWith(fontSize: 14, color: c.fg),
-              ),
-            ),
-            Expanded(
-              child: Text(
-                detail,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: MmType.monoStyle(size: 12.5, color: c.muted),
-              ),
-            ),
-            if (tag != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                decoration: BoxDecoration(
-                  color: c.accentSubtle,
-                  borderRadius: BorderRadius.circular(MmRadius.xs),
+            if (compactGet(context)) ...[
+              // Phone (design 03): label and tag above, detail below.
+              Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Text(
+                            quality,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: MmType.labelStrong.copyWith(
+                              fontSize: 14.5,
+                              color: c.fg,
+                            ),
+                          ),
+                        ),
+                        if (tag != null) ...[
+                          const SizedBox(width: 8),
+                          Text(
+                            tag!,
+                            style: MmType.captionStrong.copyWith(
+                              fontSize: 10.5,
+                              color: c.chipText,
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                    Text(
+                      detail,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.monoStyle(size: 12, color: c.muted),
+                    ),
+                  ],
                 ),
+              ),
+              const SizedBox(width: 8),
+              Text(size, style: MmType.monoStyle(size: 13, color: c.muted)),
+            ] else ...[
+              SizedBox(
+                width: 150,
                 child: Text(
-                  tag!,
-                  style: MmType.captionStrong.copyWith(
-                    fontSize: 11,
-                    color: c.chipText,
+                  quality,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.labelStrong.copyWith(fontSize: 14, color: c.fg),
+                ),
+              ),
+              Expanded(
+                child: Text(
+                  detail,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.monoStyle(size: 12.5, color: c.muted),
+                ),
+              ),
+              if (tag != null)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 3,
+                  ),
+                  decoration: BoxDecoration(
+                    color: c.accentSubtle,
+                    borderRadius: BorderRadius.circular(MmRadius.xs),
+                  ),
+                  child: Text(
+                    tag!,
+                    style: MmType.captionStrong.copyWith(
+                      fontSize: 11,
+                      color: c.chipText,
+                    ),
                   ),
                 ),
+              SizedBox(
+                width: 84,
+                child: Text(
+                  size,
+                  textAlign: TextAlign.end,
+                  style: MmType.monoStyle(size: 12.5, color: c.muted),
+                ),
               ),
-            SizedBox(
-              width: 84,
-              child: Text(
-                size,
-                textAlign: TextAlign.end,
-                style: MmType.monoStyle(size: 12.5, color: c.muted),
-              ),
-            ),
+            ],
           ],
         ),
       ),
@@ -2135,8 +2812,43 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
         for (final h in done) _DoneRow(entry: h),
     ];
     final now = DateTime.now();
+    final compact = compactGet(context);
+    final segments = [
+      ('active', t.getTabActive(counts['active']!)),
+      ('done', t.getTabDone(counts['done']!)),
+      ('failed', t.getTabFailed(counts['failed']!)),
+    ];
+    Widget segment((String, String) s, {required bool wide}) {
+      final (id, label) = s;
+      return Pressable(
+        onTap: () => setState(() => _tab = id),
+        semanticLabel: label,
+        selected: _tab == id,
+        child: Container(
+          height: wide ? 36 : 30,
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: _tab == id ? c.lineStrong : Colors.transparent,
+            borderRadius: BorderRadius.circular(wide ? 17 : 5),
+          ),
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: MmType.labelStrong.copyWith(
+              fontSize: wide ? 13 : 12.5,
+              color: _tab == id ? c.fg : c.muted,
+            ),
+          ),
+        ),
+      );
+    }
+
     return ListView(
-      padding: const EdgeInsets.fromLTRB(48, 32, 48, 32),
+      padding: compact
+          ? const EdgeInsets.fromLTRB(16, 12, 16, 24)
+          : const EdgeInsets.fromLTRB(48, 32, 48, 32),
       children: [
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -2147,7 +2859,10 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
                 children: [
                   Text(
                     t.getNavDownloads,
-                    style: MmType.display.copyWith(fontSize: 24, color: c.fg),
+                    style: MmType.display.copyWith(
+                      fontSize: compact ? 22 : 24,
+                      color: c.fg,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   Text(subtitle, style: MmType.bodySm.copyWith(color: c.muted)),
@@ -2168,50 +2883,40 @@ class _DownloadsScreenState extends ConsumerState<DownloadsScreen> {
             ),
           ],
         ),
-        const SizedBox(height: 20),
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Container(
+        SizedBox(height: compact ? 16 : 20),
+        // Phone (design 04): a full-width segmented control, radius 20.
+        if (compact)
+          Container(
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               color: c.bg,
-              borderRadius: BorderRadius.circular(7),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(color: c.line),
             ),
             child: Row(
-              mainAxisSize: MainAxisSize.min,
               children: [
-                for (final (id, label) in [
-                  ('active', t.getTabActive(counts['active']!)),
-                  ('done', t.getTabDone(counts['done']!)),
-                  ('failed', t.getTabFailed(counts['failed']!)),
-                ])
-                  Pressable(
-                    onTap: () => setState(() => _tab = id),
-                    semanticLabel: label,
-                    selected: _tab == id,
-                    child: Container(
-                      height: 30,
-                      padding: const EdgeInsets.symmetric(horizontal: 14),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: _tab == id ? c.lineStrong : Colors.transparent,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Text(
-                        label,
-                        style: MmType.labelStrong.copyWith(
-                          fontSize: 12.5,
-                          color: _tab == id ? c.fg : c.muted,
-                        ),
-                      ),
-                    ),
-                  ),
+                for (final s in segments)
+                  Expanded(child: segment(s, wide: true)),
               ],
             ),
+          )
+        else
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Container(
+              padding: const EdgeInsets.all(3),
+              decoration: BoxDecoration(
+                color: c.bg,
+                borderRadius: BorderRadius.circular(7),
+                border: Border.all(color: c.line),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [for (final s in segments) segment(s, wide: false)],
+              ),
+            ),
           ),
-        ),
-        const SizedBox(height: 20),
+        SizedBox(height: compact ? 14 : 20),
         for (final row in rows) ...[row, const SizedBox(height: 8)],
         if (rows.isEmpty)
           Container(
@@ -2333,11 +3038,13 @@ class _TaskRow extends ConsumerWidget {
           t.getActRestart(title),
           () => act('restart'),
         ),
-      _Action(
-        PhosphorRegular.folderOpen,
-        t.getOpenFolder,
-        () => ref.read(revealProvider)(task.info.destDir),
-      ),
+      // Windows only: Android has no file manager to show a folder in.
+      if (Platform.isWindows)
+        _Action(
+          PhosphorRegular.folderOpen,
+          t.getOpenFolder,
+          () => ref.read(revealProvider)(task.info.destDir),
+        ),
       task.state == 'failed'
           ? _Action(
               PhosphorRegular.x,
@@ -2429,13 +3136,14 @@ class _DoneRow extends ConsumerWidget {
           t.getPlayTitle(entry.title),
           () => playDownload(context, ref, entry),
         ),
-        _Action(
-          PhosphorRegular.folderOpen,
-          t.getShowInFolder,
-          path == null
-              ? null
-              : () => ref.read(revealProvider)(path, select: true),
-        ),
+        if (Platform.isWindows)
+          _Action(
+            PhosphorRegular.folderOpen,
+            t.getShowInFolder,
+            path == null
+                ? null
+                : () => ref.read(revealProvider)(path, select: true),
+          ),
       ],
     );
   }
@@ -2494,8 +3202,104 @@ class _Row extends StatelessWidget {
   /// onto another waiting row).
   final _Reorder? reorder;
 
+  /// Phone (design 04): thumbnail 72 × 44, title and format, 6 dp bar,
+  /// state as icon + text with the percent, one action and "⋯" for the rest.
+  Widget _compact(BuildContext context) {
+    final c = MmColors.of(context);
+    final first = actions.isEmpty ? null : actions.first;
+    final rest = actions.skip(1).toList();
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 12, 4, 12),
+      decoration: BoxDecoration(
+        color: c.surface,
+        borderRadius: BorderRadius.circular(MmRadius.lg),
+        border: Border.all(color: c.line),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _Thumb(path: thumbnail, audio: audio, width: 72),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.labelStrong.copyWith(fontSize: 14, color: c.fg),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  format,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.monoStyle(size: 11, color: c.muted),
+                ),
+                if (progress != null) ...[const SizedBox(height: 8), progress!],
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    Icon(status.icon, size: 15, color: status.color),
+                    const SizedBox(width: 6),
+                    Flexible(
+                      child: Text(
+                        [
+                          status.text,
+                          if (percent != null && percent!.isNotEmpty) percent!,
+                          if (status.detail.isNotEmpty) status.detail,
+                        ].join(' · '),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.captionStrong.copyWith(
+                          fontSize: 12,
+                          color: status.color,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          if (first != null)
+            Pressable(
+              onTap: first.onTap,
+              semanticLabel: first.label,
+              borderRadius: BorderRadius.circular(MmRadius.pill),
+              child: Opacity(
+                opacity: first.onTap == null ? 0.4 : 1,
+                child: SizedBox(
+                  width: 40,
+                  height: 40,
+                  child: Icon(first.icon, size: 22, color: c.fgSoft),
+                ),
+              ),
+            ),
+          if (rest.isNotEmpty)
+            Pressable(
+              onTap: () => _moreActions(context, rest),
+              semanticLabel: L10n.of(context).moreOptions,
+              borderRadius: BorderRadius.circular(MmRadius.pill),
+              child: SizedBox(
+                width: 40,
+                height: 40,
+                child: Icon(
+                  PhosphorRegular.dotsThreeVertical,
+                  size: 22,
+                  color: c.muted,
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (compactGet(context)) return _compact(context);
     final c = MmColors.of(context);
     final row = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),

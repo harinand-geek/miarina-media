@@ -2130,5 +2130,10 @@
   "dlNotifComplete": "Téléchargement terminé",
   "dlNotifSeveral": "%d en cours",
   "dlNotifChannelProgress": "Téléchargements en cours",
-  "dlNotifChannelDone": "Téléchargements terminés"
+  "dlNotifChannelDone": "Téléchargements terminés",
+  "getPasteLinkTitle": "Coller un lien",
+  "getAnalyzeLink": "Analyser le lien",
+  "getShareHint": "Ou partagez un lien vers Miarina Media depuis n'importe quelle app.",
+  "getDlCard": "{running} en cours · {queued} en attente",
+  "@getDlCard": {"placeholders": {"running": {"type": "int"}, "queued": {"type": "int"}}}
 }
