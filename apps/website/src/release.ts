@@ -140,7 +140,7 @@ export const CHANGELOG: Release[] = [
     name: '0.1.7 · Windows et Android',
     date: 'Préversion de test · 10 novembre 2026',
     items: [
-      'Recherche automatique de nouvelles versions et notification dans Miarina',
+      'Recherche automatique de nouvelles versions et notification dans Miarina Media',
       'Téléchargement dans les réglages avec progression et vérification de la signature',
       'Installation depuis l’application : installateur Windows ou confirmation système Android',
       'Une installation manuelle de la 0.1.7 active ce parcours pour les prochaines versions',

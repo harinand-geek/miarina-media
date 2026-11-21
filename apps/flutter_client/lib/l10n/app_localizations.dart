@@ -2197,6 +2197,18 @@ abstract class L10n {
   /// **'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.'**
   String get aboutLocal;
 
+  /// No description provided for @aboutCompanyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Miarina Media fait partie de l\'écosystème Miarina.'**
+  String get aboutCompanyBody;
+
+  /// No description provided for @aboutDeveloper.
+  ///
+  /// In fr, this message translates to:
+  /// **'Développeur'**
+  String get aboutDeveloper;
+
   /// No description provided for @playlistNew.
   ///
   /// In fr, this message translates to:

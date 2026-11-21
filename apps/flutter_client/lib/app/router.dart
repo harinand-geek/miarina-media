@@ -164,11 +164,15 @@ final routerProvider = Provider<GoRouter>((ref) {
             path: Routes.now,
             pageBuilder: (context, state) => _ScreenPage(
               key: state.pageKey,
-              child: NowPlayingScreen(
-                tab:
-                    NowTab.values
-                        .asNameMap()[state.uri.queryParameters['tab']] ??
-                    NowTab.lyrics,
+              // Always on the dark veil over the cover (W-M3), so it keeps
+              // the dark palette in the light theme too.
+              child: _DarkPlayer(
+                child: NowPlayingScreen(
+                  tab:
+                      NowTab.values
+                          .asNameMap()[state.uri.queryParameters['tab']] ??
+                      NowTab.lyrics,
+                ),
               ),
             ),
           ),

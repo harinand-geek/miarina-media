@@ -90,7 +90,7 @@ class MmColors extends ThemeExtension<MmColors> {
   final Color video;
   final Color scrim;
 
-  /// Placeholder hatching for covers that have no picture.
+  /// Placeholder tones for covers that have no picture (hatchA is used).
   final Color hatchA;
   final Color hatchB;
 

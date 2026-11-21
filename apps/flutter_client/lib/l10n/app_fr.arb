@@ -597,7 +597,7 @@
   "engineBodyAndroid": "Media3, le lecteur d'Android",
   "engineValue": "Intégré (recommandé)",
   "audioOutput": "Sortie audio",
-  "audioOutputBody": "Périphérique utilisé par Miarina",
+  "audioOutputBody": "Périphérique utilisé par Miarina Media",
   "systemDefault": "Système par défaut",
   "exclusive": "Mode exclusif WASAPI",
   "exclusiveBody": "Pour les DAC externes, coupe les autres sons",
@@ -679,6 +679,8 @@
   "aboutLicensesBody": "Polices, icônes et bibliothèques intégrées",
   "show": "Afficher",
   "aboutLocal": "Tout reste sur cet appareil : pas de compte, pas d'envoi de données.",
+  "aboutCompanyBody": "Miarina Media fait partie de l'écosystème Miarina.",
+  "aboutDeveloper": "Développeur",
   "playlistNew": "Nouvelle",
   "playlistImport": "Importer M3U",
   "playlistExport": "Exporter",
@@ -799,14 +801,14 @@
   "close": "Fermer",
   "emptyOpenFiles": "Ouvrir des fichiers…",
   "emptyFormats": "Formats lus : MP3, M4A, FLAC, OGG, Opus, WAV, AAC, et en vidéo MP4, MKV, WebM, MOV, AVI.",
-  "emptyNote": "Vous téléchargez avec Miarina ? Les fichiers obtenus arrivent ici automatiquement.",
+  "emptyNote": "Vous téléchargez avec Miarina Media ? Les fichiers obtenus arrivent ici automatiquement.",
   "mediaFiles": "Fichiers audio et vidéo",
   "errFormatTitle": "Format non pris en charge",
   "errFormatBody": "Le moteur ne sait pas décoder ce fichier. Le fichier n'est pas modifié.",
   "errDamagedTitle": "Fichier endommagé",
   "errDamagedBody": "La lecture s'est arrêtée : une partie du fichier semble illisible. Le fichier n'est pas modifié.",
   "errAccessTitle": "Accès refusé",
-  "errAccessBody": "Le système ne laisse pas Miarina lire ce fichier. Les autres fichiers fonctionnent.",
+  "errAccessBody": "Le système ne laisse pas Miarina Media lire ce fichier. Les autres fichiers fonctionnent.",
   "errMissingTitle": "Fichier introuvable",
   "errMissingBody": "Le fichier a été déplacé, renommé, ou son disque est débranché. Il garde sa place dans la bibliothèque.",
   "errPlaybackTitle": "Lecture impossible",
@@ -829,7 +831,7 @@
   "analyse": "Analyser",
   "themeFollow": "Suivre Windows",
   "foldersTitle": "Où sont vos fichiers ?",
-  "foldersBody": "Miarina lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.",
+  "foldersBody": "Miarina Media lit ces dossiers sans les modifier ni les déplacer. Les nouveaux fichiers apparaissent à chaque lancement.",
   "folderFiles": "{count, plural, =0{aucun fichier audio ou vidéo} =1{1 fichier audio ou vidéo} other{{count} fichiers audio ou vidéo}}",
   "@folderFiles": {
     "placeholders": {
@@ -1245,7 +1247,7 @@
   "getPrepTip3": "Les qualités proposées sont celles que la source publie, rien n’est inventé.",
   "getPrepTip4": "Plusieurs titres ? Ajoutez-les « À la file » : ils se téléchargent chacun leur tour.",
   "getNoMediaTitle": "Aucun média téléchargeable trouvé",
-  "getNoMediaBody": "Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina ne contourne pas ces protections.",
+  "getNoMediaBody": "Cette page ne contient pas de média pris en charge, ou il demande une connexion, est protégé (DRM) ou est un direct. Miarina Media ne contourne pas ces protections.",
   "getNoMediaReason": "Raison : {reason}",
   "@getNoMediaReason": {
     "placeholders": {
@@ -1823,7 +1825,7 @@
   "groupSortPlays": "Les plus écoutés",
   "groupSortTracks": "Nombre de titres",
   "filterLossless": "FLAC / hi-res",
-  "filterDownloaded": "Téléchargés avec Miarina",
+  "filterDownloaded": "Téléchargés avec Miarina Media",
   "filterCompilations": "Compilations",
   "filterNoCover": "Sans pochette · {count}",
   "@filterNoCover": {
@@ -1877,8 +1879,8 @@
       }
     }
   },
-  "tagWrite": "Écrire aussi dans le fichier (sinon : bibliothèque Miarina seulement)",
-  "tagWriteUnsupported": "Ce format garde ses tags dans la bibliothèque Miarina seulement.",
+  "tagWrite": "Écrire aussi dans le fichier (sinon : bibliothèque Miarina Media seulement)",
+  "tagWriteUnsupported": "Ce format garde ses tags dans la bibliothèque Miarina Media seulement.",
   "tagsSavedFile": "Tags écrits dans le fichier.",
   "tagsSavedLibrary": "Tags enregistrés dans la bibliothèque. Fichier inchangé.",
   "invalidNumber": "Nombre entier attendu",
@@ -1981,7 +1983,7 @@
   },
   "updConverting": "Conversion en cours : l’installation sera possible quand elle sera terminée",
   "updNetwork": "Connexion au serveur de mises à jour perdue. Réessayez : un téléchargement reprend là où il s’est arrêté.",
-  "updAvailable": "Miarina {v} est disponible",
+  "updAvailable": "Miarina Media {v} est disponible",
   "@updAvailable": {
     "placeholders": {
       "v": {
@@ -2070,7 +2072,7 @@
   "updInstall": "Installer maintenant",
   "updLater": "Plus tard",
   "updKeptReady": "Mise à jour gardée prête.",
-  "updWindowsNote": "Windows ferme Miarina et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.",
+  "updWindowsNote": "Windows ferme Miarina Media et ouvre l’installateur. Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n’est installé sans votre accord.",
   "updChecking": "Recherche…",
   "updLatest": "Vous utilisez la dernière version ({v}).",
   "@updLatest": {

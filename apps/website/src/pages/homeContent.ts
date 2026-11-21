@@ -129,7 +129,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'Une seule recherche',
-            'Tapez un titre : Miarina cherche d’abord sur votre appareil, puis propose YouTube ou le web dans son navigateur intégré.',
+            'Tapez un titre : Miarina Media cherche d’abord sur votre appareil, puis propose YouTube ou le web dans son navigateur intégré.',
           ],
           [
             'Choisissez le format',
@@ -137,7 +137,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'File de téléchargements',
-            'Mettez en pause et reprenez lorsque la source le permet. Sous Windows, la reprise est vérifiée, Miarina attend le retour du réseau et signale un disque plein ou un dossier inaccessible.',
+            'Mettez en pause et reprenez lorsque la source le permet. Sous Windows, la reprise est vérifiée, Miarina Media attend le retour du réseau et signale un disque plein ou un dossier inaccessible.',
           ],
           [
             'Torrents sur Windows',
@@ -145,7 +145,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'Depuis Chrome ou Edge',
-            'L’extension Windows envoie les liens que vous choisissez vers Miarina, même lorsque l’application est fermée. Installation en mode développeur.',
+            'L’extension Windows envoie les liens que vous choisissez vers Miarina Media, même lorsque l’application est fermée. Installation en mode développeur.',
           ],
         ],
       },
@@ -218,7 +218,7 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'android',
         'Android',
-        'Sur Android, Miarina s’ouvre sur votre musique : titres, playlists, dossiers, artistes et albums. La lecture continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.',
+        'Sur Android, Miarina Media s’ouvre sur votre musique : titres, playlists, dossiers, artistes et albums. La lecture continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.',
       ],
     ],
     shotAlts: [
@@ -292,7 +292,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ['Paste a link', 'Miarina Media reads the address and shows you what can be downloaded.'],
           [
             'One search',
-            'Type a title: Miarina looks on your device first, then offers YouTube or the web in its built-in browser.',
+            'Type a title: Miarina Media looks on your device first, then offers YouTube or the web in its built-in browser.',
           ],
           [
             'Pick the format',
@@ -300,7 +300,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'Download queue',
-            'Pause and resume when the source allows it. On Windows, resume is verified, Miarina waits for the network to return and flags a full disk or an unreachable folder.',
+            'Pause and resume when the source allows it. On Windows, resume is verified, Miarina Media waits for the network to return and flags a full disk or an unreachable folder.',
           ],
           [
             'Torrents on Windows',
@@ -308,7 +308,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'From Chrome or Edge',
-            'The Windows extension sends the links you choose to Miarina, even when the app is closed. Installed in developer mode.',
+            'The Windows extension sends the links you choose to Miarina Media, even when the app is closed. Installed in developer mode.',
           ],
         ],
       },
@@ -381,7 +381,7 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'android',
         'Android',
-        'On Android, Miarina opens on your music: songs, playlists, folders, artists and albums. Playback continues with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.',
+        'On Android, Miarina Media opens on your music: songs, playlists, folders, artists and albums. Playback continues with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.',
       ],
     ],
     shotAlts: [

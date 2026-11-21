@@ -4,11 +4,13 @@ import 'dart:math' as math;
 import 'package:material_ui/material_ui.dart';
 
 import '../tokens.dart';
+import 'logo.dart';
 
 /// Cover, poster or thumbnail from the user's own files ([imagePath]),
 /// decoded at the displayed size. Without a picture, or when it cannot be
-/// read, it shows the neutral hatching of the mockups (two close tones at
-/// 135°), tinted from [seed]; never a stock image.
+/// read, it shows the Miarina Media mark at low opacity on a tone picked
+/// from [seed] (owner's choice, 2026-11-21, instead of the mockups'
+/// hatching); never a stock image.
 class CoverArt extends StatelessWidget {
   const CoverArt({
     super.key,
@@ -29,7 +31,8 @@ class CoverArt extends StatelessWidget {
   final double aspectRatio;
   final String? imagePath;
 
-  // Hatching pairs of the prototypes (warm, green, plum, olive, teal, slate…).
+  // Placeholder tones, from the prototypes' hatching pairs (warm, green,
+  // plum, olive, teal, slate…); the first of each pair is used.
   static const _pairs = [
     (Color(0xFF4A3424), Color(0xFF422E20)),
     (Color(0xFF2E3B2A), Color(0xFF283423)),
@@ -47,12 +50,22 @@ class CoverArt extends StatelessWidget {
     final pair = c.brightness == Brightness.dark
         ? _pairs[seed.abs() % _pairs.length]
         : (c.hatchA, c.hatchB);
-    final hatch = CustomPaint(
-      painter: _Hatch(pair.$1, pair.$2),
-      size: Size(size, size / aspectRatio),
+    final height = size / aspectRatio;
+    final placeholder = ColoredBox(
+      color: pair.$1,
+      child: SizedBox(
+        width: size,
+        height: height,
+        child: Center(
+          child: Opacity(
+            opacity: c.brightness == Brightness.dark ? 0.32 : 0.4,
+            child: MiarinaLogo(size: math.min(size, height) * 0.42),
+          ),
+        ),
+      ),
     );
     final path = imagePath;
-    Widget picture = hatch;
+    Widget picture = placeholder;
     if (path != null && path.isNotEmpty) {
       final px = (size * MediaQuery.devicePixelRatioOf(context)).round();
       picture = Image.file(
@@ -65,8 +78,8 @@ class CoverArt extends StatelessWidget {
         filterQuality: FilterQuality.medium,
         frameBuilder: (context, img, frame, sync) => sync || frame != null
             ? img
-            : Stack(fit: StackFit.expand, children: [hatch, img]),
-        errorBuilder: (_, _, _) => hatch,
+            : Stack(fit: StackFit.expand, children: [placeholder, img]),
+        errorBuilder: (_, _, _) => placeholder,
       );
     }
     return Container(
@@ -85,7 +98,7 @@ class CoverArt extends StatelessWidget {
                 children: [
                   picture,
                   // Keeps the overlay icon readable over a real picture.
-                  if (picture != hatch)
+                  if (picture != placeholder)
                     const ColoredBox(color: Color(0x990D141B)),
                   Center(child: child),
                 ],
@@ -93,30 +106,4 @@ class CoverArt extends StatelessWidget {
       ),
     );
   }
-}
-
-class _Hatch extends CustomPainter {
-  _Hatch(this.a, this.b);
-
-  final Color a;
-  final Color b;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    canvas.drawRect(Offset.zero & size, Paint()..color = a);
-    final stripe = Paint()
-      ..color = b
-      ..strokeWidth = 5 / math.sqrt2 * 1.4;
-    final reach = size.width + size.height;
-    for (double d = -size.height; d < reach; d += 10) {
-      canvas.drawLine(
-        Offset(d, size.height),
-        Offset(d + size.height, 0),
-        stripe,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_Hatch old) => old.a != a || old.b != b;
 }

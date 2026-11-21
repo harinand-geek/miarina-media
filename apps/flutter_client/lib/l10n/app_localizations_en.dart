@@ -1263,6 +1263,13 @@ class L10nEn extends L10n {
       'Everything stays on this device: no account, no data sent.';
 
   @override
+  String get aboutCompanyBody =>
+      'Miarina Media is part of the Miarina ecosystem.';
+
+  @override
+  String get aboutDeveloper => 'Developer';
+
+  @override
   String get playlistNew => 'New';
 
   @override

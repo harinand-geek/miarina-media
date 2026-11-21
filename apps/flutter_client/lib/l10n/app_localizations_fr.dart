@@ -1267,6 +1267,13 @@ class L10nFr extends L10n {
       'Tout reste sur cet appareil : pas de compte, pas d\'envoi de données.';
 
   @override
+  String get aboutCompanyBody =>
+      'Miarina Media fait partie de l\'écosystème Miarina.';
+
+  @override
+  String get aboutDeveloper => 'Développeur';
+
+  @override
   String get playlistNew => 'Nouvelle';
 
   @override

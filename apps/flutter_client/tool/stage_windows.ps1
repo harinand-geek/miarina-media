@@ -6,9 +6,12 @@
 #     tools\              yt-dlp, FFmpeg, QuickJS-NG (pinned, as 0.1.x)
 #     tools\*.txt         licence texts and notices
 #
-# Usage (from apps\flutter_client, after `flutter build windows --release`):
+# Usage (from apps\flutter_client), with the pubspec version, e.g. 0.2.0:
+#   flutter build windows --release --dart-define=MM_VERSION=0.2.0
 #   powershell -File tool\stage_windows.ps1
-# The release build must not point at a scratch folder (no MM_DATA_DIR).
+# The release build must not point at a scratch folder (no MM_DATA_DIR) and
+# must carry its version: without MM_VERSION, About says "development build"
+# and the in-app updates are off.
 param(
   [string]$Release = "build\windows\x64\runner\Release",
   [string]$Out = "build\windows\stage\Miarina Media",
@@ -23,6 +26,8 @@ if (-not (Test-Path "$Release\miarina_media.exe")) { throw "No release build in 
 # A scratch build reads MM_DATA_DIR and must never be shipped.
 $exeText = [IO.File]::ReadAllText((Resolve-Path "$Release\data\app.so"), [Text.Encoding]::ASCII)
 if ($exeText.Contains('scratchpad')) { throw 'This build points at a scratch data folder; rebuild without MM_DATA_DIR' }
+$semver = (Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9]+\.[0-9]+\.[0-9]+)\+').Matches[0].Groups[1].Value
+if (-not $exeText.Contains($semver)) { throw "This build does not carry its version; rebuild with --dart-define=MM_VERSION=$semver" }
 
 # 1. Pinned tools and libmpv (download-engine fetch_tools, checked digests).
 Push-Location $repo

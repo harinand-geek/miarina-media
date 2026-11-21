@@ -1046,7 +1046,36 @@ class _About extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: 14),
+        SettingsGroup(
+          rows: [
+            SettingsRow(
+              title: 'Miarina',
+              body: t.aboutCompanyBody,
+              control: _OutlinedAction(
+                label: 'miarina.org',
+                onTap: () => _openSite(_companySite),
+              ),
+            ),
+            SettingsRow(
+              title: t.aboutDeveloper,
+              body: '© 2026 Harinjaka',
+              control: _OutlinedAction(
+                label: 'cv.harinjaka.org',
+                onTap: () => _openSite(_developerSite),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
+}
+
+const _companySite = 'https://miarina.org';
+const _developerSite = 'https://cv.harinjaka.org/';
+
+/// Opens one of the fixed addresses above in the default browser.
+void _openSite(String url) {
+  if (Platform.isWindows) Process.run('explorer.exe', [url]);
 }

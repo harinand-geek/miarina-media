@@ -40,12 +40,12 @@ export function Confidentialite() {
             automatique de code d’extraction à l’exécution.
           </li>
           <li>
-            <strong>Mise à jour de l’application :</strong> Miarina consulte media.miarina.org au
-            démarrage et toutes les six heures lorsque l’interface est visible, ainsi que sur
+            <strong>Mise à jour de l’application :</strong> Miarina Media consulte media.miarina.org
+            au démarrage et toutes les six heures lorsque l’interface est visible, ainsi que sur
             demande dans les réglages. Le serveur reçoit les données normales de connexion, dont
             l’adresse IP. Le manifeste est signé ; le téléchargement et l’installation nécessitent
-            votre action. Android demande l’autorisation d’installer une mise à jour depuis Miarina,
-            puis une confirmation système.
+            votre action. Android demande l’autorisation d’installer une mise à jour depuis Miarina
+            Media, puis une confirmation système.
           </li>
           <li>
             <strong>Mise à jour de yt-dlp (Windows) :</strong> au plus une fois par jour,
@@ -80,7 +80,7 @@ export function Confidentialite() {
             <strong>Extension Chrome/Edge :</strong> elle transmet uniquement les liens que vous
             choisissez d’envoyer vers une boîte de réception locale. Elle ne collecte pas vos
             cookies et ne surveille pas automatiquement les pages. Vous choisissez ensuite
-            d’analyser le lien dans Miarina.
+            d’analyser le lien dans Miarina Media.
           </li>
           <li>
             <strong>Vos fichiers</strong> restent dans le dossier de votre appareil où ils sont

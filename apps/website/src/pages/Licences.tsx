@@ -90,8 +90,8 @@ export function Licences() {
           Les torrents Windows utilisent les composants de{' '}
           <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>{' '}
           (GPL-3.0-or-later, révision <code>46bb3bcd</code>) et librqbit. Les attributions sont
-          incluses dans l’installateur. L’extension Miarina pour Chrome et Edge est fournie en mode
-          développeur, avec son code source.
+          incluses dans l’installateur. L’extension Miarina Media pour Chrome et Edge est fournie en
+          mode développeur, avec son code source.
         </p>
         <h2>Outils inclus dans l’installateur (Windows)</h2>
         <p>

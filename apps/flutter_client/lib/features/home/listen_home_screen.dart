@@ -4,6 +4,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
+import '../../design/theme.dart';
 import '../../design/tokens.dart';
 import '../common/state_views.dart';
 import '../../design/widgets/states.dart';
@@ -205,8 +206,15 @@ class _ResumeCardState extends ConsumerState<_ResumeCard> {
     super.dispose();
   }
 
+  // The card always sits on a dark veil over the cover, so it keeps the dark
+  // palette in the light theme too (its texts stay readable).
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Theme(
+    data: buildMmTheme(MmColors.dark),
+    child: Builder(builder: _card),
+  );
+
+  Widget _card(BuildContext context) {
     final c = MmColors.of(context);
     return Container(
       height: 216,
@@ -552,12 +560,13 @@ class _AutoListCardState extends ConsumerState<_AutoListCard> {
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Icon(icon, size: 13, color: c.fg),
+                              // On a dark chip in both themes.
+                              Icon(icon, size: 13, color: MmColors.dark.fg),
                               const SizedBox(width: 4),
                               Text(
                                 '${l.count}',
                                 style: MmType.captionStrong.copyWith(
-                                  color: c.fg,
+                                  color: MmColors.dark.fg,
                                 ),
                               ),
                             ],

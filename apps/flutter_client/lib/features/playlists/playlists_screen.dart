@@ -59,7 +59,7 @@ void openPlaylist(BuildContext context, WidgetRef ref, int id) {
   }
 }
 
-/// 2 × 2 mosaic of the first covers (or the neutral hatching).
+/// 2 × 2 mosaic of the first covers (or the logo placeholder).
 class PlaylistMosaic extends StatelessWidget {
   const PlaylistMosaic({
     super.key,
