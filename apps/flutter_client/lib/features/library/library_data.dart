@@ -12,12 +12,20 @@ import '../playback/playback.dart';
 /// `%APPDATA%\org.miarina.media`, so a 0.1.x library, its settings,
 /// downloads and torrents carry over (plan R1). Development builds point
 /// MM_DATA_DIR at a scratch folder; they never open the real one.
+/// The app's identity on Windows (data and cache folders). Recette builds
+/// get their own (`--dart-define=MM_APP_ID=org.miarina.media.recette`), so
+/// they never touch a real installation's data.
+const appId = String.fromEnvironment(
+  'MM_APP_ID',
+  defaultValue: 'org.miarina.media',
+);
+
 Future<String> appDataDir() async {
   const override = String.fromEnvironment('MM_DATA_DIR');
   if (override.isNotEmpty) return override;
   final roaming = Platform.isWindows ? Platform.environment['APPDATA'] : null;
   final dir = roaming != null && roaming.isNotEmpty
-      ? Directory('$roaming${Platform.pathSeparator}org.miarina.media')
+      ? Directory('$roaming${Platform.pathSeparator}$appId')
       : await getApplicationSupportDirectory();
   await dir.create(recursive: true);
   return dir.path;

@@ -1,6 +1,6 @@
 # Assembles the Windows app as it will be installed (plan R2):
 #   build\windows\stage\Miarina Media\
-#     miarina_media.exe, Flutter and plugin DLLs, data\   (flutter build)
+#     miarina-media.exe (renamed as in 0.1.x), Flutter and plugin DLLs, data\
 #     libmpv-2.dll        pinned, newer build (replaces media_kit's 2023 one)
 #     msvcp140.dll, vcruntime140.dll, vcruntime140_1.dll  (Visual C++ runtime)
 #     tools\              yt-dlp, FFmpeg, QuickJS-NG (pinned, as 0.1.x)
@@ -34,6 +34,9 @@ Pop-Location
 if (Test-Path $Out) { Remove-Item -Recurse -Force $Out }
 New-Item -ItemType Directory -Force $Out | Out-Null
 Get-ChildItem $Release -Exclude tools | Copy-Item -Destination $Out -Recurse
+# The 0.1.x executable name: shortcuts, taskbar pins and "Open with" keep
+# working after the update.
+Rename-Item "$Out\miarina_media.exe" 'miarina-media.exe'
 
 # 3. libmpv: the pinned build replaces media_kit's.
 $mpv = Get-ChildItem "$Cache\libmpv\*\libmpv-2.dll" | Select-Object -First 1

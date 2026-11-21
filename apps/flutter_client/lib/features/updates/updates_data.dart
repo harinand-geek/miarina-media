@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../src/rust/api/updates.dart' as rust;
 import '../../src/rust/frb_generated.dart' show RustLib;
+import '../library/library_data.dart' show appId;
 import '../settings/settings_screen.dart' show appVersion;
 
 export '../../src/rust/api/updates.dart'
@@ -76,7 +77,7 @@ Future<void> startUpdates(String dbPath) async {
   try {
     await rust.updatesStart(
       installed: appVersion,
-      cacheDir: '$local${Platform.pathSeparator}org.miarina.media',
+      cacheDir: '$local${Platform.pathSeparator}$appId',
       dbPath: dbPath,
     );
   } catch (_) {

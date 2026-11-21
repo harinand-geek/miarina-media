@@ -27,7 +27,7 @@
 | R1 | Données partagées avec la 0.1.x, migration avec sauvegarde, test sur données de démonstration — **fait le 2026-11-21** | non |
 | R2 | Outils et bibliothèques inclus, licences — **fait le 2026-11-21** (libmpv récente épinglée ; source GPL à publier avec chaque version, voir `docs/licenses.md` §5) | non |
 | R3 | Mises à jour intégrées et écran Réglages › Mises à jour — **fait le 2026-11-21** | non |
-| R4 | Installateur NSIS 0.2.0 remplaçant la 0.1.x | non |
+| R4 | Installateur NSIS 0.2.0 remplaçant la 0.1.x — **fait le 2026-11-21** (112,9 Mio ; détails ci-dessous) | non |
 | R5 | Recette complète sur canal de test local, mesures | non |
 | R6 | Publication (après accord) : artefact, manifeste, site | **oui** |
 
@@ -40,3 +40,13 @@ Chaque lot est commité et poussé sur `main` comme les précédents.
 3. **La 0.1.12 (app Tauri) n'est pas publiée** : remplacée par la 0.2.0 ; ses fichiers en cours restent dans l'arbre de travail, non commités.
 4. **Recette sur données de démonstration** : une base 0.1.11 de démonstration est fabriquée ; les vraies données du propriétaire ne sont jamais utilisées.
 5. **Accord final avant R6** : rien n'est envoyé sur le serveur ni sur le site sans cet accord.
+
+## Installateur (R4, 2026-11-21)
+
+- `apps/flutter_client/tool/stage_windows.ps1` puis `tool/build_installer.ps1` : `build\windows\installer\MiarinaMedia-<version>-x64-setup.exe`. Modèle `windows/installer/installer.nsi`, dérivé du modèle NSIS de tauri-bundler (MIT OR Apache-2.0) qui a construit les 0.1.x : même nom de produit, même dossier (`%LOCALAPPDATA%\Miarina Media`, installation pour l'utilisateur), même entrée « Programmes et fonctionnalités », mêmes clés, mêmes raccourcis, même habillage (`brand.nsh`, textes français corrigés). Listes de fichiers générées depuis l'app assemblée. Outils NSIS : la copie installée par Tauri (`%LOCALAPPDATA%\tauri\NSIS`, extension `nsis_tauri_utils`).
+- Exécutable renommé `miarina-media.exe` comme en 0.1.x (raccourcis, épingles et « Ouvrir avec » gardés).
+- À l'installation, ce que seule la 0.1.x utilisait est retiré : libVLC, l'extension navigateur et sa passerelle, et les inscriptions de la passerelle pour Chrome, Edge et Firefox (l'extension n'existe pas dans l'app Flutter). Les données ne sont jamais touchées par l'installateur ; la désinstallation les garde sauf si « Supprimer les données » est coché (comme 0.1.x).
+- Taille : **112,9 Mio** (0.1.11 : 91,2 Mio), 334 Mio installés. Le produit réel a été construit pour mesure puis supprimé, jamais lancé (il remplacerait l'installation 0.1.12 du propriétaire).
+- Vérifié avec l'identité de recette (`-Recette` ; app compilée avec `MM_APP_ID`) : installation silencieuse, entrée « Programmes et fonctionnalités » (éditeur MIARINA, 0.2.0, taille), raccourcis menu Démarrer et bureau, lancement de l'app installée et fermeture propre, désinstallation silencieuse (dossier, entrée et raccourcis retirés, données gardées par défaut) ; installation réelle 0.1.12 du propriétaire inchangée.
+- **Incident** : l'essai a utilisé l'identité de la recette L09 (`org.miarina.media.recette`), dont les données de test étaient conservées sur ce PC ; le nettoyage les a supprimées (non récupérables ; données réelles non touchées). Correctif : identité neuve `org.miarina.media.recette.flutter`, et scripts qui s'arrêtent si une trace de l'identité existe déjà et ne suppriment que ce qu'ils ont créé.
+- Reste pour R5 : le passage 0.1.11 → 0.2.0 par l'installateur et par la mise à jour intégrée, sur une installation de recette.
