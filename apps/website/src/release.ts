@@ -23,7 +23,7 @@ export const RELEASE = {
     version: '0.2.0',
     name: 'MiarinaMedia-0.2.0-x64-setup.exe',
     size: '112,9 Mio',
-    sha256: 'ebebd208e1e0217aa0bf5446148f0b7872276fd8fed1050edf663f97857ed758',
+    sha256: 'eca6587a6dcf4b7b3e3877603c619a425b51b04bc4b26866edd7884b85d82acb',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
