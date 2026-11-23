@@ -5988,6 +5988,108 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{running} en cours · {queued} en attente'**
   String getDlCard(int running, int queued);
+
+  /// No description provided for @plCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 élément} other{{count} éléments}}'**
+  String plCount(int count);
+
+  /// No description provided for @plTruncated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les {shown} premiers sur {total}'**
+  String plTruncated(int shown, int total);
+
+  /// No description provided for @plTruncatedUnknown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les {shown} premiers éléments'**
+  String plTruncatedUnknown(int shown);
+
+  /// No description provided for @plQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité pour tous les éléments'**
+  String get plQuality;
+
+  /// No description provided for @plQualityNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Si un élément n’a pas cette qualité, la meilleure en dessous est prise.'**
+  String get plQualityNote;
+
+  /// No description provided for @plItems.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éléments'**
+  String get plItems;
+
+  /// No description provided for @plSelected.
+  ///
+  /// In fr, this message translates to:
+  /// **'{selected} sur {total} sélectionnés'**
+  String plSelected(int selected, int total);
+
+  /// No description provided for @plSelectAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout sélectionner'**
+  String get plSelectAll;
+
+  /// No description provided for @plSelectNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout désélectionner'**
+  String get plSelectNone;
+
+  /// No description provided for @plUnavailable.
+  ///
+  /// In fr, this message translates to:
+  /// **'Indisponible'**
+  String get plUnavailable;
+
+  /// No description provided for @plItemFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'Élément {index}'**
+  String plItemFallback(int index);
+
+  /// No description provided for @plOwnFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dans un dossier « {name} »'**
+  String plOwnFolder(String name);
+
+  /// No description provided for @plDownload.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Télécharger} =1{Télécharger 1 élément} other{Télécharger {count} éléments}}'**
+  String plDownload(int count);
+
+  /// No description provided for @plPreparing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Préparation…'**
+  String get plPreparing;
+
+  /// No description provided for @plQueued.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 téléchargement ajouté à la file} other{{count} téléchargements ajoutés à la file}}'**
+  String plQueued(int count);
+
+  /// No description provided for @plQueueFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'La file est pleine. Terminez ou retirez des téléchargements, puis réessayez.'**
+  String get plQueueFull;
+
+  /// No description provided for @plFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La playlist n’a pas pu être ajoutée. Réessayez.'**
+  String get plFailed;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -3658,4 +3658,92 @@ class L10nEn extends L10n {
   String getDlCard(int running, int queued) {
     return '$running running · $queued waiting';
   }
+
+  @override
+  String plCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count items',
+      one: '1 item',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plTruncated(int shown, int total) {
+    return 'First $shown of $total';
+  }
+
+  @override
+  String plTruncatedUnknown(int shown) {
+    return 'First $shown items';
+  }
+
+  @override
+  String get plQuality => 'Quality for every item';
+
+  @override
+  String get plQualityNote =>
+      'If an item does not have this quality, the best one below it is used.';
+
+  @override
+  String get plItems => 'Items';
+
+  @override
+  String plSelected(int selected, int total) {
+    return '$selected of $total selected';
+  }
+
+  @override
+  String get plSelectAll => 'Select all';
+
+  @override
+  String get plSelectNone => 'Select none';
+
+  @override
+  String get plUnavailable => 'Unavailable';
+
+  @override
+  String plItemFallback(int index) {
+    return 'Item $index';
+  }
+
+  @override
+  String plOwnFolder(String name) {
+    return 'In a folder “$name”';
+  }
+
+  @override
+  String plDownload(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Download $count items',
+      one: 'Download 1 item',
+      zero: 'Download',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plPreparing => 'Preparing…';
+
+  @override
+  String plQueued(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count downloads added to the queue',
+      one: '1 download added to the queue',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plQueueFull =>
+      'The queue is full. Finish or remove some downloads, then try again.';
+
+  @override
+  String get plFailed => 'The playlist could not be added. Try again.';
 }

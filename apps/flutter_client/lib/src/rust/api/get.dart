@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
 
 /// Starts the download manager on the indexing runtime (call after
@@ -28,6 +28,12 @@ Future<LinkCheck> getCheckLink({required String url}) =>
 Future<Analysis> getAnalyze({required String url}) =>
     RustLib.instance.api.crateApiGetGetAnalyze(url: url);
 
+/// Obtenir › Playlist: the whole playlist a link belongs to, even a video
+/// page inside one (`watch?v=…&list=…`). A link to a single media still
+/// gives that media.
+Future<Analysis> getAnalyzePlaylist({required String url}) =>
+    RustLib.instance.api.crateApiGetGetAnalyzePlaylist(url: url);
+
 /// Downloads the missing media tools after the user agreed; every archive
 /// is checked against its pinned SHA-256 before use. Progress arrives as
 /// `GetEvent::ToolProgress`.
@@ -41,6 +47,14 @@ Future<void> getSetAndroidTools({required AndroidTools tools}) =>
 
 Future<TaskInfo> getStartDownload({required StartRequest request}) =>
     RustLib.instance.api.crateApiGetGetStartDownload(request: request);
+
+/// Queues the chosen entries of a playlist, in the playlist's order, with
+/// one quality for all (DL-07). Each becomes an ordinary task: the queue's
+/// limits apply and a failure is retried on its own. All or nothing: a
+/// queue without room for every entry refuses them (`queue_full`).
+/// Returns how many were queued.
+Future<int> getStartPlaylist({required WebPlaylistStart request}) =>
+    RustLib.instance.api.crateApiGetGetStartPlaylist(request: request);
 
 Future<List<TaskInfo>> getTasks() => RustLib.instance.api.crateApiGetGetTasks();
 
@@ -96,6 +110,7 @@ class Analysis {
   /// No media: the engine's reason (English, shown as is).
   final String detail;
   final List<ToolStatus> tools;
+  final WebPlaylist? playlist;
 
   const Analysis({
     required this.status,
@@ -103,6 +118,7 @@ class Analysis {
     required this.code,
     required this.detail,
     required this.tools,
+    this.playlist,
   });
 
   @override
@@ -111,7 +127,8 @@ class Analysis {
       info.hashCode ^
       code.hashCode ^
       detail.hashCode ^
-      tools.hashCode;
+      tools.hashCode ^
+      playlist.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -122,7 +139,8 @@ class Analysis {
           info == other.info &&
           code == other.code &&
           detail == other.detail &&
-          tools == other.tools;
+          tools == other.tools &&
+          playlist == other.playlist;
 }
 
 enum AnalysisStatus {
@@ -131,6 +149,10 @@ enum AnalysisStatus {
 
   /// The page needs yt-dlp, not installed (consent before downloading it).
   needsTools,
+
+  /// A playlist (`Analysis.playlist`): its entries are chosen, then each
+  /// becomes a download.
+  playlist,
 }
 
 /// Android: the APK's extractor (Python, yt-dlp, FFmpeg, QuickJS unpacked by
@@ -727,6 +749,196 @@ class ToolStatus {
           downloadBytes == other.downloadBytes &&
           installed == other.installed &&
           bundled == other.bundled;
+}
+
+class WebPlaylist {
+  final String url;
+  final String host;
+  final String title;
+  final String publisher;
+  final String? source;
+
+  /// Local copy of the first entry's picture.
+  final String? thumbnail;
+
+  /// Entries in the whole playlist, when the source says.
+  final BigInt? count;
+
+  /// Only the first `entries` are listed (`MAX_PLAYLIST_ITEMS`).
+  final bool truncated;
+  final bool needsFfmpeg;
+  final List<WebPlaylistEntry> entries;
+
+  /// Qualities offered for every entry.
+  final List<FormatOffer> video;
+  final List<FormatOffer> audio;
+
+  const WebPlaylist({
+    required this.url,
+    required this.host,
+    required this.title,
+    required this.publisher,
+    this.source,
+    this.thumbnail,
+    this.count,
+    required this.truncated,
+    required this.needsFfmpeg,
+    required this.entries,
+    required this.video,
+    required this.audio,
+  });
+
+  @override
+  int get hashCode =>
+      url.hashCode ^
+      host.hashCode ^
+      title.hashCode ^
+      publisher.hashCode ^
+      source.hashCode ^
+      thumbnail.hashCode ^
+      count.hashCode ^
+      truncated.hashCode ^
+      needsFfmpeg.hashCode ^
+      entries.hashCode ^
+      video.hashCode ^
+      audio.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WebPlaylist &&
+          runtimeType == other.runtimeType &&
+          url == other.url &&
+          host == other.host &&
+          title == other.title &&
+          publisher == other.publisher &&
+          source == other.source &&
+          thumbnail == other.thumbnail &&
+          count == other.count &&
+          truncated == other.truncated &&
+          needsFfmpeg == other.needsFfmpeg &&
+          entries == other.entries &&
+          video == other.video &&
+          audio == other.audio;
+}
+
+/// One entry of a playlist (DL-07).
+class WebPlaylistEntry {
+  /// Position in the playlist, from 1.
+  final int index;
+
+  /// `None`: private, deleted or not a single media; not downloadable.
+  final String? url;
+
+  /// May be empty (the UI then names it by its position).
+  final String title;
+  final double? durationSecs;
+
+  /// The site's picture, fetched only when the entry is downloaded.
+  final String? thumbnailUrl;
+
+  const WebPlaylistEntry({
+    required this.index,
+    this.url,
+    required this.title,
+    this.durationSecs,
+    this.thumbnailUrl,
+  });
+
+  @override
+  int get hashCode =>
+      index.hashCode ^
+      url.hashCode ^
+      title.hashCode ^
+      durationSecs.hashCode ^
+      thumbnailUrl.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WebPlaylistEntry &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          url == other.url &&
+          title == other.title &&
+          durationSecs == other.durationSecs &&
+          thumbnailUrl == other.thumbnailUrl;
+}
+
+/// An entry chosen for download.
+class WebPlaylistPick {
+  final int index;
+  final String url;
+  final String title;
+  final String? thumbnailUrl;
+
+  const WebPlaylistPick({
+    required this.index,
+    required this.url,
+    required this.title,
+    this.thumbnailUrl,
+  });
+
+  @override
+  int get hashCode =>
+      index.hashCode ^ url.hashCode ^ title.hashCode ^ thumbnailUrl.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WebPlaylistPick &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          url == other.url &&
+          title == other.title &&
+          thumbnailUrl == other.thumbnailUrl;
+}
+
+class WebPlaylistStart {
+  final String playlistTitle;
+  final bool isAudio;
+
+  /// One of the playlist's offers.
+  final String formatId;
+  final String formatLabel;
+  final String extension_;
+
+  /// In a folder named after the playlist, inside the download folder.
+  final bool ownFolder;
+  final List<WebPlaylistPick> items;
+
+  const WebPlaylistStart({
+    required this.playlistTitle,
+    required this.isAudio,
+    required this.formatId,
+    required this.formatLabel,
+    required this.extension_,
+    required this.ownFolder,
+    required this.items,
+  });
+
+  @override
+  int get hashCode =>
+      playlistTitle.hashCode ^
+      isAudio.hashCode ^
+      formatId.hashCode ^
+      formatLabel.hashCode ^
+      extension_.hashCode ^
+      ownFolder.hashCode ^
+      items.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WebPlaylistStart &&
+          runtimeType == other.runtimeType &&
+          playlistTitle == other.playlistTitle &&
+          isAudio == other.isAudio &&
+          formatId == other.formatId &&
+          formatLabel == other.formatLabel &&
+          extension_ == other.extension_ &&
+          ownFolder == other.ownFolder &&
+          items == other.items;
 }
 
 class YtDlpUpdate {

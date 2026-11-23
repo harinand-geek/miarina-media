@@ -25,6 +25,10 @@ export '../../src/rust/api/get.dart'
         StartRequest,
         TaskInfo,
         ToolStatus,
+        WebPlaylist,
+        WebPlaylistEntry,
+        WebPlaylistPick,
+        WebPlaylistStart,
         YtDlpUpdate;
 
 /// Obtenir in the core (download manager); tests use an in-memory one.
@@ -33,8 +37,14 @@ abstract interface class GetApi {
   Stream<GetEvent> events();
   Future<LinkCheck> checkLink(String url);
   Future<Analysis> analyze(String url);
+
+  /// Obtenir › Playlist: the whole playlist the link belongs to.
+  Future<Analysis> analyzePlaylist(String url);
   Future<void> installTools();
   Future<TaskInfo> startDownload(StartRequest request);
+
+  /// Queues a playlist's chosen entries; how many were queued.
+  Future<int> startPlaylist(WebPlaylistStart request);
   Future<List<TaskInfo>> tasks();
   Future<List<HistoryInfo>> history();
   Future<void> action(String id, String action);
@@ -113,11 +123,18 @@ class RustGetApi implements GetApi {
   Future<Analysis> analyze(String url) => getAnalyze(url: url);
 
   @override
+  Future<Analysis> analyzePlaylist(String url) => getAnalyzePlaylist(url: url);
+
+  @override
   Future<void> installTools() => getInstallTools();
 
   @override
   Future<TaskInfo> startDownload(StartRequest request) =>
       getStartDownload(request: request);
+
+  @override
+  Future<int> startPlaylist(WebPlaylistStart request) =>
+      getStartPlaylist(request: request);
 
   @override
   Future<List<TaskInfo>> tasks() => getTasks();

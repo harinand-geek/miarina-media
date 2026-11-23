@@ -144,6 +144,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   UpdateRelease dco_decode_box_autoadd_update_release(dynamic raw);
 
   @protected
+  WebPlaylist dco_decode_box_autoadd_web_playlist(dynamic raw);
+
+  @protected
+  WebPlaylistStart dco_decode_box_autoadd_web_playlist_start(dynamic raw);
+
+  @protected
   BrowserEvent dco_decode_browser_event(dynamic raw);
 
   @protected
@@ -339,6 +345,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<TorrentRow> dco_decode_list_torrent_row(dynamic raw);
 
   @protected
+  List<WebPlaylistEntry> dco_decode_list_web_playlist_entry(dynamic raw);
+
+  @protected
+  List<WebPlaylistPick> dco_decode_list_web_playlist_pick(dynamic raw);
+
+  @protected
   MediaInfo dco_decode_media_info(dynamic raw);
 
   @protected
@@ -408,6 +420,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   UpdateRelease? dco_decode_opt_box_autoadd_update_release(dynamic raw);
+
+  @protected
+  WebPlaylist? dco_decode_opt_box_autoadd_web_playlist(dynamic raw);
 
   @protected
   PlatformProbe dco_decode_platform_probe(dynamic raw);
@@ -495,6 +510,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt dco_decode_usize(dynamic raw);
+
+  @protected
+  WebPlaylist dco_decode_web_playlist(dynamic raw);
+
+  @protected
+  WebPlaylistEntry dco_decode_web_playlist_entry(dynamic raw);
+
+  @protected
+  WebPlaylistPick dco_decode_web_playlist_pick(dynamic raw);
+
+  @protected
+  WebPlaylistStart dco_decode_web_playlist_start(dynamic raw);
 
   @protected
   WebviewSpikeInfo dco_decode_webview_spike_info(dynamic raw);
@@ -619,6 +646,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   UpdateRelease sse_decode_box_autoadd_update_release(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  WebPlaylist sse_decode_box_autoadd_web_playlist(SseDeserializer deserializer);
+
+  @protected
+  WebPlaylistStart sse_decode_box_autoadd_web_playlist_start(
     SseDeserializer deserializer,
   );
 
@@ -850,6 +885,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<TorrentRow> sse_decode_list_torrent_row(SseDeserializer deserializer);
 
   @protected
+  List<WebPlaylistEntry> sse_decode_list_web_playlist_entry(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<WebPlaylistPick> sse_decode_list_web_playlist_pick(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   MediaInfo sse_decode_media_info(SseDeserializer deserializer);
 
   @protected
@@ -943,6 +988,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  WebPlaylist? sse_decode_opt_box_autoadd_web_playlist(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   PlatformProbe sse_decode_platform_probe(SseDeserializer deserializer);
 
   @protected
@@ -1030,6 +1080,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BigInt sse_decode_usize(SseDeserializer deserializer);
+
+  @protected
+  WebPlaylist sse_decode_web_playlist(SseDeserializer deserializer);
+
+  @protected
+  WebPlaylistEntry sse_decode_web_playlist_entry(SseDeserializer deserializer);
+
+  @protected
+  WebPlaylistPick sse_decode_web_playlist_pick(SseDeserializer deserializer);
+
+  @protected
+  WebPlaylistStart sse_decode_web_playlist_start(SseDeserializer deserializer);
 
   @protected
   WebviewSpikeInfo sse_decode_webview_spike_info(SseDeserializer deserializer);
@@ -1206,6 +1268,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_update_release(
     UpdateRelease self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_web_playlist(
+    WebPlaylist self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_web_playlist_start(
+    WebPlaylistStart self,
     SseSerializer serializer,
   );
 
@@ -1510,6 +1584,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_web_playlist_entry(
+    List<WebPlaylistEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_web_playlist_pick(
+    List<WebPlaylistPick> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_media_info(MediaInfo self, SseSerializer serializer);
 
   @protected
@@ -1627,6 +1713,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_web_playlist(
+    WebPlaylist? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_platform_probe(PlatformProbe self, SseSerializer serializer);
 
   @protected
@@ -1736,6 +1828,27 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_usize(BigInt self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_web_playlist(WebPlaylist self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_web_playlist_entry(
+    WebPlaylistEntry self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_web_playlist_pick(
+    WebPlaylistPick self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_web_playlist_start(
+    WebPlaylistStart self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_webview_spike_info(

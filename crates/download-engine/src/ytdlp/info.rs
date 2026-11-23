@@ -48,6 +48,30 @@ pub struct RawInfo {
     pub height: Option<u32>,
     pub filesize: Option<u64>,
     pub filesize_approx: Option<u64>,
+    /// Playlist (`_type: playlist`): its entries, listed flat (bounded by
+    /// `--playlist-items`), and the source's total when it gives one.
+    pub entries: Option<Vec<RawEntry>>,
+    pub playlist_count: Option<u64>,
+}
+
+/// One playlist entry as listed by `--flat-playlist` (untrusted).
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct RawEntry {
+    #[serde(rename = "_type")]
+    pub kind: Option<String>,
+    pub url: Option<String>,
+    pub webpage_url: Option<String>,
+    pub title: Option<String>,
+    pub duration: Option<f64>,
+    pub ie_key: Option<String>,
+    pub thumbnail: Option<String>,
+    pub thumbnails: Option<Vec<RawThumbnail>>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct RawThumbnail {
+    pub url: Option<String>,
+    pub width: Option<u32>,
 }
 
 impl RawFormat {

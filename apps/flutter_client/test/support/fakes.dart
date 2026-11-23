@@ -887,12 +887,31 @@ class FakeGetApi implements GetApi {
   }
 
   @override
+  Future<Analysis> analyzePlaylist(String url) async {
+    analyzed.add('playlist $url');
+    if (analysisError != null) throw analysisError!;
+    return analysis!;
+  }
+
+  @override
   Future<void> installTools() async => installs++;
 
   @override
   Future<TaskInfo> startDownload(StartRequest request) async {
     started.add(request);
     return taskInfo('t${started.length}', request.title, state: 'queued');
+  }
+
+  final playlists = <WebPlaylistStart>[];
+
+  /// When set, a playlist is refused with it.
+  Object? playlistError;
+
+  @override
+  Future<int> startPlaylist(WebPlaylistStart request) async {
+    if (playlistError != null) throw playlistError!;
+    playlists.add(request);
+    return request.items.length;
   }
 
   @override

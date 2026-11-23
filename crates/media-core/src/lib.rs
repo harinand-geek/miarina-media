@@ -9,7 +9,9 @@ pub mod path;
 pub mod task;
 pub mod url;
 
-pub use filename::{FilenameError, sanitize_filename, unique_filename};
+pub use filename::{
+    FilenameError, MAX_DIRNAME_BYTES, sanitize_dirname, sanitize_filename, unique_filename,
+};
 pub use path::{PathError, join_within};
 pub use task::{TaskState, TransitionError};
 pub use url::{UrlError, ValidatedUrl, validate_media_url};

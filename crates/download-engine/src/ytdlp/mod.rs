@@ -4,6 +4,7 @@
 
 pub mod info;
 pub mod offers;
+pub mod playlist;
 pub mod runtime;
 pub mod update;
 
@@ -28,6 +29,7 @@ use crate::progress::{SpeedMeter, Throttle};
 use crate::{EngineError, Progress, Stage};
 pub use info::RawInfo;
 pub use offers::{FormatSpec, Offer, Offers, build_offers};
+pub use playlist::{MAX_PLAYLIST_ITEMS, Playlist, PlaylistItem, playlist_offers};
 
 const ANALYZE_TIMEOUT: Duration = Duration::from_secs(90);
 const STDERR_TAIL: usize = 30;
@@ -101,6 +103,9 @@ async fn next_line_lossy<R: AsyncBufRead + Unpin>(
 pub struct Analysis {
     pub info: RawInfo,
     pub offers: Offers,
+    /// A playlist: its entries, and `offers` are the qualities offered for
+    /// all of them (`playlist_offers`).
+    pub playlist: Option<Playlist>,
 }
 
 #[derive(Clone)]
@@ -175,14 +180,42 @@ impl YtDlpEngine {
             })
     }
 
+    /// A single media (a playlist is refused).
     pub async fn analyze(
         &self,
         url: &ValidatedUrl,
         cancel: &CancellationToken,
     ) -> Result<Analysis, EngineError> {
+        let analysis = self.analyze_with(url, false, cancel).await?;
+        if analysis.playlist.is_some() {
+            return Err(EngineError::Unsupported {
+                reason: "playlists are not supported yet".into(),
+            });
+        }
+        Ok(analysis)
+    }
+
+    /// A single media or a playlist. A playlist is listed flat (titles,
+    /// no formats), at most `MAX_PLAYLIST_ITEMS` entries. `whole_playlist`:
+    /// a video page that belongs to a playlist (`watch?v=…&list=…`) gives
+    /// the playlist rather than that video.
+    pub async fn analyze_with(
+        &self,
+        url: &ValidatedUrl,
+        whole_playlist: bool,
+        cancel: &CancellationToken,
+    ) -> Result<Analysis, EngineError> {
         let mut command = self.command()?;
+        command.args(self.args());
+        if whole_playlist {
+            command.arg("--yes-playlist");
+        }
         command
-            .args(self.args())
+            .args([
+                "--flat-playlist".to_owned(),
+                "--playlist-items".to_owned(),
+                format!("1-{}", MAX_PLAYLIST_ITEMS + 1),
+            ])
             .args(["--dump-single-json", "--no-warnings", "--", url.as_str()])
             .stdin(Stdio::null())
             .stdout(Stdio::piped())
@@ -218,8 +251,16 @@ impl YtDlpEngine {
         }
         let info = RawInfo::parse(&out).map_err(|reason| EngineError::Unsupported { reason })?;
         if info.kind.as_deref() == Some("playlist") {
-            return Err(EngineError::Unsupported {
-                reason: "playlists are not supported yet".into(),
+            let playlist = playlist::playlist_of(&info);
+            if playlist.available() == 0 {
+                return Err(EngineError::Unsupported {
+                    reason: "this playlist has no available media".into(),
+                });
+            }
+            return Ok(Analysis {
+                offers: playlist_offers(self.has_ffmpeg()),
+                info,
+                playlist: Some(playlist),
             });
         }
         if info.is_live() {
@@ -238,7 +279,11 @@ impl YtDlpEngine {
                 },
             });
         }
-        Ok(Analysis { info, offers })
+        Ok(Analysis {
+            info,
+            offers,
+            playlist: None,
+        })
     }
 
     async fn run(

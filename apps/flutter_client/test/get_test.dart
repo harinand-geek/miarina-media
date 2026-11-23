@@ -45,6 +45,7 @@ FormatOffer offer(
 const mb = 1024 * 1024;
 
 Analysis ready() => Analysis(
+  playlist: null,
   status: AnalysisStatus.ready,
   info: MediaInfo(
     url: 'https://www.youtube.com/watch?v=R6MlUcmOul8',
@@ -156,7 +157,8 @@ void main() {
         expect(find.text(entry), findsWidgets);
       }
       expect(find.text('Aucun téléchargement'), findsOneWidget);
-      expect(find.text('PRÉVU'), findsNWidgets(2));
+      // Only Plusieurs liens is still planned (Playlist: DL-07).
+      expect(find.text('PRÉVU'), findsOneWidget);
 
       await tester.tap(find.text('Analyser'));
       await settle(tester);
@@ -231,6 +233,7 @@ void main() {
 
     testWidgets('analysis: no media and the media tools', (tester) async {
       get.analysis = Analysis(
+        playlist: null,
         status: AnalysisStatus.noMedia,
         code: 'network',
         detail: '',
@@ -252,6 +255,7 @@ void main() {
       );
 
       get.analysis = Analysis(
+        playlist: null,
         status: AnalysisStatus.needsTools,
         code: '',
         detail: '',

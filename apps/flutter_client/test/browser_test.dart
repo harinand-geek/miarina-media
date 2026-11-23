@@ -88,6 +88,7 @@ void main() {
       browser = FakeBrowserApi();
       get = FakeGetApi(
         analysis: Analysis(
+          playlist: null,
           status: AnalysisStatus.ready,
           info: MediaInfo(
             url: 'https://upload.wikimedia.org/Sintel.webm',

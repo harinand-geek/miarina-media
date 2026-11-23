@@ -63,6 +63,27 @@ pub fn sanitize_filename(title: &str, extension: &str) -> Result<String, Filenam
     Ok(format!("{stem}.{extension}"))
 }
 
+/// Longest folder name made from a title, in bytes: the files inside keep
+/// room under Windows' path limit.
+pub const MAX_DIRNAME_BYTES: usize = 48;
+
+/// A safe folder name (one path component) from an untrusted title, e.g. a
+/// playlist's: same rules as file names, shorter, never empty.
+pub fn sanitize_dirname(title: &str) -> String {
+    let name = sanitize_filename(title, "d").unwrap_or_default();
+    let stem = name.strip_suffix(".d").unwrap_or(&name);
+    let mut dir = truncate_to_bytes(stem, MAX_DIRNAME_BYTES)
+        .trim_end_matches(['.', ' '])
+        .to_owned();
+    if dir.is_empty() {
+        dir = FALLBACK_STEM.to_owned();
+    }
+    if is_reserved_windows_name(&dir) {
+        dir.insert(0, '_');
+    }
+    dir
+}
+
 /// Returns `name` or the first free `stem (n).ext` variant according to
 /// `exists`. The check is advisory: callers must still finalize with an
 /// operation that fails if the target appears in the meantime.
@@ -114,6 +135,20 @@ fn truncate_to_bytes(s: &str, max: usize) -> &str {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn folder_names_are_one_short_safe_component() {
+        assert_eq!(
+            sanitize_dirname("Ma playlist : été 2026"),
+            "Ma playlist _ été 2026"
+        );
+        assert_eq!(sanitize_dirname("../../Windows"), "_.._Windows");
+        assert_eq!(sanitize_dirname("..."), "download");
+        assert_eq!(sanitize_dirname("nul"), "_nul");
+        let long = sanitize_dirname(&"é".repeat(100));
+        assert!(long.len() <= MAX_DIRNAME_BYTES && !long.is_empty());
+        assert!(!sanitize_dirname(r"a/b\c").contains(['/', '\\']));
+    }
 
     #[test]
     fn keeps_normal_titles() {

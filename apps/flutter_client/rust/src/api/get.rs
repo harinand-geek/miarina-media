@@ -10,13 +10,13 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::{Result, anyhow};
 use download_engine::components::ALL as ALL_COMPONENTS;
-use download_engine::ytdlp::FormatSpec;
+use download_engine::ytdlp::{FormatSpec, MAX_PLAYLIST_ITEMS};
 use download_engine::{
     EngineError, HttpEngine, Manager, ManagerEvent, RetryPolicy, YtDlpEngine, media_extension,
 };
 use library::Library;
-use media_core::{UrlError, ValidatedUrl, sanitize_filename, validate_media_url};
-use resource_manager::{Platform, ResourceMode, limits};
+use media_core::{UrlError, ValidatedUrl, sanitize_dirname, sanitize_filename, validate_media_url};
+use resource_manager::{MAX_QUEUE_LEN, Platform, ResourceMode, limits};
 use storage::{HistoryEntry, HistoryStatus, MediaKind, NewTask, TaskRecord, now_ms};
 use tokio::sync::mpsc;
 use tokio_util::sync::CancellationToken;
@@ -31,6 +31,12 @@ const DEFAULT_CONCURRENCY: usize = 3;
 const EVENT_BUFFER: usize = 256;
 /// Analysis never waits longer for the source's picture.
 const THUMBNAIL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(8);
+/// A playlist's pictures are fetched this many at a time, and never delay
+/// its downloads longer than this.
+const PLAYLIST_THUMBNAILS_AT_ONCE: usize = 6;
+const PLAYLIST_THUMBNAILS_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(20);
+/// Longest entry title kept in a playlist's file names (path length).
+const PLAYLIST_TITLE_CHARS: usize = 100;
 
 struct Getter {
     db: String,
@@ -148,6 +154,61 @@ pub enum AnalysisStatus {
     NoMedia,
     /// The page needs yt-dlp, not installed (consent before downloading it).
     NeedsTools,
+    /// A playlist (`Analysis.playlist`): its entries are chosen, then each
+    /// becomes a download.
+    Playlist,
+}
+
+/// One entry of a playlist (DL-07).
+pub struct WebPlaylistEntry {
+    /// Position in the playlist, from 1.
+    pub index: u32,
+    /// `None`: private, deleted or not a single media; not downloadable.
+    pub url: Option<String>,
+    /// May be empty (the UI then names it by its position).
+    pub title: String,
+    pub duration_secs: Option<f64>,
+    /// The site's picture, fetched only when the entry is downloaded.
+    pub thumbnail_url: Option<String>,
+}
+
+pub struct WebPlaylist {
+    pub url: String,
+    pub host: String,
+    pub title: String,
+    pub publisher: String,
+    pub source: Option<String>,
+    /// Local copy of the first entry's picture.
+    pub thumbnail: Option<String>,
+    /// Entries in the whole playlist, when the source says.
+    pub count: Option<u64>,
+    /// Only the first `entries` are listed (`MAX_PLAYLIST_ITEMS`).
+    pub truncated: bool,
+    pub needs_ffmpeg: bool,
+    pub entries: Vec<WebPlaylistEntry>,
+    /// Qualities offered for every entry.
+    pub video: Vec<FormatOffer>,
+    pub audio: Vec<FormatOffer>,
+}
+
+/// An entry chosen for download.
+pub struct WebPlaylistPick {
+    pub index: u32,
+    pub url: String,
+    pub title: String,
+    pub thumbnail_url: Option<String>,
+}
+
+pub struct WebPlaylistStart {
+    pub playlist_title: String,
+    pub is_audio: bool,
+    /// One of the playlist's offers.
+    pub format_id: String,
+    pub format_label: String,
+    pub extension: String,
+    /// In a folder named after the playlist, inside the download folder.
+    pub own_folder: bool,
+    pub items: Vec<WebPlaylistPick>,
 }
 
 /// Plain structs and enums only: the bridge then needs no generated
@@ -161,6 +222,7 @@ pub struct Analysis {
     /// No media: the engine's reason (English, shown as is).
     pub detail: String,
     pub tools: Vec<ToolStatus>,
+    pub playlist: Option<WebPlaylist>,
 }
 
 impl Analysis {
@@ -171,6 +233,7 @@ impl Analysis {
             code: String::new(),
             detail: String::new(),
             tools: Vec::new(),
+            playlist: None,
         }
     }
 
@@ -181,6 +244,7 @@ impl Analysis {
             code,
             detail,
             tools: Vec::new(),
+            playlist: None,
         }
     }
 }
@@ -546,21 +610,35 @@ pub fn get_check_link(url: String) -> LinkCheck {
 /// anything else (a web page) goes to the yt-dlp extractor. Blocking:
 /// runs the requests on the download runtime.
 pub fn get_analyze(url: String) -> Result<Analysis> {
+    analyze(url, false)
+}
+
+/// Obtenir › Playlist: the whole playlist a link belongs to, even a video
+/// page inside one (`watch?v=…&list=…`). A link to a single media still
+/// gives that media.
+pub fn get_analyze_playlist(url: String) -> Result<Analysis> {
+    analyze(url, true)
+}
+
+fn analyze(url: String, whole_playlist: bool) -> Result<Analysis> {
     let g = getter()?;
     let url = validate_media_url(&url).map_err(|e| anyhow!(e.to_string()))?;
     let runtime = g.runtime.clone();
     runtime.block_on(async move {
         // Known video pages go straight to their extractor: a generic HTTP
-        // probe may fail where yt-dlp's own requests work.
-        if matches!(
-            url.host(),
-            "youtube.com" | "www.youtube.com" | "m.youtube.com" | "youtu.be"
-        ) {
-            return extractor_analysis(&g, &url).await;
+        // probe may fail where yt-dlp's own requests work. So does a
+        // playlist (a page, never a file).
+        if whole_playlist
+            || matches!(
+                url.host(),
+                "youtube.com" | "www.youtube.com" | "m.youtube.com" | "youtu.be"
+            )
+        {
+            return extractor_analysis(&g, &url, whole_playlist).await;
         }
         match g.http.probe(&url).await {
             Ok(media) => Ok(direct_analysis(&url, media)),
-            Err(error) if should_extract(&url, &error) => extractor_analysis(&g, &url).await,
+            Err(error) if should_extract(&url, &error) => extractor_analysis(&g, &url, false).await,
             Err(error) => Ok(no_media(&error)),
         }
     })
@@ -624,7 +702,11 @@ fn tools_status(ytdlp: &YtDlpEngine) -> Vec<ToolStatus> {
         .collect()
 }
 
-async fn extractor_analysis(g: &Getter, url: &ValidatedUrl) -> Result<Analysis> {
+async fn extractor_analysis(
+    g: &Getter,
+    url: &ValidatedUrl,
+    whole_playlist: bool,
+) -> Result<Analysis> {
     // Android: the extractor ships in the APK (get_set_android_tools); without
     // it (tools not unpacked) there is nothing to install from here.
     if !cfg!(windows) && !g.ytdlp.available() {
@@ -637,7 +719,11 @@ async fn extractor_analysis(g: &Getter, url: &ValidatedUrl) -> Result<Analysis> 
             ..Analysis::no_media(String::new(), String::new())
         });
     }
-    let analysis = match g.ytdlp.analyze(url, &CancellationToken::new()).await {
+    let analysis = match g
+        .ytdlp
+        .analyze_with(url, whole_playlist, &CancellationToken::new())
+        .await
+    {
         Ok(analysis) => analysis,
         Err(error) => return Ok(no_media(&error)),
     };
@@ -650,6 +736,43 @@ async fn extractor_analysis(g: &Getter, url: &ValidatedUrl) -> Result<Analysis> 
         extension: o.extension.clone(),
         tag: o.tag.map(str::to_owned),
     };
+    if let Some(list) = &analysis.playlist {
+        let first = list
+            .items
+            .iter()
+            .filter(|i| i.url.is_some())
+            .find_map(|i| i.thumbnail.as_deref());
+        let thumbnail = source_thumbnail(g, first.or(info.thumbnail.as_deref())).await;
+        return Ok(Analysis {
+            status: AnalysisStatus::Playlist,
+            playlist: Some(WebPlaylist {
+                url: url.as_str().to_owned(),
+                host: url.host().to_owned(),
+                title: clean_text(info.title.as_deref()).unwrap_or_else(|| url.host().to_owned()),
+                publisher: clean_text(info.uploader.as_deref().or(info.channel.as_deref()))
+                    .unwrap_or_else(|| url.host().to_owned()),
+                source: clean_text(info.extractor_key.as_deref()),
+                thumbnail,
+                count: list.count,
+                truncated: list.truncated,
+                needs_ffmpeg: !g.ytdlp.has_ffmpeg(),
+                entries: list
+                    .items
+                    .iter()
+                    .map(|i| WebPlaylistEntry {
+                        index: i.index,
+                        url: i.url.clone(),
+                        title: clean_text(i.title.as_deref()).unwrap_or_default(),
+                        duration_secs: i.duration,
+                        thumbnail_url: i.thumbnail.clone(),
+                    })
+                    .collect(),
+                video: analysis.offers.video.iter().map(offer).collect(),
+                audio: analysis.offers.audio.iter().map(offer).collect(),
+            }),
+            ..Analysis::no_media(String::new(), String::new())
+        });
+    }
     let thumbnail = source_thumbnail(g, info.thumbnail.as_deref()).await;
     Ok(Analysis::ready(MediaInfo {
         url: url.as_str().to_owned(),
@@ -875,10 +998,7 @@ pub fn get_start_download(request: StartRequest) -> Result<TaskInfo> {
     };
     let title: String = request.title.chars().take(300).collect();
     let file_name = sanitize_filename(&title, &request.extension)?;
-    let dest_dir = match (&kind, lock(&g.audio_dir).as_ref()) {
-        (MediaKind::Audio, Some(dir)) => dir.to_string_lossy().into_owned(),
-        _ => settings_of(&lock(&g.storage), &g.default_dir).download_dir,
-    };
+    let dest_dir = download_dir(&g, &kind);
     std::fs::create_dir_all(&dest_dir)?;
     let task = NewTask {
         id: new_task_id(),
@@ -902,6 +1022,132 @@ pub fn get_start_download(request: StartRequest) -> Result<TaskInfo> {
         g.manager.start_now(&record.id)?;
     }
     Ok(task_info(lock(&g.storage).task(&record.id)?))
+}
+
+/// The download folder for a kind of media (Android: audio in Music/Miarina).
+fn download_dir(g: &Getter, kind: &MediaKind) -> String {
+    match (kind, lock(&g.audio_dir).as_ref()) {
+        (MediaKind::Audio, Some(dir)) => dir.to_string_lossy().into_owned(),
+        _ => settings_of(&lock(&g.storage), &g.default_dir).download_dir,
+    }
+}
+
+/// Queues the chosen entries of a playlist, in the playlist's order, with
+/// one quality for all (DL-07). Each becomes an ordinary task: the queue's
+/// limits apply and a failure is retried on its own. All or nothing: a
+/// queue without room for every entry refuses them (`queue_full`).
+/// Returns how many were queued.
+pub fn get_start_playlist(request: WebPlaylistStart) -> Result<u32> {
+    let g = getter()?;
+    FormatSpec::decode(&request.format_id).map_err(|e| anyhow!("invalid format: {e}"))?;
+    if request.items.len() > MAX_PLAYLIST_ITEMS {
+        return Err(anyhow!("too many entries"));
+    }
+    let picks = request
+        .items
+        .iter()
+        .map(|item| {
+            validate_media_url(&item.url)
+                .map(|url| (item, url))
+                .map_err(|e| anyhow!(e.to_string()))
+        })
+        .collect::<Result<Vec<_>>>()?;
+    if picks.is_empty() {
+        return Ok(0);
+    }
+    if g.manager.tasks()?.len() + picks.len() > MAX_QUEUE_LEN {
+        return Err(anyhow!("queue_full"));
+    }
+    let kind = if request.is_audio {
+        MediaKind::Audio
+    } else {
+        MediaKind::Video
+    };
+    let mut dest_dir = PathBuf::from(download_dir(&g, &kind));
+    if request.own_folder {
+        dest_dir.push(sanitize_dirname(&request.playlist_title));
+    }
+    std::fs::create_dir_all(&dest_dir)?;
+    let dest_dir = dest_dir.to_string_lossy().into_owned();
+    // File names keep the playlist's order: "01 - Title.mp4".
+    let width = picks
+        .iter()
+        .map(|(item, _)| item.index.to_string().len())
+        .max()
+        .unwrap_or(1)
+        .max(2);
+    let mut tasks = Vec::with_capacity(picks.len());
+    for (item, url) in &picks {
+        let title: String = item
+            .title
+            .trim()
+            .chars()
+            .take(PLAYLIST_TITLE_CHARS)
+            .collect();
+        let title = if title.is_empty() {
+            format!("{} {}", request.playlist_title.trim(), item.index)
+        } else {
+            title
+        };
+        let title: String = title.chars().take(300).collect();
+        let file_name = sanitize_filename(
+            &format!("{:0width$} - {title}", item.index),
+            &request.extension,
+        )?;
+        tasks.push(NewTask {
+            id: String::new(),
+            url: url.as_str().to_owned(),
+            source_host: url.host().to_owned(),
+            title,
+            kind,
+            engine: "ytdlp".into(),
+            format_id: Some(request.format_id.clone()),
+            format_label: request.format_label.chars().take(80).collect(),
+            dest_dir: dest_dir.clone(),
+            file_name,
+            thumbnail: None,
+        });
+    }
+    let thumbnails = g.runtime.block_on(playlist_thumbnails(
+        &g,
+        picks
+            .iter()
+            .map(|(item, _)| item.thumbnail_url.clone())
+            .collect(),
+    ));
+    let _enter = g.runtime.enter();
+    let mut queued = 0;
+    for (mut task, thumbnail) in tasks.into_iter().zip(thumbnails) {
+        task.id = new_task_id();
+        task.thumbnail = thumbnail;
+        g.manager.enqueue(task)?;
+        queued += 1;
+    }
+    Ok(queued)
+}
+
+/// The entries' pictures, a few at a time and within a time limit (a
+/// missing picture only means the placeholder).
+async fn playlist_thumbnails(g: &Arc<Getter>, urls: Vec<Option<String>>) -> Vec<Option<String>> {
+    let mut found = vec![None; urls.len()];
+    let permits = Arc::new(tokio::sync::Semaphore::new(PLAYLIST_THUMBNAILS_AT_ONCE));
+    let mut set = tokio::task::JoinSet::new();
+    for (i, url) in urls.into_iter().enumerate() {
+        let Some(url) = url else { continue };
+        let (g, permits) = (g.clone(), permits.clone());
+        set.spawn(async move {
+            let _permit = permits.acquire_owned().await.ok()?;
+            Some((i, source_thumbnail(&g, Some(&url)).await?))
+        });
+    }
+    let deadline = tokio::time::Instant::now() + PLAYLIST_THUMBNAILS_TIMEOUT;
+    while let Ok(Some(done)) = tokio::time::timeout_at(deadline, set.join_next()).await {
+        if let Ok(Some((i, path))) = done {
+            found[i] = Some(path);
+        }
+    }
+    // Pictures still on their way are dropped with the set.
+    found
 }
 
 pub fn get_tasks() -> Result<Vec<TaskInfo>> {

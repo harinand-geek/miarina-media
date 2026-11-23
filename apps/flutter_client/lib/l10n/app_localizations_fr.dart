@@ -3687,4 +3687,92 @@ class L10nFr extends L10n {
   String getDlCard(int running, int queued) {
     return '$running en cours · $queued en attente';
   }
+
+  @override
+  String plCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count éléments',
+      one: '1 élément',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String plTruncated(int shown, int total) {
+    return 'Les $shown premiers sur $total';
+  }
+
+  @override
+  String plTruncatedUnknown(int shown) {
+    return 'Les $shown premiers éléments';
+  }
+
+  @override
+  String get plQuality => 'Qualité pour tous les éléments';
+
+  @override
+  String get plQualityNote =>
+      'Si un élément n’a pas cette qualité, la meilleure en dessous est prise.';
+
+  @override
+  String get plItems => 'Éléments';
+
+  @override
+  String plSelected(int selected, int total) {
+    return '$selected sur $total sélectionnés';
+  }
+
+  @override
+  String get plSelectAll => 'Tout sélectionner';
+
+  @override
+  String get plSelectNone => 'Tout désélectionner';
+
+  @override
+  String get plUnavailable => 'Indisponible';
+
+  @override
+  String plItemFallback(int index) {
+    return 'Élément $index';
+  }
+
+  @override
+  String plOwnFolder(String name) {
+    return 'Dans un dossier « $name »';
+  }
+
+  @override
+  String plDownload(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Télécharger $count éléments',
+      one: 'Télécharger 1 élément',
+      zero: 'Télécharger',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plPreparing => 'Préparation…';
+
+  @override
+  String plQueued(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count téléchargements ajoutés à la file',
+      one: '1 téléchargement ajouté à la file',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get plQueueFull =>
+      'La file est pleine. Terminez ou retirez des téléchargements, puis réessayez.';
+
+  @override
+  String get plFailed => 'La playlist n’a pas pu être ajoutée. Réessayez.';
 }

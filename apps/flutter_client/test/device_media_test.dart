@@ -170,7 +170,9 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('Audio seul'), findsOneWidget);
-    expect(find.text('PRÉVU'), findsOneWidget);
+    // Playlist is available (DL-07): no badge left.
+    expect(find.text('Playlist'), findsOneWidget);
+    expect(find.text('PRÉVU'), findsNothing);
   });
 
   testWidgets('other tabs are not gated', (tester) async {

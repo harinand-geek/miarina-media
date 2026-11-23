@@ -19,6 +19,8 @@ import '../library/library_data.dart';
 import '../settings/extension_settings.dart' show extensionConnectedProvider;
 import 'get_data.dart';
 
+part 'playlist_result.dart';
+
 // Obtenir, ported to the identical from the Tauri app (screens 1 to 3 of
 // Windows v2: home, analysis, downloads).
 
@@ -576,7 +578,11 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
               () => _submit(tab: 'audio'),
             ),
             const SizedBox(width: 12),
-            tile(PhosphorRegular.playlist, t.getQPlaylist, null, planned: true),
+            tile(
+              PhosphorRegular.playlist,
+              t.getQPlaylist,
+              () => _submit(tab: 'playlist'),
+            ),
             const SizedBox(width: 12),
             tile(
               PhosphorRegular.globe,
@@ -816,7 +822,7 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
         PhosphorRegular.playlist,
         t.getQPlaylist,
         t.getQPlaylistDesc,
-        null,
+        () => _submit(tab: 'playlist'),
       ),
       _Quick(PhosphorRegular.stack, t.getQBatch, t.getQBatchDesc, null),
       _Quick(
@@ -1360,7 +1366,11 @@ class _GetAnalysisScreenState extends ConsumerState<GetAnalysisScreen> {
 
   Future<Analysis> _run() async {
     await ref.read(downloadsProvider.notifier).started;
-    return ref.read(getApiProvider).analyze(widget.url);
+    final api = ref.read(getApiProvider);
+    // Obtenir › Playlist: the whole playlist, even from one of its videos.
+    return widget.tab == 'playlist'
+        ? api.analyzePlaylist(widget.url)
+        : api.analyze(widget.url);
   }
 
   void _retry() => setState(() {
@@ -1391,6 +1401,11 @@ class _GetAnalysisScreenState extends ConsumerState<GetAnalysisScreen> {
         return switch (a.status) {
           AnalysisStatus.ready => _AnalysisResult(
             info: a.info!,
+            tab: widget.tab == 'playlist' ? 'video' : widget.tab,
+            onStarted: widget.onStarted,
+          ),
+          AnalysisStatus.playlist => _PlaylistResult(
+            list: a.playlist!,
             tab: widget.tab,
             onStarted: widget.onStarted,
           ),

@@ -204,3 +204,79 @@ async fn a_signed_ytdlp_release_installs_and_activates() {
     // Same version as the pinned one: the pinned executable stays in use.
     assert_eq!(components.ytdlp_version(), "2026.08.19");
 }
+
+/// The public videos tab of the Blender Studio channel: a playlist.
+const PLAYLIST: &str = "https://www.youtube.com/@BlenderStudio/videos";
+
+/// Components, with the app's shipped tools when `MIARINA_BUNDLED_DIR` says
+/// where they are (e.g. `apps/flutter_client/build/tools-cache`).
+fn components_with_bundled() -> Components {
+    match std::env::var("MIARINA_BUNDLED_DIR") {
+        Ok(dir) => components().with_bundled(PathBuf::from(dir)),
+        Err(_) => components(),
+    }
+}
+
+#[tokio::test]
+#[ignore = "lists a real playlist, then downloads its shortest entry as MP3"]
+async fn a_playlist_is_listed_flat_then_an_entry_downloads_with_a_preset() {
+    let engine = YtDlpEngine::new(components_with_bundled());
+    let cancel = CancellationToken::new();
+    let started = std::time::Instant::now();
+    let analysis = engine
+        .analyze_with(&validate_media_url(PLAYLIST).unwrap(), true, &cancel)
+        .await
+        .expect("analysis");
+    let list = analysis.playlist.expect("a playlist");
+    eprintln!(
+        "{:?}: {} entries ({} available), count {:?}, truncated {}, in {:.1} s",
+        analysis.info.title,
+        list.items.len(),
+        list.available(),
+        list.count,
+        list.truncated,
+        started.elapsed().as_secs_f64()
+    );
+    assert!(list.available() > 0);
+    assert!(list.items.len() <= download_engine::ytdlp::MAX_PLAYLIST_ITEMS);
+    assert!(list.items.windows(2).all(|w| w[0].index + 1 == w[1].index));
+
+    // The shortest entry keeps the test short; one preset for all entries.
+    let entry = list
+        .items
+        .iter()
+        .filter(|i| i.url.is_some() && i.duration.is_some())
+        .min_by(|a, b| a.duration.partial_cmp(&b.duration).unwrap())
+        .expect("an entry with a duration");
+    eprintln!(
+        "entry {}: {:?} ({:?} s)",
+        entry.index, entry.title, entry.duration
+    );
+    let offer = analysis
+        .offers
+        .audio
+        .iter()
+        .find(|o| o.spec.audio_kbps == Some(192))
+        .expect("MP3 192 kbps (FFmpeg installed)");
+    let dir = tempfile::tempdir().unwrap();
+    let job = DownloadJob {
+        url: validate_media_url(entry.url.as_deref().unwrap()).unwrap(),
+        part_path: dir.path().join("entry.mp3.test.part"),
+        dest_dir: dir.path().to_path_buf(),
+        file_name: format!("{:02} - entry.mp3", entry.index),
+        progress_interval: Duration::from_millis(500),
+        format_id: Some(offer.spec.encode()),
+        process: Default::default(),
+    };
+    let outcome = engine
+        .download(&job, &|_| {}, cancel)
+        .await
+        .expect("download");
+    let size = std::fs::metadata(&outcome.final_path).unwrap().len();
+    eprintln!("saved {} ({size} bytes)", outcome.final_path.display());
+    assert!(size > 0);
+    assert_eq!(
+        outcome.final_path.extension().and_then(|e| e.to_str()),
+        Some("mp3")
+    );
+}
