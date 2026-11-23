@@ -1318,10 +1318,20 @@ Future<void> playDownload(
 
 /// Windows v2 screen 2: formats of the pasted link.
 class GetAnalysisScreen extends ConsumerStatefulWidget {
-  const GetAnalysisScreen({super.key, required this.url, this.tab = 'video'});
+  const GetAnalysisScreen({
+    super.key,
+    required this.url,
+    this.tab = 'video',
+    this.onStarted,
+  });
 
   final String url;
   final String tab;
+
+  /// In a sheet (the browser's formats sheet, Android screen 03): no Back
+  /// link, and a started download calls this (after its toast) instead of
+  /// opening Téléchargements.
+  final VoidCallback? onStarted;
 
   @override
   ConsumerState<GetAnalysisScreen> createState() => _GetAnalysisScreenState();
@@ -1351,11 +1361,13 @@ class _GetAnalysisScreenState extends ConsumerState<GetAnalysisScreen> {
           // Technical details stay in the log, never on screen.
           debugPrint('analysis failed: ${snap.error}');
           return _Scroll(
+            back: widget.onStarted == null,
             child: _NoMedia(detail: '', code: 'other', onRetry: _retry),
           );
         }
         if (a == null) {
           return _Scroll(
+            back: widget.onStarted == null,
             child: _Waiting(key: ValueKey(_attempt), url: widget.url),
           );
         }
@@ -1363,11 +1375,14 @@ class _GetAnalysisScreenState extends ConsumerState<GetAnalysisScreen> {
           AnalysisStatus.ready => _AnalysisResult(
             info: a.info!,
             tab: widget.tab,
+            onStarted: widget.onStarted,
           ),
           AnalysisStatus.noMedia => _Scroll(
+            back: widget.onStarted == null,
             child: _NoMedia(code: a.code, detail: a.detail, onRetry: _retry),
           ),
           AnalysisStatus.needsTools => _Scroll(
+            back: widget.onStarted == null,
             child: _ToolsPrompt(tools: a.tools, onInstalled: _retry),
           ),
         };
@@ -1378,9 +1393,12 @@ class _GetAnalysisScreenState extends ConsumerState<GetAnalysisScreen> {
 
 /// Scrolling area with the Back link (the action bar stays below it).
 class _Scroll extends StatelessWidget {
-  const _Scroll({required this.child});
+  const _Scroll({required this.child, this.back = true});
 
   final Widget child;
+
+  /// The Back link (not in a sheet).
+  final bool back;
 
   @override
   Widget build(BuildContext context) {
@@ -1391,28 +1409,30 @@ class _Scroll extends StatelessWidget {
           ? const EdgeInsets.fromLTRB(16, 8, 16, 16)
           : const EdgeInsets.fromLTRB(48, 24, 48, 24),
       children: [
-        Align(
-          alignment: Alignment.centerLeft,
-          child: Pressable(
-            onTap: () => context.go(Routes.get),
-            semanticLabel: t.getBack,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(PhosphorRegular.arrowLeft, size: 18, color: c.muted),
-                const SizedBox(width: 6),
-                Text(
-                  t.getBack,
-                  style: MmType.labelStrong.copyWith(
-                    fontSize: 13,
-                    color: c.muted,
+        if (back) ...[
+          Align(
+            alignment: Alignment.centerLeft,
+            child: Pressable(
+              onTap: () => context.go(Routes.get),
+              semanticLabel: t.getBack,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(PhosphorRegular.arrowLeft, size: 18, color: c.muted),
+                  const SizedBox(width: 6),
+                  Text(
+                    t.getBack,
+                    style: MmType.labelStrong.copyWith(
+                      fontSize: 13,
+                      color: c.muted,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
+          const SizedBox(height: 20),
+        ],
         child,
       ],
     );
@@ -1809,10 +1829,15 @@ class _ToolsPromptState extends ConsumerState<_ToolsPrompt> {
 }
 
 class _AnalysisResult extends ConsumerStatefulWidget {
-  const _AnalysisResult({required this.info, required this.tab});
+  const _AnalysisResult({
+    required this.info,
+    required this.tab,
+    this.onStarted,
+  });
 
   final MediaInfo info;
   final String tab;
+  final VoidCallback? onStarted;
 
   @override
   ConsumerState<_AnalysisResult> createState() => _AnalysisResultState();
@@ -1853,7 +1878,10 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
             ),
           );
       if (!mounted) return;
-      if (now) {
+      if (widget.onStarted != null) {
+        _toast(context, t.getAddedToQueue(shortQuality(format)));
+        widget.onStarted!();
+      } else if (now) {
         context.go(Routes.getDownloads);
       } else {
         _toast(
@@ -1916,35 +1944,37 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: Pressable(
-                  onTap: () => context.go(Routes.get),
-                  semanticLabel: t.getBack,
-                  child: SizedBox(
-                    height: 40,
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          PhosphorRegular.arrowLeft,
-                          size: 20,
-                          color: c.muted,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          t.getBack,
-                          style: MmType.labelStrong.copyWith(
-                            fontSize: 14,
+              if (widget.onStarted == null) ...[
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Pressable(
+                    onTap: () => context.go(Routes.get),
+                    semanticLabel: t.getBack,
+                    child: SizedBox(
+                      height: 40,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            PhosphorRegular.arrowLeft,
+                            size: 20,
                             color: c.muted,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 6),
+                          Text(
+                            t.getBack,
+                            style: MmType.labelStrong.copyWith(
+                              fontSize: 14,
+                              color: c.muted,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 8),
+                const SizedBox(height: 8),
+              ],
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [

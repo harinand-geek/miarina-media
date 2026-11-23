@@ -148,12 +148,33 @@ void main() {
 
     await tester.tap(find.text('Télécharger · 2'));
     await settle(tester);
-    expect(find.text('Télécharger depuis cette page'), findsOneWidget);
+    // Screen 03: the media as chips, the main one analyzed, its formats.
+    expect(
+      find.bySemanticsLabel(RegExp('^Vidéo · Sintel.webm')),
+      findsOneWidget,
+    );
+    expect(
+      find.bySemanticsLabel(RegExp('^Audio · Sintel.ogg')),
+      findsOneWidget,
+    );
+    expect(get.analyzed, ['https://upload.wikimedia.org/Sintel.webm']);
+    expect(find.text('Sintel'), findsOneWidget);
     expect(find.text('WEBM · fichier d’origine'), findsOneWidget);
-    await tester.tap(find.text('Télécharger').last);
+    expect(find.text('Ajouter à la file'), findsOneWidget);
+    await tester.tap(find.textContaining('Télécharger · 120'));
     await settle(tester);
     expect(get.started.single.url, 'https://upload.wikimedia.org/Sintel.webm');
     expect(get.started.single.startNow, isTrue);
+    // The sheet closes; the page stays.
+    expect(find.text('Ajouter à la file'), findsNothing);
+    expect(find.text('Télécharger · 2'), findsOneWidget);
+
+    // Another chip: that media is analyzed.
+    await tester.tap(find.text('Télécharger · 2'));
+    await settle(tester);
+    await tester.tap(find.bySemanticsLabel(RegExp('^Audio · Sintel.ogg')));
+    await settle(tester);
+    expect(get.analyzed.last, 'https://upload.wikimedia.org/Sintel.ogg');
   });
 
   testWidgets('holding the button downloads the main media at once', (

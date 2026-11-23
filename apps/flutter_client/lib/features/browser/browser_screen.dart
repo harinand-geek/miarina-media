@@ -15,7 +15,7 @@ import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart' show PillSegment;
 import '../get/get_data.dart';
-import '../get/get_screens.dart' show bytes;
+import '../get/get_screens.dart' show GetAnalysisScreen, bytes;
 import 'browser_data.dart';
 
 part 'browser_phone.dart';
@@ -913,14 +913,10 @@ class _MediaPanel extends ConsumerStatefulWidget {
     super.key,
     required this.candidates,
     required this.onClose,
-    this.sheet = false,
   });
 
   final List<Candidate> candidates;
   final VoidCallback onClose;
-
-  /// Phone: the bottom sheet of the floating button (screen 03).
-  final bool sheet;
 
   @override
   ConsumerState<_MediaPanel> createState() => _MediaPanelState();
@@ -971,15 +967,11 @@ class _MediaPanelState extends ConsumerState<_MediaPanel> {
     return Container(
       decoration: BoxDecoration(
         color: c.surface,
-        border: widget.sheet ? null : Border(left: BorderSide(color: c.line)),
+        border: Border(left: BorderSide(color: c.line)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          if (widget.sheet) ...[
-            const SizedBox(height: 10),
-            const _SheetHandle(),
-          ],
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 14, 8, 6),
             child: Row(

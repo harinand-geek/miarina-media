@@ -92,15 +92,14 @@ class _PhoneBrowserState extends ConsumerState<_PhoneBrowser> {
   }
 
   void _formats(List<Candidate> candidates) {
-    final height = MediaQuery.sizeOf(context).height * 0.75;
+    final height = MediaQuery.sizeOf(context).height * 0.8;
     _sheet(
       (sheet) => SizedBox(
         height: height,
-        child: _MediaPanel(
+        child: _PhoneFormats(
           key: ValueKey(widget.snapshot.url),
           candidates: candidates,
-          sheet: true,
-          onClose: () => Navigator.of(sheet).pop(),
+          onStarted: () => Navigator.of(sheet).pop(),
         ),
       ),
     );
@@ -344,6 +343,124 @@ class _PhoneBrowserState extends ConsumerState<_PhoneBrowser> {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// Screen 03: the media found on the page as chips (the main one
+/// preselected), then the analysis of the chosen one, as in Obtenir:
+/// Vidéo / Audio seul / Sous-titres, formats, folder, « À la file » and
+/// « Télécharger · taille ».
+class _PhoneFormats extends StatefulWidget {
+  const _PhoneFormats({
+    super.key,
+    required this.candidates,
+    required this.onStarted,
+  });
+
+  final List<Candidate> candidates;
+  final VoidCallback onStarted;
+
+  @override
+  State<_PhoneFormats> createState() => _PhoneFormatsState();
+}
+
+class _PhoneFormatsState extends State<_PhoneFormats> {
+  late String? _url = mainCandidate(widget.candidates)?.url;
+
+  String _kind(L10n t, String kind) => switch (kind) {
+    'audio' => t.brKindAudio,
+    'hls' => t.brKindHls,
+    'dash' => t.brKindDash,
+    'page' => t.brKindPage,
+    _ => t.brKindVideo,
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final url = _url;
+    final selected = widget.candidates.where((m) => m.url == url).firstOrNull;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const SizedBox(height: 10),
+        const _SheetHandle(),
+        if (widget.candidates.length > 1)
+          SizedBox(
+            height: 44,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+              children: [
+                for (final m in widget.candidates)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Pressable(
+                      onTap: () => setState(() => _url = m.url),
+                      semanticLabel: '${_kind(t, m.kind)} · ${m.title}',
+                      selected: m.url == url,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        height: 32,
+                        constraints: const BoxConstraints(maxWidth: 220),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          color: m.url == url ? c.accentSubtle : c.surface2,
+                          borderRadius: BorderRadius.circular(16),
+                          border: Border.all(
+                            color: m.url == url ? c.accent : c.line,
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              m.kind == 'audio'
+                                  ? PhosphorRegular.musicNote
+                                  : PhosphorRegular.filmStrip,
+                              size: 16,
+                              color: m.url == url ? c.chipText : c.muted,
+                            ),
+                            const SizedBox(width: 6),
+                            Flexible(
+                              child: Text(
+                                m.title,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: MmType.labelStrong.copyWith(
+                                  fontSize: 13,
+                                  color: m.url == url ? c.chipText : c.fgSoft,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        if (url != null)
+          Expanded(
+            child: GetAnalysisScreen(
+              key: ValueKey(url),
+              url: url,
+              tab: selected?.kind == 'audio' ? 'audio' : 'video',
+              onStarted: widget.onStarted,
+            ),
+          ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+          child: Text(
+            t.brLegalHint,
+            textAlign: TextAlign.center,
+            style: MmType.caption.copyWith(fontSize: 11.5, color: c.muted),
+          ),
+        ),
+      ],
     );
   }
 }
