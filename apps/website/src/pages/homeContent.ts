@@ -177,7 +177,7 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.2 · bêta',
+      kicker: 'Windows 0.2.3 · bêta',
       title: 'Une nouvelle application Windows, à essayer.',
       lead: 'La 0.2.0 refait toute l’application Windows. Elle s’installe par-dessus la 0.1.x, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
       points: [
@@ -195,7 +195,7 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
         [
           'Ce qui change encore',
-          'Nouveau dans la 0.2.2 : une seule fenêtre et « Ouvrir avec Miarina Media » pour la musique et les vidéos. L’extension pour Chrome et Edge n’est pas reprise.',
+          'Nouveau dans la 0.2.3 : téléchargement de playlists, touches multimédia, et le retour de l’extension pour Chrome et Edge.',
         ],
       ],
       how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur. Sur Android, Miarina Media Bêta s’installe à côté de la 0.1.11.',
@@ -342,7 +342,7 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.2 · beta',
+      kicker: 'Windows 0.2.3 · beta',
       title: 'A new Windows app, ready to try.',
       lead: '0.2.0 rebuilds the whole Windows app. It installs over 0.1.x, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
       points: [
@@ -360,7 +360,7 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
         [
           'Still changing',
-          'New in 0.2.2: one window, and “Open with Miarina Media” for music and videos. The Chrome and Edge extension is not carried over.',
+          'New in 0.2.3: playlist downloads, media keys, and the Chrome and Edge extension is back.',
         ],
       ],
       how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer. On Android, Miarina Media Beta installs next to 0.1.11.',

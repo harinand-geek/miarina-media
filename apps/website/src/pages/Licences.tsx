@@ -12,19 +12,20 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
-        <h2>Application Windows 0.2.2 (bêta)</h2>
+        <h2>Application Windows 0.2.3 (bêta)</h2>
         <p>
-          La version 0.2.2 pour Windows est sous GPL-3.0-only, comme les précédentes. Ses sources
+          La version 0.2.3 pour Windows est sous GPL-3.0-only, comme les précédentes. Ses sources
           exactes et ses scripts de construction sont à l’étiquette{' '}
-          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.2">v0.2.2</a> du dépôt,
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.3">v0.2.3</a> du dépôt,
           et dans l’
-          <a href="/downloads/MiarinaMedia-0.2.2-source.tar.gz">
-            archive du code des applications 0.2.2
+          <a href="/downloads/MiarinaMedia-0.2.3-source.tar.gz">
+            archive du code des applications 0.2.3
           </a>{' '}
           (Windows et bêta Android), avec le sous-module Mister Download Manager. Elle est construite avec Flutter (licence
           BSD) et flutter_rust_bridge (MIT) ; son interface utilise les icônes Phosphor (MIT) et son
           lecteur, media_kit (MIT) et libmpv. yt-dlp, FFmpeg et QuickJS-NG sont les mêmes que
-          ci-dessous ; libVLC et l’extension pour Chrome et Edge n’en font pas partie.
+          ci-dessous ; libVLC n’en fait pas partie. L’extension pour Chrome et Edge et son pont
+          (miarina-browser-bridge) sont livrés avec elle, sous la même licence.
         </p>
         <ul>
           <li>
@@ -43,13 +44,13 @@ export function Licences() {
             modification, selon les termes de la licence Visual Studio.
           </li>
         </ul>
-        <h2>Application Android 0.2.2 (bêta)</h2>
+        <h2>Application Android 0.2.3 (bêta)</h2>
         <p>
           Miarina Media Bêta pour Android est sous GPL-3.0-only. Ses sources exactes sont à
           l’étiquette{' '}
-          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.2">v0.2.2</a> du dépôt
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.3">v0.2.3</a> du dépôt
           et dans la même{' '}
-          <a href="/downloads/MiarinaMedia-0.2.2-source.tar.gz">archive du code 0.2.2</a>, avec le
+          <a href="/downloads/MiarinaMedia-0.2.3-source.tar.gz">archive du code 0.2.3</a>, avec le
           sous-module Mister Download Manager. Elle est construite avec Flutter (licence
           BSD) et flutter_rust_bridge (MIT) ; son lecteur utilise AndroidX Media3 (Apache 2.0) ; son
           interface, les icônes Phosphor (MIT). Comme la 0.1.11, l’APK intègre youtubedl-android
@@ -60,6 +61,8 @@ export function Licences() {
         </p>
         <p>
           Archives précédentes :{' '}
+          <a href="/downloads/MiarinaMedia-0.2.2-source.tar.gz">0.2.2</a> (étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.2">v0.2.2</a>),{' '}
           <a href="/downloads/MiarinaMedia-0.2.0-source.tar.gz">Windows 0.2.0</a> (étiquette{' '}
           <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.0">v0.2.0</a>),{' '}
           <a href="/downloads/MiarinaMedia-Beta-0.2.1-source.tar.gz">bêta Android 0.2.1</a>{' '}

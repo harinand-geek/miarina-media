@@ -20,17 +20,17 @@ export const RELEASE = {
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
-    version: '0.2.2',
-    name: 'MiarinaMedia-0.2.2-x64-setup.exe',
-    size: '113,0 Mio',
-    sha256: '7d1f8a2100704a7e305ea1701570f10ec3a746dd4f553ecac367969d6c8628a0',
+    version: '0.2.3',
+    name: 'MiarinaMedia-0.2.3-x64-setup.exe',
+    size: '113,1 Mio',
+    sha256: '7b6a51752147b33cd8bc47f3dc9cf49c7cc1a2a54a965b978d91e38fef7ab11e',
   } satisfies ReleaseFile,
   /** Android beta, a separate app installed next to the stable one. */
   androidBeta: {
-    version: '0.2.2',
-    name: 'MiarinaMedia-Beta-0.2.2.apk',
-    size: '64,4 Mio',
-    sha256: 'f612785f7f0bf1d279ede70f6fc60d36c9cd64ee37c1444f022e1dbe3f92a847',
+    version: '0.2.3',
+    name: 'MiarinaMedia-Beta-0.2.3.apk',
+    size: '64,5 Mio',
+    sha256: '904861a0d12deff97c91742d566b088a736141a5e4c470feeca2d17b64754092',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
@@ -60,9 +60,30 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Windows : touches multimédia du clavier et du casque',
-      'Android : choix du format au plus près de la maquette (Vidéo, Audio seul, Sous-titres) et import et export M3U',
+      'Plusieurs liens à la fois',
+      'Android : import et export M3U, gestes vidéo et image dans l’image',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.3 · Android',
+    date: 'Bêta · 23 novembre 2026',
+    beta: true,
+    items: [
+      'Choix du format depuis le navigateur intégré : vignette, onglets Vidéo, Audio seul et Sous-titres, qualités et tailles, comme dans la maquette',
+      'Playlists : la tuile Playlist d’Obtenir liste les éléments d’une playlist ; vous cochez ceux à télécharger et choisissez une qualité pour tous',
+      'S’installe par-dessus la bêta 0.2.2 en gardant la bibliothèque et les téléchargements',
+    ],
+  },
+  {
+    name: '0.2.3 · Windows',
+    date: 'Bêta · 23 novembre 2026',
+    beta: true,
+    items: [
+      'Touches multimédia du clavier et du casque, et commandes de Windows (titre, pochette, lecture et pause, précédent et suivant)',
+      'Extension pour Chrome et Edge : « Envoyer vers Miarina Media » ouvre l’analyse du lien dans l’application, même fermée. À connecter dans Réglages › Extension navigateur, puis à charger en mode développeur',
+      'Playlists : la tuile Playlist d’Obtenir liste jusqu’à 200 éléments ; vous cochez ceux à télécharger, choisissez une qualité pour tous et, si vous voulez, un dossier au nom de la playlist',
+      'Chaque élément d’une playlist est un téléchargement de la file : même ordre, mêmes limites, nouvel essai un par un',
     ],
   },
   {
@@ -318,10 +339,15 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Torrents et liens magnet', windows: true, android: false },
   {
     feature: 'Extension Chrome/Edge : envoi manuel de liens',
-    windows: 'Mode développeur',
+    windows: 'Bêta 0.2.3, mode développeur',
     android: false,
   },
   { feature: 'Téléchargement par lien direct', windows: true, android: true },
+  {
+    feature: 'Playlists : choix des éléments et d’une qualité pour tous',
+    windows: 'Bêta 0.2.3',
+    android: 'Bêta 0.2.3',
+  },
   {
     feature: 'Pages de sites vidéo (via yt-dlp)',
     windows: true,
@@ -342,7 +368,7 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Lecteur intégré', windows: 'libVLC', android: 'Media3' },
   {
     feature: 'Commandes système : écran verrouillé, notification, casque Bluetooth',
-    windows: false,
+    windows: 'Bêta 0.2.3 : touches multimédia',
     android: true,
   },
   { feature: 'Pistes audio et sous-titres SRT / VTT', windows: true, android: true },
