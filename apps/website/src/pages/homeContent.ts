@@ -177,7 +177,7 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.0 · bêta',
+      kicker: 'Windows 0.2.2 · bêta',
       title: 'Une nouvelle application Windows, à essayer.',
       lead: 'La 0.2.0 refait toute l’application Windows. Elle s’installe par-dessus la 0.1.x, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
       points: [
@@ -195,7 +195,7 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
         [
           'Ce qui change encore',
-          'L’extension pour Chrome et Edge n’est pas reprise. L’installateur est plus gros (113 Mio). Android reste en 0.1.11.',
+          'Nouveau dans la 0.2.2 : une seule fenêtre et « Ouvrir avec Miarina Media » pour la musique et les vidéos. L’extension pour Chrome et Edge n’est pas reprise.',
         ],
       ],
       how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur. Sur Android, Miarina Media Bêta s’installe à côté de la 0.1.11.',
@@ -236,7 +236,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlBetaReq: 'Windows 10 / 11 · 64 bits · nouvelle application, remplace la 0.1.x',
     dlBetaBadge: 'Bêta',
     dlAndroidBetaReq:
-      'Android 7.0 et plus · 64 bits (ARM) · lecteur et téléchargements, s’installe à côté de la 0.1.11',
+      'Android 7.0 et plus · 64 bits (ARM) · lecteur, téléchargements et navigateur, s’installe à côté de la 0.1.11',
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
@@ -342,7 +342,7 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.0 · beta',
+      kicker: 'Windows 0.2.2 · beta',
       title: 'A new Windows app, ready to try.',
       lead: '0.2.0 rebuilds the whole Windows app. It installs over 0.1.x, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
       points: [
@@ -360,7 +360,7 @@ export const LANDING: Record<Lang, LandingText> = {
         ],
         [
           'Still changing',
-          'The Chrome and Edge extension is not carried over. The installer is larger (113 MiB). Android stays on 0.1.11.',
+          'New in 0.2.2: one window, and “Open with Miarina Media” for music and videos. The Chrome and Edge extension is not carried over.',
         ],
       ],
       how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer. On Android, Miarina Media Beta installs next to 0.1.11.',
@@ -400,7 +400,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlBetaReq: 'Windows 10 / 11 · 64-bit · new app, replaces 0.1.x',
     dlBetaBadge: 'Beta',
     dlAndroidBetaReq:
-      'Android 7.0 or later · 64-bit (ARM) · player and downloads, installs next to 0.1.11',
+      'Android 7.0 or later · 64-bit (ARM) · player, downloads and browser, installs next to 0.1.11',
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:

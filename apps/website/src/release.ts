@@ -20,17 +20,17 @@ export const RELEASE = {
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
-    version: '0.2.0',
-    name: 'MiarinaMedia-0.2.0-x64-setup.exe',
-    size: '112,9 Mio',
-    sha256: 'eca6587a6dcf4b7b3e3877603c619a425b51b04bc4b26866edd7884b85d82acb',
+    version: '0.2.2',
+    name: 'MiarinaMedia-0.2.2-x64-setup.exe',
+    size: '113,0 Mio',
+    sha256: '7d1f8a2100704a7e305ea1701570f10ec3a746dd4f553ecac367969d6c8628a0',
   } satisfies ReleaseFile,
   /** Android beta, a separate app installed next to the stable one. */
   androidBeta: {
-    version: '0.2.1',
-    name: 'MiarinaMedia-Beta-0.2.1.apk',
+    version: '0.2.2',
+    name: 'MiarinaMedia-Beta-0.2.2.apk',
     size: '64,4 Mio',
-    sha256: 'e6b4b0ab8f366956c392d47d250dfc4d845c977fa2f9f0f828c1d14e6f4ba76c',
+    sha256: 'f612785f7f0bf1d279ede70f6fc60d36c9cd64ee37c1444f022e1dbe3f92a847',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
@@ -60,9 +60,33 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Android : essais sur téléphone réel (Bluetooth, appels, écran verrouillé) et autres qualités audio',
-      'Android : onglets et historique du navigateur, import et export M3U',
+      'Windows : touches multimédia du clavier et du casque',
+      'Android : choix du format au plus près de la maquette (Vidéo, Audio seul, Sous-titres) et import et export M3U',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.2 · Android',
+    date: 'Bêta · 23 novembre 2026',
+    beta: true,
+    items: [
+      'Navigateur intégré : tuile Navigateur dans Obtenir, onglets, historique et favoris',
+      'Les vidéos et fichiers audio d’une page sont détectés ; un bouton « Télécharger » apparaît au-dessus de la page : toucher pour choisir le format, appui long pour le format par défaut',
+      'Le bouton Retour du téléphone revient à la page précédente, puis à Obtenir',
+      'Pages web seulement : pas de fenêtres surgissantes, et un fichier proposé par un site passe toujours par l’analyse de Miarina Media',
+      'S’installe par-dessus la bêta 0.2.1 en gardant la bibliothèque et les téléchargements',
+    ],
+  },
+  {
+    name: '0.2.2 · Windows',
+    date: 'Bêta · 23 novembre 2026',
+    beta: true,
+    items: [
+      'Une seule fenêtre : un fichier ouvert pendant que Miarina Media tourne s’ajoute à la fenêtre déjà ouverte',
+      '« Ouvrir avec Miarina Media » pour la musique et les vidéos, et Miarina Media dans Paramètres › Applications par défaut',
+      'Icônes de fichiers Miarina Media pour la musique et les vidéos que vous choisissez d’ouvrir avec l’application ; rien n’est imposé par défaut',
+      'Un fichier ouvert au premier lancement est lu tout de suite ; l’accueil vient au lancement suivant',
+      'La désinstallation retire seulement ces entrées : les choix faits pour vos autres lecteurs restent',
     ],
   },
   {
@@ -329,6 +353,11 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
     android: false,
   },
   {
+    feature: '« Ouvrir avec Miarina Media » et icônes de fichiers',
+    windows: 'Bêta 0.2.2',
+    android: 'Ouvrir avec',
+  },
+  {
     feature: 'Musique et vidéos déjà présentes sur l’appareil',
     windows: 'Import de dossier',
     android: 'Avec autorisation',
@@ -341,7 +370,7 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Image dans l’image', windows: false, android: true },
   { feature: 'Téléchargement en arrière-plan, notifications', windows: true, android: true },
   { feature: 'Navigateur intégré, recherche et favoris', windows: true, android: true },
-  { feature: 'Navigateur : onglets et historique', windows: true, android: 'soon' },
+  { feature: 'Navigateur : onglets et historique', windows: true, android: 'Bêta 0.2.2' },
   {
     feature: 'Détection dans le navigateur',
     windows: 'Fichiers et pages',
