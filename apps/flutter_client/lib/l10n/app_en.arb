@@ -328,7 +328,7 @@
   "keysTitle": "Keyboard shortcuts",
   "keysSearch": "Search shortcuts",
   "keysReset": "Restore defaults",
-  "keysHint": "Click a key to change it; a conflict is shown before it is saved. Esc cancels.",
+  "keysHint": "Click a key to change it; a conflict is shown before it is saved. Esc cancels. Keyboard media keys and headset buttons are supported (Windows media controls).",
   "keyPress": "Press a key…",
   "keyNone": "None",
   "keyShift": "Shift",

@@ -14,8 +14,8 @@ use storage::Storage;
 
 use super::address::{AddressError, is_web, resolve_address};
 use super::favorites::{Favorite, KEY_FAVORITES, checked, toggle};
-use super::state::{Inner, KEY_TABS, MAX_TABS, SavedTabs, TabKind};
 use super::state::Tab;
+use super::state::{Inner, KEY_TABS, MAX_TABS, SavedTabs, TabKind};
 use crate::api::browser::{
     BrowserEvent, BrowserFavorite, BrowserPageCommand, BrowserSnapshot, BrowserVisit,
 };
@@ -476,12 +476,10 @@ mod platform {
         NewWindowRequestedEventHandler, SourceChangedEventHandler,
         WebResourceResponseReceivedEventHandler,
     };
-    use windows::Win32::Foundation::{HWND, LPARAM, RECT};
-    use windows::Win32::System::Threading::{GetCurrentProcessId, GetCurrentThreadId};
+    use windows::Win32::Foundation::RECT;
+    use windows::Win32::System::Threading::GetCurrentThreadId;
     use windows::Win32::UI::Input::KeyboardAndMouse::{GetKeyState, VK_CONTROL, VK_SHIFT};
-    use windows::Win32::UI::WindowsAndMessaging::{
-        EnumWindows, GetClassNameW, GetWindowThreadProcessId,
-    };
+    use windows::Win32::UI::WindowsAndMessaging::GetWindowThreadProcessId;
     use windows::core::{BOOL, HSTRING, Interface, PCWSTR, PWSTR, w};
 
     use super::super::state::TabKind;
@@ -489,6 +487,7 @@ mod platform {
         PROFILE, is_web, lock, note_visit, persist, publish, set_visit_title, signal, update,
         update_tab,
     };
+    use crate::win_window::flutter_window;
 
     thread_local! {
         // WebView2 objects are apartment-bound: kept on the window's thread.
@@ -496,8 +495,6 @@ mod platform {
         static PAGES: RefCell<HashMap<u32, ICoreWebView2Controller>> =
             RefCell::new(HashMap::new());
     }
-
-    const FLUTTER_WINDOW_CLASS: &str = "FLUTTER_RUNNER_WIN32_WINDOW";
 
     /// Collects `<video>`/`<audio>` sources. It runs in the page, so its
     /// answer is a hint about the page's own media, filtered in Rust.
@@ -510,26 +507,6 @@ mod platform {
       }
       return out;
     })()"#;
-
-    fn flutter_window() -> Option<HWND> {
-        unsafe extern "system" fn visit(hwnd: HWND, found: LPARAM) -> BOOL {
-            let mut pid = 0;
-            unsafe { GetWindowThreadProcessId(hwnd, Some(&mut pid)) };
-            if pid != unsafe { GetCurrentProcessId() } {
-                return true.into();
-            }
-            let mut class = [0u16; 64];
-            let n = unsafe { GetClassNameW(hwnd, &mut class) } as usize;
-            if String::from_utf16_lossy(&class[..n]) == FLUTTER_WINDOW_CLASS {
-                unsafe { *(found.0 as *mut Option<HWND>) = Some(hwnd) };
-                return false.into();
-            }
-            true.into()
-        }
-        let mut found: Option<HWND> = None;
-        let _ = unsafe { EnumWindows(Some(visit), LPARAM(&mut found as *mut _ as isize)) };
-        found
-    }
 
     pub fn on_window_thread() -> bool {
         flutter_window()
@@ -1040,7 +1017,11 @@ mod platform {
     pub fn layout() {
         let shown = update(|s| {
             let web = s.active().is_some_and(|t| t.kind == TabKind::Web && t.live);
-            if web && s.frame.is_some() { s.active } else { 0 }
+            if web && s.frame.is_some() {
+                s.active
+            } else {
+                0
+            }
         });
         command(shown, "show", "");
     }

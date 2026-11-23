@@ -46,6 +46,11 @@ mdm-torrent = { path = "../../../vendor/misterdownloadmanager-source/crates/torr
 # Same versions as the Tauri app (apps/client/src-tauri/Cargo.toml).
 webview2-com = "=0.39.1"
 windows = { version = "=0.62.2", features = [
+    # System media controls (api/system_media.rs).
+    "Foundation",
+    "Media",
+    "Storage_Streams",
+    "Win32_System_WinRT",
     "Win32_Networking_NetworkListManager",
     "Win32_System_Com",
     "Win32_System_Power",

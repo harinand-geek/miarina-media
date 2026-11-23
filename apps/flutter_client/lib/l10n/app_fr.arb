@@ -647,7 +647,7 @@
   "keysTitle": "Raccourcis clavier",
   "keysSearch": "Rechercher un raccourci",
   "keysReset": "Rétablir les valeurs",
-  "keysHint": "Cliquez sur une touche pour la modifier ; un conflit est signalé avant d'être enregistré. Échap annule.",
+  "keysHint": "Cliquez sur une touche pour la modifier ; un conflit est signalé avant d'être enregistré. Échap annule. Touches multimédia du clavier et du casque prises en charge (contrôles média de Windows).",
   "keyPress": "Appuyez sur une touche…",
   "keyNone": "Aucune",
   "keyShift": "Maj",

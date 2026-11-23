@@ -10,6 +10,7 @@ pub mod library;
 pub mod playlists;
 pub mod search;
 pub mod settings;
+pub mod system_media;
 pub mod tags;
 pub mod torrents;
 pub mod updates;

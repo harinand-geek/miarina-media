@@ -8,6 +8,9 @@ mod focus;
 mod frb_generated;
 mod m3u;
 mod platform_prober;
+mod system_media;
 mod torrent_engine;
 mod update_engine;
 mod webview_spike;
+#[cfg(windows)]
+mod win_window;

@@ -1194,7 +1194,7 @@ class L10nEn extends L10n {
 
   @override
   String get keysHint =>
-      'Click a key to change it; a conflict is shown before it is saved. Esc cancels.';
+      'Click a key to change it; a conflict is shown before it is saved. Esc cancels. Keyboard media keys and headset buttons are supported (Windows media controls).';
 
   @override
   String get keyPress => 'Press a key…';

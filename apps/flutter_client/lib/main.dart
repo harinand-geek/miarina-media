@@ -21,6 +21,7 @@ import 'l10n/app_localizations.dart';
 import 'features/library/library_data.dart';
 import 'features/mini/mini_player.dart' show miniPlayerProvider;
 import 'features/playback/playback.dart';
+import 'features/playback/system_media.dart';
 import 'src/rust/api/app.dart' show appOpenDatabase;
 import 'src/rust/api/library.dart';
 import 'src/rust/frb_generated.dart';
@@ -58,6 +59,8 @@ Future<void> main(List<String> args) async {
   runApp(
     UncontrolledProviderScope(container: container, child: const MiarinaApp()),
   );
+  // Windows: media keys, headset buttons and the system media panel.
+  container.read(systemMediaProvider);
   if (media != null) await _openLaunchFile(container, media);
 
   // Android "Open with Miarina Media": the file the app was started with,

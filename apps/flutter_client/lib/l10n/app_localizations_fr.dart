@@ -1197,7 +1197,7 @@ class L10nFr extends L10n {
 
   @override
   String get keysHint =>
-      'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule.';
+      'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule. Touches multimédia du clavier et du casque prises en charge (contrôles média de Windows).';
 
   @override
   String get keyPress => 'Appuyez sur une touche…';

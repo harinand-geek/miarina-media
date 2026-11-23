@@ -18,6 +18,7 @@ import 'api/library.dart';
 import 'api/playlists.dart';
 import 'api/search.dart';
 import 'api/settings.dart';
+import 'api/system_media.dart';
 import 'api/tags.dart';
 import 'api/torrents.dart';
 import 'api/updates.dart';
@@ -48,6 +49,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Object dco_decode_DartOpaque(dynamic raw);
+
+  @protected
+  RustStreamSink<String> dco_decode_StreamSink_String_Sse(dynamic raw);
 
   @protected
   RustStreamSink<BrowserEvent> dco_decode_StreamSink_browser_event_Sse(
@@ -119,6 +123,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   StartRequest dco_decode_box_autoadd_start_request(dynamic raw);
+
+  @protected
+  SystemMediaState dco_decode_box_autoadd_system_media_state(dynamic raw);
 
   @protected
   TagFields dco_decode_box_autoadd_tag_fields(dynamic raw);
@@ -435,6 +442,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StartRequest dco_decode_start_request(dynamic raw);
 
   @protected
+  SystemMediaState dco_decode_system_media_state(dynamic raw);
+
+  @protected
   TagFields dco_decode_tag_fields(dynamic raw);
 
   @protected
@@ -493,6 +503,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   Object sse_decode_DartOpaque(SseDeserializer deserializer);
+
+  @protected
+  RustStreamSink<String> sse_decode_StreamSink_String_Sse(
+    SseDeserializer deserializer,
+  );
 
   @protected
   RustStreamSink<BrowserEvent> sse_decode_StreamSink_browser_event_Sse(
@@ -578,6 +593,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   StartRequest sse_decode_box_autoadd_start_request(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SystemMediaState sse_decode_box_autoadd_system_media_state(
     SseDeserializer deserializer,
   );
 
@@ -954,6 +974,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   StartRequest sse_decode_start_request(SseDeserializer deserializer);
 
   @protected
+  SystemMediaState sse_decode_system_media_state(SseDeserializer deserializer);
+
+  @protected
   TagFields sse_decode_tag_fields(SseDeserializer deserializer);
 
   @protected
@@ -1022,6 +1045,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_DartOpaque(Object self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_StreamSink_String_Sse(
+    RustStreamSink<String> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_StreamSink_browser_event_Sse(
@@ -1140,6 +1169,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_start_request(
     StartRequest self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_system_media_state(
+    SystemMediaState self,
     SseSerializer serializer,
   );
 
@@ -1622,6 +1657,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_start_request(StartRequest self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_system_media_state(
+    SystemMediaState self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_tag_fields(TagFields self, SseSerializer serializer);

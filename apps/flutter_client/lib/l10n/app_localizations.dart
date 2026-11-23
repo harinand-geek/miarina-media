@@ -2068,7 +2068,7 @@ abstract class L10n {
   /// No description provided for @keysHint.
   ///
   /// In fr, this message translates to:
-  /// **'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule.'**
+  /// **'Cliquez sur une touche pour la modifier ; un conflit est signalé avant d\'être enregistré. Échap annule. Touches multimédia du clavier et du casque prises en charge (contrôles média de Windows).'**
   String get keysHint;
 
   /// No description provided for @keyPress.
