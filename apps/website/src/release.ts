@@ -20,17 +20,17 @@ export const RELEASE = {
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
-    version: '0.2.3',
-    name: 'MiarinaMedia-0.2.3-x64-setup.exe',
+    version: '0.2.4',
+    name: 'MiarinaMedia-0.2.4-x64-setup.exe',
     size: '113,1 Mio',
-    sha256: '7b6a51752147b33cd8bc47f3dc9cf49c7cc1a2a54a965b978d91e38fef7ab11e',
+    sha256: 'afa0da67d0a14b0e13d19705464b3bf8315a35a04b20373d78c6cea5a6b28535',
   } satisfies ReleaseFile,
   /** Android beta, a separate app installed next to the stable one. */
   androidBeta: {
-    version: '0.2.3',
-    name: 'MiarinaMedia-Beta-0.2.3.apk',
+    version: '0.2.4',
+    name: 'MiarinaMedia-Beta-0.2.4.apk',
     size: '64,5 Mio',
-    sha256: '904861a0d12deff97c91742d566b088a736141a5e4c470feeca2d17b64754092',
+    sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
     version: '0.1.11',
@@ -63,6 +63,15 @@ export const CHANGELOG: Release[] = [
       'Plusieurs liens à la fois',
       'Android : import et export M3U, gestes vidéo et image dans l’image',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.4 · Windows et Android',
+    date: 'Bêta · 23 novembre 2026',
+    beta: true,
+    items: [
+      'Les liens Facebook, Instagram, TikTok, X, Vimeo et des autres sites vidéo vont directement à l’analyse de la vidéo',
+      'Une page qui ne répond pas ne bloque plus l’analyse : la vidéo est quand même recherchée. Corrige « le site n’a pas pu être joint » avec certains liens Facebook sur Android',
     ],
   },
   {
