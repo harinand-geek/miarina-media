@@ -43,10 +43,13 @@ class ListenHomeScreen extends ConsumerWidget {
       );
     }
     if (home == null) return const SkeletonGrid(minTile: 240);
-    // W-O1: an empty library on a first launch opens the welcome screens.
+    // W-O1: an empty library on a first launch opens the welcome screens,
+    // unless the app was opened to play a file.
     if (home.isEmpty &&
         !mobile &&
-        ref.watch(onboardingProvider).value == false) {
+        ref.watch(onboardingProvider).value == false &&
+        !ref.watch(launchedWithMediaProvider) &&
+        ref.watch(queueProvider.select((q) => q.current == null))) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (context.mounted) context.go(Routes.welcome);
       });

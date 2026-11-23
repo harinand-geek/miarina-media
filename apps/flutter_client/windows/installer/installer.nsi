@@ -40,6 +40,7 @@ ${StrCase}
 ${StrLoc}
 
 !include "${INSTALLERDIR}\brand.nsh"
+!include "${INSTALLERDIR}\associations.nsh"
 
 !define WEBVIEW2APPGUID "{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}"
 
@@ -693,7 +694,9 @@ Section Install
 
   ; Copy external binaries
 
-  ; Create file associations
+  ; Create file associations: "Ouvrir avec", Default apps, file icons
+  ; (associations.nsh; never a forced default).
+  !insertmacro MiarinaRegisterFileTypes
 
   ; Register deep links
 
@@ -838,6 +841,11 @@ Section Uninstall
       !insertmacro UnpinShortcut "$DESKTOP\${PRODUCTNAME}.lnk"
       Delete "$DESKTOP\${PRODUCTNAME}.lnk"
     ${EndIf}
+  ${EndIf}
+
+  ; File types ("Ouvrir avec", Default apps), not when updating.
+  ${If} $UpdateMode <> 1
+    !insertmacro MiarinaUnregisterFileTypes
   ${EndIf}
 
   ; Remove registry information for add/remove programs

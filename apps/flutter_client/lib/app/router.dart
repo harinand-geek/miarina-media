@@ -83,6 +83,11 @@ String _devStartRoute() {
   return Platform.environment['MM_START_ROUTE'] ?? '';
 }
 
+/// True when the app was started to open a file ("Ouvrir avec Miarina
+/// Media", a double-click): the file plays first, the welcome screens wait
+/// for the next launch. Overridden in main.
+final launchedWithMediaProvider = Provider<bool>((ref) => false);
+
 /// First screen: the Listen home (handoff D1). Overridden in tests.
 final initialRouteProvider = Provider<String>((ref) {
   final dev = _devStartRoute();

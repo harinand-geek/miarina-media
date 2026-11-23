@@ -36,6 +36,7 @@ void main() {
     bool desktop = true,
     String start = Routes.tracks,
     FakePlaybackStore? store,
+    bool launchedWithMedia = false,
   }) async {
     tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
@@ -54,6 +55,7 @@ void main() {
           lyricsLoaderProvider.overrideWithValue((_) async => null),
           playbackStoreProvider.overrideWithValue(store ?? FakePlaybackStore()),
           initialRouteProvider.overrideWithValue(start),
+          launchedWithMediaProvider.overrideWithValue(launchedWithMedia),
         ],
         child: const MiarinaApp(),
       ),
@@ -412,6 +414,16 @@ void main() {
       await pumpApp(tester, start: Routes.listenHome);
       expect(find.text('Langue et apparence'), findsWidgets);
       expect(find.text('Passer'), findsOneWidget);
+    });
+
+    testWidgets('a first launch that opens a file plays it before W-O1', (
+      tester,
+    ) async {
+      library = FakeLibraryApi([]);
+      settings.values.remove('onboardingDone');
+      await pumpApp(tester, start: Routes.listenHome, launchedWithMedia: true);
+      expect(find.text('Langue et apparence'), findsNothing);
+      expect(settings.values['onboardingDone'], isNull, reason: 'next launch');
     });
 
     testWidgets('an empty library and history gives the welcome state', (

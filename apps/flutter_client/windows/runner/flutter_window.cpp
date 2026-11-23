@@ -27,6 +27,8 @@ bool FlutterWindow::OnCreate() {
   RegisterPlugins(flutter_controller_->engine());
   taskbar_buttons_ = std::make_unique<TaskbarButtons>(
       flutter_controller_->engine()->messenger(), GetHandle());
+  open_files_ = std::make_unique<OpenFilesChannel>(
+      flutter_controller_->engine()->messenger(), GetHandle());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -43,6 +45,7 @@ bool FlutterWindow::OnCreate() {
 
 void FlutterWindow::OnDestroy() {
   taskbar_buttons_ = nullptr;
+  open_files_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -57,6 +60,9 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
   if (taskbar_buttons_ &&
       taskbar_buttons_->HandleMessage(message, wparam, lparam)) {
     return 0;
+  }
+  if (open_files_ && open_files_->HandleMessage(message, wparam, lparam)) {
+    return TRUE;
   }
 
   // Give Flutter, including plugins, an opportunity to handle window messages.

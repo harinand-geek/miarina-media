@@ -45,17 +45,19 @@ Future<void> main(List<String> args) async {
   // Release builds: what an earlier update left is cleaned up or restored.
   await startUpdates(opened.dbPath);
 
-  final container = ProviderContainer();
-  runApp(
-    UncontrolledProviderScope(container: container, child: const MiarinaApp()),
-  );
-
   // "Open with Miarina Media" / file association: play the handed-over file.
   final launch = LaunchArgs.parse([
     ...args,
     if (_openDefine.isNotEmpty) _openDefine,
   ]);
   final media = launch.media;
+
+  final container = ProviderContainer(
+    overrides: [launchedWithMediaProvider.overrideWithValue(media != null)],
+  );
+  runApp(
+    UncontrolledProviderScope(container: container, child: const MiarinaApp()),
+  );
   if (media != null) await _openLaunchFile(container, media);
 
   // Android "Open with Miarina Media": the file the app was started with,
@@ -72,6 +74,20 @@ Future<void> main(List<String> args) async {
     } catch (e) {
       debugPrint('open with: $e');
     }
+  }
+
+  // Windows: one window. A later launch ("Ouvrir avec Miarina Media", a
+  // double-click on a file) hands its arguments here (single_instance.cpp).
+  if (Platform.isWindows) {
+    _openWith.setMethodCallHandler((call) async {
+      if (call.method != 'args' || call.arguments is! List) return;
+      final args = [
+        for (final a in call.arguments as List)
+          if (a is String) a,
+      ];
+      final file = LaunchArgs.parse(args).media;
+      if (file != null) await _openLaunchFile(container, file);
+    });
   }
 
   // Development hook for automated screenshots (no input injection), read
@@ -184,6 +200,7 @@ Future<void> _openLaunchFile(
     await container.read(queueProvider.notifier).playAll([
       QueueEntry(source: s, title: s.title ?? '', isVideo: sourceIsVideo),
     ]);
+    _leaveWelcome(container);
     if (sourceIsVideo) container.read(routerProvider).push(Routes.watch);
     return;
   }
@@ -211,6 +228,7 @@ Future<void> _openLaunchFile(
       i < 0 ? [focus] : items,
       start: i < 0 ? 0 : i,
     );
+    _leaveWelcome(container);
     container.read(routerProvider).push(Routes.focusPlayer);
     return;
   }
@@ -231,9 +249,19 @@ Future<void> _openLaunchFile(
             ),
     ]);
   }
+  _leaveWelcome(container);
   // A video opens on its player (W-C3 / A-04).
   if (container.read(queueProvider).current?.isVideo ?? false) {
     container.read(routerProvider).push(Routes.watch);
+  }
+}
+
+/// A file opened while the welcome screens show (a first launch): the
+/// welcome screens give way to what plays and come back on the next launch.
+void _leaveWelcome(ProviderContainer container) {
+  final router = container.read(routerProvider);
+  if (router.routerDelegate.currentConfiguration.uri.path == Routes.welcome) {
+    router.go(Routes.listenHome);
   }
 }
 

@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "single_instance.h"
 #include "taskbar_buttons.h"
 #include "win32_window.h"
 
@@ -32,6 +33,9 @@ class FlutterWindow : public Win32Window {
 
   // Previous / Play / Next in the taskbar thumbnail (W-M4).
   std::unique_ptr<TaskbarButtons> taskbar_buttons_;
+
+  // Files handed over by a later launch (single instance).
+  std::unique_ptr<OpenFilesChannel> open_files_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

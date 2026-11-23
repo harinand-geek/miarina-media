@@ -43,6 +43,9 @@ Get-ChildItem $Release -Exclude tools | Copy-Item -Destination $Out -Recurse
 # working after the update.
 Rename-Item "$Out\miarina_media.exe" 'miarina-media.exe'
 
+# File type icons (piste C) used by "Ouvrir avec" (associations.nsh).
+Copy-Item "windows\installer\file-audio.ico", "windows\installer\file-video.ico" $Out -Force
+
 # 3. libmpv: the pinned build replaces media_kit's.
 $mpv = Get-ChildItem "$Cache\libmpv\*\libmpv-2.dll" | Select-Object -First 1
 if (-not $mpv) { throw 'libmpv missing' }
