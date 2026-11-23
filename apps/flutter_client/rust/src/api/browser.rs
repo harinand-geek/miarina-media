@@ -1,6 +1,8 @@
-//! Built-in browser on Windows (decision 0001), ported from the Tauri app:
+//! Built-in browser (decision 0001), ported from the Tauri app. Windows:
 //! one WebView2 per tab inside the Flutter window, placed where the
-//! browser screen leaves room for the page. Pages are untrusted remote
+//! browser screen leaves room for the page. Android: one native WebView
+//! per tab in a platform view of the screen, driven through
+//! `BrowserEvent::page` and reporting with the `browser_page_*` calls. Pages are untrusted remote
 //! content: http(s) only, popups become tabs, no browser-native downloads
 //! (the app's engine downloads), media seen on the network and in the
 //! page filtered by `media_core::detect`. WebView2 objects belong to the
@@ -58,6 +60,16 @@ pub struct BrowserEvent {
     /// A page offered a file: the browser does not save it, the app's
     /// engine analyzes it.
     pub download: Option<String>,
+    /// Android: what the native page of a tab must do.
+    pub page: Option<BrowserPageCommand>,
+}
+
+/// An order for the Android page of `tab`: load (`url`), close, show (the
+/// page of `tab` shown, 0 = none), back, forward, reload, stop, scan.
+pub struct BrowserPageCommand {
+    pub tab: u32,
+    pub action: String,
+    pub url: String,
 }
 
 /// Prepares the browser (tabs of the last run restored, pages not loaded
@@ -152,6 +164,38 @@ pub struct BrowserVisit {
 #[flutter_rust_bridge::frb(sync)]
 pub fn browser_tab_history() -> Result<()> {
     imp::tab_history()
+}
+
+/// Android page reports (the page is untrusted: everything is checked and
+/// bounded here). A new document starts loading.
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_page_started(tab: u32, url: String) {
+    imp::page_started(tab, &url);
+}
+
+/// The document finished loading (`ok`: shown without an error).
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_page_finished(tab: u32, ok: bool, can_go_back: bool, can_go_forward: bool) {
+    imp::page_finished(tab, ok, can_go_back, can_go_forward);
+}
+
+/// The address changed (history entry, single-page sites).
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_page_moved(tab: u32, url: String, can_go_back: bool, can_go_forward: bool) {
+    imp::page_moved(tab, &url, can_go_back, can_go_forward);
+}
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_page_title(tab: u32, title: String) {
+    imp::page_title(tab, &title);
+}
+
+/// Something the page showed: `element` (a `<video>`/`<audio>` source,
+/// `detail` = tag), `request` (a stream manifest it fetched) or `download`
+/// (a file it offered).
+#[flutter_rust_bridge::frb(sync)]
+pub fn browser_page_found(tab: u32, kind: String, url: String, detail: String) {
+    imp::page_found(tab, &kind, &url, &detail);
 }
 
 /// Starred pages, newest first.

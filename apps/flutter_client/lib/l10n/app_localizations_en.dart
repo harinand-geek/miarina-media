@@ -2761,6 +2761,40 @@ class L10nEn extends L10n {
   String get brSites => 'Sites';
 
   @override
+  String get brTabs => 'Tabs';
+
+  @override
+  String brTabsOpen(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n open tabs',
+      one: '1 open tab',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get brBackToApp => 'Back to Miarina Media';
+
+  @override
+  String brDownloadCount(int n) {
+    return 'Download · $n';
+  }
+
+  @override
+  String get brDownloadHoldHint =>
+      'Long press: download the main media in the default format';
+
+  @override
+  String get brUnavailablePhone =>
+      'The browser could not start on this device.';
+
+  @override
+  String get brStartBodyPhone =>
+      'When a page has a video or an audio file, a Download button appears over the page.';
+
+  @override
   String getReorderNamed(String title) {
     return 'Reorder $title (Alt + Up and Down arrows, or drag)';
   }

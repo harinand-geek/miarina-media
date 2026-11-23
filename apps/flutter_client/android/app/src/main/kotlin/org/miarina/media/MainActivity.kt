@@ -14,6 +14,7 @@ class MainActivity : FlutterActivity() {
   private var openWith: OpenWithChannel? = null
   private var mediaTools: MediaToolsChannel? = null
   private var downloads: DownloadNotificationsChannel? = null
+  private var browser: BrowserChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -63,6 +64,17 @@ class MainActivity : FlutterActivity() {
     openWith = OpenWithChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     mediaTools = MediaToolsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     downloads = DownloadNotificationsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    browser = BrowserChannel(this, flutterEngine.dartExecutor.binaryMessenger, flutterEngine.platformViewsController.registry)
+  }
+
+  override fun onPause() {
+    super.onPause()
+    browser?.onPause()
+  }
+
+  override fun onResume() {
+    super.onResume()
+    browser?.onResume()
   }
 
   // "Open with" while the app runs (singleTop): the new file plays.
@@ -95,6 +107,8 @@ class MainActivity : FlutterActivity() {
     mediaTools = null
     downloads?.dispose()
     downloads = null
+    browser?.dispose()
+    browser = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

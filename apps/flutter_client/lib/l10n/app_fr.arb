@@ -1663,6 +1663,27 @@
   "brFavAdded": "Ajouté aux favoris",
   "brFavRemoved": "Retiré des favoris",
   "brSites": "Sites",
+  "brTabs": "Onglets",
+  "brTabsOpen": "{n, plural, =1{1 onglet ouvert} other{{n} onglets ouverts}}",
+  "@brTabsOpen": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brBackToApp": "Retour à Miarina Media",
+  "brDownloadCount": "Télécharger · {n}",
+  "@brDownloadCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brDownloadHoldHint": "Appui long : télécharger le média principal au format par défaut",
+  "brUnavailablePhone": "Le navigateur n’a pas pu démarrer sur cet appareil.",
+  "brStartBodyPhone": "Quand une page contient une vidéo ou un fichier audio, un bouton Télécharger apparaît au-dessus de la page.",
   "getReorderNamed": "Réordonner {title} (Alt + flèches haut et bas, ou glisser)",
   "@getReorderNamed": {
     "placeholders": {

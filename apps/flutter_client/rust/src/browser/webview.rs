@@ -1,8 +1,10 @@
-//! WebView2 pages of the browser (Windows), behind `api::browser`. The tab
-//! rules live in `state.rs`; this file creates, places and listens to the
-//! pages, as the Tauri app's `browser/desktop.rs` does. The state lock is
-//! never held while WebView2 is called: it may run its callbacks (which
-//! take the lock) before returning.
+//! Pages of the browser, behind `api::browser`. The tab rules live in
+//! `state.rs`. Windows: this file creates, places and listens to the
+//! WebView2 pages, as the Tauri app's `browser/desktop.rs` does; the state
+//! lock is never held while WebView2 is called (it may run its callbacks,
+//! which take the lock, before returning). Android: the pages are native
+//! WebViews of the screen, ordered through events and reporting through
+//! the `page_*` functions.
 
 use std::path::PathBuf;
 use std::sync::{Arc, LazyLock, Mutex, MutexGuard};
@@ -13,7 +15,10 @@ use storage::Storage;
 use super::address::{AddressError, is_web, resolve_address};
 use super::favorites::{Favorite, KEY_FAVORITES, checked, toggle};
 use super::state::{Inner, KEY_TABS, MAX_TABS, SavedTabs, TabKind};
-use crate::api::browser::{BrowserEvent, BrowserFavorite, BrowserSnapshot, BrowserVisit};
+use super::state::Tab;
+use crate::api::browser::{
+    BrowserEvent, BrowserFavorite, BrowserPageCommand, BrowserSnapshot, BrowserVisit,
+};
 use crate::frb_generated::StreamSink;
 
 static STATE: LazyLock<Mutex<Inner>> = LazyLock::new(Default::default);
@@ -27,6 +32,10 @@ fn lock<T>(m: &Mutex<T>) -> MutexGuard<'_, T> {
 
 fn update<R>(f: impl FnOnce(&mut Inner) -> R) -> R {
     f(&mut lock(&STATE))
+}
+
+fn update_tab<R>(id: u32, f: impl FnOnce(&mut Tab) -> R) -> Option<R> {
+    update(|s| s.tab_mut(id).map(f))
 }
 
 fn storage() -> Option<Arc<Mutex<Storage>>> {
@@ -53,6 +62,23 @@ fn publish() {
         shortcut: None,
         open_tab: None,
         download: None,
+        page: None,
+    });
+}
+
+/// Android: an order for the page of `tab`.
+#[cfg_attr(windows, allow(dead_code))]
+fn command(tab: u32, action: &str, url: &str) {
+    emit(BrowserEvent {
+        snapshot: None,
+        shortcut: None,
+        open_tab: None,
+        download: None,
+        page: Some(BrowserPageCommand {
+            tab,
+            action: action.to_owned(),
+            url: url.to_owned(),
+        }),
     });
 }
 
@@ -62,10 +88,12 @@ fn signal(shortcut: Option<String>, open_tab: Option<String>, download: Option<S
         shortcut,
         open_tab,
         download,
+        page: None,
     });
 }
 
 /// WebView2 could not start (runtime missing): the screen says so.
+#[cfg(windows)]
 fn browser_failed() {
     signal(Some("unavailable".to_owned()), None, None);
 }
@@ -322,6 +350,116 @@ pub fn scan() {
     }
 }
 
+// Reports of the Android pages (the same rules as the WebView2 handlers).
+
+/// Longest address and title kept from a page.
+const PAGE_URL_MAX: usize = 4096;
+const PAGE_TITLE_MAX: usize = 300;
+
+fn live_tab(id: u32) -> bool {
+    update(|s| s.tab_mut(id).is_some_and(|t| t.live))
+}
+
+/// A new document: web pages only; fresh detections, address, loading.
+pub fn page_started(id: u32, url: &str) {
+    let blank = url == "about:blank";
+    if url.len() > PAGE_URL_MAX || !blank && !is_web(url) || !live_tab(id) {
+        return;
+    }
+    update_tab(id, |t| {
+        t.kind = if blank { TabKind::Start } else { TabKind::Web };
+        t.url = if blank { String::new() } else { url.to_owned() };
+        t.loading = !blank;
+        t.title.clear();
+        t.detections.clear();
+    });
+    publish();
+}
+
+pub fn page_finished(id: u32, ok: bool, can_go_back: bool, can_go_forward: bool) {
+    if !live_tab(id) {
+        return;
+    }
+    let page = update_tab(id, |t| {
+        t.loading = false;
+        t.can_go_back = can_go_back;
+        t.can_go_forward = can_go_forward;
+        (t.url.clone(), t.title.clone())
+    });
+    // Local history (NAV-03): pages actually shown.
+    if let Some((url, title)) = page
+        && ok
+        && is_web(&url)
+    {
+        note_visit(&url, &title);
+    }
+    publish();
+    persist();
+    if update(|s| s.active) == id {
+        platform::scan(id);
+    }
+}
+
+/// Same-document navigations (single-page sites change the video without
+/// loading a new document): new address, fresh detections.
+pub fn page_moved(id: u32, url: &str, can_go_back: bool, can_go_forward: bool) {
+    if url.len() > PAGE_URL_MAX || !is_web(url) || !live_tab(id) {
+        return;
+    }
+    let moved = update_tab(id, |t| {
+        t.can_go_back = can_go_back;
+        t.can_go_forward = can_go_forward;
+        let moved = t.url != url;
+        if moved {
+            t.url = url.to_owned();
+            t.detections.clear();
+        }
+        moved
+    });
+    if moved == Some(true) {
+        note_visit(url, "");
+        persist();
+    }
+    publish();
+}
+
+pub fn page_title(id: u32, title: &str) {
+    if !live_tab(id) {
+        return;
+    }
+    let title: String = title.chars().take(PAGE_TITLE_MAX).collect();
+    let url = update_tab(id, |t| {
+        t.title = title.clone();
+        t.url.clone()
+    });
+    if let Some(url) = url.filter(|u| is_web(u)) {
+        set_visit_title(&url, &title);
+    }
+    publish();
+    persist();
+}
+
+pub fn page_found(id: u32, kind: &str, url: &str, detail: &str) {
+    if url.len() > PAGE_URL_MAX || !live_tab(id) {
+        return;
+    }
+    let added = match kind {
+        "element" => update_tab(id, |t| t.detections.add_element(detail, url)),
+        // Stream manifests seen as requests: the URL path decides.
+        "request" => update_tab(id, |t| t.detections.add_response(url, "", 200, None, None)),
+        "download" => {
+            if is_web(url) {
+                signal(None, None, Some(url.to_owned()));
+            }
+            None
+        }
+        _ => None,
+    };
+    if added == Some(true) {
+        publish();
+    }
+}
+
 #[cfg(windows)]
 mod platform {
     use std::cell::RefCell;
@@ -346,9 +484,10 @@ mod platform {
     };
     use windows::core::{BOOL, HSTRING, Interface, PCWSTR, PWSTR, w};
 
-    use super::super::state::{Tab, TabKind};
+    use super::super::state::TabKind;
     use super::{
         PROFILE, is_web, lock, note_visit, persist, publish, set_visit_title, signal, update,
+        update_tab,
     };
 
     thread_local! {
@@ -404,10 +543,6 @@ mod platform {
     /// `bytes 0-1023/146515` â†’ 146515 (`*` when unknown).
     fn range_total(value: &str) -> Option<u64> {
         value.rsplit('/').next()?.trim().parse().ok()
-    }
-
-    fn update_tab<R>(id: u32, f: impl FnOnce(&mut Tab) -> R) -> Option<R> {
-        update(|s| s.tab_mut(id).map(f))
     }
 
     type EnvWaiter = Box<dyn FnOnce(&ICoreWebView2Environment)>;
@@ -847,21 +982,78 @@ mod platform {
     }
 }
 
+/// Android (and other builds): the pages are native views of the screen,
+/// told what to do through `BrowserEvent::page`; they report back through
+/// the `page_*` functions. `live` marks a tab whose page exists.
 #[cfg(not(windows))]
 mod platform {
-    use anyhow::{Result, bail};
+    use anyhow::Result;
+
+    use super::super::state::TabKind;
+    use super::{command, is_web, update, update_tab};
 
     pub fn on_window_thread() -> bool {
-        false
+        true
     }
-    pub fn wake(_: u32) -> Result<bool> {
-        bail!("the built-in browser of this build is the Windows one")
+
+    /// Gives `id` a page if it has none, opening the tab's address; true
+    /// when it did.
+    pub fn wake(id: u32) -> Result<bool> {
+        let url = update_tab(id, |t| {
+            if t.live || t.kind != TabKind::Web {
+                return None;
+            }
+            t.live = true;
+            Some(t.url.clone())
+        })
+        .flatten();
+        let Some(url) = url else { return Ok(false) };
+        if is_web(&url) {
+            command(id, "load", &url);
+        }
+        sleep_extra();
+        Ok(true)
     }
-    pub fn navigate(_: u32, _: &str) -> Result<()> {
+
+    pub fn navigate(id: u32, url: &str) -> Result<()> {
+        command(id, "load", url);
         Ok(())
     }
-    pub fn close(_: u32) {}
-    pub fn layout() {}
-    pub fn page_action(_: u32, _: &str) {}
-    pub fn scan(_: u32) {}
+
+    pub fn close(id: u32) {
+        command(id, "close", "");
+    }
+
+    /// Background pages beyond the memory budget are closed; their tab
+    /// keeps its address and reloads when selected.
+    fn sleep_extra() {
+        for id in update(|s| s.to_sleep()) {
+            close(id);
+            update_tab(id, |t| {
+                t.live = false;
+                t.reset_page();
+            });
+        }
+    }
+
+    /// Only the selected web page is shown, while the screen shows one.
+    pub fn layout() {
+        let shown = update(|s| {
+            let web = s.active().is_some_and(|t| t.kind == TabKind::Web && t.live);
+            if web && s.frame.is_some() { s.active } else { 0 }
+        });
+        command(shown, "show", "");
+    }
+
+    pub fn page_action(id: u32, action: &str) {
+        let action = match action {
+            "back" | "forward" | "stop" => action,
+            _ => "reload",
+        };
+        command(id, action, "");
+    }
+
+    pub fn scan(id: u32) {
+        command(id, "scan", "");
+    }
 }

@@ -76,6 +76,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   AndroidTools dco_decode_box_autoadd_android_tools(dynamic raw);
 
   @protected
+  BrowserPageCommand dco_decode_box_autoadd_browser_page_command(dynamic raw);
+
+  @protected
   BrowserSnapshot dco_decode_box_autoadd_browser_snapshot(dynamic raw);
 
   @protected
@@ -137,6 +140,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BrowserFavorite dco_decode_browser_favorite(dynamic raw);
+
+  @protected
+  BrowserPageCommand dco_decode_browser_page_command(dynamic raw);
 
   @protected
   BrowserSnapshot dco_decode_browser_snapshot(dynamic raw);
@@ -337,6 +343,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  BrowserPageCommand? dco_decode_opt_box_autoadd_browser_page_command(
+    dynamic raw,
+  );
+
+  @protected
   BrowserSnapshot? dco_decode_opt_box_autoadd_browser_snapshot(dynamic raw);
 
   @protected
@@ -514,6 +525,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  BrowserPageCommand sse_decode_box_autoadd_browser_page_command(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   BrowserSnapshot sse_decode_box_autoadd_browser_snapshot(
     SseDeserializer deserializer,
   );
@@ -587,6 +603,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   BrowserFavorite sse_decode_browser_favorite(SseDeserializer deserializer);
+
+  @protected
+  BrowserPageCommand sse_decode_browser_page_command(
+    SseDeserializer deserializer,
+  );
 
   @protected
   BrowserSnapshot sse_decode_browser_snapshot(SseDeserializer deserializer);
@@ -817,6 +838,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  BrowserPageCommand? sse_decode_opt_box_autoadd_browser_page_command(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   BrowserSnapshot? sse_decode_opt_box_autoadd_browser_snapshot(
     SseDeserializer deserializer,
   );
@@ -1034,6 +1060,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_browser_page_command(
+    BrowserPageCommand self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_browser_snapshot(
     BrowserSnapshot self,
     SseSerializer serializer,
@@ -1141,6 +1173,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_browser_favorite(
     BrowserFavorite self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_browser_page_command(
+    BrowserPageCommand self,
     SseSerializer serializer,
   );
 
@@ -1443,6 +1481,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_browser_page_command(
+    BrowserPageCommand? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_browser_snapshot(

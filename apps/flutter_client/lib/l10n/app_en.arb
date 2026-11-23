@@ -734,6 +734,27 @@
   "brFavAdded": "Added to favorites",
   "brFavRemoved": "Removed from favorites",
   "brSites": "Sites",
+  "brTabs": "Tabs",
+  "brTabsOpen": "{n, plural, =1{1 open tab} other{{n} open tabs}}",
+  "@brTabsOpen": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brBackToApp": "Back to Miarina Media",
+  "brDownloadCount": "Download · {n}",
+  "@brDownloadCount": {
+    "placeholders": {
+      "n": {
+        "type": "int"
+      }
+    }
+  },
+  "brDownloadHoldHint": "Long press: download the main media in the default format",
+  "brUnavailablePhone": "The browser could not start on this device.",
+  "brStartBodyPhone": "When a page has a video or an audio file, a Download button appears over the page.",
   "getReorderNamed": "Reorder {title} (Alt + Up and Down arrows, or drag)",
   "torCapped": "Sharing capped, in KB/s",
   "torChecking": "Checking files",

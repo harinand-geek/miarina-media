@@ -4501,6 +4501,48 @@ abstract class L10n {
   /// **'Sites'**
   String get brSites;
 
+  /// No description provided for @brTabs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Onglets'**
+  String get brTabs;
+
+  /// No description provided for @brTabsOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =1{1 onglet ouvert} other{{n} onglets ouverts}}'**
+  String brTabsOpen(int n);
+
+  /// No description provided for @brBackToApp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retour à Miarina Media'**
+  String get brBackToApp;
+
+  /// No description provided for @brDownloadCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'Télécharger · {n}'**
+  String brDownloadCount(int n);
+
+  /// No description provided for @brDownloadHoldHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appui long : télécharger le média principal au format par défaut'**
+  String get brDownloadHoldHint;
+
+  /// No description provided for @brUnavailablePhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le navigateur n’a pas pu démarrer sur cet appareil.'**
+  String get brUnavailablePhone;
+
+  /// No description provided for @brStartBodyPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand une page contient une vidéo ou un fichier audio, un bouton Télécharger apparaît au-dessus de la page.'**
+  String get brStartBodyPhone;
+
   /// No description provided for @getReorderNamed.
   ///
   /// In fr, this message translates to:

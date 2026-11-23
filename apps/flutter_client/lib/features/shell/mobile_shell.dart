@@ -18,7 +18,8 @@ import '../playback/playback.dart';
 
 /// Android shell (decision 0006 extended, D2): tabs Musique · Cinéma · Focus
 /// (coral) and Obtenir (teal), the 64 dp mini player above them whenever
-/// something is loaded.
+/// something is loaded. The browser has the screen to itself (its own bars,
+/// design_handoff_android_v2 screen 02).
 class MobileShell extends ConsumerWidget {
   const MobileShell({super.key, required this.location, required this.child});
 
@@ -31,6 +32,14 @@ class MobileShell extends ConsumerWidget {
     final hasMedia = ref.watch(queueProvider.select((q) => q.current != null));
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     final navHeight = 72 + bottomInset;
+    if (location.startsWith(Routes.getBrowser)) {
+      return MissingSkipListener(
+        child: Scaffold(
+          backgroundColor: c.bg,
+          body: SafeArea(bottom: false, child: child),
+        ),
+      );
+    }
     return MissingSkipListener(
       child: _scaffold(context, c, hasMedia, navHeight, bottomInset),
     );

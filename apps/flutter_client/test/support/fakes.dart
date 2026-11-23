@@ -1139,6 +1139,26 @@ class FakeBrowserApi implements BrowserApi {
     cleared++;
     visits = [];
   }
+
+  final reports = <(String, Map<Object?, Object?>)>[];
+
+  @override
+  void pageReport(String type, Map<Object?, Object?> report) =>
+      reports.add((type, report));
+}
+
+/// The Android native pages: orders received, reports sent back.
+class FakeBrowserPages implements BrowserPages {
+  final commands = <String>[];
+  void Function(String, Map<Object?, Object?>)? onReport;
+
+  @override
+  void listen(void Function(String, Map<Object?, Object?>) onReport) =>
+      this.onReport = onReport;
+
+  @override
+  Future<void> command(BrowserPageCommand c) async =>
+      commands.add('${c.action} ${c.tab}${c.url.isEmpty ? '' : ' ${c.url}'}');
 }
 
 DetectedMediaInfo detected(String url, {String kind = 'video', int? size}) =>

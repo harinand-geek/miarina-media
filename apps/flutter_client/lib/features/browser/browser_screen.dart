@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -17,10 +18,13 @@ import '../get/get_data.dart';
 import '../get/get_screens.dart' show bytes;
 import 'browser_data.dart';
 
+part 'browser_phone.dart';
+
 // Obtenir › Navigateur (Windows v2 screen 8), ported from the Tauri app.
 // The page is a native WebView2 placed in the area this screen leaves for
 // it; nothing Flutter draws can sit above it, so the Tauri floating button
 // becomes a strip under the page and the format sheet a side panel.
+// Phones: browser_phone.dart.
 
 void _toast(BuildContext context, String text) {
   ScaffoldMessenger.maybeOf(context)
@@ -117,12 +121,13 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
       }
     });
     final state = ref.watch(browserProvider);
+    final desktop = ref.watch(desktopShellProvider);
     if (state.available == false) {
       return Center(
         child: Padding(
           padding: const EdgeInsets.all(32),
           child: Text(
-            t.brUnavailable,
+            desktop ? t.brUnavailable : t.brUnavailablePhone,
             textAlign: TextAlign.center,
             style: MmType.body.copyWith(color: c.muted),
           ),
@@ -131,6 +136,7 @@ class _BrowserScreenState extends ConsumerState<BrowserScreen> {
     }
     final s = state.snapshot;
     if (s == null) return const SizedBox.shrink();
+    if (!desktop) return _PhoneBrowser(snapshot: s);
     final web = s.kind == 'web';
     final candidates = candidatesOf(s);
     final panel = _panel && web && candidates.isNotEmpty;
@@ -699,10 +705,17 @@ class _PageHostState extends ConsumerState<_PageHost> {
 }
 
 class _StartPage extends ConsumerStatefulWidget {
-  const _StartPage({required this.onOpen, required this.onHidden});
+  const _StartPage({
+    required this.onOpen,
+    required this.onHidden,
+    this.compact = false,
+  });
 
   final void Function(String address) onOpen;
   final VoidCallback onHidden;
+
+  /// Phone: four sites a row, the floating button in the explanation.
+  final bool compact;
 
   @override
   ConsumerState<_StartPage> createState() => _StartPageState();
@@ -721,8 +734,11 @@ class _StartPageState extends ConsumerState<_StartPage> {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final favorites = ref.watch(browserFavoritesProvider);
+    final compact = widget.compact;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+      padding: compact
+          ? const EdgeInsets.fromLTRB(16, 32, 16, 24)
+          : const EdgeInsets.fromLTRB(32, 48, 32, 24),
       children: [
         const Center(child: MiarinaLogo(size: 28)),
         const SizedBox(height: 18),
@@ -736,7 +752,7 @@ class _StartPageState extends ConsumerState<_StartPage> {
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 320),
             child: Text(
-              t.brStartBody,
+              compact ? t.brStartBodyPhone : t.brStartBody,
               textAlign: TextAlign.center,
               style: MmType.bodySm.copyWith(color: c.muted),
             ),
@@ -768,7 +784,7 @@ class _StartPageState extends ConsumerState<_StartPage> {
                 children: [
                   for (final (name, address) in sites)
                     SizedBox(
-                      width: 180,
+                      width: compact ? 84 : 180,
                       child: Pressable(
                         onTap: () => widget.onOpen(address),
                         semanticLabel: name,
@@ -897,10 +913,14 @@ class _MediaPanel extends ConsumerStatefulWidget {
     super.key,
     required this.candidates,
     required this.onClose,
+    this.sheet = false,
   });
 
   final List<Candidate> candidates;
   final VoidCallback onClose;
+
+  /// Phone: the bottom sheet of the floating button (screen 03).
+  final bool sheet;
 
   @override
   ConsumerState<_MediaPanel> createState() => _MediaPanelState();
@@ -931,23 +951,7 @@ class _MediaPanelState extends ConsumerState<_MediaPanel> {
     final t = L10n.of(context);
     setState(() => _starting = true);
     try {
-      await ref
-          .read(downloadsProvider.notifier)
-          .start(
-            StartRequest(
-              url: info.url,
-              title: downloadTitle(info, f),
-              isAudio: info.video.isEmpty || !info.video.contains(f),
-              engine: info.engine,
-              formatId: f.id == 'original' ? null : f.id,
-              formatLabel: f.id == 'original'
-                  ? t.getOriginalFile(f.quality)
-                  : f.quality,
-              extension_: f.extension_,
-              startNow: now,
-              thumbnail: info.thumbnail,
-            ),
-          );
+      await _startDownload(ref, t, info, f, now: now);
       if (mounted) {
         _toast(context, t.getAddedToQueue(shortQuality(f)));
         widget.onClose();
@@ -967,11 +971,15 @@ class _MediaPanelState extends ConsumerState<_MediaPanel> {
     return Container(
       decoration: BoxDecoration(
         color: c.surface,
-        border: Border(left: BorderSide(color: c.line)),
+        border: widget.sheet ? null : Border(left: BorderSide(color: c.line)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
+          if (widget.sheet) ...[
+            const SizedBox(height: 10),
+            const _SheetHandle(),
+          ],
           Padding(
             padding: const EdgeInsets.fromLTRB(18, 14, 8, 6),
             child: Row(

@@ -2783,6 +2783,40 @@ class L10nFr extends L10n {
   String get brSites => 'Sites';
 
   @override
+  String get brTabs => 'Onglets';
+
+  @override
+  String brTabsOpen(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n onglets ouverts',
+      one: '1 onglet ouvert',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get brBackToApp => 'Retour à Miarina Media';
+
+  @override
+  String brDownloadCount(int n) {
+    return 'Télécharger · $n';
+  }
+
+  @override
+  String get brDownloadHoldHint =>
+      'Appui long : télécharger le média principal au format par défaut';
+
+  @override
+  String get brUnavailablePhone =>
+      'Le navigateur n’a pas pu démarrer sur cet appareil.';
+
+  @override
+  String get brStartBodyPhone =>
+      'Quand une page contient une vidéo ou un fichier audio, un bouton Télécharger apparaît au-dessus de la page.';
+
+  @override
   String getReorderNamed(String title) {
     return 'Réordonner $title (Alt + flèches haut et bas, ou glisser)';
   }

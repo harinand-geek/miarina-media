@@ -69,6 +69,57 @@ void browserScan() => RustLib.instance.api.crateApiBrowserBrowserScan();
 void browserTabHistory() =>
     RustLib.instance.api.crateApiBrowserBrowserTabHistory();
 
+/// Android page reports (the page is untrusted: everything is checked and
+/// bounded here). A new document starts loading.
+void browserPageStarted({required int tab, required String url}) =>
+    RustLib.instance.api.crateApiBrowserBrowserPageStarted(tab: tab, url: url);
+
+/// The document finished loading (`ok`: shown without an error).
+void browserPageFinished({
+  required int tab,
+  required bool ok,
+  required bool canGoBack,
+  required bool canGoForward,
+}) => RustLib.instance.api.crateApiBrowserBrowserPageFinished(
+  tab: tab,
+  ok: ok,
+  canGoBack: canGoBack,
+  canGoForward: canGoForward,
+);
+
+/// The address changed (history entry, single-page sites).
+void browserPageMoved({
+  required int tab,
+  required String url,
+  required bool canGoBack,
+  required bool canGoForward,
+}) => RustLib.instance.api.crateApiBrowserBrowserPageMoved(
+  tab: tab,
+  url: url,
+  canGoBack: canGoBack,
+  canGoForward: canGoForward,
+);
+
+void browserPageTitle({required int tab, required String title}) => RustLib
+    .instance
+    .api
+    .crateApiBrowserBrowserPageTitle(tab: tab, title: title);
+
+/// Something the page showed: `element` (a `<video>`/`<audio>` source,
+/// `detail` = tag), `request` (a stream manifest it fetched) or `download`
+/// (a file it offered).
+void browserPageFound({
+  required int tab,
+  required String kind,
+  required String url,
+  required String detail,
+}) => RustLib.instance.api.crateApiBrowserBrowserPageFound(
+  tab: tab,
+  kind: kind,
+  url: url,
+  detail: detail,
+);
+
 /// Starred pages, newest first.
 List<BrowserFavorite> browserFavorites() =>
     RustLib.instance.api.crateApiBrowserBrowserFavorites();
@@ -112,11 +163,15 @@ class BrowserEvent {
   /// engine analyzes it.
   final String? download;
 
+  /// Android: what the native page of a tab must do.
+  final BrowserPageCommand? page;
+
   const BrowserEvent({
     this.snapshot,
     this.shortcut,
     this.openTab,
     this.download,
+    this.page,
   });
 
   @override
@@ -124,7 +179,8 @@ class BrowserEvent {
       snapshot.hashCode ^
       shortcut.hashCode ^
       openTab.hashCode ^
-      download.hashCode;
+      download.hashCode ^
+      page.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -134,7 +190,8 @@ class BrowserEvent {
           snapshot == other.snapshot &&
           shortcut == other.shortcut &&
           openTab == other.openTab &&
-          download == other.download;
+          download == other.download &&
+          page == other.page;
 }
 
 class BrowserFavorite {
@@ -153,6 +210,32 @@ class BrowserFavorite {
           runtimeType == other.runtimeType &&
           url == other.url &&
           title == other.title;
+}
+
+/// An order for the Android page of `tab`: load (`url`), close, show (the
+/// page of `tab` shown, 0 = none), back, forward, reload, stop, scan.
+class BrowserPageCommand {
+  final int tab;
+  final String action;
+  final String url;
+
+  const BrowserPageCommand({
+    required this.tab,
+    required this.action,
+    required this.url,
+  });
+
+  @override
+  int get hashCode => tab.hashCode ^ action.hashCode ^ url.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BrowserPageCommand &&
+          runtimeType == other.runtimeType &&
+          tab == other.tab &&
+          action == other.action &&
+          url == other.url;
 }
 
 /// The selected tab, and the list of tabs.

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../src/rust/api/browser.dart' as rust;
@@ -13,12 +14,14 @@ export '../../src/rust/api/browser.dart'
     show
         BrowserEvent,
         BrowserFavorite,
+        BrowserPageCommand,
         BrowserSnapshot,
         BrowserTab,
         BrowserVisit,
         DetectedMediaInfo;
 
-/// The built-in browser in the core (WebView2 pages); tests use a fake.
+/// The built-in browser in the core (WebView2 pages on Windows, native
+/// WebViews on Android); tests use a fake.
 abstract interface class BrowserApi {
   /// False when the pages cannot live on this thread.
   Future<bool> init();
@@ -48,6 +51,10 @@ abstract interface class BrowserApi {
   List<rust.BrowserVisit> history(String query);
   void historyDelete(int id);
   void historyClear();
+
+  /// Android: what a native page did (`type`: started, finished, moved,
+  /// title, found), checked by the core.
+  void pageReport(String type, Map<Object?, Object?> report);
 }
 
 class RustBrowserApi implements BrowserApi {
@@ -57,7 +64,10 @@ class RustBrowserApi implements BrowserApi {
 
   @override
   Future<bool> init() async {
-    if (!Platform.isWindows || !RustLib.instance.initialized) return false;
+    if (!(Platform.isWindows || Platform.isAndroid) ||
+        !RustLib.instance.initialized) {
+      return false;
+    }
     // The browser shares the database opened by the download manager.
     await _ref.read(downloadsProvider.notifier).started;
     return rust.browserInit(dataDir: await _ref.read(dataDirProvider.future));
@@ -116,9 +126,84 @@ class RustBrowserApi implements BrowserApi {
 
   @override
   void historyClear() => rust.browserHistoryClear();
+
+  @override
+  void pageReport(String type, Map<Object?, Object?> r) {
+    final tab = r['tab'];
+    if (tab is! int || tab <= 0) return;
+    String text(String key) => r[key] is String ? r[key] as String : '';
+    bool flag(String key) => r[key] == true;
+    switch (type) {
+      case 'started':
+        rust.browserPageStarted(tab: tab, url: text('url'));
+      case 'finished':
+        rust.browserPageFinished(
+          tab: tab,
+          ok: flag('ok'),
+          canGoBack: flag('back'),
+          canGoForward: flag('forward'),
+        );
+      case 'moved':
+        rust.browserPageMoved(
+          tab: tab,
+          url: text('url'),
+          canGoBack: flag('back'),
+          canGoForward: flag('forward'),
+        );
+      case 'title':
+        rust.browserPageTitle(tab: tab, title: text('title'));
+      case 'found':
+        rust.browserPageFound(
+          tab: tab,
+          kind: text('kind'),
+          url: text('url'),
+          detail: text('detail'),
+        );
+    }
+  }
 }
 
 final browserApiProvider = Provider<BrowserApi>(RustBrowserApi.new);
+
+/// Android: the native pages (BrowserChannel.kt), one per tab, shown in
+/// the screen's platform view. Null elsewhere and in tests.
+abstract interface class BrowserPages {
+  void listen(
+    void Function(String type, Map<Object?, Object?> report) onReport,
+  );
+  Future<void> command(rust.BrowserPageCommand command);
+}
+
+class AndroidBrowserPages implements BrowserPages {
+  static const _channel = MethodChannel('org.miarina.media/browser');
+
+  @override
+  void listen(void Function(String, Map<Object?, Object?>) onReport) {
+    _channel.setMethodCallHandler((call) async {
+      final args = call.arguments;
+      if (call.method != 'report' || args is! Map) return;
+      final type = args['type'];
+      if (type is String) onReport(type, args);
+    });
+  }
+
+  @override
+  Future<void> command(rust.BrowserPageCommand c) async {
+    try {
+      await _channel.invokeMethod<void>('command', {
+        'tab': c.tab,
+        'action': c.action,
+        'url': c.url,
+      });
+    } catch (e) {
+      debugPrint('browser page: $e');
+    }
+  }
+}
+
+final browserPagesProvider = Provider<BrowserPages?>(
+  (ref) => Platform.isAndroid ? AndroidBrowserPages() : null,
+);
 
 /// Something the page asked of the screen (focus the address, analyze a
 /// file it offered…), numbered so the same request twice is seen twice.
@@ -168,6 +253,8 @@ class BrowserController extends Notifier<BrowserState> {
     return const BrowserState();
   }
 
+  BrowserPages? _pages;
+
   Future<void> _start() async {
     try {
       final ok = await api.init();
@@ -175,6 +262,8 @@ class BrowserController extends Notifier<BrowserState> {
         state = state.copyWith(available: false);
         return;
       }
+      _pages = ref.read(browserPagesProvider);
+      _pages?.listen(api.pageReport);
       _events = api.events().listen(_apply);
       state = state.copyWith(available: true, snapshot: api.snapshot());
     } catch (e) {
@@ -189,6 +278,8 @@ class BrowserController extends Notifier<BrowserState> {
       state = state.copyWith(available: false);
       return;
     }
+    // Android: an order for a native page.
+    if (e.page != null) unawaited(_pages?.command(e.page!));
     if (e.snapshot != null) state = state.copyWith(snapshot: e.snapshot);
     // A popup: a new tab, outside the page's own callback.
     if (e.openTab != null) _guard(() => api.tabNew(e.openTab));

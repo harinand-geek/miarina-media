@@ -406,8 +406,8 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
   }
 
   /// Phone (design_handoff_android_v2, 01): the link card, quick actions
-  /// and the downloads card. The browser and the file import are not built
-  /// on Android yet: not shown.
+  /// (Audio seul, Playlist, Navigateur, Téléchargements) and the downloads
+  /// card. The file import is not built on Android yet: not shown.
   Widget _phone(BuildContext context, _LinkIssue? issue) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
@@ -576,6 +576,12 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
             ),
             const SizedBox(width: 12),
             tile(PhosphorRegular.playlist, t.getQPlaylist, null, planned: true),
+            const SizedBox(width: 12),
+            tile(
+              PhosphorRegular.globe,
+              t.getNavBrowser,
+              () => context.go(Routes.getBrowser),
+            ),
             const SizedBox(width: 12),
             tile(
               PhosphorRegular.downloadSimple,
