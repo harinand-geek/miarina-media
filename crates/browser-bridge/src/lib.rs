@@ -1,4 +1,6 @@
-//! Bounded native-messaging frames and a durable local inbox. No network listener.
+//! Bounded native-messaging frames from the browser extension: a link opened
+//! in Miarina Media (0.2.3), or the durable local inbox of the 0.1.x app. No
+//! network listener.
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -20,7 +22,18 @@ pub struct Entry {
     pub url: String,
 }
 
-pub fn read_request(reader: &mut impl Read) -> io::Result<Request> {
+/// What the extension sends (0.2.3): a link to open in the app, or a ping
+/// (the connection test). Exactly one of the two.
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct Message {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub url: Option<String>,
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub ping: bool,
+}
+
+fn read_frame(reader: &mut impl Read) -> io::Result<Vec<u8>> {
     let mut prefix = [0u8; 4];
     reader.read_exact(&mut prefix)?;
     let len = u32::from_ne_bytes(prefix) as usize;
@@ -29,7 +42,77 @@ pub fn read_request(reader: &mut impl Read) -> io::Result<Request> {
     }
     let mut bytes = vec![0; len];
     reader.read_exact(&mut bytes)?;
-    let request: Request = serde_json::from_slice(&bytes).map_err(io::Error::other)?;
+    Ok(bytes)
+}
+
+/// Reads one native-messaging frame from the extension (bounded, untrusted).
+pub fn read_message(reader: &mut impl Read) -> io::Result<Message> {
+    let message: Message =
+        serde_json::from_slice(&read_frame(reader)?).map_err(io::Error::other)?;
+    match (&message.url, message.ping) {
+        (Some(url), false) => validate(url)?,
+        (None, true) => {}
+        _ => return Err(io::Error::other("Send a link or a ping")),
+    }
+    Ok(message)
+}
+
+/// The Miarina Media executable next to this bridge (installed together):
+/// `miarina-media.exe`, a recette build's `miarina-media-….exe`, or the
+/// development build's `miarina_media.exe`.
+pub fn app_next_to(bridge: &Path) -> Option<PathBuf> {
+    let dir = bridge.parent()?;
+    let mut found: Vec<PathBuf> = fs::read_dir(dir)
+        .ok()?
+        .filter_map(|e| e.ok().map(|e| e.path()))
+        .filter(|p| {
+            let name = p
+                .file_name()
+                .and_then(|n| n.to_str())
+                .unwrap_or_default()
+                .to_ascii_lowercase();
+            (name.starts_with("miarina-media") || name.starts_with("miarina_media"))
+                && name.ends_with(".exe")
+                && p.is_file()
+        })
+        .collect();
+    found.sort();
+    found.into_iter().next()
+}
+
+/// Opens `url` in Miarina Media: its analysis page, in the running window
+/// (the app keeps one) or a new one. Nothing is downloaded without the
+/// user's choice. The app outlives this process (the browser ends it).
+#[cfg(windows)]
+pub fn open_in_app(url: &str) -> io::Result<()> {
+    use std::os::windows::process::CommandExt;
+    use std::process::{Command, Stdio};
+    validate(url)?;
+    let app = app_next_to(&std::env::current_exe()?)
+        .ok_or_else(|| io::Error::other("Miarina Media not found next to the bridge"))?;
+    const DETACHED_PROCESS: u32 = 0x0000_0008;
+    const CREATE_NEW_PROCESS_GROUP: u32 = 0x0000_0200;
+    const CREATE_BREAKAWAY_FROM_JOB: u32 = 0x0100_0000;
+    let spawn = |flags: u32| {
+        Command::new(&app)
+            .arg("--link")
+            .arg(url)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .creation_flags(flags)
+            .spawn()
+    };
+    // Out of the browser's job when it allows it, so closing the browser
+    // does not close the app.
+    spawn(DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP | CREATE_BREAKAWAY_FROM_JOB)
+        .or_else(|_| spawn(DETACHED_PROCESS | CREATE_NEW_PROCESS_GROUP))
+        .map(|_| ())
+}
+
+pub fn read_request(reader: &mut impl Read) -> io::Result<Request> {
+    let request: Request =
+        serde_json::from_slice(&read_frame(reader)?).map_err(io::Error::other)?;
     validate(&request.url)?;
     Ok(request)
 }
@@ -181,6 +264,46 @@ mod tests {
         assert_eq!(
             serde_json::from_slice::<serde_json::Value>(&out[4..]).unwrap()["ok"],
             true
+        );
+    }
+
+    fn frame(body: &str) -> Vec<u8> {
+        let mut out = (body.len() as u32).to_ne_bytes().to_vec();
+        out.extend(body.as_bytes());
+        out
+    }
+
+    #[test]
+    fn messages_are_a_link_or_a_ping() {
+        let m = read_message(&mut frame(r#"{"url":"https://example.com/v"}"#).as_slice()).unwrap();
+        assert_eq!(m.url.as_deref(), Some("https://example.com/v"));
+        assert!(
+            read_message(&mut frame(r#"{"ping":true}"#).as_slice())
+                .unwrap()
+                .ping
+        );
+        for bad in [
+            r#"{}"#,
+            r#"{"ping":false}"#,
+            r#"{"url":"https://example.com","ping":true}"#,
+            r#"{"url":"file:///c:/secret"}"#,
+            r#"{"url":"https://example.com","cookies":"x"}"#,
+        ] {
+            assert!(read_message(&mut frame(bad).as_slice()).is_err(), "{bad}");
+        }
+    }
+
+    #[test]
+    fn the_app_is_found_next_to_the_bridge() {
+        let dir = tempfile::tempdir().unwrap();
+        let bridge = dir.path().join("miarina-browser-bridge.exe");
+        fs::write(&bridge, b"").unwrap();
+        assert_eq!(app_next_to(&bridge), None);
+        fs::write(dir.path().join("miarina-media.exe"), b"").unwrap();
+        fs::write(dir.path().join("other.exe"), b"").unwrap();
+        assert_eq!(
+            app_next_to(&bridge).unwrap().file_name().unwrap(),
+            "miarina-media.exe"
         );
     }
 

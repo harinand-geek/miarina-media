@@ -25,6 +25,7 @@ import '../library/library_data.dart';
 import '../playback/playback.dart';
 import '../shortcuts/shortcuts_view.dart';
 import '../now_playing/now_playing_screen.dart' show lastLocationProvider;
+import 'extension_settings.dart';
 import 'settings_data.dart';
 
 enum SettingsSection {
@@ -33,6 +34,7 @@ enum SettingsSection {
   playback,
   library,
   downloads,
+  extension,
   shortcuts,
   data,
   updates,
@@ -47,6 +49,7 @@ String sectionLabel(L10n t, SettingsSection s) => switch (s) {
   SettingsSection.playback => t.setPlayback,
   SettingsSection.library => t.setLibrary,
   SettingsSection.downloads => t.setDownloads,
+  SettingsSection.extension => t.setExtension,
   SettingsSection.shortcuts => t.setShortcuts,
   SettingsSection.data => t.setData,
   SettingsSection.updates => t.setUpdates,
@@ -147,8 +150,10 @@ class _SettingsNav extends ConsumerWidget {
           ),
         ),
         for (final s in SettingsSection.values)
-          // Keyboard shortcuts are a desktop matter.
-          if (!mobile || s != SettingsSection.shortcuts)
+          // Keyboard shortcuts and the browser extension are desktop
+          // matters.
+          if (!mobile ||
+              s != SettingsSection.shortcuts && s != SettingsSection.extension)
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Pressable(
@@ -215,6 +220,7 @@ class _SectionPage extends ConsumerWidget {
       SettingsSection.shortcuts => const ShortcutsView(),
       SettingsSection.library => const _Library(),
       SettingsSection.downloads => const DownloadSettings(),
+      SettingsSection.extension => const ExtensionSettings(),
       SettingsSection.data => const _Data(),
       SettingsSection.updates => const UpdatesSettings(),
       SettingsSection.about => const _About(),
@@ -820,7 +826,7 @@ class _PathRow extends StatelessWidget {
           // shell string).
           if (p != null && Platform.isWindows) ...[
             const SizedBox(width: 16),
-            _OutlinedAction(
+            SettingsAction(
               label: t.openFolder,
               onTap: () => Process.run('explorer.exe', [p]),
             ),
@@ -871,14 +877,14 @@ class _Library extends ConsumerWidget {
           spacing: 10,
           runSpacing: 8,
           children: [
-            _OutlinedAction(
+            SettingsAction(
               label: t.addFolder,
               onTap: () async {
                 final path = await pickFolder(ref, FolderKind.music);
                 if (path != null) await scanFolders(ref);
               },
             ),
-            _OutlinedAction(
+            SettingsAction(
               label: t.scanNow,
               onTap: folders.isEmpty ? null : () => scanFolders(ref),
             ),
@@ -900,7 +906,7 @@ class _Library extends ConsumerWidget {
               body: missing > 0
                   ? t.missingSubtitle(missing)
                   : t.missingEmptyTitle,
-              control: _OutlinedAction(
+              control: SettingsAction(
                 label: t.show,
                 onTap: () => context.go(Routes.missing),
               ),
@@ -908,7 +914,7 @@ class _Library extends ConsumerWidget {
             SettingsRow(
               title: t.duplicatesTitle,
               body: t.duplicatesFound(duplicates),
-              control: _OutlinedAction(
+              control: SettingsAction(
                 label: t.show,
                 onTap: () => context.go(Routes.duplicates),
               ),
@@ -934,7 +940,7 @@ class _Data extends ConsumerWidget {
         SettingsRow(
           title: t.playHistory,
           body: t.playHistoryBody,
-          control: _OutlinedAction(
+          control: SettingsAction(
             label: t.historyClear,
             onTap: hasHistory ? () => confirmClearHistory(context, ref) : null,
           ),
@@ -944,8 +950,8 @@ class _Data extends ConsumerWidget {
   }
 }
 
-class _OutlinedAction extends StatelessWidget {
-  const _OutlinedAction({required this.label, required this.onTap});
+class SettingsAction extends StatelessWidget {
+  const SettingsAction({super.key, required this.label, required this.onTap});
 
   final String label;
   final VoidCallback? onTap;
@@ -1031,7 +1037,7 @@ class _About extends StatelessWidget {
             SettingsRow(
               title: t.aboutLicenses,
               body: t.aboutLicensesBody,
-              control: _OutlinedAction(
+              control: SettingsAction(
                 label: t.show,
                 onTap: () {
                   registerAssetLicenses();
@@ -1052,7 +1058,7 @@ class _About extends StatelessWidget {
             SettingsRow(
               title: 'Miarina',
               body: t.aboutCompanyBody,
-              control: _OutlinedAction(
+              control: SettingsAction(
                 label: 'miarina.org',
                 onTap: () => _openSite(_companySite),
               ),
@@ -1060,7 +1066,7 @@ class _About extends StatelessWidget {
             SettingsRow(
               title: t.aboutDeveloper,
               body: '© 2026 Harinjaka',
-              control: _OutlinedAction(
+              control: SettingsAction(
                 label: 'cv.harinjaka.org',
                 onTap: () => _openSite(_developerSite),
               ),

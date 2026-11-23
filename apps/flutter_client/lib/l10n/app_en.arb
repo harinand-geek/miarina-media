@@ -734,6 +734,44 @@
   "brFavAdded": "Added to favorites",
   "brFavRemoved": "Removed from favorites",
   "brSites": "Sites",
+  "setExtension": "Browser extension",
+  "extLead": "Send a page or video from Chrome or Edge to Miarina Media in one click: the analysis opens here and you choose the format.",
+  "extAccept": "Accept links sent by the extension",
+  "extAcceptBody": "Nothing is captured automatically.",
+  "extSteps": "Getting started",
+  "extStep1": "Install the extension",
+  "extStep1Body": "Chrome · Edge: Extensions page, turn on developer mode, then “Load unpacked” and choose this folder.",
+  "extOpenFolder": "Open folder",
+  "extStep2": "Connect this PC",
+  "extStep2Body": "Chrome and Edge will be able to send links to Miarina Media on this computer.",
+  "extConnected": "Chrome and Edge are connected.",
+  "extOther": "Another Miarina Media installation is connected; Connect replaces it.",
+  "extConnect": "Connect",
+  "extDisconnect": "Disconnect",
+  "extStep3": "Test the connection",
+  "extTest": "Test",
+  "extTestNever": "Not tested yet.",
+  "extTestOk": "Last test: succeeded at {time}",
+  "@extTestOk": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "extTestFailed": "Last test: failed at {time}",
+  "@extTestFailed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "extTestDone": "The connection works.",
+  "extTestBad": "The browser bridge does not answer. Disconnect, then connect again.",
+  "extNoBridge": "This version of Miarina Media does not include the browser bridge.",
+  "extFailed": "The connection could not be changed.",
+  "extPrivacy": "The extension reads nothing from pages: only the link you send leaves, and only to Miarina Media on this computer.",
   "brTabs": "Tabs",
   "brTabsOpen": "{n, plural, =1{1 open tab} other{{n} open tabs}}",
   "@brTabsOpen": {

@@ -680,14 +680,18 @@ Section Install
   !insertmacro CheckIfAppIsRunning "$INSTDIR\${MAINBINARYNAME}.exe" "${PRODUCTNAME}"
 
   ; 0.2.x replaces the 0.1.x (Tauri) app in place: what only 0.1.x used
-  ; goes (libVLC, the browser extension and its bridge). Data stays.
+  ; goes (libVLC, its browser bridge under tools\). Data stays.
   RMDir /r "$INSTDIR\tools\libvlc"
-  RMDir /r "$INSTDIR\tools\bridge"
+  ${If} ${FileExists} "$INSTDIR\tools\bridge\*.*"
+    RMDir /r "$INSTDIR\tools\bridge"
+    ; Its browser extension registrations pointed at the bridge removed
+    ; above; 0.2.3 and later register their own from Settings.
+    DeleteRegKey HKCU "Software\Google\Chrome\NativeMessagingHosts\org.miarina.media.bridge"
+    DeleteRegKey HKCU "Software\Microsoft\Edge\NativeMessagingHosts\org.miarina.media.bridge"
+    DeleteRegKey HKCU "Software\Mozilla\NativeMessagingHosts\org.miarina.media.bridge"
+  ${EndIf}
+  ; The extension folder is replaced by this version's.
   RMDir /r "$INSTDIR\browser-extension"
-  ; Its browser extension registrations pointed at the bridge removed above.
-  DeleteRegKey HKCU "Software\Google\Chrome\NativeMessagingHosts\org.miarina.media.bridge"
-  DeleteRegKey HKCU "Software\Microsoft\Edge\NativeMessagingHosts\org.miarina.media.bridge"
-  DeleteRegKey HKCU "Software\Mozilla\NativeMessagingHosts\org.miarina.media.bridge"
 
   ; The app (generated from the staged folder).
   !include "${FILESNSH}"
@@ -843,9 +847,11 @@ Section Uninstall
     ${EndIf}
   ${EndIf}
 
-  ; File types ("Ouvrir avec", Default apps), not when updating.
+  ; File types ("Ouvrir avec", Default apps) and the browser extension's
+  ; connection, not when updating.
   ${If} $UpdateMode <> 1
     !insertmacro MiarinaUnregisterFileTypes
+    !insertmacro MiarinaUnregisterBrowserBridge
   ${EndIf}
 
   ; Remove registry information for add/remove programs

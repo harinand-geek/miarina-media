@@ -2783,6 +2783,89 @@ class L10nFr extends L10n {
   String get brSites => 'Sites';
 
   @override
+  String get setExtension => 'Extension navigateur';
+
+  @override
+  String get extLead =>
+      'Envoyez une page ou une vidéo de Chrome ou Edge vers Miarina Media en un clic : l’analyse s’ouvre ici et vous choisissez le format.';
+
+  @override
+  String get extAccept => 'Accepter les liens envoyés par l’extension';
+
+  @override
+  String get extAcceptBody => 'Rien n’est capturé automatiquement.';
+
+  @override
+  String get extSteps => 'Mise en route';
+
+  @override
+  String get extStep1 => 'Installer l’extension';
+
+  @override
+  String get extStep1Body =>
+      'Chrome · Edge : page Extensions, activez le mode développeur, puis « Charger l’extension non empaquetée » et choisissez ce dossier.';
+
+  @override
+  String get extOpenFolder => 'Ouvrir le dossier';
+
+  @override
+  String get extStep2 => 'Connecter ce PC';
+
+  @override
+  String get extStep2Body =>
+      'Chrome et Edge pourront envoyer des liens à Miarina Media sur cet ordinateur.';
+
+  @override
+  String get extConnected => 'Chrome et Edge sont connectés.';
+
+  @override
+  String get extOther =>
+      'Une autre installation de Miarina Media est connectée ; Connecter la remplace.';
+
+  @override
+  String get extConnect => 'Connecter';
+
+  @override
+  String get extDisconnect => 'Déconnecter';
+
+  @override
+  String get extStep3 => 'Tester la connexion';
+
+  @override
+  String get extTest => 'Tester';
+
+  @override
+  String get extTestNever => 'Pas encore testée.';
+
+  @override
+  String extTestOk(String time) {
+    return 'Dernier test : réussi à $time';
+  }
+
+  @override
+  String extTestFailed(String time) {
+    return 'Dernier test : échoué à $time';
+  }
+
+  @override
+  String get extTestDone => 'La connexion fonctionne.';
+
+  @override
+  String get extTestBad =>
+      'Le pont du navigateur ne répond pas. Déconnectez puis reconnectez.';
+
+  @override
+  String get extNoBridge =>
+      'Cette version de Miarina Media n’inclut pas le pont du navigateur.';
+
+  @override
+  String get extFailed => 'La connexion n’a pas pu être modifiée.';
+
+  @override
+  String get extPrivacy =>
+      'L’extension ne lit rien dans les pages : seul le lien que vous envoyez part, et seulement vers Miarina Media sur cet ordinateur.';
+
+  @override
   String get brTabs => 'Onglets';
 
   @override

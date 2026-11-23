@@ -1,0 +1,41 @@
+{
+  "name": {
+    "message": "Miarina Media"
+  },
+  "description": {
+    "message": "Send a page, video or link to Miarina Media on this computer."
+  },
+  "actionTitle": {
+    "message": "Send to Miarina Media"
+  },
+  "menuSend": {
+    "message": "Send to Miarina Media"
+  },
+  "popupLead": {
+    "message": "Send this page to Miarina Media: the analysis opens in the app, you choose the format."
+  },
+  "popupSend": {
+    "message": "Send this page"
+  },
+  "popupTest": {
+    "message": "Test the connection"
+  },
+  "popupNote": {
+    "message": "Nothing is read from pages: only the link you send leaves, and only to Miarina Media."
+  },
+  "sent": {
+    "message": "Sent: the analysis opens in Miarina Media."
+  },
+  "connected": {
+    "message": "Connected to Miarina Media."
+  },
+  "notWeb": {
+    "message": "Only web pages (http, https) can be sent."
+  },
+  "notConnected": {
+    "message": "Not connected yet: in Miarina Media, Settings › Browser extension, turn on “Accept links sent by the extension”."
+  },
+  "failed": {
+    "message": "Miarina Media could not open this link."
+  }
+}

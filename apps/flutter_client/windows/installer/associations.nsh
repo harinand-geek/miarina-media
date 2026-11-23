@@ -151,3 +151,22 @@ LangString MiarinaAppDescription 1033 "Music and video player and library"
   DeleteRegValue SHCTX "Software\RegisteredApplications" "${PRODUCTNAME}"
   System::Call 'shell32::SHChangeNotify(i 0x08000000, i 0, p 0, p 0)'
 !macroend
+
+; The browser extension's connection (Settings > Extension navigateur):
+; removed only when it is this installation's (its manifest in this app's
+; data folder), so another copy's connection stays.
+!macro MiarinaUnregisterBrowserBridge
+  ; The user's own data folder, without changing the shell context.
+  ReadEnvStr $R2 APPDATA
+  StrCpy $R1 "$R2\${BUNDLEID}\browser-bridge\org.miarina.media.bridge.json"
+  ReadRegStr $R0 HKCU "Software\Google\Chrome\NativeMessagingHosts\org.miarina.media.bridge" ""
+  ${If} $R0 == $R1
+    DeleteRegKey HKCU "Software\Google\Chrome\NativeMessagingHosts\org.miarina.media.bridge"
+  ${EndIf}
+  ReadRegStr $R0 HKCU "Software\Microsoft\Edge\NativeMessagingHosts\org.miarina.media.bridge" ""
+  ${If} $R0 == $R1
+    DeleteRegKey HKCU "Software\Microsoft\Edge\NativeMessagingHosts\org.miarina.media.bridge"
+  ${EndIf}
+  Delete "$R1"
+  RMDir "$R2\${BUNDLEID}\browser-bridge"
+!macroend

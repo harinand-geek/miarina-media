@@ -1,0 +1,41 @@
+{
+  "name": {
+    "message": "Miarina Media"
+  },
+  "description": {
+    "message": "Envoyer une page, une vidéo ou un lien vers Miarina Media sur cet ordinateur."
+  },
+  "actionTitle": {
+    "message": "Envoyer vers Miarina Media"
+  },
+  "menuSend": {
+    "message": "Envoyer vers Miarina Media"
+  },
+  "popupLead": {
+    "message": "Envoyez cette page à Miarina Media : l’analyse s’ouvre dans l’application, vous choisissez le format."
+  },
+  "popupSend": {
+    "message": "Envoyer cette page"
+  },
+  "popupTest": {
+    "message": "Tester la connexion"
+  },
+  "popupNote": {
+    "message": "Rien n’est lu dans les pages : seul le lien que vous envoyez part, et seulement vers Miarina Media."
+  },
+  "sent": {
+    "message": "Envoyé : l’analyse s’ouvre dans Miarina Media."
+  },
+  "connected": {
+    "message": "Connecté à Miarina Media."
+  },
+  "notWeb": {
+    "message": "Seules les pages web (http, https) peuvent être envoyées."
+  },
+  "notConnected": {
+    "message": "Pas encore connecté : dans Miarina Media, Réglages › Extension navigateur, activez « Accepter les liens envoyés par l’extension »."
+  },
+  "failed": {
+    "message": "Miarina Media n’a pas pu ouvrir ce lien."
+  }
+}

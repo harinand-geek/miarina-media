@@ -2761,6 +2761,89 @@ class L10nEn extends L10n {
   String get brSites => 'Sites';
 
   @override
+  String get setExtension => 'Browser extension';
+
+  @override
+  String get extLead =>
+      'Send a page or video from Chrome or Edge to Miarina Media in one click: the analysis opens here and you choose the format.';
+
+  @override
+  String get extAccept => 'Accept links sent by the extension';
+
+  @override
+  String get extAcceptBody => 'Nothing is captured automatically.';
+
+  @override
+  String get extSteps => 'Getting started';
+
+  @override
+  String get extStep1 => 'Install the extension';
+
+  @override
+  String get extStep1Body =>
+      'Chrome · Edge: Extensions page, turn on developer mode, then “Load unpacked” and choose this folder.';
+
+  @override
+  String get extOpenFolder => 'Open folder';
+
+  @override
+  String get extStep2 => 'Connect this PC';
+
+  @override
+  String get extStep2Body =>
+      'Chrome and Edge will be able to send links to Miarina Media on this computer.';
+
+  @override
+  String get extConnected => 'Chrome and Edge are connected.';
+
+  @override
+  String get extOther =>
+      'Another Miarina Media installation is connected; Connect replaces it.';
+
+  @override
+  String get extConnect => 'Connect';
+
+  @override
+  String get extDisconnect => 'Disconnect';
+
+  @override
+  String get extStep3 => 'Test the connection';
+
+  @override
+  String get extTest => 'Test';
+
+  @override
+  String get extTestNever => 'Not tested yet.';
+
+  @override
+  String extTestOk(String time) {
+    return 'Last test: succeeded at $time';
+  }
+
+  @override
+  String extTestFailed(String time) {
+    return 'Last test: failed at $time';
+  }
+
+  @override
+  String get extTestDone => 'The connection works.';
+
+  @override
+  String get extTestBad =>
+      'The browser bridge does not answer. Disconnect, then connect again.';
+
+  @override
+  String get extNoBridge =>
+      'This version of Miarina Media does not include the browser bridge.';
+
+  @override
+  String get extFailed => 'The connection could not be changed.';
+
+  @override
+  String get extPrivacy =>
+      'The extension reads nothing from pages: only the link you send leaves, and only to Miarina Media on this computer.';
+
+  @override
   String get brTabs => 'Tabs';
 
   @override

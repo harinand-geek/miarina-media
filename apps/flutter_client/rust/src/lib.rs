@@ -4,6 +4,7 @@ pub mod api;
 mod artist_image;
 mod browser;
 mod cinema;
+mod extension;
 mod focus;
 mod frb_generated;
 mod m3u;

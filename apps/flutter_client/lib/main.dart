@@ -54,7 +54,11 @@ Future<void> main(List<String> args) async {
   final media = launch.media;
 
   final container = ProviderContainer(
-    overrides: [launchedWithMediaProvider.overrideWithValue(media != null)],
+    overrides: [
+      launchedWithMediaProvider.overrideWithValue(
+        media != null || launch.link != null,
+      ),
+    ],
   );
   runApp(
     UncontrolledProviderScope(container: container, child: const MiarinaApp()),
@@ -62,6 +66,8 @@ Future<void> main(List<String> args) async {
   // Windows: media keys, headset buttons and the system media panel.
   container.read(systemMediaProvider);
   if (media != null) await _openLaunchFile(container, media);
+  // A link sent by the browser extension: its analysis in Obtenir.
+  if (launch.link != null) _openLink(container, launch.link!);
 
   // Android "Open with Miarina Media": the file the app was started with,
   // then any file handed over while it runs.
@@ -88,8 +94,9 @@ Future<void> main(List<String> args) async {
         for (final a in call.arguments as List)
           if (a is String) a,
       ];
-      final file = LaunchArgs.parse(args).media;
-      if (file != null) await _openLaunchFile(container, file);
+      final launch = LaunchArgs.parse(args);
+      if (launch.media != null) await _openLaunchFile(container, launch.media!);
+      if (launch.link != null) _openLink(container, launch.link!);
     });
   }
 
@@ -158,14 +165,7 @@ Future<void> _openHanded(ProviderContainer container, Object? raw) async {
   // A link shared from another app: its analysis in Obtenir.
   final link = raw['link'];
   if (link is String) {
-    container
-        .read(routerProvider)
-        .go(
-          Uri(
-            path: Routes.getAnalysis,
-            queryParameters: {'url': link},
-          ).toString(),
-        );
+    _openLink(container, link);
     return;
   }
   if (raw['uri'] is! String) return;
@@ -257,6 +257,19 @@ Future<void> _openLaunchFile(
   if (container.read(queueProvider).current?.isVideo ?? false) {
     container.read(routerProvider).push(Routes.watch);
   }
+}
+
+/// A link to analyze (shared from another app, sent by the browser
+/// extension): the analysis page of Obtenir; nothing starts by itself.
+void _openLink(ProviderContainer container, String link) {
+  container
+      .read(routerProvider)
+      .go(
+        Uri(
+          path: Routes.getAnalysis,
+          queryParameters: {'url': link},
+        ).toString(),
+      );
 }
 
 /// A file opened while the welcome screens show (a first launch): the

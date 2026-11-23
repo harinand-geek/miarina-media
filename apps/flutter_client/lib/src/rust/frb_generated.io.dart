@@ -7,6 +7,7 @@ import 'api/app.dart';
 import 'api/browser.dart';
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
+import 'api/extension.dart';
 import 'api/focus.dart';
 import 'api/get.dart';
 import 'api/health.dart';
@@ -181,6 +182,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DuplicateVersion dco_decode_duplicate_version(dynamic raw);
+
+  @protected
+  ExtensionStatus dco_decode_extension_status(dynamic raw);
 
   @protected
   double dco_decode_f_64(dynamic raw);
@@ -663,6 +667,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   DuplicateVersion sse_decode_duplicate_version(SseDeserializer deserializer);
+
+  @protected
+  ExtensionStatus sse_decode_extension_status(SseDeserializer deserializer);
 
   @protected
   double sse_decode_f_64(SseDeserializer deserializer);
@@ -1257,6 +1264,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_duplicate_version(
     DuplicateVersion self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_extension_status(
+    ExtensionStatus self,
     SseSerializer serializer,
   );
 

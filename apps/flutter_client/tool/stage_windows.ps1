@@ -5,6 +5,7 @@
 #     msvcp140.dll, vcruntime140.dll, vcruntime140_1.dll  (Visual C++ runtime)
 #     tools\              yt-dlp, FFmpeg, QuickJS-NG (pinned, as 0.1.x)
 #     tools\*.txt         licence texts and notices
+#     miarina-browser-bridge.exe, browser-extension\   Chrome/Edge extension
 #
 # Usage (from apps\flutter_client), with the pubspec version, e.g. 0.2.0:
 #   flutter build windows --release --dart-define=MM_VERSION=0.2.0
@@ -73,6 +74,19 @@ foreach ($f in 'LGPL-3.0.txt', 'GPL-3.0.txt', 'QuickJS-NG-LICENSE.txt', 'MDM-NOT
 $version = (Select-String -Path pubspec.yaml -Pattern '^version:\s*([0-9.]+)').Matches[0].Groups[1].Value
 (Get-Content -Raw -Encoding utf8 'windows\notices\THIRD-PARTY-TOOLS.txt').Replace('{VERSION}', $version) |
   Set-Content -Encoding utf8 -NoNewline "$Out\tools\THIRD-PARTY-TOOLS.txt"
+
+# 6. The Chrome/Edge extension (loaded unpacked until it is in the stores)
+# and its native messaging host, next to the app (EXT-01).
+Push-Location $repo
+cargo build -q --release -p miarina-browser-bridge
+if ($LASTEXITCODE -ne 0) { throw 'browser bridge build failed' }
+Pop-Location
+Copy-Item (Join-Path $repo 'target\release\miarina-browser-bridge.exe') $Out
+$ext = Join-Path $repo 'apps\browser-extension'
+New-Item -ItemType Directory -Force "$Out\browser-extension" | Out-Null
+foreach ($item in 'manifest.json', 'background.js', 'popup.html', 'popup.js', 'popup.css', '_locales', 'icons') {
+  Copy-Item (Join-Path $ext $item) "$Out\browser-extension\$item" -Recurse
+}
 
 $size = (Get-ChildItem -Recurse $Out | Measure-Object Length -Sum).Sum
 "Staged: $Out ({0:N1} MiB)" -f ($size / 1MB)

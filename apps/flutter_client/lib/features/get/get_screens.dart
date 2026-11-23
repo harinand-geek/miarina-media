@@ -16,6 +16,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/open_media.dart';
 import '../home/home_data.dart';
 import '../library/library_data.dart';
+import '../settings/extension_settings.dart' show extensionConnectedProvider;
 import 'get_data.dart';
 
 // Obtenir, ported to the identical from the Tauri app (screens 1 to 3 of
@@ -782,6 +783,22 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
                 t.getHintPaste,
                 style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
               ),
+              // Shown once the extension is connected (Settings).
+              if (ref.watch(extensionConnectedProvider)) ...[
+                const SizedBox(width: 18),
+                Icon(PhosphorRegular.plugs, size: 15, color: c.muted),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    t.getHintExt,
+                    overflow: TextOverflow.ellipsis,
+                    style: MmType.caption.copyWith(
+                      fontSize: 12.5,
+                      color: c.muted,
+                    ),
+                  ),
+                ),
+              ],
             ],
           ),
         ],

@@ -1663,6 +1663,44 @@
   "brFavAdded": "Ajouté aux favoris",
   "brFavRemoved": "Retiré des favoris",
   "brSites": "Sites",
+  "setExtension": "Extension navigateur",
+  "extLead": "Envoyez une page ou une vidéo de Chrome ou Edge vers Miarina Media en un clic : l’analyse s’ouvre ici et vous choisissez le format.",
+  "extAccept": "Accepter les liens envoyés par l’extension",
+  "extAcceptBody": "Rien n’est capturé automatiquement.",
+  "extSteps": "Mise en route",
+  "extStep1": "Installer l’extension",
+  "extStep1Body": "Chrome · Edge : page Extensions, activez le mode développeur, puis « Charger l’extension non empaquetée » et choisissez ce dossier.",
+  "extOpenFolder": "Ouvrir le dossier",
+  "extStep2": "Connecter ce PC",
+  "extStep2Body": "Chrome et Edge pourront envoyer des liens à Miarina Media sur cet ordinateur.",
+  "extConnected": "Chrome et Edge sont connectés.",
+  "extOther": "Une autre installation de Miarina Media est connectée ; Connecter la remplace.",
+  "extConnect": "Connecter",
+  "extDisconnect": "Déconnecter",
+  "extStep3": "Tester la connexion",
+  "extTest": "Tester",
+  "extTestNever": "Pas encore testée.",
+  "extTestOk": "Dernier test : réussi à {time}",
+  "@extTestOk": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "extTestFailed": "Dernier test : échoué à {time}",
+  "@extTestFailed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "extTestDone": "La connexion fonctionne.",
+  "extTestBad": "Le pont du navigateur ne répond pas. Déconnectez puis reconnectez.",
+  "extNoBridge": "Cette version de Miarina Media n’inclut pas le pont du navigateur.",
+  "extFailed": "La connexion n’a pas pu être modifiée.",
+  "extPrivacy": "L’extension ne lit rien dans les pages : seul le lien que vous envoyez part, et seulement vers Miarina Media sur cet ordinateur.",
   "brTabs": "Onglets",
   "brTabsOpen": "{n, plural, =1{1 onglet ouvert} other{{n} onglets ouverts}}",
   "@brTabsOpen": {

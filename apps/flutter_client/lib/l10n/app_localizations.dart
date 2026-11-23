@@ -4501,6 +4501,150 @@ abstract class L10n {
   /// **'Sites'**
   String get brSites;
 
+  /// No description provided for @setExtension.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extension navigateur'**
+  String get setExtension;
+
+  /// No description provided for @extLead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Envoyez une page ou une vidéo de Chrome ou Edge vers Miarina Media en un clic : l’analyse s’ouvre ici et vous choisissez le format.'**
+  String get extLead;
+
+  /// No description provided for @extAccept.
+  ///
+  /// In fr, this message translates to:
+  /// **'Accepter les liens envoyés par l’extension'**
+  String get extAccept;
+
+  /// No description provided for @extAcceptBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rien n’est capturé automatiquement.'**
+  String get extAcceptBody;
+
+  /// No description provided for @extSteps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mise en route'**
+  String get extSteps;
+
+  /// No description provided for @extStep1.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer l’extension'**
+  String get extStep1;
+
+  /// No description provided for @extStep1Body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chrome · Edge : page Extensions, activez le mode développeur, puis « Charger l’extension non empaquetée » et choisissez ce dossier.'**
+  String get extStep1Body;
+
+  /// No description provided for @extOpenFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le dossier'**
+  String get extOpenFolder;
+
+  /// No description provided for @extStep2.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter ce PC'**
+  String get extStep2;
+
+  /// No description provided for @extStep2Body.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chrome et Edge pourront envoyer des liens à Miarina Media sur cet ordinateur.'**
+  String get extStep2Body;
+
+  /// No description provided for @extConnected.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chrome et Edge sont connectés.'**
+  String get extConnected;
+
+  /// No description provided for @extOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une autre installation de Miarina Media est connectée ; Connecter la remplace.'**
+  String get extOther;
+
+  /// No description provided for @extConnect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Connecter'**
+  String get extConnect;
+
+  /// No description provided for @extDisconnect.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déconnecter'**
+  String get extDisconnect;
+
+  /// No description provided for @extStep3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tester la connexion'**
+  String get extStep3;
+
+  /// No description provided for @extTest.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tester'**
+  String get extTest;
+
+  /// No description provided for @extTestNever.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore testée.'**
+  String get extTestNever;
+
+  /// No description provided for @extTestOk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier test : réussi à {time}'**
+  String extTestOk(String time);
+
+  /// No description provided for @extTestFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dernier test : échoué à {time}'**
+  String extTestFailed(String time);
+
+  /// No description provided for @extTestDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion fonctionne.'**
+  String get extTestDone;
+
+  /// No description provided for @extTestBad.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pont du navigateur ne répond pas. Déconnectez puis reconnectez.'**
+  String get extTestBad;
+
+  /// No description provided for @extNoBridge.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette version de Miarina Media n’inclut pas le pont du navigateur.'**
+  String get extNoBridge;
+
+  /// No description provided for @extFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La connexion n’a pas pu être modifiée.'**
+  String get extFailed;
+
+  /// No description provided for @extPrivacy.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’extension ne lit rien dans les pages : seul le lien que vous envoyez part, et seulement vers Miarina Media sur cet ordinateur.'**
+  String get extPrivacy;
+
   /// No description provided for @brTabs.
   ///
   /// In fr, this message translates to:
