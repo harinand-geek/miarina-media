@@ -35,6 +35,26 @@ const THUMBNAIL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(8)
 /// its downloads longer than this.
 const PLAYLIST_THUMBNAILS_AT_ONCE: usize = 6;
 const PLAYLIST_THUMBNAILS_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(20);
+/// The direct-file check of a link never holds the analysis longer: a page
+/// that stalls it (seen with Facebook on a phone) goes on to the extractor.
+const PROBE_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(15);
+/// Video sites whose links are pages, never files: straight to the
+/// extractor, without the direct-file check (it may fail or stall where the
+/// extractor's own requests work).
+const PAGE_HOSTS: [&str; 12] = [
+    "youtube.com",
+    "youtu.be",
+    "facebook.com",
+    "fb.watch",
+    "instagram.com",
+    "tiktok.com",
+    "x.com",
+    "twitter.com",
+    "vimeo.com",
+    "dailymotion.com",
+    "soundcloud.com",
+    "twitch.tv",
+];
 /// Longest entry title kept in a playlist's file names (path length).
 const PLAYLIST_TITLE_CHARS: usize = 100;
 
@@ -628,15 +648,17 @@ fn analyze(url: String, whole_playlist: bool) -> Result<Analysis> {
         // Known video pages go straight to their extractor: a generic HTTP
         // probe may fail where yt-dlp's own requests work. So does a
         // playlist (a page, never a file).
-        if whole_playlist
-            || matches!(
-                url.host(),
-                "youtube.com" | "www.youtube.com" | "m.youtube.com" | "youtu.be"
-            )
-        {
+        if whole_playlist || page_host(url.host()) {
             return extractor_analysis(&g, &url, whole_playlist).await;
         }
-        match g.http.probe(&url).await {
+        let probe = tokio::time::timeout(PROBE_TIMEOUT, g.http.probe(&url))
+            .await
+            .unwrap_or_else(|_| {
+                Err(EngineError::Network {
+                    message: "the link did not answer in time".into(),
+                })
+            });
+        match probe {
             Ok(media) => Ok(direct_analysis(&url, media)),
             Err(error) if should_extract(&url, &error) => extractor_analysis(&g, &url, false).await,
             Err(error) => Ok(no_media(&error)),
@@ -668,18 +690,27 @@ fn url_path(url: &ValidatedUrl) -> String {
     path.split(['?', '#']).next().unwrap_or("").to_owned()
 }
 
-// A page may reject generic requests yet work through its extractor. A
-// direct media link keeps its real HTTP or network error.
+/// A known video site (the host or one of its subdomains).
+fn page_host(host: &str) -> bool {
+    PAGE_HOSTS
+        .iter()
+        .any(|d| host == *d || host.strip_suffix(d).is_some_and(|rest| rest.ends_with('.')))
+}
+
+// A page may reject generic requests, or stall them, yet work through its
+// extractor. A direct media link keeps its real HTTP or network error.
 fn should_extract(url: &ValidatedUrl, error: &EngineError) -> bool {
     matches!(error, EngineError::NotMedia)
-        || (matches!(error, EngineError::Http { .. })
-            && media_extension(&download_engine::DirectMedia {
-                suggested_name: url_path(url),
-                content_type: None,
-                total_bytes: None,
-                supports_resume: false,
-            })
-            .is_none())
+        || (matches!(
+            error,
+            EngineError::Http { .. } | EngineError::Network { .. }
+        ) && media_extension(&download_engine::DirectMedia {
+            suggested_name: url_path(url),
+            content_type: None,
+            total_bytes: None,
+            supports_resume: false,
+        })
+        .is_none())
 }
 
 fn tools_status(ytdlp: &YtDlpEngine) -> Vec<ToolStatus> {
@@ -1341,6 +1372,45 @@ mod tests {
                 .as_deref(),
             Some("contains_credentials")
         );
+    }
+
+    #[test]
+    fn video_sites_go_straight_to_the_extractor() {
+        for host in [
+            "web.facebook.com",
+            "facebook.com",
+            "m.facebook.com",
+            "www.youtube.com",
+            "youtu.be",
+            "www.instagram.com",
+            "vm.tiktok.com",
+            "x.com",
+        ] {
+            assert!(page_host(host), "{host}");
+        }
+        for host in [
+            "notfacebook.com",
+            "example.org",
+            "box.com",
+            "cdn.example.net",
+        ] {
+            assert!(!page_host(host), "{host}");
+        }
+    }
+
+    #[test]
+    fn a_page_that_fails_the_file_check_still_goes_to_the_extractor() {
+        let page = validate_media_url("https://example.org/watch/123").unwrap();
+        let file = validate_media_url("https://example.org/film.mp4").unwrap();
+        let stalled = EngineError::Network {
+            message: "the link did not answer in time".into(),
+        };
+        assert!(should_extract(&page, &stalled));
+        assert!(should_extract(&page, &EngineError::Http { status: 403 }));
+        assert!(should_extract(&page, &EngineError::NotMedia));
+        // A media file keeps its real error.
+        assert!(!should_extract(&file, &stalled));
+        assert!(!should_extract(&file, &EngineError::Http { status: 404 }));
     }
 
     /// End to end on a real direct file (network): analysis, download,
