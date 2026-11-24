@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
@@ -26,60 +25,9 @@ import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/features/shortcuts/keymap.dart';
 
 import 'support/fakes.dart';
+import 'support/screen_fakes.dart';
 
 // Outils PC › Capture d'écran.
-
-class FakeScreenTools implements ScreenTools {
-  final registered = <List<Hotkey>>[];
-  var refuse = <int>[];
-  final _keys = StreamController<int>.broadcast();
-  final overlays = <Rect>[];
-  var exits = 0;
-  final copied = <Uint8List>[];
-  var beeps = 0;
-  var cursor = false;
-
-  void press(int id) => _keys.add(id);
-
-  @override
-  Future<List<int>> registerHotkeys(List<Hotkey> keys) async {
-    registered.add(keys);
-    return [
-      for (final k in keys)
-        if (refuse.contains(k.id)) k.id,
-    ];
-  }
-
-  @override
-  Future<Rect?> capture(String path, {required bool cursor}) async {
-    this.cursor = cursor;
-    return const Rect.fromLTWH(1920, 0, 200, 100);
-  }
-
-  @override
-  Future<void> enterOverlay(Rect screen) async => overlays.add(screen);
-
-  @override
-  Future<bool> exitOverlay() async {
-    exits++;
-    return true;
-  }
-
-  @override
-  Future<bool> copyImage(String path) async {
-    copied.add(await File(path).readAsBytes());
-    return true;
-  }
-
-  @override
-  Future<void> beep() async => beeps++;
-
-  @override
-  Future<bool> excludeFromCapture(bool on) async => true;
-
-  @override
-  Stream<int> get hotkeys => _keys.stream;
-}
 
 class FakeCaptureApi implements CaptureApi {
   FakeCaptureApi(this.dir);
@@ -522,7 +470,7 @@ void main() {
       await tester.pump(const Duration(milliseconds: 150));
       expect(find.text('840 × 480'), findsOneWidget);
       expect(find.text('Tout l’écran'), findsOneWidget);
-      expect(find.text('Filmer'), findsNothing, reason: 'no recorder yet');
+      expect(find.text('Filmer'), findsOneWidget, reason: 'the recorder');
 
       await tester.tap(find.text('Copier'));
       await tester.pump();

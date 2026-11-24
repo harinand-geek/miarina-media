@@ -21,8 +21,20 @@ abstract class ScreenTools {
   /// the desktop, in physical pixels. Null when it failed.
   Future<Rect?> capture(String path, {required bool cursor});
 
-  /// The window covers [screen] (physical pixels), borderless, on top.
-  Future<void> enterOverlay(Rect screen);
+  /// The window covers [screen] (physical pixels), borderless, on top;
+  /// [radius] rounds its corners, [activate] false leaves the focus where
+  /// it is (the recording bar).
+  Future<void> enterOverlay(
+    Rect screen, {
+    int radius = 0,
+    bool activate = true,
+  });
+
+  /// Every screen, physical pixels (the primary one flagged).
+  Future<List<({Rect rect, bool primary})>> monitors();
+
+  /// The windows that can be filmed: title and place.
+  Future<List<({String title, Rect rect})>> windows();
 
   /// The window as before; false when it was minimized.
   Future<bool> exitOverlay();
@@ -90,13 +102,39 @@ class ChannelScreenTools implements ScreenTools {
   }
 
   @override
-  Future<void> enterOverlay(Rect screen) =>
-      _channel.invokeMethod('enterOverlay', {
-        'x': screen.left.round(),
-        'y': screen.top.round(),
-        'width': screen.width.round(),
-        'height': screen.height.round(),
-      });
+  Future<void> enterOverlay(
+    Rect screen, {
+    int radius = 0,
+    bool activate = true,
+  }) => _channel.invokeMethod('enterOverlay', {
+    'x': screen.left.round(),
+    'y': screen.top.round(),
+    'width': screen.width.round(),
+    'height': screen.height.round(),
+    'radius': radius,
+    'activate': activate,
+  });
+
+  @override
+  Future<List<({Rect rect, bool primary})>> monitors() async {
+    final raw = await _channel.invokeMethod<List<Object?>>('monitors');
+    return [
+      for (final m in raw ?? const [])
+        if (_rect(m) case final r?)
+          (rect: r, primary: (m as Map)['primary'] == true),
+    ];
+  }
+
+  @override
+  Future<List<({String title, Rect rect})>> windows() async {
+    final raw = await _channel.invokeMethod<List<Object?>>('windows');
+    return [
+      for (final w in raw ?? const [])
+        if (_rect(w) case final r?)
+          if ((w as Map)['title'] case final String title)
+            (title: title, rect: r),
+    ];
+  }
 
   @override
   Future<bool> exitOverlay() async =>

@@ -4445,4 +4445,216 @@ class L10nEn extends L10n {
   String capPngFallback(String name) {
     return '$name (JPG/WebP unavailable: saved as PNG)';
   }
+
+  @override
+  String get recNav => 'Record screen';
+
+  @override
+  String get recSubtitle =>
+      'Film your screen with the PC’s sound and the microphone. Videos go to the library.';
+
+  @override
+  String get recSourceTitle => 'Source';
+
+  @override
+  String get recScreen => 'Full screen';
+
+  @override
+  String recScreenDesc(int n, int w, int h) {
+    return 'Screen $n · $w × $h. Choose the screen if you have several.';
+  }
+
+  @override
+  String recScreenN(int n) {
+    return 'Screen $n';
+  }
+
+  @override
+  String get recWindow => 'A window';
+
+  @override
+  String get recWindowDesc => 'Only the chosen window is filmed.';
+
+  @override
+  String get recPickWindow => 'Choose the window';
+
+  @override
+  String get recNoWindows => 'No window to film.';
+
+  @override
+  String get recRegion => 'An area';
+
+  @override
+  String get recRegionDesc => 'Draw a rectangle on the screen before starting.';
+
+  @override
+  String recRegionSize(int w, int h) {
+    return 'Area $w × $h';
+  }
+
+  @override
+  String get recDraw => 'Draw the area';
+
+  @override
+  String get recVideo => 'Video';
+
+  @override
+  String get recFormat => 'Format';
+
+  @override
+  String get recFps => 'Frames per second';
+
+  @override
+  String get recQuality => 'Quality';
+
+  @override
+  String get recQMedium => 'Medium';
+
+  @override
+  String get recQHigh => 'High';
+
+  @override
+  String get recQOriginal => 'Original';
+
+  @override
+  String get recFolder => 'Folder';
+
+  @override
+  String get recSoundOptions => 'Sound and options';
+
+  @override
+  String get recSystemAudio => 'PC sound';
+
+  @override
+  String get recSystemAudioDesc => 'What you hear in the speakers';
+
+  @override
+  String get recMic => 'Microphone';
+
+  @override
+  String get recMicDesc => 'Windows’ default microphone';
+
+  @override
+  String get recCursor => 'Show the cursor';
+
+  @override
+  String get recCursorDesc => 'The mouse pointer appears in the video';
+
+  @override
+  String get recCountdown => 'Countdown';
+
+  @override
+  String get recCountdownDesc => '3 seconds before starting';
+
+  @override
+  String get recStart => 'Start recording';
+
+  @override
+  String recStopAt(String time) {
+    return 'Stop · $time';
+  }
+
+  @override
+  String get recOrPress => 'or press';
+
+  @override
+  String get recAnywhere => 'anywhere';
+
+  @override
+  String get recFpsUnit => 'fps';
+
+  @override
+  String get recSumSystem => 'PC sound';
+
+  @override
+  String get recSumNoSystem => 'no PC sound';
+
+  @override
+  String get recSumMic => 'mic';
+
+  @override
+  String get recSumNoSound => 'no sound';
+
+  @override
+  String get recRecent => 'Recent recordings';
+
+  @override
+  String get recEmpty => 'No recording yet.';
+
+  @override
+  String get recSaved => 'Saved';
+
+  @override
+  String get recMissing => 'File not found';
+
+  @override
+  String get recPlay => 'Play';
+
+  @override
+  String get recConvert => 'Convert';
+
+  @override
+  String get recShowFolder => 'Show in folder';
+
+  @override
+  String get recRemove => 'Remove from the list';
+
+  @override
+  String get recRec => 'REC';
+
+  @override
+  String get recPausedLabel => 'PAUSE';
+
+  @override
+  String get recPause => 'Pause';
+
+  @override
+  String get recResume => 'Resume';
+
+  @override
+  String get recMicMute => 'Mute the microphone';
+
+  @override
+  String get recMicUnmute => 'Unmute the microphone';
+
+  @override
+  String get recStop => 'Stop';
+
+  @override
+  String get recFinalizing => 'Finishing…';
+
+  @override
+  String get recStarting => 'Starting in';
+
+  @override
+  String get recSavedToast => 'Video saved to the library';
+
+  @override
+  String get recGifSaved => 'GIF saved';
+
+  @override
+  String get recFailed => 'The recording could not start.';
+
+  @override
+  String get recFinishFailed =>
+      'The video could not be finished; the pieces stay in the folder.';
+
+  @override
+  String get recWindowGone => 'The chosen window is no longer open.';
+
+  @override
+  String get recNoScreen => 'No screen found.';
+
+  @override
+  String get recFileWord => 'Recording';
+
+  @override
+  String get recConvertPick =>
+      'Choose a format or a tool: the file will be added.';
+
+  @override
+  String get toolRecord => 'Record screen';
+
+  @override
+  String get toolHelpRecord => 'Film the screen, a window or an area.';
 }

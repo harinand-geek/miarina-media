@@ -287,6 +287,9 @@ class CaptureController extends Notifier<CaptureSession?> {
   void Function()? onRecordKey;
   void Function(Rect zone)? onFilm;
 
+  /// True while the window is the recording bar: no zone overlay then.
+  bool Function()? blocked;
+
   Stream<CaptureEvent> get events => _events.stream;
 
   ScreenTools? get _tools => ref.read(screenToolsProvider);
@@ -334,7 +337,7 @@ class CaptureController extends Notifier<CaptureSession?> {
 
   /// Alt C: the overlay to draw the zone on.
   Future<void> region() async {
-    if (_busy || state != null) return;
+    if (_busy || state != null || (blocked?.call() ?? false)) return;
     _busy = true;
     try {
       final s = await _settings();

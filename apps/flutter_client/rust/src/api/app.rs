@@ -6,6 +6,8 @@ use anyhow::Result;
 
 /// Called once when the window is closing; never fails the closing.
 pub fn app_shutdown() -> Result<()> {
+    // A screen recording stops; its segments stay on disk.
+    crate::recorder::abort();
     let torrents = crate::torrent_engine::disable().is_ok();
     crate::api::get::shutdown_downloads();
     // One line, no names or paths: the closing went through.

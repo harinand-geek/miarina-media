@@ -111,10 +111,11 @@ pub(crate) fn ffmpeg_tools() -> Option<(PathBuf, PathBuf)> {
 }
 
 /// A conversion is running (UPD-04: an update would interrupt it): a
-/// download's or Convertir's.
+/// download's, Convertir's, or a screen recording.
 #[flutter_rust_bridge::frb(ignore)]
 pub(crate) fn converting() -> bool {
     crate::converter::running()
+        || crate::recorder::active()
         || getter().is_ok_and(|g| {
             g.manager.tasks().is_ok_and(|t| {
                 t.iter()

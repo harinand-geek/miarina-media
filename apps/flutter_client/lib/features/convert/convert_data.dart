@@ -97,6 +97,19 @@ class ConvertChoice {
   int get hashCode => Object.hash(category, target);
 }
 
+/// Files sent from elsewhere (a recording's « Convertir »): the next
+/// format or tool dialog starts with them.
+final convertPendingProvider = NotifierProvider<_Pending, List<String>>(
+  _Pending.new,
+);
+
+class _Pending extends Notifier<List<String>> {
+  @override
+  List<String> build() => const [];
+
+  void set(List<String> files) => state = files;
+}
+
 const convertCatalog = {
   ConvertCategory.video: [
     ConvertChoice(ConvertCategory.video, 'mp4'),
@@ -110,6 +123,8 @@ const convertCatalog = {
     ConvertChoice(ConvertCategory.video, 'crop', tool: true),
     ConvertChoice(ConvertCategory.video, 'compress', tool: true),
     ConvertChoice(ConvertCategory.video, 'frames', tool: true),
+    // Opens Outils PC › Enregistrer l'écran.
+    ConvertChoice(ConvertCategory.video, 'record', tool: true),
   ],
   ConvertCategory.audio: [
     ConvertChoice(ConvertCategory.audio, 'mp3'),

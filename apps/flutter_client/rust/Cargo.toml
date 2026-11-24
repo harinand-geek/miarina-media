@@ -19,7 +19,7 @@ storage = { path = "../../../crates/storage" }
 # Library indexing (W-O1): the same crates as the Tauri app.
 library = { path = "../../../crates/library" }
 download-engine = { path = "../../../crates/download-engine" }
-tokio = { version = "1.53.2", features = ["rt-multi-thread", "fs", "io-util", "macros", "sync", "time"] }
+tokio = { version = "1.53.2", features = ["rt-multi-thread", "fs", "io-util", "macros", "sync", "time", "process", "net"] }
 # Obtenir (download manager): the same crates as the Tauri app.
 media-core = { path = "../../../crates/media-core" }
 resource-manager = { path = "../../../crates/resource-manager" }
@@ -41,6 +41,9 @@ update-test-channel = []
 unexpected_cfgs = { level = "warn", check-cfg = ['cfg(frb_expand)'] }
 
 [target.'cfg(windows)'.dependencies]
+# Enregistrer l'écran (Outils PC): the PC's sound (loopback) and the
+# microphone. MIT; uses the `windows` 0.62 crate already in the build.
+wasapi = "0.27.0"
 # Torrents (Obtenir): the engine the Tauri app uses on Windows, vendored.
 mdm-torrent = { path = "../../../vendor/misterdownloadmanager-source/crates/torrent" }
 # Same versions as the Tauri app (apps/client/src-tauri/Cargo.toml).

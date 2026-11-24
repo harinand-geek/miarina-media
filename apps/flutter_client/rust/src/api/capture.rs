@@ -44,9 +44,13 @@ pub fn encode_args(input: &Path, output: &Path, format: &str) -> Result<Vec<Stri
 
 /// Encodes the PNG `input` as `format` (jpg, webp) into `output`: written
 /// next to it under a temporary name, renamed when complete. 30 s at most.
-pub async fn capture_encode(input: String, output: String, format: String) -> Result<()> {
+pub fn capture_encode(input: String, output: String, format: String) -> Result<()> {
     let (ffmpeg, _) = crate::api::get::ffmpeg_tools().ok_or_else(|| anyhow!("ffmpeg_missing"))?;
-    let output = PathBuf::from(output);
+    let runtime = crate::api::indexer::shared()?.runtime;
+    runtime.block_on(encode(ffmpeg, input, PathBuf::from(output), format))
+}
+
+async fn encode(ffmpeg: PathBuf, input: String, output: PathBuf, format: String) -> Result<()> {
     let part = output.with_extension(format!("part.{format}"));
     let args = encode_args(Path::new(&input), &part, &format)?;
     let mut command = tokio::process::Command::new(ffmpeg);
@@ -54,10 +58,8 @@ pub async fn capture_encode(input: String, output: String, format: String) -> Re
         .args(&args)
         .stdin(std::process::Stdio::null())
         .stdout(std::process::Stdio::null())
-        .stderr(std::process::Stdio::piped())
-        .kill_on_drop(true);
-    #[cfg(windows)]
-    command.creation_flags(0x0800_0000); // CREATE_NO_WINDOW
+        .stderr(std::process::Stdio::piped());
+    download_engine::process::configure(&mut command, false);
     let done = tokio::time::timeout(Duration::from_secs(30), command.output()).await;
     let ok = matches!(&done, Ok(Ok(out)) if out.status.success());
     if !ok {

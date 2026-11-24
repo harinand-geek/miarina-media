@@ -19,6 +19,7 @@ import 'api/health.dart';
 import 'api/indexer.dart';
 import 'api/library.dart';
 import 'api/playlists.dart';
+import 'api/recorder.dart';
 import 'api/search.dart';
 import 'api/settings.dart';
 import 'api/system_media.dart';
@@ -66,6 +67,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   RustStreamSink<GetEvent> dco_decode_StreamSink_get_event_Sse(dynamic raw);
+
+  @protected
+  RustStreamSink<RecorderStatus> dco_decode_StreamSink_recorder_status_Sse(
+    dynamic raw,
+  );
 
   @protected
   String dco_decode_String(dynamic raw);
@@ -126,6 +132,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   PlaylistDetail dco_decode_box_autoadd_playlist_detail(dynamic raw);
+
+  @protected
+  RecordOptions dco_decode_box_autoadd_record_options(dynamic raw);
 
   @protected
   SeriesDetail dco_decode_box_autoadd_series_detail(dynamic raw);
@@ -454,7 +463,16 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PresetOffers dco_decode_preset_offers(dynamic raw);
 
   @protected
+  RecordOptions dco_decode_record_options(dynamic raw);
+
+  @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
+
+  @protected
+  RecorderStatus dco_decode_recorder_status(dynamic raw);
+
+  @protected
+  Recording dco_decode_recording(dynamic raw);
 
   @protected
   RelocateResult dco_decode_relocate_result(dynamic raw);
@@ -579,6 +597,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<RecorderStatus> sse_decode_StreamSink_recorder_status_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
@@ -647,6 +670,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   PlaylistDetail sse_decode_box_autoadd_playlist_detail(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  RecordOptions sse_decode_box_autoadd_record_options(
     SseDeserializer deserializer,
   );
 
@@ -1047,9 +1075,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PresetOffers sse_decode_preset_offers(SseDeserializer deserializer);
 
   @protected
+  RecordOptions sse_decode_record_options(SseDeserializer deserializer);
+
+  @protected
   (String, String?) sse_decode_record_string_opt_string(
     SseDeserializer deserializer,
   );
+
+  @protected
+  RecorderStatus sse_decode_recorder_status(SseDeserializer deserializer);
+
+  @protected
+  Recording sse_decode_recording(SseDeserializer deserializer);
 
   @protected
   RelocateResult sse_decode_relocate_result(SseDeserializer deserializer);
@@ -1188,6 +1225,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_recorder_status_Sse(
+    RustStreamSink<RecorderStatus> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
@@ -1286,6 +1329,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_playlist_detail(
     PlaylistDetail self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_record_options(
+    RecordOptions self,
     SseSerializer serializer,
   );
 
@@ -1809,10 +1858,22 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_preset_offers(PresetOffers self, SseSerializer serializer);
 
   @protected
+  void sse_encode_record_options(RecordOptions self, SseSerializer serializer);
+
+  @protected
   void sse_encode_record_string_opt_string(
     (String, String?) self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_recorder_status(
+    RecorderStatus self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_recording(Recording self, SseSerializer serializer);
 
   @protected
   void sse_encode_relocate_result(

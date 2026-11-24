@@ -7326,6 +7326,408 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{name} (JPG/WebP indisponible : enregistrée en PNG)'**
   String capPngFallback(String name);
+
+  /// No description provided for @recNav.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer l’écran'**
+  String get recNav;
+
+  /// No description provided for @recSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filmez votre écran avec le son du PC et le micro. Les vidéos arrivent dans la bibliothèque.'**
+  String get recSubtitle;
+
+  /// No description provided for @recSourceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source'**
+  String get recSourceTitle;
+
+  /// No description provided for @recScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plein écran'**
+  String get recScreen;
+
+  /// No description provided for @recScreenDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écran {n} · {w} × {h}. Choisissez l’écran si vous en avez plusieurs.'**
+  String recScreenDesc(int n, int w, int h);
+
+  /// No description provided for @recScreenN.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écran {n}'**
+  String recScreenN(int n);
+
+  /// No description provided for @recWindow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une fenêtre'**
+  String get recWindow;
+
+  /// No description provided for @recWindowDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seule la fenêtre choisie est filmée.'**
+  String get recWindowDesc;
+
+  /// No description provided for @recPickWindow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisir la fenêtre'**
+  String get recPickWindow;
+
+  /// No description provided for @recNoWindows.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune fenêtre à filmer.'**
+  String get recNoWindows;
+
+  /// No description provided for @recRegion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une zone'**
+  String get recRegion;
+
+  /// No description provided for @recRegionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tracez un rectangle sur l’écran avant de démarrer.'**
+  String get recRegionDesc;
+
+  /// No description provided for @recRegionSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Zone {w} × {h}'**
+  String recRegionSize(int w, int h);
+
+  /// No description provided for @recDraw.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tracer la zone'**
+  String get recDraw;
+
+  /// No description provided for @recVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get recVideo;
+
+  /// No description provided for @recFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format'**
+  String get recFormat;
+
+  /// No description provided for @recFps.
+  ///
+  /// In fr, this message translates to:
+  /// **'Images par seconde'**
+  String get recFps;
+
+  /// No description provided for @recQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité'**
+  String get recQuality;
+
+  /// No description provided for @recQMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne'**
+  String get recQMedium;
+
+  /// No description provided for @recQHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Haute'**
+  String get recQHigh;
+
+  /// No description provided for @recQOriginal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Originale'**
+  String get recQOriginal;
+
+  /// No description provided for @recFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier'**
+  String get recFolder;
+
+  /// No description provided for @recSoundOptions.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son et options'**
+  String get recSoundOptions;
+
+  /// No description provided for @recSystemAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son du PC'**
+  String get recSystemAudio;
+
+  /// No description provided for @recSystemAudioDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que vous entendez dans les haut-parleurs'**
+  String get recSystemAudioDesc;
+
+  /// No description provided for @recMic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Micro'**
+  String get recMic;
+
+  /// No description provided for @recMicDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Microphone par défaut de Windows'**
+  String get recMicDesc;
+
+  /// No description provided for @recCursor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher le curseur'**
+  String get recCursor;
+
+  /// No description provided for @recCursorDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le pointeur de la souris apparaît dans la vidéo'**
+  String get recCursorDesc;
+
+  /// No description provided for @recCountdown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compte à rebours'**
+  String get recCountdown;
+
+  /// No description provided for @recCountdownDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'3 secondes avant de démarrer'**
+  String get recCountdownDesc;
+
+  /// No description provided for @recStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer l’enregistrement'**
+  String get recStart;
+
+  /// No description provided for @recStopAt.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter · {time}'**
+  String recStopAt(String time);
+
+  /// No description provided for @recOrPress.
+  ///
+  /// In fr, this message translates to:
+  /// **'ou appuyez sur'**
+  String get recOrPress;
+
+  /// No description provided for @recAnywhere.
+  ///
+  /// In fr, this message translates to:
+  /// **'n’importe où'**
+  String get recAnywhere;
+
+  /// No description provided for @recFpsUnit.
+  ///
+  /// In fr, this message translates to:
+  /// **'i/s'**
+  String get recFpsUnit;
+
+  /// No description provided for @recSumSystem.
+  ///
+  /// In fr, this message translates to:
+  /// **'son du PC'**
+  String get recSumSystem;
+
+  /// No description provided for @recSumNoSystem.
+  ///
+  /// In fr, this message translates to:
+  /// **'sans son du PC'**
+  String get recSumNoSystem;
+
+  /// No description provided for @recSumMic.
+  ///
+  /// In fr, this message translates to:
+  /// **'micro'**
+  String get recSumMic;
+
+  /// No description provided for @recSumNoSound.
+  ///
+  /// In fr, this message translates to:
+  /// **'sans son'**
+  String get recSumNoSound;
+
+  /// No description provided for @recRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrements récents'**
+  String get recRecent;
+
+  /// No description provided for @recEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun enregistrement pour l’instant.'**
+  String get recEmpty;
+
+  /// No description provided for @recSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistré'**
+  String get recSaved;
+
+  /// No description provided for @recMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier introuvable'**
+  String get recMissing;
+
+  /// No description provided for @recPlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire'**
+  String get recPlay;
+
+  /// No description provided for @recConvert.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convertir'**
+  String get recConvert;
+
+  /// No description provided for @recShowFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher dans le dossier'**
+  String get recShowFolder;
+
+  /// No description provided for @recRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer de la liste'**
+  String get recRemove;
+
+  /// No description provided for @recRec.
+  ///
+  /// In fr, this message translates to:
+  /// **'REC'**
+  String get recRec;
+
+  /// No description provided for @recPausedLabel.
+  ///
+  /// In fr, this message translates to:
+  /// **'PAUSE'**
+  String get recPausedLabel;
+
+  /// No description provided for @recPause.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pause'**
+  String get recPause;
+
+  /// No description provided for @recResume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reprendre'**
+  String get recResume;
+
+  /// No description provided for @recMicMute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Couper le micro'**
+  String get recMicMute;
+
+  /// No description provided for @recMicUnmute.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activer le micro'**
+  String get recMicUnmute;
+
+  /// No description provided for @recStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter'**
+  String get recStop;
+
+  /// No description provided for @recFinalizing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Finalisation…'**
+  String get recFinalizing;
+
+  /// No description provided for @recStarting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrage dans'**
+  String get recStarting;
+
+  /// No description provided for @recSavedToast.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo enregistrée dans la bibliothèque'**
+  String get recSavedToast;
+
+  /// No description provided for @recGifSaved.
+  ///
+  /// In fr, this message translates to:
+  /// **'GIF enregistré'**
+  String get recGifSaved;
+
+  /// No description provided for @recFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L’enregistrement n’a pas pu démarrer.'**
+  String get recFailed;
+
+  /// No description provided for @recFinishFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La vidéo n’a pas pu être finalisée ; les morceaux restent dans le dossier.'**
+  String get recFinishFailed;
+
+  /// No description provided for @recWindowGone.
+  ///
+  /// In fr, this message translates to:
+  /// **'La fenêtre choisie n’est plus ouverte.'**
+  String get recWindowGone;
+
+  /// No description provided for @recNoScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun écran trouvé.'**
+  String get recNoScreen;
+
+  /// No description provided for @recFileWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrement'**
+  String get recFileWord;
+
+  /// No description provided for @recConvertPick.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un format ou un outil : le fichier sera ajouté.'**
+  String get recConvertPick;
+
+  /// No description provided for @toolRecord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer l’écran'**
+  String get toolRecord;
+
+  /// No description provided for @toolHelpRecord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filmer l’écran, une fenêtre ou une zone.'**
+  String get toolHelpRecord;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

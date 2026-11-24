@@ -4,8 +4,10 @@ import 'dart:io';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
@@ -41,6 +43,7 @@ String choiceLabel(L10n t, ConvertChoice c) => switch (c.target) {
   'crop' => t.toolCrop,
   'compress' => t.toolCompress,
   'frames' => t.toolFrames,
+  'record' => t.toolRecord,
   'extract' => t.toolExtract,
   'resize' => t.toolResize,
   final f => '→ ${f.toUpperCase()}',
@@ -72,6 +75,7 @@ String choiceHelp(L10n t, ConvertChoice c) => switch (c.target) {
   'crop' => t.toolHelpCrop,
   'compress' => t.toolHelpCompress,
   'frames' => t.toolHelpFrames,
+  'record' => t.toolHelpRecord,
   'extract' => t.toolHelpExtract,
   _ => t.toolHelpResize,
 };
@@ -82,6 +86,7 @@ IconData _toolIcon(String target) => switch (target) {
   'crop' => PhosphorRegular.crop,
   'compress' => PhosphorRegular.fileZip,
   'frames' => PhosphorRegular.images,
+  'record' => PhosphorRegular.record,
   'extract' => PhosphorRegular.waveform,
   _ => PhosphorRegular.arrowsOutSimple,
 };
@@ -132,6 +137,12 @@ class _ConvertScreenState extends ConsumerState<ConvertScreen> {
   void initState() {
     super.initState();
     _ended = ref.read(convertProvider.notifier).ended.listen(_onEnd);
+    // A recording sent here: say what to do with it.
+    if (ref.read(convertPendingProvider).isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _toast(L10n.of(context).recConvertPick);
+      });
+    }
   }
 
   @override
@@ -204,6 +215,10 @@ class _ConvertScreenState extends ConsumerState<ConvertScreen> {
   }
 
   Future<void> _choose(ConvertChoice choice) async {
+    if (choice.target == 'record') {
+      context.go(Routes.recorder);
+      return;
+    }
     await showDialog<void>(
       context: context,
       builder: (_) => _ChoiceDialog(choice: choice),
@@ -630,6 +645,22 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
     _from.dispose();
     _to.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // A recording sent here: it waits in this dialog.
+    final pending = ref.read(convertPendingProvider);
+    for (final p in pending) {
+      if (convertAccepts(_c.category, p) && !_files.contains(p)) _files.add(p);
+    }
+    // Taken once (not while the dialog is being built).
+    if (pending.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => ref.read(convertPendingProvider.notifier).set(const []),
+      );
+    }
   }
 
   void _addFiles(Iterable<String> paths) {

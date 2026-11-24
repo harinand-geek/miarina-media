@@ -329,7 +329,7 @@ fn finish(id: &str, result: Result<(PathBuf, u64)>) {
 
 /// The first H.264 encoder that works here: NVIDIA, Intel, Media
 /// Foundation, then OpenH264 (software, always there).
-fn h264_encoder(ffmpeg: &Path) -> String {
+pub(crate) fn h264_encoder(ffmpeg: &Path) -> String {
     H264.get_or_init(|| {
         for e in ["h264_nvenc", "h264_qsv", "h264_mf"] {
             let mut cmd = std::process::Command::new(ffmpeg);
@@ -402,7 +402,7 @@ fn out_stem(target: &str, input: &Path, options: &ConvertOptions) -> String {
 }
 
 /// A free name in [dir]: "name.ext", else "name (1).ext"…
-fn free_path(dir: &Path, stem: &str, ext: Option<&str>) -> Result<PathBuf> {
+pub(crate) fn free_path(dir: &Path, stem: &str, ext: Option<&str>) -> Result<PathBuf> {
     let clean = media_core::sanitize_filename(stem, ext.unwrap_or("d"))?;
     let base = match ext {
         Some(_) => clean.clone(),

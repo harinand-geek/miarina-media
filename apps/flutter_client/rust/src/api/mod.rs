@@ -11,6 +11,7 @@ pub mod health;
 pub mod indexer;
 pub mod library;
 pub mod playlists;
+pub mod recorder;
 pub mod search;
 pub mod settings;
 pub mod system_media;

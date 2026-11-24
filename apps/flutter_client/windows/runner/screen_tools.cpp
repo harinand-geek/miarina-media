@@ -1,5 +1,7 @@
 #include "screen_tools.h"
 
+#include <dwmapi.h>
+
 #include <string>
 
 namespace {
@@ -158,6 +160,61 @@ bool CopyBmp(HWND window, const std::wstring& path) {
   return ok;
 }
 
+// UTF-16 → UTF-8.
+std::string Narrow(const std::wstring& wide) {
+  if (wide.empty()) return std::string();
+  const int size = WideCharToMultiByte(CP_UTF8, 0, wide.data(),
+                                       static_cast<int>(wide.size()), nullptr,
+                                       0, nullptr, nullptr);
+  std::string out(size, '\0');
+  WideCharToMultiByte(CP_UTF8, 0, wide.data(), static_cast<int>(wide.size()),
+                      out.data(), size, nullptr, nullptr);
+  return out;
+}
+
+BOOL CALLBACK AddMonitor(HMONITOR monitor, HDC, LPRECT, LPARAM data) {
+  auto* list = reinterpret_cast<EncodableList*>(data);
+  MONITORINFO info{sizeof(MONITORINFO)};
+  if (!GetMonitorInfo(monitor, &info)) return TRUE;
+  EncodableMap map = RectMap(info.rcMonitor);
+  map[EncodableValue("primary")] =
+      EncodableValue((info.dwFlags & MONITORINFOF_PRIMARY) != 0);
+  list->emplace_back(map);
+  return TRUE;
+}
+
+struct WindowSearch {
+  HWND self;
+  EncodableList list;
+};
+
+// Windows a person would call windows: visible, titled, not a tool window,
+// not hidden by the shell (cloaked), not ours.
+BOOL CALLBACK AddWindow(HWND hwnd, LPARAM data) {
+  auto* search = reinterpret_cast<WindowSearch*>(data);
+  if (hwnd == search->self || !IsWindowVisible(hwnd) || IsIconic(hwnd) ||
+      GetWindow(hwnd, GW_OWNER) != nullptr) {
+    return TRUE;
+  }
+  if (GetWindowLongPtr(hwnd, GWL_EXSTYLE) & WS_EX_TOOLWINDOW) return TRUE;
+  DWORD cloaked = 0;
+  DwmGetWindowAttribute(hwnd, DWMWA_CLOAKED, &cloaked, sizeof(cloaked));
+  if (cloaked) return TRUE;
+  wchar_t title[512];
+  const int length = GetWindowTextW(hwnd, title, 512);
+  if (length <= 0) return TRUE;
+  RECT rect;
+  if (!GetWindowRect(hwnd, &rect) || rect.right - rect.left < 64 ||
+      rect.bottom - rect.top < 64) {
+    return TRUE;
+  }
+  EncodableMap map = RectMap(rect);
+  map[EncodableValue("title")] =
+      EncodableValue(Narrow(std::wstring(title, length)));
+  search->list.emplace_back(map);
+  return search->list.size() < 64;
+}
+
 }  // namespace
 
 ScreenTools::ScreenTools(flutter::BinaryMessenger* messenger, HWND window)
@@ -241,8 +298,25 @@ void ScreenTools::OnCall(
     return;
   }
 
+  if (name == "monitors") {
+    EncodableList list;
+    EnumDisplayMonitors(nullptr, nullptr, AddMonitor,
+                        reinterpret_cast<LPARAM>(&list));
+    result->Success(EncodableValue(list));
+    return;
+  }
+
+  if (name == "windows") {
+    WindowSearch search{window_, {}};
+    EnumWindows(AddWindow, reinterpret_cast<LPARAM>(&search));
+    result->Success(EncodableValue(search.list));
+    return;
+  }
+
   if (name == "enterOverlay") {
-    // The window covers {x, y, width, height}, borderless and on top.
+    // The window covers {x, y, width, height}, borderless and on top;
+    // {radius} rounds its corners, {activate: false} leaves the focus
+    // where it is (the recording bar).
     if (!overlay_) {
       style_ = GetWindowLongPtr(window_, GWL_STYLE);
       ex_style_ = GetWindowLongPtr(window_, GWL_EXSTYLE);
@@ -251,12 +325,27 @@ void ScreenTools::OnCall(
       was_visible_ = IsWindowVisible(window_) && !IsIconic(window_);
       overlay_ = true;
     }
+    const bool activate =
+        a.find(EncodableValue("activate")) == a.end() || BoolArg(a, "activate");
+    const int width = IntArg(a, "width");
+    const int height = IntArg(a, "height");
+    const int radius = IntArg(a, "radius");
+    if (IsIconic(window_)) ShowWindow(window_, SW_RESTORE);
     SetWindowLongPtr(window_, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-    SetWindowPos(window_, HWND_TOPMOST, IntArg(a, "x"), IntArg(a, "y"),
-                 IntArg(a, "width"), IntArg(a, "height"),
-                 SWP_FRAMECHANGED | SWP_SHOWWINDOW);
-    SetForegroundWindow(window_);
-    SetFocus(window_);
+    SetWindowPos(window_, HWND_TOPMOST, IntArg(a, "x"), IntArg(a, "y"), width,
+                 height,
+                 SWP_FRAMECHANGED | SWP_SHOWWINDOW |
+                     (activate ? 0 : SWP_NOACTIVATE));
+    // The system owns the region once given.
+    SetWindowRgn(window_,
+                 radius > 0 ? CreateRoundRectRgn(0, 0, width + 1, height + 1,
+                                                 radius * 2, radius * 2)
+                            : nullptr,
+                 TRUE);
+    if (activate) {
+      SetForegroundWindow(window_);
+      SetFocus(window_);
+    }
     result->Success();
     return;
   }
@@ -265,6 +354,7 @@ void ScreenTools::OnCall(
     // Back as it was: frame, place, minimized when it was.
     const bool visible = was_visible_;
     if (overlay_) {
+      SetWindowRgn(window_, nullptr, TRUE);
       SetWindowLongPtr(window_, GWL_STYLE, style_);
       SetWindowLongPtr(window_, GWL_EXSTYLE, ex_style_);
       SetWindowPos(window_, HWND_NOTOPMOST, 0, 0, 0, 0,

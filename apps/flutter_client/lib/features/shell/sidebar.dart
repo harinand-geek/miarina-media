@@ -11,6 +11,7 @@ import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../convert/convert_data.dart' show convertProvider;
+import '../recorder/recorder_data.dart' show RecPhase, recorderProvider;
 import '../get/get_data.dart';
 import '../health/health_data.dart';
 import '../library/library_data.dart';
@@ -25,12 +26,16 @@ class _Entry {
     this.count,
     this.warn = false,
     this.accent = false,
+    this.live = false,
   });
   final String route;
   final String label;
   final IconData icon;
   final IconData filled;
   final String? count;
+
+  /// Recording: the icon filled red, the time on a coral badge.
+  final bool live;
 
   /// Amber badge: something needs the user (missing files).
   final bool warn;
@@ -64,6 +69,10 @@ class Sidebar extends ConsumerWidget {
 
     final open = ref.watch(downloadsSummaryProvider).openCount;
     final converting = ref.watch(convertProvider.select((s) => s.running));
+    final rec = ref.watch(recorderProvider);
+    final recSecs = rec.elapsedMs ~/ 1000;
+    final recording =
+        rec.phase == RecPhase.recording || rec.phase == RecPhase.paused;
     // Obtenir: the Tauri app's sections, in its order.
     final getGroups = <(String?, List<_Entry>)>[
       (
@@ -108,6 +117,17 @@ class Sidebar extends ConsumerWidget {
         (
           t.toolsGroup,
           [
+            _Entry(
+              Routes.recorder,
+              t.recNav,
+              PhosphorRegular.record,
+              PhosphorFill.record,
+              count: recording
+                  ? '${(recSecs ~/ 60).toString().padLeft(2, '0')}:'
+                        '${(recSecs % 60).toString().padLeft(2, '0')}'
+                  : null,
+              live: recording,
+            ),
             _Entry(
               Routes.convert,
               t.navConvert,
@@ -375,9 +395,13 @@ class _NavItem extends StatelessWidget {
             MmIcon(
               entry.icon,
               filled: entry.filled,
-              active: active,
+              active: active || entry.live,
               size: 20,
-              color: active ? (teal ? c.accentStrong : c.coral) : c.muted,
+              color: entry.live
+                  ? const Color(0xFFF07070)
+                  : active
+                  ? (teal ? c.accentStrong : c.coral)
+                  : c.muted,
             ),
             if (!collapsed) ...[
               const SizedBox(width: 12),
@@ -389,7 +413,25 @@ class _NavItem extends StatelessWidget {
                   style: MmType.label.copyWith(color: active ? c.fg : c.muted),
                 ),
               ),
-              if (entry.count != null && entry.accent)
+              if (entry.count != null && entry.live)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF3A2620),
+                    borderRadius: BorderRadius.circular(MmRadius.xs),
+                  ),
+                  child: Text(
+                    entry.count!,
+                    style: MmType.monoStyle(
+                      size: 11,
+                      color: const Color(0xFFF07070),
+                    ).copyWith(fontWeight: FontWeight.w600),
+                  ),
+                )
+              else if (entry.count != null && entry.accent)
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 6,

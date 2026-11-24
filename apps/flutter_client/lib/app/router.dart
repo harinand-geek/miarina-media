@@ -21,6 +21,7 @@ import '../features/history/history_screen.dart';
 import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
 import '../features/search/search_screen.dart';
+import '../features/recorder/recorder_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/torrents/torrents_screen.dart';
 import '../features/home/listen_home_screen.dart';
@@ -62,8 +63,9 @@ abstract final class Routes {
   static const getDownloads = '/get/downloads';
   static const getBatch = '/get/batch';
 
-  /// Outils PC (Windows): Convertir.
+  /// Outils PC (Windows): Convertir, Enregistrer l'écran.
   static const convert = '/get/convert';
+  static const recorder = '/get/recorder';
   static const getBrowser = '/get/browser';
   static const getTorrents = '/get/torrents';
   static const getHistory = '/get/history';
@@ -261,6 +263,8 @@ final routerProvider = Provider<GoRouter>((ref) {
           screen(Routes.getBatch, () => const GetBatchScreen()),
           if (desktop && Platform.isWindows)
             screen(Routes.convert, () => const ConvertScreen()),
+          if (desktop && Platform.isWindows)
+            screen(Routes.recorder, () => const RecorderScreen()),
           GoRoute(
             path: Routes.getDownloads,
             pageBuilder: (context, state) => _ScreenPage(

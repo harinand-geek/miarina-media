@@ -6,6 +6,8 @@ import '../design/tokens.dart';
 import '../features/capture/capture_data.dart';
 import '../features/capture/capture_overlay.dart';
 import '../features/cinema/series_audio.dart';
+import '../features/recorder/recorder_bar.dart';
+import '../features/recorder/recorder_data.dart';
 import '../features/focus/focus_data.dart';
 import '../features/get/download_notifications.dart';
 import '../features/get/get_data.dart';
@@ -40,6 +42,8 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(downloadNotifierProvider);
     // Outils PC (Windows): the capture shortcuts work from any app.
     ref.watch(captureHotkeysProvider);
+    // The recorder answers Alt R and the overlay's « Filmer » (Windows).
+    ref.watch(recorderProvider.select((s) => s.busy));
     final look = ref.watch(appearanceProvider).value ?? const AppearancePrefs();
     return MaterialApp.router(
       title: 'Miarina Media',
@@ -71,7 +75,9 @@ class MiarinaApp extends ConsumerWidget {
           child: ExitGuard(
             child: UpdateMonitor(
               // The capture overlay covers every screen while it is open.
-              child: TaskbarSync(child: CaptureHost(child: child!)),
+              child: TaskbarSync(
+                child: RecorderHost(child: CaptureHost(child: child!)),
+              ),
             ),
           ),
         );

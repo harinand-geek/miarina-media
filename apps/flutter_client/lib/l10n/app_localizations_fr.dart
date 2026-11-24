@@ -4483,4 +4483,218 @@ class L10nFr extends L10n {
   String capPngFallback(String name) {
     return '$name (JPG/WebP indisponible : enregistrée en PNG)';
   }
+
+  @override
+  String get recNav => 'Enregistrer l’écran';
+
+  @override
+  String get recSubtitle =>
+      'Filmez votre écran avec le son du PC et le micro. Les vidéos arrivent dans la bibliothèque.';
+
+  @override
+  String get recSourceTitle => 'Source';
+
+  @override
+  String get recScreen => 'Plein écran';
+
+  @override
+  String recScreenDesc(int n, int w, int h) {
+    return 'Écran $n · $w × $h. Choisissez l’écran si vous en avez plusieurs.';
+  }
+
+  @override
+  String recScreenN(int n) {
+    return 'Écran $n';
+  }
+
+  @override
+  String get recWindow => 'Une fenêtre';
+
+  @override
+  String get recWindowDesc => 'Seule la fenêtre choisie est filmée.';
+
+  @override
+  String get recPickWindow => 'Choisir la fenêtre';
+
+  @override
+  String get recNoWindows => 'Aucune fenêtre à filmer.';
+
+  @override
+  String get recRegion => 'Une zone';
+
+  @override
+  String get recRegionDesc =>
+      'Tracez un rectangle sur l’écran avant de démarrer.';
+
+  @override
+  String recRegionSize(int w, int h) {
+    return 'Zone $w × $h';
+  }
+
+  @override
+  String get recDraw => 'Tracer la zone';
+
+  @override
+  String get recVideo => 'Vidéo';
+
+  @override
+  String get recFormat => 'Format';
+
+  @override
+  String get recFps => 'Images par seconde';
+
+  @override
+  String get recQuality => 'Qualité';
+
+  @override
+  String get recQMedium => 'Moyenne';
+
+  @override
+  String get recQHigh => 'Haute';
+
+  @override
+  String get recQOriginal => 'Originale';
+
+  @override
+  String get recFolder => 'Dossier';
+
+  @override
+  String get recSoundOptions => 'Son et options';
+
+  @override
+  String get recSystemAudio => 'Son du PC';
+
+  @override
+  String get recSystemAudioDesc =>
+      'Ce que vous entendez dans les haut-parleurs';
+
+  @override
+  String get recMic => 'Micro';
+
+  @override
+  String get recMicDesc => 'Microphone par défaut de Windows';
+
+  @override
+  String get recCursor => 'Afficher le curseur';
+
+  @override
+  String get recCursorDesc => 'Le pointeur de la souris apparaît dans la vidéo';
+
+  @override
+  String get recCountdown => 'Compte à rebours';
+
+  @override
+  String get recCountdownDesc => '3 secondes avant de démarrer';
+
+  @override
+  String get recStart => 'Démarrer l’enregistrement';
+
+  @override
+  String recStopAt(String time) {
+    return 'Arrêter · $time';
+  }
+
+  @override
+  String get recOrPress => 'ou appuyez sur';
+
+  @override
+  String get recAnywhere => 'n’importe où';
+
+  @override
+  String get recFpsUnit => 'i/s';
+
+  @override
+  String get recSumSystem => 'son du PC';
+
+  @override
+  String get recSumNoSystem => 'sans son du PC';
+
+  @override
+  String get recSumMic => 'micro';
+
+  @override
+  String get recSumNoSound => 'sans son';
+
+  @override
+  String get recRecent => 'Enregistrements récents';
+
+  @override
+  String get recEmpty => 'Aucun enregistrement pour l’instant.';
+
+  @override
+  String get recSaved => 'Enregistré';
+
+  @override
+  String get recMissing => 'Fichier introuvable';
+
+  @override
+  String get recPlay => 'Lire';
+
+  @override
+  String get recConvert => 'Convertir';
+
+  @override
+  String get recShowFolder => 'Afficher dans le dossier';
+
+  @override
+  String get recRemove => 'Retirer de la liste';
+
+  @override
+  String get recRec => 'REC';
+
+  @override
+  String get recPausedLabel => 'PAUSE';
+
+  @override
+  String get recPause => 'Pause';
+
+  @override
+  String get recResume => 'Reprendre';
+
+  @override
+  String get recMicMute => 'Couper le micro';
+
+  @override
+  String get recMicUnmute => 'Activer le micro';
+
+  @override
+  String get recStop => 'Arrêter';
+
+  @override
+  String get recFinalizing => 'Finalisation…';
+
+  @override
+  String get recStarting => 'Démarrage dans';
+
+  @override
+  String get recSavedToast => 'Vidéo enregistrée dans la bibliothèque';
+
+  @override
+  String get recGifSaved => 'GIF enregistré';
+
+  @override
+  String get recFailed => 'L’enregistrement n’a pas pu démarrer.';
+
+  @override
+  String get recFinishFailed =>
+      'La vidéo n’a pas pu être finalisée ; les morceaux restent dans le dossier.';
+
+  @override
+  String get recWindowGone => 'La fenêtre choisie n’est plus ouverte.';
+
+  @override
+  String get recNoScreen => 'Aucun écran trouvé.';
+
+  @override
+  String get recFileWord => 'Enregistrement';
+
+  @override
+  String get recConvertPick =>
+      'Choisissez un format ou un outil : le fichier sera ajouté.';
+
+  @override
+  String get toolRecord => 'Enregistrer l’écran';
+
+  @override
+  String get toolHelpRecord => 'Filmer l’écran, une fenêtre ou une zone.';
 }
