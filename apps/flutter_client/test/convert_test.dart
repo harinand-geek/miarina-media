@@ -207,6 +207,43 @@ void main() {
     expect(find.text('La liste est vide'), findsOneWidget);
   });
 
+  testWidgets('Compresser: AV1 by quality, a size aimed at, H.264; 3GP', (
+    tester,
+  ) async {
+    await pumpApp(tester);
+    expect(find.text('→ 3GP'), findsOneWidget);
+
+    await tester.tap(find.text('Compresser').first);
+    await settle(tester);
+    expect(find.text('AV1'), findsOneWidget);
+    await tester.tap(find.text('Ajouter des fichiers'));
+    await settle(tester);
+    await tester.tap(find.text('Ajouter à la liste (2)'));
+    await settle(tester);
+    var (_, target, _, o) = api.added.last;
+    expect(
+      (target, o.codec, o.quality, o.targetMb),
+      ('compress', 'av1', 'medium', 0),
+    );
+
+    await tester.tap(find.text('Compresser').first);
+    await settle(tester);
+    await tester.tap(find.text('Ajouter des fichiers'));
+    await settle(tester);
+    await tester.tap(find.text('Taille maximale'));
+    await tester.tap(find.text('H.264'));
+    await settle(tester);
+    await tester.enterText(find.byKey(const ValueKey('compress-size')), '200');
+    await tester.tap(find.text('Ajouter à la liste (2)'));
+    await settle(tester);
+    (_, target, _, o) = api.added.last;
+    expect((o.codec, o.targetMb), ('h264', 200));
+
+    await tester.tap(find.text('→ 3GP'));
+    await settle(tester);
+    expect(find.text('144p'), findsOneWidget, reason: 'small phones');
+  });
+
   testWidgets('a tool with its options; dropped files take the last choice', (
     tester,
   ) async {

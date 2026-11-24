@@ -143,6 +143,12 @@ class ConvertOptions {
 
   /// Redimensionner: width in pixels.
   final int width;
+
+  /// Compresser: av1 (smallest, the default) or h264 (plays everywhere).
+  final String codec;
+
+  /// Compresser: size aimed at per file, in MiB (0: by quality).
+  final int targetMb;
   final String outDir;
 
   const ConvertOptions({
@@ -154,6 +160,8 @@ class ConvertOptions {
     required this.crop,
     required this.frameEvery,
     required this.width,
+    required this.codec,
+    required this.targetMb,
     required this.outDir,
   });
 
@@ -167,6 +175,8 @@ class ConvertOptions {
       crop.hashCode ^
       frameEvery.hashCode ^
       width.hashCode ^
+      codec.hashCode ^
+      targetMb.hashCode ^
       outDir.hashCode;
 
   @override
@@ -182,6 +192,8 @@ class ConvertOptions {
           crop == other.crop &&
           frameEvery == other.frameEvery &&
           width == other.width &&
+          codec == other.codec &&
+          targetMb == other.targetMb &&
           outDir == other.outDir;
 }
 

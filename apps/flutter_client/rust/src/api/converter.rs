@@ -39,6 +39,10 @@ pub struct ConvertOptions {
     pub frame_every: u32,
     /// Redimensionner: width in pixels.
     pub width: u32,
+    /// Compresser: av1 (smallest, the default) or h264 (plays everywhere).
+    pub codec: String,
+    /// Compresser: size aimed at per file, in MiB (0: by quality).
+    pub target_mb: u32,
     pub out_dir: String,
 }
 

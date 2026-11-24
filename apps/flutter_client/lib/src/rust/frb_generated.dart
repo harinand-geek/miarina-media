@@ -5524,8 +5524,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   ConvertOptions dco_decode_convert_options(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 9)
-      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
+    if (arr.length != 11)
+      throw Exception('unexpected arr length: expect 11 but see ${arr.length}');
     return ConvertOptions(
       quality: dco_decode_String(arr[0]),
       height: dco_decode_u_32(arr[1]),
@@ -5535,7 +5535,9 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       crop: dco_decode_String(arr[5]),
       frameEvery: dco_decode_u_32(arr[6]),
       width: dco_decode_u_32(arr[7]),
-      outDir: dco_decode_String(arr[8]),
+      codec: dco_decode_String(arr[8]),
+      targetMb: dco_decode_u_32(arr[9]),
+      outDir: dco_decode_String(arr[10]),
     );
   }
 
@@ -7381,6 +7383,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_crop = sse_decode_String(deserializer);
     var var_frameEvery = sse_decode_u_32(deserializer);
     var var_width = sse_decode_u_32(deserializer);
+    var var_codec = sse_decode_String(deserializer);
+    var var_targetMb = sse_decode_u_32(deserializer);
     var var_outDir = sse_decode_String(deserializer);
     return ConvertOptions(
       quality: var_quality,
@@ -7391,6 +7395,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       crop: var_crop,
       frameEvery: var_frameEvery,
       width: var_width,
+      codec: var_codec,
+      targetMb: var_targetMb,
       outDir: var_outDir,
     );
   }
@@ -9747,6 +9753,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.crop, serializer);
     sse_encode_u_32(self.frameEvery, serializer);
     sse_encode_u_32(self.width, serializer);
+    sse_encode_String(self.codec, serializer);
+    sse_encode_u_32(self.targetMb, serializer);
     sse_encode_String(self.outDir, serializer);
   }
 

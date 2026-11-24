@@ -6744,7 +6744,7 @@ abstract class L10n {
   /// No description provided for @toolHelpCompress.
   ///
   /// In fr, this message translates to:
-  /// **'Fichier plus léger (MP4, 1080p au plus)'**
+  /// **'Fichier bien plus léger, qualité proche de l’original (AV1 ou H.264)'**
   String get toolHelpCompress;
 
   /// No description provided for @toolHelpFrames.
@@ -7964,6 +7964,78 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Lancer'**
   String get tourStart;
+
+  /// No description provided for @fmtHelp3gp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anciens téléphones, fichier léger'**
+  String get fmtHelp3gp;
+
+  /// No description provided for @optCodec.
+  ///
+  /// In fr, this message translates to:
+  /// **'Codec'**
+  String get optCodec;
+
+  /// No description provided for @optCodecAv1.
+  ///
+  /// In fr, this message translates to:
+  /// **'AV1'**
+  String get optCodecAv1;
+
+  /// No description provided for @optCodecH264.
+  ///
+  /// In fr, this message translates to:
+  /// **'H.264'**
+  String get optCodecH264;
+
+  /// No description provided for @optCodecAv1Note.
+  ///
+  /// In fr, this message translates to:
+  /// **'20 à 35 % plus léger à qualité égale. Lisible sur Windows 10 et 11, Android 10 et plus, les navigateurs récents et Miarina Media. Encodage plus long (environ la moitié de la durée de la vidéo).'**
+  String get optCodecAv1Note;
+
+  /// No description provided for @optCodecH264Note.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lisible sur tous les appareils, même anciens. Fichier plus gros qu’en AV1 pour la même qualité.'**
+  String get optCodecH264Note;
+
+  /// No description provided for @optGoal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Objectif'**
+  String get optGoal;
+
+  /// No description provided for @optGoalQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité'**
+  String get optGoalQuality;
+
+  /// No description provided for @optGoalSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille maximale'**
+  String get optGoalSize;
+
+  /// No description provided for @optBalanced.
+  ///
+  /// In fr, this message translates to:
+  /// **'Équilibrée'**
+  String get optBalanced;
+
+  /// No description provided for @optTargetMb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille max. par fichier'**
+  String get optTargetMb;
+
+  /// No description provided for @optMb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mo'**
+  String get optMb;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

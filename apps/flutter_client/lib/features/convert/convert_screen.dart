@@ -54,6 +54,7 @@ String choiceHelp(L10n t, ConvertChoice c) => switch (c.target) {
   'mkv' => t.fmtHelpMkv,
   'webm' => t.fmtHelpWebm,
   'avi' => t.fmtHelpAvi,
+  '3gp' => t.fmtHelp3gp,
   'mov' => t.fmtHelpMov,
   'gif' => t.fmtHelpGif,
   'mp3' => t.fmtHelpMp3,
@@ -634,6 +635,10 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
   String _crop = '16:9';
   int _every = 10;
   int _width = 1280;
+  // Compresser: AV1 by quality unless asked otherwise.
+  String _codec = 'av1';
+  bool _bySize = false;
+  final _targetSize = TextEditingController();
   final _from = TextEditingController(text: '00:00:00');
   final _to = TextEditingController();
   bool _adding = false;
@@ -644,12 +649,14 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
   void dispose() {
     _from.dispose();
     _to.dispose();
+    _targetSize.dispose();
     super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    if (_c.target == 'compress') _quality = 'medium';
     // A recording sent here: it waits in this dialog.
     final pending = ref.read(convertPendingProvider);
     for (final p in pending) {
@@ -740,6 +747,10 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
       crop: _c.target == 'crop' ? _crop : '',
       frameEvery: _c.target == 'frames' ? _every : 0,
       width: _c.target == 'resize' ? _width : 0,
+      codec: _codec,
+      targetMb: _c.target == 'compress' && _bySize
+          ? (int.tryParse(_targetSize.text.trim()) ?? 0).clamp(0, 100000)
+          : 0,
     );
     setState(() => _adding = true);
     final nav = Navigator.of(context);
@@ -821,6 +832,7 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
             'webm',
             'avi',
             'mov',
+            '3gp',
             'join',
             'crop',
           ].contains(_c.target))
@@ -837,16 +849,80 @@ class _ChoiceDialogState extends ConsumerState<_ChoiceDialog> {
             onChanged: (v) => setState(() => _quality = v),
           ),
         ),
+      if (_c.target == 'compress') ...[
+        row(
+          t.optCodec,
+          PillSegment<String>(
+            values: [('av1', t.optCodecAv1), ('h264', t.optCodecH264)],
+            selected: _codec,
+            onChanged: (v) => setState(() => _codec = v),
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 4),
+          child: Text(
+            _codec == 'av1' ? t.optCodecAv1Note : t.optCodecH264Note,
+            style: MmType.caption.copyWith(fontSize: 12, color: c.muted),
+          ),
+        ),
+        row(
+          t.optGoal,
+          PillSegment<bool>(
+            values: [(false, t.optGoalQuality), (true, t.optGoalSize)],
+            selected: _bySize,
+            onChanged: (v) => setState(() => _bySize = v),
+          ),
+        ),
+        if (_bySize)
+          row(
+            t.optTargetMb,
+            SizedBox(
+              width: 120,
+              child: TextField(
+                key: const ValueKey('compress-size'),
+                controller: _targetSize,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                decoration: InputDecoration(
+                  isDense: true,
+                  hintText: '200',
+                  suffixText: t.optMb,
+                ),
+              ),
+            ),
+          )
+        else
+          row(
+            t.optQuality,
+            PillSegment<String>(
+              values: [
+                ('high', t.optHigh),
+                ('medium', t.optBalanced),
+                ('small', t.optSmall),
+              ],
+              selected: _quality,
+              onChanged: (v) => setState(() => _quality = v),
+            ),
+          ),
+      ],
       if (video && !['cut', 'crop'].contains(_c.target))
         row(
           t.optResolution,
           PillSegment<int>(
-            values: [
-              (0, t.optSource),
-              (1080, '1080p'),
-              (720, '720p'),
-              (480, '480p'),
-            ],
+            // 3GP: small phones' sizes (480p at most).
+            values: _c.target == '3gp'
+                ? const [
+                    (0, '480p'),
+                    (360, '360p'),
+                    (240, '240p'),
+                    (144, '144p'),
+                  ]
+                : [
+                    (0, t.optSource),
+                    (1080, '1080p'),
+                    (720, '720p'),
+                    (480, '480p'),
+                  ],
             selected: _height,
             onChanged: (v) => setState(() => _height = v),
           ),

@@ -1155,7 +1155,7 @@
   "toolHelpJoinAudio": "Several files end to end, in one MP3",
   "toolHelpCut": "Keep a part, without re-encoding",
   "toolHelpCrop": "Crop to the centre: 16:9, 4:3, 1:1, 9:16",
-  "toolHelpCompress": "Lighter file (MP4, 1080p at most)",
+  "toolHelpCompress": "A much smaller file, quality close to the original (AV1 or H.264)",
   "toolHelpFrames": "A JPG picture every few seconds",
   "toolHelpExtract": "Keep the sound, as MP3",
   "toolHelpResize": "Change the width, keeping the proportions",
@@ -1378,5 +1378,17 @@
   "tourDone": "Done",
   "tourReplay": "Guided tour",
   "tourReplayBody": "See the presentation of the main screens again.",
-  "tourStart": "Start"
+  "tourStart": "Start",
+  "fmtHelp3gp": "Older phones, small file",
+  "optCodec": "Codec",
+  "optCodecAv1": "AV1",
+  "optCodecH264": "H.264",
+  "optCodecAv1Note": "20 to 35 % smaller at the same quality. Plays on Windows 10 and 11, Android 10 and later, recent browsers and Miarina Media. Slower to encode (about half the video’s length).",
+  "optCodecH264Note": "Plays on every device, even old ones. Larger than AV1 for the same quality.",
+  "optGoal": "Goal",
+  "optGoalQuality": "Quality",
+  "optGoalSize": "Maximum size",
+  "optBalanced": "Balanced",
+  "optTargetMb": "Max. size per file",
+  "optMb": "MB"
 }

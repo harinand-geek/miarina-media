@@ -117,6 +117,7 @@ const convertCatalog = {
     ConvertChoice(ConvertCategory.video, 'webm'),
     ConvertChoice(ConvertCategory.video, 'avi'),
     ConvertChoice(ConvertCategory.video, 'mov'),
+    ConvertChoice(ConvertCategory.video, '3gp'),
     ConvertChoice(ConvertCategory.video, 'gif'),
     ConvertChoice(ConvertCategory.video, 'join', tool: true),
     ConvertChoice(ConvertCategory.video, 'cut', tool: true),
@@ -350,6 +351,8 @@ class ConvertController extends Notifier<ConvertState> {
     String crop = '',
     int frameEvery = 0,
     int width = 0,
+    String codec = 'av1',
+    int targetMb = 0,
   }) => ConvertOptions(
     quality: quality,
     height: height,
@@ -359,6 +362,8 @@ class ConvertController extends Notifier<ConvertState> {
     crop: crop,
     frameEvery: frameEvery,
     width: width,
+    codec: codec,
+    targetMb: targetMb,
     outDir: state.outDir,
   );
 

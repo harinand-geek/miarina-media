@@ -4149,7 +4149,8 @@ class L10nFr extends L10n {
   String get toolHelpCrop => 'Recadrer au centre : 16:9, 4:3, 1:1, 9:16';
 
   @override
-  String get toolHelpCompress => 'Fichier plus léger (MP4, 1080p au plus)';
+  String get toolHelpCompress =>
+      'Fichier bien plus léger, qualité proche de l’original (AV1 ou H.264)';
 
   @override
   String get toolHelpFrames => 'Une image JPG toutes les quelques secondes';
@@ -4831,4 +4832,42 @@ class L10nFr extends L10n {
 
   @override
   String get tourStart => 'Lancer';
+
+  @override
+  String get fmtHelp3gp => 'Anciens téléphones, fichier léger';
+
+  @override
+  String get optCodec => 'Codec';
+
+  @override
+  String get optCodecAv1 => 'AV1';
+
+  @override
+  String get optCodecH264 => 'H.264';
+
+  @override
+  String get optCodecAv1Note =>
+      '20 à 35 % plus léger à qualité égale. Lisible sur Windows 10 et 11, Android 10 et plus, les navigateurs récents et Miarina Media. Encodage plus long (environ la moitié de la durée de la vidéo).';
+
+  @override
+  String get optCodecH264Note =>
+      'Lisible sur tous les appareils, même anciens. Fichier plus gros qu’en AV1 pour la même qualité.';
+
+  @override
+  String get optGoal => 'Objectif';
+
+  @override
+  String get optGoalQuality => 'Qualité';
+
+  @override
+  String get optGoalSize => 'Taille maximale';
+
+  @override
+  String get optBalanced => 'Équilibrée';
+
+  @override
+  String get optTargetMb => 'Taille max. par fichier';
+
+  @override
+  String get optMb => 'Mo';
 }

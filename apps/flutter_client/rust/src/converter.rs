@@ -15,7 +15,7 @@ use crate::api::converter::{ConvertJob, ConvertOptions};
 use crate::frb_generated::StreamSink;
 
 /// What a job makes: a format of its category, or a tool.
-pub const VIDEO_FORMATS: [&str; 6] = ["mp4", "mkv", "webm", "avi", "mov", "gif"];
+pub const VIDEO_FORMATS: [&str; 7] = ["mp4", "mkv", "webm", "avi", "mov", "3gp", "gif"];
 pub const AUDIO_FORMATS: [&str; 6] = ["mp3", "m4a", "flac", "wav", "ogg", "opus"];
 pub const IMAGE_FORMATS: [&str; 5] = ["png", "jpg", "webp", "ico", "bmp"];
 pub const VIDEO_TOOLS: [&str; 5] = ["join", "cut", "crop", "compress", "frames"];
@@ -453,8 +453,84 @@ fn ms(v: u64) -> String {
     format!("{}.{:03}", v / 1000, v % 1000)
 }
 
+/// SVT-AV1 quality for Compresser: haute, équilibrée, petite.
+fn compress_crf(quality: &str) -> u32 {
+    match quality {
+        "high" | "source" => 26,
+        "small" => 36,
+        _ => 30,
+    }
+}
+
+/// The video bit rate that makes a file of [target_mb] MiB over [secs]
+/// (128 kbit/s of sound taken out, 7 % kept in hand so the file stays
+/// under), or None when compressing by quality.
+pub fn compress_target_kbps(target_mb: u32, secs: f64) -> Option<u32> {
+    if target_mb == 0 || secs <= 0.0 {
+        return None;
+    }
+    let total = f64::from(target_mb) * 1024.0 * 1024.0 * 8.0 / 1000.0 / secs;
+    Some(((total - 128.0) * 0.93).max(100.0) as u32)
+}
+
+/// Compresser in H.264: constant quality where the encoder has it
+/// (NVIDIA, Intel), else a bit rate for the height.
+fn compress_h264(a: &mut Vec<String>, h264: &str, quality: &str, target: Option<u32>, height: u32) {
+    let s = |v: &str| v.to_owned();
+    a.extend([s("-c:v"), h264.to_owned(), s("-pix_fmt"), s("yuv420p")]);
+    if let Some(k) = target {
+        a.extend([
+            s("-b:v"),
+            format!("{k}k"),
+            s("-maxrate"),
+            format!("{}k", k * 3 / 2),
+            s("-bufsize"),
+            format!("{}k", k * 2),
+        ]);
+        return;
+    }
+    let level = match quality {
+        "high" | "source" => 0,
+        "small" => 2,
+        _ => 1,
+    };
+    match h264 {
+        "h264_nvenc" => a.extend([
+            s("-preset"),
+            s("p7"),
+            s("-tune"),
+            s("hq"),
+            s("-rc"),
+            s("vbr"),
+            s("-b:v"),
+            s("0"),
+            s("-cq"),
+            [23, 26, 29][level].to_string(),
+            s("-spatial-aq"),
+            s("1"),
+            s("-temporal-aq"),
+            s("1"),
+            s("-rc-lookahead"),
+            s("32"),
+            s("-bf"),
+            s("3"),
+        ]),
+        "h264_qsv" => a.extend([
+            s("-preset"),
+            s("veryslow"),
+            s("-global_quality"),
+            [22, 25, 28][level].to_string(),
+        ]),
+        _ => {
+            let kbps = video_kbps(height.max(1), ["high", "medium", "small"][level], 0);
+            a.extend([s("-b:v"), format!("{kbps}k")]);
+        }
+    }
+}
+
 /// FFmpeg arguments of one job (after the common ones, before the output).
 /// [height]: the source's, for the bit rate. Pure: tested on its own.
+#[allow(clippy::too_many_arguments)]
 pub fn job_args(
     category: &str,
     target: &str,
@@ -463,6 +539,7 @@ pub fn job_args(
     h264: &str,
     source_height: u32,
     source_kbps: u32,
+    source_secs: f64,
 ) -> Vec<String> {
     let mut a: Vec<String> = Vec::new();
     let s = |v: &str| v.to_owned();
@@ -566,13 +643,42 @@ pub fn job_args(
             ]);
         }
         ("video", "compress") => {
-            a.extend(vf(None));
-            h264_args(&mut a, video_kbps(out_height.min(1080), "small", 0));
+            // Measured on 1080p film scenes against the source (VMAF,
+            // docs/compression.md): SVT-AV1 preset 8 is 12–35 % smaller
+            // than the best H.264 / HEVC of the PC at the same quality,
+            // at about 1.8 x real time on a 4-core laptop. H.264 stays for
+            // players that lack AV1.
+            let h = match options.height {
+                0 => out_height.min(1080),
+                h => h.min(source_height.max(1)),
+            };
+            if source_height > h && h > 0 {
+                a.extend([s("-vf"), format!("scale=-2:{h}")]);
+            }
+            let target_kbps = compress_target_kbps(options.target_mb, source_secs);
+            if options.codec == "h264" {
+                compress_h264(&mut a, h264, &options.quality, target_kbps, h);
+            } else {
+                a.extend([
+                    s("-c:v"),
+                    s("libsvtav1"),
+                    s("-preset"),
+                    s("8"),
+                    s("-pix_fmt"),
+                    s("yuv420p10le"),
+                ]);
+                match target_kbps {
+                    Some(k) => a.extend([s("-b:v"), format!("{k}k")]),
+                    None => a.extend([s("-crf"), compress_crf(&options.quality).to_string()]),
+                }
+            }
             a.extend([
                 s("-c:a"),
                 s("aac"),
                 s("-b:a"),
                 s("128k"),
+                s("-ac"),
+                s("2"),
                 s("-movflags"),
                 s("+faststart"),
             ]);
@@ -626,6 +732,49 @@ pub fn job_args(
                 s("libopus"),
                 s("-b:a"),
                 s("128k"),
+            ]);
+        }
+        // Old and simple phones (3GPP): H.264 Constrained Baseline from
+        // OpenH264 (always there, a small picture is quick in software),
+        // 480p and 30 images a second at most, AAC sound.
+        ("video", "3gp") => {
+            let h = match options.height {
+                0 => 480,
+                h => h.min(480),
+            };
+            let kbps = match options.quality.as_str() {
+                "small" => 300,
+                "medium" => 600,
+                _ => 900,
+            } * h
+                / 480;
+            a.extend([
+                s("-vf"),
+                format!("scale=-2:'min({h},ih)'"),
+                s("-fpsmax"),
+                s("30"),
+                s("-c:v"),
+                s("libopenh264"),
+                s("-profile:v"),
+                s("constrained_baseline"),
+                s("-b:v"),
+                format!("{kbps}k"),
+                s("-maxrate"),
+                format!("{}k", kbps * 3 / 2),
+                s("-bufsize"),
+                format!("{}k", kbps * 2),
+                s("-pix_fmt"),
+                s("yuv420p"),
+                s("-c:a"),
+                s("aac"),
+                s("-b:a"),
+                s(if h <= 240 { "64k" } else { "96k" }),
+                s("-ac"),
+                s("2"),
+                s("-ar"),
+                s("44100"),
+                s("-f"),
+                s("3gp"),
             ]);
         }
         ("video", "avi") => {
@@ -763,6 +912,7 @@ async fn run_job(
         h264,
         job.source.height,
         job.source.kbps,
+        total_secs(job, options),
     ));
     args.push(write_to.to_string_lossy().into_owned());
 
@@ -885,8 +1035,81 @@ mod tests {
             crop: String::new(),
             frame_every: 0,
             width: 0,
+            codec: String::new(),
+            target_mb: 0,
             out_dir: r"C:\out".into(),
         }
+    }
+
+    #[test]
+    fn compress_settings() {
+        let has = |a: &[String], w: &[&str]| a.windows(w.len()).any(|x| x == w);
+        // By quality: SVT-AV1, 10-bit, CRF per level; 4K comes down to 1080p.
+        let mut o = opts();
+        o.quality = "medium".into();
+        let a = job_args(
+            "video",
+            "compress",
+            &[PathBuf::from("in.mp4")],
+            &o,
+            "h264_nvenc",
+            2160,
+            0,
+            300.0,
+        );
+        assert!(has(&a, &["-vf", "scale=-2:1080"]));
+        assert!(has(&a, &["-c:v", "libsvtav1", "-preset", "8"]));
+        assert!(has(&a, &["-crf", "30"]));
+        assert!(has(&a, &["-c:a", "aac", "-b:a", "128k", "-ac", "2"]));
+        // A size aimed at: 200 MiB over 5 min.
+        o.target_mb = 200;
+        let a = job_args(
+            "video",
+            "compress",
+            &[PathBuf::from("in.mp4")],
+            &o,
+            "h264_nvenc",
+            1080,
+            0,
+            300.0,
+        );
+        assert!(has(&a, &["-b:v", "5081k"]), "{a:?}");
+        assert!(!a.contains(&"-crf".to_owned()));
+        // H.264 for players without AV1: NVIDIA's constant quality.
+        o.target_mb = 0;
+        o.codec = "h264".into();
+        o.quality = "small".into();
+        let a = job_args(
+            "video",
+            "compress",
+            &[PathBuf::from("in.mp4")],
+            &o,
+            "h264_nvenc",
+            720,
+            0,
+            300.0,
+        );
+        assert!(has(&a, &["-cq", "29"]));
+        assert!(
+            !a.iter().any(|x| x == "scale=-2:1080"),
+            "720p is not upscaled"
+        );
+        let a = job_args(
+            "video",
+            "compress",
+            &[PathBuf::from("in.mp4")],
+            &o,
+            "libopenh264",
+            720,
+            0,
+            300.0,
+        );
+        assert!(has(
+            &a,
+            &["-c:v", "libopenh264", "-pix_fmt", "yuv420p", "-b:v"]
+        ));
+        assert_eq!(compress_target_kbps(0, 300.0), None);
+        assert_eq!(compress_target_kbps(1, 60.0), Some(100), "never below 100k");
     }
 
     fn args(cat: &str, target: &str, o: &ConvertOptions) -> Vec<String> {
@@ -898,6 +1121,7 @@ mod tests {
             "libopenh264",
             1080,
             4000,
+            60.0,
         )
     }
 
@@ -944,6 +1168,7 @@ mod tests {
             "h264_nvenc",
             720,
             0,
+            60.0,
         );
         let graph = join
             .iter()
@@ -982,6 +1207,7 @@ mod tests {
             "",
             0,
             0,
+            60.0,
         );
         assert!(has(&i, ["-vf", "scale='min(800,iw)':-2"]));
         assert!(has(&i, ["-frames:v", "1"]));
@@ -1051,6 +1277,7 @@ mod tests {
             ("video", "webm", 0, 0, 0, ""),
             ("video", "mkv", 0, 0, 0, ""),
             ("video", "avi", 0, 0, 0, ""),
+            ("video", "3gp", 0, 0, 0, ""),
             ("video", "gif", 0, 0, 0, ""),
             ("video", "cut", 0, 500, 2000, ""),
             ("video", "crop", 0, 0, 0, "1:1"),

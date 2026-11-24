@@ -1107,7 +1107,7 @@
   "toolHelpJoinAudio": "Rakitra maromaro mifanohy, ho MP3 iray",
   "toolHelpCut": "Tazony ny ampahany iray, tsy averina amboarina",
   "toolHelpCrop": "Hetezina eo afovoany : 16:9, 4:3, 1:1, 9:16",
-  "toolHelpCompress": "Rakitra maivana kokoa (MP4, 1080p farafahabetsany)",
+  "toolHelpCompress": "Rakitra maivana kokoa be, kalitao akaiky ny tany am-boalohany (AV1 na H.264)",
   "toolHelpFrames": "Sary JPG iray isaky ny segondra vitsivitsy",
   "toolHelpExtract": "Tazony ny feo, ho MP3",
   "toolHelpResize": "Ovay ny sakany, tazonina ny tahan'ny endrika",
@@ -1310,5 +1310,17 @@
   "tourDone": "Vita",
   "tourReplay": "Fitetezana voatarika",
   "tourReplayBody": "Jereo indray ny fanazavana ireo efijery lehibe.",
-  "tourStart": "Atombohy"
+  "tourStart": "Atombohy",
+  "fmtHelp3gp": "Finday taloha, rakitra maivana",
+  "optCodec": "Codec",
+  "optCodecAv1": "AV1",
+  "optCodecH264": "H.264",
+  "optCodecAv1Note": "Maivana 20 hatramin'ny 35 % amin'ny kalitao mitovy. Azo vakiana amin'ny Windows 10 sy 11, Android 10 no mihoatra, ireo mpitety vaovao ary Miarina Media. Maharitra kokoa ny famadihana (eo ho eo amin'ny antsasaky ny faharetan'ny horonan-tsary).",
+  "optCodecH264Note": "Azo vakiana amin'ny fitaovana rehetra, na dia taloha aza. Lehibe kokoa noho ny AV1 amin'ny kalitao mitovy.",
+  "optGoal": "Tanjona",
+  "optGoalQuality": "Kalitao",
+  "optGoalSize": "Habe ambony indrindra",
+  "optBalanced": "Voalanjalanja",
+  "optTargetMb": "Habe ambony isaky ny rakitra",
+  "optMb": "Mo"
 }

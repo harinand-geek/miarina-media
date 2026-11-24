@@ -4164,7 +4164,7 @@ class L10nMg extends L10n {
 
   @override
   String get toolHelpCompress =>
-      'Rakitra maivana kokoa (MP4, 1080p farafahabetsany)';
+      'Rakitra maivana kokoa be, kalitao akaiky ny tany am-boalohany (AV1 na H.264)';
 
   @override
   String get toolHelpFrames => 'Sary JPG iray isaky ny segondra vitsivitsy';
@@ -4849,4 +4849,42 @@ class L10nMg extends L10n {
 
   @override
   String get tourStart => 'Atombohy';
+
+  @override
+  String get fmtHelp3gp => 'Finday taloha, rakitra maivana';
+
+  @override
+  String get optCodec => 'Codec';
+
+  @override
+  String get optCodecAv1 => 'AV1';
+
+  @override
+  String get optCodecH264 => 'H.264';
+
+  @override
+  String get optCodecAv1Note =>
+      'Maivana 20 hatramin\'ny 35 % amin\'ny kalitao mitovy. Azo vakiana amin\'ny Windows 10 sy 11, Android 10 no mihoatra, ireo mpitety vaovao ary Miarina Media. Maharitra kokoa ny famadihana (eo ho eo amin\'ny antsasaky ny faharetan\'ny horonan-tsary).';
+
+  @override
+  String get optCodecH264Note =>
+      'Azo vakiana amin\'ny fitaovana rehetra, na dia taloha aza. Lehibe kokoa noho ny AV1 amin\'ny kalitao mitovy.';
+
+  @override
+  String get optGoal => 'Tanjona';
+
+  @override
+  String get optGoalQuality => 'Kalitao';
+
+  @override
+  String get optGoalSize => 'Habe ambony indrindra';
+
+  @override
+  String get optBalanced => 'Voalanjalanja';
+
+  @override
+  String get optTargetMb => 'Habe ambony isaky ny rakitra';
+
+  @override
+  String get optMb => 'Mo';
 }

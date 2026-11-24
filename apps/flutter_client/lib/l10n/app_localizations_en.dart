@@ -4116,7 +4116,8 @@ class L10nEn extends L10n {
   String get toolHelpCrop => 'Crop to the centre: 16:9, 4:3, 1:1, 9:16';
 
   @override
-  String get toolHelpCompress => 'Lighter file (MP4, 1080p at most)';
+  String get toolHelpCompress =>
+      'A much smaller file, quality close to the original (AV1 or H.264)';
 
   @override
   String get toolHelpFrames => 'A JPG picture every few seconds';
@@ -4792,4 +4793,42 @@ class L10nEn extends L10n {
 
   @override
   String get tourStart => 'Start';
+
+  @override
+  String get fmtHelp3gp => 'Older phones, small file';
+
+  @override
+  String get optCodec => 'Codec';
+
+  @override
+  String get optCodecAv1 => 'AV1';
+
+  @override
+  String get optCodecH264 => 'H.264';
+
+  @override
+  String get optCodecAv1Note =>
+      '20 to 35 % smaller at the same quality. Plays on Windows 10 and 11, Android 10 and later, recent browsers and Miarina Media. Slower to encode (about half the video’s length).';
+
+  @override
+  String get optCodecH264Note =>
+      'Plays on every device, even old ones. Larger than AV1 for the same quality.';
+
+  @override
+  String get optGoal => 'Goal';
+
+  @override
+  String get optGoalQuality => 'Quality';
+
+  @override
+  String get optGoalSize => 'Maximum size';
+
+  @override
+  String get optBalanced => 'Balanced';
+
+  @override
+  String get optTargetMb => 'Max. size per file';
+
+  @override
+  String get optMb => 'MB';
 }
