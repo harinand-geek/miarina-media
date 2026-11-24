@@ -24,6 +24,7 @@ import '../playback/playback.dart';
 import '../shortcuts/keymap.dart';
 import 'focus_data.dart';
 import 'focus_screen.dart';
+import '../../app/malagasy_fallback.dart';
 
 /// The Focus details of what plays (kind, program, place in it).
 final focusCurrentProvider = FutureProvider<FocusItem?>((ref) async {
@@ -343,9 +344,7 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
                   Expanded(
                     child: Text(
                       t.estimatedEnd(
-                        DateFormat.Hm(
-                          Localizations.localeOf(context).toString(),
-                        ).format(end),
+                        DateFormat.Hm(intlLocaleOf(context)).format(end),
                         speedLabel(rate),
                       ),
                       textAlign: TextAlign.center,

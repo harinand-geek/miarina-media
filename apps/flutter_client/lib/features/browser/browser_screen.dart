@@ -17,6 +17,7 @@ import '../cinema/cinema_widgets.dart' show PillSegment;
 import '../get/get_data.dart';
 import '../get/get_screens.dart' show GetAnalysisScreen, bytes;
 import 'browser_data.dart';
+import '../../app/malagasy_fallback.dart';
 
 part 'browser_phone.dart';
 
@@ -1349,7 +1350,7 @@ class _HistoryTabState extends ConsumerState<_HistoryTab> {
     final empty = history
         ? _visits != null && visits.isEmpty
         : favorites.isEmpty;
-    final locale = Localizations.localeOf(context).toString();
+    final locale = intlLocaleOf(context);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     String dayLabel(DateTime d) {

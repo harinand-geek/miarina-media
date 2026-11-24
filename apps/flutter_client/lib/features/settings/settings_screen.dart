@@ -242,7 +242,7 @@ class _SectionPage extends ConsumerWidget {
       ),
       children: [
         Align(
-          alignment: Alignment.topLeft,
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 760),
             child: Column(

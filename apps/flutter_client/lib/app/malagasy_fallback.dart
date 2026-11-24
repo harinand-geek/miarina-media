@@ -26,3 +26,12 @@ class _Fallback extends LocalizationsDelegate<dynamic> {
   @override
   bool shouldReload(_Fallback old) => false;
 }
+
+/// The locale for intl's DateFormat and NumberFormat, which have no
+/// Malagasy data (they throw on 'mg'): French dates and numbers instead.
+String intlLocale(String locale) =>
+    locale == 'mg' || locale.startsWith('mg_') ? 'fr' : locale;
+
+/// [intlLocale] of the interface language.
+String intlLocaleOf(BuildContext context) =>
+    intlLocale(Localizations.localeOf(context).toString());

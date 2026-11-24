@@ -17,6 +17,7 @@ import '../common/open_media.dart';
 import '../focus/focus_screen.dart' show kindLabel;
 import '../library/groups.dart';
 import 'history_data.dart';
+import '../../app/malagasy_fallback.dart';
 
 /// W-03 History: every play, grouped by day, all sections together; each
 /// line shows where it stopped and resumes in one click. Clearing forgets
@@ -40,7 +41,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     final rows = (history.value ?? const <HistoryRow>[])
         .where((r) => _filter == null || r.section == _filter)
         .toList();
-    final locale = Localizations.localeOf(context).toString();
+    final locale = intlLocaleOf(context);
     final time = DateFormat.Hm(locale);
     final day = DateFormat.yMMMMEEEEd(locale);
     final today = dayOf(DateTime.now());

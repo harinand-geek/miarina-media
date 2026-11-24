@@ -14,6 +14,7 @@ import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart' show PillSegment;
 import 'get_data.dart';
 import 'get_screens.dart' show bytes, failureReason, revealProvider;
+import '../../app/malagasy_fallback.dart';
 
 final _audioFormats = RegExp(
   r'^(MP3|FLAC|M4A|OPUS|OGG|WAV|AAC|ALAC|VORBIS)\b',
@@ -97,7 +98,7 @@ class _GetHistoryScreenState extends ConsumerState<GetHistoryScreen> {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final history = ref.watch(downloadsProvider.select((s) => s.history));
-    final locale = Localizations.localeOf(context).toString();
+    final locale = intlLocaleOf(context);
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final dayFormat = DateFormat.MMMMEEEEd(locale);

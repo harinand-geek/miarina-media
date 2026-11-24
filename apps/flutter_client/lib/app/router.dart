@@ -317,7 +317,7 @@ class _DarkPlayer extends StatelessWidget {
 class _ScreenPage extends CustomTransitionPage<void> {
   _ScreenPage({super.key, required super.child})
     : super(
-        transitionDuration: Duration(milliseconds: _android ? 260 : 160),
+        transitionDuration: Duration(milliseconds: _android ? 260 : 200),
         reverseTransitionDuration: Duration(milliseconds: _android ? 140 : 120),
         transitionsBuilder: (context, animation, secondary, child) {
           final motion = MmMotion.of(context);
@@ -347,16 +347,24 @@ class _ScreenPage extends CustomTransitionPage<void> {
               ),
             );
           }
+          // Fade-through: the page is opaque, so the old one fades out
+          // under it instead of showing through it (two pages of text on
+          // top of each other); it waits a fifth of the time, then rises.
+          final fade = CurvedAnimation(
+            parent: animation,
+            curve: const Interval(0.2, 1, curve: Curves.easeOut),
+            reverseCurve: Curves.easeIn,
+          );
           final curved = CurvedAnimation(
             parent: animation,
             curve: MmMotion.standard,
           );
-          child = Material(type: MaterialType.transparency, child: child);
+          child = Material(color: MmColors.of(context).bg, child: child);
           if (motion.reduced) {
-            return FadeTransition(opacity: curved, child: child);
+            return FadeTransition(opacity: fade, child: child);
           }
           return FadeTransition(
-            opacity: curved,
+            opacity: fade,
             child: SlideTransition(
               position: Tween(
                 begin: Offset(0, motion.screenRise / 800),

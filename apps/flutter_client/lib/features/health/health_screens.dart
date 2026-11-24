@@ -14,6 +14,7 @@ import '../import/import_data.dart';
 import '../library/groups.dart';
 import '../playback/playback.dart' show skippedMissingProvider;
 import 'health_data.dart';
+import '../../app/malagasy_fallback.dart';
 
 /// File and folder pickers of the health screens (system dialogs; tests
 /// answer them).
@@ -43,7 +44,7 @@ final durationsReadableProvider = FutureProvider<bool>((ref) async {
 /// "58 Mo", "2,4 Go": binary units, as Windows Explorer shows them.
 String formatSize(BuildContext context, int bytes) {
   final t = L10n.of(context);
-  final locale = Localizations.localeOf(context).toString();
+  final locale = intlLocaleOf(context);
   String n(double v) =>
       NumberFormat(v < 10 ? '#,##0.#' : '#,##0', locale).format(v);
   const k = 1024.0;

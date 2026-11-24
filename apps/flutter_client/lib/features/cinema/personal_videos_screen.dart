@@ -16,6 +16,7 @@ import 'cinema_data.dart';
 import 'cinema_screen.dart';
 import 'cinema_widgets.dart';
 import 'video_menu.dart';
+import '../../app/malagasy_fallback.dart';
 
 /// "Vidéos perso" (sidebar, Cinema group): short videos, newest first, as
 /// 16:9 tiles. The handoff has no dedicated mockup; it reuses the W-C1
@@ -31,7 +32,7 @@ class PersonalVideosScreen extends ConsumerWidget {
     final lib = ref.watch(cinemaLibraryProvider);
     final watch = ref.watch(watchStateProvider).value ?? const WatchState();
     final videos = lib.value?.personal ?? const [];
-    final date = DateFormat.yMMMd(Localizations.localeOf(context).toString());
+    final date = DateFormat.yMMMd(intlLocaleOf(context));
 
     final header = Padding(
       padding: mobile

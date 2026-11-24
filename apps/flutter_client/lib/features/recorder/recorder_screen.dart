@@ -338,7 +338,7 @@ class _RecorderScreenState extends ConsumerState<RecorderScreen> {
       padding: const EdgeInsets.fromLTRB(48, 32, 48, 32),
       children: [
         Align(
-          alignment: Alignment.topLeft,
+          alignment: Alignment.topCenter,
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 960),
             child: Column(

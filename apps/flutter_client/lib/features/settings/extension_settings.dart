@@ -12,6 +12,7 @@ import '../../src/rust/frb_generated.dart' show RustLib;
 import '../library/library_data.dart' show dataDirProvider;
 import '../now_playing/sound_view.dart' show MmSwitch;
 import 'settings_screen.dart';
+import '../../app/malagasy_fallback.dart';
 
 export '../../src/rust/api/extension.dart' show ExtensionStatus;
 
@@ -145,8 +146,7 @@ class ExtensionSettings extends ConsumerWidget {
     if (state.tested == null) {
       testLine = t.extTestNever;
     } else {
-      final at = DateFormat.Hm(Localizations.localeOf(context).languageCode)
-          .format(state.tested!);
+      final at = DateFormat.Hm(intlLocaleOf(context)).format(state.tested!);
       testLine = state.testOk ? t.extTestOk(at) : t.extTestFailed(at);
     }
 

@@ -2,6 +2,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/app/app.dart';
+import 'package:miarina_media/app/malagasy_fallback.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
@@ -22,8 +23,12 @@ import 'support/fakes.dart';
 void main() {
   late FakeSettingsStore store;
 
-  Future<void> pumpApp(WidgetTester tester, String route) async {
-    tester.view.physicalSize = const Size(1440, 900);
+  Future<void> pumpApp(
+    WidgetTester tester,
+    String route, {
+    Size size = const Size(1440, 900),
+  }) async {
+    tester.view.physicalSize = size;
     tester.view.devicePixelRatio = 1;
     tester.platformDispatcher.localesTestValue = const [Locale('mg')];
     addTearDown(tester.view.reset);
@@ -54,6 +59,36 @@ void main() {
 
   test('Malagasy is offered', () {
     expect(L10n.supportedLocales, contains(const Locale('mg')));
+  });
+
+  test('dates and numbers: French for Malagasy, intl has no mg data', () {
+    expect(intlLocale('mg'), 'fr');
+    expect(intlLocale('mg_MG'), 'fr');
+    expect(intlLocale('en'), 'en');
+  });
+
+  // 0.2.6: the history screens were grey (DateFormat threw on 'mg').
+  for (final route in [
+    Routes.history,
+    Routes.getHistory,
+    Routes.personalVideos,
+    Routes.missing,
+    Routes.duplicates,
+  ]) {
+    testWidgets('$route shows in Malagasy', (tester) async {
+      await pumpApp(tester, route);
+      expect(tester.takeException(), isNull);
+      expect(find.byType(ErrorWidget), findsNothing);
+    });
+  }
+
+  testWidgets('a narrow page is centred on a wide window', (tester) async {
+    await pumpApp(tester, '/settings/general', size: const Size(1920, 1032));
+    final left = tester.getTopLeft(find.text('Fiteny')).dx;
+    final right = 1920 - tester.getTopRight(find.text('Fiteny').first).dx;
+    // Sidebar 232 + padding 40; the 760 column sits in the middle.
+    expect(left, greaterThan(600));
+    expect(right, greaterThan(400));
   });
 
   testWidgets('screens, the tour and a dialog in Malagasy', (tester) async {
