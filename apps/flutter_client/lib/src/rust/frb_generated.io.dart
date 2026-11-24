@@ -432,6 +432,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   PlaylistInfo dco_decode_playlist_info(dynamic raw);
 
   @protected
+  PresetOffers dco_decode_preset_offers(dynamic raw);
+
+  @protected
   (String, String?) dco_decode_record_string_opt_string(dynamic raw);
 
   @protected
@@ -998,6 +1001,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   PlaylistInfo sse_decode_playlist_info(SseDeserializer deserializer);
+
+  @protected
+  PresetOffers sse_decode_preset_offers(SseDeserializer deserializer);
 
   @protected
   (String, String?) sse_decode_record_string_opt_string(
@@ -1727,6 +1733,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_playlist_info(PlaylistInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_preset_offers(PresetOffers self, SseSerializer serializer);
 
   @protected
   void sse_encode_record_string_opt_string(

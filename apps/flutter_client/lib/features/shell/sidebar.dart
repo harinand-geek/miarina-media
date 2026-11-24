@@ -277,7 +277,8 @@ class Sidebar extends ConsumerWidget {
                                   location == Routes.focusProgram)) ||
                           // The analysis of a link belongs to Obtenir's home.
                           (e.route == Routes.get &&
-                              location == Routes.getAnalysis),
+                              (location == Routes.getAnalysis ||
+                                  location == Routes.getBatch)),
                       collapsed: collapsed,
                       teal: inGet,
                     ),

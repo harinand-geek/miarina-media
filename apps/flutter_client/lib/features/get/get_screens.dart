@@ -19,6 +19,7 @@ import '../library/library_data.dart';
 import '../settings/extension_settings.dart' show extensionConnectedProvider;
 import 'get_data.dart';
 
+part 'batch_links.dart';
 part 'playlist_result.dart';
 
 // Obtenir, ported to the identical from the Tauri app (screens 1 to 3 of
@@ -824,7 +825,12 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
         t.getQPlaylistDesc,
         () => _submit(tab: 'playlist'),
       ),
-      _Quick(PhosphorRegular.stack, t.getQBatch, t.getQBatchDesc, null),
+      _Quick(
+        PhosphorRegular.stack,
+        t.getQBatch,
+        t.getQBatchDesc,
+        () => context.go(Routes.getBatch),
+      ),
       _Quick(
         PhosphorRegular.shareNetwork,
         t.getQTorrent,

@@ -22,6 +22,7 @@ export '../../src/rust/api/get.dart'
         HistoryInfo,
         LinkCheck,
         MediaInfo,
+        PresetOffers,
         StartRequest,
         TaskInfo,
         ToolStatus,
@@ -37,6 +38,9 @@ abstract interface class GetApi {
   Stream<GetEvent> events();
   Future<LinkCheck> checkLink(String url);
   Future<Analysis> analyze(String url);
+
+  /// Qualities valid for any page (Plusieurs liens).
+  PresetOffers presetOffers();
 
   /// Obtenir › Playlist: the whole playlist the link belongs to.
   Future<Analysis> analyzePlaylist(String url);
@@ -121,6 +125,9 @@ class RustGetApi implements GetApi {
 
   @override
   Future<Analysis> analyze(String url) => getAnalyze(url: url);
+
+  @override
+  PresetOffers presetOffers() => getPresetOffers();
 
   @override
   Future<Analysis> analyzePlaylist(String url) => getAnalyzePlaylist(url: url);

@@ -3775,4 +3775,81 @@ class L10nFr extends L10n {
 
   @override
   String get plFailed => 'La playlist n’a pas pu être ajoutée. Réessayez.';
+
+  @override
+  String batchLead(int max) {
+    return 'Collez jusqu’à $max liens, un par ligne. Chacun est analysé, puis ajouté à la file.';
+  }
+
+  @override
+  String get batchHint => 'https://…\nhttps://…';
+
+  @override
+  String get batchClear => 'Vider';
+
+  @override
+  String batchTruncated(int max) {
+    return 'Seuls les $max premiers liens sont gardés.';
+  }
+
+  @override
+  String get batchQuality => 'Qualité pour les pages vidéo';
+
+  @override
+  String get batchQualityNote =>
+      'Un fichier direct est gardé tel quel. Si une page n’a pas cette qualité, la meilleure en dessous est prise.';
+
+  @override
+  String get batchLinks => 'Liens';
+
+  @override
+  String batchValid(int valid, int total) {
+    return '$valid valides sur $total';
+  }
+
+  @override
+  String get batchEmpty => 'Les liens collés apparaîtront ici.';
+
+  @override
+  String get batchAnalyzing => 'Analyse…';
+
+  @override
+  String get batchAdded => 'Ajouté à la file';
+
+  @override
+  String get batchFailed => 'Pas ajouté';
+
+  @override
+  String get batchIsPlaylist =>
+      'C’est une playlist : utilisez la tuile Playlist';
+
+  @override
+  String get batchNeedsTools =>
+      'Outils média à installer : analysez d’abord un lien seul';
+
+  @override
+  String get batchNoAudio => 'Fichier sans audio seul';
+
+  @override
+  String get batchNoVideo => 'Fichier sans vidéo';
+
+  @override
+  String batchStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Télécharger $count liens',
+      one: 'Télécharger 1 lien',
+      zero: 'Télécharger',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get batchRunning => 'Analyse des liens…';
+
+  @override
+  String batchDone(int added, int failed) {
+    return '$added ajoutés à la file · $failed non ajoutés';
+  }
 }

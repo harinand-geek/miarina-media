@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `format_offer`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `page_host`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
 
 /// Starts the download manager on the indexing runtime (call after
@@ -33,6 +33,9 @@ Future<Analysis> getAnalyze({required String url}) =>
 /// gives that media.
 Future<Analysis> getAnalyzePlaylist({required String url}) =>
     RustLib.instance.api.crateApiGetGetAnalyzePlaylist(url: url);
+
+PresetOffers getPresetOffers() =>
+    RustLib.instance.api.crateApiGetGetPresetOffers();
 
 /// Downloads the missing media tools after the user agreed; every archive
 /// is checked against its pinned SHA-256 before use. Progress arrives as
@@ -556,6 +559,32 @@ class MediaInfo {
           needsFfmpeg == other.needsFfmpeg &&
           video == other.video &&
           audio == other.audio;
+}
+
+/// Qualities that apply to any page, resolved by the extractor for each
+/// one (Obtenir › Plusieurs liens; the same as a playlist's).
+class PresetOffers {
+  final List<FormatOffer> video;
+  final List<FormatOffer> audio;
+  final bool needsFfmpeg;
+
+  const PresetOffers({
+    required this.video,
+    required this.audio,
+    required this.needsFfmpeg,
+  });
+
+  @override
+  int get hashCode => video.hashCode ^ audio.hashCode ^ needsFfmpeg.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PresetOffers &&
+          runtimeType == other.runtimeType &&
+          video == other.video &&
+          audio == other.audio &&
+          needsFfmpeg == other.needsFfmpeg;
 }
 
 class StartRequest {

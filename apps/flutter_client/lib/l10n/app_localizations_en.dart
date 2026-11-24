@@ -3746,4 +3746,80 @@ class L10nEn extends L10n {
 
   @override
   String get plFailed => 'The playlist could not be added. Try again.';
+
+  @override
+  String batchLead(int max) {
+    return 'Paste up to $max links, one per line. Each is analysed, then added to the queue.';
+  }
+
+  @override
+  String get batchHint => 'https://…\nhttps://…';
+
+  @override
+  String get batchClear => 'Clear';
+
+  @override
+  String batchTruncated(int max) {
+    return 'Only the first $max links are kept.';
+  }
+
+  @override
+  String get batchQuality => 'Quality for video pages';
+
+  @override
+  String get batchQualityNote =>
+      'A direct file is kept as it is. If a page does not have this quality, the best one below it is used.';
+
+  @override
+  String get batchLinks => 'Links';
+
+  @override
+  String batchValid(int valid, int total) {
+    return '$valid valid of $total';
+  }
+
+  @override
+  String get batchEmpty => 'Pasted links will appear here.';
+
+  @override
+  String get batchAnalyzing => 'Analysing…';
+
+  @override
+  String get batchAdded => 'Added to the queue';
+
+  @override
+  String get batchFailed => 'Not added';
+
+  @override
+  String get batchIsPlaylist => 'This is a playlist: use the Playlist tile';
+
+  @override
+  String get batchNeedsTools =>
+      'Media tools needed: analyse a single link first';
+
+  @override
+  String get batchNoAudio => 'No audio-only file';
+
+  @override
+  String get batchNoVideo => 'No video in this file';
+
+  @override
+  String batchStart(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Download $count links',
+      one: 'Download 1 link',
+      zero: 'Download',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get batchRunning => 'Analysing links…';
+
+  @override
+  String batchDone(int added, int failed) {
+    return '$added added to the queue · $failed not added';
+  }
 }

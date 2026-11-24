@@ -6090,6 +6090,120 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'La playlist n’a pas pu être ajoutée. Réessayez.'**
   String get plFailed;
+
+  /// No description provided for @batchLead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collez jusqu’à {max} liens, un par ligne. Chacun est analysé, puis ajouté à la file.'**
+  String batchLead(int max);
+
+  /// No description provided for @batchHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'https://…\nhttps://…'**
+  String get batchHint;
+
+  /// No description provided for @batchClear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider'**
+  String get batchClear;
+
+  /// No description provided for @batchTruncated.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seuls les {max} premiers liens sont gardés.'**
+  String batchTruncated(int max);
+
+  /// No description provided for @batchQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité pour les pages vidéo'**
+  String get batchQuality;
+
+  /// No description provided for @batchQualityNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fichier direct est gardé tel quel. Si une page n’a pas cette qualité, la meilleure en dessous est prise.'**
+  String get batchQualityNote;
+
+  /// No description provided for @batchLinks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Liens'**
+  String get batchLinks;
+
+  /// No description provided for @batchValid.
+  ///
+  /// In fr, this message translates to:
+  /// **'{valid} valides sur {total}'**
+  String batchValid(int valid, int total);
+
+  /// No description provided for @batchEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les liens collés apparaîtront ici.'**
+  String get batchEmpty;
+
+  /// No description provided for @batchAnalyzing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse…'**
+  String get batchAnalyzing;
+
+  /// No description provided for @batchAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouté à la file'**
+  String get batchAdded;
+
+  /// No description provided for @batchFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas ajouté'**
+  String get batchFailed;
+
+  /// No description provided for @batchIsPlaylist.
+  ///
+  /// In fr, this message translates to:
+  /// **'C’est une playlist : utilisez la tuile Playlist'**
+  String get batchIsPlaylist;
+
+  /// No description provided for @batchNeedsTools.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils média à installer : analysez d’abord un lien seul'**
+  String get batchNeedsTools;
+
+  /// No description provided for @batchNoAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier sans audio seul'**
+  String get batchNoAudio;
+
+  /// No description provided for @batchNoVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier sans vidéo'**
+  String get batchNoVideo;
+
+  /// No description provided for @batchStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Télécharger} =1{Télécharger 1 lien} other{Télécharger {count} liens}}'**
+  String batchStart(int count);
+
+  /// No description provided for @batchRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Analyse des liens…'**
+  String get batchRunning;
+
+  /// No description provided for @batchDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{added} ajoutés à la file · {failed} non ajoutés'**
+  String batchDone(int added, int failed);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -59,6 +59,7 @@ abstract final class Routes {
   static const get = '/get';
   static const getAnalysis = '/get/analysis';
   static const getDownloads = '/get/downloads';
+  static const getBatch = '/get/batch';
   static const getBrowser = '/get/browser';
   static const getTorrents = '/get/torrents';
   static const getHistory = '/get/history';
@@ -253,6 +254,7 @@ final routerProvider = Provider<GoRouter>((ref) {
               ),
             ),
           ),
+          screen(Routes.getBatch, () => const GetBatchScreen()),
           GoRoute(
             path: Routes.getDownloads,
             pageBuilder: (context, state) => _ScreenPage(

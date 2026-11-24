@@ -157,8 +157,8 @@ void main() {
         expect(find.text(entry), findsWidgets);
       }
       expect(find.text('Aucun téléchargement'), findsOneWidget);
-      // Only Plusieurs liens is still planned (Playlist: DL-07).
-      expect(find.text('PRÉVU'), findsOneWidget);
+      // Every quick action works (Playlist, Plusieurs liens).
+      expect(find.text('PRÉVU'), findsNothing);
 
       await tester.tap(find.text('Analyser'));
       await settle(tester);

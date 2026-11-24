@@ -883,8 +883,47 @@ class FakeGetApi implements GetApi {
   Future<Analysis> analyze(String url) async {
     analyzed.add(url);
     if (analysisError != null) throw analysisError!;
-    return analysis!;
+    return analysisOf?.call(url) ?? analysis!;
   }
+
+  /// Qualities offered by Plusieurs liens.
+  PresetOffers presets = PresetOffers(
+    video: [
+      FormatOffer(
+        id: 'p1080',
+        quality: '1080p',
+        detail: 'MP4',
+        sizeBytes: null,
+        extension_: 'mp4',
+        tag: 'Recommended',
+      ),
+      FormatOffer(
+        id: 'p720',
+        quality: '720p',
+        detail: 'MP4',
+        sizeBytes: null,
+        extension_: 'mp4',
+        tag: null,
+      ),
+    ],
+    audio: [
+      FormatOffer(
+        id: 'p320',
+        quality: 'MP3 · 320 kbps',
+        detail: 'MP3',
+        sizeBytes: null,
+        extension_: 'mp3',
+        tag: 'Recommended',
+      ),
+    ],
+    needsFfmpeg: false,
+  );
+
+  /// When set, analyses answer per link (Plusieurs liens).
+  Analysis Function(String url)? analysisOf;
+
+  @override
+  PresetOffers presetOffers() => presets;
 
   @override
   Future<Analysis> analyzePlaylist(String url) async {

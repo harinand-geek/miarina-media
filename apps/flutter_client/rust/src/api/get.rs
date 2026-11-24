@@ -759,14 +759,7 @@ async fn extractor_analysis(
         Err(error) => return Ok(no_media(&error)),
     };
     let info = &analysis.info;
-    let offer = |o: &download_engine::ytdlp::Offer| FormatOffer {
-        id: o.spec.encode(),
-        quality: o.quality.clone(),
-        detail: o.detail.clone(),
-        size_bytes: o.size_bytes,
-        extension: o.extension.clone(),
-        tag: o.tag.map(str::to_owned),
-    };
+    let offer = format_offer;
     if let Some(list) = &analysis.playlist {
         let first = list
             .items
@@ -826,6 +819,37 @@ async fn extractor_analysis(
         video: analysis.offers.video.iter().map(offer).collect(),
         audio: analysis.offers.audio.iter().map(offer).collect(),
     }))
+}
+
+fn format_offer(o: &download_engine::ytdlp::Offer) -> FormatOffer {
+    FormatOffer {
+        id: o.spec.encode(),
+        quality: o.quality.clone(),
+        detail: o.detail.clone(),
+        size_bytes: o.size_bytes,
+        extension: o.extension.clone(),
+        tag: o.tag.map(str::to_owned),
+    }
+}
+
+/// Qualities that apply to any page, resolved by the extractor for each
+/// one (Obtenir › Plusieurs liens; the same as a playlist's).
+pub struct PresetOffers {
+    pub video: Vec<FormatOffer>,
+    pub audio: Vec<FormatOffer>,
+    pub needs_ffmpeg: bool,
+}
+
+#[flutter_rust_bridge::frb(sync)]
+pub fn get_preset_offers() -> Result<PresetOffers> {
+    let g = getter()?;
+    let ffmpeg = g.ytdlp.has_ffmpeg();
+    let offers = download_engine::ytdlp::playlist_offers(ffmpeg);
+    Ok(PresetOffers {
+        video: offers.video.iter().map(format_offer).collect(),
+        audio: offers.audio.iter().map(format_offer).collect(),
+        needs_ffmpeg: !ffmpeg,
+    })
 }
 
 /// Caches the site's picture locally; any failure just means no picture.
