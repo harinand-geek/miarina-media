@@ -273,25 +273,6 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
               {t.dlWindowsCta}
             </a>
           </div>
-          <div className="lp-dl-row is-beta" data-reveal="60">
-            <Icon name="android" className="lp-dl-icon" />
-            <div className="lp-dl-info">
-              <span className="lp-dl-title">
-                Android {RELEASE.androidBeta.version}{' '}
-                <span className="lp-dl-badge is-beta">{t.dlBetaBadge}</span>
-              </span>
-              <span className="lp-dl-req">
-                {t.dlAndroidBetaReq} · {RELEASE.androidBeta.size}
-              </span>
-              <span className="lp-dl-hash">
-                {RELEASE.androidBeta.name} · SHA-256 {RELEASE.androidBeta.sha256}
-              </span>
-            </div>
-            <a href={downloadUrl(RELEASE.androidBeta)} className="btn btn-secondary" download>
-              <Icon name="download" />
-              {t.dlAndroidCta}
-            </a>
-          </div>
           <p className="lp-dl-note">{t.dlNote}</p>
         </div>
       </section>

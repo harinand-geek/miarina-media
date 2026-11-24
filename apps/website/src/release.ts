@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.1.11',
-    name: 'MiarinaMedia-0.1.11.apk',
-    size: '64,0 Mio',
-    sha256: '7d88ca7857cb8835959db368fb11b476dc1f87d3b7f2b35f90cc81b58150b76a',
+    version: '0.2.5',
+    name: 'MiarinaMedia-0.2.5.apk',
+    size: '64,7 Mio',
+    sha256: 'afee47a86e00e565dcd09be167a868bacf370abf35fefa1d477877cf6e24999a',
   } satisfies ReleaseFile,
 };
 
@@ -60,9 +60,22 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
+      'Windows : outils PC (convertir, capture d’écran, enregistrement de l’écran)',
       'Plusieurs liens à la fois',
-      'Android : import et export M3U, gestes vidéo et image dans l’image',
       'Fondu entre les titres (désactivé par défaut)',
+    ],
+  },
+  {
+    name: '0.2.5 · Android',
+    date: '24 novembre 2026',
+    current: true,
+    items: [
+      'Nouvelle application Android : elle remplace la 0.1.11 en gardant la bibliothèque, les favoris, les playlists et l’historique des téléchargements (la base est copiée avant la mise à jour)',
+      'Lecteur vidéo : gestes (luminosité, volume, ±10 s, pincer pour remplir l’écran), cadenas, rotation et image dans l’image',
+      '« Écouter seulement » : une vidéo continue en son, même écran éteint',
+      'Lecture sans blanc entre les titres, import et export de playlists M3U',
+      'Les réglages d’affichage de la 0.1.11 (thème…) reviennent à leurs valeurs par défaut',
+      'Windows reste en version 0.1.12 ; la bêta Windows 0.2.4 ne change pas',
     ],
   },
   {
@@ -165,7 +178,6 @@ export const CHANGELOG: Release[] = [
   {
     name: '0.1.12 · Windows',
     date: 'Préversion de test · 16 novembre 2026',
-    current: true,
     items: [
       'Plein écran : titre masqué et commandes qui disparaissent après inactivité',
       'Barre de lecture déplaçable par glissement',

@@ -12,6 +12,19 @@ export function Licences() {
           suivants, sous leurs propres licences.
         </p>
 
+        <h2>Application Android 0.2.5</h2>
+        <p>
+          Miarina Media 0.2.5 pour Android, qui remplace la 0.1.11, est sous GPL-3.0-only. Ses
+          sources exactes et ses scripts de construction sont à l’étiquette{' '}
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.5">v0.2.5</a> du dépôt
+          public, avec le sous-module{' '}
+          <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>.
+          Ses composants sont ceux de la bêta 0.2.4 ci-dessous : Flutter (licence BSD),
+          flutter_rust_bridge (MIT), AndroidX Media3 1.11.1 (Apache 2.0), les icônes Phosphor (MIT),
+          youtubedl-android 0.18.1 (Python, FFmpeg, QuickJS) et yt-dlp 2026.08.19, sous leurs
+          propres licences, avec la même réserve sur l’inventaire des sources de youtubedl-android.
+        </p>
+
         <h2>Application Windows 0.2.4 (bêta)</h2>
         <p>
           La version 0.2.4 pour Windows est sous GPL-3.0-only, comme les précédentes. Ses sources
