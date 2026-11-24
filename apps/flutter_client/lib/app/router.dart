@@ -308,35 +308,65 @@ class _DarkPlayer extends StatelessWidget {
       Theme(data: buildMmTheme(MmColors.dark), child: child);
 }
 
-/// Screen change (handoff §03): content fades in and rises 8 px in 160 ms;
-/// navigation chrome does not move. Reduced motion: 120 ms fade only.
+/// Screen change (handoff §03). Windows: content fades in and rises 8 px
+/// in 160 ms; navigation chrome does not move. Android: a fade through —
+/// the page leaving fades out quickly, the page coming in (opaque, so the
+/// two never show through each other) fades in a moment later while it
+/// grows from 97 %, as Android apps do. Only transforms and opacity are
+/// animated (no rebuild per frame). Reduced motion: a short fade only.
 class _ScreenPage extends CustomTransitionPage<void> {
   _ScreenPage({super.key, required super.child})
     : super(
-        transitionDuration: const Duration(milliseconds: 160),
-        reverseTransitionDuration: const Duration(milliseconds: 120),
+        transitionDuration: Duration(milliseconds: _android ? 260 : 160),
+        reverseTransitionDuration: Duration(milliseconds: _android ? 140 : 120),
         transitionsBuilder: (context, animation, secondary, child) {
           final motion = MmMotion.of(context);
+          if (_android) {
+            // Opaque page, and the text style pages above the tab shell
+            // (player, video, Focus) have no Scaffold to give.
+            child = Material(color: MmColors.of(context).bg, child: child);
+            final fade = CurvedAnimation(
+              parent: animation,
+              curve: const Interval(0.3, 1, curve: Curves.easeOut),
+              reverseCurve: Curves.easeIn,
+            );
+            if (motion.reduced) {
+              return FadeTransition(opacity: fade, child: child);
+            }
+            return FadeTransition(
+              opacity: fade,
+              child: ScaleTransition(
+                scale: Tween(begin: 0.97, end: 1.0).animate(
+                  CurvedAnimation(
+                    parent: animation,
+                    curve: MmMotion.standard,
+                    reverseCurve: Curves.easeIn,
+                  ),
+                ),
+                child: child,
+              ),
+            );
+          }
           final curved = CurvedAnimation(
             parent: animation,
             curve: MmMotion.standard,
           );
-          // Pages above the tab shell (Android player, video, Focus) have
-          // no Scaffold: text gets its style and ink from here.
           child = Material(type: MaterialType.transparency, child: child);
+          if (motion.reduced) {
+            return FadeTransition(opacity: curved, child: child);
+          }
           return FadeTransition(
             opacity: curved,
-            child: motion.reduced
-                ? child
-                : AnimatedBuilder(
-                    animation: curved,
-                    builder: (context, c) => Transform.translate(
-                      offset: Offset(0, (1 - curved.value) * motion.screenRise),
-                      child: c,
-                    ),
-                    child: child,
-                  ),
+            child: SlideTransition(
+              position: Tween(
+                begin: Offset(0, motion.screenRise / 800),
+                end: Offset.zero,
+              ).animate(curved),
+              child: child,
+            ),
           );
         },
       );
+
+  static final _android = Platform.isAndroid;
 }
