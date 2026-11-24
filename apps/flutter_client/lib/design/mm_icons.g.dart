@@ -138,6 +138,10 @@ abstract final class PhosphorRegular {
     0xe1de,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData deviceRotate = IconData(
+    0xedf2,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData dotsSixVertical = IconData(
     0xeae2,
     fontFamily: 'PhosphorRegular',
@@ -683,6 +687,10 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData database = IconData(0xe1de, fontFamily: 'PhosphorFill');
+  static const IconData deviceRotate = IconData(
+    0xedf2,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData dotsSixVertical = IconData(
     0xeae2,
     fontFamily: 'PhosphorFill',

@@ -55,6 +55,11 @@ class Media3EnginePlugin(
     events.setStreamHandler(this)
   }
 
+  /** The picture-in-picture window's play / pause button. */
+  fun togglePlay() {
+    controller?.let { if (it.isPlaying) it.pause() else it.play() }
+  }
+
   private val ticker = object : Runnable {
     override fun run() {
       push()
@@ -153,6 +158,7 @@ class Media3EnginePlugin(
       "open" -> {
         val uri = call.argument<String>("uri") ?: throw IllegalArgumentException("uri")
         val item = MediaItem.Builder()
+          .setMediaId(uri)
           .setUri(parseUri(uri))
           .setMediaMetadata(MediaMetadata.Builder().setTitle(call.argument<String>("title")).build())
           .build()
@@ -161,6 +167,24 @@ class Media3EnginePlugin(
         c.setMediaItem(item, (call.argument<Number>("startMs") ?: 0).toLong())
         c.prepare()
         c.playWhenReady = call.argument<Boolean>("autoplay") ?: true
+      }
+      "prepareNext" -> {
+        // Gapless: the next file waits after the current one in Media3's
+        // own list (only those two), and plays right after it. The item id
+        // tells Dart when it started.
+        val index = c.currentMediaItemIndex
+        if (c.mediaItemCount > index + 1) c.removeMediaItems(index + 1, c.mediaItemCount)
+        if (index > 0) c.removeMediaItems(0, index)
+        val uri = call.argument<String>("uri")
+        if (uri != null && c.mediaItemCount > 0) {
+          c.addMediaItem(
+            MediaItem.Builder()
+              .setMediaId(uri)
+              .setUri(parseUri(uri))
+              .setMediaMetadata(MediaMetadata.Builder().setTitle(call.argument<String>("title")).build())
+              .build(),
+          )
+        }
       }
       "play" -> {
         if (c.playbackState == Player.STATE_ENDED) c.seekTo(0)
@@ -336,6 +360,7 @@ class Media3EnginePlugin(
     }
     return mapOf(
       "status" to status,
+      "item" to c.currentMediaItem?.mediaId,
       "positionMs" to c.currentPosition,
       "durationMs" to duration,
       "buffering" to (c.playbackState == Player.STATE_BUFFERING),

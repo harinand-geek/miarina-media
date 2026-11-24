@@ -16,7 +16,7 @@ Relevé dans l'app (badges PRÉVU / P1, valeurs « — ») et dans `flutter-impl
 | A4 | Ratio cible et temps de partage des torrents | Torrents | Windows |
 | A5 | Vidéo : chapitres, décalage et taille des sous-titres, format d'image, synchro audio, A–B | Lecteur vidéo | Windows, Android selon moteur |
 | A6 | Playlist intelligente (règles), file intelligente, couleur de lecture | Playlists, File, Réglages | Windows, Android |
-| A7 | Android : gestes vidéo (luminosité, volume), image dans l'image, import et export M3U, recherche | Android | Android |
+| A7 | Android : gestes vidéo (luminosité, volume), image dans l'image, import et export M3U, recherche — **fait 2026-11-24** (recherche déjà faite ; lecture sans blanc ajoutée), essai sur le Redmi à faire | Android | Android |
 
 ## Outils PC (handoff `design/design_handoff_outils_pc/`, priorité du propriétaire)
 

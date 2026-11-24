@@ -15,6 +15,7 @@ class MainActivity : FlutterActivity() {
   private var mediaTools: MediaToolsChannel? = null
   private var downloads: DownloadNotificationsChannel? = null
   private var browser: BrowserChannel? = null
+  private var screen: ScreenControlChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -65,6 +66,7 @@ class MainActivity : FlutterActivity() {
     mediaTools = MediaToolsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     downloads = DownloadNotificationsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     browser = BrowserChannel(this, flutterEngine.dartExecutor.binaryMessenger, flutterEngine.platformViewsController.registry)
+    screen = ScreenControlChannel(this, flutterEngine.dartExecutor.binaryMessenger) { engine?.togglePlay() }
   }
 
   override fun onPause() {
@@ -75,6 +77,20 @@ class MainActivity : FlutterActivity() {
   override fun onResume() {
     super.onResume()
     browser?.onResume()
+  }
+
+  // A playing video goes on in a small window when the user leaves.
+  override fun onUserLeaveHint() {
+    super.onUserLeaveHint()
+    screen?.onUserLeaveHint()
+  }
+
+  override fun onPictureInPictureModeChanged(
+    isInPictureInPictureMode: Boolean,
+    newConfig: android.content.res.Configuration,
+  ) {
+    super.onPictureInPictureModeChanged(isInPictureInPictureMode, newConfig)
+    screen?.onPipChanged(isInPictureInPictureMode)
   }
 
   // "Open with" while the app runs (singleTop): the new file plays.
@@ -109,6 +125,8 @@ class MainActivity : FlutterActivity() {
     downloads = null
     browser?.dispose()
     browser = null
+    screen?.dispose()
+    screen = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

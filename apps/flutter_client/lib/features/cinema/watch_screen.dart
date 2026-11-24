@@ -18,8 +18,10 @@ import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
 import '../playback/playback_memory.dart' show playbackStoreProvider;
+import '../settings/settings_data.dart' show playbackPrefsProvider;
 import '../shortcuts/keymap.dart';
 import 'cinema_data.dart';
+import 'screen_control.dart';
 import 'series_audio.dart';
 import 'video_adjust.dart';
 
@@ -79,17 +81,52 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
 
   late final ProviderContainer _container;
 
+  // Android (A-04b): gestures, lock, picture in picture.
+  ScreenControl? _control;
+  bool _locked = false;
+  Offset? _dragFrom;
+  SlideKind? _slide;
+  double _slideBase = 0;
+  double? _slideValue;
+  double _brightness = 0.5;
+  double _volume = 0.5;
+  bool _pinched = false;
+  Timer? _indicatorHide;
+  double? _tapX;
+  int _jump = 0;
+  String? _note;
+  Alignment _noteAt = Alignment.center;
+  Timer? _noteHide;
+  ({int w, int h, bool playing, bool known})? _sentVideo;
+
   @override
   void initState() {
     super.initState();
     _container = ProviderScope.containerOf(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
+    final control = _control = ref.read(screenControlProvider);
+    if (control != null) {
+      unawaited(control.brightness().then((v) => _brightness = v));
+      unawaited(control.volume().then((v) => _volume = v));
+    }
   }
 
   @override
   void dispose() {
     _hide?.cancel();
+    _indicatorHide?.cancel();
+    _noteHide?.cancel();
     _focus.dispose();
+    // The screen's own brightness, orientation and small window end with
+    // the player.
+    final control = _control;
+    if (control != null) {
+      unawaited(control.setBrightness(-1));
+      unawaited(control.setOrientation('auto'));
+      unawaited(
+        control.setVideo(width: 16, height: 9, playing: false, autoPip: false),
+      );
+    }
     // However the player is left (back, sidebar, tab), the resume points and
     // "watched" marks shown by the Cinema screens changed while playing.
     final container = _container;
@@ -134,6 +171,119 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
     if (to < Duration.zero) to = Duration.zero;
     if (s.duration > Duration.zero && to > s.duration) to = s.duration;
     await engine.seek(to);
+  }
+
+  /// A short label over the picture ("+10 s", "Remplir l'écran").
+  void _flash(String text, Alignment at) {
+    _noteHide?.cancel();
+    setState(() {
+      _note = text;
+      _noteAt = at;
+    });
+    _noteHide = Timer(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        setState(() {
+          _note = null;
+          _jump = 0;
+        });
+      }
+    });
+  }
+
+  void _onDoubleTap(double width) {
+    final t = L10n.of(context);
+    final secs = doubleTapSeconds(_tapX ?? width / 2, width);
+    if (secs == 0) {
+      ref.read(queueProvider.notifier).togglePlay();
+      return;
+    }
+    unawaited(_skip(Duration(seconds: secs)));
+    // Taps in a row add up: +10, +20, +30...
+    _jump = _jump.sign == secs.sign ? _jump + secs : secs;
+    _flash(
+      t.gestJump(_jump < 0 ? '−' : '+', _jump.abs()),
+      secs < 0 ? const Alignment(-0.6, 0) : const Alignment(0.6, 0),
+    );
+  }
+
+  void _onScaleStart(ScaleStartDetails d) {
+    _dragFrom = d.localFocalPoint;
+    _slide = null;
+    _pinched = false;
+    // The volume may have changed with the phone's keys.
+    final control = _control;
+    if (control != null) unawaited(control.volume().then((v) => _volume = v));
+  }
+
+  void _onScaleUpdate(ScaleUpdateDetails d, Size size) {
+    if (d.pointerCount >= 2) {
+      if (!_pinched && (d.scale > 1.15 || d.scale < 0.87)) {
+        _pinched = true;
+        final fill = d.scale > 1;
+        ref.read(videoAdjustProvider.notifier).setFill(fill);
+        final t = L10n.of(context);
+        _flash(fill ? t.fillScreen : t.fitScreen, Alignment.center);
+      }
+      return;
+    }
+    final from = _dragFrom;
+    final control = _control;
+    if (from == null || control == null || _pinched) return;
+    final delta = d.localFocalPoint - from;
+    if (_slide == null) {
+      // Vertical slides only; a sideways move is left alone.
+      if (delta.dy.abs() < 16 || delta.dy.abs() < delta.dx.abs() * 1.5) {
+        return;
+      }
+      _indicatorHide?.cancel();
+      _slide = slideKindAt(from.dx, size.width);
+      _slideBase = _slide == SlideKind.brightness ? _brightness : _volume;
+    }
+    final v = slideValue(
+      _slideBase,
+      d.localFocalPoint.dy - from.dy,
+      size.height * 0.8,
+    );
+    if (_slide == SlideKind.brightness) {
+      _brightness = v;
+      unawaited(control.setBrightness(v));
+    } else {
+      _volume = v;
+      unawaited(control.setVolume(v));
+    }
+    setState(() => _slideValue = v);
+  }
+
+  void _onScaleEnd(ScaleEndDetails _) {
+    _dragFrom = null;
+    if (_slide == null) return;
+    _indicatorHide?.cancel();
+    _indicatorHide = Timer(const Duration(milliseconds: 700), () {
+      if (mounted) {
+        setState(() {
+          _slide = null;
+          _slideValue = null;
+        });
+      }
+    });
+  }
+
+  void _rotate() {
+    final size = MediaQuery.sizeOf(context);
+    unawaited(
+      _control?.setOrientation(
+        size.width > size.height ? 'portrait' : 'landscape',
+      ),
+    );
+    _wake();
+  }
+
+  void _setLocked(bool locked) {
+    setState(() {
+      _locked = locked;
+      _menu = null;
+    });
+    _wake();
   }
 
   void _leave() {
@@ -204,50 +354,116 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
           ].join(' · ');
 
     final adjust = ref.watch(videoAdjustProvider);
-    final surface = GestureDetector(
-      behavior: HitTestBehavior.opaque,
-      onTap: () {
-        if (_menu != null) {
-          setState(() => _menu = null);
-        } else if (mobile) {
-          _controls ? setState(() => _controls = false) : _wake();
-        } else {
-          ref.read(queueProvider.notifier).togglePlay();
-        }
-        _focus.requestFocus();
-      },
-      onDoubleTap: mobile
-          ? null
-          : () => ref.read(videoFullscreenProvider.notifier).toggle(),
-      child: ColoredBox(
-        color: c.video,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            if (engine != null)
-              engine.buildVideoView(
-                fit: adjust.fill ? BoxFit.cover : BoxFit.contain,
-                aspectRatio: adjust.aspectRatio,
-              ),
-            if (snap.status == PlaybackStatus.loading || snap.buffering)
-              Center(
-                child: Text(
-                  t.videoLoading,
-                  style: MmType.bodySm.copyWith(color: c.muted),
+
+    // Android: the small window's shape, play / pause button, and whether
+    // leaving the app opens it.
+    final control = _control;
+    if (mobile && control != null) {
+      final size = snap.videoSize;
+      final v = (
+        w: size?.width.round() ?? 16,
+        h: size?.height.round() ?? 9,
+        playing: snap.isPlaying,
+        known: size != null,
+      );
+      if (v != _sentVideo) {
+        _sentVideo = v;
+        WidgetsBinding.instance.addPostFrameCallback(
+          (_) => control.setVideo(
+            width: v.w,
+            height: v.h,
+            playing: v.playing,
+            autoPip: v.playing && v.known,
+          ),
+        );
+      }
+    }
+    // In the small window: the picture alone.
+    if (ref.watch(pipModeProvider) && engine != null) {
+      return ColoredBox(
+        color: const Color(0xFF000000),
+        child: engine.buildVideoView(
+          fit: BoxFit.contain,
+          aspectRatio: adjust.aspectRatio,
+        ),
+      );
+    }
+    final gestures =
+        mobile &&
+        !_locked &&
+        (ref.watch(playbackPrefsProvider).value?.videoGestures ?? true);
+
+    final surface = LayoutBuilder(
+      builder: (context, box) => GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onDoubleTapDown: gestures ? (d) => _tapX = d.localPosition.dx : null,
+        onScaleStart: gestures ? _onScaleStart : null,
+        onScaleUpdate: gestures ? (d) => _onScaleUpdate(d, box.biggest) : null,
+        onScaleEnd: gestures ? _onScaleEnd : null,
+        onTap: () {
+          if (_menu != null) {
+            setState(() => _menu = null);
+          } else if (mobile) {
+            _controls ? setState(() => _controls = false) : _wake();
+          } else {
+            ref.read(queueProvider.notifier).togglePlay();
+          }
+          _focus.requestFocus();
+        },
+        onDoubleTap: !mobile
+            ? () => ref.read(videoFullscreenProvider.notifier).toggle()
+            : gestures
+            ? () => _onDoubleTap(box.biggest.width)
+            : null,
+        child: ColoredBox(
+          color: c.video,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              if (engine != null)
+                engine.buildVideoView(
+                  fit: adjust.fill ? BoxFit.cover : BoxFit.contain,
+                  aspectRatio: adjust.aspectRatio,
                 ),
-              ),
-            // W-E3: what happened, the file is kept, skip or copy details.
-            if (snap.status == PlaybackStatus.error && snap.error != null)
-              Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: PlaybackErrorView(error: snap.error!),
+              if (snap.status == PlaybackStatus.loading || snap.buffering)
+                Center(
+                  child: Text(
+                    t.videoLoading,
+                    style: MmType.bodySm.copyWith(color: c.muted),
+                  ),
                 ),
-              ),
-          ],
+              // W-E3: what happened, the file is kept, skip or copy details.
+              if (snap.status == PlaybackStatus.error && snap.error != null)
+                Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: PlaybackErrorView(error: snap.error!),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
     );
+
+    Widget topButton(IconData icon, String label, VoidCallback onTap) =>
+        Padding(
+          padding: const EdgeInsets.only(left: 8),
+          child: Pressable(
+            onTap: onTap,
+            semanticLabel: label,
+            tooltip: label,
+            child: Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Color(0x99070B0F),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, size: 20, color: c.fg),
+            ),
+          ),
+        );
 
     final top = Row(
       children: [
@@ -278,6 +494,15 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             ),
           ),
         ),
+        if (mobile && control != null) ...[
+          if (ref.watch(pipSupportedProvider).value ?? false)
+            topButton(
+              PhosphorRegular.pictureInPicture,
+              t.pipEnter,
+              () => unawaited(control.enterPip()),
+            ),
+          topButton(PhosphorRegular.deviceRotate, t.rotateScreen, _rotate),
+        ],
       ],
     );
 
@@ -288,6 +513,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
       overlay: overlayControls,
       onMenu: _toggleMenu,
       onSkip: _skip,
+      onLock: mobile ? () => _setLocked(true) : null,
     );
 
     final menuPanel = _menu == null
@@ -314,48 +540,100 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                 duration: MmMotion.of(context).dialog,
                 child: Stack(
                   fit: StackFit.expand,
-                  children: [
-                    const IgnorePointer(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Color(0xA6070B0F),
-                              Color(0x00070B0F),
-                              Color(0x00070B0F),
-                              Color(0xD9070B0F),
-                            ],
-                            stops: [0, 0.22, 0.6, 1],
+                  children: _locked
+                      ? [
+                          Positioned(
+                            left: 20,
+                            bottom: 24 + MediaQuery.paddingOf(context).bottom,
+                            child: _UnlockButton(
+                              onTap: () => _setLocked(false),
+                            ),
                           ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left: mobile ? 12 : 24,
-                      right: mobile ? 12 : 24,
-                      top: mobile ? MediaQuery.paddingOf(context).top + 8 : 18,
-                      child: top,
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: MediaQuery.paddingOf(context).bottom,
-                      child: controls,
-                    ),
-                    if (menuPanel != null)
-                      Positioned(
-                        right: mobile ? 12 : 24,
-                        bottom:
-                            (mobile ? 96 : 84) +
-                            MediaQuery.paddingOf(context).bottom,
-                        child: menuPanel,
-                      ),
-                  ],
+                        ]
+                      : [
+                          const IgnorePointer(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Color(0xA6070B0F),
+                                    Color(0x00070B0F),
+                                    Color(0x00070B0F),
+                                    Color(0xD9070B0F),
+                                  ],
+                                  stops: [0, 0.22, 0.6, 1],
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            left: mobile ? 12 : 24,
+                            right: mobile ? 12 : 24,
+                            top: mobile
+                                ? MediaQuery.paddingOf(context).top + 8
+                                : 18,
+                            child: top,
+                          ),
+                          Positioned(
+                            left: 0,
+                            right: 0,
+                            bottom: MediaQuery.paddingOf(context).bottom,
+                            child: controls,
+                          ),
+                          if (menuPanel != null)
+                            Positioned(
+                              right: mobile ? 12 : 24,
+                              bottom:
+                                  (mobile ? 96 : 84) +
+                                  MediaQuery.paddingOf(context).bottom,
+                              child: menuPanel,
+                            ),
+                        ],
                 ),
               ),
             ),
+            // Gesture feedback, over the picture whether the controls
+            // show or not.
+            if (_slide != null && _slideValue != null)
+              Positioned(
+                left: _slide == SlideKind.brightness ? 28 : null,
+                right: _slide == SlideKind.volume ? 28 : null,
+                top: 0,
+                bottom: 0,
+                child: IgnorePointer(
+                  child: Center(
+                    child: _SlideIndicator(kind: _slide!, value: _slideValue!),
+                  ),
+                ),
+              ),
+            if (_note != null)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: Align(
+                    alignment: _noteAt,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: const Color(0xA6070B0F),
+                        borderRadius: BorderRadius.circular(MmRadius.pill),
+                      ),
+                      child: Text(
+                        _note!,
+                        style: MmType.monoStyle(
+                          size: 15,
+                          weight: 700,
+                          color: c.fg,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
           ],
         ),
       );
@@ -406,6 +684,7 @@ class _Controls extends ConsumerWidget {
     required this.overlay,
     required this.onMenu,
     required this.onSkip,
+    this.onLock,
   });
 
   final PlaybackSnapshot snap;
@@ -414,6 +693,9 @@ class _Controls extends ConsumerWidget {
   final bool overlay;
   final ValueChanged<_Menu> onMenu;
   final Future<void> Function(Duration) onSkip;
+
+  /// Android: locks the gestures and the controls.
+  final VoidCallback? onLock;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -506,7 +788,7 @@ class _Controls extends ConsumerWidget {
           playLabel: t.play,
           pauseLabel: t.pause,
         ),
-        const SizedBox(width: 8),
+        SizedBox(width: mobile ? 2 : 8),
         icon(
           PhosphorRegular.arrowCounterClockwise,
           t.replay10,
@@ -525,7 +807,7 @@ class _Controls extends ConsumerWidget {
             t.nextEpisode,
             () => ref.read(queueProvider.notifier).next(),
           ),
-        const SizedBox(width: 8),
+        SizedBox(width: mobile ? 2 : 8),
         if (!mobile) clock,
         const Spacer(),
         if (caps == null || caps.embeddedSubtitles || caps.externalSubtitles)
@@ -585,6 +867,8 @@ class _Controls extends ConsumerWidget {
             () => onMenu(_Menu.video),
             active: menu == _Menu.video,
           ),
+        if (onLock != null)
+          icon(PhosphorRegular.lockSimple, t.lockControls, onLock),
         if (!mobile)
           icon(
             full ? PhosphorRegular.cornersIn : PhosphorRegular.cornersOut,
@@ -627,6 +911,104 @@ class _Controls extends ConsumerWidget {
         border: Border(top: BorderSide(color: c.divider)),
       ),
       child: content,
+    );
+  }
+}
+
+/// The only control while locked.
+class _UnlockButton extends StatelessWidget {
+  const _UnlockButton({required this.onTap});
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    return Pressable(
+      onTap: onTap,
+      semanticLabel: t.unlockControls,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: const Color(0xCC070B0F),
+          borderRadius: BorderRadius.circular(MmRadius.pill),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(PhosphorFill.lockSimple, size: 20, color: c.fg),
+            const SizedBox(width: 8),
+            Text(t.unlockControls, style: MmType.label.copyWith(color: c.fg)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Brightness (left) or volume (right) while sliding: a 4 x 96 rail and
+/// the value.
+class _SlideIndicator extends StatelessWidget {
+  const _SlideIndicator({required this.kind, required this.value});
+
+  final SlideKind kind;
+  final double value;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final brightness = kind == SlideKind.brightness;
+    return Semantics(
+      label: brightness ? t.gestBrightness : t.gestVolume,
+      value: '${(value * 100).round()} %',
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
+        decoration: BoxDecoration(
+          color: const Color(0xA6070B0F),
+          borderRadius: BorderRadius.circular(MmRadius.lg),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              brightness
+                  ? PhosphorRegular.sun
+                  : value <= 0
+                  ? PhosphorRegular.speakerSlash
+                  : PhosphorRegular.speakerHigh,
+              size: 20,
+              color: c.fg,
+            ),
+            const SizedBox(height: 10),
+            Container(
+              width: 4,
+              height: 96,
+              alignment: Alignment.bottomCenter,
+              decoration: BoxDecoration(
+                color: const Color(0x40F5F7FA),
+                borderRadius: BorderRadius.circular(2),
+              ),
+              child: FractionallySizedBox(
+                heightFactor: value,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: c.coral,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              '${(value * 100).round()}',
+              style: MmType.monoStyle(size: 12, weight: 600, color: c.fg),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

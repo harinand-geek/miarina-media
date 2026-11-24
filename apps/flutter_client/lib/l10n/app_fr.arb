@@ -2520,5 +2520,19 @@
   "recFileWord": "Enregistrement",
   "recConvertPick": "Choisissez un format ou un outil : le fichier sera ajouté.",
   "toolRecord": "Enregistrer l’écran",
-  "toolHelpRecord": "Filmer l’écran, une fenêtre ou une zone."
+  "toolHelpRecord": "Filmer l’écran, une fenêtre ou une zone.",
+  "videoGestures": "Gestes vidéo",
+  "videoGesturesBody": "Glisser à gauche : luminosité ; à droite : volume. Double-toucher les côtés : ±10 s. Pincer : remplir l’écran.",
+  "gestBrightness": "Luminosité",
+  "gestVolume": "Volume",
+  "gestJump": "{sign}{n} s",
+  "@gestJump": {"placeholders": {"sign": {"type": "String"}, "n": {"type": "int"}}},
+  "lockControls": "Verrouiller l’écran",
+  "unlockControls": "Déverrouiller",
+  "pipEnter": "Image dans l’image",
+  "rotateScreen": "Tourner l’écran",
+  "fillScreen": "Remplir l’écran",
+  "fitScreen": "Image entière",
+  "playlistExportAndroid": "Exportée dans {path}",
+  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}}
 }

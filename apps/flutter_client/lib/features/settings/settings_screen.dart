@@ -730,6 +730,16 @@ class _Playback extends ConsumerWidget {
                 onChanged: (v) => ctl.save(prefs.copyWith(resume: v)),
               ),
             ),
+            if (Platform.isAndroid)
+              SettingsRow(
+                title: t.videoGestures,
+                body: t.videoGesturesBody,
+                control: MmSwitch(
+                  value: prefs.videoGestures,
+                  label: t.videoGestures,
+                  onChanged: (v) => ctl.save(prefs.copyWith(videoGestures: v)),
+                ),
+              ),
             // The queue prepares the next file in the engine (gapless) or
             // in a second one (crossfade); not offered where the engine
             // cannot.

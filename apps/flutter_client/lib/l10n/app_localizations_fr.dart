@@ -4697,4 +4697,45 @@ class L10nFr extends L10n {
 
   @override
   String get toolHelpRecord => 'Filmer l’écran, une fenêtre ou une zone.';
+
+  @override
+  String get videoGestures => 'Gestes vidéo';
+
+  @override
+  String get videoGesturesBody =>
+      'Glisser à gauche : luminosité ; à droite : volume. Double-toucher les côtés : ±10 s. Pincer : remplir l’écran.';
+
+  @override
+  String get gestBrightness => 'Luminosité';
+
+  @override
+  String get gestVolume => 'Volume';
+
+  @override
+  String gestJump(String sign, int n) {
+    return '$sign$n s';
+  }
+
+  @override
+  String get lockControls => 'Verrouiller l’écran';
+
+  @override
+  String get unlockControls => 'Déverrouiller';
+
+  @override
+  String get pipEnter => 'Image dans l’image';
+
+  @override
+  String get rotateScreen => 'Tourner l’écran';
+
+  @override
+  String get fillScreen => 'Remplir l’écran';
+
+  @override
+  String get fitScreen => 'Image entière';
+
+  @override
+  String playlistExportAndroid(String path) {
+    return 'Exportée dans $path';
+  }
 }

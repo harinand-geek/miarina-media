@@ -88,6 +88,7 @@ class PlaybackPrefs {
     this.engine = const EnginePreferences(subtitleLanguage: 'fr'),
     this.gapless = true,
     this.crossfadeSecs = 0,
+    this.videoGestures = true,
   });
 
   final bool resume;
@@ -101,16 +102,22 @@ class PlaybackPrefs {
 
   static const crossfadeChoices = [0, 2, 4, 6, 8, 10, 12];
 
+  /// Android video page: slide for brightness / volume, double tap ±10 s,
+  /// pinch to fill (the buttons stay).
+  final bool videoGestures;
+
   PlaybackPrefs copyWith({
     bool? resume,
     EnginePreferences? engine,
     bool? gapless,
     int? crossfadeSecs,
+    bool? videoGestures,
   }) => PlaybackPrefs(
     resume: resume ?? this.resume,
     engine: engine ?? this.engine,
     gapless: gapless ?? this.gapless,
     crossfadeSecs: crossfadeSecs ?? this.crossfadeSecs,
+    videoGestures: videoGestures ?? this.videoGestures,
   );
 
   Map<String, Object?> toJson() => {
@@ -122,6 +129,7 @@ class PlaybackPrefs {
     'hardwareDecoding': engine.hardwareDecoding,
     'gapless': gapless,
     'crossfadeSecs': crossfadeSecs,
+    'videoGestures': videoGestures,
   };
 }
 
@@ -221,6 +229,7 @@ class PlaybackPrefsController extends AsyncNotifier<PlaybackPrefs> {
           )
           ? _pick<num>(raw, 'crossfadeSecs', 0).toInt()
           : 0,
+      videoGestures: _pick(raw, 'videoGestures', true),
     );
   }
 

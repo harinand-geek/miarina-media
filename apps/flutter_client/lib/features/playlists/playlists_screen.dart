@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/foundation.dart' show mapEquals;
@@ -18,6 +19,7 @@ import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart';
 import '../../src/rust/api/playlists.dart';
 import '../focus/focus_screen.dart' show shortDuration;
+import '../get/get_data.dart' show androidMediaTools;
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
@@ -222,27 +224,6 @@ class _PlaylistList extends ConsumerWidget {
     }
   }
 
-  Future<void> _export(
-    BuildContext context,
-    WidgetRef ref,
-    PlaylistInfo p,
-  ) async {
-    final t = L10n.of(context);
-    final target = await getSaveLocation(
-      suggestedName: '${p.name}.m3u8',
-      acceptedTypeGroups: [
-        XTypeGroup(label: t.playlistFileType, extensions: const ['m3u8']),
-      ],
-    );
-    if (target == null) return;
-    try {
-      await ref.read(playlistApiProvider).exportM3u(p.id, target.path);
-      if (context.mounted) _toast(context, t.exportDone(target.path));
-    } catch (e) {
-      if (context.mounted) _toast(context, t.playlistActionFailed('$e'));
-    }
-  }
-
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
@@ -365,17 +346,20 @@ class _PlaylistList extends ConsumerWidget {
                   expand: true,
                 ),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: _Button(
-                  label: t.playlistExport,
-                  icon: PhosphorRegular.export,
-                  expand: true,
-                  onTap: current == null
-                      ? null
-                      : () => _export(context, ref, current),
+              // Phone: exported from the playlist's own page (its menu).
+              if (!mobile) ...[
+                const SizedBox(width: 8),
+                Expanded(
+                  child: _Button(
+                    label: t.playlistExport,
+                    icon: PhosphorRegular.export,
+                    expand: true,
+                    onTap: current == null
+                        ? null
+                        : () => exportPlaylist(context, ref, current),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),
@@ -843,6 +827,62 @@ class _Row extends StatelessWidget {
   }
 }
 
+/// Saves a .m3u8 of [p]: where the user says on Windows; on Android in
+/// Download/Miarina (MediaStore, no permission), the place told in a toast.
+Future<void> exportPlaylist(
+  BuildContext context,
+  WidgetRef ref,
+  PlaylistInfo p,
+) async {
+  final t = L10n.of(context);
+  final api = ref.read(playlistApiProvider);
+  if (Platform.isAndroid) {
+    final name = '${p.name.replaceAll(RegExp(r'[\\/:*?"<>|]'), '_')}.m3u8';
+    final dir = await Directory.systemTemp.createTemp('mm-m3u-');
+    try {
+      final file = '${dir.path}/$name';
+      await api.exportM3u(p.id, file);
+      final shown = await ref.read(androidSaveToDownloadsProvider)(file, name);
+      if (!context.mounted) return;
+      _toast(
+        context,
+        shown == null
+            ? t.playlistActionFailed('Download/Miarina')
+            : t.playlistExportAndroid(shown),
+      );
+    } catch (e) {
+      if (context.mounted) _toast(context, t.playlistActionFailed('$e'));
+    } finally {
+      unawaited(dir.delete(recursive: true).catchError((_) => dir));
+    }
+    return;
+  }
+  final target = await getSaveLocation(
+    suggestedName: '${p.name}.m3u8',
+    acceptedTypeGroups: [
+      XTypeGroup(label: t.playlistFileType, extensions: const ['m3u8']),
+    ],
+  );
+  if (target == null) return;
+  try {
+    await api.exportM3u(p.id, target.path);
+    if (context.mounted) _toast(context, t.exportDone(target.path));
+  } catch (e) {
+    if (context.mounted) _toast(context, t.playlistActionFailed('$e'));
+  }
+}
+
+/// Android: copies a file into Download/Miarina; the place shown, or null
+/// (overridden in tests).
+final androidSaveToDownloadsProvider =
+    Provider<Future<String?> Function(String path, String name)>(
+      (_) =>
+          (path, name) => androidMediaTools.invokeMethod<String>(
+            'saveToDownloads',
+            {'path': path, 'name': name},
+          ),
+    );
+
 class _PlaylistMenu extends ConsumerWidget {
   const _PlaylistMenu({required this.info});
 
@@ -863,6 +903,13 @@ class _PlaylistMenu extends ConsumerWidget {
         ),
       ),
       menuChildren: [
+        MenuItemButton(
+          onPressed: () => exportPlaylist(context, ref, info),
+          child: Text(
+            t.playlistExport,
+            style: MmType.label.copyWith(color: c.fg),
+          ),
+        ),
         MenuItemButton(
           onPressed: () => showRenameDialog(context, ref, info),
           child: Text(t.rename, style: MmType.label.copyWith(color: c.fg)),

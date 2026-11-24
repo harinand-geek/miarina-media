@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 
 import 'dart:convert';
@@ -10,6 +12,7 @@ import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
+import 'package:miarina_media/features/cinema/screen_control.dart';
 import 'package:miarina_media/features/cinema/watch_screen.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
@@ -196,6 +199,7 @@ void main() {
       required String start,
       bool desktop = true,
       Size size = const Size(1280, 800),
+      ScreenControl? control,
     }) async {
       tester.view.physicalSize = size;
       tester.view.devicePixelRatio = 1;
@@ -217,6 +221,7 @@ void main() {
             playbackStoreProvider.overrideWithValue(store),
             tagsApiProvider.overrideWithValue(tags),
             initialRouteProvider.overrideWithValue(start),
+            screenControlProvider.overrideWithValue(control),
           ],
           child: const MiarinaApp(),
         ),
@@ -563,7 +568,130 @@ void main() {
       expect(q.current?.title, 'É2 · Les bergers');
       expect([for (final e in q.entries) e.libraryId], [11, 12, 13]);
     });
+
+    testWidgets('Android video page: gestures, lock, picture in picture', (
+      tester,
+    ) async {
+      final control = _FakeControl();
+      await pumpApp(
+        tester,
+        start: Routes.cinema,
+        desktop: false,
+        size: const Size(400, 860),
+        control: control,
+      );
+      await tester.tap(find.text('Les Hautes Terres · S1 É2'));
+      await settle(tester);
+      expect(find.byType(WatchScreen), findsOneWidget);
+
+      // Slide up on the left: brightness; on the right: volume.
+      await tester.dragFrom(const Offset(80, 520), const Offset(0, -240));
+      await tester.pump();
+      expect(control.brightnessSet.last, greaterThan(0.5));
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is Semantics && w.properties.label == 'Luminosité',
+        ),
+        findsOneWidget,
+      );
+      await settle(tester);
+      await tester.dragFrom(const Offset(320, 400), const Offset(0, 200));
+      await tester.pump();
+      expect(control.volumeSet.last, lessThan(0.4));
+      await settle(tester);
+
+      // Double tap on the right third: +10 s.
+      final before = engine.seeks.length;
+      await tester.tapAt(const Offset(350, 430));
+      await tester.pump(const Duration(milliseconds: 80));
+      await tester.tapAt(const Offset(350, 430));
+      await tester.pump(const Duration(milliseconds: 80));
+      expect(engine.seeks.length, before + 1);
+      expect(find.text('+10 s'), findsOneWidget);
+      await settle(tester);
+
+      // Rotation and the small window from the top bar.
+      await tester.tap(find.bySemanticsLabel('Tourner l’écran'));
+      await settle(tester);
+      expect(control.orientations.last, 'landscape');
+      await tester.tap(find.bySemanticsLabel('Image dans l’image'));
+      await settle(tester);
+      expect(control.pips, 1);
+
+      // Locked: only « Déverrouiller »; slides do nothing.
+      await tester.tap(find.bySemanticsLabel('Verrouiller l’écran'));
+      await settle(tester);
+      expect(find.text('Déverrouiller'), findsOneWidget);
+      final slides = control.brightnessSet.length;
+      await tester.dragFrom(const Offset(80, 520), const Offset(0, -240));
+      await settle(tester);
+      expect(control.brightnessSet.length, slides);
+      await tester.tap(find.text('Déverrouiller'));
+      await settle(tester);
+      expect(find.text('Déverrouiller'), findsNothing);
+
+      // In the small window: the picture alone.
+      control.pipMode(true);
+      await settle(tester);
+      expect(find.bySemanticsLabel('Verrouiller l’écran'), findsNothing);
+      control.pipMode(false);
+      await settle(tester);
+
+      // Leaving the player gives the screen back to the system.
+      await tester.tap(find.bySemanticsLabel('Retour').first);
+      await settle(tester);
+      expect(control.brightnessSet.last, -1);
+      expect(control.orientations.last, 'auto');
+      expect(control.videos.last.$4, isFalse, reason: 'no auto PiP after');
+    });
   });
+}
+
+/// The phone's screen controls, recorded.
+class _FakeControl implements ScreenControl {
+  final brightnessSet = <double>[];
+  final volumeSet = <double>[];
+  final orientations = <String>[];
+  final videos = <(int, int, bool, bool)>[];
+  var pips = 0;
+  final _pip = StreamController<bool>.broadcast();
+
+  void pipMode(bool on) => _pip.add(on);
+
+  @override
+  Future<double> brightness() async => 0.5;
+
+  @override
+  Future<void> setBrightness(double value) async => brightnessSet.add(value);
+
+  @override
+  Future<double> volume() async => 0.4;
+
+  @override
+  Future<void> setVolume(double value) async => volumeSet.add(value);
+
+  @override
+  Future<bool> pipSupported() async => true;
+
+  @override
+  Future<void> setVideo({
+    required int width,
+    required int height,
+    required bool playing,
+    required bool autoPip,
+  }) async => videos.add((width, height, playing, autoPip));
+
+  @override
+  Future<bool> enterPip() async {
+    pips++;
+    return true;
+  }
+
+  @override
+  Future<void> setOrientation(String mode) async => orientations.add(mode);
+
+  @override
+  Stream<bool> get pip => _pip.stream;
 }
 
 /// The core's tag editor for videos: library only, every call recorded.

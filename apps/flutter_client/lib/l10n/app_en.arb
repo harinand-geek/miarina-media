@@ -1335,5 +1335,19 @@
   "recFileWord": "Recording",
   "recConvertPick": "Choose a format or a tool: the file will be added.",
   "toolRecord": "Record screen",
-  "toolHelpRecord": "Film the screen, a window or an area."
+  "toolHelpRecord": "Film the screen, a window or an area.",
+  "videoGestures": "Video gestures",
+  "videoGesturesBody": "Slide on the left: brightness; on the right: volume. Double-tap the sides: ±10 s. Pinch: fill the screen.",
+  "gestBrightness": "Brightness",
+  "gestVolume": "Volume",
+  "gestJump": "{sign}{n} s",
+  "@gestJump": {"placeholders": {"sign": {"type": "String"}, "n": {"type": "int"}}},
+  "lockControls": "Lock the screen",
+  "unlockControls": "Unlock",
+  "pipEnter": "Picture in picture",
+  "rotateScreen": "Rotate the screen",
+  "fillScreen": "Fill the screen",
+  "fitScreen": "Whole picture",
+  "playlistExportAndroid": "Exported to {path}",
+  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}}
 }

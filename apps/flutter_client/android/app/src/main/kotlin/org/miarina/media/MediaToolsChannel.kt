@@ -61,6 +61,7 @@ class MediaToolsChannel(
         }
       }
       "publish" -> publish(call.argument<String>("path"), result)
+      "saveToDownloads" -> saveToDownloads(call.argument<String>("path"), call.argument<String>("name"), result)
       else -> result.notImplemented()
     }
   }
@@ -108,6 +109,42 @@ class MediaToolsChannel(
       "temp" to context.cacheDir.absolutePath,
       "bin" to bin.absolutePath,
     )
+  }
+
+  /**
+   * A file the app made (an exported playlist) copied into
+   * Download/Miarina through MediaStore: no permission from Android 10.
+   * Returns the place shown to the user, or null.
+   */
+  private fun saveToDownloads(path: String?, name: String?, result: MethodChannel.Result) {
+    if (path == null || name == null || !File(path).isFile || Build.VERSION.SDK_INT < 29) {
+      result.success(null)
+      return
+    }
+    worker.execute {
+      val shown = try {
+        val values = ContentValues().apply {
+          put(MediaStore.MediaColumns.DISPLAY_NAME, name)
+          put(MediaStore.MediaColumns.MIME_TYPE, "audio/x-mpegurl")
+          put(MediaStore.MediaColumns.RELATIVE_PATH, "Download/Miarina")
+          put(MediaStore.MediaColumns.IS_PENDING, 1)
+        }
+        val resolver = activity.contentResolver
+        val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+          ?: throw IllegalStateException("no entry")
+        resolver.openOutputStream(uri)?.use { out -> File(path).inputStream().use { it.copyTo(out) } }
+        values.clear()
+        values.put(MediaStore.MediaColumns.IS_PENDING, 0)
+        resolver.update(uri, values, null, null)
+        // The name MediaStore kept (it adds " (1)" when taken).
+        resolver.query(uri, arrayOf(MediaStore.MediaColumns.DISPLAY_NAME), null, null, null)?.use { c ->
+          if (c.moveToFirst()) "Download/Miarina/" + c.getString(0) else "Download/Miarina/$name"
+        } ?: "Download/Miarina/$name"
+      } catch (e: Exception) {
+        null
+      }
+      main.post { result.success(shown) }
+    }
   }
 
   private fun publish(path: String?, result: MethodChannel.Result) {

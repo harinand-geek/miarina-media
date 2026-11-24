@@ -49,15 +49,27 @@ class Media3Engine implements MediaEngine {
     abLoop: true,
     videoFrame: true,
     skipSilence: true,
+    // The next file waits in Media3's own list; no crossfade on Android.
+    gapless: true,
   );
 
-  /// Not chained yet on Android (capabilities say so): files play one by
-  /// one.
+  /// The file prepared after the current one, until Media3 starts it.
+  MediaSource? _prepared;
+
+  static String _native(MediaSource m) =>
+      m.uri.isScheme('file') ? m.uri.toFilePath() : m.uri.toString();
+
   @override
   Future<void> prepareNext(
     MediaSource? next, {
     Duration crossfade = Duration.zero,
-  }) async {}
+  }) async {
+    _prepared = next;
+    await _call('prepareNext', {
+      'uri': next == null ? null : _native(next),
+      'title': next?.title,
+    });
+  }
 
   @override
   PlaybackSnapshot get current => _state;
@@ -102,6 +114,13 @@ class Media3Engine implements MediaEngine {
     required bool voiceBoost,
   }) => _methods.invokeMethod<void>('setSkipSilence', {'on': skipSilence});
 
+  MediaSource? _followed(Object? item) {
+    final next = _prepared;
+    if (next == null || item is! String || item != _native(next)) return null;
+    _prepared = null;
+    return next;
+  }
+
   void _onEvent(dynamic raw) {
     if (raw is! Map) return;
     final m = raw.cast<String, Object?>();
@@ -115,8 +134,9 @@ class Media3Engine implements MediaEngine {
       PlaybackSnapshot(
         status: status,
         // Native "idle" also arrives between open() and the item being set;
-        // only stop() forgets the source.
-        source: _state.source,
+        // only stop() forgets the source. Media3 went on to the prepared
+        // file by itself (gapless): it is the source now.
+        source: _followed(m['item']) ?? _state.source,
         position: Duration(
           milliseconds: (m['positionMs'] as num?)?.toInt() ?? 0,
         ),
@@ -172,9 +192,8 @@ class Media3Engine implements MediaEngine {
         repeat: _state.repeat,
       ),
     );
-    final uri = media.uri.isScheme('file')
-        ? media.uri.toFilePath()
-        : media.uri.toString();
+    _prepared = null;
+    final uri = _native(media);
     await _call('open', {
       'uri': uri,
       'title': media.title,

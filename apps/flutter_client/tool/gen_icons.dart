@@ -9,6 +9,8 @@ import 'dart:io';
 
 /// Glyphs used by the app that are not in the mockup mapping table.
 const _extras = [
+  // Android video page (A7): rotation.
+  'device-rotate',
   // Outils PC (design_handoff_outils_pc): Convertir, Capture, Enregistrer.
   'arrows-merge',
   'file-zip',

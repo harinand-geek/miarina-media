@@ -7728,6 +7728,78 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Filmer l’écran, une fenêtre ou une zone.'**
   String get toolHelpRecord;
+
+  /// No description provided for @videoGestures.
+  ///
+  /// In fr, this message translates to:
+  /// **'Gestes vidéo'**
+  String get videoGestures;
+
+  /// No description provided for @videoGesturesBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glisser à gauche : luminosité ; à droite : volume. Double-toucher les côtés : ±10 s. Pincer : remplir l’écran.'**
+  String get videoGesturesBody;
+
+  /// No description provided for @gestBrightness.
+  ///
+  /// In fr, this message translates to:
+  /// **'Luminosité'**
+  String get gestBrightness;
+
+  /// No description provided for @gestVolume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Volume'**
+  String get gestVolume;
+
+  /// No description provided for @gestJump.
+  ///
+  /// In fr, this message translates to:
+  /// **'{sign}{n} s'**
+  String gestJump(String sign, int n);
+
+  /// No description provided for @lockControls.
+  ///
+  /// In fr, this message translates to:
+  /// **'Verrouiller l’écran'**
+  String get lockControls;
+
+  /// No description provided for @unlockControls.
+  ///
+  /// In fr, this message translates to:
+  /// **'Déverrouiller'**
+  String get unlockControls;
+
+  /// No description provided for @pipEnter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Image dans l’image'**
+  String get pipEnter;
+
+  /// No description provided for @rotateScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tourner l’écran'**
+  String get rotateScreen;
+
+  /// No description provided for @fillScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplir l’écran'**
+  String get fillScreen;
+
+  /// No description provided for @fitScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Image entière'**
+  String get fitScreen;
+
+  /// No description provided for @playlistExportAndroid.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exportée dans {path}'**
+  String playlistExportAndroid(String path);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
