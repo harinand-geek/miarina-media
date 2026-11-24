@@ -514,7 +514,7 @@ abstract class L10n {
   /// No description provided for @smartQueueBody.
   ///
   /// In fr, this message translates to:
-  /// **'Smart Queue, calculée sur l\'appareil'**
+  /// **'Même artiste ou même album, calculé sur l’appareil'**
   String get smartQueueBody;
 
   /// No description provided for @lyricsHint.
@@ -6498,6 +6498,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Seules les règles sont supprimées : aucun fichier n’est touché.'**
   String get smartDeleteBody;
+
+  /// No description provided for @smartQueueAddAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter les {n}'**
+  String smartQueueAddAll(int n);
+
+  /// No description provided for @addQueueOne.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter à la file'**
+  String get addQueueOne;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

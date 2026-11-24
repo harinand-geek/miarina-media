@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
@@ -8,6 +10,8 @@ import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
+import '../../src/rust/api/library.dart' show LibraryItem;
+import '../library/library_data.dart';
 import '../playback/playback.dart';
 import '../playlists/playlists_screen.dart' show showAddToPlaylistDialog;
 
@@ -162,12 +166,7 @@ class QueueView extends ConsumerWidget {
                     ),
                   ),
                 const SliverToBoxAdapter(child: SizedBox(height: 14)),
-                SliverToBoxAdapter(
-                  child: _SmartQueueCard(
-                    title: t.smartQueueTitle,
-                    body: t.smartQueueBody,
-                  ),
-                ),
+                const SliverToBoxAdapter(child: _SmartQueueCard()),
               ],
             ),
           ),
@@ -368,59 +367,152 @@ class _UpcomingRowState extends State<_UpcomingRow> {
   }
 }
 
-/// Smart Queue is P1: shown where users look for it, marked and inert.
-class _SmartQueueCard extends StatelessWidget {
-  const _SmartQueueCard({required this.title, required this.body});
+/// Smart Queue: up to 3 library tracks close to the current one (same
+/// artist, then same album), not already queued. Computed on the device
+/// from the library's tags; no tempo is measured.
+final smartQueueProvider = FutureProvider.autoDispose<List<LibraryItem>>((
+  ref,
+) async {
+  final queue = ref.watch(queueProvider);
+  final current = queue.current;
+  final id = current?.libraryId;
+  if (id == null || current!.isVideo || current.focusKey != null) {
+    return const [];
+  }
+  final api = ref.read(libraryApiProvider);
+  final item = await api.item(id);
+  if (item == null) return const [];
+  final queued = {
+    for (final e in queue.entries)
+      if (e.libraryId != null) e.libraryId!,
+  };
+  final picked = <LibraryItem>[];
+  Future<void> take({String? artist, String? album}) async {
+    if (picked.length >= 3 || (artist == null && album == null)) return;
+    final page = await api.tracks(
+      search: '',
+      favoritesOnly: false,
+      offset: 0,
+      limit: 60,
+      artist: artist,
+      album: album,
+    );
+    final fresh = [
+      for (final i in page.items)
+        if (!i.missing &&
+            !queued.contains(i.id) &&
+            !picked.any((p) => p.id == i.id))
+          i,
+    ];
+    // A stable mix: not always the first tracks of the artist.
+    fresh.shuffle(math.Random(id));
+    picked.addAll(fresh.take(3 - picked.length));
+  }
 
-  final String title;
-  final String body;
+  await take(artist: item.artist);
+  await take(album: item.album);
+  return picked;
+});
+
+class _SmartQueueCard extends ConsumerWidget {
+  const _SmartQueueCard();
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final picks = ref.watch(smartQueueProvider).value ?? const [];
+    if (picks.isEmpty) return const SizedBox.shrink();
+    final queue = ref.read(queueProvider.notifier);
+    QueueEntry entry(LibraryItem i) =>
+        queueEntryOf(i, unknownArtist: t.unknownArtist);
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.fromLTRB(14, 12, 10, 10),
       decoration: BoxDecoration(
+        color: c.coralSubtle.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(MmRadius.lg),
-        border: Border.all(color: c.lineStrong),
+        border: Border.all(color: c.coralChipBorder),
       ),
-      child: Row(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Icon(PhosphorRegular.magicWand, size: 20, color: c.faint),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(title, style: MmType.labelStrong.copyWith(color: c.muted)),
-                Text(body, style: MmType.caption.copyWith(color: c.faint)),
-              ],
-            ),
+          Row(
+            children: [
+              Icon(PhosphorRegular.magicWand, size: 20, color: c.coralStrong),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.smartQueueTitle,
+                      style: MmType.labelStrong.copyWith(color: c.fg),
+                    ),
+                    Text(
+                      t.smartQueueBody,
+                      style: MmType.caption.copyWith(color: c.muted),
+                    ),
+                  ],
+                ),
+              ),
+              Pressable(
+                onTap: () => queue.enqueue([
+                  for (final i in picks) entry(i),
+                ], next: false),
+                semanticLabel: t.smartQueueAddAll(picks.length),
+                borderRadius: BorderRadius.circular(MmRadius.pill),
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 6,
+                  ),
+                  child: Text(
+                    t.smartQueueAddAll(picks.length),
+                    style: MmType.labelStrong.copyWith(
+                      fontSize: 12.5,
+                      color: c.coralStrong,
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-          const PlannedBadge(),
+          const SizedBox(height: 6),
+          for (final i in picks)
+            SizedBox(
+              height: 40,
+              child: Row(
+                children: [
+                  const SizedBox(width: 30),
+                  Expanded(
+                    child: Text(
+                      [i.title, ?i.album].join(' · '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.bodySm.copyWith(color: c.fgSoft),
+                    ),
+                  ),
+                  Pressable(
+                    onTap: () => queue.enqueue([entry(i)], next: false),
+                    tooltip: t.addQueueOne,
+                    semanticLabel: '${t.addQueueOne} · ${i.title}',
+                    borderRadius: BorderRadius.circular(MmRadius.pill),
+                    child: SizedBox(
+                      width: 34,
+                      height: 34,
+                      child: Icon(
+                        PhosphorRegular.plus,
+                        size: 18,
+                        color: c.fgSoft,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
         ],
       ),
     );
   }
 }
 
-/// "P1": visible in the design, not delivered yet (Handoff §06).
-class PlannedBadge extends StatelessWidget {
-  const PlannedBadge({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-      decoration: BoxDecoration(
-        color: c.warning,
-        borderRadius: BorderRadius.circular(3),
-      ),
-      child: Text(
-        'P1',
-        style: MmType.monoStyle(size: 10, weight: 700, color: c.warningInk),
-      ),
-    );
-  }
-}

@@ -76,7 +76,7 @@
   "upNext": "À suivre",
   "clearQueue": "Vider",
   "smartQueueTitle": "Continuer avec des titres proches",
-  "smartQueueBody": "Smart Queue, calculée sur l'appareil",
+  "smartQueueBody": "Même artiste ou même album, calculé sur l’appareil",
   "lyricsHint": "{file} · clic sur une ligne pour y aller",
   "@lyricsHint": {
     "placeholders": {
@@ -2298,5 +2298,8 @@
   "smartReading": "Lecture de la bibliothèque…",
   "smartEmptyTitle": "Aucun titre pour ces règles",
   "smartEmptyBody": "La playlist se remplira d’elle-même quand la bibliothèque aura des titres qui y correspondent.",
-  "smartDeleteBody": "Seules les règles sont supprimées : aucun fichier n’est touché."
+  "smartDeleteBody": "Seules les règles sont supprimées : aucun fichier n’est touché.",
+  "smartQueueAddAll": "Ajouter les {n}",
+  "@smartQueueAddAll": {"placeholders": {"n": {"type": "int"}}},
+  "addQueueOne": "Ajouter à la file"
 }

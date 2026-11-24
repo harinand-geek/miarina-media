@@ -228,7 +228,7 @@ class L10nEn extends L10n {
   String get smartQueueTitle => 'Continue with similar tracks';
 
   @override
-  String get smartQueueBody => 'Smart Queue, computed on the device';
+  String get smartQueueBody => 'Same artist or album, worked out on the device';
 
   @override
   String lyricsHint(String file) {
@@ -3991,4 +3991,12 @@ class L10nEn extends L10n {
   @override
   String get smartDeleteBody =>
       'Only the rules are deleted: no file is touched.';
+
+  @override
+  String smartQueueAddAll(int n) {
+    return 'Add the $n';
+  }
+
+  @override
+  String get addQueueOne => 'Add to the queue';
 }

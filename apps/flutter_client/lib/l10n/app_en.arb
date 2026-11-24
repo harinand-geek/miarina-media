@@ -69,7 +69,7 @@
   "upNext": "Up next",
   "clearQueue": "Clear",
   "smartQueueTitle": "Continue with similar tracks",
-  "smartQueueBody": "Smart Queue, computed on the device",
+  "smartQueueBody": "Same artist or album, worked out on the device",
   "lyricsHint": "{file} · click a line to go there",
   "lyricsNoneTitle": "No lyrics for this track",
   "lyricsNoneBody": "Put an .lrc file with the same name next to the audio file: it is read automatically.",
@@ -1113,5 +1113,8 @@
   "smartReading": "Reading the library…",
   "smartEmptyTitle": "No tracks for these rules",
   "smartEmptyBody": "The playlist fills itself as soon as the library has matching tracks.",
-  "smartDeleteBody": "Only the rules are deleted: no file is touched."
+  "smartDeleteBody": "Only the rules are deleted: no file is touched.",
+  "smartQueueAddAll": "Add the {n}",
+  "@smartQueueAddAll": {"placeholders": {"n": {"type": "int"}}},
+  "addQueueOne": "Add to the queue"
 }
