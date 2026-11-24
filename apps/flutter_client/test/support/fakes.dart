@@ -74,6 +74,7 @@ class FakeEngine implements MediaEngine {
     sidecarSubtitles: true,
     subtitleLanguage: true,
     frameStep: true,
+    normalization: true,
     gapless: true,
     crossfade: true,
     abLoop: true,

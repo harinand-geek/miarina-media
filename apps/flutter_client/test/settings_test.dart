@@ -98,9 +98,13 @@ void main() {
     await settle(tester);
     expect(MediaQuery.disableAnimationsOf(ctx()), isTrue);
 
-    // P1: shown, not changeable.
+    // The play colour recolours the play buttons and Écouter.
     expect(find.text('Couleur de lecture'), findsOneWidget);
-    expect(find.text('P1'), findsWidgets);
+    expect(MmColors.of(ctx()).coral, const Color(0xFFFF7A45));
+    await tester.tap(find.text('Rose'));
+    await settle(tester);
+    expect(MmColors.of(ctx()).coral, const Color(0xFFF2668B));
+    expect((settings.values['appearance'] as Map)['playColor'], 'rose');
   });
 
   testWidgets('saved appearance is read back at start (0.1.x theme key)', (
@@ -130,10 +134,14 @@ void main() {
     expect(store.values['mm:lang'], 'en');
   });
 
-  testWidgets('W-S2: real settings reach the engine; P1 stay disabled', (
+  testWidgets('W-S2: real settings reach the engine', (
     tester,
   ) async {
-    await pumpApp(tester, start: '${Routes.settings}/playback');
+    await pumpApp(
+      tester,
+      start: '${Routes.settings}/playback',
+      size: const Size(1280, 1600),
+    );
     expect(engine.preferences?.subtitleLanguage, 'fr');
 
     await tester.tap(switchFor("Reprendre où j'en étais"));
@@ -159,18 +167,40 @@ void main() {
     expect(engine.preferences?.sidecarSubtitles, isFalse);
     expect((settings.values['playback'] as Map)['subtitleLanguage'], 'en');
 
-    // Gapless is not possible with the current queue: P1, not simulated.
+    // Gapless (on by default), crossfade, ReplayGain, hardware decoding.
     await tester.ensureVisible(switchFor('Lecture sans blanc (gapless)'));
-    await settle(tester);
-    await tester.tap(
-      switchFor('Lecture sans blanc (gapless)'),
-      warnIfMissed: false,
-    );
     await settle(tester);
     expect(
       tester.widget<MmSwitch>(switchFor('Lecture sans blanc (gapless)')).value,
-      isFalse,
+      isTrue,
     );
+    await tester.tap(switchFor('Lecture sans blanc (gapless)'));
+    await settle(tester);
+    expect((settings.values['playback'] as Map)['gapless'], isFalse);
+
+    // Exclusive output cannot open the second player of a crossfade.
+    expect(
+      find.text('Pas disponible avec la sortie audio exclusive.'),
+      findsOneWidget,
+    );
+    await tester.ensureVisible(switchFor('Mode exclusif WASAPI'));
+    await settle(tester);
+    await tester.tap(switchFor('Mode exclusif WASAPI'));
+    await settle(tester);
+    await choose(tester, 'Fondu entre les titres', '6 s');
+    expect((settings.values['playback'] as Map)['crossfadeSecs'], 6);
+
+    await tester.ensureVisible(switchFor('Normalisation du volume'));
+    await settle(tester);
+    await tester.tap(switchFor('Normalisation du volume'));
+    await settle(tester);
+    expect(engine.preferences?.normalize, isTrue);
+
+    await tester.ensureVisible(switchFor('Décodage matériel'));
+    await settle(tester);
+    await tester.tap(switchFor('Décodage matériel'));
+    await settle(tester);
+    expect(engine.preferences?.hardwareDecoding, isFalse);
   });
 
   testWidgets('Android (A-08): list of sections, then a page', (tester) async {

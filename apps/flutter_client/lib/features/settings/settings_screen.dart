@@ -517,10 +517,10 @@ class _Appearance extends ConsumerWidget {
     if (look == null) return const SizedBox.shrink();
     final ctl = ref.read(appearanceProvider.notifier);
     final colors = [
-      (t.colorCoral, const Color(0xFFFF7A45)),
-      (t.colorRose, const Color(0xFFF0668C)),
-      (t.colorAmber, const Color(0xFFE8B04B)),
-      (t.colorBlue, const Color(0xFF6B9BFF)),
+      ('coral', t.colorCoral),
+      ('rose', t.colorRose),
+      ('amber', t.colorAmber),
+      ('blue', t.colorBlue),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -540,41 +540,50 @@ class _Appearance extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 22),
-        // P1: shown, disabled (handoff rule).
+        Text(t.playColor, style: MmType.labelStrong.copyWith(color: c.fg)),
+        const SizedBox(height: 10),
         Row(
           children: [
-            Text(t.playColor, style: MmType.labelStrong.copyWith(color: c.fg)),
-            const SizedBox(width: 8),
-            const P1Badge(),
-          ],
-        ),
-        const SizedBox(height: 10),
-        Opacity(
-          opacity: 0.55,
-          child: Row(
-            children: [
-              for (final (i, (name, color)) in colors.indexed) ...[
-                Column(
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                        border: i == 0
-                            ? Border.all(color: c.fg, width: 2)
-                            : null,
+            for (final (id, name) in colors) ...[
+              Pressable(
+                onTap: () => ctl.save(look.copyWith(playColor: id)),
+                semanticLabel: name,
+                selected: look.playColor == id,
+                borderRadius: BorderRadius.circular(MmRadius.md),
+                child: Padding(
+                  padding: const EdgeInsets.all(2),
+                  child: Column(
+                    children: [
+                      // The ring of the mockup: a gap, then a fg circle.
+                      Container(
+                        width: 44,
+                        height: 44,
+                        padding: const EdgeInsets.all(2),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: look.playColor == id
+                              ? Border.all(color: c.fg, width: 2)
+                              : null,
+                        ),
+                        child: DecoratedBox(
+                          decoration: BoxDecoration(
+                            color: MmColors.playColors[id],
+                            shape: BoxShape.circle,
+                          ),
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(name, style: MmType.caption.copyWith(color: c.muted)),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        name,
+                        style: MmType.caption.copyWith(color: c.muted),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(width: 10),
-              ],
+              ),
+              const SizedBox(width: 8),
             ],
-          ),
+          ],
         ),
         const SizedBox(height: 22),
         SettingsGroup(

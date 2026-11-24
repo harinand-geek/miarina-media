@@ -184,6 +184,65 @@ class MmColors extends ThemeExtension<MmColors> {
   @override
   MmColors copyWith() => this;
 
+  /// The play colours of Settings › Appearance (handoff Système).
+  static const playColors = {
+    'coral': Color(0xFFFF7A45),
+    'rose': Color(0xFFF2668B),
+    'amber': Color(0xFFE8B04B),
+    'blue': Color(0xFF6E9CF7),
+  };
+
+  /// The coral family (play buttons, Écouter) made from another play
+  /// colour; coral itself keeps its designed values.
+  MmColors withPlayColor(String name) {
+    final base = playColors[name];
+    if (base == null || base == playColors['coral']) return this;
+    final dark = brightness == Brightness.dark;
+    Color mix(Color a, Color b, double t) => Color.lerp(a, b, t)!;
+    const white = Color(0xFFFFFFFF);
+    const black = Color(0xFF000000);
+    return MmColors(
+      brightness: brightness,
+      bg: bg,
+      surface: surface,
+      surface2: surface2,
+      sidebar: sidebar,
+      playerChrome: playerChrome,
+      line: line,
+      lineStrong: lineStrong,
+      divider: divider,
+      cardHover: cardHover,
+      selected: selected,
+      overlayBorder: overlayBorder,
+      fg: fg,
+      fgSoft: fgSoft,
+      muted: muted,
+      faint: faint,
+      faintIcon: faintIcon,
+      accent: accent,
+      accentStrong: accentStrong,
+      accentSubtle: accentSubtle,
+      chipText: chipText,
+      chipBorder: chipBorder,
+      warning: warning,
+      warningSubtle: warningSubtle,
+      warningBorder: warningBorder,
+      warningInk: warningInk,
+      danger: danger,
+      video: video,
+      scrim: scrim,
+      hatchA: hatchA,
+      hatchB: hatchB,
+      coral: base,
+      coralHover: mix(base, white, 0.15),
+      coralPress: mix(base, black, 0.12),
+      coralInk: mix(base, black, 0.88),
+      coralStrong: dark ? mix(base, white, 0.15) : mix(base, black, 0.35),
+      coralSubtle: dark ? mix(bg, base, 0.16) : mix(white, base, 0.13),
+      coralChipBorder: dark ? mix(bg, base, 0.45) : mix(white, base, 0.37),
+    );
+  }
+
   @override
   MmColors lerp(MmColors? other, double t) =>
       t < 0.5 || other == null ? this : other;

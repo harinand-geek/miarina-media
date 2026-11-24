@@ -23,6 +23,7 @@ class AppearancePrefs {
     this.reduceMotion = false,
     this.reduceTransparency = false,
     this.coverBackdrop = true,
+    this.playColor = 'coral',
   });
 
   final ThemePref theme;
@@ -41,6 +42,9 @@ class AppearancePrefs {
   /// Blurred cover behind Now playing.
   final bool coverBackdrop;
 
+  /// One of `MmColors.playColors`: play buttons and the Écouter space.
+  final String playColor;
+
   static const textScales = [0.9, 1.0, 1.1, 1.2, 1.3];
 
   AppearancePrefs copyWith({
@@ -51,6 +55,7 @@ class AppearancePrefs {
     bool? reduceMotion,
     bool? reduceTransparency,
     bool? coverBackdrop,
+    String? playColor,
   }) => AppearancePrefs(
     theme: theme ?? this.theme,
     language: identical(language, _keep) ? this.language : language as String?,
@@ -59,6 +64,7 @@ class AppearancePrefs {
     reduceMotion: reduceMotion ?? this.reduceMotion,
     reduceTransparency: reduceTransparency ?? this.reduceTransparency,
     coverBackdrop: coverBackdrop ?? this.coverBackdrop,
+    playColor: playColor ?? this.playColor,
   );
 
   Map<String, Object> toJson() => {
@@ -67,6 +73,7 @@ class AppearancePrefs {
     'reduceMotion': reduceMotion,
     'reduceTransparency': reduceTransparency,
     'coverBackdrop': coverBackdrop,
+    'playColor': playColor,
   };
 }
 
@@ -166,6 +173,7 @@ class AppearanceController extends AsyncNotifier<AppearancePrefs> {
       reduceMotion: _pick(raw, 'reduceMotion', false),
       reduceTransparency: _pick(raw, 'reduceTransparency', false),
       coverBackdrop: _pick(raw, 'coverBackdrop', true),
+      playColor: _pick(raw, 'playColor', 'coral'),
     );
   }
 

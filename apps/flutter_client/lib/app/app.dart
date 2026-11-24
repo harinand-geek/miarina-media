@@ -40,8 +40,8 @@ class MiarinaApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       routerConfig: ref.watch(routerProvider),
       scaffoldMessengerKey: rootMessengerKey,
-      theme: buildMmTheme(MmColors.light),
-      darkTheme: buildMmTheme(MmColors.dark),
+      theme: buildMmTheme(MmColors.light.withPlayColor(look.playColor)),
+      darkTheme: buildMmTheme(MmColors.dark.withPlayColor(look.playColor)),
       // Dark-first (design direction 3a); Settings › Appearance changes it.
       themeMode: switch (look.theme) {
         ThemePref.dark => ThemeMode.dark,
