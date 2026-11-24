@@ -3951,4 +3951,76 @@ class L10nFr extends L10n {
 
   @override
   String get abHintOff => 'Touchez pour arrêter la boucle.';
+
+  @override
+  String get smartSection => 'Playlists intelligentes';
+
+  @override
+  String get smartNewTitle => 'Nouvelle playlist intelligente';
+
+  @override
+  String get smartEdit => 'Modifier les règles';
+
+  @override
+  String get smartText => 'Contient';
+
+  @override
+  String get smartTextHint => 'Titre, artiste, album…';
+
+  @override
+  String get smartAny => 'Tous';
+
+  @override
+  String get smartFavorites => 'Favoris uniquement';
+
+  @override
+  String get smartAdded => 'Ajoutés';
+
+  @override
+  String get smartAddedAny => 'Depuis toujours';
+
+  @override
+  String smartAddedDays(int n) {
+    return '$n derniers jours';
+  }
+
+  @override
+  String get smartSort => 'Trier par';
+
+  @override
+  String get smartLimit => 'Nombre de titres';
+
+  @override
+  String get smartLimitAll => 'Tous';
+
+  @override
+  String smartLimitN(int n) {
+    return '$n titres';
+  }
+
+  @override
+  String smartCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n titres',
+      one: '1 titre',
+      zero: 'Aucun titre',
+    );
+    return '$_temp0 · mise à jour automatique';
+  }
+
+  @override
+  String get smartReading => 'Lecture de la bibliothèque…';
+
+  @override
+  String get smartEmptyTitle => 'Aucun titre pour ces règles';
+
+  @override
+  String get smartEmptyBody =>
+      'La playlist se remplira d’elle-même quand la bibliothèque aura des titres qui y correspondent.';
+
+  @override
+  String get smartDeleteBody =>
+      'Seules les règles sont supprimées : aucun fichier n’est touché.';
 }

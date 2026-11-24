@@ -1,5 +1,6 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:material_ui/material_ui.dart' show AlertDialog, TextField;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/app/app.dart';
@@ -8,6 +9,7 @@ import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
+import 'package:miarina_media/features/now_playing/sound_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -228,5 +230,60 @@ void main() {
         .key;
     expect(playlists.entries[south], [4, 2, 1, 4], reason: 'in play order');
     expect(find.text('3 titres ajoutés à « Route du Sud »'), findsOneWidget);
+  });
+
+  testWidgets('a smart playlist: rules, its tracks, kept, deleted', (
+    tester,
+  ) async {
+    await pumpApp(tester, start: Routes.playlists);
+    await tester.tap(find.text('Nouvelle'));
+    await settle(tester);
+    Finder field(int i) => find
+        .descendant(
+          of: find.byType(AlertDialog),
+          matching: find.byType(TextField),
+        )
+        .at(i);
+    await tester.enterText(field(0), 'Nafy');
+    await tester.tap(find.byType(MmSwitch).last);
+    await settle(tester);
+    await tester.tap(find.text('Créer'));
+    await settle(tester);
+
+    // The rules: tracks by one artist.
+    expect(find.text('Nouvelle playlist intelligente'), findsOneWidget);
+    expect(find.text('Nafy'), findsWidgets, reason: 'the name follows');
+    await tester.enterText(field(2), 'Nafy Rakoto');
+    await tester.tap(find.text('Créer'));
+    await settle(tester);
+
+    expect(find.text('PLAYLISTS INTELLIGENTES'), findsOneWidget);
+    expect(
+      find.textContaining('2 titres · mise à jour automatique'),
+      findsOneWidget,
+    );
+    expect(find.text('Marée haute'), findsOneWidget);
+    expect(find.text('Ville lente'), findsNothing);
+
+    // Play: the missing file left out.
+    await tester.tap(find.text('Tout lire'));
+    await settle(tester);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(MiarinaApp)),
+    );
+    expect(
+      [for (final e in container.read(queueProvider).entries) e.libraryId],
+      [1],
+    );
+    final saved = await container
+        .read(settingsStoreProvider)
+        .read('smartPlaylists');
+    expect((saved as List).single['name'], 'Nafy');
+
+    await tester.tap(find.text('Supprimer'));
+    await settle(tester);
+    await tester.tap(find.text('Supprimer').last);
+    await settle(tester);
+    expect(find.text('PLAYLISTS INTELLIGENTES'), findsNothing);
   });
 }

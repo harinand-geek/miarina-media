@@ -3919,4 +3919,76 @@ class L10nEn extends L10n {
 
   @override
   String get abHintOff => 'Tap to stop the loop.';
+
+  @override
+  String get smartSection => 'Smart playlists';
+
+  @override
+  String get smartNewTitle => 'New smart playlist';
+
+  @override
+  String get smartEdit => 'Edit the rules';
+
+  @override
+  String get smartText => 'Contains';
+
+  @override
+  String get smartTextHint => 'Title, artist, album…';
+
+  @override
+  String get smartAny => 'Any';
+
+  @override
+  String get smartFavorites => 'Favourites only';
+
+  @override
+  String get smartAdded => 'Added';
+
+  @override
+  String get smartAddedAny => 'Any time';
+
+  @override
+  String smartAddedDays(int n) {
+    return 'Last $n days';
+  }
+
+  @override
+  String get smartSort => 'Sort by';
+
+  @override
+  String get smartLimit => 'Number of tracks';
+
+  @override
+  String get smartLimitAll => 'All';
+
+  @override
+  String smartLimitN(int n) {
+    return '$n tracks';
+  }
+
+  @override
+  String smartCount(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n tracks',
+      one: '1 track',
+      zero: 'No tracks',
+    );
+    return '$_temp0 · updates by itself';
+  }
+
+  @override
+  String get smartReading => 'Reading the library…';
+
+  @override
+  String get smartEmptyTitle => 'No tracks for these rules';
+
+  @override
+  String get smartEmptyBody =>
+      'The playlist fills itself as soon as the library has matching tracks.';
+
+  @override
+  String get smartDeleteBody =>
+      'Only the rules are deleted: no file is touched.';
 }

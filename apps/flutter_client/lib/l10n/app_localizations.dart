@@ -6384,6 +6384,120 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Touchez pour arrêter la boucle.'**
   String get abHintOff;
+
+  /// No description provided for @smartSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Playlists intelligentes'**
+  String get smartSection;
+
+  /// No description provided for @smartNewTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouvelle playlist intelligente'**
+  String get smartNewTitle;
+
+  /// No description provided for @smartEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier les règles'**
+  String get smartEdit;
+
+  /// No description provided for @smartText.
+  ///
+  /// In fr, this message translates to:
+  /// **'Contient'**
+  String get smartText;
+
+  /// No description provided for @smartTextHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre, artiste, album…'**
+  String get smartTextHint;
+
+  /// No description provided for @smartAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get smartAny;
+
+  /// No description provided for @smartFavorites.
+  ///
+  /// In fr, this message translates to:
+  /// **'Favoris uniquement'**
+  String get smartFavorites;
+
+  /// No description provided for @smartAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutés'**
+  String get smartAdded;
+
+  /// No description provided for @smartAddedAny.
+  ///
+  /// In fr, this message translates to:
+  /// **'Depuis toujours'**
+  String get smartAddedAny;
+
+  /// No description provided for @smartAddedDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} derniers jours'**
+  String smartAddedDays(int n);
+
+  /// No description provided for @smartSort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Trier par'**
+  String get smartSort;
+
+  /// No description provided for @smartLimit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nombre de titres'**
+  String get smartLimit;
+
+  /// No description provided for @smartLimitAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tous'**
+  String get smartLimitAll;
+
+  /// No description provided for @smartLimitN.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} titres'**
+  String smartLimitN(int n);
+
+  /// No description provided for @smartCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{Aucun titre} =1{1 titre} other{{n} titres}} · mise à jour automatique'**
+  String smartCount(int n);
+
+  /// No description provided for @smartReading.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture de la bibliothèque…'**
+  String get smartReading;
+
+  /// No description provided for @smartEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun titre pour ces règles'**
+  String get smartEmptyTitle;
+
+  /// No description provided for @smartEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La playlist se remplira d’elle-même quand la bibliothèque aura des titres qui y correspondent.'**
+  String get smartEmptyBody;
+
+  /// No description provided for @smartDeleteBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Seules les règles sont supprimées : aucun fichier n’est touché.'**
+  String get smartDeleteBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

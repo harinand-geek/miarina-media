@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -21,8 +22,11 @@ import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
 import '../playback/playback.dart';
-import '../settings/settings_screen.dart' show P1Badge;
+import '../playback/settings_store.dart';
+import '../settings/settings_screen.dart' show SettingsMenu;
 import 'playlists_data.dart';
+
+part 'smart_playlists.dart';
 
 String ago(L10n t, int millis) {
   final d = DateTime.now().difference(
@@ -123,6 +127,7 @@ class PlaylistsScreen extends ConsumerWidget {
     final all = lists.value ?? const <PlaylistInfo>[];
     final current =
         all.where((p) => p.id == selected).firstOrNull ?? all.firstOrNull;
+    final smartSelected = ref.watch(selectedSmartProvider);
 
     final list = _PlaylistList(
       playlists: all,
@@ -158,7 +163,13 @@ class PlaylistsScreen extends ConsumerWidget {
           child: list,
         ),
         Expanded(
-          child: current == null
+          child: smartSelected != null
+              ? SmartPlaylistView(
+                  key: ValueKey('smart-$smartSelected'),
+                  id: smartSelected,
+                  mobile: false,
+                )
+              : current == null
               ? (lists.hasValue
                     ? LibraryMessage(
                         icon: PhosphorRegular.playlist,
@@ -280,8 +291,13 @@ class _PlaylistList extends ConsumerWidget {
                   children: [
                     for (final p in playlists)
                       Pressable(
-                        onTap: () => openPlaylist(context, ref, p.id),
-                        selected: p.id == selected,
+                        onTap: () {
+                          ref.read(selectedSmartProvider.notifier).select(null);
+                          openPlaylist(context, ref, p.id);
+                        },
+                        selected:
+                            p.id == selected &&
+                            ref.watch(selectedSmartProvider) == null,
                         semanticLabel: p.name,
                         borderRadius: BorderRadius.circular(MmRadius.lg),
                         hoverColor: c.cardHover,
@@ -328,6 +344,7 @@ class _PlaylistList extends ConsumerWidget {
                           ),
                         ),
                       ),
+                    _SmartSection(mobile: mobile),
                   ],
                 ),
         ),
@@ -929,9 +946,10 @@ Future<void> showNewPlaylistDialog(BuildContext context, WidgetRef ref) async {
   ];
   final created = await showDialog<PlaylistInfo>(
     context: context,
-    builder: (context) => _NameDialog(
+    builder: (dialog) => _NameDialog(
       create: true,
       queued: queued,
+      onSmart: (name) => showSmartRulesDialog(context, ref, name: name),
       onSave: (name, withQueue) => editPlaylists(
         ref,
         (api) => api.create(name, withQueue ? queued : const []),
@@ -1091,11 +1109,15 @@ class _NameDialog extends StatefulWidget {
     required this.onSave,
     this.initial = '',
     this.queued = const [],
+    this.onSmart,
   });
 
   final bool create;
   final String initial;
   final List<int> queued;
+
+  /// The smart choice: its rules come next, with this name.
+  final void Function(String name)? onSmart;
   final Future<PlaylistInfo?> Function(String name, bool withQueue) onSave;
 
   @override
@@ -1105,6 +1127,7 @@ class _NameDialog extends StatefulWidget {
 class _NameDialogState extends State<_NameDialog> {
   late final _name = TextEditingController(text: widget.initial);
   late bool _withQueue = widget.queued.isNotEmpty;
+  bool _smart = false;
   bool _saving = false;
 
   @override
@@ -1116,8 +1139,13 @@ class _NameDialogState extends State<_NameDialog> {
   Future<void> _save() async {
     final name = _name.text.trim();
     if (name.isEmpty || _saving) return;
-    setState(() => _saving = true);
     final nav = Navigator.of(context);
+    if (_smart && widget.onSmart != null) {
+      nav.pop();
+      widget.onSmart!(name);
+      return;
+    }
+    setState(() => _saving = true);
     final result = await widget.onSave(name, _withQueue);
     if (mounted) nav.pop(result);
   }
@@ -1155,7 +1183,7 @@ class _NameDialogState extends State<_NameDialog> {
               decoration: _fieldDecoration(c),
               onSubmitted: (_) => _save(),
             ),
-            if (widget.create && widget.queued.isNotEmpty) ...[
+            if (widget.create && widget.queued.isNotEmpty && !_smart) ...[
               const SizedBox(height: 14),
               Row(
                 children: [
@@ -1173,21 +1201,22 @@ class _NameDialogState extends State<_NameDialog> {
                 ],
               ),
             ],
-            if (widget.create) ...[
+            if (widget.create && widget.onSmart != null) ...[
               const SizedBox(height: 12),
-              // P1: shown, not available yet (handoff rule).
-              Opacity(
-                opacity: 0.55,
-                child: Row(
-                  children: [
-                    Text(
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
                       t.smartPlaylist,
-                      style: MmType.bodySm.copyWith(color: c.fgSoft),
+                      style: MmType.bodySm.copyWith(color: c.fg),
                     ),
-                    const SizedBox(width: 8),
-                    const P1Badge(),
-                  ],
-                ),
+                  ),
+                  MmSwitch(
+                    value: _smart,
+                    label: t.smartPlaylist,
+                    onChanged: (v) => setState(() => _smart = v),
+                  ),
+                ],
               ),
             ],
           ],
