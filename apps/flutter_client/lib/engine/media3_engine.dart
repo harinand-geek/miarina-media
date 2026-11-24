@@ -48,6 +48,14 @@ class Media3Engine implements MediaEngine {
     subtitleLanguage: true,
   );
 
+  /// Not chained yet on Android (capabilities say so): files play one by
+  /// one.
+  @override
+  Future<void> prepareNext(
+    MediaSource? next, {
+    Duration crossfade = Duration.zero,
+  }) async {}
+
   @override
   PlaybackSnapshot get current => _state;
 

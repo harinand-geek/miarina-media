@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
 import '../health/health_data.dart';
+import '../settings/settings_data.dart';
 import 'playback_memory.dart';
 
 /// One playable entry of the queue, with what the bars display.
@@ -193,6 +194,11 @@ class QueueController extends Notifier<QueueState> {
   /// Missing files skipped in a row: never more than the queue holds.
   int _skipped = 0;
 
+  StreamSubscription<PlaybackSnapshot>? _moved;
+
+  /// The entry prepared in the engine to follow the current one.
+  QueueEntry? _prepared;
+
   MediaEngine? get _engine => ref.read(mediaEngineProvider);
 
   @override
@@ -201,7 +207,14 @@ class QueueController extends Notifier<QueueState> {
     _ended = engine?.snapshots
         .where((s) => s.status == PlaybackStatus.ended)
         .listen((_) => _advanceAfterEnd());
-    ref.onDispose(() => _ended?.cancel());
+    _moved = engine?.snapshots.listen(_followEngine);
+    ref.onDispose(() {
+      _ended?.cancel();
+      _moved?.cancel();
+    });
+    // A changed setting changes what may follow (the sleep timer says so
+    // itself: it reads the queue).
+    ref.listen(playbackPrefsProvider, (_, _) => _prepareNext());
     return const QueueState();
   }
 
@@ -282,6 +295,7 @@ class QueueController extends Notifier<QueueState> {
       order: order,
       position: order.indexOf(currentIndex),
     );
+    unawaited(_prepareNext());
   }
 
   Future<void> cycleRepeat() async {
@@ -296,6 +310,7 @@ class QueueController extends Notifier<QueueState> {
     await _engine?.setRepeatMode(
       next == RepeatSetting.one ? RepeatSetting.one : RepeatSetting.off,
     );
+    await _prepareNext();
   }
 
   /// Plays the [i]-th upcoming entry (0 = next), skipping those before it.
@@ -314,12 +329,14 @@ class QueueController extends Notifier<QueueState> {
     final item = order.removeAt(base + from);
     order.insert((base + to).clamp(base, order.length), item);
     state = state.copyWith(order: order);
+    unawaited(_prepareNext());
   }
 
   void removeUpcoming(int i) {
     final p = state.position + 1 + i;
     if (p >= state.order.length) return;
     state = state.copyWith(order: List.of(state.order)..removeAt(p));
+    unawaited(_prepareNext());
   }
 
   /// "Lire ensuite" ([next]: right after the current entry) or "Ajouter à
@@ -338,6 +355,7 @@ class QueueController extends Notifier<QueueState> {
       entries: List.unmodifiable([...state.entries, ...entries]),
       order: order,
     );
+    await _prepareNext();
   }
 
   void markFavorite(int libraryId, {required bool favorite}) {
@@ -352,6 +370,7 @@ class QueueController extends Notifier<QueueState> {
   void clearUpcoming() {
     if (state.position < 0) return;
     state = state.copyWith(order: state.order.sublist(0, state.position + 1));
+    unawaited(_prepareNext());
   }
 
   List<int> _orderFor(int length, {required bool shuffle, required int first}) {
@@ -393,7 +412,74 @@ class QueueController extends Notifier<QueueState> {
     // Before open(): the previous track's position is saved from the last
     // snapshot, which open() replaces.
     await memory.started(entry);
+    _prepared = null;
     await engine.open(entry.source, startAt: start);
+    await _prepareNext();
+  }
+
+  /// Index into the order of the entry after the current one, or -1.
+  int get _nextPosition {
+    if (state.repeat == RepeatSetting.one) return -1;
+    if (state.position + 1 < state.order.length) return state.position + 1;
+    return state.repeat == RepeatSetting.all && state.order.length > 1 ? 0 : -1;
+  }
+
+  /// Prepares again what follows (the sleep timer changed).
+  Future<void> refreshNext() => _prepareNext();
+
+  /// Gives the engine the entry that follows (gapless or crossfade), or
+  /// takes it back. An entry that resumes from a saved point, a missing
+  /// file, a sleep timer at the end of the track: nothing is prepared, the
+  /// usual end of track decides.
+  Future<void> _prepareNext() async {
+    final engine = _engine;
+    final current = state.current;
+    if (engine == null || current == null) return;
+    final prefs = ref.read(playbackPrefsProvider).value;
+    final caps = engine.capabilities;
+    final fadeSecs = caps.crossfade ? (prefs?.crossfadeSecs ?? 0) : 0;
+    final chain = (caps.gapless && (prefs?.gapless ?? false)) || fadeSecs > 0;
+    final p = _nextPosition;
+    QueueEntry? next =
+        chain && p >= 0 && !ref.read(sleepTimerProvider).endOfTrack
+        ? state.entries[state.order[p]]
+        : null;
+    // The same file again (a repeated queue of one): the end of track
+    // handles it.
+    if (next != null && next.source.uri == current.source.uri) next = null;
+    if (next != null) {
+      final id = next.libraryId;
+      if (await ref.read(playbackMemoryProvider).startFor(next) != null ||
+          (id != null && !await ref.read(presenceCheckProvider)(id))) {
+        next = null;
+      }
+    }
+    // The queue moved on meanwhile: the newer call decides.
+    if (!identical(state.current, current)) return;
+    _prepared = next;
+    final fade = next != null && !current.isVideo && !next.isVideo
+        ? Duration(seconds: fadeSecs)
+        : Duration.zero;
+    if (fade == Duration.zero && !(caps.gapless && (prefs?.gapless ?? false))) {
+      await engine.prepareNext(null);
+      return;
+    }
+    await engine.prepareNext(next?.source, crossfade: fade);
+  }
+
+  /// The engine went on to the prepared entry by itself: the queue follows,
+  /// without opening it again.
+  Future<void> _followEngine(PlaybackSnapshot s) async {
+    final next = _prepared;
+    final uri = s.source?.uri;
+    if (next == null || uri == null || uri != next.source.uri) return;
+    if (state.current?.source.uri == uri) return;
+    final p = _nextPosition;
+    if (p < 0 || !identical(state.entries[state.order[p]], next)) return;
+    _prepared = null;
+    state = state.copyWith(position: p);
+    await ref.read(playbackMemoryProvider).started(next);
+    await _prepareNext();
   }
 
   Future<void> _advanceAfterEnd() async {
@@ -434,6 +520,8 @@ class SleepTimerController extends Notifier<SleepTimer> {
     _timer?.cancel();
     ref.read(mediaEngineProvider)?.setRepeatMode(RepeatSetting.off);
     state = const SleepTimer(endOfTrack: true);
+    // Nothing may follow by itself (gapless, crossfade).
+    unawaited(ref.read(queueProvider.notifier).refreshNext());
   }
 
   void cancel() {
@@ -443,6 +531,10 @@ class SleepTimerController extends Notifier<SleepTimer> {
         ref.read(queueProvider).repeat == RepeatSetting.one) {
       ref.read(mediaEngineProvider)?.setRepeatMode(RepeatSetting.one);
     }
+    final wasEndOfTrack = state.endOfTrack;
     state = const SleepTimer();
+    if (wasEndOfTrack) {
+      unawaited(ref.read(queueProvider.notifier).refreshNext());
+    }
   }
 }

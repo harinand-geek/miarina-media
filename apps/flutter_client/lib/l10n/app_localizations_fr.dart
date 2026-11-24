@@ -3863,4 +3863,13 @@ class L10nFr extends L10n {
   @override
   String get getNoteSubs =>
       'Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres.';
+
+  @override
+  String get crossfadeExclusive =>
+      'Pas disponible avec la sortie audio exclusive.';
+
+  @override
+  String crossfadeSeconds(int s) {
+    return '$s s';
+  }
 }

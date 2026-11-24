@@ -7,7 +7,7 @@ import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
-import 'queue_view.dart';
+import '../settings/settings_data.dart';
 
 const playbackSpeeds = [0.75, 1.0, 1.25, 1.5, 1.75, 2.0];
 
@@ -39,6 +39,9 @@ class SoundView extends ConsumerWidget {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final eq = ref.watch(equalizerProvider);
+    final prefs = ref.watch(playbackPrefsProvider).value;
+    final normalizable =
+        ref.watch(mediaEngineProvider)?.capabilities.normalization ?? false;
     final eqCtl = ref.read(equalizerProvider.notifier);
     final speed = ref.watch(
       playbackProvider.select((s) => s.value?.speed ?? 1.0),
@@ -127,27 +130,39 @@ class SoundView extends ConsumerWidget {
           mono: true,
           onSelected: (v) => ref.read(mediaEngineProvider)?.setSpeed(v),
         ),
-        const SizedBox(height: 22),
-        Row(
-          children: [
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    t.normalization,
-                    style: MmType.labelStrong.copyWith(color: c.muted),
-                  ),
-                  Text(
-                    t.normalizationBody,
-                    style: MmType.caption.copyWith(color: c.faint),
-                  ),
-                ],
+        if (normalizable && prefs != null) ...[
+          const SizedBox(height: 22),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.normalization,
+                      style: MmType.labelStrong.copyWith(color: c.fg),
+                    ),
+                    Text(
+                      t.normalizationBody,
+                      style: MmType.caption.copyWith(color: c.muted),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const PlannedBadge(),
-          ],
-        ),
+              MmSwitch(
+                value: prefs.engine.normalize,
+                label: t.normalization,
+                onChanged: (v) => ref
+                    .read(playbackPrefsProvider.notifier)
+                    .save(
+                      prefs.copyWith(
+                        engine: withEngine(prefs.engine, normalize: v),
+                      ),
+                    ),
+              ),
+            ],
+          ),
+        ],
       ],
     );
   }

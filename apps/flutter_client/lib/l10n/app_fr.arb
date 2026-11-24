@@ -2246,5 +2246,8 @@
   "@batchDone": {"placeholders": {"added": {"type": "int"}, "failed": {"type": "int"}}},
   "getSpeedLimitDesc": "Partagée entre les téléchargements en cours.",
   "getSpeedUnlimited": "Illimitée",
-  "getNoteSubs": "Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres."
+  "getNoteSubs": "Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres.",
+  "crossfadeExclusive": "Pas disponible avec la sortie audio exclusive.",
+  "crossfadeSeconds": "{s} s",
+  "@crossfadeSeconds": {"placeholders": {"s": {"type": "int"}}}
 }

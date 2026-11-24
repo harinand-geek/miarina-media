@@ -161,6 +161,7 @@ class PlaybackMemory {
   final Ref _ref;
   StreamSubscription<PlaybackSnapshot>? _sub;
   int? _currentId;
+  Uri? _currentUri;
   Duration _savedAt = Duration.zero;
   PlaybackSnapshot? _last;
 
@@ -212,6 +213,7 @@ class PlaybackMemory {
   Future<void> started(QueueEntry entry) async {
     await _flush();
     _currentId = entry.libraryId;
+    _currentUri = entry.source.uri;
     _savedAt = Duration.zero;
     final id = entry.libraryId;
     if (id == null) return;
@@ -240,6 +242,10 @@ class PlaybackMemory {
   }
 
   void _onSnapshot(PlaybackSnapshot s) {
+    // The engine already plays the next file (gapless, crossfade) before
+    // the queue says so: its positions are not this file's.
+    final uri = s.source?.uri;
+    if (uri != null && _currentUri != null && uri != _currentUri) return;
     final previous = _last;
     _last = s;
     if (_currentId == null || s.duration == Duration.zero) return;

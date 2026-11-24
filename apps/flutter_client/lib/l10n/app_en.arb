@@ -1061,5 +1061,8 @@
   "@batchDone": {"placeholders": {"added": {"type": "int"}, "failed": {"type": "int"}}},
   "getSpeedLimitDesc": "Shared between the running downloads.",
   "getSpeedUnlimited": "Unlimited",
-  "getNoteSubs": "One subtitle file per language, saved next to your videos. To have them inside the video, turn on Settings › Downloads › Download subtitles."
+  "getNoteSubs": "One subtitle file per language, saved next to your videos. To have them inside the video, turn on Settings › Downloads › Download subtitles.",
+  "crossfadeExclusive": "Not available with exclusive audio output.",
+  "crossfadeSeconds": "{s} s",
+  "@crossfadeSeconds": {"placeholders": {"s": {"type": "int"}}}
 }

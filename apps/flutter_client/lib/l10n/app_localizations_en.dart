@@ -3832,4 +3832,12 @@ class L10nEn extends L10n {
   @override
   String get getNoteSubs =>
       'One subtitle file per language, saved next to your videos. To have them inside the video, turn on Settings › Downloads › Download subtitles.';
+
+  @override
+  String get crossfadeExclusive => 'Not available with exclusive audio output.';
+
+  @override
+  String crossfadeSeconds(int s) {
+    return '$s s';
+  }
 }

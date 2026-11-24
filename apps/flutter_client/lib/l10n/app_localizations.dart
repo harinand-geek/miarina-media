@@ -6222,6 +6222,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres.'**
   String get getNoteSubs;
+
+  /// No description provided for @crossfadeExclusive.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas disponible avec la sortie audio exclusive.'**
+  String get crossfadeExclusive;
+
+  /// No description provided for @crossfadeSeconds.
+  ///
+  /// In fr, this message translates to:
+  /// **'{s} s'**
+  String crossfadeSeconds(int s);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

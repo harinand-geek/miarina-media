@@ -74,6 +74,8 @@ class FakeEngine implements MediaEngine {
     sidecarSubtitles: true,
     subtitleLanguage: true,
     frameStep: true,
+    gapless: true,
+    crossfade: true,
   );
 
   @override
@@ -97,6 +99,34 @@ class FakeEngine implements MediaEngine {
         duration: const Duration(minutes: 4),
         position: startAt ?? Duration.zero,
         // Like libmpv and Media3, the speed carries over to the next file.
+        speed: _state.speed,
+      ),
+    );
+  }
+
+  /// What the queue prepared to follow, and its crossfade.
+  MediaSource? prepared;
+  Duration preparedFade = Duration.zero;
+
+  @override
+  Future<void> prepareNext(
+    MediaSource? next, {
+    Duration crossfade = Duration.zero,
+  }) async {
+    prepared = next;
+    preparedFade = crossfade;
+  }
+
+  /// Plays the prepared file as an engine does at the end of the current
+  /// one (gapless or crossfade).
+  void followPrepared() {
+    final next = prepared!;
+    prepared = null;
+    emit(
+      PlaybackSnapshot(
+        status: PlaybackStatus.playing,
+        source: next,
+        duration: const Duration(minutes: 4),
         speed: _state.speed,
       ),
     );

@@ -80,6 +80,7 @@ class EnginePreferences {
     this.sidecarSubtitles = true,
     this.exclusiveAudio = false,
     this.audioOutput = 'auto',
+    this.normalize = false,
   });
 
   /// ISO 639-1 code of the preferred subtitle language, or null for none.
@@ -91,6 +92,9 @@ class EnginePreferences {
   /// Exclusive access to the output (WASAPI), for external DACs.
   final bool exclusiveAudio;
   final String audioOutput;
+
+  /// Apply the ReplayGain tags of the files (track gain) while playing.
+  final bool normalize;
 }
 
 /// What an engine can really do on this platform. The interface hides or
@@ -111,6 +115,9 @@ class EngineCapabilities {
     this.sidecarSubtitles = false,
     this.subtitleLanguage = false,
     this.frameStep = false,
+    this.normalization = false,
+    this.gapless = false,
+    this.crossfade = false,
   });
 
   final bool video;
@@ -132,6 +139,15 @@ class EngineCapabilities {
 
   /// One picture forward while paused (the '.' key).
   final bool frameStep;
+
+  /// [EnginePreferences.normalize] is honoured.
+  final bool normalization;
+
+  /// [MediaEngine.prepareNext] chains the next file without a gap.
+  final bool gapless;
+
+  /// [MediaEngine.prepareNext] can overlap two audio files.
+  final bool crossfade;
 }
 
 class PlaybackError {
@@ -285,6 +301,16 @@ abstract interface class MediaEngine {
 
   /// Applies the playback settings to what plays and what will.
   Future<void> applyPreferences(EnginePreferences preferences);
+
+  /// The file that follows the current one: prepared so it starts the
+  /// moment the current one ends (gapless), or overlapping its last
+  /// [crossfade] (two audio files). The engine then reports the new source
+  /// by itself, without an `ended` status in between. Null forgets it.
+  /// Engines without the capability ignore the call.
+  Future<void> prepareNext(
+    MediaSource? next, {
+    Duration crossfade = Duration.zero,
+  });
 
   /// The picture for this engine, or an empty box for audio-only engines.
   Widget buildVideoView({BoxFit fit = BoxFit.contain});

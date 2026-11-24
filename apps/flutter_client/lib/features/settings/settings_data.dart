@@ -79,22 +79,41 @@ class PlaybackPrefs {
   const PlaybackPrefs({
     this.resume = true,
     this.engine = const EnginePreferences(subtitleLanguage: 'fr'),
+    this.gapless = true,
+    this.crossfadeSecs = 0,
   });
 
   final bool resume;
   final EnginePreferences engine;
 
-  PlaybackPrefs copyWith({bool? resume, EnginePreferences? engine}) =>
-      PlaybackPrefs(
-        resume: resume ?? this.resume,
-        engine: engine ?? this.engine,
-      );
+  /// The next track is chained to the current one, without a blank.
+  final bool gapless;
+
+  /// Seconds the end of a track overlaps the next one (0: off).
+  final int crossfadeSecs;
+
+  static const crossfadeChoices = [0, 2, 4, 6, 8, 10, 12];
+
+  PlaybackPrefs copyWith({
+    bool? resume,
+    EnginePreferences? engine,
+    bool? gapless,
+    int? crossfadeSecs,
+  }) => PlaybackPrefs(
+    resume: resume ?? this.resume,
+    engine: engine ?? this.engine,
+    gapless: gapless ?? this.gapless,
+    crossfadeSecs: crossfadeSecs ?? this.crossfadeSecs,
+  );
 
   Map<String, Object?> toJson() => {
     'subtitleLanguage': engine.subtitleLanguage,
     'sidecarSubtitles': engine.sidecarSubtitles,
     'exclusiveAudio': engine.exclusiveAudio,
     'audioOutput': engine.audioOutput,
+    'normalize': engine.normalize,
+    'gapless': gapless,
+    'crossfadeSecs': crossfadeSecs,
   };
 }
 
@@ -104,6 +123,7 @@ EnginePreferences withEngine(
   bool? sidecarSubtitles,
   bool? exclusiveAudio,
   String? audioOutput,
+  bool? normalize,
 }) => EnginePreferences(
   subtitleLanguage: identical(subtitleLanguage, _keep)
       ? e.subtitleLanguage
@@ -111,6 +131,7 @@ EnginePreferences withEngine(
   sidecarSubtitles: sidecarSubtitles ?? e.sidecarSubtitles,
   exclusiveAudio: exclusiveAudio ?? e.exclusiveAudio,
   audioOutput: audioOutput ?? e.audioOutput,
+  normalize: normalize ?? e.normalize,
 );
 
 T _pick<T>(Object? map, String key, T fallback) {
@@ -179,7 +200,15 @@ class PlaybackPrefsController extends AsyncNotifier<PlaybackPrefs> {
         sidecarSubtitles: _pick(raw, 'sidecarSubtitles', true),
         exclusiveAudio: _pick(raw, 'exclusiveAudio', false),
         audioOutput: _pick(raw, 'audioOutput', 'auto'),
+        normalize: _pick(raw, 'normalize', false),
       ),
+      gapless: _pick(raw, 'gapless', true),
+      crossfadeSecs:
+          PlaybackPrefs.crossfadeChoices.contains(
+            _pick<num>(raw, 'crossfadeSecs', 0).toInt(),
+          )
+          ? _pick<num>(raw, 'crossfadeSecs', 0).toInt()
+          : 0,
     );
   }
 

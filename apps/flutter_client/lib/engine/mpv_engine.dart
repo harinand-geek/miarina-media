@@ -23,6 +23,11 @@ class MpvEngine implements MediaEngine {
   DateTime _lastPositionEmit = DateTime.fromMillisecondsSinceEpoch(0);
   String? _subtitleBeforeDisable;
 
+  /// The equalizer's filters and the loudness normalization share mpv's
+  /// audio filter chain.
+  String? _eqChain;
+  bool _normalize = false;
+
   @override
   final EngineCapabilities capabilities = const EngineCapabilities(
     video: true,
@@ -40,7 +45,43 @@ class MpvEngine implements MediaEngine {
     sidecarSubtitles: true,
     subtitleLanguage: true,
     frameStep: true,
+    normalization: true,
+    // The next file waits in mpv's playlist; crossfade needs a second
+    // player (CrossfadeEngine).
+    gapless: true,
   );
+
+  /// The file prepared to follow (mpv's playlist holds it after the
+  /// current one).
+  MediaSource? _prepared;
+
+  static String _resource(MediaSource m) =>
+      m.uri.isScheme('file') ? m.uri.toFilePath() : m.uri.toString();
+
+  @override
+  Future<void> prepareNext(
+    MediaSource? next, {
+    Duration crossfade = Duration.zero,
+  }) async {
+    if (next?.uri == _prepared?.uri && (next == null) == (_prepared == null)) {
+      return;
+    }
+    final playlist = _player.state.playlist;
+    for (var i = playlist.medias.length - 1; i > playlist.index; i--) {
+      await _player.remove(i);
+    }
+    _prepared = next;
+    if (next != null) await _player.add(mk.Media(_resource(next)));
+  }
+
+  // Gapless needs mpv to read the next file ahead and keep the audio
+  // output open between files.
+  Future<void> _configureGapless() async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return;
+    await native.setProperty('prefetch-playlist', 'yes');
+    await native.setProperty('gapless-audio', 'yes');
+  }
 
   /// mpv wants the 2- and 3-letter codes a file may use.
   static const _languageCodes = {
@@ -90,6 +131,22 @@ class MpvEngine implements MediaEngine {
         .where((d) => d.name == p.audioOutput)
         .firstOrNull;
     await _player.setAudioDevice(device ?? mk.AudioDevice.auto());
+    if (p.normalize != _normalize) {
+      _normalize = p.normalize;
+      await _applyFilters();
+    }
+  }
+
+  // ReplayGain tags of the file (track gain), applied by mpv without
+  // delay; files without tags play as they are. A live loudness filter
+  // (FFmpeg loudnorm) was tried: it holds 3 s of sound back at every start
+  // and seek, so it is not used.
+  Future<void> _applyFilters() async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return;
+    final chain = _eqChain;
+    await native.setProperty('replaygain', _normalize ? 'track' : 'no');
+    await native.setProperty('af', chain == null ? '' : 'lavfi=[$chain]');
   }
 
   @override
@@ -104,8 +161,30 @@ class MpvEngine implements MediaEngine {
   }
 
   void _bind() {
+    unawaited(_configureGapless());
     final s = _player.stream;
     _subscriptions
+      ..add(
+        s.playlist.listen((p) {
+          // mpv went on to the prepared file by itself.
+          final next = _prepared;
+          if (next == null || p.index < 1 || p.index >= p.medias.length) {
+            return;
+          }
+          _prepared = null;
+          _emit(
+            PlaybackSnapshot(
+              status: PlaybackStatus.playing,
+              source: next,
+              volume: _state.volume,
+              speed: _state.speed,
+              repeat: _state.repeat,
+            ),
+          );
+          // Only the current file stays in the playlist.
+          unawaited(_player.remove(0));
+        }),
+      )
       ..add(
         s.playing.listen((playing) {
           if (_state.status == PlaybackStatus.idle ||
@@ -121,7 +200,7 @@ class MpvEngine implements MediaEngine {
       )
       ..add(
         s.completed.listen((done) {
-          if (done && _state.repeat == RepeatSetting.off) {
+          if (done && _state.repeat == RepeatSetting.off && _prepared == null) {
             _emit(_state.copyWith(status: PlaybackStatus.ended));
           }
         }),
@@ -285,10 +364,12 @@ class MpvEngine implements MediaEngine {
         repeat: _state.repeat,
       ),
     );
-    final resource = media.uri.isScheme('file')
-        ? media.uri.toFilePath()
-        : media.uri.toString();
-    await _player.open(mk.Media(resource, start: startAt), play: autoplay);
+    // A new file replaces mpv's playlist, the prepared one with it.
+    _prepared = null;
+    await _player.open(
+      mk.Media(_resource(media), start: startAt),
+      play: autoplay,
+    );
     if (!autoplay && _state.status == PlaybackStatus.loading) {
       _emit(_state.copyWith(status: PlaybackStatus.paused));
     }
@@ -404,14 +485,15 @@ class MpvEngine implements MediaEngine {
     if (gainsDb == null ||
         gainsDb.length != _eqHz.length ||
         gainsDb.every((g) => g == 0)) {
-      await native.setProperty('af', '');
+      _eqChain = null;
+      await _applyFilters();
       return gainsDb == null || gainsDb.length == _eqHz.length;
     }
-    final chain = [
+    _eqChain = [
       for (var i = 0; i < _eqHz.length; i++)
         'equalizer=f=${_eqHz[i]}:t=o:w=${i == 0 || i == _eqHz.length - 1 ? 2 : 1.3}:g=${gainsDb[i].clamp(-12.0, 12.0).toStringAsFixed(1)}',
     ].join(',');
-    await native.setProperty('af', 'lavfi=[$chain]');
+    await _applyFilters();
     return true;
   }
 

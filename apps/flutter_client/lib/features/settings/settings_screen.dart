@@ -714,39 +714,45 @@ class _Playback extends ConsumerWidget {
                 onChanged: (v) => ctl.save(prefs.copyWith(resume: v)),
               ),
             ),
-            // The queue opens files one by one; gapless needs files chained
-            // in the engine. Shown P1 until then, never simulated.
-            SettingsRow(
-              title: t.gapless,
-              body: t.gaplessBody,
-              p1: true,
-              control: MmSwitch(
-                value: false,
-                label: t.gapless,
-                onChanged: null,
+            // The queue prepares the next file in the engine (gapless) or
+            // in a second one (crossfade); not offered where the engine
+            // cannot.
+            if (caps?.gapless ?? false)
+              SettingsRow(
+                title: t.gapless,
+                body: t.gaplessBody,
+                control: MmSwitch(
+                  value: prefs.gapless,
+                  label: t.gapless,
+                  onChanged: (v) => ctl.save(prefs.copyWith(gapless: v)),
+                ),
               ),
-            ),
-            SettingsRow(
-              title: t.crossfade,
-              body: t.crossfadeBody,
-              p1: true,
-              control: SettingsMenu<int>(
-                label: t.crossfade,
-                values: [(0, t.off)],
-                selected: 0,
-                onChanged: null,
+            if (caps?.crossfade ?? false)
+              SettingsRow(
+                title: t.crossfade,
+                body: e.exclusiveAudio ? t.crossfadeExclusive : t.crossfadeBody,
+                control: SettingsMenu<int>(
+                  label: t.crossfade,
+                  values: [
+                    for (final s in PlaybackPrefs.crossfadeChoices)
+                      (s, s == 0 ? t.off : t.crossfadeSeconds(s)),
+                  ],
+                  selected: prefs.crossfadeSecs,
+                  onChanged: e.exclusiveAudio
+                      ? null
+                      : (v) => ctl.save(prefs.copyWith(crossfadeSecs: v)),
+                ),
               ),
-            ),
-            SettingsRow(
-              title: t.normalizationSetting,
-              body: t.normalizationSettingBody,
-              p1: true,
-              control: MmSwitch(
-                value: false,
-                label: t.normalizationSetting,
-                onChanged: null,
+            if (caps?.normalization ?? false)
+              SettingsRow(
+                title: t.normalizationSetting,
+                body: t.normalizationSettingBody,
+                control: MmSwitch(
+                  value: e.normalize,
+                  label: t.normalizationSetting,
+                  onChanged: (v) => engine(withEngine(e, normalize: v)),
+                ),
               ),
-            ),
           ],
         ),
         SettingsGroup(
