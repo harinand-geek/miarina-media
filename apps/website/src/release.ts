@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.2.7',
+  version: '0.2.8',
   windows: {
-    version: '0.2.7',
-    name: 'MiarinaMedia-0.2.7-x64-setup.exe',
+    version: '0.2.8',
+    name: 'MiarinaMedia-0.2.8-x64-setup.exe',
     size: '113,4 Mio',
-    sha256: '5372bab14ebc1a6fb7113eaa9ac9957e79c599179fb66b711d53b7ff49d12a22',
+    sha256: '3f620b8be77eddf726e4c5b8bcca974e246df6313a9e7e12a1c74c488949640a',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.2.7',
-    name: 'MiarinaMedia-0.2.7.apk',
+    version: '0.2.8',
+    name: 'MiarinaMedia-0.2.8.apk',
     size: '64,8 Mio',
-    sha256: '8f22e85a497ac27bedae833aa8b54b391715afd8cf95de95c7ed3edc7adc6d53',
+    sha256: '8175034b01f07ea42000e58f27b7768bab10565600c964bb35dcace88bbd18a0',
   } satisfies ReleaseFile,
 };
 
@@ -65,14 +65,15 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
-    name: '0.2.7 · Windows et Android',
+    name: '0.2.8 · Windows et Android',
     date: '24 novembre 2026',
     current: true,
     items: [
       'En malagasy, les écrans Historique s’affichent de nouveau (ils restaient gris)',
       'Android : si vous avez téléchargé avant d’ouvrir Musique, un bandeau propose maintenant d’afficher la musique du téléphone',
+      'Android : appui long ou ⋮ sur un titre pour le lire ensuite, l’ajouter à la file ou à une playlist, le partager ou le supprimer du téléphone',
       'Windows : pages centrées sur les grands écrans, passage plus doux d’une page à l’autre',
-      'Windows et Android passent tous deux en 0.2.7',
+      'Windows et Android passent tous deux en 0.2.8',
     ],
   },
   {
