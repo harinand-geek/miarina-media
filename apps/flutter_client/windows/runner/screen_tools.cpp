@@ -215,6 +215,25 @@ BOOL CALLBACK AddWindow(HWND hwnd, LPARAM data) {
   return search->list.size() < 64;
 }
 
+// The window in front with the keyboard, even when another application
+// was in front (the shortcut was pressed there): Windows may refuse
+// SetForegroundWindow, joining that application's input queue lets it.
+// The keyboard goes to Flutter's own child window, never the frame.
+void BringToFront(HWND window) {
+  HWND front = GetForegroundWindow();
+  if (front != window) {
+    const DWORD theirs = front ? GetWindowThreadProcessId(front, nullptr) : 0;
+    const DWORD ours = GetCurrentThreadId();
+    const bool joined =
+        theirs != 0 && theirs != ours && AttachThreadInput(ours, theirs, TRUE);
+    SetForegroundWindow(window);
+    BringWindowToTop(window);
+    if (joined) AttachThreadInput(ours, theirs, FALSE);
+  }
+  HWND content = GetWindow(window, GW_CHILD);
+  SetFocus(content ? content : window);
+}
+
 }  // namespace
 
 ScreenTools::ScreenTools(flutter::BinaryMessenger* messenger, HWND window)
@@ -342,10 +361,7 @@ void ScreenTools::OnCall(
                                                  radius * 2, radius * 2)
                             : nullptr,
                  TRUE);
-    if (activate) {
-      SetForegroundWindow(window_);
-      SetFocus(window_);
-    }
+    if (activate) BringToFront(window_);
     result->Success();
     return;
   }

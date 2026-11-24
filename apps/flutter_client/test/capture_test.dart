@@ -456,6 +456,9 @@ void main() {
         );
         return r.endRecording().toImage(2880, 1800);
       }))!;
+      // A button of the screen had the keyboard (as « Essayer » has).
+      Focus.of(tester.element(find.text('Essayer'))).requestFocus();
+      await tester.pump();
       controller.show(
         CaptureSession(
           image: image,
@@ -465,6 +468,10 @@ void main() {
       await tester.pump(const Duration(milliseconds: 150));
       expect(find.text('Glissez pour choisir une zone'), findsOneWidget);
       expect(find.text('Enregistrer'), findsNothing, reason: 'no zone yet');
+      // Esc reaches the overlay at once.
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pump();
+      expect(calls, ['cancel']);
 
       await tester.dragFrom(const Offset(300, 200), const Offset(420, 240));
       await tester.pump(const Duration(milliseconds: 150));

@@ -157,6 +157,16 @@ class _CaptureOverlayState extends ConsumerState<CaptureOverlay> {
   final _focus = FocusNode(debugLabel: 'capture-overlay');
 
   @override
+  void initState() {
+    super.initState();
+    // autofocus gives way to whatever had the focus (« Essayer »…): the
+    // overlay takes it, so Enter and Esc reach it.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _focus.requestFocus();
+    });
+  }
+
+  @override
   void dispose() {
     _focus.dispose();
     super.dispose();
