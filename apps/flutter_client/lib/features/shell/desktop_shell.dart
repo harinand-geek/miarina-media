@@ -1,3 +1,5 @@
+import '../tour/tour.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -107,7 +109,10 @@ class DesktopShell extends ConsumerWidget {
                     ),
                     // W-C3 and W-F2 have their own controls.
                     if (!watching && location != Routes.focusPlayer && !welcome)
-                      const PlaybackBar(),
+                      const TourTarget(
+                        spot: TourSpot.playbar,
+                        child: PlaybackBar(),
+                      ),
                   ],
                 ),
               ),

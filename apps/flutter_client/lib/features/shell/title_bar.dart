@@ -1,3 +1,5 @@
+import '../tour/tour.dart';
+
 import 'dart:async';
 import 'dart:ui' show AppExitType;
 
@@ -144,7 +146,10 @@ class _TitleBarState extends State<TitleBar> {
                     Expanded(
                       child: Center(
                         child: widget.search
-                            ? SearchField(location: widget.location)
+                            ? TourTarget(
+                                spot: TourSpot.search,
+                                child: SearchField(location: widget.location),
+                              )
                             : const SizedBox.shrink(),
                       ),
                     ),

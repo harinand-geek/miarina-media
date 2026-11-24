@@ -4714,4 +4714,82 @@ class L10nEn extends L10n {
 
   @override
   String get showVideo => 'Show the video';
+
+  @override
+  String get tourWelcomeTitle => 'Welcome to Miarina Media';
+
+  @override
+  String get tourWelcomeBody =>
+      'A quick tour of the main places. You can skip it and see it again later in Settings › General.';
+
+  @override
+  String get tourSpaceTitle => 'Two spaces';
+
+  @override
+  String get tourSpaceBody =>
+      'Get to download videos and music, Listen for your library. Switch between them here.';
+
+  @override
+  String get tourLinkTitle => 'Paste a link';
+
+  @override
+  String get tourLinkBody =>
+      'Paste the address of a video or a playlist: Miarina Media analyses it and offers formats and qualities.';
+
+  @override
+  String get tourToolsTitle => 'PC tools';
+
+  @override
+  String get tourToolsBody =>
+      'Record the screen and convert your files (MP4, MP3, 3GP…). Screenshots are set up in Settings.';
+
+  @override
+  String get tourLibraryTitle => 'Your library';
+
+  @override
+  String get tourLibraryBody =>
+      'Music, films and series, Focus for podcasts and courses: everything you download or add arrives here.';
+
+  @override
+  String get tourSearchTitle => 'Search';
+
+  @override
+  String get tourSearchBody =>
+      'Tracks, albums, films and podcasts, from any screen. Shortcut: Ctrl K.';
+
+  @override
+  String get tourPlaybarTitle => 'Playback';
+
+  @override
+  String get tourPlaybarBody =>
+      'What plays: pause, next track, volume. Click the cover to open the full player.';
+
+  @override
+  String get tourSettingsTitle => 'Settings';
+
+  @override
+  String get tourSettingsBody =>
+      'Theme and language, download folder, shortcuts, screenshots and updates.';
+
+  @override
+  String get tourSkip => 'Skip the tour';
+
+  @override
+  String get tourBack => 'Back';
+
+  @override
+  String get tourNext => 'Next';
+
+  @override
+  String get tourDone => 'Done';
+
+  @override
+  String get tourReplay => 'Guided tour';
+
+  @override
+  String get tourReplayBody =>
+      'See the presentation of the main screens again.';
+
+  @override
+  String get tourStart => 'Start';
 }

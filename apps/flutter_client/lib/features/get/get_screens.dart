@@ -1,3 +1,5 @@
+import '../tour/tour.dart';
+
 import 'dart:async';
 import 'dart:io';
 
@@ -503,42 +505,48 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
                         : c.accent,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Icon(
-                      PhosphorRegular.link,
-                      size: 20,
-                      color: issue?.warn ?? false ? c.warning : c.muted,
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: TextField(
-                        key: const ValueKey('get-link'),
-                        controller: _field,
-                        focusNode: _focus,
-                        keyboardType: TextInputType.url,
-                        textInputAction: TextInputAction.go,
-                        onChanged: (_) {
-                          if (_issue != null) setState(() => _issue = null);
-                        },
-                        onSubmitted: (_) => _submit(),
-                        style: MmType.monoStyle(size: 14, color: c.fg),
-                        cursorColor: c.accent,
-                        decoration: InputDecoration(
-                          isDense: true,
-                          border: InputBorder.none,
-                          hintText: 'https://',
-                          hintStyle: MmType.monoStyle(size: 14, color: c.faint),
+                child: TourTarget(
+                  spot: TourSpot.getLink,
+                  child: Row(
+                    children: [
+                      Icon(
+                        PhosphorRegular.link,
+                        size: 20,
+                        color: issue?.warn ?? false ? c.warning : c.muted,
+                      ),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: TextField(
+                          key: const ValueKey('get-link'),
+                          controller: _field,
+                          focusNode: _focus,
+                          keyboardType: TextInputType.url,
+                          textInputAction: TextInputAction.go,
+                          onChanged: (_) {
+                            if (_issue != null) setState(() => _issue = null);
+                          },
+                          onSubmitted: (_) => _submit(),
+                          style: MmType.monoStyle(size: 14, color: c.fg),
+                          cursorColor: c.accent,
+                          decoration: InputDecoration(
+                            isDense: true,
+                            border: InputBorder.none,
+                            hintText: 'https://',
+                            hintStyle: MmType.monoStyle(
+                              size: 14,
+                              color: c.faint,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    _Button(
-                      t.getPaste,
-                      _paste,
-                      icon: PhosphorRegular.clipboardText,
-                      height: 40,
-                    ),
-                  ],
+                      _Button(
+                        t.getPaste,
+                        _paste,
+                        icon: PhosphorRegular.clipboardText,
+                        height: 40,
+                      ),
+                    ],
+                  ),
                 ),
               ),
               if (issue != null) ...[
@@ -682,133 +690,142 @@ class _GetHomeScreenState extends ConsumerState<GetHomeScreen> {
     final wide = width >= 1100 + 232;
     final issue = _issue;
 
-    final linkCard = Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: c.surface,
-        borderRadius: BorderRadius.circular(MmRadius.xl),
-        border: Border.all(color: c.line),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: Container(
-                  height: 48,
-                  padding: const EdgeInsets.only(left: 14, right: 9),
-                  decoration: BoxDecoration(
-                    color: c.bg,
-                    borderRadius: BorderRadius.circular(MmRadius.md),
-                    border: Border.all(
-                      color: issue == null
-                          ? c.lineStrong
-                          : issue.warn
-                          ? c.warning.withValues(alpha: 0.6)
-                          : c.accent,
-                    ),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        PhosphorRegular.link,
-                        size: 20,
-                        color: issue?.warn ?? false ? c.warning : c.muted,
+    final linkCard = TourTarget(
+      spot: TourSpot.getLink,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(MmRadius.xl),
+          border: Border.all(color: c.line),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    height: 48,
+                    padding: const EdgeInsets.only(left: 14, right: 9),
+                    decoration: BoxDecoration(
+                      color: c.bg,
+                      borderRadius: BorderRadius.circular(MmRadius.md),
+                      border: Border.all(
+                        color: issue == null
+                            ? c.lineStrong
+                            : issue.warn
+                            ? c.warning.withValues(alpha: 0.6)
+                            : c.accent,
                       ),
-                      const SizedBox(width: 10),
-                      Expanded(
-                        child: TextField(
-                          key: const ValueKey('get-link'),
-                          controller: _field,
-                          focusNode: _focus,
-                          onChanged: (_) {
-                            if (_issue != null) setState(() => _issue = null);
-                          },
-                          onSubmitted: (_) => _submit(),
-                          style: MmType.monoStyle(size: 14, color: c.fg),
-                          cursorColor: c.accent,
-                          decoration: InputDecoration(
-                            isDense: true,
-                            border: InputBorder.none,
-                            hintText: 'https://',
-                            hintStyle: MmType.monoStyle(
-                              size: 14,
-                              color: c.faint,
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          PhosphorRegular.link,
+                          size: 20,
+                          color: issue?.warn ?? false ? c.warning : c.muted,
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            key: const ValueKey('get-link'),
+                            controller: _field,
+                            focusNode: _focus,
+                            onChanged: (_) {
+                              if (_issue != null) setState(() => _issue = null);
+                            },
+                            onSubmitted: (_) => _submit(),
+                            style: MmType.monoStyle(size: 14, color: c.fg),
+                            cursorColor: c.accent,
+                            decoration: InputDecoration(
+                              isDense: true,
+                              border: InputBorder.none,
+                              hintText: 'https://',
+                              hintStyle: MmType.monoStyle(
+                                size: 14,
+                                color: c.faint,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                      _Button(
-                        t.getPaste,
-                        _paste,
-                        icon: PhosphorRegular.clipboardText,
-                        height: 30,
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              _Button(
-                t.getAnalyze,
-                _submit,
-                primary: true,
-                height: 48,
-                icon: PhosphorRegular.arrowRight,
-              ),
-            ],
-          ),
-          if (issue != null) ...[
-            const SizedBox(height: 12),
-            _IssueNote(
-              issue: issue,
-              onFix: issue.fix == null
-                  ? null
-                  : () {
-                      _field.text = issue.fix!;
-                      _submit(value: issue.fix);
-                    },
-            ),
-          ],
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(MmRadius.xs),
-                  border: Border.all(color: c.lineStrong),
-                ),
-                child: Text(
-                  'Ctrl V',
-                  style: MmType.monoStyle(size: 11, color: c.muted),
-                ),
-              ),
-              const SizedBox(width: 6),
-              Text(
-                t.getHintPaste,
-                style: MmType.caption.copyWith(fontSize: 12.5, color: c.muted),
-              ),
-              // Shown once the extension is connected (Settings).
-              if (ref.watch(extensionConnectedProvider)) ...[
-                const SizedBox(width: 18),
-                Icon(PhosphorRegular.plugs, size: 15, color: c.muted),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    t.getHintExt,
-                    overflow: TextOverflow.ellipsis,
-                    style: MmType.caption.copyWith(
-                      fontSize: 12.5,
-                      color: c.muted,
+                        _Button(
+                          t.getPaste,
+                          _paste,
+                          icon: PhosphorRegular.clipboardText,
+                          height: 30,
+                        ),
+                      ],
                     ),
                   ),
                 ),
+                const SizedBox(width: 10),
+                _Button(
+                  t.getAnalyze,
+                  _submit,
+                  primary: true,
+                  height: 48,
+                  icon: PhosphorRegular.arrowRight,
+                ),
               ],
+            ),
+            if (issue != null) ...[
+              const SizedBox(height: 12),
+              _IssueNote(
+                issue: issue,
+                onFix: issue.fix == null
+                    ? null
+                    : () {
+                        _field.text = issue.fix!;
+                        _submit(value: issue.fix);
+                      },
+              ),
             ],
-          ),
-        ],
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 6,
+                    vertical: 1,
+                  ),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(MmRadius.xs),
+                    border: Border.all(color: c.lineStrong),
+                  ),
+                  child: Text(
+                    'Ctrl V',
+                    style: MmType.monoStyle(size: 11, color: c.muted),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  t.getHintPaste,
+                  style: MmType.caption.copyWith(
+                    fontSize: 12.5,
+                    color: c.muted,
+                  ),
+                ),
+                // Shown once the extension is connected (Settings).
+                if (ref.watch(extensionConnectedProvider)) ...[
+                  const SizedBox(width: 18),
+                  Icon(PhosphorRegular.plugs, size: 15, color: c.muted),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      t.getHintExt,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.caption.copyWith(
+                        fontSize: 12.5,
+                        color: c.muted,
+                      ),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
 

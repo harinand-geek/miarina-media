@@ -14,6 +14,7 @@ import '../health/health_data.dart';
 import '../home/home_data.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
+import '../tour/tour.dart';
 import '../playback/settings_store.dart';
 import '../playlists/playlists_data.dart';
 
@@ -261,6 +262,8 @@ class OnboardingController extends AsyncNotifier<bool> {
     await future;
     state = const AsyncData(true);
     await ref.read(settingsStoreProvider).write(key, true);
+    // First use on Windows: the guided tour of the main places.
+    unawaited(ref.read(tourProvider.notifier).startIfNew());
   }
 }
 

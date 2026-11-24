@@ -7,6 +7,7 @@ import '../features/capture/capture_data.dart';
 import '../features/capture/capture_overlay.dart';
 import '../features/cinema/series_audio.dart';
 import '../features/recorder/recorder_bar.dart';
+import '../features/tour/tour.dart';
 import '../features/recorder/recorder_data.dart';
 import '../features/focus/focus_data.dart';
 import '../features/get/download_notifications.dart';
@@ -76,7 +77,9 @@ class MiarinaApp extends ConsumerWidget {
             child: UpdateMonitor(
               // The capture overlay covers every screen while it is open.
               child: TaskbarSync(
-                child: RecorderHost(child: CaptureHost(child: child!)),
+                child: RecorderHost(
+                  child: CaptureHost(child: TourHost(child: child!)),
+                ),
               ),
             ),
           ),

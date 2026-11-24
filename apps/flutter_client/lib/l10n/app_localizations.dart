@@ -7824,6 +7824,144 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Revoir la vidéo'**
   String get showVideo;
+
+  /// No description provided for @tourWelcomeTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bienvenue dans Miarina Media'**
+  String get tourWelcomeTitle;
+
+  /// No description provided for @tourWelcomeBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une visite rapide des endroits principaux. Vous pouvez la passer et la revoir plus tard dans Réglages › Général.'**
+  String get tourWelcomeBody;
+
+  /// No description provided for @tourSpaceTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Deux espaces'**
+  String get tourSpaceTitle;
+
+  /// No description provided for @tourSpaceBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir pour télécharger des vidéos et de la musique, Écouter pour votre bibliothèque. Passez de l’un à l’autre ici.'**
+  String get tourSpaceBody;
+
+  /// No description provided for @tourLinkTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Coller un lien'**
+  String get tourLinkTitle;
+
+  /// No description provided for @tourLinkBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Collez l’adresse d’une vidéo ou d’une playlist : Miarina Media l’analyse et vous propose les formats et qualités.'**
+  String get tourLinkBody;
+
+  /// No description provided for @tourToolsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils PC'**
+  String get tourToolsTitle;
+
+  /// No description provided for @tourToolsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer l’écran et convertir vos fichiers (MP4, MP3, 3GP…). La capture d’écran se règle dans Réglages.'**
+  String get tourToolsBody;
+
+  /// No description provided for @tourLibraryTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre bibliothèque'**
+  String get tourLibraryTitle;
+
+  /// No description provided for @tourLibraryBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musique, films et séries, Focus pour les podcasts et les cours : tout ce que vous téléchargez ou ajoutez arrive ici.'**
+  String get tourLibraryBody;
+
+  /// No description provided for @tourSearchTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher'**
+  String get tourSearchTitle;
+
+  /// No description provided for @tourSearchBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titres, albums, films et podcasts, depuis n’importe quel écran. Raccourci : Ctrl K.'**
+  String get tourSearchBody;
+
+  /// No description provided for @tourPlaybarTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture'**
+  String get tourPlaybarTitle;
+
+  /// No description provided for @tourPlaybarBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce qui joue : pause, titre suivant, volume. Cliquez sur la pochette pour ouvrir le lecteur complet.'**
+  String get tourPlaybarBody;
+
+  /// No description provided for @tourSettingsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglages'**
+  String get tourSettingsTitle;
+
+  /// No description provided for @tourSettingsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Thème et langue, dossier des téléchargements, raccourcis, capture d’écran et mises à jour.'**
+  String get tourSettingsBody;
+
+  /// No description provided for @tourSkip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Passer la visite'**
+  String get tourSkip;
+
+  /// No description provided for @tourBack.
+  ///
+  /// In fr, this message translates to:
+  /// **'Précédent'**
+  String get tourBack;
+
+  /// No description provided for @tourNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Suivant'**
+  String get tourNext;
+
+  /// No description provided for @tourDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminer'**
+  String get tourDone;
+
+  /// No description provided for @tourReplay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Visite guidée'**
+  String get tourReplay;
+
+  /// No description provided for @tourReplayBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir la présentation des écrans principaux.'**
+  String get tourReplayBody;
+
+  /// No description provided for @tourStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lancer'**
+  String get tourStart;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

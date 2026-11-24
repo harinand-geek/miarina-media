@@ -1,3 +1,5 @@
+import '../tour/tour.dart';
+
 import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -270,71 +272,93 @@ class Sidebar extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _SpaceSwitch(inGet: inGet, collapsed: collapsed),
+          TourTarget(
+            spot: TourSpot.space,
+            child: _SpaceSwitch(inGet: inGet, collapsed: collapsed),
+          ),
           const SizedBox(height: 10),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.zero,
-              children: [
-                for (final (head, entries) in groups) ...[
-                  if (head != null)
-                    collapsed
-                        ? Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 8),
-                            child: Divider(
-                              color: c.divider,
-                              height: 1,
-                              indent: 8,
-                              endIndent: 8,
+            child: TourTarget(
+              spot: TourSpot.library,
+              child: ListView(
+                padding: EdgeInsets.zero,
+                children: [
+                  for (final (head, entries) in groups) ...[
+                    if (head != null)
+                      collapsed
+                          ? Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 8),
+                              child: Divider(
+                                color: c.divider,
+                                height: 1,
+                                indent: 8,
+                                endIndent: 8,
+                              ),
+                            )
+                          : TourTarget(
+                              spot: head == t.toolsGroup
+                                  ? TourSpot.tools
+                                  : TourSpot.space,
+                              enabled: head == t.toolsGroup,
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  13,
+                                  10,
+                                  13,
+                                  6,
+                                ),
+                                child: Text(
+                                  head.toUpperCase(),
+                                  style: MmType.overline.copyWith(
+                                    color: c.faint,
+                                  ),
+                                ),
+                              ),
                             ),
-                          )
-                        : Padding(
-                            padding: const EdgeInsets.fromLTRB(13, 10, 13, 6),
-                            child: Text(
-                              head.toUpperCase(),
-                              style: MmType.overline.copyWith(color: c.faint),
-                            ),
-                          ),
-                  for (final e in entries)
-                    _NavItem(
-                      entry: e,
-                      active:
-                          location == e.route ||
-                          // Album and artist pages keep their list lit.
-                          ((e.route == Routes.albums ||
-                                  e.route == Routes.artists ||
-                                  e.route == Routes.playlists) &&
-                              location.startsWith('${e.route}/')) ||
-                          // Series pages and the player sit under Films &
-                          // séries.
-                          (e.route == Routes.cinema &&
-                              (location == Routes.series ||
-                                  location == Routes.watch)) ||
-                          // The Focus player and program pages too.
-                          (e.route == Routes.focus &&
-                              (location == Routes.focusPlayer ||
-                                  location == Routes.focusProgram)) ||
-                          // The analysis of a link belongs to Obtenir's home.
-                          (e.route == Routes.get &&
-                              (location == Routes.getAnalysis ||
-                                  location == Routes.getBatch)),
-                      collapsed: collapsed,
-                      teal: inGet,
-                    ),
+                    for (final e in entries)
+                      _NavItem(
+                        entry: e,
+                        active:
+                            location == e.route ||
+                            // Album and artist pages keep their list lit.
+                            ((e.route == Routes.albums ||
+                                    e.route == Routes.artists ||
+                                    e.route == Routes.playlists) &&
+                                location.startsWith('${e.route}/')) ||
+                            // Series pages and the player sit under Films &
+                            // séries.
+                            (e.route == Routes.cinema &&
+                                (location == Routes.series ||
+                                    location == Routes.watch)) ||
+                            // The Focus player and program pages too.
+                            (e.route == Routes.focus &&
+                                (location == Routes.focusPlayer ||
+                                    location == Routes.focusProgram)) ||
+                            // The analysis of a link belongs to Obtenir's home.
+                            (e.route == Routes.get &&
+                                (location == Routes.getAnalysis ||
+                                    location == Routes.getBatch)),
+                        collapsed: collapsed,
+                        teal: inGet,
+                      ),
+                  ],
                 ],
-              ],
+              ),
             ),
           ),
           if (inGet && !collapsed) const _DownloadsCard(),
-          _NavItem(
-            entry: _Entry(
-              Routes.settings,
-              t.navSettings,
-              PhosphorRegular.gearSix,
-              PhosphorFill.gearSix,
+          TourTarget(
+            spot: TourSpot.settings,
+            child: _NavItem(
+              entry: _Entry(
+                Routes.settings,
+                t.navSettings,
+                PhosphorRegular.gearSix,
+                PhosphorFill.gearSix,
+              ),
+              active: location.startsWith(Routes.settings),
+              collapsed: collapsed,
             ),
-            active: location.startsWith(Routes.settings),
-            collapsed: collapsed,
           ),
         ],
       ),

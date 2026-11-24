@@ -129,6 +129,12 @@ void main() {
       await settle(tester);
       expect(settings.values[OnboardingController.key], isTrue);
       expect(find.text('Albums'), findsOneWidget, reason: 'back in the app');
+      // First use on Windows: the guided tour starts, and can be skipped.
+      expect(find.text('Bienvenue dans Miarina Media'), findsOneWidget);
+      await tester.tap(find.text('Passer la visite'));
+      await settle(tester);
+      expect(find.text('Bienvenue dans Miarina Media'), findsNothing);
+      expect(settings.values['tourDone'], isTrue);
     });
 
     testWidgets('every step can be skipped', (tester) async {

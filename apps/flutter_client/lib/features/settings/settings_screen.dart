@@ -27,6 +27,7 @@ import '../playback/playback.dart';
 import '../shortcuts/shortcuts_view.dart';
 import '../now_playing/now_playing_screen.dart' show lastLocationProvider;
 import 'extension_settings.dart';
+import '../tour/tour.dart';
 import 'settings_data.dart';
 
 enum SettingsSection {
@@ -508,6 +509,15 @@ class _General extends ConsumerWidget {
             onChanged: (v) => ctl.save(look.copyWith(language: v)),
           ),
         ),
+        if (ref.watch(desktopShellProvider))
+          SettingsRow(
+            title: t.tourReplay,
+            body: t.tourReplayBody,
+            control: OutlinedButton(
+              onPressed: () => ref.read(tourProvider.notifier).start(),
+              child: Text(t.tourStart),
+            ),
+          ),
       ],
     );
   }

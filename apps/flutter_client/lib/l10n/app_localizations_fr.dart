@@ -4754,4 +4754,81 @@ class L10nFr extends L10n {
 
   @override
   String get showVideo => 'Revoir la vidéo';
+
+  @override
+  String get tourWelcomeTitle => 'Bienvenue dans Miarina Media';
+
+  @override
+  String get tourWelcomeBody =>
+      'Une visite rapide des endroits principaux. Vous pouvez la passer et la revoir plus tard dans Réglages › Général.';
+
+  @override
+  String get tourSpaceTitle => 'Deux espaces';
+
+  @override
+  String get tourSpaceBody =>
+      'Obtenir pour télécharger des vidéos et de la musique, Écouter pour votre bibliothèque. Passez de l’un à l’autre ici.';
+
+  @override
+  String get tourLinkTitle => 'Coller un lien';
+
+  @override
+  String get tourLinkBody =>
+      'Collez l’adresse d’une vidéo ou d’une playlist : Miarina Media l’analyse et vous propose les formats et qualités.';
+
+  @override
+  String get tourToolsTitle => 'Outils PC';
+
+  @override
+  String get tourToolsBody =>
+      'Enregistrer l’écran et convertir vos fichiers (MP4, MP3, 3GP…). La capture d’écran se règle dans Réglages.';
+
+  @override
+  String get tourLibraryTitle => 'Votre bibliothèque';
+
+  @override
+  String get tourLibraryBody =>
+      'Musique, films et séries, Focus pour les podcasts et les cours : tout ce que vous téléchargez ou ajoutez arrive ici.';
+
+  @override
+  String get tourSearchTitle => 'Rechercher';
+
+  @override
+  String get tourSearchBody =>
+      'Titres, albums, films et podcasts, depuis n’importe quel écran. Raccourci : Ctrl K.';
+
+  @override
+  String get tourPlaybarTitle => 'Lecture';
+
+  @override
+  String get tourPlaybarBody =>
+      'Ce qui joue : pause, titre suivant, volume. Cliquez sur la pochette pour ouvrir le lecteur complet.';
+
+  @override
+  String get tourSettingsTitle => 'Réglages';
+
+  @override
+  String get tourSettingsBody =>
+      'Thème et langue, dossier des téléchargements, raccourcis, capture d’écran et mises à jour.';
+
+  @override
+  String get tourSkip => 'Passer la visite';
+
+  @override
+  String get tourBack => 'Précédent';
+
+  @override
+  String get tourNext => 'Suivant';
+
+  @override
+  String get tourDone => 'Terminer';
+
+  @override
+  String get tourReplay => 'Visite guidée';
+
+  @override
+  String get tourReplayBody => 'Revoir la présentation des écrans principaux.';
+
+  @override
+  String get tourStart => 'Lancer';
 }
