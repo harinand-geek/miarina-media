@@ -129,6 +129,7 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
                     merge: Some("mp4".into()),
                     extract_audio: None,
                     audio_kbps: None,
+                    subtitles: None,
                 }
             } else {
                 FormatSpec {
@@ -136,6 +137,7 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: None,
                     audio_kbps: None,
+                    subtitles: None,
                 }
             },
             quality: format!("{h}p"),
@@ -154,6 +156,7 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: Some("mp3".into()),
                     audio_kbps: Some(kbps),
+                    subtitles: None,
                 },
                 quality: format!("MP3 · {kbps} kbps"),
                 detail: "MP3".into(),
@@ -167,6 +170,7 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: Some("m4a".into()),
                     audio_kbps: None,
+                    subtitles: None,
                 },
                 quality: "M4A".into(),
                 detail: "M4A".into(),
@@ -183,6 +187,7 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
                 merge: None,
                 extract_audio: None,
                 audio_kbps: None,
+                subtitles: None,
             },
             quality: "M4A".into(),
             detail: "M4A".into(),
@@ -191,7 +196,11 @@ pub fn playlist_offers(ffmpeg: bool) -> Offers {
             tag: Some("Recommended"),
         }]
     };
-    Offers { video, audio }
+    Offers {
+        video,
+        audio,
+        subtitles: Vec::new(),
+    }
 }
 
 #[cfg(test)]

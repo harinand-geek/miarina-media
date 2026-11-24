@@ -130,7 +130,11 @@ class _GetBatchScreenState extends ConsumerState<GetBatchScreen> {
     for (final f in formats) {
       if (f.id == _quality[_tab]) return f;
     }
-    return defaultFormat(formats);
+    return preferredFormat(
+      formats,
+      ref.read(getSettingsProvider).value,
+      audio: _tab == 'audio',
+    );
   }
 
   Iterable<_BatchLink> get _todo => _links.where(

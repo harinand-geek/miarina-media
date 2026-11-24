@@ -280,3 +280,90 @@ async fn a_playlist_is_listed_flat_then_an_entry_downloads_with_a_preset() {
         Some("mp3")
     );
 }
+
+/// Sintel (Blender Foundation, CC BY 3.0) on Wikimedia Commons.
+const PAGE_WITH_SUBTITLES: &str = "https://commons.wikimedia.org/wiki/File:Sintel_movie_4K.webm";
+
+#[tokio::test]
+#[ignore = "analyzes a real page, then downloads one subtitle file"]
+async fn subtitles_are_listed_and_one_language_downloads() {
+    let engine = YtDlpEngine::new(components_with_bundled());
+    let cancel = CancellationToken::new();
+    // Sintel on Wikimedia Commons publishes ~30 subtitle languages (YouTube
+    // often answers 429 to subtitle requests).
+    let url = validate_media_url(PAGE_WITH_SUBTITLES).unwrap();
+    let analysis = engine.analyze(&url, &cancel).await.expect("analysis");
+    let langs: Vec<_> = analysis
+        .offers
+        .subtitles
+        .iter()
+        .map(|o| o.spec.subtitles.clone().unwrap())
+        .collect();
+    eprintln!("subtitles: {langs:?}");
+    let offer = analysis
+        .offers
+        .subtitles
+        .iter()
+        .find(|o| {
+            o.spec
+                .subtitles
+                .as_deref()
+                .is_some_and(|l| l.starts_with("fr"))
+        })
+        .or_else(|| analysis.offers.subtitles.first())
+        .expect("the page publishes subtitles");
+    let dir = tempfile::tempdir().unwrap();
+    let job = DownloadJob {
+        url,
+        part_path: dir.path().join("sintel.srt.test.part"),
+        dest_dir: dir.path().to_path_buf(),
+        file_name: "Sintel (sous-titres).srt".into(),
+        progress_interval: Duration::from_millis(500),
+        format_id: Some(offer.spec.encode()),
+        process: Default::default(),
+    };
+    let outcome = engine
+        .download(&job, &|_| {}, cancel)
+        .await
+        .expect("download");
+    let text = std::fs::read_to_string(&outcome.final_path).unwrap();
+    eprintln!(
+        "saved {} ({} bytes): {:?}",
+        outcome.final_path.display(),
+        text.len(),
+        text.lines().take(4).collect::<Vec<_>>()
+    );
+    assert!(text.contains("-->"), "a subtitle file");
+    assert!(!yt_work_dir_exists(&job));
+}
+
+#[tokio::test]
+#[ignore = "downloads ~3 MB at a limited rate"]
+async fn the_speed_limit_holds_a_video_page_back() {
+    let engine = YtDlpEngine::new(components_with_bundled());
+    let dir = tempfile::tempdir().unwrap();
+    let job = DownloadJob {
+        url: validate_media_url(PAGE_WITH_THUMBNAIL).unwrap(),
+        part_path: dir.path().join("sintel.m4a.test.part"),
+        dest_dir: dir.path().to_path_buf(),
+        file_name: "Sintel.m4a".into(),
+        progress_interval: Duration::from_millis(500),
+        // The smallest audio stream of the page.
+        format_id: Some(r#"{"s":"worstaudio"}"#.into()),
+        process: download_engine::ProcessLimits {
+            rate_limit: Some(512 * 1024),
+            ..Default::default()
+        },
+    };
+    let started = std::time::Instant::now();
+    let outcome = engine
+        .download(&job, &|_| {}, CancellationToken::new())
+        .await
+        .expect("download");
+    let size = std::fs::metadata(&outcome.final_path).unwrap().len();
+    let secs = started.elapsed().as_secs_f64();
+    let rate = size as f64 / secs;
+    eprintln!("{size} bytes in {secs:.1} s = {:.0} KiB/s", rate / 1024.0);
+    // yt-dlp's own pacing, plus its start-up time.
+    assert!(rate < 700.0 * 1024.0, "limited to about 512 KiB/s");
+}

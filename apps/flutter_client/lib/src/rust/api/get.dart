@@ -7,8 +7,21 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `format_offer`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `page_host`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `apply_options`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `format_offer`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `page_host`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `subtitle_lang`, `task_info`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
+
+/// Réglages › Téléchargements: default qualities, speed limit, subtitles.
+Future<GetSettings> getSetDownloadPrefs({
+  required int defaultVideoHeight,
+  required String defaultAudio,
+  required BigInt speedLimit,
+  required String subtitles,
+}) => RustLib.instance.api.crateApiGetGetSetDownloadPrefs(
+  defaultVideoHeight: defaultVideoHeight,
+  defaultAudio: defaultAudio,
+  speedLimit: speedLimit,
+  subtitles: subtitles,
+);
 
 /// Starts the download manager on the indexing runtime (call after
 /// `indexer_start`). `default_dir`: where files go until the user picks
@@ -354,6 +367,19 @@ class GetSettings {
   /// Bounds of `concurrency`.
   final int maxConcurrency;
 
+  /// Quality preselected for video (height; a lower one when missing).
+  final int defaultVideoHeight;
+
+  /// Format preselected for audio: `mp3-320`…`mp3-128`, `m4a`, `flac`.
+  final String defaultAudio;
+
+  /// Total bytes per second for downloads; 0 = unlimited.
+  final BigInt speedLimit;
+
+  /// Language whose subtitles are embedded in videos (`fr`, `en`), or
+  /// empty for none.
+  final String subtitles;
+
   const GetSettings({
     required this.downloadDir,
     required this.concurrency,
@@ -361,6 +387,10 @@ class GetSettings {
     required this.maxDownloads,
     required this.maxConversions,
     required this.maxConcurrency,
+    required this.defaultVideoHeight,
+    required this.defaultAudio,
+    required this.speedLimit,
+    required this.subtitles,
   });
 
   @override
@@ -370,7 +400,11 @@ class GetSettings {
       resourceMode.hashCode ^
       maxDownloads.hashCode ^
       maxConversions.hashCode ^
-      maxConcurrency.hashCode;
+      maxConcurrency.hashCode ^
+      defaultVideoHeight.hashCode ^
+      defaultAudio.hashCode ^
+      speedLimit.hashCode ^
+      subtitles.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -382,7 +416,11 @@ class GetSettings {
           resourceMode == other.resourceMode &&
           maxDownloads == other.maxDownloads &&
           maxConversions == other.maxConversions &&
-          maxConcurrency == other.maxConcurrency;
+          maxConcurrency == other.maxConcurrency &&
+          defaultVideoHeight == other.defaultVideoHeight &&
+          defaultAudio == other.defaultAudio &&
+          speedLimit == other.speedLimit &&
+          subtitles == other.subtitles;
 }
 
 class HistoryInfo {
@@ -506,6 +544,9 @@ class MediaInfo {
   final List<FormatOffer> video;
   final List<FormatOffer> audio;
 
+  /// The source's subtitles, one file per language (Sous-titres tab).
+  final List<FormatOffer> subtitles;
+
   const MediaInfo({
     required this.url,
     required this.host,
@@ -521,6 +562,7 @@ class MediaInfo {
     required this.needsFfmpeg,
     required this.video,
     required this.audio,
+    required this.subtitles,
   });
 
   @override
@@ -538,7 +580,8 @@ class MediaInfo {
       supportsResume.hashCode ^
       needsFfmpeg.hashCode ^
       video.hashCode ^
-      audio.hashCode;
+      audio.hashCode ^
+      subtitles.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -558,7 +601,8 @@ class MediaInfo {
           supportsResume == other.supportsResume &&
           needsFfmpeg == other.needsFfmpeg &&
           video == other.video &&
-          audio == other.audio;
+          audio == other.audio &&
+          subtitles == other.subtitles;
 }
 
 /// Qualities that apply to any page, resolved by the extractor for each

@@ -1079,8 +1079,16 @@ class _MediaPanelState extends ConsumerState<_MediaPanel> {
                       final chosen = formats.firstWhere(
                         (f) => f.id == _formats[url],
                         orElse: () =>
-                            defaultFormat(info.video) ??
-                            defaultFormat(info.audio)!,
+                            preferredFormat(
+                              info.video,
+                              ref.read(getSettingsProvider).value,
+                              audio: false,
+                            ) ??
+                            preferredFormat(
+                              info.audio,
+                              ref.read(getSettingsProvider).value,
+                              audio: true,
+                            )!,
                       );
                       return Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,

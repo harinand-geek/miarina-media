@@ -104,6 +104,17 @@ struct Inner {
     /// destination (Android shared storage only accepts media files).
     staging: Mutex<Option<PathBuf>>,
     connectivity: Mutex<Connectivity>,
+    options: Mutex<JobOptions>,
+}
+
+/// User download preferences applied to every transfer.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+pub struct JobOptions {
+    /// Total bytes per second for all downloads; `None` = unlimited. Each
+    /// running download gets an equal share of it.
+    pub speed_limit: Option<u64>,
+    /// Subtitles embedded in downloaded videos (see `ProcessLimits`).
+    pub subtitles: Option<&'static str>,
 }
 
 #[derive(Clone)]
@@ -127,6 +138,12 @@ pub fn part_path(dest_dir: &Path, file_name: &str, task_id: &str) -> PathBuf {
     dest_dir.join(format!("{file_name}.{short}.part"))
 }
 
+/// One download's share of the total speed limit (at least 16 KiB/s, so
+/// a tiny limit still moves).
+fn share(total: Option<u64>, downloads: usize) -> Option<u64> {
+    total.map(|t| (t / downloads.max(1) as u64).max(16 * 1024))
+}
+
 impl Manager {
     pub fn new(
         storage: Arc<Mutex<Storage>>,
@@ -146,6 +163,7 @@ impl Manager {
                 events,
                 staging: Mutex::new(None),
                 connectivity: Mutex::new(Arc::new(crate::net::has_route)),
+                options: Mutex::new(JobOptions::default()),
             }),
         }
     }
@@ -172,6 +190,15 @@ impl Manager {
     pub fn set_limits(&self, limits: Limits) {
         *lock(&self.inner.limits) = limits;
         self.schedule();
+    }
+
+    /// Speed limit and subtitles for the transfers that start next.
+    pub fn set_options(&self, options: JobOptions) {
+        *lock(&self.inner.options) = options;
+    }
+
+    pub fn options(&self) -> JobOptions {
+        *lock(&self.inner.options)
     }
 
     pub fn limits(&self) -> Limits {
@@ -571,6 +598,7 @@ impl Manager {
         cancel: &CancellationToken,
     ) -> Result<crate::Outcome, EngineError> {
         let limits = *lock(&self.inner.limits);
+        let options = *lock(&self.inner.options);
         let job = DownloadJob {
             url: url.clone(),
             part_path: part.to_path_buf(),
@@ -582,6 +610,8 @@ impl Manager {
                 concurrent_fragments: limits.concurrent_fragments,
                 ffmpeg_threads: limits.ffmpeg_threads,
                 low_priority: limits.child_priority == ProcessPriority::BelowNormal,
+                rate_limit: share(options.speed_limit, limits.max_downloads),
+                subtitles: options.subtitles,
             },
         };
         // (last checkpoint, last resume flag, processing announced)

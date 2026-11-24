@@ -27,6 +27,16 @@ use crate::frb_generated::StreamSink;
 const KEY_DOWNLOAD_DIR: &str = "download_dir";
 const KEY_CONCURRENCY: &str = "concurrency";
 const KEY_RESOURCE_MODE: &str = "resource_mode";
+const KEY_DEFAULT_VIDEO: &str = "default_video_height";
+const KEY_DEFAULT_AUDIO: &str = "default_audio";
+const KEY_SPEED_LIMIT: &str = "speed_limit";
+const KEY_SUBTITLES: &str = "download_subtitles";
+/// Default video quality choices (height), the first the default.
+const VIDEO_HEIGHTS: [u32; 6] = [1080, 2160, 1440, 720, 480, 360];
+/// Default audio format choices, the first the default.
+const AUDIO_CHOICES: [&str; 6] = ["mp3-320", "mp3-256", "mp3-192", "mp3-128", "m4a", "flac"];
+/// Highest speed limit accepted (1 GiB/s); 0 = unlimited.
+const MAX_SPEED_LIMIT: u64 = 1 << 30;
 const DEFAULT_CONCURRENCY: usize = 3;
 const EVENT_BUFFER: usize = 256;
 /// Analysis never waits longer for the source's picture.
@@ -155,6 +165,8 @@ pub struct MediaInfo {
     pub needs_ffmpeg: bool,
     pub video: Vec<FormatOffer>,
     pub audio: Vec<FormatOffer>,
+    /// The source's subtitles, one file per language (Sous-titres tab).
+    pub subtitles: Vec<FormatOffer>,
 }
 
 pub struct ToolStatus {
@@ -378,6 +390,15 @@ pub struct GetSettings {
     pub max_conversions: u32,
     /// Bounds of `concurrency`.
     pub max_concurrency: u32,
+    /// Quality preselected for video (height; a lower one when missing).
+    pub default_video_height: u32,
+    /// Format preselected for audio: `mp3-320`…`mp3-128`, `m4a`, `flac`.
+    pub default_audio: String,
+    /// Total bytes per second for downloads; 0 = unlimited.
+    pub speed_limit: u64,
+    /// Language whose subtitles are embedded in videos (`fr`, `en`), or
+    /// empty for none.
+    pub subtitles: String,
 }
 
 fn task_info(r: TaskRecord) -> TaskInfo {
@@ -453,7 +474,75 @@ fn settings_of(storage: &storage::Storage, default_dir: &Path) -> GetSettings {
         max_downloads: applied.max_downloads as u32,
         max_conversions: applied.max_conversions as u32,
         max_concurrency: resource_manager::MAX_USER_DOWNLOADS as u32,
+        default_video_height: storage
+            .setting::<u32>(KEY_DEFAULT_VIDEO)
+            .ok()
+            .flatten()
+            .filter(|h| VIDEO_HEIGHTS.contains(h))
+            .unwrap_or(VIDEO_HEIGHTS[0]),
+        default_audio: storage
+            .setting::<String>(KEY_DEFAULT_AUDIO)
+            .ok()
+            .flatten()
+            .filter(|a| AUDIO_CHOICES.contains(&a.as_str()))
+            .unwrap_or_else(|| AUDIO_CHOICES[0].to_owned()),
+        speed_limit: storage
+            .setting::<u64>(KEY_SPEED_LIMIT)
+            .ok()
+            .flatten()
+            .filter(|l| *l <= MAX_SPEED_LIMIT)
+            .unwrap_or(0),
+        subtitles: storage
+            .setting::<String>(KEY_SUBTITLES)
+            .ok()
+            .flatten()
+            .and_then(|l| subtitle_lang(&l).map(str::to_owned))
+            .unwrap_or_default(),
     }
+}
+
+/// The subtitle languages the app offers (its own languages).
+fn subtitle_lang(lang: &str) -> Option<&'static str> {
+    match lang {
+        "fr" => Some("fr"),
+        "en" => Some("en"),
+        _ => None,
+    }
+}
+
+/// Speed limit and subtitles for the transfers that start next.
+fn apply_options(g: &Getter) {
+    let s = settings_of(&lock(&g.storage), &g.default_dir);
+    g.manager.set_options(download_engine::JobOptions {
+        speed_limit: (s.speed_limit > 0).then_some(s.speed_limit),
+        subtitles: subtitle_lang(&s.subtitles),
+    });
+}
+
+/// Réglages › Téléchargements: default qualities, speed limit, subtitles.
+pub fn get_set_download_prefs(
+    default_video_height: u32,
+    default_audio: String,
+    speed_limit: u64,
+    subtitles: String,
+) -> Result<GetSettings> {
+    let g = getter()?;
+    if !VIDEO_HEIGHTS.contains(&default_video_height)
+        || !AUDIO_CHOICES.contains(&default_audio.as_str())
+        || speed_limit > MAX_SPEED_LIMIT
+        || !(subtitles.is_empty() || subtitle_lang(&subtitles).is_some())
+    {
+        return Err(anyhow!("invalid download preferences"));
+    }
+    {
+        let storage = lock(&g.storage);
+        storage.set_setting(KEY_DEFAULT_VIDEO, &default_video_height)?;
+        storage.set_setting(KEY_DEFAULT_AUDIO, &default_audio)?;
+        storage.set_setting(KEY_SPEED_LIMIT, &speed_limit)?;
+        storage.set_setting(KEY_SUBTITLES, &subtitles)?;
+    }
+    apply_options(&g);
+    Ok(settings_of(&lock(&g.storage), &g.default_dir))
 }
 
 fn current_limits(storage: &storage::Storage) -> resource_manager::Limits {
@@ -565,6 +654,13 @@ pub fn get_start(default_dir: String) -> Result<()> {
                 },
             });
         }
+    });
+    // The user's speed limit and subtitles, before interrupted downloads
+    // resume.
+    let prefs = settings_of(&lock(&parts.storage), &default_dir);
+    manager.set_options(download_engine::JobOptions {
+        speed_limit: (prefs.speed_limit > 0).then_some(prefs.speed_limit),
+        subtitles: subtitle_lang(&prefs.subtitles),
     });
     {
         let _enter = parts.runtime.enter();
@@ -818,6 +914,7 @@ async fn extractor_analysis(
         needs_ffmpeg: !g.ytdlp.has_ffmpeg(),
         video: analysis.offers.video.iter().map(offer).collect(),
         audio: analysis.offers.audio.iter().map(offer).collect(),
+        subtitles: analysis.offers.subtitles.iter().map(offer).collect(),
     }))
 }
 
@@ -940,6 +1037,7 @@ fn direct_analysis(url: &ValidatedUrl, media: download_engine::DirectMedia) -> A
         needs_ffmpeg: false,
         video,
         audio,
+        subtitles: Vec::new(),
     })
 }
 

@@ -34,28 +34,28 @@ FormatOffer own(String quality, String ext) => FormatOffer(
   tag: null,
 );
 
-Analysis ready(String url, String title, {String engine = 'ytdlp'}) =>
-    Analysis(
-      status: AnalysisStatus.ready,
-      info: MediaInfo(
-        url: url,
-        host: Uri.parse(url).host,
-        engine: engine,
-        title: title,
-        publisher: Uri.parse(url).host,
-        source: null,
-        durationSecs: null,
-        license: null,
-        supportsResume: engine == 'http',
-        needsFfmpeg: false,
-        video: engine == 'http' ? [own('MP4', 'mp4')] : const [],
-        audio: const [],
-      ),
-      code: '',
-      detail: '',
-      tools: const [],
-      playlist: null,
-    );
+Analysis ready(String url, String title, {String engine = 'ytdlp'}) => Analysis(
+  status: AnalysisStatus.ready,
+  info: MediaInfo(
+    subtitles: const [],
+    url: url,
+    host: Uri.parse(url).host,
+    engine: engine,
+    title: title,
+    publisher: Uri.parse(url).host,
+    source: null,
+    durationSecs: null,
+    license: null,
+    supportsResume: engine == 'http',
+    needsFfmpeg: false,
+    video: engine == 'http' ? [own('MP4', 'mp4')] : const [],
+    audio: const [],
+  ),
+  code: '',
+  detail: '',
+  tools: const [],
+  playlist: null,
+);
 
 Analysis status(AnalysisStatus s, {String code = ''}) => Analysis(
   status: s,

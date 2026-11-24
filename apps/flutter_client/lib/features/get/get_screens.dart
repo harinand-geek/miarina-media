@@ -1889,7 +1889,7 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
   List<FormatOffer> _formats(String tab) => switch (tab) {
     'audio' => widget.info.audio,
     'video' => widget.info.video,
-    _ => const [],
+    _ => widget.info.subtitles,
   };
 
   Future<void> _start({required bool now}) async {
@@ -1944,7 +1944,11 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
     for (final f in formats) {
       if (f.id == chosen) return f;
     }
-    return defaultFormat(formats);
+    return preferredFormat(
+      formats,
+      ref.read(getSettingsProvider).value,
+      audio: _tab == 'audio',
+    );
   }
 
   String _quality(BuildContext context, FormatOffer f) => f.id == 'original'
@@ -2203,7 +2207,7 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
     final info = widget.info;
     final formats = _formats(_tab);
     final format = _current;
-    final canDownload = format != null && _tab != 'subs';
+    final canDownload = format != null;
     final source = [
       info.host,
       info.publisher == info.host ? null : info.publisher,
@@ -2218,7 +2222,7 @@ class _AnalysisResultState extends ConsumerState<_AnalysisResult> {
     final duration = info.durationSecs;
     final dir = ref.watch(getSettingsProvider).value?.downloadDir ?? '';
     final note = _tab == 'subs'
-        ? t.getSubsPlanned
+        ? t.getNoteSubs
         : _tab == 'audio'
         ? t.getNoteAudio
         : t.getNoteVideo;

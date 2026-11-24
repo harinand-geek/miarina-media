@@ -3852,4 +3852,15 @@ class L10nFr extends L10n {
   String batchDone(int added, int failed) {
     return '$added ajoutés à la file · $failed non ajoutés';
   }
+
+  @override
+  String get getSpeedLimitDesc =>
+      'Partagée entre les téléchargements en cours.';
+
+  @override
+  String get getSpeedUnlimited => 'Illimitée';
+
+  @override
+  String get getNoteSubs =>
+      'Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres.';
 }

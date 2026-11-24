@@ -85,6 +85,7 @@ void main() {
         playlist: null,
         status: AnalysisStatus.ready,
         info: MediaInfo(
+          subtitles: const [],
           url: 'https://upload.wikimedia.org/Sintel.webm',
           host: 'upload.wikimedia.org',
           engine: 'http',

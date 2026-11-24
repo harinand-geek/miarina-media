@@ -37,7 +37,11 @@ class _PlaylistResultState extends ConsumerState<_PlaylistResult> {
     for (final f in _formats) {
       if (f.id == chosen) return f;
     }
-    return defaultFormat(_formats);
+    return preferredFormat(
+      _formats,
+      ref.read(getSettingsProvider).value,
+      audio: _tab == 'audio',
+    );
   }
 
   List<WebPlaylistEntry> get _available =>

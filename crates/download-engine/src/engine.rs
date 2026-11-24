@@ -30,6 +30,12 @@ pub struct ProcessLimits {
     pub concurrent_fragments: usize,
     pub ffmpeg_threads: usize,
     pub low_priority: bool,
+    /// Bytes per second this transfer may use (its share of the user's
+    /// speed limit); `None` = unlimited.
+    pub rate_limit: Option<u64>,
+    /// Embed the subtitles of this language (ISO 639-1), else English, in a
+    /// downloaded video page, when the source has them.
+    pub subtitles: Option<&'static str>,
 }
 
 impl Default for ProcessLimits {
@@ -38,6 +44,8 @@ impl Default for ProcessLimits {
             concurrent_fragments: 1,
             ffmpeg_threads: 1,
             low_priority: false,
+            rate_limit: None,
+            subtitles: None,
         }
     }
 }

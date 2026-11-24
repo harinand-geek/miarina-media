@@ -22,6 +22,10 @@ pub struct FormatSpec {
     /// `None` keeps yt-dlp's best VBR. Lossy formats only.
     #[serde(rename = "b", default, skip_serializing_if = "Option::is_none")]
     pub audio_kbps: Option<u32>,
+    /// Only the subtitles of this language (the source's key, e.g. `fr`,
+    /// `en-US`), as a file; no media.
+    #[serde(rename = "t", default, skip_serializing_if = "Option::is_none")]
+    pub subtitles: Option<String>,
 }
 
 const MERGE_FORMATS: [&str; 3] = ["mp4", "webm", "mkv"];
@@ -57,7 +61,14 @@ impl FormatSpec {
             AUDIO_BITRATES.contains(&kbps)
                 && spec.extract_audio.as_deref().is_some_and(|a| a != "flac")
         });
-        if selector_ok && merge_ok && audio_ok && bitrate_ok {
+        let subtitles_ok = spec.subtitles.as_deref().is_none_or(|l| {
+            !l.is_empty()
+                && l.len() <= 35
+                && !l.starts_with('-')
+                && l.chars()
+                    .all(|c| c.is_ascii_alphanumeric() || "-_".contains(c))
+        });
+        if selector_ok && merge_ok && audio_ok && bitrate_ok && subtitles_ok {
             Ok(spec)
         } else {
             Err("invalid format".to_owned())
@@ -80,6 +91,53 @@ pub struct Offer {
 pub struct Offers {
     pub video: Vec<Offer>,
     pub audio: Vec<Offer>,
+    /// One per subtitle language the source publishes.
+    pub subtitles: Vec<Offer>,
+}
+
+/// Subtitle languages listed at most.
+const MAX_SUBTITLE_OFFERS: usize = 40;
+
+/// The source's own subtitles (not automatic captions), one file each:
+/// SRT when FFmpeg can convert them, else the source's format.
+pub fn subtitle_offers(info: &RawInfo, ffmpeg: bool) -> Vec<Offer> {
+    let Some(subs) = &info.subtitles else {
+        return Vec::new();
+    };
+    subs.iter()
+        .filter(|(lang, list)| *lang != "live_chat" && !list.is_empty())
+        .take(MAX_SUBTITLE_OFFERS)
+        .map(|(lang, list)| {
+            let ext = if ffmpeg {
+                "srt".to_owned()
+            } else {
+                list.iter()
+                    .filter_map(|s| s.ext.clone())
+                    .find(|e| ["srt", "vtt", "ass"].contains(&e.as_str()))
+                    .unwrap_or_else(|| "vtt".into())
+            };
+            let name = list
+                .iter()
+                .find_map(|s| s.name.clone())
+                .filter(|n| !n.trim().is_empty())
+                .unwrap_or_else(|| lang.clone());
+            Offer {
+                spec: FormatSpec {
+                    selector: "b".into(),
+                    merge: None,
+                    extract_audio: None,
+                    audio_kbps: None,
+                    subtitles: Some(lang.clone()),
+                },
+                quality: name.chars().take(60).collect(),
+                detail: format!("{lang} · {}", ext.to_uppercase()),
+                size_bytes: None,
+                extension: ext,
+                tag: None,
+            }
+        })
+        .filter(|o| FormatSpec::decode(&o.spec.encode()).is_ok())
+        .collect()
 }
 
 const MAX_VIDEO_OFFERS: usize = 8;
@@ -153,7 +211,10 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
         .into_iter()
         .filter(|f| !f.drm() && f.id().is_some())
         .collect();
-    let mut offers = Offers::default();
+    let mut offers = Offers {
+        subtitles: subtitle_offers(info, ffmpeg),
+        ..Offers::default()
+    };
 
     // ---- video: one entry per height, preferring broadly playable MP4/H.264.
     let mut heights: Vec<u32> = formats
@@ -185,6 +246,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: None,
                     audio_kbps: None,
+                    subtitles: None,
                 },
                 video.size(),
                 video.audio_codec().map(codec_name),
@@ -204,6 +266,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     merge: Some(merge),
                     extract_audio: None,
                     audio_kbps: None,
+                    subtitles: None,
                 },
                 sum(video.size(), audio.size()),
                 audio.audio_codec().map(codec_name),
@@ -248,6 +311,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                 merge: None,
                 extract_audio: None,
                 audio_kbps: None,
+                subtitles: None,
             },
             quality: format!("{} · best available", ext_label(&ext)),
             detail: "Complete file provided by the source".into(),
@@ -315,6 +379,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: Some("mp3".into()),
                     audio_kbps: Some(kbps),
+                    subtitles: None,
                 },
                 quality: format!("MP3 · {kbps} kbps"),
                 detail: format!("{how} with FFmpeg{source}"),
@@ -333,6 +398,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                 merge: None,
                 extract_audio: Some("flac".into()),
                 audio_kbps: None,
+                subtitles: None,
             },
             quality: "FLAC · Lossless".into(),
             detail: format!("{how} with FFmpeg{source} · large file"),
@@ -359,6 +425,7 @@ pub fn build_offers(info: &RawInfo, ffmpeg: bool) -> Offers {
                     merge: None,
                     extract_audio: None,
                     audio_kbps: None,
+                    subtitles: None,
                 },
                 quality: format!(
                     "{}{kbps}",
@@ -467,9 +534,46 @@ mod tests {
                 selector: "22".into(),
                 merge: None,
                 extract_audio: None,
-                audio_kbps: None
+                audio_kbps: None,
+                subtitles: None,
             }
         );
+    }
+
+    #[test]
+    fn the_source_subtitles_are_offered_one_per_language() {
+        let info = RawInfo::parse(
+            r#"{"title":"T","formats":[{"format_id":"18","ext":"mp4","vcodec":"avc1","acodec":"mp4a","height":360}],
+                "subtitles":{"fr":[{"ext":"vtt","name":"Français"}],"en-US":[{"ext":"vtt"}],"live_chat":[{"ext":"json"}]}}"#
+                .as_bytes(),
+        )
+        .unwrap();
+        let subs = build_offers(&info, true).subtitles;
+        let by_lang: Vec<_> = subs
+            .iter()
+            .map(|o| {
+                (
+                    o.spec.subtitles.as_deref().unwrap(),
+                    o.quality.as_str(),
+                    o.extension.as_str(),
+                )
+            })
+            .collect();
+        assert_eq!(
+            by_lang,
+            [("en-US", "en-US", "srt"), ("fr", "Français", "srt")]
+        );
+        // Without FFmpeg the source's format is kept.
+        assert_eq!(build_offers(&info, false).subtitles[1].extension, "vtt");
+        for o in &subs {
+            assert_eq!(FormatSpec::decode(&o.spec.encode()).unwrap(), o.spec);
+        }
+        // A language key never becomes an option.
+        let bad = FormatSpec {
+            subtitles: Some("--exec=x".into()),
+            ..subs[0].spec.clone()
+        };
+        assert!(FormatSpec::decode(&bad.encode()).is_err());
     }
 
     #[test]
@@ -553,6 +657,7 @@ mod tests {
             merge: Some("mp4".into()),
             extract_audio: None,
             audio_kbps: None,
+            subtitles: None,
         };
         assert_eq!(FormatSpec::decode(&spec.encode()).unwrap(), spec);
         let mp3 = r#"{"s":"ba","x":"mp3","b":320}"#;

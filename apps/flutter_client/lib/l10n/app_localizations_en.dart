@@ -3822,4 +3822,14 @@ class L10nEn extends L10n {
   String batchDone(int added, int failed) {
     return '$added added to the queue · $failed not added';
   }
+
+  @override
+  String get getSpeedLimitDesc => 'Shared between the running downloads.';
+
+  @override
+  String get getSpeedUnlimited => 'Unlimited';
+
+  @override
+  String get getNoteSubs =>
+      'One subtitle file per language, saved next to your videos. To have them inside the video, turn on Settings › Downloads › Download subtitles.';
 }

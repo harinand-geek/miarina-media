@@ -28,7 +28,7 @@ use crate::process::{ProcessTree, configure};
 use crate::progress::{SpeedMeter, Throttle};
 use crate::{EngineError, Progress, Stage};
 pub use info::RawInfo;
-pub use offers::{FormatSpec, Offer, Offers, build_offers};
+pub use offers::{FormatSpec, Offer, Offers, build_offers, subtitle_offers};
 pub use playlist::{MAX_PLAYLIST_ITEMS, Playlist, PlaylistItem, playlist_offers};
 
 const ANALYZE_TIMEOUT: Duration = Duration::from_secs(90);
@@ -298,6 +298,11 @@ impl YtDlpEngine {
         tokio::fs::create_dir_all(&work_dir)
             .await
             .map_err(EngineError::from_io)?;
+        if let Some(lang) = &spec.subtitles {
+            return self
+                .run_subtitles(job, lang, &work_dir, progress, cancel)
+                .await;
+        }
 
         let mut args = self.args();
         args.extend([
@@ -323,6 +328,7 @@ impl YtDlpEngine {
         if let Some(merge) = &spec.merge {
             args.extend(["--merge-output-format".into(), merge.clone()]);
         }
+        args.extend(job_options_args(&job.process, &spec, self.has_ffmpeg()));
         if let Some(audio) = &spec.extract_audio {
             args.extend([
                 "-x".into(),
@@ -424,6 +430,106 @@ impl YtDlpEngine {
     }
 }
 
+impl YtDlpEngine {
+    /// The subtitles of one language, as a file next to the videos.
+    async fn run_subtitles(
+        &self,
+        job: &DownloadJob,
+        lang: &str,
+        work_dir: &Path,
+        progress: ProgressFn<'_>,
+        cancel: CancellationToken,
+    ) -> Result<Outcome, EngineError> {
+        let mut args = self.args();
+        args.extend([
+            "--skip-download".into(),
+            "--write-subs".into(),
+            "--sub-langs".into(),
+            lang.to_owned(),
+            "-P".into(),
+            work_dir.to_string_lossy().into_owned(),
+            "-o".into(),
+            "media.%(ext)s".into(),
+        ]);
+        if self.has_ffmpeg() {
+            args.extend(["--convert-subs".into(), "srt".into()]);
+        }
+        if let Some(ffmpeg) = self.components.ffmpeg_dir() {
+            args.extend([
+                "--ffmpeg-location".into(),
+                ffmpeg.to_string_lossy().into_owned(),
+            ]);
+        }
+        args.extend(["--".into(), job.url.as_str().to_owned()]);
+        let mut command = self.command()?;
+        command
+            .args(&args)
+            .stdin(Stdio::null())
+            .stdout(Stdio::null())
+            .stderr(Stdio::piped());
+        configure(&mut command, job.process.low_priority);
+        let mut child = command.spawn().map_err(EngineError::from_io)?;
+        let tree = ProcessTree::adopt(&child).ok();
+        let mut stderr = child.stderr.take().expect("piped stderr").take(64 * 1024);
+        let mut err = Vec::new();
+        tokio::select! {
+            _ = cancel.cancelled() => {
+                drop(tree);
+                let _ = child.kill().await;
+                return Err(EngineError::Canceled);
+            }
+            r = stderr.read_to_end(&mut err) => { r.map_err(EngineError::from_io)?; }
+        }
+        let status = child.wait().await.map_err(EngineError::from_io)?;
+        drop(tree);
+        if !status.success() {
+            let tail = String::from_utf8_lossy(&err);
+            return Err(classify(tail.lines().rev().take(STDERR_TAIL)));
+        }
+        let produced = produced_subtitle(work_dir).await?;
+        let size = tokio::fs::metadata(&produced)
+            .await
+            .map_err(EngineError::from_io)?
+            .len();
+        let file_name = with_extension(&job.file_name, &produced);
+        let final_path = finalize_no_clobber(&produced, &job.dest_dir, &file_name)?;
+        let _ = tokio::fs::remove_dir_all(work_dir).await;
+        progress(Progress {
+            downloaded: size,
+            total: Some(size),
+            bytes_per_sec: 0.0,
+            supports_resume: false,
+            stage: Stage::Downloading,
+        });
+        Ok(Outcome {
+            final_path,
+            bytes: size,
+            supports_resume: false,
+        })
+    }
+}
+
+/// The subtitle file yt-dlp wrote (`media.<lang>.<ext>`).
+async fn produced_subtitle(dir: &Path) -> Result<PathBuf, EngineError> {
+    let mut entries = tokio::fs::read_dir(dir)
+        .await
+        .map_err(EngineError::from_io)?;
+    while let Some(entry) = entries.next_entry().await.map_err(EngineError::from_io)? {
+        let path = entry.path();
+        let ext = path
+            .extension()
+            .and_then(|e| e.to_str())
+            .map(str::to_ascii_lowercase)
+            .unwrap_or_default();
+        if ["srt", "vtt", "ass", "ssa", "ttml"].contains(&ext.as_str()) && path.is_file() {
+            return Ok(path);
+        }
+    }
+    Err(EngineError::Unsupported {
+        reason: "no subtitles in this language were found".into(),
+    })
+}
+
 impl Engine for YtDlpEngine {
     fn id(&self) -> &'static str {
         "ytdlp"
@@ -437,6 +543,34 @@ impl Engine for YtDlpEngine {
     ) -> BoxFuture<'a, Result<Outcome, EngineError>> {
         self.run(job, progress, cancel).boxed()
     }
+}
+
+/// The user's speed limit share and subtitles, as yt-dlp options.
+/// Subtitles are embedded (FFmpeg) in a video only: never in an audio
+/// extraction, and never as loose files (the work folder is cleaned).
+fn job_options_args(
+    process: &crate::ProcessLimits,
+    spec: &FormatSpec,
+    ffmpeg: bool,
+) -> Vec<String> {
+    let mut args = Vec::new();
+    if let Some(rate) = process.rate_limit.filter(|r| *r > 0) {
+        args.extend(["--limit-rate".into(), rate.to_string()]);
+    }
+    if let Some(lang) = process.subtitles
+        && ffmpeg
+        && spec.extract_audio.is_none()
+        && lang.len() <= 3
+        && lang.bytes().all(|b| b.is_ascii_lowercase())
+    {
+        args.extend([
+            "--write-subs".into(),
+            "--sub-langs".into(),
+            format!("{lang}.*,{lang},en.*,en"),
+            "--embed-subs".into(),
+        ]);
+    }
+    args
 }
 
 /// Per-task working directory (yt-dlp keeps its `.part` files there, so a
@@ -674,6 +808,42 @@ mod tests {
                 .unwrap()
                 .is_none()
         );
+    }
+
+    #[test]
+    fn speed_limit_and_subtitles_become_options() {
+        let video = FormatSpec {
+            selector: "137+140".into(),
+            merge: Some("mp4".into()),
+            extract_audio: None,
+            audio_kbps: None,
+            subtitles: None,
+        };
+        let audio = FormatSpec {
+            extract_audio: Some("mp3".into()),
+            ..video.clone()
+        };
+        let none = crate::ProcessLimits::default();
+        assert!(job_options_args(&none, &video, true).is_empty());
+        let both = crate::ProcessLimits {
+            rate_limit: Some(524_288),
+            subtitles: Some("fr"),
+            ..Default::default()
+        };
+        assert_eq!(
+            job_options_args(&both, &video, true),
+            [
+                "--limit-rate",
+                "524288",
+                "--write-subs",
+                "--sub-langs",
+                "fr.*,fr,en.*,en",
+                "--embed-subs"
+            ]
+        );
+        // No subtitles in an audio file, nor without FFmpeg to embed them.
+        assert_eq!(job_options_args(&both, &audio, true).len(), 2);
+        assert_eq!(job_options_args(&both, &video, false).len(), 2);
     }
 
     #[test]

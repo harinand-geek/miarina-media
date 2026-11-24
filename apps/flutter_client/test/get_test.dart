@@ -14,6 +14,7 @@ import 'package:miarina_media/features/health/health_data.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
+import 'package:miarina_media/features/now_playing/sound_view.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -48,6 +49,10 @@ Analysis ready() => Analysis(
   playlist: null,
   status: AnalysisStatus.ready,
   info: MediaInfo(
+    subtitles: [
+      offer('t:fr', 'Français', detail: 'fr · SRT', ext: 'srt'),
+      offer('t:en', 'English', detail: 'en · SRT', ext: 'srt'),
+    ],
     url: 'https://www.youtube.com/watch?v=R6MlUcmOul8',
     host: 'youtube.com',
     engine: 'ytdlp',
@@ -175,6 +180,32 @@ void main() {
       await settle(tester);
       expect(get.analyzed, ['https://youtube.com/watch?v=R6MlUcmOul8']);
       expect(find.text('Tears of Steel'), findsOneWidget);
+    });
+
+    testWidgets('analysis: the subtitles of one language as a file', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        Uri(
+          path: Routes.getAnalysis,
+          queryParameters: {
+            'url': 'https://www.youtube.com/watch?v=R6MlUcmOul8',
+          },
+        ).toString(),
+      );
+      await tester.tap(find.text('Sous-titres'));
+      await settle(tester);
+      expect(find.text('fr · SRT'), findsOneWidget);
+      await tester.tap(find.text('Français'));
+      await settle(tester);
+      await tester.tap(find.text('Télécharger'));
+      await settle(tester);
+      final r = get.started.single;
+      expect(r.formatId, 't:fr');
+      expect(r.extension_, 'srt');
+      expect(r.isAudio, isFalse);
+      expect(r.title, 'Tears of Steel (Français)');
     });
 
     testWidgets('analysis: formats, queue, then download now', (tester) async {
@@ -574,5 +605,99 @@ void main() {
       expect(get.updates, 1);
       expect(find.text('yt-dlp est à jour (2026.08.19)'), findsOneWidget);
     });
+
+    testWidgets('settings: default qualities, speed limit, subtitles', (
+      tester,
+    ) async {
+      await pumpApp(tester, '${Routes.settings}/downloads');
+      expect(find.text('P1'), findsNothing, reason: 'every row works');
+      await tester.tap(find.text('1080p'));
+      await settle(tester);
+      await tester.tap(find.text('720p').last);
+      await settle(tester);
+      expect(get.videoHeight, 720);
+
+      await tester.tap(find.text('MP3 · 320 kbps'));
+      await settle(tester);
+      await tester.tap(find.text('FLAC').last);
+      await settle(tester);
+      expect(get.audio, 'flac');
+
+      await tester.tap(find.text('Illimitée'));
+      await settle(tester);
+      await tester.tap(find.text('2,0 Mo/s').last);
+      await settle(tester);
+      expect(get.speedLimit, 2 * mb);
+
+      final subs = find.byType(MmSwitch);
+      await tester.ensureVisible(subs);
+      await tester.tap(subs);
+      await settle(tester);
+      expect(get.subtitles, 'fr', reason: 'the interface language');
+      expect(get.videoHeight, 720, reason: 'other choices kept');
+    });
+
+    testWidgets('analysis preselects the default quality', (tester) async {
+      get.videoHeight = 720;
+      get.audio = 'mp3-320';
+      await pumpApp(
+        tester,
+        Uri(
+          path: Routes.getAnalysis,
+          queryParameters: {
+            'url': 'https://www.youtube.com/watch?v=R6MlUcmOul8',
+          },
+        ).toString(),
+      );
+      expect(find.text('Télécharger · 198 Mo'), findsOneWidget);
+    });
+  });
+
+  test('the preferred format follows the settings', () {
+    GetSettings prefs(int h, String a) => GetSettings(
+      downloadDir: '',
+      concurrency: 3,
+      resourceMode: 'balanced',
+      maxDownloads: 3,
+      maxConversions: 2,
+      maxConcurrency: 8,
+      defaultVideoHeight: h,
+      defaultAudio: a,
+      speedLimit: BigInt.zero,
+      subtitles: '',
+    );
+    final video = [
+      offer('v4', '2160p · 4K'),
+      offer('v10', '1080p', tag: 'Recommended'),
+      offer('v7', '720p'),
+    ];
+    expect(
+      preferredFormat(video, prefs(720, 'mp3-320'), audio: false)!.id,
+      'v7',
+    );
+    expect(
+      preferredFormat(video, prefs(1440, 'mp3-320'), audio: false)!.id,
+      'v10',
+    );
+    expect(
+      preferredFormat(video, prefs(360, 'mp3-320'), audio: false)!.id,
+      'v10',
+      reason: 'nothing that low: the default',
+    );
+    final audio = [
+      offer('a320', 'MP3 · 320 kbps', ext: 'mp3', tag: 'Recommended'),
+      offer('a192', 'MP3 · 192 kbps', ext: 'mp3'),
+      offer('m4a', 'M4A · 129 kbps', ext: 'm4a'),
+    ];
+    expect(
+      preferredFormat(audio, prefs(1080, 'mp3-192'), audio: true)!.id,
+      'a192',
+    );
+    expect(preferredFormat(audio, prefs(1080, 'm4a'), audio: true)!.id, 'm4a');
+    expect(
+      preferredFormat(audio, prefs(1080, 'flac'), audio: true)!.id,
+      'a320',
+    );
+    expect(preferredFormat(audio, null, audio: true)!.id, 'a320');
   });
 }

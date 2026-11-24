@@ -6204,6 +6204,24 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{added} ajoutés à la file · {failed} non ajoutés'**
   String batchDone(int added, int failed);
+
+  /// No description provided for @getSpeedLimitDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partagée entre les téléchargements en cours.'**
+  String get getSpeedLimitDesc;
+
+  /// No description provided for @getSpeedUnlimited.
+  ///
+  /// In fr, this message translates to:
+  /// **'Illimitée'**
+  String get getSpeedUnlimited;
+
+  /// No description provided for @getNoteSubs.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres.'**
+  String get getNoteSubs;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

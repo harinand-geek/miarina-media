@@ -58,6 +58,12 @@ abstract interface class GetApi {
   Future<GetSettings> setDownloadDir(String path);
   Future<GetSettings> setConcurrency(int value);
   Future<GetSettings> setResourceMode(String mode);
+  Future<GetSettings> setDownloadPrefs({
+    required int videoHeight,
+    required String audio,
+    required int speedLimit,
+    required String subtitles,
+  });
   Future<List<ToolStatus>> tools();
   Future<YtDlpUpdate> updateYtDlp();
   Future<void> clearHistory();
@@ -128,6 +134,19 @@ class RustGetApi implements GetApi {
 
   @override
   PresetOffers presetOffers() => getPresetOffers();
+
+  @override
+  Future<GetSettings> setDownloadPrefs({
+    required int videoHeight,
+    required String audio,
+    required int speedLimit,
+    required String subtitles,
+  }) => getSetDownloadPrefs(
+    defaultVideoHeight: videoHeight,
+    defaultAudio: audio,
+    speedLimit: BigInt.from(speedLimit),
+    subtitles: subtitles,
+  );
 
   @override
   Future<Analysis> analyzePlaylist(String url) => getAnalyzePlaylist(url: url);
@@ -552,6 +571,36 @@ FormatOffer? defaultFormat(List<FormatOffer> formats) {
   ]..sort((a, b) => height(b).compareTo(height(a)));
   if (sized.isNotEmpty) return sized.first;
   return formats.isEmpty ? null : formats.first;
+}
+
+int _height(FormatOffer f) =>
+    int.tryParse(RegExp(r'^\d+').stringMatch(f.quality) ?? '') ?? 0;
+
+/// The format preselected for the user (Réglages › Téléchargements): the
+/// default video quality, else the highest below it; the default audio
+/// format. Falls back to [defaultFormat].
+FormatOffer? preferredFormat(
+  List<FormatOffer> formats,
+  GetSettings? settings, {
+  required bool audio,
+}) {
+  if (settings == null || formats.isEmpty) return defaultFormat(formats);
+  if (!audio) {
+    final fit = [
+      for (final f in formats)
+        if (_height(f) > 0 && _height(f) <= settings.defaultVideoHeight) f,
+    ]..sort((a, b) => _height(b).compareTo(_height(a)));
+    return fit.isNotEmpty ? fit.first : defaultFormat(formats);
+  }
+  final want = settings.defaultAudio;
+  for (final f in formats) {
+    final ok = want.startsWith('mp3-')
+        ? f.extension_ == 'mp3' &&
+              f.quality.contains('${want.substring(4)} kbps')
+        : f.extension_ == want;
+    if (ok) return f;
+  }
+  return defaultFormat(formats);
 }
 
 /// "1080p" from "1080p · 4K…"-like labels.

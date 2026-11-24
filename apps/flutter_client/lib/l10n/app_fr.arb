@@ -2243,5 +2243,8 @@
   "@batchStart": {"placeholders": {"count": {"type": "int"}}},
   "batchRunning": "Analyse des liens…",
   "batchDone": "{added} ajoutés à la file · {failed} non ajoutés",
-  "@batchDone": {"placeholders": {"added": {"type": "int"}, "failed": {"type": "int"}}}
+  "@batchDone": {"placeholders": {"added": {"type": "int"}, "failed": {"type": "int"}}},
+  "getSpeedLimitDesc": "Partagée entre les téléchargements en cours.",
+  "getSpeedUnlimited": "Illimitée",
+  "getNoteSubs": "Un fichier de sous-titres par langue, enregistré à côté de vos vidéos. Pour les avoir dans la vidéo, activez Réglages › Téléchargements › Télécharger les sous-titres."
 }

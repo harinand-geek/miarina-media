@@ -979,7 +979,30 @@ class FakeGetApi implements GetApi {
     maxDownloads: mode == 'eco' ? 1 : concurrency,
     maxConversions: mode == 'eco' ? 1 : 2,
     maxConcurrency: 8,
+    defaultVideoHeight: videoHeight,
+    defaultAudio: audio,
+    speedLimit: BigInt.from(speedLimit),
+    subtitles: subtitles,
   );
+
+  var videoHeight = 1080;
+  var audio = 'mp3-320';
+  var speedLimit = 0;
+  var subtitles = '';
+
+  @override
+  Future<GetSettings> setDownloadPrefs({
+    required int videoHeight,
+    required String audio,
+    required int speedLimit,
+    required String subtitles,
+  }) async {
+    this.videoHeight = videoHeight;
+    this.audio = audio;
+    this.speedLimit = speedLimit;
+    this.subtitles = subtitles;
+    return settings();
+  }
 
   @override
   Future<GetSettings> setDownloadDir(String path) async {

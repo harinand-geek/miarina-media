@@ -6,7 +6,9 @@ import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart' show PillSegment;
-import '../settings/settings_screen.dart' show SettingsGroup, SettingsRow;
+import '../now_playing/sound_view.dart' show MmSwitch;
+import '../settings/settings_screen.dart'
+    show SettingsGroup, SettingsMenu, SettingsRow;
 import 'get_data.dart';
 import 'get_screens.dart' show bytes, pickDownloadDir, revealProvider;
 
@@ -75,6 +77,21 @@ class _DownloadSettingsState extends ConsumerState<DownloadSettings> {
 
   GetApi get _api => ref.read(getApiProvider);
 
+  Future<void> _prefs(
+    GetSettings s, {
+    int? videoHeight,
+    String? audio,
+    int? speedLimit,
+    String? subtitles,
+  }) => _set(
+    () => _api.setDownloadPrefs(
+      videoHeight: videoHeight ?? s.defaultVideoHeight,
+      audio: audio ?? s.defaultAudio,
+      speedLimit: speedLimit ?? s.speedLimit.toInt(),
+      subtitles: subtitles ?? s.subtitles,
+    ),
+  );
+
   Future<void> _set(Future<GetSettings> Function() change) async {
     await change();
     ref.invalidate(getSettingsProvider);
@@ -119,9 +136,9 @@ class _DownloadSettingsState extends ConsumerState<DownloadSettings> {
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
+    final lang = Localizations.localeOf(context).languageCode;
     final settings = ref.watch(getSettingsProvider).value;
     final tools = ref.watch(toolsProvider).value ?? const <ToolStatus>[];
-    final planned = Text('—', style: MmType.body.copyWith(color: c.faint));
     if (settings == null) return const SizedBox.shrink();
     final n = settings.concurrency;
     return Column(
@@ -174,16 +191,68 @@ class _DownloadSettingsState extends ConsumerState<DownloadSettings> {
             SettingsRow(
               title: t.getDefaultVideoQuality,
               body: t.getDefaultVideoQualityDesc,
-              p1: true,
-              control: planned,
+              control: SettingsMenu<int>(
+                label: t.getDefaultVideoQuality,
+                values: const [
+                  (2160, '2160p · 4K'),
+                  (1440, '1440p'),
+                  (1080, '1080p'),
+                  (720, '720p'),
+                  (480, '480p'),
+                  (360, '360p'),
+                ],
+                selected: settings.defaultVideoHeight,
+                onChanged: (v) => _prefs(settings, videoHeight: v),
+              ),
             ),
-            SettingsRow(title: t.getDefaultAudio, p1: true, control: planned),
-            SettingsRow(title: t.getSpeedLimit, p1: true, control: planned),
+            SettingsRow(
+              title: t.getDefaultAudio,
+              control: SettingsMenu<String>(
+                label: t.getDefaultAudio,
+                values: const [
+                  ('mp3-320', 'MP3 · 320 kbps'),
+                  ('mp3-256', 'MP3 · 256 kbps'),
+                  ('mp3-192', 'MP3 · 192 kbps'),
+                  ('mp3-128', 'MP3 · 128 kbps'),
+                  ('m4a', 'M4A'),
+                  ('flac', 'FLAC'),
+                ],
+                selected: settings.defaultAudio,
+                onChanged: (v) => _prefs(settings, audio: v),
+              ),
+            ),
+            SettingsRow(
+              title: t.getSpeedLimit,
+              body: t.getSpeedLimitDesc,
+              control: SettingsMenu<int>(
+                label: t.getSpeedLimit,
+                values: [
+                  (0, t.getSpeedUnlimited),
+                  for (final m in const [1, 2, 5, 10, 20])
+                    (
+                      m * 1024 * 1024,
+                      formatSpeed(m * 1024.0 * 1024, lang: lang),
+                    ),
+                ],
+                selected: settings.speedLimit.toInt(),
+                onChanged: (v) => _prefs(settings, speedLimit: v),
+              ),
+            ),
             SettingsRow(
               title: t.getDownloadSubs,
               body: t.getDownloadSubsDesc,
-              p1: true,
-              control: planned,
+              control: MmSwitch(
+                value: settings.subtitles.isNotEmpty,
+                label: t.getDownloadSubs,
+                onChanged: (on) => _prefs(
+                  settings,
+                  subtitles: on
+                      ? (Localizations.localeOf(context).languageCode == 'fr'
+                            ? 'fr'
+                            : 'en')
+                      : '',
+                ),
+              ),
             ),
           ],
         ),

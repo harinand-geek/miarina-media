@@ -116,7 +116,16 @@ class _PhoneBrowserState extends ConsumerState<_PhoneBrowser> {
       final info = a.info;
       final f = info == null || a.status != AnalysisStatus.ready
           ? null
-          : defaultFormat(info.video) ?? defaultFormat(info.audio);
+          : preferredFormat(
+                  info.video,
+                  ref.read(getSettingsProvider).value,
+                  audio: false,
+                ) ??
+                preferredFormat(
+                  info.audio,
+                  ref.read(getSettingsProvider).value,
+                  audio: true,
+                );
       if (info == null || f == null) throw StateError('no format');
       await _startDownload(ref, t, info, f, now: true);
       if (mounted) _toast(context, t.getAddedToQueue(shortQuality(f)));

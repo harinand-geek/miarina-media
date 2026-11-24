@@ -290,6 +290,7 @@ impl HttpEngine {
             total,
             supports_resume,
             job.progress_interval,
+            job.process.rate_limit,
             progress,
             &cancel,
         )
@@ -333,6 +334,15 @@ fn changed(known: &Identity, total: Option<u64>, headers: &HeaderMap) -> bool {
     size_changed || etag_changed
 }
 
+/// How long to pause so that `received` bytes in `elapsed` stay within
+/// `limit` bytes per second.
+fn rate_wait(limit: Option<u64>, received: u64, elapsed: Duration) -> Option<Duration> {
+    let limit = limit.filter(|l| *l > 0)?;
+    let due = Duration::from_secs_f64(received as f64 / limit as f64);
+    due.checked_sub(elapsed)
+        .filter(|w| *w > Duration::from_millis(5))
+}
+
 #[allow(clippy::too_many_arguments)]
 async fn stream_body(
     mut response: Response,
@@ -341,6 +351,7 @@ async fn stream_body(
     total: Option<u64>,
     supports_resume: bool,
     interval: Duration,
+    rate_limit: Option<u64>,
     progress: ProgressFn<'_>,
     cancel: &CancellationToken,
 ) -> Result<u64, EngineError> {
@@ -381,6 +392,13 @@ async fn stream_body(
         let rate = meter.update(now, downloaded);
         if throttle.ready(now) {
             report(downloaded, rate);
+        }
+        // Speed limit: wait until the bytes received fit in the rate.
+        if let Some(wait) = rate_wait(rate_limit, downloaded - offset, now - started) {
+            tokio::select! {
+                _ = cancel.cancelled() => return Err(EngineError::Canceled),
+                _ = tokio::time::sleep(wait) => {}
+            }
         }
     }
     report(downloaded, meter.update(Instant::now(), downloaded));
@@ -506,6 +524,17 @@ pub fn media_extension(media: &DirectMedia) -> Option<String> {
 mod tests {
     use super::*;
     use reqwest::header::HeaderValue;
+
+    #[test]
+    fn the_speed_limit_paces_the_transfer() {
+        let mib = 1024 * 1024;
+        // No limit, or ahead of the limit: no pause.
+        assert_eq!(rate_wait(None, 10 * mib, Duration::ZERO), None);
+        assert_eq!(rate_wait(Some(mib), mib, Duration::from_secs(2)), None);
+        // 2 MiB received in 0.5 s at 1 MiB/s: wait 1.5 s.
+        let wait = rate_wait(Some(mib), 2 * mib, Duration::from_millis(500)).unwrap();
+        assert_eq!(wait.as_millis(), 1500);
+    }
 
     #[test]
     fn media_detection() {
