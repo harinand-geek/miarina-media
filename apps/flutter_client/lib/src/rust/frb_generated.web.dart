@@ -10,6 +10,7 @@ import 'api/app.dart';
 import 'api/browser.dart';
 import 'api/browser_spike.dart';
 import 'api/cinema.dart';
+import 'api/converter.dart';
 import 'api/extension.dart';
 import 'api/focus.dart';
 import 'api/get.dart';
@@ -60,6 +61,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<ConvertJob> dco_decode_StreamSink_convert_job_Sse(dynamic raw);
+
+  @protected
   RustStreamSink<GetEvent> dco_decode_StreamSink_get_event_Sse(dynamic raw);
 
   @protected
@@ -88,6 +92,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaItem dco_decode_box_autoadd_cinema_item(dynamic raw);
+
+  @protected
+  ConvertOptions dco_decode_box_autoadd_convert_options(dynamic raw);
 
   @protected
   double dco_decode_box_autoadd_f_64(dynamic raw);
@@ -175,6 +182,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaLibrary dco_decode_cinema_library(dynamic raw);
+
+  @protected
+  ConvertJob dco_decode_convert_job(dynamic raw);
+
+  @protected
+  ConvertOptions dco_decode_convert_options(dynamic raw);
 
   @protected
   DatabaseOpen dco_decode_database_open(dynamic raw);
@@ -271,6 +284,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<CinemaItem> dco_decode_list_cinema_item(dynamic raw);
+
+  @protected
+  List<ConvertJob> dco_decode_list_convert_job(dynamic raw);
 
   @protected
   List<DetectedMediaInfo> dco_decode_list_detected_media_info(dynamic raw);
@@ -461,6 +477,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesSummary dco_decode_series_summary(dynamic raw);
 
   @protected
+  SourceInfo dco_decode_source_info(dynamic raw);
+
+  @protected
   StartRequest dco_decode_start_request(dynamic raw);
 
   @protected
@@ -549,6 +568,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  RustStreamSink<ConvertJob> sse_decode_StreamSink_convert_job_Sse(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<GetEvent> sse_decode_StreamSink_get_event_Sse(
     SseDeserializer deserializer,
   );
@@ -585,6 +609,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   CinemaItem sse_decode_box_autoadd_cinema_item(SseDeserializer deserializer);
+
+  @protected
+  ConvertOptions sse_decode_box_autoadd_convert_options(
+    SseDeserializer deserializer,
+  );
 
   @protected
   double sse_decode_box_autoadd_f_64(SseDeserializer deserializer);
@@ -690,6 +719,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   CinemaLibrary sse_decode_cinema_library(SseDeserializer deserializer);
 
   @protected
+  ConvertJob sse_decode_convert_job(SseDeserializer deserializer);
+
+  @protected
+  ConvertOptions sse_decode_convert_options(SseDeserializer deserializer);
+
+  @protected
   DatabaseOpen sse_decode_database_open(SseDeserializer deserializer);
 
   @protected
@@ -792,6 +827,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<CinemaItem> sse_decode_list_cinema_item(SseDeserializer deserializer);
+
+  @protected
+  List<ConvertJob> sse_decode_list_convert_job(SseDeserializer deserializer);
 
   @protected
   List<DetectedMediaInfo> sse_decode_list_detected_media_info(
@@ -1034,6 +1072,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   SeriesSummary sse_decode_series_summary(SseDeserializer deserializer);
 
   @protected
+  SourceInfo sse_decode_source_info(SseDeserializer deserializer);
+
+  @protected
   StartRequest sse_decode_start_request(SseDeserializer deserializer);
 
   @protected
@@ -1134,6 +1175,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_StreamSink_convert_job_Sse(
+    RustStreamSink<ConvertJob> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_get_event_Sse(
     RustStreamSink<GetEvent> self,
     SseSerializer serializer,
@@ -1178,6 +1225,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_cinema_item(
     CinemaItem self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_convert_options(
+    ConvertOptions self,
     SseSerializer serializer,
   );
 
@@ -1326,6 +1379,15 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_cinema_library(CinemaLibrary self, SseSerializer serializer);
 
   @protected
+  void sse_encode_convert_job(ConvertJob self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_convert_options(
+    ConvertOptions self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_database_open(DatabaseOpen self, SseSerializer serializer);
 
   @protected
@@ -1445,6 +1507,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_list_cinema_item(
     List<CinemaItem> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_convert_job(
+    List<ConvertJob> self,
     SseSerializer serializer,
   );
 
@@ -1768,6 +1836,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_series_summary(SeriesSummary self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_source_info(SourceInfo self, SseSerializer serializer);
 
   @protected
   void sse_encode_start_request(StartRequest self, SseSerializer serializer);

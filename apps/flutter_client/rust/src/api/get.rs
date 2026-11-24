@@ -95,15 +95,32 @@ pub(crate) fn shutdown_downloads() {
     }
 }
 
-/// A conversion is running (UPD-04: an update would interrupt it).
+/// FFmpeg and FFprobe shipped with the app (Convertir).
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn ffmpeg_tools() -> Option<(PathBuf, PathBuf)> {
+    let dir = getter().ok()?.ytdlp.components().ffmpeg_dir()?;
+    let exe = |name: &str| {
+        dir.join(if cfg!(windows) {
+            format!("{name}.exe")
+        } else {
+            name.to_owned()
+        })
+    };
+    let tools = (exe("ffmpeg"), exe("ffprobe"));
+    (tools.0.is_file() && tools.1.is_file()).then_some(tools)
+}
+
+/// A conversion is running (UPD-04: an update would interrupt it): a
+/// download's or Convertir's.
 #[flutter_rust_bridge::frb(ignore)]
 pub(crate) fn converting() -> bool {
-    getter().is_ok_and(|g| {
-        g.manager.tasks().is_ok_and(|t| {
-            t.iter()
-                .any(|t| t.state == media_core::TaskState::Processing)
+    crate::converter::running()
+        || getter().is_ok_and(|g| {
+            g.manager.tasks().is_ok_and(|t| {
+                t.iter()
+                    .any(|t| t.state == media_core::TaskState::Processing)
+            })
         })
-    })
 }
 
 fn getter() -> Result<Arc<Getter>> {

@@ -2,6 +2,7 @@ pub mod app;
 pub mod browser;
 pub mod browser_spike;
 pub mod cinema;
+pub mod converter;
 pub mod extension;
 pub mod focus;
 pub mod get;
