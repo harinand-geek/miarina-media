@@ -14,6 +14,12 @@ val keystoreProperties = Properties().apply {
     if (propFile.exists()) propFile.inputStream().use { load(it) }
 }
 
+// Stable (B1): `flutter build apk --android-project-arg=mm-stable=true`
+// makes the app that replaces the published 0.1.x (org.miarina.media, same
+// key, version code above 0.1.11's 1011) and reuses its data. Without it:
+// the separate beta, org.miarina.media.beta.
+val stable = (project.findProperty("mm-stable") as String?) == "true"
+
 // ABIs of the `flutter build --target-platform` list (Flutter's property).
 val targetAbis: List<String> = run {
     val names = mapOf(
@@ -33,7 +39,7 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
-    // The app name comes from resValue (Miarina Media Bêta).
+    // The app name comes from resValue (Miarina Media, or Miarina Media Bêta).
     buildFeatures {
         resValues = true
     }
@@ -45,9 +51,10 @@ android {
 
     defaultConfig {
         // Beta installed next to the published 0.1.x app (org.miarina.media),
-        // which it never replaces nor reads (owner's choice, 2026-11-21).
-        applicationId = "org.miarina.media.beta"
-        resValue("string", "app_name", "Miarina Media Bêta")
+        // which it never replaces nor reads (owner's choice, 2026-11-21);
+        // the stable build is that app's next version.
+        applicationId = if (stable) "org.miarina.media" else "org.miarina.media.beta"
+        resValue("string", "app_name", if (stable) "Miarina Media" else "Miarina Media Bêta")
         // Native libraries (youtubedl-android ships Python and FFmpeg for four
         // ABIs): only those Flutter builds for (--target-platform), so the
         // published APK holds arm64 only.
@@ -60,7 +67,7 @@ android {
         // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
         // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
         // flag during build.
-        versionCode = flutter.versionCode
+        versionCode = if (stable) 2000 + flutter.versionCode else flutter.versionCode
         versionName = flutter.versionName
     }
 

@@ -28,7 +28,26 @@ Future<String> appDataDir() async {
       ? Directory('$roaming${Platform.pathSeparator}$appId')
       : await getApplicationSupportDirectory();
   await dir.create(recursive: true);
+  if (Platform.isAndroid) {
+    return androidDataDir(dir.path, (p) => File(p).existsSync());
+  }
   return dir.path;
+}
+
+/// Android (B1): the published 0.1.x app (Tauri, same id and key) kept its
+/// data in the app's own folder (`getDataDir()`, the parent of the
+/// `files` folder this app uses). Installed over it, this app goes on with
+/// that database where it is (copied before any schema upgrade, as always)
+/// rather than starting empty. A fresh install, or the separate beta, uses
+/// `files`.
+String androidDataDir(String support, bool Function(String path) exists) {
+  const sep = '/';
+  final cut = support.lastIndexOf(sep);
+  if (cut <= 0) return support;
+  final legacy = support.substring(0, cut);
+  final ours = exists('$support${sep}miarina.db');
+  final theirs = exists('$legacy${sep}miarina.db');
+  return theirs && !ours ? legacy : support;
 }
 
 final dataDirProvider = FutureProvider<String>((ref) => appDataDir());
