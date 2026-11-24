@@ -101,6 +101,13 @@ class MainActivity : FlutterActivity() {
   }
 
   @Deprecated("Activity result API not used: one request at a time")
+  @Suppress("DEPRECATION")
+  override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+    super.onActivityResult(requestCode, resultCode, data)
+    deviceMedia?.onActivityResult(requestCode, resultCode)
+  }
+
+  @Deprecated("Activity result API not used: one request at a time")
   override fun onRequestPermissionsResult(
     requestCode: Int,
     permissions: Array<out String>,

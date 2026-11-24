@@ -52,12 +52,30 @@ class FakeDeviceMediaApi implements DeviceMediaApi {
   @override
   Future<(DeviceAccess, List<String>)> list() async =>
       (current, current.any ? paths : const <String>[]);
+
+  /// What the system confirmation answers.
+  var deleteAnswer = 'deleted';
+  final deleted = <List<String>>[];
+  final shared = <String>[];
+
+  @override
+  Future<String> delete(List<String> paths) async {
+    deleted.add(paths);
+    return deleteAnswer;
+  }
+
+  @override
+  Future<bool> share(String path, String title) async {
+    shared.add(path);
+    return true;
+  }
 }
 
 void main() {
   late FakeDeviceMediaApi device;
   late FakeIndexerApi indexer;
   late FakeSettingsStore settings;
+  late FakeHealthApi health;
 
   Future<void> pumpPhone(
     WidgetTester tester, {
@@ -77,7 +95,7 @@ void main() {
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi()),
           indexerApiProvider.overrideWithValue(indexer),
-          healthApiProvider.overrideWithValue(FakeHealthApi()),
+          healthApiProvider.overrideWithValue(health),
           desktopShellProvider.overrideWithValue(false),
           deviceMediaSupportedProvider.overrideWithValue(true),
           deviceMediaApiProvider.overrideWithValue(device),
@@ -96,6 +114,7 @@ void main() {
     device = FakeDeviceMediaApi(paths: ['/storage/emulated/0/Music/a.flac']);
     indexer = FakeIndexerApi();
     settings = FakeSettingsStore()..values['onboardingDone'] = true;
+    health = FakeHealthApi();
   });
 
   testWidgets('A-06: explanation, system dialog, then the phone is indexed', (
@@ -184,6 +203,62 @@ void main() {
     await settle(tester);
     expect(find.byType(DeviceAccessBanner), findsNothing);
     expect(settings.values['deviceMediaBannerHidden'], true);
+  });
+
+  // 0.2.7: a title had no actions on the phone (no long press, no menu).
+  group('Titres on a phone: long press or dots, then the sheet', () {
+    final songs = [track(1, 'Volamena'), track(2, 'Saina Tonga')];
+
+    setUp(() => device.current = const DeviceAccess(audio: true, video: true));
+
+    testWidgets('Supprimer du téléphone: confirmed, the title leaves', (
+      tester,
+    ) async {
+      await pumpPhone(tester, start: Routes.tracks, tracks: songs);
+      await tester.tap(find.byKey(const ValueKey('track-more-2')));
+      await settle(tester);
+      for (final label in [
+        'Lire ensuite',
+        'Ajouter à la file',
+        'Ajouter à une playlist…',
+        'Partager',
+        'Supprimer du téléphone',
+      ]) {
+        expect(find.text(label), findsOneWidget);
+      }
+      await tester.tap(find.text('Supprimer du téléphone'));
+      await settle(tester);
+      expect(device.deleted, [
+        ['C:/Musique/Saina Tonga.flac'],
+      ]);
+      expect(health.removed, [2]);
+      expect(find.text('Supprimé du téléphone'), findsOneWidget);
+    });
+
+    testWidgets('canceled in the Android window: nothing changes', (
+      tester,
+    ) async {
+      device.deleteAnswer = 'canceled';
+      await pumpPhone(tester, start: Routes.tracks, tracks: songs);
+      await tester.longPress(find.text('Volamena'));
+      await settle(tester);
+      await tester.tap(find.text('Supprimer du téléphone'));
+      await settle(tester);
+      expect(device.deleted, hasLength(1));
+      expect(health.removed, isEmpty);
+      expect(find.text('Volamena'), findsOneWidget);
+    });
+
+    testWidgets('Partager opens the system sheet with the file', (
+      tester,
+    ) async {
+      await pumpPhone(tester, start: Routes.tracks, tracks: songs);
+      await tester.longPress(find.text('Volamena'));
+      await settle(tester);
+      await tester.tap(find.text('Partager'));
+      await settle(tester);
+      expect(device.shared, ['C:/Musique/Volamena.flac']);
+    });
   });
 
   testWidgets('with access, the phone is indexed again at launch', (

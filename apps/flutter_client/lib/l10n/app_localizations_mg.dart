@@ -4894,4 +4894,27 @@ class L10nMg extends L10n {
 
   @override
   String get deviceBannerAllow => 'Omeo alalana';
+
+  @override
+  String get share => 'Zarao';
+
+  @override
+  String get shareFailed => 'Tsy azo zaraina ity rakitra ity';
+
+  @override
+  String get deleteFromPhone => 'Fafao ao amin\'ny finday';
+
+  @override
+  String get deleteFailed => 'Tsy voafafa ilay rakitra';
+
+  @override
+  String deletedFromPhone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rakitra $count voafafa ao amin\'ny finday',
+      one: 'Voafafa ao amin\'ny finday',
+    );
+    return '$_temp0';
+  }
 }

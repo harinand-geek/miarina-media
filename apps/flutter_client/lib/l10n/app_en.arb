@@ -1392,5 +1392,10 @@
   "optTargetMb": "Max. size per file",
   "optMb": "MB",
   "deviceBannerTitle": "This phone's music isn't shown yet",
-  "deviceBannerAllow": "Allow access"
+  "deviceBannerAllow": "Allow access",
+  "share": "Share",
+  "shareFailed": "This file can't be shared",
+  "deleteFromPhone": "Delete from phone",
+  "deleteFailed": "The file couldn't be deleted",
+  "deletedFromPhone": "{count, plural, =1{Deleted from the phone} other{{count} files deleted from the phone}}"
 }

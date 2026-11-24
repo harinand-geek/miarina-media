@@ -8048,6 +8048,36 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Autoriser l\'accès'**
   String get deviceBannerAllow;
+
+  /// No description provided for @share.
+  ///
+  /// In fr, this message translates to:
+  /// **'Partager'**
+  String get share;
+
+  /// No description provided for @shareFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier ne peut pas être partagé'**
+  String get shareFailed;
+
+  /// No description provided for @deleteFromPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer du téléphone'**
+  String get deleteFromPhone;
+
+  /// No description provided for @deleteFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le fichier n\'a pas pu être supprimé'**
+  String get deleteFailed;
+
+  /// No description provided for @deletedFromPhone.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{Supprimé du téléphone} other{{count} fichiers supprimés du téléphone}}'**
+  String deletedFromPhone(int count);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

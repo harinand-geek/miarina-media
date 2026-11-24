@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../device_media/device_media.dart';
 import '../get/get_screens.dart' show revealProvider;
 import '../health/health_data.dart';
 import '../health/health_screens.dart' show locateMissing;
@@ -386,7 +387,76 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         unawaited(_reveal());
       case _Act.remove:
         unawaited(_remove());
+      case _Act.share:
+        unawaited(_share());
+      case _Act.delete:
+        unawaited(_deleteFromPhone());
     }
+  }
+
+  void _toast(String text) {
+    ScaffoldMessenger.maybeOf(context)
+      ?..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(content: Text(text), behavior: SnackBarBehavior.floating),
+      );
+  }
+
+  /// Phone: long press or the dots on a title, the actions in a sheet.
+  Future<void> _openSheet(int i) async {
+    final item = _items[i];
+    setState(() {
+      _picked
+        ..clear()
+        ..add(item.id);
+      _anchor = i;
+      _selected = i;
+    });
+    final phone = ref.read(deviceMediaSupportedProvider);
+    final action = await showModalBottomSheet<_Act>(
+      context: context,
+      backgroundColor: MmColors.of(context).bg,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(MmRadius.xxl)),
+      ),
+      builder: (context) => _TrackSheet(item: item, phone: phone),
+    );
+    if (!mounted || action == null) return;
+    _run(action);
+  }
+
+  Future<void> _share() async {
+    final chosen = _chosen;
+    if (chosen.length != 1) return;
+    final item = chosen.single;
+    final ok = await ref
+        .read(deviceMediaApiProvider)
+        .share(item.path, item.title);
+    if (!ok && mounted) _toast(L10n.of(context).shareFailed);
+  }
+
+  /// Supprimer du téléphone: Android asks for confirmation, then the
+  /// titles leave the library (MediaStore would list them again otherwise).
+  Future<void> _deleteFromPhone() async {
+    final chosen = _chosen;
+    if (chosen.isEmpty) return;
+    final answer = await ref.read(deviceMediaApiProvider).delete([
+      for (final i in chosen) i.path,
+    ]);
+    if (!mounted) return;
+    final t = L10n.of(context);
+    if (answer == 'canceled') return;
+    if (answer != 'deleted') {
+      _toast(t.deleteFailed);
+      return;
+    }
+    await ref.read(healthApiProvider).remove([for (final i in chosen) i.id]);
+    ref
+      ..invalidate(favoritesCountProvider)
+      ..invalidate(healthCountsProvider);
+    _picked.clear();
+    await _reload();
+    if (mounted) _toast(t.deletedFromPhone(chosen.length));
   }
 
   PopupMenuItem<_Act> _item(
@@ -789,6 +859,7 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
           opacity: item.missing ? 0.72 : 1,
           child: Pressable(
             onTap: () => _play(i),
+            onLongPress: () => _openSheet(i),
             semanticLabel: '${item.title}, ${item.artist ?? t.unknownArtist}',
             borderRadius: BorderRadius.circular(MmRadius.lg),
             pressScale: 0.98,
@@ -846,9 +917,24 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
                         : t.favoriteAdd,
                     pressScale: 0.85,
                     child: SizedBox(
-                      width: 48,
+                      width: 44,
                       height: 48,
                       child: Center(child: _Heart(on: item.favorite)),
+                    ),
+                  ),
+                  Pressable(
+                    key: ValueKey('track-more-${item.id}'),
+                    onTap: () => _openSheet(i),
+                    semanticLabel: t.moreOptions,
+                    pressScale: 0.85,
+                    child: SizedBox(
+                      width: 36,
+                      height: 48,
+                      child: Icon(
+                        PhosphorRegular.dotsThreeVertical,
+                        size: 22,
+                        color: c.muted,
+                      ),
                     ),
                   ),
                 ],
@@ -1178,7 +1264,136 @@ class _TrackRow extends StatelessWidget {
 /// Quick filters of Titres, one at a time.
 enum _Quick { neverPlayed, hiRes, addedThisMonth }
 
-enum _Act { play, playNext, queue, playlist, tags, reveal, remove }
+/// The phone's actions on one title (long press or the dots).
+class _TrackSheet extends StatelessWidget {
+  const _TrackSheet({required this.item, required this.phone});
+
+  final LibraryItem item;
+
+  /// Android: share and delete the file; elsewhere, remove from the library.
+  final bool phone;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    Widget row(_Act act, IconData icon, String label, {bool danger = false}) {
+      return Pressable(
+        onTap: () => Navigator.of(context).pop(act),
+        semanticLabel: label,
+        child: SizedBox(
+          height: 52,
+          child: Row(
+            children: [
+              const SizedBox(width: 20),
+              Icon(icon, size: 22, color: danger ? c.danger : c.muted),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Text(
+                  label,
+                  style: MmType.label.copyWith(
+                    fontSize: 15,
+                    color: danger ? c.danger : c.fg,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return SafeArea(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          const SizedBox(height: 8),
+          Center(
+            child: Container(
+              width: 36,
+              height: 4,
+              decoration: BoxDecoration(
+                color: c.faintIcon,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+            child: Row(
+              children: [
+                CoverArt(
+                  size: 48,
+                  radius: 10,
+                  seed: item.id,
+                  shadow: false,
+                  imagePath: item.thumbnail,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        item.title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.heading.copyWith(
+                          fontSize: 15,
+                          color: c.fg,
+                        ),
+                      ),
+                      Text(
+                        item.artist ?? t.unknownArtist,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.caption.copyWith(color: c.muted),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Divider(height: 1, color: c.line),
+          const SizedBox(height: 6),
+          row(_Act.playNext, PhosphorRegular.playlist, t.playNext),
+          row(_Act.queue, PhosphorRegular.queue, t.addToQueue),
+          row(_Act.playlist, PhosphorRegular.listPlus, t.addToPlaylist),
+          if (phone) ...[
+            row(_Act.share, PhosphorRegular.shareNetwork, t.share),
+            row(
+              _Act.delete,
+              PhosphorRegular.trash,
+              t.deleteFromPhone,
+              danger: true,
+            ),
+          ] else
+            row(
+              _Act.remove,
+              PhosphorRegular.minusCircle,
+              t.removeEllipsis,
+              danger: true,
+            ),
+          const SizedBox(height: 8),
+        ],
+      ),
+    );
+  }
+}
+
+enum _Act {
+  play,
+  playNext,
+  queue,
+  playlist,
+  tags,
+  reveal,
+  remove,
+  share,
+  delete,
+}
 
 /// Favorite heart: 1 → 1.15 → 1 and fill in 180 ms (handoff §03).
 class _Heart extends StatelessWidget {

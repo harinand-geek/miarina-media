@@ -2577,5 +2577,11 @@
   "optTargetMb": "Taille max. par fichier",
   "optMb": "Mo",
   "deviceBannerTitle": "La musique de ce téléphone n'est pas encore affichée",
-  "deviceBannerAllow": "Autoriser l'accès"
+  "deviceBannerAllow": "Autoriser l'accès",
+  "share": "Partager",
+  "shareFailed": "Ce fichier ne peut pas être partagé",
+  "deleteFromPhone": "Supprimer du téléphone",
+  "deleteFailed": "Le fichier n'a pas pu être supprimé",
+  "deletedFromPhone": "{count, plural, =1{Supprimé du téléphone} other{{count} fichiers supprimés du téléphone}}",
+  "@deletedFromPhone": {"placeholders": {"count": {"type": "int"}}}
 }

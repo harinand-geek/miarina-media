@@ -4877,4 +4877,27 @@ class L10nFr extends L10n {
 
   @override
   String get deviceBannerAllow => 'Autoriser l\'accès';
+
+  @override
+  String get share => 'Partager';
+
+  @override
+  String get shareFailed => 'Ce fichier ne peut pas être partagé';
+
+  @override
+  String get deleteFromPhone => 'Supprimer du téléphone';
+
+  @override
+  String get deleteFailed => 'Le fichier n\'a pas pu être supprimé';
+
+  @override
+  String deletedFromPhone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count fichiers supprimés du téléphone',
+      one: 'Supprimé du téléphone',
+    );
+    return '$_temp0';
+  }
 }

@@ -1324,5 +1324,10 @@
   "optTargetMb": "Habe ambony isaky ny rakitra",
   "optMb": "Mo",
   "deviceBannerTitle": "Mbola tsy aseho ny hira ato amin'ity finday ity",
-  "deviceBannerAllow": "Omeo alalana"
+  "deviceBannerAllow": "Omeo alalana",
+  "share": "Zarao",
+  "shareFailed": "Tsy azo zaraina ity rakitra ity",
+  "deleteFromPhone": "Fafao ao amin'ny finday",
+  "deleteFailed": "Tsy voafafa ilay rakitra",
+  "deletedFromPhone": "{count, plural, =1{Voafafa ao amin'ny finday} other{Rakitra {count} voafafa ao amin'ny finday}}"
 }

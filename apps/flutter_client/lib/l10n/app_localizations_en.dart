@@ -4837,4 +4837,27 @@ class L10nEn extends L10n {
 
   @override
   String get deviceBannerAllow => 'Allow access';
+
+  @override
+  String get share => 'Share';
+
+  @override
+  String get shareFailed => 'This file can\'t be shared';
+
+  @override
+  String get deleteFromPhone => 'Delete from phone';
+
+  @override
+  String get deleteFailed => 'The file couldn\'t be deleted';
+
+  @override
+  String deletedFromPhone(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count files deleted from the phone',
+      one: 'Deleted from the phone',
+    );
+    return '$_temp0';
+  }
 }

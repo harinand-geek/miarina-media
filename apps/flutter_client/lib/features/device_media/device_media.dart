@@ -48,6 +48,13 @@ abstract interface class DeviceMediaApi {
 
   /// The media the granted access allows (absolute paths).
   Future<(DeviceAccess, List<String>)> list();
+
+  /// Supprimer du téléphone, after the system confirmation: "deleted",
+  /// "canceled" or "failed".
+  Future<String> delete(List<String> paths);
+
+  /// The system share sheet with one file; false when it cannot be shared.
+  Future<bool> share(String path, String title);
 }
 
 class ChannelDeviceMediaApi implements DeviceMediaApi {
@@ -72,6 +79,19 @@ class ChannelDeviceMediaApi implements DeviceMediaApi {
         : const <String>[];
     return (DeviceAccess.fromMap(raw), paths);
   }
+
+  @override
+  Future<String> delete(List<String> paths) async =>
+      await _channel.invokeMethod<String>('delete', {'paths': paths}) ??
+      'failed';
+
+  @override
+  Future<bool> share(String path, String title) async =>
+      await _channel.invokeMethod<bool>('share', {
+        'path': path,
+        'title': title,
+      }) ??
+      false;
 }
 
 final deviceMediaApiProvider = Provider<DeviceMediaApi>(

@@ -2,6 +2,8 @@ package org.miarina.media
 
 import android.Manifest
 import android.app.Activity
+import android.app.RecoverableSecurityException
+import android.content.ContentUris
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -12,6 +14,7 @@ import android.provider.MediaStore
 import android.provider.Settings
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodChannel
 import java.util.concurrent.Executors
@@ -31,6 +34,10 @@ class DeviceMediaChannel(
   private val worker = Executors.newSingleThreadExecutor()
   private val main = Handler(Looper.getMainLooper())
   private var pending: MethodChannel.Result? = null
+
+  // Supprimer du téléphone: the answer waits for the system confirmation.
+  private var pendingDelete: MethodChannel.Result? = null
+  private var retryUris: List<Uri> = emptyList()
 
   private val modern = Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
 
@@ -63,6 +70,8 @@ class DeviceMediaChannel(
       "request" -> request(result)
       "openSettings" -> openSettings(result)
       "list" -> list(result)
+      "delete" -> delete(call.argument<List<String>>("paths") ?: emptyList(), result)
+      "share" -> share(call.argument<String>("path"), call.argument<String>("title"), result)
       else -> result.notImplemented()
     }
   }
@@ -165,7 +174,151 @@ class DeviceMediaChannel(
     }
   }
 
+  /** The MediaStore item of an absolute path, in its audio or video collection. */
+  private fun uriOf(path: String): Uri? {
+    val volumes = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+      MediaStore.getExternalVolumeNames(activity).toList()
+    } else {
+      listOf("external")
+    }
+    for (volume in volumes) {
+      for (collection in listOf(
+        MediaStore.Audio.Media.getContentUri(volume),
+        MediaStore.Video.Media.getContentUri(volume),
+      )) {
+        activity.contentResolver.query(
+          collection,
+          arrayOf(MediaStore.MediaColumns._ID),
+          "${MediaStore.MediaColumns.DATA} = ?",
+          arrayOf(path),
+          null,
+        )?.use { c ->
+          if (c.moveToFirst()) return ContentUris.withAppendedId(collection, c.getLong(0))
+        }
+      }
+    }
+    return null
+  }
+
+  /** Files of the app's own folders, which it may delete without asking. */
+  private fun ownFile(path: String): File? {
+    val file = File(path).canonicalFile
+    val roots = listOfNotNull(activity.filesDir.parentFile, activity.getExternalFilesDir(null)?.parentFile)
+    return file.takeIf { f -> roots.any { f.path.startsWith(it.canonicalPath + File.separator) } }
+  }
+
+  /**
+   * Supprimer du téléphone: MediaStore items go through the system
+   * confirmation (Android 11+), the app's own files are deleted directly.
+   * Answers "deleted", "canceled" (the user said no) or "failed".
+   */
+  private fun delete(paths: List<String>, result: MethodChannel.Result) {
+    if (pendingDelete != null || paths.isEmpty()) {
+      result.success("failed")
+      return
+    }
+    worker.execute {
+      val uris = ArrayList<Uri>()
+      var ok = true
+      for (path in paths) {
+        val uri = try { uriOf(path) } catch (e: Exception) { null }
+        if (uri != null) {
+          uris.add(uri)
+        } else {
+          val own = ownFile(path)
+          ok = ok && own != null && (!own.exists() || own.delete())
+        }
+      }
+      main.post { deleteUris(uris, ok, result) }
+    }
+  }
+
+  private fun deleteUris(uris: List<Uri>, filesOk: Boolean, result: MethodChannel.Result) {
+    if (uris.isEmpty()) {
+      result.success(if (filesOk) "deleted" else "failed")
+      return
+    }
+    try {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+        val request = MediaStore.createDeleteRequest(activity.contentResolver, uris)
+        pendingDelete = result
+        retryUris = emptyList()
+        activity.startIntentSenderForResult(request.intentSender, DELETE_CODE, null, 0, 0, 0)
+        return
+      }
+      for (uri in uris) activity.contentResolver.delete(uri, null, null)
+      result.success(if (filesOk) "deleted" else "failed")
+    } catch (e: Exception) {
+      if (Build.VERSION.SDK_INT == Build.VERSION_CODES.Q && e is RecoverableSecurityException) {
+        // Android 10: one confirmation, then the deletes again.
+        pendingDelete = result
+        retryUris = uris
+        try {
+          activity.startIntentSenderForResult(
+            e.userAction.actionIntent.intentSender, DELETE_CODE, null, 0, 0, 0,
+          )
+          return
+        } catch (_: Exception) {
+          pendingDelete = null
+        }
+      }
+      result.success("failed")
+    }
+  }
+
+  /** Called by MainActivity with the system confirmation's answer. */
+  fun onActivityResult(requestCode: Int, resultCode: Int): Boolean {
+    if (requestCode != DELETE_CODE) return false
+    val result = pendingDelete ?: return true
+    pendingDelete = null
+    if (resultCode != Activity.RESULT_OK) {
+      result.success("canceled")
+      return true
+    }
+    val again = retryUris
+    retryUris = emptyList()
+    if (again.isEmpty()) {
+      result.success("deleted")
+    } else {
+      try {
+        for (uri in again) activity.contentResolver.delete(uri, null, null)
+        result.success("deleted")
+      } catch (e: Exception) {
+        result.success("failed")
+      }
+    }
+    return true
+  }
+
+  /** Partager: the system share sheet with the file's MediaStore item. */
+  private fun share(path: String?, title: String?, result: MethodChannel.Result) {
+    if (path == null) {
+      result.success(false)
+      return
+    }
+    worker.execute {
+      val uri = try { uriOf(path) } catch (e: Exception) { null }
+      main.post {
+        if (uri == null) {
+          result.success(false)
+          return@post
+        }
+        val send = Intent(Intent.ACTION_SEND)
+          .setType(activity.contentResolver.getType(uri) ?: "*/*")
+          .putExtra(Intent.EXTRA_STREAM, uri)
+          .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        try {
+          activity.startActivity(Intent.createChooser(send, title))
+          result.success(true)
+        } catch (e: Exception) {
+          result.success(false)
+        }
+      }
+    }
+  }
+
   companion object {
+    private const val DELETE_CODE = 4108
     private const val REQUEST_CODE = 4107
     private const val MAX_ITEMS = 20_000
     private const val MIN_AUDIO_MS = 30_000L

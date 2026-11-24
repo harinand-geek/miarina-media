@@ -13,6 +13,7 @@ class Pressable extends StatefulWidget {
     this.onTap,
     this.onDoubleTap,
     this.onSecondaryTap,
+    this.onLongPress,
     this.semanticLabel,
     this.tooltip,
     this.borderRadius = const BorderRadius.all(Radius.circular(MmRadius.pill)),
@@ -27,6 +28,9 @@ class Pressable extends StatefulWidget {
   final VoidCallback? onTap;
   final VoidCallback? onDoubleTap;
   final VoidCallback? onSecondaryTap;
+
+  /// Phones: the actions of the item (menu of a title…).
+  final VoidCallback? onLongPress;
   final String? semanticLabel;
   final String? tooltip;
   final BorderRadius borderRadius;
@@ -106,6 +110,7 @@ class _PressableState extends State<Pressable> {
         onTap: widget.onTap,
         onDoubleTap: widget.onDoubleTap,
         onSecondaryTap: widget.onSecondaryTap,
+        onLongPress: widget.onLongPress,
         onTapDown: _enabled ? (_) => setState(() => _pressed = true) : null,
         onTapUp: _enabled ? (_) => setState(() => _pressed = false) : null,
         onTapCancel: _enabled ? () => setState(() => _pressed = false) : null,
