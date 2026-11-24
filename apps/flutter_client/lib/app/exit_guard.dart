@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+
 import 'dart:async';
 import 'dart:io';
 import 'dart:ui' show AppExitResponse;
@@ -15,6 +17,21 @@ final appShutdownProvider = Provider<Future<void> Function()>(
   (_) => () async {
     if (!Platform.isWindows || !RustLib.instance.initialized) return;
     await rust.appShutdown();
+  },
+);
+
+/// Windows: the process ends right after [appShutdownProvider] (see
+/// flutter_window.cpp, org.miarina.media/app). Elsewhere, and if it is not
+/// there, the usual exit goes on.
+final appTerminateProvider = Provider<Future<void> Function()>(
+  (_) => () async {
+    if (!Platform.isWindows) return;
+    try {
+      await const MethodChannel('org.miarina.media/app')
+          .invokeMethod('terminate');
+    } catch (_) {
+      // No runner channel (tests): the normal exit follows.
+    }
   },
 );
 
@@ -59,6 +76,7 @@ class _ExitGuardState extends ConsumerState<ExitGuard> {
     } catch (_) {
       // Closing never fails.
     }
+    await ref.read(appTerminateProvider)();
     return AppExitResponse.exit;
   }
 

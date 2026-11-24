@@ -8,6 +8,8 @@
 
 #include "file_drop.h"
 #include "screen_tools.h"
+
+#include <flutter/method_channel.h>
 #include "single_instance.h"
 #include "taskbar_buttons.h"
 #include "win32_window.h"
@@ -44,6 +46,9 @@ class FlutterWindow : public Win32Window {
 
   // Outils PC: shortcuts, screen pictures, overlay.
   std::unique_ptr<ScreenTools> screen_tools_;
+
+  // org.miarina.media/app: ends the process once the app has closed.
+  std::unique_ptr<flutter::MethodChannel<>> app_channel_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

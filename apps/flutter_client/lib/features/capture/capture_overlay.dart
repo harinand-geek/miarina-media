@@ -43,7 +43,6 @@ class _CaptureHostState extends ConsumerState<CaptureHost> {
     final context = rootMessengerKey.currentContext;
     if (messenger == null || context == null) return;
     final t = L10n.of(context);
-    final c = MmColors.of(context);
     final settings =
         ref.read(captureSettingsProvider).value ?? const CaptureSettings();
     late final String text;
@@ -92,12 +91,8 @@ class _CaptureHostState extends ConsumerState<CaptureHost> {
             children: [
               if (thumb != null) ...[thumb, const SizedBox(width: 12)],
               Expanded(
-                child: Text(
-                  text,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.bodySm.copyWith(color: c.fg),
-                ),
+                // The snack bar's own text colour (readable on its surface).
+                child: Text(text, maxLines: 2, overflow: TextOverflow.ellipsis),
               ),
             ],
           ),

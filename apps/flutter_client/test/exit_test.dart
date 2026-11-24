@@ -22,6 +22,7 @@ import 'support/fakes.dart';
 
 void main() {
   late int shutdowns;
+  late int terminations;
   late Completer<void> core;
 
   Future<void> pumpApp(WidgetTester tester) async {
@@ -44,6 +45,7 @@ void main() {
             shutdowns++;
             return core.future;
           }),
+          appTerminateProvider.overrideWithValue(() async => terminations++),
           desktopShellProvider.overrideWithValue(true),
           settingsStoreProvider.overrideWithValue(
             FakeSettingsStore()..values['onboardingDone'] = true,
@@ -60,6 +62,7 @@ void main() {
 
   setUp(() {
     shutdowns = 0;
+    terminations = 0;
   });
 
   testWidgets('closing waits for the core, once, then exits', (tester) async {
@@ -72,12 +75,14 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
     expect(shutdowns, 1, reason: 'asked twice, shut down once');
     expect(first, isNull, reason: 'downloads still flushing');
+    expect(terminations, 0, reason: 'never before the core has stopped');
 
     core.complete();
     for (var i = 0; i < 5; i++) {
       await tester.pump(const Duration(milliseconds: 10));
     }
     expect((first, second), (AppExitResponse.exit, AppExitResponse.exit));
+    expect(terminations, greaterThan(0), reason: 'then the process ends');
   });
 
   testWidgets('a stuck core never keeps the window open', (tester) async {

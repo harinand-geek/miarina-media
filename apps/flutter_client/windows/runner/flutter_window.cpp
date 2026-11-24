@@ -1,5 +1,8 @@
 #include "flutter_window.h"
 
+#include <flutter/method_channel.h>
+#include <flutter/standard_method_codec.h>
+
 #include <optional>
 
 #include "flutter/generated_plugin_registrant.h"
@@ -33,6 +36,21 @@ bool FlutterWindow::OnCreate() {
       flutter_controller_->engine()->messenger(), GetHandle());
   screen_tools_ = std::make_unique<ScreenTools>(
       flutter_controller_->engine()->messenger(), GetHandle());
+  // The app's last step (exit guard), once the core has stopped and saved
+  // everything: the process ends here rather than through the engine's
+  // teardown, which crashed in flutter_windows.dll now and then (a view
+  // asked for after it was gone) and kept the window "not responding".
+  app_channel_ = std::make_unique<flutter::MethodChannel<>>(
+      flutter_controller_->engine()->messenger(), "org.miarina.media/app",
+      &flutter::StandardMethodCodec::GetInstance());
+  app_channel_->SetMethodCallHandler([](const auto& call, auto result) {
+    if (call.method_name() == "terminate") {
+      result->Success();
+      ::TerminateProcess(::GetCurrentProcess(), 0);
+      return;
+    }
+    result->NotImplemented();
+  });
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -52,6 +70,7 @@ void FlutterWindow::OnDestroy() {
   open_files_ = nullptr;
   file_drop_ = nullptr;
   screen_tools_ = nullptr;
+  app_channel_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
