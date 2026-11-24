@@ -49,7 +49,46 @@ class MpvEngine implements MediaEngine {
     // The next file waits in mpv's playlist; crossfade needs a second
     // player (CrossfadeEngine).
     gapless: true,
+    abLoop: true,
+    audioDelay: true,
+    subtitleTiming: true,
+    videoFrame: true,
+    hardwareDecoding: true,
   );
+
+  Future<void> _set(String property, String value) async {
+    final native = _player.platform;
+    if (native is mk.NativePlayer) await native.setProperty(property, value);
+  }
+
+  static String _secs(Duration d) =>
+      (d.inMicroseconds / 1e6).toStringAsFixed(3);
+
+  @override
+  Future<void> setAbLoop(Duration? a, Duration? b) async {
+    await _set('ab-loop-a', a == null ? 'no' : _secs(a));
+    await _set('ab-loop-b', b == null ? 'no' : _secs(b));
+  }
+
+  @override
+  Future<void> setAudioDelay(Duration delay) =>
+      _set('audio-delay', _secs(delay));
+
+  @override
+  Future<void> setSubtitleDelay(Duration delay) =>
+      _set('sub-delay', _secs(delay));
+
+  @override
+  Future<void> setSubtitleScale(double scale) =>
+      _set('sub-scale', scale.clamp(0.5, 3.0).toStringAsFixed(2));
+
+  @override
+  Future<String?> hardwareDecoder() async {
+    final native = _player.platform;
+    if (native is! mk.NativePlayer) return null;
+    final v = (await native.getProperty('hwdec-current')).trim();
+    return v.isEmpty || v == 'no' ? null : v;
+  }
 
   /// The file prepared to follow (mpv's playlist holds it after the
   /// current one).
@@ -131,6 +170,9 @@ class MpvEngine implements MediaEngine {
         .where((d) => d.name == p.audioOutput)
         .firstOrNull;
     await _player.setAudioDevice(device ?? mk.AudioDevice.auto());
+    // "auto-safe": the decoders mpv knows to be reliable; software when
+    // none works.
+    await native.setProperty('hwdec', p.hardwareDecoding ? 'auto-safe' : 'no');
     if (p.normalize != _normalize) {
       _normalize = p.normalize;
       await _applyFilters();
@@ -498,12 +540,14 @@ class MpvEngine implements MediaEngine {
   }
 
   @override
-  Widget buildVideoView({BoxFit fit = BoxFit.contain}) => mkv.Video(
-    controller: _video,
-    fit: fit,
-    controls: mkv.NoVideoControls,
-    fill: const Color(0xFF070B0F),
-  );
+  Widget buildVideoView({BoxFit fit = BoxFit.contain, double? aspectRatio}) =>
+      mkv.Video(
+        controller: _video,
+        fit: fit,
+        aspectRatio: aspectRatio,
+        controls: mkv.NoVideoControls,
+        fill: const Color(0xFF070B0F),
+      );
 
   @override
   Future<void> dispose() async {

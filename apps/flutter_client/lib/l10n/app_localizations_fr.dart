@@ -3872,4 +3872,83 @@ class L10nFr extends L10n {
   String crossfadeSeconds(int s) {
     return '$s s';
   }
+
+  @override
+  String get videoSettings => 'Vidéo';
+
+  @override
+  String get subtitleDelay => 'Décalage';
+
+  @override
+  String get subtitleSize => 'Taille';
+
+  @override
+  String get earlier => 'Plus tôt';
+
+  @override
+  String get later => 'Plus tard';
+
+  @override
+  String get smaller => 'Plus petit';
+
+  @override
+  String get larger => 'Plus grand';
+
+  @override
+  String get slower => 'Plus lent';
+
+  @override
+  String get faster => 'Plus rapide';
+
+  @override
+  String get aspectRatio => 'Format d’image';
+
+  @override
+  String get aspectAuto => 'Auto';
+
+  @override
+  String get cropSetting => 'Recadrage';
+
+  @override
+  String get cropNone => 'Aucun';
+
+  @override
+  String get cropFill => 'Remplir l’écran';
+
+  @override
+  String get audioSync => 'Synchro audio';
+
+  @override
+  String get hwDecoding => 'Décodage matériel';
+
+  @override
+  String get hwDecodingBody => 'Repli logiciel automatique en cas d’échec.';
+
+  @override
+  String hwAuto(String decoder) {
+    return 'Auto ($decoder)';
+  }
+
+  @override
+  String get hwSoftware => 'Logiciel';
+
+  @override
+  String get abLoop => 'Boucle A–B';
+
+  @override
+  String get abOff => 'Désactivée';
+
+  @override
+  String abFrom(String time) {
+    return 'A à $time';
+  }
+
+  @override
+  String get abHintA => 'Touchez pour placer A à la position actuelle.';
+
+  @override
+  String get abHintB => 'Touchez pour placer B : la partie A–B se répète.';
+
+  @override
+  String get abHintOff => 'Touchez pour arrêter la boucle.';
 }

@@ -112,6 +112,7 @@ class PlaybackPrefs {
     'exclusiveAudio': engine.exclusiveAudio,
     'audioOutput': engine.audioOutput,
     'normalize': engine.normalize,
+    'hardwareDecoding': engine.hardwareDecoding,
     'gapless': gapless,
     'crossfadeSecs': crossfadeSecs,
   };
@@ -124,6 +125,7 @@ EnginePreferences withEngine(
   bool? exclusiveAudio,
   String? audioOutput,
   bool? normalize,
+  bool? hardwareDecoding,
 }) => EnginePreferences(
   subtitleLanguage: identical(subtitleLanguage, _keep)
       ? e.subtitleLanguage
@@ -132,6 +134,7 @@ EnginePreferences withEngine(
   exclusiveAudio: exclusiveAudio ?? e.exclusiveAudio,
   audioOutput: audioOutput ?? e.audioOutput,
   normalize: normalize ?? e.normalize,
+  hardwareDecoding: hardwareDecoding ?? e.hardwareDecoding,
 );
 
 T _pick<T>(Object? map, String key, T fallback) {
@@ -201,6 +204,7 @@ class PlaybackPrefsController extends AsyncNotifier<PlaybackPrefs> {
         exclusiveAudio: _pick(raw, 'exclusiveAudio', false),
         audioOutput: _pick(raw, 'audioOutput', 'auto'),
         normalize: _pick(raw, 'normalize', false),
+        hardwareDecoding: _pick(raw, 'hardwareDecoding', true),
       ),
       gapless: _pick(raw, 'gapless', true),
       crossfadeSecs:

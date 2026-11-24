@@ -441,6 +441,78 @@ void main() {
       expect(engine.seeks.last, const Duration(seconds: 10));
     });
 
+    testWidgets(
+      'Vidéo menu: ratio, crop, audio sync, decoder, A–B; subtitles',
+      (tester) async {
+        await pumpApp(
+          tester,
+          start: Routes.cinema,
+          size: const Size(1280, 1400),
+        );
+        await tester.tap(find.text('Le Dernier Ferry'));
+        await settle(tester);
+        await tester.tap(find.bySemanticsLabel('Vidéo'));
+        await settle(tester);
+        expect(find.text('VIDÉO'), findsOneWidget);
+        expect(find.text('Auto (D3D11VA)'), findsOneWidget);
+
+        await tester.tap(find.bySemanticsLabel(RegExp('^Format d’image')));
+        await settle(tester);
+        expect(find.text('16:9'), findsOneWidget);
+        await tester.tap(find.bySemanticsLabel(RegExp('^Recadrage')));
+        await settle(tester);
+        expect(find.text('Remplir l’écran'), findsOneWidget);
+
+        await tester.tap(find.bySemanticsLabel('Plus tard').first);
+        await tester.tap(find.bySemanticsLabel('Plus tard').first);
+        await settle(tester);
+        expect(engine.audioDelay, const Duration(milliseconds: 100));
+        expect(find.text('+100 ms'), findsOneWidget);
+
+        // A at 0:30, B at 1:15: the part repeats.
+        engine.emit(
+          engine.current.copyWith(position: const Duration(seconds: 30)),
+        );
+        await settle(tester);
+        await tester.tap(find.bySemanticsLabel(RegExp('^Boucle A–B')));
+        await settle(tester);
+        expect(find.text('A à 0:30'), findsOneWidget);
+        engine.emit(
+          engine.current.copyWith(position: const Duration(seconds: 75)),
+        );
+        await settle(tester);
+        await tester.tap(find.bySemanticsLabel(RegExp('^Boucle A–B')));
+        await settle(tester);
+        expect(engine.abLoop, (
+          const Duration(seconds: 30),
+          const Duration(seconds: 75),
+        ));
+        await tester.tap(find.bySemanticsLabel(RegExp('^Boucle A–B')));
+        await settle(tester);
+        expect(engine.abLoop, (null, null));
+
+        // Subtitles: 0.1 s steps and the size.
+        await tester.sendKeyEvent(LogicalKeyboardKey.keyC);
+        await settle(tester);
+        await tester.tap(find.bySemanticsLabel('Plus tôt').first);
+        await settle(tester);
+        expect(engine.subtitleDelay, const Duration(milliseconds: -100));
+        expect(find.text('-0,1 s'), findsOneWidget);
+        await tester.tap(find.bySemanticsLabel('Plus grand'));
+        await settle(tester);
+        expect(engine.subtitleScale, 1.2);
+
+        // Another file starts with none of them.
+        engine.emit(
+          engine.current.copyWith(source: MediaSource.file('C:/v/other.mkv')),
+        );
+        await settle(tester);
+        expect(engine.audioDelay, Duration.zero);
+        expect(engine.subtitleDelay, Duration.zero);
+        expect(engine.subtitleScale, 1);
+      },
+    );
+
     testWidgets('F switches to the full-screen player alone', (tester) async {
       await pumpApp(tester, start: Routes.cinema, size: const Size(1280, 1400));
       await tester.tap(find.text('Le Dernier Ferry'));

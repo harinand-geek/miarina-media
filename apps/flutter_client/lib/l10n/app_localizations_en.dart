@@ -3840,4 +3840,83 @@ class L10nEn extends L10n {
   String crossfadeSeconds(int s) {
     return '$s s';
   }
+
+  @override
+  String get videoSettings => 'Video';
+
+  @override
+  String get subtitleDelay => 'Delay';
+
+  @override
+  String get subtitleSize => 'Size';
+
+  @override
+  String get earlier => 'Earlier';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get smaller => 'Smaller';
+
+  @override
+  String get larger => 'Larger';
+
+  @override
+  String get slower => 'Slower';
+
+  @override
+  String get faster => 'Faster';
+
+  @override
+  String get aspectRatio => 'Aspect ratio';
+
+  @override
+  String get aspectAuto => 'Auto';
+
+  @override
+  String get cropSetting => 'Crop';
+
+  @override
+  String get cropNone => 'None';
+
+  @override
+  String get cropFill => 'Fill the screen';
+
+  @override
+  String get audioSync => 'Audio sync';
+
+  @override
+  String get hwDecoding => 'Hardware decoding';
+
+  @override
+  String get hwDecodingBody => 'Automatic software fallback on failure.';
+
+  @override
+  String hwAuto(String decoder) {
+    return 'Auto ($decoder)';
+  }
+
+  @override
+  String get hwSoftware => 'Software';
+
+  @override
+  String get abLoop => 'A–B loop';
+
+  @override
+  String get abOff => 'Off';
+
+  @override
+  String abFrom(String time) {
+    return 'A at $time';
+  }
+
+  @override
+  String get abHintA => 'Tap to set A at the current position.';
+
+  @override
+  String get abHintB => 'Tap to set B: the A–B part repeats.';
+
+  @override
+  String get abHintOff => 'Tap to stop the loop.';
 }

@@ -58,6 +58,11 @@ class CrossfadeEngine implements MediaEngine {
       normalization: c.normalization,
       gapless: c.gapless,
       crossfade: true,
+      abLoop: c.abLoop,
+      audioDelay: c.audioDelay,
+      subtitleTiming: c.subtitleTiming,
+      videoFrame: c.videoFrame,
+      hardwareDecoding: c.hardwareDecoding,
     );
   }
 
@@ -252,8 +257,25 @@ class CrossfadeEngine implements MediaEngine {
   }
 
   @override
-  Widget buildVideoView({BoxFit fit = BoxFit.contain}) =>
-      _a.buildVideoView(fit: fit);
+  Widget buildVideoView({BoxFit fit = BoxFit.contain, double? aspectRatio}) =>
+      _a.buildVideoView(fit: fit, aspectRatio: aspectRatio);
+
+  @override
+  Future<void> setAbLoop(Duration? a, Duration? b) => _active.setAbLoop(a, b);
+
+  @override
+  Future<void> setAudioDelay(Duration delay) => _active.setAudioDelay(delay);
+
+  @override
+  Future<void> setSubtitleDelay(Duration delay) =>
+      _active.setSubtitleDelay(delay);
+
+  @override
+  Future<void> setSubtitleScale(double scale) =>
+      _active.setSubtitleScale(scale);
+
+  @override
+  Future<String?> hardwareDecoder() => _active.hardwareDecoder();
 
   @override
   Future<void> dispose() async {

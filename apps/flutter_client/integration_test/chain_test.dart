@@ -103,4 +103,29 @@ void main() {
       expect(engine.current.error, isNull);
     });
   });
+
+  testWidgets('A–B repeats a part; delays and size are accepted', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      await engine.setVolume(0.1); // short tones, kept quiet
+      await engine.open(a);
+      await engine.setAbLoop(
+        const Duration(milliseconds: 500),
+        const Duration(milliseconds: 1500),
+      );
+      await engine.setAudioDelay(const Duration(milliseconds: 100));
+      await engine.setSubtitleDelay(const Duration(milliseconds: -300));
+      await engine.setSubtitleScale(1.4);
+      // a.mp3 lasts 4 s: after 3 s it still plays inside A–B.
+      await Future<void>.delayed(const Duration(seconds: 3));
+      final p = engine.current.position;
+      // ignore: avoid_print
+      print('A–B: position after 3 s = $p');
+      expect(p, greaterThanOrEqualTo(const Duration(milliseconds: 400)));
+      expect(p, lessThan(const Duration(milliseconds: 1700)));
+      expect(engine.current.status, isNot(PlaybackStatus.ended));
+      await engine.setAbLoop(null, null);
+    });
+  });
 }

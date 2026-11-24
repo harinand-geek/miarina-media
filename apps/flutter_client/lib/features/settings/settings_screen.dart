@@ -758,6 +758,16 @@ class _Playback extends ConsumerWidget {
         SettingsGroup(
           title: t.videoSection,
           rows: [
+            if (caps?.hardwareDecoding ?? false)
+              SettingsRow(
+                title: t.hwDecoding,
+                body: t.hwDecodingBody,
+                control: MmSwitch(
+                  value: e.hardwareDecoding,
+                  label: t.hwDecoding,
+                  onChanged: (v) => engine(withEngine(e, hardwareDecoding: v)),
+                ),
+              ),
             if (caps?.subtitleLanguage ?? true)
               SettingsRow(
                 title: t.defaultSubtitles,

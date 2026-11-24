@@ -6234,6 +6234,156 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{s} s'**
   String crossfadeSeconds(int s);
+
+  /// No description provided for @videoSettings.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get videoSettings;
+
+  /// No description provided for @subtitleDelay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décalage'**
+  String get subtitleDelay;
+
+  /// No description provided for @subtitleSize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Taille'**
+  String get subtitleSize;
+
+  /// No description provided for @earlier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tôt'**
+  String get earlier;
+
+  /// No description provided for @later.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus tard'**
+  String get later;
+
+  /// No description provided for @smaller.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus petit'**
+  String get smaller;
+
+  /// No description provided for @larger.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus grand'**
+  String get larger;
+
+  /// No description provided for @slower.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus lent'**
+  String get slower;
+
+  /// No description provided for @faster.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus rapide'**
+  String get faster;
+
+  /// No description provided for @aspectRatio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format d’image'**
+  String get aspectRatio;
+
+  /// No description provided for @aspectAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto'**
+  String get aspectAuto;
+
+  /// No description provided for @cropSetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recadrage'**
+  String get cropSetting;
+
+  /// No description provided for @cropNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get cropNone;
+
+  /// No description provided for @cropFill.
+  ///
+  /// In fr, this message translates to:
+  /// **'Remplir l’écran'**
+  String get cropFill;
+
+  /// No description provided for @audioSync.
+  ///
+  /// In fr, this message translates to:
+  /// **'Synchro audio'**
+  String get audioSync;
+
+  /// No description provided for @hwDecoding.
+  ///
+  /// In fr, this message translates to:
+  /// **'Décodage matériel'**
+  String get hwDecoding;
+
+  /// No description provided for @hwDecodingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Repli logiciel automatique en cas d’échec.'**
+  String get hwDecodingBody;
+
+  /// No description provided for @hwAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Auto ({decoder})'**
+  String hwAuto(String decoder);
+
+  /// No description provided for @hwSoftware.
+  ///
+  /// In fr, this message translates to:
+  /// **'Logiciel'**
+  String get hwSoftware;
+
+  /// No description provided for @abLoop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Boucle A–B'**
+  String get abLoop;
+
+  /// No description provided for @abOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Désactivée'**
+  String get abOff;
+
+  /// No description provided for @abFrom.
+  ///
+  /// In fr, this message translates to:
+  /// **'A à {time}'**
+  String abFrom(String time);
+
+  /// No description provided for @abHintA.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour placer A à la position actuelle.'**
+  String get abHintA;
+
+  /// No description provided for @abHintB.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour placer B : la partie A–B se répète.'**
+  String get abHintB;
+
+  /// No description provided for @abHintOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Touchez pour arrêter la boucle.'**
+  String get abHintOff;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

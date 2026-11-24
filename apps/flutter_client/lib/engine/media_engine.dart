@@ -81,6 +81,7 @@ class EnginePreferences {
     this.exclusiveAudio = false,
     this.audioOutput = 'auto',
     this.normalize = false,
+    this.hardwareDecoding = true,
   });
 
   /// ISO 639-1 code of the preferred subtitle language, or null for none.
@@ -95,6 +96,9 @@ class EnginePreferences {
 
   /// Apply the ReplayGain tags of the files (track gain) while playing.
   final bool normalize;
+
+  /// Decode video with the GPU when it can (software otherwise).
+  final bool hardwareDecoding;
 }
 
 /// What an engine can really do on this platform. The interface hides or
@@ -118,6 +122,11 @@ class EngineCapabilities {
     this.normalization = false,
     this.gapless = false,
     this.crossfade = false,
+    this.abLoop = false,
+    this.audioDelay = false,
+    this.subtitleTiming = false,
+    this.videoFrame = false,
+    this.hardwareDecoding = false,
   });
 
   final bool video;
@@ -148,6 +157,22 @@ class EngineCapabilities {
 
   /// [MediaEngine.prepareNext] can overlap two audio files.
   final bool crossfade;
+
+  /// [MediaEngine.setAbLoop] repeats a part of the file.
+  final bool abLoop;
+
+  /// [MediaEngine.setAudioDelay] shifts the sound against the picture.
+  final bool audioDelay;
+
+  /// [MediaEngine.setSubtitleDelay] and [MediaEngine.setSubtitleScale].
+  final bool subtitleTiming;
+
+  /// The video view takes an aspect ratio and fills the frame on demand.
+  final bool videoFrame;
+
+  /// [EnginePreferences.hardwareDecoding] is honoured and
+  /// [MediaEngine.hardwareDecoder] says what decodes.
+  final bool hardwareDecoding;
 }
 
 class PlaybackError {
@@ -302,6 +327,22 @@ abstract interface class MediaEngine {
   /// Applies the playback settings to what plays and what will.
   Future<void> applyPreferences(EnginePreferences preferences);
 
+  /// Repeats the part of the file between [a] and [b]; null clears it.
+  Future<void> setAbLoop(Duration? a, Duration? b);
+
+  /// Plays the sound [delay] later (negative: earlier) than the picture.
+  Future<void> setAudioDelay(Duration delay);
+
+  /// Shows the subtitles [delay] later (negative: earlier).
+  Future<void> setSubtitleDelay(Duration delay);
+
+  /// Subtitle size, 1 = the file's own.
+  Future<void> setSubtitleScale(double scale);
+
+  /// The hardware decoder in use (e.g. "d3d11va"), null in software or
+  /// when not known.
+  Future<String?> hardwareDecoder();
+
   /// The file that follows the current one: prepared so it starts the
   /// moment the current one ends (gapless), or overlapping its last
   /// [crossfade] (two audio files). The engine then reports the new source
@@ -313,7 +354,9 @@ abstract interface class MediaEngine {
   });
 
   /// The picture for this engine, or an empty box for audio-only engines.
-  Widget buildVideoView({BoxFit fit = BoxFit.contain});
+  /// [aspectRatio] overrides the file's (null: the file's own); with
+  /// `BoxFit.cover` the picture fills the frame (cropped).
+  Widget buildVideoView({BoxFit fit = BoxFit.contain, double? aspectRatio});
 
   Future<void> dispose();
 }

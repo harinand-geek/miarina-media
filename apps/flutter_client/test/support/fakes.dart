@@ -76,6 +76,11 @@ class FakeEngine implements MediaEngine {
     frameStep: true,
     gapless: true,
     crossfade: true,
+    abLoop: true,
+    audioDelay: true,
+    subtitleTiming: true,
+    videoFrame: true,
+    hardwareDecoding: true,
   );
 
   @override
@@ -103,6 +108,27 @@ class FakeEngine implements MediaEngine {
       ),
     );
   }
+
+  (Duration?, Duration?) abLoop = (null, null);
+  Duration audioDelay = Duration.zero;
+  Duration subtitleDelay = Duration.zero;
+  double subtitleScale = 1;
+  String? decoder = 'd3d11va';
+
+  @override
+  Future<void> setAbLoop(Duration? a, Duration? b) async => abLoop = (a, b);
+
+  @override
+  Future<void> setAudioDelay(Duration delay) async => audioDelay = delay;
+
+  @override
+  Future<void> setSubtitleDelay(Duration delay) async => subtitleDelay = delay;
+
+  @override
+  Future<void> setSubtitleScale(double scale) async => subtitleScale = scale;
+
+  @override
+  Future<String?> hardwareDecoder() async => decoder;
 
   /// What the queue prepared to follow, and its crossfade.
   MediaSource? prepared;
@@ -208,7 +234,8 @@ class FakeEngine implements MediaEngine {
   Future<void> applyPreferences(EnginePreferences p) async => preferences = p;
 
   @override
-  Widget buildVideoView({BoxFit fit = BoxFit.contain}) => const SizedBox();
+  Widget buildVideoView({BoxFit fit = BoxFit.contain, double? aspectRatio}) =>
+      const SizedBox();
 
   @override
   Future<void> dispose() async => _controller.close();

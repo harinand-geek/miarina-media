@@ -46,6 +46,8 @@ class Media3Engine implements MediaEngine {
     // Media3 picks the text track by language; outputs, exclusive mode and
     // sidecar files are left to Android.
     subtitleLanguage: true,
+    abLoop: true,
+    videoFrame: true,
   );
 
   /// Not chained yet on Android (capabilities say so): files play one by
@@ -65,7 +67,32 @@ class Media3Engine implements MediaEngine {
   void _emit(PlaybackSnapshot next) {
     _state = next;
     if (!_controller.isClosed) _controller.add(next);
+    // A–B: Media3 has no loop of a part; back to A once B is reached
+    // (position updates come 4 times a second).
+    final ab = _ab;
+    if (ab != null && next.isPlaying && next.position >= ab.$2) {
+      unawaited(seek(ab.$1));
+    }
   }
+
+  (Duration, Duration)? _ab;
+
+  @override
+  Future<void> setAbLoop(Duration? a, Duration? b) async =>
+      _ab = a != null && b != null && b > a ? (a, b) : null;
+
+  // Not in Media3 (capabilities say so).
+  @override
+  Future<void> setAudioDelay(Duration delay) async {}
+
+  @override
+  Future<void> setSubtitleDelay(Duration delay) async {}
+
+  @override
+  Future<void> setSubtitleScale(double scale) async {}
+
+  @override
+  Future<String?> hardwareDecoder() async => null;
 
   void _onEvent(dynamic raw) {
     if (raw is! Map) return;
@@ -216,14 +243,17 @@ class Media3Engine implements MediaEngine {
       _methods.invokeMethod<bool>('setEqualizer', {'gains': gainsDb});
 
   @override
-  Widget buildVideoView({BoxFit fit = BoxFit.contain}) {
+  Widget buildVideoView({BoxFit fit = BoxFit.contain, double? aspectRatio}) {
     _texture ??= _methods.invokeMethod<int>('texture').then((id) => id!);
     return FutureBuilder<int>(
       future: _texture,
       builder: (context, snap) {
         final id = snap.data;
         if (id == null) return const SizedBox.expand();
-        final size = _state.videoSize ?? const Size(16, 9);
+        final own = _state.videoSize ?? const Size(16, 9);
+        final size = aspectRatio == null
+            ? own
+            : Size(own.height * aspectRatio, own.height);
         return Stack(
           fit: StackFit.expand,
           children: [

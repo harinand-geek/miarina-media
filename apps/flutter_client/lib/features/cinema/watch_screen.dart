@@ -19,6 +19,7 @@ import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
 import '../shortcuts/keymap.dart';
 import 'cinema_data.dart';
+import 'video_adjust.dart';
 
 /// Full screen of the video player (W-C4). On Windows it also switches the
 /// window to full screen; the desktop shell then shows the player alone.
@@ -49,7 +50,7 @@ class VideoFullscreen extends Notifier<bool> {
   void toggle() => set(!state);
 }
 
-enum _Menu { subtitles, audio, speed }
+enum _Menu { subtitles, audio, speed, video }
 
 const _speeds = [0.5, 0.75, 1.0, 1.25, 1.5, 2.0];
 
@@ -200,6 +201,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             current.title,
           ].join(' · ');
 
+    final adjust = ref.watch(videoAdjustProvider);
     final surface = GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: () {
@@ -220,7 +222,11 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
         child: Stack(
           fit: StackFit.expand,
           children: [
-            if (engine != null) engine.buildVideoView(),
+            if (engine != null)
+              engine.buildVideoView(
+                fit: adjust.fill ? BoxFit.cover : BoxFit.contain,
+                aspectRatio: adjust.aspectRatio,
+              ),
             if (snap.status == PlaybackStatus.loading || snap.buffering)
               Center(
                 child: Text(
@@ -566,6 +572,17 @@ class _Controls extends ConsumerWidget {
             () => onMenu(_Menu.speed),
             active: menu == _Menu.speed,
           ),
+        if (caps != null &&
+            (caps.abLoop ||
+                caps.videoFrame ||
+                caps.audioDelay ||
+                caps.hardwareDecoding))
+          icon(
+            PhosphorRegular.slidersHorizontal,
+            t.videoSettings,
+            () => onMenu(_Menu.video),
+            active: menu == _Menu.video,
+          ),
         if (!mobile)
           icon(
             full ? PhosphorRegular.cornersIn : PhosphorRegular.cornersOut,
@@ -717,6 +734,89 @@ class _MenuPanel extends ConsumerWidget {
       ),
     );
 
+    final adjust = ref.watch(videoAdjustProvider);
+    final adjustCtl = ref.read(videoAdjustProvider.notifier);
+    final caps = engine?.capabilities;
+
+    Widget step(IconData glyph, String label, VoidCallback? onTap) => Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      tooltip: label,
+      borderRadius: BorderRadius.circular(MmRadius.pill),
+      child: Container(
+        width: 32,
+        height: 32,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(color: c.lineStrong),
+        ),
+        child: Icon(glyph, size: 16, color: onTap == null ? c.faint : c.fgSoft),
+      ),
+    );
+
+    // One setting: its value, and either - / + or a tap to change it.
+    Widget line(
+      String label,
+      String value, {
+      VoidCallback? onTap,
+      VoidCallback? less,
+      VoidCallback? more,
+      String? lessLabel,
+      String? moreLabel,
+    }) {
+      final body = Container(
+        constraints: const BoxConstraints(minHeight: 44),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: MmType.labelStrong.copyWith(color: c.fg),
+              ),
+            ),
+            if (less != null) ...[
+              step(PhosphorRegular.minus, lessLabel ?? label, less),
+              const SizedBox(width: 8),
+            ],
+            ConstrainedBox(
+              constraints: const BoxConstraints(minWidth: 64),
+              child: Text(
+                value,
+                textAlign: TextAlign.center,
+                style: MmType.monoStyle(size: 12, color: c.fgSoft),
+              ),
+            ),
+            if (more != null) ...[
+              const SizedBox(width: 8),
+              step(PhosphorRegular.plus, moreLabel ?? label, more),
+            ],
+          ],
+        ),
+      );
+      if (onTap == null) return Semantics(label: '$label, $value', child: body);
+      return Pressable(
+        onTap: onTap,
+        semanticLabel: '$label, $value',
+        borderRadius: BorderRadius.circular(MmRadius.sm),
+        hoverColor: c.cardHover,
+        child: body,
+      );
+    }
+
+    String signedMs(int ms) {
+      final v = ms / 1000;
+      final text = v
+          .toStringAsFixed(ms % 100 == 0 ? 1 : 2)
+          .replaceAll(
+            '.',
+            Localizations.localeOf(context).languageCode == 'fr' ? ',' : '.',
+          );
+      return '${ms > 0 ? '+' : ''}$text s';
+    }
+
     late final String heading;
     final rows = <Widget>[];
     switch (menu) {
@@ -738,6 +838,29 @@ class _MenuPanel extends ConsumerWidget {
               detail: s.codec?.toUpperCase(),
               selected: snap.subtitlesEnabled && snap.selectedSubtitle == s.id,
               onTap: () => engine?.selectSubtitleTrack(s.id),
+            ),
+          );
+        }
+        if (caps?.subtitleTiming ?? false) {
+          rows.add(Divider(height: 14, color: c.line));
+          rows.add(
+            line(
+              t.subtitleDelay,
+              signedMs(adjust.subDelayMs),
+              less: () => adjustCtl.nudgeSubtitles(-1),
+              more: () => adjustCtl.nudgeSubtitles(1),
+              lessLabel: t.earlier,
+              moreLabel: t.later,
+            ),
+          );
+          rows.add(
+            line(
+              t.subtitleSize,
+              '${(adjust.subScale * 100).round()} %',
+              less: () => adjustCtl.stepSubtitleSize(-1),
+              more: () => adjustCtl.stepSubtitleSize(1),
+              lessLabel: t.smaller,
+              moreLabel: t.larger,
             ),
           );
         }
@@ -789,6 +912,87 @@ class _MenuPanel extends ConsumerWidget {
             ),
           );
         }
+      case _Menu.video:
+        heading = t.videoSettings;
+        final speedIndex = _speeds.indexWhere(
+          (s) => (s - snap.speed).abs() < 0.01,
+        );
+        rows.add(
+          line(
+            t.speed,
+            speedLabel(snap.speed),
+            less: speedIndex > 0
+                ? () => engine?.setSpeed(_speeds[speedIndex - 1])
+                : null,
+            more: speedIndex >= 0 && speedIndex < _speeds.length - 1
+                ? () => engine?.setSpeed(_speeds[speedIndex + 1])
+                : null,
+            lessLabel: t.slower,
+            moreLabel: t.faster,
+          ),
+        );
+        if (caps?.videoFrame ?? false) {
+          final order = [null, ...VideoAdjust.aspects.keys];
+          rows.add(
+            line(
+              t.aspectRatio,
+              adjust.aspect ?? t.aspectAuto,
+              onTap: () => adjustCtl.setAspect(
+                order[(order.indexOf(adjust.aspect) + 1) % order.length],
+              ),
+            ),
+          );
+          rows.add(
+            line(
+              t.cropSetting,
+              adjust.fill ? t.cropFill : t.cropNone,
+              onTap: () => adjustCtl.setFill(!adjust.fill),
+            ),
+          );
+        }
+        if (caps?.audioDelay ?? false) {
+          rows.add(
+            line(
+              t.audioSync,
+              '${adjust.audioDelayMs > 0 ? '+' : ''}${adjust.audioDelayMs} ms',
+              less: () => adjustCtl.nudgeAudio(-1),
+              more: () => adjustCtl.nudgeAudio(1),
+              lessLabel: t.earlier,
+              moreLabel: t.later,
+            ),
+          );
+        }
+        if (caps?.hardwareDecoding ?? false) {
+          rows.add(const _DecoderLine());
+        }
+        if (caps?.abLoop ?? false) {
+          final a = adjust.abA;
+          final b = adjust.abB;
+          rows.add(
+            line(
+              t.abLoop,
+              a == null
+                  ? t.abOff
+                  : b == null
+                  ? t.abFrom(formatClock(a))
+                  : '${formatClock(a)} → ${formatClock(b)}',
+              onTap: () => adjustCtl.abStep(snap.position),
+            ),
+          );
+          rows.add(
+            Padding(
+              padding: const EdgeInsets.fromLTRB(10, 0, 10, 6),
+              child: Text(
+                a == null
+                    ? t.abHintA
+                    : b == null
+                    ? t.abHintB
+                    : t.abHintOff,
+                style: MmType.caption.copyWith(color: c.muted),
+              ),
+            ),
+          );
+        }
       case _Menu.speed:
         heading = t.speed;
         for (final s in _speeds) {
@@ -831,6 +1035,45 @@ class _MenuPanel extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "Décodage matériel": what the engine says decodes the picture now.
+class _DecoderLine extends ConsumerWidget {
+  const _DecoderLine();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final engine = ref.read(mediaEngineProvider);
+    return FutureBuilder<String?>(
+      future: engine?.hardwareDecoder(),
+      builder: (context, snap) {
+        final decoder = snap.data;
+        final value = decoder == null
+            ? t.hwSoftware
+            : t.hwAuto(decoder.toUpperCase());
+        return Semantics(
+          label: '${t.hwDecoding}, $value',
+          child: Container(
+            constraints: const BoxConstraints(minHeight: 44),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    t.hwDecoding,
+                    style: MmType.labelStrong.copyWith(color: c.fg),
+                  ),
+                ),
+                Text(value, style: MmType.monoStyle(size: 12, color: c.fgSoft)),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
