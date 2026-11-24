@@ -225,12 +225,37 @@ final captureHotkeysProvider = Provider<void>((ref) {
 /// A frozen picture of one screen, while the zone is chosen.
 @immutable
 class CaptureSession {
-  const CaptureSession({required this.image, required this.screen});
+  const CaptureSession({
+    required this.image,
+    required this.screen,
+    this.screens = const [],
+    this.home,
+  });
 
   final ui.Image image;
 
-  /// The screen on the desktop, physical pixels.
+  /// What the picture covers on the desktop (every screen for a zone),
+  /// physical pixels.
   final Rect screen;
+
+  /// Each screen within the picture, in its pixels.
+  final List<Rect> screens;
+
+  /// The screen the mouse was on, in the picture's pixels.
+  final Rect? home;
+
+  Rect get whole =>
+      Rect.fromLTWH(0, 0, image.width.toDouble(), image.height.toDouble());
+
+  /// « Tout l'écran »: the screen holding [zone] (else the mouse's).
+  Rect screenFor(Rect? zone) {
+    if (zone != null) {
+      for (final s in screens) {
+        if (s.contains(zone.center)) return s;
+      }
+    }
+    return home ?? whole;
+  }
 }
 
 /// What a capture made, for the toast.
@@ -314,20 +339,38 @@ class CaptureController extends Notifier<CaptureSession?> {
   }
 
   /// The timer, then a picture of the screen under the mouse.
-  Future<CaptureSession?> _shoot(CaptureSettings s) async {
+  Future<CaptureSession?> _shoot(CaptureSettings s, {bool all = false}) async {
     final tools = _tools;
     if (tools == null) return null;
     if (s.delay > 0) await Future<void>.delayed(Duration(seconds: s.delay));
     final dir = await Directory.systemTemp.createTemp('mm-capture-');
     try {
       final bmp = '${dir.path}${Platform.pathSeparator}screen.bmp';
-      final screen = await tools.capture(bmp, cursor: s.cursor);
+      final screen = await tools.capture(bmp, cursor: s.cursor, all: all);
       if (screen == null) return null;
       final bytes = await ref.read(captureBytesProvider)(bmp);
       final codec = await ui.instantiateImageCodec(bytes);
       final frame = await codec.getNextFrame();
       codec.dispose();
-      return CaptureSession(image: frame.image, screen: screen);
+      // Where each screen sits in the picture (a zone may be on any).
+      final bounds = Offset.zero & screen.size;
+      final screens = <Rect>[
+        for (final m
+            in all
+                ? await tools.monitors()
+                : const <({Rect rect, bool primary})>[])
+          if (m.rect.shift(-screen.topLeft).overlaps(bounds))
+            m.rect.shift(-screen.topLeft),
+      ];
+      final mouse = all ? await tools.cursorScreen() : null;
+      return CaptureSession(
+        image: frame.image,
+        screen: screen,
+        screens: screens,
+        home: mouse != null && screens.contains(mouse.shift(-screen.topLeft))
+            ? mouse.shift(-screen.topLeft)
+            : null,
+      );
     } catch (_) {
       return null;
     } finally {
@@ -341,7 +384,7 @@ class CaptureController extends Notifier<CaptureSession?> {
     _busy = true;
     try {
       final s = await _settings();
-      final shot = await _shoot(s);
+      final shot = await _shoot(s, all: true);
       if (shot == null) {
         _events.add(const CaptureFailed());
         return;

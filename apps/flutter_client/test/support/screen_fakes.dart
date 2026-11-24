@@ -18,6 +18,12 @@ class FakeScreenTools implements ScreenTools {
 
   void press(int id) => _keys.add(id);
 
+  bool? allScreens;
+  Rect? cursorRect;
+
+  @override
+  Future<Rect?> cursorScreen() async => cursorRect;
+
   @override
   Future<List<int>> registerHotkeys(List<Hotkey> keys) async {
     registered.add(keys);
@@ -28,8 +34,13 @@ class FakeScreenTools implements ScreenTools {
   }
 
   @override
-  Future<Rect?> capture(String path, {required bool cursor}) async {
+  Future<Rect?> capture(
+    String path, {
+    required bool cursor,
+    bool all = false,
+  }) async {
     this.cursor = cursor;
+    allScreens = all;
     return const Rect.fromLTWH(1920, 0, 200, 100);
   }
 

@@ -301,8 +301,15 @@ void ScreenTools::OnCall(
   }
 
   if (name == "capture") {
-    // The screen under the mouse, as a BMP file in `path`.
-    const RECT rect = MonitorAtCursor();
+    // The screen under the mouse, or every screen ({all: true}, the zone
+    // can then be drawn on any of them), as a BMP file in `path`.
+    RECT rect = MonitorAtCursor();
+    if (BoolArg(a, "all")) {
+      const int x = GetSystemMetrics(SM_XVIRTUALSCREEN);
+      const int y = GetSystemMetrics(SM_YVIRTUALSCREEN);
+      rect = RECT{x, y, x + GetSystemMetrics(SM_CXVIRTUALSCREEN),
+                  y + GetSystemMetrics(SM_CYVIRTUALSCREEN)};
+    }
     const std::wstring path = Wide(StringArg(a, "path"));
     if (path.empty() || !CaptureToBmp(rect, BoolArg(a, "cursor"), path)) {
       result->Error("capture_failed");
@@ -351,10 +358,14 @@ void ScreenTools::OnCall(
     const int radius = IntArg(a, "radius");
     if (IsIconic(window_)) ShowWindow(window_, SW_RESTORE);
     SetWindowLongPtr(window_, GWL_STYLE, WS_POPUP | WS_VISIBLE);
-    SetWindowPos(window_, HWND_TOPMOST, IntArg(a, "x"), IntArg(a, "y"), width,
-                 height,
-                 SWP_FRAMECHANGED | SWP_SHOWWINDOW |
-                     (activate ? 0 : SWP_NOACTIVATE));
+    // Twice: moving to a screen with another scale makes the window resize
+    // itself for that scale (WM_DPICHANGED) on the way.
+    for (int pass = 0; pass < 2; pass++) {
+      SetWindowPos(window_, HWND_TOPMOST, IntArg(a, "x"), IntArg(a, "y"),
+                   width, height,
+                   SWP_FRAMECHANGED | SWP_SHOWWINDOW |
+                       (activate ? 0 : SWP_NOACTIVATE));
+    }
     // The system owns the region once given.
     SetWindowRgn(window_,
                  radius > 0 ? CreateRoundRectRgn(0, 0, width + 1, height + 1,

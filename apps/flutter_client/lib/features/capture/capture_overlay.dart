@@ -225,15 +225,12 @@ class _CaptureOverlayState extends ConsumerState<CaptureOverlay> {
     setState(() => _zone = Rect.fromPoints(a, q));
   }
 
-  Rect _whole() => Rect.fromLTWH(
-    0,
-    0,
-    widget.session.image.width.toDouble(),
-    widget.session.image.height.toDouble(),
-  );
+  /// « Tout l'écran »: the screen of the zone, else the mouse's.
+  Rect _screen(Size size) =>
+      widget.session.screenFor(_valid ? _pixels(_zone!, size) : null);
 
   void _save(Size size) => unawaited(
-    _capture.finish(_valid ? _pixels(_zone!, size) : _whole(), save: true),
+    _capture.finish(_valid ? _pixels(_zone!, size) : _screen(size), save: true),
   );
 
   KeyEventResult _key(FocusNode _, KeyEvent e, Size size) {
@@ -257,6 +254,8 @@ class _CaptureOverlayState extends ConsumerState<CaptureOverlay> {
     return LayoutBuilder(
       builder: (context, box) {
         final size = box.biggest;
+        final scale = _scale(size);
+        final home = widget.session.home ?? widget.session.whole;
         final zone = _zone;
         final px = zone == null ? null : _pixels(zone, size);
         return Focus(
@@ -289,11 +288,11 @@ class _CaptureOverlayState extends ConsumerState<CaptureOverlay> {
                     ),
                   ),
                 ),
-                // Help pill, top centre.
+                // Help pill, top centre of the mouse's screen.
                 Positioned(
-                  top: 16,
-                  left: 0,
-                  right: 0,
+                  top: home.top / scale + 16,
+                  left: home.left / scale,
+                  width: home.width / scale,
                   child: Center(
                     child: IgnorePointer(child: _HelpPill(t: t)),
                   ),
@@ -313,7 +312,7 @@ class _CaptureOverlayState extends ConsumerState<CaptureOverlay> {
                     zone: zone,
                     size: size,
                     onWhole: () =>
-                        unawaited(_capture.finish(_whole(), save: true)),
+                        unawaited(_capture.finish(_screen(size), save: true)),
                     onFilm: _capture.onFilm == null
                         ? null
                         : () => unawaited(_capture.film(_pixels(zone, size))),

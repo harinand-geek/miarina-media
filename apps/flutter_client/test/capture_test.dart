@@ -231,6 +231,46 @@ void main() {
       expect(Directory(dir.path).listSync().whereType<File>().length, 2);
     });
 
+    test(
+      'a zone covers every screen; « Tout l’écran » takes the zone’s',
+      () async {
+        // Two screens side by side in the 200 × 100 picture.
+        tools
+          ..monitorList = [
+            (rect: const Rect.fromLTWH(1920, 0, 100, 100), primary: true),
+            (rect: const Rect.fromLTWH(2020, 0, 100, 100), primary: false),
+            (rect: const Rect.fromLTWH(0, 0, 1920, 1080), primary: false),
+          ]
+          ..cursorRect = const Rect.fromLTWH(2020, 0, 100, 100);
+        final capture = container.read(captureProvider.notifier);
+        await capture.region();
+        expect(tools.allScreens, isTrue);
+        final session = container.read(captureProvider)!;
+        expect(session.screens, const [
+          Rect.fromLTWH(0, 0, 100, 100),
+          Rect.fromLTWH(100, 0, 100, 100),
+        ]);
+        expect(session.home, const Rect.fromLTWH(100, 0, 100, 100));
+        expect(
+          session.screenFor(const Rect.fromLTWH(10, 10, 20, 20)),
+          const Rect.fromLTWH(0, 0, 100, 100),
+        );
+        expect(session.screenFor(null), session.home, reason: 'the mouse’s');
+        final event = next();
+        await capture.finish(
+          session.screenFor(const Rect.fromLTWH(10, 10, 20, 20)),
+          save: false,
+        );
+        final crop = await decode((await event as CaptureDone).result.png);
+        expect((crop.width, crop.height), (100, 100));
+        final px = (await crop.toByteData())!;
+        expect(px.getUint8(0), 255, reason: 'the red (left) screen');
+        // Full screen: the mouse's screen only.
+        await capture.full();
+        expect(tools.allScreens, isFalse);
+      },
+    );
+
     test('Copier copies only; Échap cancels', () async {
       final capture = container.read(captureProvider.notifier);
       await capture.region();

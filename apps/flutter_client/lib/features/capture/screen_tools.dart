@@ -17,9 +17,13 @@ abstract class ScreenTools {
   /// another application).
   Future<List<int>> registerHotkeys(List<Hotkey> keys);
 
-  /// A BMP picture of the screen under the mouse in [path]; its place on
-  /// the desktop, in physical pixels. Null when it failed.
-  Future<Rect?> capture(String path, {required bool cursor});
+  /// A BMP picture of the screen under the mouse ([all]: of every screen)
+  /// in [path]; its place on the desktop, in physical pixels. Null when it
+  /// failed.
+  Future<Rect?> capture(String path, {required bool cursor, bool all = false});
+
+  /// The screen under the mouse, physical pixels.
+  Future<Rect?> cursorScreen();
 
   /// The window covers [screen] (physical pixels), borderless, on top;
   /// [radius] rounds its corners, [activate] false leaves the focus where
@@ -88,18 +92,27 @@ class ChannelScreenTools implements ScreenTools {
   }
 
   @override
-  Future<Rect?> capture(String path, {required bool cursor}) async {
+  Future<Rect?> capture(
+    String path, {
+    required bool cursor,
+    bool all = false,
+  }) async {
     try {
       return _rect(
         await _channel.invokeMethod('capture', {
           'path': path,
           'cursor': cursor,
+          'all': all,
         }),
       );
     } on PlatformException {
       return null;
     }
   }
+
+  @override
+  Future<Rect?> cursorScreen() async =>
+      _rect(await _channel.invokeMethod('monitor'));
 
   @override
   Future<void> enterOverlay(
