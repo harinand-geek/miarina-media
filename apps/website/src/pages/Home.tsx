@@ -212,7 +212,7 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
           ))}
         </div>
         <div className="lp-beta-foot" data-reveal="0">
-          <a href="#telecharger-beta" className="btn btn-secondary">
+          <a href="#telecharger" className="btn btn-secondary">
             <Icon name="download" />
             {t.beta.cta}
           </a>
@@ -254,25 +254,6 @@ export function Home({ lang = 'fr' }: { lang?: Lang }) {
               </a>
             </div>
           ))}
-          <div id="telecharger-beta" className="lp-dl-row is-beta" data-reveal="60">
-            <Icon name="desktop_windows" className="lp-dl-icon" />
-            <div className="lp-dl-info">
-              <span className="lp-dl-title">
-                Windows {RELEASE.beta.version}{' '}
-                <span className="lp-dl-badge is-beta">{t.dlBetaBadge}</span>
-              </span>
-              <span className="lp-dl-req">
-                {t.dlBetaReq} · {RELEASE.beta.size}
-              </span>
-              <span className="lp-dl-hash">
-                {RELEASE.beta.name} · SHA-256 {RELEASE.beta.sha256}
-              </span>
-            </div>
-            <a href={downloadUrl(RELEASE.beta)} className="btn btn-secondary" download>
-              <Icon name="download" />
-              {t.dlWindowsCta}
-            </a>
-          </div>
           <p className="lp-dl-note">{t.dlNote}</p>
         </div>
       </section>

@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.1.12',
+  version: '0.2.6',
   windows: {
-    version: '0.1.12',
-    name: 'MiarinaMedia-0.1.12-x64-setup.exe',
-    size: '91,3 Mio',
-    sha256: '9e3047b2ec3e7bde4a0323190a71f4982fcf8566a9487ba23c943e35272dd27b',
+    version: '0.2.6',
+    name: 'MiarinaMedia-0.2.6-x64-setup.exe',
+    size: '113,4 Mio',
+    sha256: '2681851ede68dc13196b2b13639e2647c92267caddf65f3130570d7b25dcbaf3',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
@@ -60,15 +60,27 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Windows : outils PC (convertir, capture d’écran, enregistrement de l’écran)',
-      'Plusieurs liens à la fois',
-      'Fondu entre les titres (désactivé par défaut)',
+      'Mises à jour automatiques dans l’application Android',
+      'Choix du micro pour l’enregistrement de l’écran',
+    ],
+  },
+  {
+    name: '0.2.6 · Windows',
+    date: '24 novembre 2026',
+    current: true,
+    items: [
+      'Nouvelle application Windows : elle remplace la 0.1.12 en gardant la bibliothèque, les playlists, les favoris, les reprises et les réglages (la bibliothèque est copiée avant sa mise à jour)',
+      'Outils PC : convertir (MP4, MKV, WebM, AVI, MOV, 3GP, GIF, MP3, FLAC…), fusionner, découper, rogner, compresser',
+      'Compression en AV1 : jusqu’à 35 % plus léger que le H.264 à qualité égale, ou une taille maximale par fichier ; H.264 pour les anciens appareils',
+      'Capture d’écran par raccourci (zone ou écran entier, sur tous les écrans) et enregistrement de l’écran avec le son du PC et le micro',
+      'Interface en malagasy, visite guidée au premier lancement',
+      'La fermeture de l’application ne bloque plus',
+      'Android reste en version 0.2.5',
     ],
   },
   {
     name: '0.2.5 · Android',
     date: '24 novembre 2026',
-    current: true,
     items: [
       'Nouvelle application Android : elle remplace la 0.1.11 en gardant la bibliothèque, les favoris, les playlists et l’historique des téléchargements (la base est copiée avant la mise à jour)',
       'Lecteur vidéo : gestes (luminosité, volume, ±10 s, pincer pour remplir l’écran), cadenas, rotation et image dans l’image',

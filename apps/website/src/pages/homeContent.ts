@@ -96,8 +96,7 @@ export const LANDING: Record<Lang, LandingText> = {
     sub: 'Collez un lien, choisissez le format, gardez le fichier. Miarina Media range vidéos et musique dans une bibliothèque sur votre appareil et les lit dans son propre lecteur : albums, playlists, pistes audio, sous-titres et égaliseur. Sur Windows et Android.',
     ctaWindows: 'Télécharger pour Windows',
     ctaAndroid: 'Android (APK)',
-    heroMeta: (w, a, b) =>
-      `Windows ${w} · Android ${a} · préversions gratuites · Windows ${b} en bêta`,
+    heroMeta: (w, a) => `Windows ${w} · Android ${a} · gratuit, sans compte`,
     demo: {
       get: 'Obtenir',
       listen: 'Écouter',
@@ -177,29 +176,29 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.4 · bêta',
-      title: 'Une nouvelle application Windows, à essayer.',
-      lead: 'La 0.2.0 refait toute l’application Windows. Elle s’installe par-dessus la 0.1.x, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
+      kicker: 'Windows 0.2.6 · nouveau',
+      title: 'Une nouvelle application Windows.',
+      lead: 'La 0.2.6 remplace la 0.1.12. Elle s’installe par-dessus, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
       points: [
+        [
+          'Outils PC',
+          'Convertir vers MP4, MKV, WebM, 3GP, MP3 et plus ; compresser en AV1, jusqu’à 35 % plus léger à qualité égale ; capturer et filmer l’écran avec le son du PC.',
+        ],
         [
           'Musique, Cinéma, Focus',
           'L’espace Écouter en trois sections : albums et artistes, films et séries, podcasts, cours et livres audio. L’accueil reprend où vous en étiez.',
         ],
         [
           'Une bibliothèque plus fine',
-          'Tri, sélection multiple, filtres (jamais écoutés, hi-res), format affiché (FLAC 24/96), nombre d’écoutes, éditeur de tags et de pochettes.',
+          'Tri, sélection multiple, filtres, playlists intelligentes, éditeur de tags et de pochettes, paroles synchronisées, égaliseur et lecture sans blanc.',
         ],
         [
-          'En lecture',
-          'Paroles synchronisées depuis un fichier .lrc, file enregistrable en playlist, égaliseur, vitesse, minuteur et mini-lecteur.',
-        ],
-        [
-          'Ce qui change encore',
-          'Nouveau depuis la 0.2.3 : téléchargement de playlists, touches multimédia, et le retour de l’extension pour Chrome et Edge. La 0.2.4 fiabilise les liens Facebook, Instagram et TikTok.',
+          'En malagasy aussi',
+          'Interface en français, en anglais ou en malagasy, et une visite guidée au premier lancement.',
         ],
       ],
-      how: 'Depuis la 0.1.x : Réglages › Mises à jour, canal Bêta. Ou téléchargez l’installateur.',
-      cta: 'Essayer la bêta',
+      how: 'Depuis la 0.1.x : Réglages › Mises à jour propose la 0.2.6. Ou téléchargez l’installateur.',
+      cta: 'Télécharger',
     },
     libKicker: 'Bibliothèque et lecteur',
     libTitle: 'Tout ce que vous gardez, au même endroit.',
@@ -240,7 +239,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlWindowsCta: 'Installateur .exe',
     dlAndroidCta: 'Fichier .apk',
     dlNote:
-      'Préversions. L’installateur Windows n’est pas signé : SmartScreen peut afficher un avertissement. Comparez l’empreinte SHA-256 avant d’installer.',
+      'L’installateur Windows n’est pas signé : SmartScreen peut afficher un avertissement. Comparez l’empreinte SHA-256 avant d’installer.',
     verKicker: 'Journal des versions',
     verTitle: 'Ce qui a changé, version par version.',
     verCurrent: 'Actuelle',
@@ -265,7 +264,7 @@ export const LANDING: Record<Lang, LandingText> = {
     sub: 'Paste a link, pick a format, keep the file. Miarina Media files your videos and music in a library on your device and plays them in its own player: albums, playlists, audio tracks, subtitles and equalizer. On Windows and Android.',
     ctaWindows: 'Download for Windows',
     ctaAndroid: 'Android (APK)',
-    heroMeta: (w, a, b) => `Windows ${w} · Android ${a} · free previews · Windows ${b} in beta`,
+    heroMeta: (w, a) => `Windows ${w} · Android ${a} · free, no account`,
     demo: {
       get: 'Get',
       listen: 'Listen',
@@ -342,29 +341,29 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.4 · beta',
-      title: 'A new Windows app, ready to try.',
-      lead: '0.2.0 rebuilds the whole Windows app. It installs over 0.1.x, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
+      kicker: 'Windows 0.2.6 · new',
+      title: 'A new Windows app.',
+      lead: '0.2.6 replaces 0.1.12. It installs over it, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
       points: [
+        [
+          'PC tools',
+          'Convert to MP4, MKV, WebM, 3GP, MP3 and more; compress in AV1, up to 35 % smaller at the same quality; capture and record the screen with the PC’s sound.',
+        ],
         [
           'Music, Cinema, Focus',
           'The Listen space in three sections: albums and artists, films and series, podcasts, courses and audiobooks. Home picks up where you left off.',
         ],
         [
           'A finer library',
-          'Sorting, multi-select, filters (never played, hi-res), format shown (FLAC 24/96), play counts, tag and cover editor.',
+          'Sorting, multi-select, filters, smart playlists, tag and cover editor, synced lyrics, equalizer and gapless playback.',
         ],
         [
-          'Now playing',
-          'Synced lyrics from a .lrc file, a queue you can save as a playlist, equalizer, speed, sleep timer and mini player.',
-        ],
-        [
-          'Still changing',
-          'New since 0.2.3: playlist downloads, media keys, and the Chrome and Edge extension is back. 0.2.4 makes Facebook, Instagram and TikTok links more reliable.',
+          'In Malagasy too',
+          'Interface in French, English or Malagasy, and a guided tour at first launch.',
         ],
       ],
-      how: 'From 0.1.x: Settings › Updates, Beta channel. Or download the installer.',
-      cta: 'Try the beta',
+      how: 'From 0.1.x: Settings › Updates offers 0.2.6. Or download the installer.',
+      cta: 'Download',
     },
     libKicker: 'Library and player',
     libTitle: 'Everything you keep, in one place.',
@@ -404,7 +403,7 @@ export const LANDING: Record<Lang, LandingText> = {
     dlWindowsCta: '.exe installer',
     dlAndroidCta: '.apk file',
     dlNote:
-      'Previews. The Windows installer is not signed: SmartScreen may show a warning. Compare the SHA-256 fingerprint before installing.',
+      'The Windows installer is not signed: SmartScreen may show a warning. Compare the SHA-256 fingerprint before installing.',
     verKicker: 'Release notes',
     verTitle: 'What changed, release by release.',
     verCurrent: 'Current',
