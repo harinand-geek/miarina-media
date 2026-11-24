@@ -18,6 +18,102 @@ mod platform {
 
     const RECORDS: &str = "torrent_records_v1";
     const LIMITS: &str = "torrent_limits_v1";
+    const SHARING: &str = "torrent_sharing_v1";
+    /// How often the sharing rules are checked.
+    const SHARING_CHECK: Duration = Duration::from_secs(30);
+
+    /// When finished torrents stop sharing: uploaded at least `ratio` times
+    /// their size, or shared for `hours` since they finished; 0 = no rule.
+    #[derive(Clone, Copy, Default, Serialize, Deserialize)]
+    struct Sharing {
+        ratio: f64,
+        hours: u32,
+    }
+
+    fn sharing() -> Sharing {
+        shared()
+            .ok()
+            .and_then(|parts| {
+                parts
+                    .storage
+                    .lock()
+                    .ok()?
+                    .setting::<Sharing>(SHARING)
+                    .ok()
+                    .flatten()
+            })
+            .unwrap_or_default()
+    }
+
+    fn now_secs() -> i64 {
+        std::time::SystemTime::now()
+            .duration_since(std::time::UNIX_EPOCH)
+            .map_or(0, |d| d.as_secs() as i64)
+    }
+
+    /// Whether a finished torrent has shared enough under `rules`.
+    fn shared_enough(rules: Sharing, uploaded: u64, total: u64, seeding_secs: i64) -> bool {
+        let ratio = rules.ratio > 0.0 && total > 0 && uploaded as f64 >= rules.ratio * total as f64;
+        let time = rules.hours > 0 && seeding_secs >= i64::from(rules.hours) * 3600;
+        ratio || time
+    }
+
+    #[cfg(test)]
+    pub fn shared_enough_for_test(
+        ratio: f64,
+        hours: u32,
+        uploaded: u64,
+        total: u64,
+        seeding_secs: i64,
+    ) -> bool {
+        shared_enough(Sharing { ratio, hours }, uploaded, total, seeding_secs)
+    }
+
+    /// Notes when torrents finish and stops the sharing of those that
+    /// reached a rule (as "Arrêter le partage" does).
+    async fn enforce(engine: &Torrents) -> Result<()> {
+        let _action = STATE.actions.lock().await;
+        let rules = sharing();
+        let now = now_secs();
+        let mut rows = records()?;
+        let mut changed = false;
+        for r in &mut rows {
+            let Ok(stats) = engine.stats(&r.hash) else {
+                continue;
+            };
+            if format!("{:?}", stats.phase).to_lowercase() != "finished" {
+                continue;
+            }
+            let since = match r.finished_at {
+                Some(t) => t,
+                None => {
+                    r.finished_at = Some(now);
+                    changed = true;
+                    now
+                }
+            };
+            if shared_enough(rules, stats.uploaded, stats.total, now - since) {
+                engine.pause(&r.hash).await.map_err(failed)?;
+            }
+        }
+        if changed {
+            save_records(&rows)?;
+        }
+        Ok(())
+    }
+
+    pub fn set_sharing(ratio: f64, hours: u32) -> Result<()> {
+        if !ratio.is_finite() || !(0.0..=100.0).contains(&ratio) || hours > 24 * 365 {
+            return Err(failed("invalid sharing rule"));
+        }
+        let parts = shared()?;
+        parts
+            .storage
+            .lock()
+            .map_err(|_| anyhow!("storage lock poisoned"))?
+            .set_setting(SHARING, &Sharing { ratio, hours })?;
+        Ok(())
+    }
 
     #[derive(Default)]
     struct TorrentState {
@@ -37,6 +133,10 @@ mod platform {
         folder: PathBuf,
         #[serde(default)]
         sequential: bool,
+        /// When the download finished (seconds since 1970), for the
+        /// seeding time rule.
+        #[serde(default)]
+        finished_at: Option<i64>,
     }
 
     /// Any engine failure: the detail stays out of the UI.
@@ -118,7 +218,21 @@ mod platform {
                 }
                 session.set_download_limit(Some(limits.0));
                 session.set_upload_limit(Some(limits.1));
-                *engine = Some(Arc::new(session));
+                let session = Arc::new(session);
+                *engine = Some(session.clone());
+                // The sharing rules, while this session lives.
+                tokio::spawn(async move {
+                    loop {
+                        tokio::time::sleep(SHARING_CHECK).await;
+                        let current = STATE.engine.lock().await.clone();
+                        match current {
+                            Some(e) if Arc::ptr_eq(&e, &session) => {
+                                let _ = enforce(&e).await;
+                            }
+                            _ => break,
+                        }
+                    }
+                });
             }
             Ok(())
         })
@@ -159,8 +273,11 @@ mod platform {
                     }
                 })
                 .collect();
+            let rules = sharing();
             Ok(TorrentSnapshot {
                 enabled: engine.is_some(),
+                target_ratio: rules.ratio,
+                seed_hours: rules.hours,
                 rows,
                 download_limit: engine
                     .as_ref()
@@ -274,6 +391,7 @@ mod platform {
                 name: meta.name,
                 folder,
                 sequential,
+                finished_at: None,
             });
             if let Err(e) = save_records(&rows) {
                 let _ = engine.remove(&id, false).await;
@@ -359,7 +477,12 @@ mod platform {
             rows: Vec::new(),
             download_limit: 0,
             upload_limit: 0,
+            target_ratio: 0.0,
+            seed_hours: 0,
         })
+    }
+    pub fn set_sharing(_: f64, _: u32) -> Result<()> {
+        bail!("unsupported_platform")
     }
     pub fn preview(_: Option<String>, _: Option<String>) -> Result<TorrentPreview> {
         bail!("unsupported_platform")
@@ -376,3 +499,20 @@ mod platform {
 }
 
 pub use platform::*;
+
+#[cfg(all(test, windows))]
+mod tests {
+    #[test]
+    fn sharing_stops_at_the_ratio_or_the_time() {
+        use super::platform::shared_enough_for_test as enough;
+        let gib = 1u64 << 30;
+        // No rule: sharing goes on.
+        assert!(!enough(0.0, 0, 5 * gib, gib, 999_999));
+        // Ratio 1.0: once as much was sent as received.
+        assert!(!enough(1.0, 0, gib / 2, gib, 0));
+        assert!(enough(1.0, 0, gib, gib, 0));
+        // 24 h, counted from the end of the download.
+        assert!(!enough(0.0, 24, 0, gib, 23 * 3600));
+        assert!(enough(0.0, 24, 0, gib, 24 * 3600));
+    }
+}

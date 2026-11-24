@@ -79,7 +79,18 @@ class FakeTorrentsApi implements TorrentsApi {
     rows: rows,
     downloadLimit: BigInt.from(downLimit),
     uploadLimit: BigInt.from(upLimit),
+    targetRatio: ratio,
+    seedHours: hours,
   );
+
+  double ratio = 0;
+  int hours = 0;
+
+  @override
+  Future<void> sharing(double ratio, int hours) async {
+    this.ratio = ratio;
+    this.hours = hours;
+  }
 
   @override
   Future<TorrentPreview> preview({String? magnet, String? file}) async {
@@ -175,7 +186,14 @@ void main() {
     expect(torrents.calls, ['enable']);
     expect(find.text('Session active'), findsOneWidget);
     expect(find.text('Vos torrents apparaîtront ici.'), findsOneWidget);
-    expect(find.text('PRÉVU'), findsNWidgets(2), reason: 'ratio, seeding time');
+    expect(find.text('PRÉVU'), findsNothing, reason: 'ratio, seeding time');
+
+    // Finished torrents stop sharing at 1,5 or after 24 h.
+    await tester.enterText(find.byKey(const ValueKey('share-ratio')), '1,5');
+    await tester.enterText(find.byKey(const ValueKey('share-hours')), '24');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+    expect((torrents.ratio, torrents.hours), (1.5, 24));
 
     await tester.tap(find.text('Arrêter tout et le partage'));
     await settle(tester);

@@ -26,6 +26,10 @@ abstract interface class TorrentsApi {
 
   /// Bytes per second, 0 = unlimited.
   Future<void> limits(int download, int upload);
+
+  /// Finished torrents stop sharing at [ratio] or after [hours] (0 = no
+  /// rule).
+  Future<void> sharing(double ratio, int hours);
 }
 
 class RustTorrentsApi implements TorrentsApi {
@@ -54,6 +58,8 @@ class RustTorrentsApi implements TorrentsApi {
         rows: const [],
         downloadLimit: BigInt.zero,
         uploadLimit: BigInt.zero,
+        targetRatio: 0,
+        seedHours: 0,
       );
     }
     await _ref.read(downloadsProvider.notifier).started;
@@ -80,6 +86,10 @@ class RustTorrentsApi implements TorrentsApi {
     download: BigInt.from(download),
     upload: BigInt.from(upload),
   );
+
+  @override
+  Future<void> sharing(double ratio, int hours) =>
+      rust.torrentsSharing(ratio: ratio, hours: hours);
 }
 
 final torrentsApiProvider = Provider<TorrentsApi>(RustTorrentsApi.new);

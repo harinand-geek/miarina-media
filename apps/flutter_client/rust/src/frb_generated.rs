@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1013510338;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1152209660;
 
 // Section: executor
 
@@ -3915,6 +3915,43 @@ fn wire__crate__api__torrents__torrents_preview_impl(
         },
     )
 }
+fn wire__crate__api__torrents__torrents_sharing_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "torrents_sharing",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_ratio = <f64>::sse_decode(&mut deserializer);
+            let api_hours = <u32>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok =
+                            crate::api::torrents::torrents_sharing(api_ratio, api_hours)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
 fn wire__crate__api__torrents__torrents_start_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -6379,11 +6416,15 @@ impl SseDecode for crate::api::torrents::TorrentSnapshot {
         let mut var_rows = <Vec<crate::api::torrents::TorrentRow>>::sse_decode(deserializer);
         let mut var_downloadLimit = <u64>::sse_decode(deserializer);
         let mut var_uploadLimit = <u64>::sse_decode(deserializer);
+        let mut var_targetRatio = <f64>::sse_decode(deserializer);
+        let mut var_seedHours = <u32>::sse_decode(deserializer);
         return crate::api::torrents::TorrentSnapshot {
             enabled: var_enabled,
             rows: var_rows,
             download_limit: var_downloadLimit,
             upload_limit: var_uploadLimit,
+            target_ratio: var_targetRatio,
+            seed_hours: var_seedHours,
         };
     }
 }
@@ -6697,17 +6738,18 @@ fn pde_ffi_dispatcher_primary_impl(
         107 => wire__crate__api__torrents__torrents_limits_impl(port, ptr, rust_vec_len, data_len),
         108 => wire__crate__api__torrents__torrents_list_impl(port, ptr, rust_vec_len, data_len),
         109 => wire__crate__api__torrents__torrents_preview_impl(port, ptr, rust_vec_len, data_len),
-        110 => wire__crate__api__torrents__torrents_start_impl(port, ptr, rust_vec_len, data_len),
-        111 => {
+        110 => wire__crate__api__torrents__torrents_sharing_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__api__torrents__torrents_start_impl(port, ptr, rust_vec_len, data_len),
+        112 => {
             wire__crate__api__updates__updates_auto_allowed_impl(port, ptr, rust_vec_len, data_len)
         }
-        113 => wire__crate__api__updates__updates_check_impl(port, ptr, rust_vec_len, data_len),
-        114 => wire__crate__api__updates__updates_download_impl(port, ptr, rust_vec_len, data_len),
-        115 => wire__crate__api__updates__updates_install_impl(port, ptr, rust_vec_len, data_len),
-        116 => wire__crate__api__updates__updates_prefs_impl(port, ptr, rust_vec_len, data_len),
-        118 => wire__crate__api__updates__updates_set_prefs_impl(port, ptr, rust_vec_len, data_len),
-        119 => wire__crate__api__updates__updates_start_impl(port, ptr, rust_vec_len, data_len),
-        120 => wire__crate__api__updates__updates_status_impl(port, ptr, rust_vec_len, data_len),
+        114 => wire__crate__api__updates__updates_check_impl(port, ptr, rust_vec_len, data_len),
+        115 => wire__crate__api__updates__updates_download_impl(port, ptr, rust_vec_len, data_len),
+        116 => wire__crate__api__updates__updates_install_impl(port, ptr, rust_vec_len, data_len),
+        117 => wire__crate__api__updates__updates_prefs_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__api__updates__updates_set_prefs_impl(port, ptr, rust_vec_len, data_len),
+        120 => wire__crate__api__updates__updates_start_impl(port, ptr, rust_vec_len, data_len),
+        121 => wire__crate__api__updates__updates_status_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -6748,17 +6790,17 @@ fn pde_ffi_dispatcher_sync_impl(
         100 => {
             wire__crate__api__system_media__system_media_update_impl(ptr, rust_vec_len, data_len)
         }
-        112 => wire__crate__api__updates__updates_cancel_impl(ptr, rust_vec_len, data_len),
-        117 => wire__crate__api__updates__updates_progress_impl(ptr, rust_vec_len, data_len),
-        121 => {
+        113 => wire__crate__api__updates__updates_cancel_impl(ptr, rust_vec_len, data_len),
+        118 => wire__crate__api__updates__updates_progress_impl(ptr, rust_vec_len, data_len),
+        122 => {
             wire__crate__api__browser_spike__webview_spike_close_impl(ptr, rust_vec_len, data_len)
         }
-        122 => wire__crate__api__browser_spike__webview_spike_detections_impl(
+        123 => wire__crate__api__browser_spike__webview_spike_detections_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        123 => {
+        124 => {
             wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -8202,6 +8244,8 @@ impl flutter_rust_bridge::IntoDart for crate::api::torrents::TorrentSnapshot {
             self.rows.into_into_dart().into_dart(),
             self.download_limit.into_into_dart().into_dart(),
             self.upload_limit.into_into_dart().into_dart(),
+            self.target_ratio.into_into_dart().into_dart(),
+            self.seed_hours.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -9797,6 +9841,8 @@ impl SseEncode for crate::api::torrents::TorrentSnapshot {
         <Vec<crate::api::torrents::TorrentRow>>::sse_encode(self.rows, serializer);
         <u64>::sse_encode(self.download_limit, serializer);
         <u64>::sse_encode(self.upload_limit, serializer);
+        <f64>::sse_encode(self.target_ratio, serializer);
+        <u32>::sse_encode(self.seed_hours, serializer);
     }
 }
 

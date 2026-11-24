@@ -4816,7 +4816,7 @@ abstract class L10n {
   /// No description provided for @torRatioDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Arrêt du partage au-delà'**
+  /// **'Arrêt du partage au-delà · 0 = sans limite'**
   String get torRatioDesc;
 
   /// No description provided for @torRemove.
@@ -4852,7 +4852,7 @@ abstract class L10n {
   /// No description provided for @torSeedDesc.
   ///
   /// In fr, this message translates to:
-  /// **'Arrêt après la durée'**
+  /// **'Arrêt après la durée · 0 = sans limite'**
   String get torSeedDesc;
 
   /// No description provided for @torSeedTime.

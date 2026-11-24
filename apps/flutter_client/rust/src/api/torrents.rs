@@ -44,6 +44,10 @@ pub struct TorrentSnapshot {
     /// Bytes per second, 0 = unlimited.
     pub download_limit: u64,
     pub upload_limit: u64,
+    /// Finished torrents stop sharing at this ratio (0 = no rule).
+    pub target_ratio: f64,
+    /// ... or after sharing this many hours (0 = no rule).
+    pub seed_hours: u32,
 }
 
 /// Starts the session (`data_dir`: the app's data folder; the session
@@ -79,4 +83,9 @@ pub fn torrents_action(hash: String, action: String) -> Result<()> {
 /// Bytes per second, 0 = unlimited.
 pub fn torrents_limits(download: u64, upload: u64) -> Result<()> {
     imp::limits(download, upload)
+}
+
+/// Sharing rules for finished torrents: ratio, hours (0 = no rule).
+pub fn torrents_sharing(ratio: f64, hours: u32) -> Result<()> {
+    imp::set_sharing(ratio, hours)
 }

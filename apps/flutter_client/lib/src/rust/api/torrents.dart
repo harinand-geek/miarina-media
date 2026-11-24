@@ -53,6 +53,13 @@ Future<void> torrentsLimits({
   upload: upload,
 );
 
+/// Sharing rules for finished torrents: ratio, hours (0 = no rule).
+Future<void> torrentsSharing({required double ratio, required int hours}) =>
+    RustLib.instance.api.crateApiTorrentsTorrentsSharing(
+      ratio: ratio,
+      hours: hours,
+    );
+
 class TorrentFile {
   final int index;
   final String path;
@@ -168,11 +175,19 @@ class TorrentSnapshot {
   final BigInt downloadLimit;
   final BigInt uploadLimit;
 
+  /// Finished torrents stop sharing at this ratio (0 = no rule).
+  final double targetRatio;
+
+  /// ... or after sharing this many hours (0 = no rule).
+  final int seedHours;
+
   const TorrentSnapshot({
     required this.enabled,
     required this.rows,
     required this.downloadLimit,
     required this.uploadLimit,
+    required this.targetRatio,
+    required this.seedHours,
   });
 
   @override
@@ -180,7 +195,9 @@ class TorrentSnapshot {
       enabled.hashCode ^
       rows.hashCode ^
       downloadLimit.hashCode ^
-      uploadLimit.hashCode;
+      uploadLimit.hashCode ^
+      targetRatio.hashCode ^
+      seedHours.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -190,5 +207,7 @@ class TorrentSnapshot {
           enabled == other.enabled &&
           rows == other.rows &&
           downloadLimit == other.downloadLimit &&
-          uploadLimit == other.uploadLimit;
+          uploadLimit == other.uploadLimit &&
+          targetRatio == other.targetRatio &&
+          seedHours == other.seedHours;
 }

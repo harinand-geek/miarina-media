@@ -401,6 +401,18 @@ class _TorrentsScreenState extends ConsumerState<TorrentsScreen> {
           _Limits(
             snapshot: s,
             busy: _busy,
+            share: (ratio, hours) => _run(() async {
+              final messenger = ScaffoldMessenger.maybeOf(context);
+              await _api.sharing(ratio, hours);
+              if (mounted) {
+                messenger?.showSnackBar(
+                  SnackBar(
+                    content: Text(t.torLimitsSaved),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
+            }),
             apply: (down, up) => _run(() async {
               final messenger = ScaffoldMessenger.maybeOf(context);
               await _api.limits(down, up);
@@ -817,18 +829,20 @@ class _IconAction extends StatelessWidget {
   }
 }
 
-/// Rate limits are real; ratio and seeding-time targets are planned
-/// (shown, disabled), as in the Tauri app.
+/// Rate limits, and when finished torrents stop sharing (target ratio,
+/// seeding time in hours; 0 = no rule).
 class _Limits extends StatefulWidget {
   const _Limits({
     required this.snapshot,
     required this.busy,
     required this.apply,
+    required this.share,
   });
 
   final TorrentSnapshot snapshot;
   final bool busy;
   final void Function(int download, int upload) apply;
+  final void Function(double ratio, int hours) share;
 
   @override
   State<_Limits> createState() => _LimitsState();
@@ -841,12 +855,34 @@ class _LimitsState extends State<_Limits> {
   late final _up = TextEditingController(
     text: '${widget.snapshot.uploadLimit.toInt() ~/ 1024}',
   );
+  late final _ratio = TextEditingController(
+    text: _ratioText(widget.snapshot.targetRatio),
+  );
+  late final _hours = TextEditingController(
+    text: '${widget.snapshot.seedHours}',
+  );
+
+  static String _ratioText(double r) =>
+      r == r.roundToDouble() ? r.toStringAsFixed(1) : '$r';
 
   @override
   void dispose() {
     _down.dispose();
     _up.dispose();
+    _ratio.dispose();
+    _hours.dispose();
     super.dispose();
+  }
+
+  void _commitSharing() {
+    final ratio = double.tryParse(_ratio.text.trim().replaceAll(',', '.'));
+    final hours = int.tryParse(_hours.text.trim()) ?? 0;
+    final r = (ratio ?? 0).clamp(0.0, 100.0);
+    if (r == widget.snapshot.targetRatio &&
+        hours == widget.snapshot.seedHours) {
+      return;
+    }
+    widget.share(r, hours.clamp(0, 24 * 365));
   }
 
   void _commit() {
@@ -868,8 +904,11 @@ class _LimitsState extends State<_Limits> {
       String label,
       String hint,
       TextEditingController ctrl,
-      Key key,
-    ) => Column(
+      Key key, {
+      bool decimal = false,
+      VoidCallback? commit,
+      String? suffix,
+    }) => Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
@@ -887,23 +926,27 @@ class _LimitsState extends State<_Limits> {
           ),
           child: Focus(
             onFocusChange: (f) {
-              if (!f) _commit();
+              if (!f) (commit ?? _commit)();
             },
             child: TextField(
               key: key,
               controller: ctrl,
               enabled: !widget.busy,
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: decimal),
               inputFormatters: [
-                FilteringTextInputFormatter.digitsOnly,
+                decimal
+                    ? FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]'))
+                    : FilteringTextInputFormatter.digitsOnly,
                 LengthLimitingTextInputFormatter(7),
               ],
-              onSubmitted: (_) => _commit(),
+              onSubmitted: (_) => (commit ?? _commit)(),
               style: MmType.monoStyle(size: 12.5, color: c.fg),
               cursorColor: c.accent,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 isDense: true,
                 border: InputBorder.none,
+                suffixText: suffix,
+                suffixStyle: MmType.monoStyle(size: 12.5, color: c.muted),
               ),
             ),
           ),
@@ -914,65 +957,6 @@ class _LimitsState extends State<_Limits> {
           style: MmType.caption.copyWith(fontSize: 11.5, color: c.muted),
         ),
       ],
-    );
-    Widget planned(String label, String hint) => Tooltip(
-      message: t.torPlannedHint,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.labelStrong.copyWith(
-                    fontSize: 12.5,
-                    color: c.muted,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                decoration: BoxDecoration(
-                  color: c.warningSubtle,
-                  borderRadius: BorderRadius.circular(MmRadius.xs),
-                  border: Border.all(color: c.warningBorder),
-                ),
-                child: Text(
-                  t.torPlanned,
-                  style: MmType.monoStyle(
-                    size: 9.5,
-                    color: c.warning,
-                  ).copyWith(fontWeight: FontWeight.w700),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Container(
-            height: 36,
-            alignment: Alignment.centerLeft,
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            decoration: BoxDecoration(
-              color: c.bg,
-              borderRadius: BorderRadius.circular(MmRadius.sm),
-              border: Border.all(color: c.line),
-            ),
-            child: Text(
-              '—',
-              style: MmType.monoStyle(size: 12.5, color: c.faint),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            hint,
-            style: MmType.caption.copyWith(fontSize: 11.5, color: c.muted),
-          ),
-        ],
-      ),
     );
     return Container(
       padding: const EdgeInsets.all(18),
@@ -1009,9 +993,26 @@ class _LimitsState extends State<_Limits> {
               ),
               SizedBox(
                 width: w,
-                child: planned(t.torTargetRatio, t.torRatioDesc),
+                child: field(
+                  t.torTargetRatio,
+                  t.torRatioDesc,
+                  _ratio,
+                  const ValueKey('share-ratio'),
+                  decimal: true,
+                  commit: _commitSharing,
+                ),
               ),
-              SizedBox(width: w, child: planned(t.torSeedTime, t.torSeedDesc)),
+              SizedBox(
+                width: w,
+                child: field(
+                  t.torSeedTime,
+                  t.torSeedDesc,
+                  _hours,
+                  const ValueKey('share-hours'),
+                  commit: _commitSharing,
+                  suffix: 'h',
+                ),
+              ),
             ],
           );
         },

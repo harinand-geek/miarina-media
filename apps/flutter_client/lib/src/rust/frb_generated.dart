@@ -85,7 +85,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -1013510338;
+  int get rustContentHash => 1152209660;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -503,6 +503,11 @@ abstract class RustLibApi extends BaseApi {
   Future<TorrentPreview> crateApiTorrentsTorrentsPreview({
     String? magnet,
     String? file,
+  });
+
+  Future<void> crateApiTorrentsTorrentsSharing({
+    required double ratio,
+    required int hours,
   });
 
   Future<void> crateApiTorrentsTorrentsStart({
@@ -3965,6 +3970,41 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       );
 
   @override
+  Future<void> crateApiTorrentsTorrentsSharing({
+    required double ratio,
+    required int hours,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_f_64(ratio, serializer);
+          sse_encode_u_32(hours, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 110,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_unit,
+          decodeErrorData: sse_decode_AnyhowException,
+        ),
+        constMeta: kCrateApiTorrentsTorrentsSharingConstMeta,
+        argValues: [ratio, hours],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateApiTorrentsTorrentsSharingConstMeta =>
+      const TaskConstMeta(
+        debugName: "torrents_sharing",
+        argNames: ["ratio", "hours"],
+      );
+
+  @override
   Future<void> crateApiTorrentsTorrentsStart({
     required String hash,
     required List<int> files,
@@ -3980,7 +4020,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 110,
+            funcId: 111,
             port: port_,
           );
         },
@@ -4010,7 +4050,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 111,
+            funcId: 112,
             port: port_,
           );
         },
@@ -4037,7 +4077,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 112,
+            funcId: 113,
           )!;
         },
         codec: SseCodec(
@@ -4063,7 +4103,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 113,
+            funcId: 114,
             port: port_,
           );
         },
@@ -4090,7 +4130,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 114,
+            funcId: 115,
             port: port_,
           );
         },
@@ -4117,7 +4157,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 115,
+            funcId: 116,
             port: port_,
           );
         },
@@ -4144,7 +4184,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 116,
+            funcId: 117,
             port: port_,
           );
         },
@@ -4171,7 +4211,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 117,
+            funcId: 118,
           )!;
         },
         codec: SseCodec(
@@ -4202,7 +4242,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 118,
+            funcId: 119,
             port: port_,
           );
         },
@@ -4239,7 +4279,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 119,
+            funcId: 120,
             port: port_,
           );
         },
@@ -4269,7 +4309,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 120,
+            funcId: 121,
             port: port_,
           );
         },
@@ -4296,7 +4336,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 121,
+            funcId: 122,
           )!;
         },
         codec: SseCodec(
@@ -4322,7 +4362,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 122,
+            funcId: 123,
           )!;
         },
         codec: SseCodec(
@@ -4359,7 +4399,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           return pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 123,
+            funcId: 124,
           )!;
         },
         codec: SseCodec(
@@ -5884,13 +5924,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TorrentSnapshot dco_decode_torrent_snapshot(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 4)
-      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return TorrentSnapshot(
       enabled: dco_decode_bool(arr[0]),
       rows: dco_decode_list_torrent_row(arr[1]),
       downloadLimit: dco_decode_u_64(arr[2]),
       uploadLimit: dco_decode_u_64(arr[3]),
+      targetRatio: dco_decode_f_64(arr[4]),
+      seedHours: dco_decode_u_32(arr[5]),
     );
   }
 
@@ -8038,11 +8080,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_rows = sse_decode_list_torrent_row(deserializer);
     var var_downloadLimit = sse_decode_u_64(deserializer);
     var var_uploadLimit = sse_decode_u_64(deserializer);
+    var var_targetRatio = sse_decode_f_64(deserializer);
+    var var_seedHours = sse_decode_u_32(deserializer);
     return TorrentSnapshot(
       enabled: var_enabled,
       rows: var_rows,
       downloadLimit: var_downloadLimit,
       uploadLimit: var_uploadLimit,
+      targetRatio: var_targetRatio,
+      seedHours: var_seedHours,
     );
   }
 
@@ -9872,6 +9918,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_list_torrent_row(self.rows, serializer);
     sse_encode_u_64(self.downloadLimit, serializer);
     sse_encode_u_64(self.uploadLimit, serializer);
+    sse_encode_f_64(self.targetRatio, serializer);
+    sse_encode_u_32(self.seedHours, serializer);
   }
 
   @protected

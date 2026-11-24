@@ -2972,7 +2972,7 @@ class L10nFr extends L10n {
   String get torRatio => 'Ratio';
 
   @override
-  String get torRatioDesc => 'Arrêt du partage au-delà';
+  String get torRatioDesc => 'Arrêt du partage au-delà · 0 = sans limite';
 
   @override
   String get torRemove => 'Retirer';
@@ -2993,7 +2993,7 @@ class L10nFr extends L10n {
   String get torResume => 'Reprendre';
 
   @override
-  String get torSeedDesc => 'Arrêt après la durée';
+  String get torSeedDesc => 'Arrêt après la durée · 0 = sans limite';
 
   @override
   String get torSeedTime => 'Durée de partage';
