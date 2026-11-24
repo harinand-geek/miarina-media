@@ -176,9 +176,9 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.6 · nouveau',
+      kicker: 'Windows 0.2.7 · nouveau',
       title: 'Une nouvelle application Windows.',
-      lead: 'La 0.2.6 remplace la 0.1.12. Elle s’installe par-dessus, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
+      lead: 'La 0.2.7 remplace la 0.1.12. Elle s’installe par-dessus, dans le même dossier : bibliothèque, playlists, favoris, reprises et réglages sont repris, avec une copie de sauvegarde de la bibliothèque avant sa mise à jour.',
       points: [
         [
           'Outils PC',
@@ -197,7 +197,7 @@ export const LANDING: Record<Lang, LandingText> = {
           'Interface en français, en anglais ou en malagasy, et une visite guidée au premier lancement.',
         ],
       ],
-      how: 'Depuis la 0.1.x : Réglages › Mises à jour propose la 0.2.6. Ou téléchargez l’installateur.',
+      how: 'Depuis la 0.1.x : Réglages › Mises à jour propose la 0.2.7. Ou téléchargez l’installateur.',
       cta: 'Télécharger',
     },
     libKicker: 'Bibliothèque et lecteur',
@@ -341,9 +341,9 @@ export const LANDING: Record<Lang, LandingText> = {
       },
     ],
     beta: {
-      kicker: 'Windows 0.2.6 · new',
+      kicker: 'Windows 0.2.7 · new',
       title: 'A new Windows app.',
-      lead: '0.2.6 replaces 0.1.12. It installs over it, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
+      lead: '0.2.7 replaces 0.1.12. It installs over it, in the same folder: library, playlists, favourites, resume points and settings carry over, and the library is backed up before it is upgraded.',
       points: [
         [
           'PC tools',
@@ -362,7 +362,7 @@ export const LANDING: Record<Lang, LandingText> = {
           'Interface in French, English or Malagasy, and a guided tour at first launch.',
         ],
       ],
-      how: 'From 0.1.x: Settings › Updates offers 0.2.6. Or download the installer.',
+      how: 'From 0.1.x: Settings › Updates offers 0.2.7. Or download the installer.',
       cta: 'Download',
     },
     libKicker: 'Library and player',

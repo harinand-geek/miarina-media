@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.2.6',
+  version: '0.2.7',
   windows: {
-    version: '0.2.6',
-    name: 'MiarinaMedia-0.2.6-x64-setup.exe',
+    version: '0.2.7',
+    name: 'MiarinaMedia-0.2.7-x64-setup.exe',
     size: '113,4 Mio',
-    sha256: '2681851ede68dc13196b2b13639e2647c92267caddf65f3130570d7b25dcbaf3',
+    sha256: '5372bab14ebc1a6fb7113eaa9ac9957e79c599179fb66b711d53b7ff49d12a22',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.2.5',
-    name: 'MiarinaMedia-0.2.5.apk',
-    size: '64,7 Mio',
-    sha256: 'afee47a86e00e565dcd09be167a868bacf370abf35fefa1d477877cf6e24999a',
+    version: '0.2.7',
+    name: 'MiarinaMedia-0.2.7.apk',
+    size: '64,8 Mio',
+    sha256: '8f22e85a497ac27bedae833aa8b54b391715afd8cf95de95c7ed3edc7adc6d53',
   } satisfies ReleaseFile,
 };
 
@@ -65,9 +65,19 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
-    name: '0.2.6 · Windows',
+    name: '0.2.7 · Windows et Android',
     date: '24 novembre 2026',
     current: true,
+    items: [
+      'En malagasy, les écrans Historique s’affichent de nouveau (ils restaient gris)',
+      'Android : si vous avez téléchargé avant d’ouvrir Musique, un bandeau propose maintenant d’afficher la musique du téléphone',
+      'Windows : pages centrées sur les grands écrans, passage plus doux d’une page à l’autre',
+      'Windows et Android passent tous deux en 0.2.7',
+    ],
+  },
+  {
+    name: '0.2.6 · Windows',
+    date: '24 novembre 2026',
     items: [
       'Nouvelle application Windows : elle remplace la 0.1.12 en gardant la bibliothèque, les playlists, les favoris, les reprises et les réglages (la bibliothèque est copiée avant sa mise à jour)',
       'Outils PC : convertir (MP4, MKV, WebM, AVI, MOV, 3GP, GIF, MP3, FLAC…), fusionner, découper, rogner, compresser',
