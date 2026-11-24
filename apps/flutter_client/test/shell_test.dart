@@ -220,7 +220,7 @@ void main() {
     await tester.tap(find.text('File'));
     await settle(tester);
     expect(find.text('Échos'), findsOneWidget, reason: 'next in the queue');
-    expect(find.text('P1'), findsWidgets);
+    expect(find.text('P1'), findsNothing, reason: 'Smart Queue works');
     await tester.tap(find.text('Son'));
     await settle(tester);
     await tester.tap(find.text('Voix'));
