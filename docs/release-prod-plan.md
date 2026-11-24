@@ -25,7 +25,7 @@ Après les lots A, avant la production. Windows seulement, jamais sur Android. L
 | Lot | Contenu |
 |---|---|
 | C1 | Convertir : catégories Vidéo / Audio / Image, tuiles formats et outils (fusionner, découper, rogner, compresser, extraire l'audio, redimensionner…), dialogue d'options, file de conversion Démarrer / Arrêter, barre d'état — FFmpeg déjà livré. |
-| C2 | Capture d'écran : Réglages › Capture d'écran, raccourcis globaux (Alt+C, Alt+Shift+C), superposition de sélection, copier / enregistrer, aperçu. |
+| C2 | Capture d'écran : Réglages › Capture d'écran, raccourcis globaux (Alt+C, Alt+Shift+C), superposition de sélection, copier / enregistrer, aperçu. — **fait 2026-11-24**, recette du propriétaire à venir. |
 | C3 | Enregistrer l'écran : écran Enregistreur (plein écran, fenêtre, zone ; format, i/s, qualité ; son du PC, micro, curseur, compte à rebours), barre flottante exclue de la capture, Alt+R, enregistrements récents dans la bibliothèque. |
 
 ## À décider

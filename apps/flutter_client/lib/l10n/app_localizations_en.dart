@@ -4293,4 +4293,156 @@ class L10nEn extends L10n {
   String convFailed(String reason) {
     return 'Could not add: $reason';
   }
+
+  @override
+  String get capTab => 'Screenshot';
+
+  @override
+  String get capIntroTitle => 'Capture from any app';
+
+  @override
+  String get capIntroBody =>
+      'The shortcuts work even when Miarina Media is minimized.';
+
+  @override
+  String get capTry => 'Try it';
+
+  @override
+  String get capRegion => 'Capture area';
+
+  @override
+  String get capRegionDesc => 'Dims the screen; draw the area to keep.';
+
+  @override
+  String get capFull => 'Capture full screen';
+
+  @override
+  String get capFullDesc => 'Captures the screen under the mouse right away.';
+
+  @override
+  String get capRecord => 'Start / stop video recording';
+
+  @override
+  String get capRecordDesc => 'Uses the recorder’s last settings.';
+
+  @override
+  String get capEdit => 'Change';
+
+  @override
+  String get capCancel => 'Cancel';
+
+  @override
+  String get capListening => 'Press the key combination…';
+
+  @override
+  String get capNoKey => 'None';
+
+  @override
+  String get capFormat => 'Image format';
+
+  @override
+  String get capFormatDesc =>
+      'PNG keeps every detail; JPG and WebP are lighter.';
+
+  @override
+  String get capDelay => 'Timer';
+
+  @override
+  String get capDelayDesc => 'Time to open a menu before the capture.';
+
+  @override
+  String get capDelayNone => 'None';
+
+  @override
+  String capDelaySecs(int n) {
+    return '$n s';
+  }
+
+  @override
+  String get capSaveTo => 'Save to';
+
+  @override
+  String get capOpenFolder => 'Open folder';
+
+  @override
+  String get capCopySetting => 'Copy to clipboard';
+
+  @override
+  String get capCopySettingDesc => 'To paste right away with Ctrl V.';
+
+  @override
+  String get capPreview => 'Show a preview';
+
+  @override
+  String get capPreviewDesc =>
+      'A thumbnail appears at the bottom right for 4 seconds.';
+
+  @override
+  String get capSound => 'Shutter sound';
+
+  @override
+  String get capCursor => 'Include the cursor';
+
+  @override
+  String get capNeedModifier => 'Use Ctrl, Alt or Shift with another key.';
+
+  @override
+  String get capKeyUnsupported => 'This key cannot be a global shortcut.';
+
+  @override
+  String capConflict(String keys, String action) {
+    return '$keys is already used for “$action”.';
+  }
+
+  @override
+  String capTaken(String keys) {
+    return '$keys is already taken by another app.';
+  }
+
+  @override
+  String get capTakenShort => 'Taken by another app';
+
+  @override
+  String get capHelp => 'Drag to choose an area';
+
+  @override
+  String get capHelpEnter => 'capture';
+
+  @override
+  String get capHelpEsc => 'cancel';
+
+  @override
+  String get capKeyEnter => 'Enter';
+
+  @override
+  String get capKeyEsc => 'Esc';
+
+  @override
+  String get capWholeScreen => 'Full screen';
+
+  @override
+  String get capFilm => 'Record';
+
+  @override
+  String get capCopy => 'Copy';
+
+  @override
+  String get capSave => 'Save';
+
+  @override
+  String get capClose => 'Close';
+
+  @override
+  String get capCopied => 'Screenshot copied to the clipboard';
+
+  @override
+  String get capOpen => 'Open';
+
+  @override
+  String get capFailed => 'The screenshot could not be taken.';
+
+  @override
+  String capPngFallback(String name) {
+    return '$name (JPG/WebP unavailable: saved as PNG)';
+  }
 }

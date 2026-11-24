@@ -4327,4 +4327,160 @@ class L10nFr extends L10n {
   String convFailed(String reason) {
     return 'Ajout impossible : $reason';
   }
+
+  @override
+  String get capTab => 'Capture d’écran';
+
+  @override
+  String get capIntroTitle => 'Capture depuis n’importe quelle application';
+
+  @override
+  String get capIntroBody =>
+      'Les raccourcis fonctionnent même quand Miarina Media est réduite.';
+
+  @override
+  String get capTry => 'Essayer';
+
+  @override
+  String get capRegion => 'Capturer une zone';
+
+  @override
+  String get capRegionDesc => 'Assombrit l’écran ; tracez la zone à garder.';
+
+  @override
+  String get capFull => 'Capturer tout l’écran';
+
+  @override
+  String get capFullDesc =>
+      'Capture immédiate de l’écran où se trouve la souris.';
+
+  @override
+  String get capRecord => 'Démarrer / arrêter l’enregistrement vidéo';
+
+  @override
+  String get capRecordDesc =>
+      'Utilise les derniers réglages de l’enregistreur.';
+
+  @override
+  String get capEdit => 'Modifier';
+
+  @override
+  String get capCancel => 'Annuler';
+
+  @override
+  String get capListening => 'Appuyez sur la combinaison…';
+
+  @override
+  String get capNoKey => 'Aucun';
+
+  @override
+  String get capFormat => 'Format de l’image';
+
+  @override
+  String get capFormatDesc =>
+      'PNG garde tous les détails ; JPG et WebP sont plus légers.';
+
+  @override
+  String get capDelay => 'Retardateur';
+
+  @override
+  String get capDelayDesc => 'Le temps d’ouvrir un menu avant la capture.';
+
+  @override
+  String get capDelayNone => 'Aucun';
+
+  @override
+  String capDelaySecs(int n) {
+    return '$n s';
+  }
+
+  @override
+  String get capSaveTo => 'Enregistrer dans';
+
+  @override
+  String get capOpenFolder => 'Ouvrir le dossier';
+
+  @override
+  String get capCopySetting => 'Copier dans le presse-papiers';
+
+  @override
+  String get capCopySettingDesc => 'Pour coller tout de suite avec Ctrl V.';
+
+  @override
+  String get capPreview => 'Afficher un aperçu';
+
+  @override
+  String get capPreviewDesc =>
+      'Une vignette apparaît en bas à droite pendant 4 secondes.';
+
+  @override
+  String get capSound => 'Son d’obturateur';
+
+  @override
+  String get capCursor => 'Inclure le curseur';
+
+  @override
+  String get capNeedModifier =>
+      'Il faut Ctrl, Alt ou Maj avec une autre touche.';
+
+  @override
+  String get capKeyUnsupported =>
+      'Cette touche ne peut pas servir de raccourci global.';
+
+  @override
+  String capConflict(String keys, String action) {
+    return '$keys sert déjà à « $action ».';
+  }
+
+  @override
+  String capTaken(String keys) {
+    return '$keys est déjà pris par une autre application.';
+  }
+
+  @override
+  String get capTakenShort => 'Pris par une autre application';
+
+  @override
+  String get capHelp => 'Glissez pour choisir une zone';
+
+  @override
+  String get capHelpEnter => 'capturer';
+
+  @override
+  String get capHelpEsc => 'annuler';
+
+  @override
+  String get capKeyEnter => 'Entrée';
+
+  @override
+  String get capKeyEsc => 'Échap';
+
+  @override
+  String get capWholeScreen => 'Tout l’écran';
+
+  @override
+  String get capFilm => 'Filmer';
+
+  @override
+  String get capCopy => 'Copier';
+
+  @override
+  String get capSave => 'Enregistrer';
+
+  @override
+  String get capClose => 'Fermer';
+
+  @override
+  String get capCopied => 'Capture copiée dans le presse-papiers';
+
+  @override
+  String get capOpen => 'Ouvrir';
+
+  @override
+  String get capFailed => 'La capture n’a pas pu être faite.';
+
+  @override
+  String capPngFallback(String name) {
+    return '$name (JPG/WebP indisponible : enregistrée en PNG)';
+  }
 }

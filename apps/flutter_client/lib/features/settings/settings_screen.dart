@@ -12,6 +12,7 @@ import '../../design/widgets/logo.dart';
 import '../../design/widgets/pressable.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
+import '../capture/capture_settings.dart';
 import '../cinema/cinema_widgets.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
 import '../health/health_data.dart';
@@ -32,6 +33,7 @@ enum SettingsSection {
   general,
   appearance,
   playback,
+  capture,
   library,
   downloads,
   extension,
@@ -47,6 +49,7 @@ String sectionLabel(L10n t, SettingsSection s) => switch (s) {
   SettingsSection.general => t.setGeneral,
   SettingsSection.appearance => t.setAppearance,
   SettingsSection.playback => t.setPlayback,
+  SettingsSection.capture => t.capTab,
   SettingsSection.library => t.setLibrary,
   SettingsSection.downloads => t.setDownloads,
   SettingsSection.extension => t.setExtension,
@@ -150,10 +153,13 @@ class _SettingsNav extends ConsumerWidget {
           ),
         ),
         for (final s in SettingsSection.values)
-          // Keyboard shortcuts and the browser extension are desktop
-          // matters.
-          if (!mobile ||
-              s != SettingsSection.shortcuts && s != SettingsSection.extension)
+          // Keyboard shortcuts, the browser extension and the screen
+          // tools are desktop matters (the screen tools: Windows only).
+          if (s == SettingsSection.capture
+              ? !mobile && Platform.isWindows
+              : !mobile ||
+                    s != SettingsSection.shortcuts &&
+                        s != SettingsSection.extension)
             Padding(
               padding: const EdgeInsets.only(bottom: 2),
               child: Pressable(
@@ -217,6 +223,7 @@ class _SectionPage extends ConsumerWidget {
       SettingsSection.general => const _General(),
       SettingsSection.appearance => const _Appearance(),
       SettingsSection.playback => const _Playback(),
+      SettingsSection.capture => const CaptureSettingsView(),
       SettingsSection.shortcuts => const ShortcutsView(),
       SettingsSection.library => const _Library(),
       SettingsSection.downloads => const DownloadSettings(),

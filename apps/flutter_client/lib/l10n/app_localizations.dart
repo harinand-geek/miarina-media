@@ -7044,6 +7044,288 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ajout impossible : {reason}'**
   String convFailed(String reason);
+
+  /// No description provided for @capTab.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capture d’écran'**
+  String get capTab;
+
+  /// No description provided for @capIntroTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capture depuis n’importe quelle application'**
+  String get capIntroTitle;
+
+  /// No description provided for @capIntroBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les raccourcis fonctionnent même quand Miarina Media est réduite.'**
+  String get capIntroBody;
+
+  /// No description provided for @capTry.
+  ///
+  /// In fr, this message translates to:
+  /// **'Essayer'**
+  String get capTry;
+
+  /// No description provided for @capRegion.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capturer une zone'**
+  String get capRegion;
+
+  /// No description provided for @capRegionDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Assombrit l’écran ; tracez la zone à garder.'**
+  String get capRegionDesc;
+
+  /// No description provided for @capFull.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capturer tout l’écran'**
+  String get capFull;
+
+  /// No description provided for @capFullDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capture immédiate de l’écran où se trouve la souris.'**
+  String get capFullDesc;
+
+  /// No description provided for @capRecord.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer / arrêter l’enregistrement vidéo'**
+  String get capRecord;
+
+  /// No description provided for @capRecordDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Utilise les derniers réglages de l’enregistreur.'**
+  String get capRecordDesc;
+
+  /// No description provided for @capEdit.
+  ///
+  /// In fr, this message translates to:
+  /// **'Modifier'**
+  String get capEdit;
+
+  /// No description provided for @capCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler'**
+  String get capCancel;
+
+  /// No description provided for @capListening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Appuyez sur la combinaison…'**
+  String get capListening;
+
+  /// No description provided for @capNoKey.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get capNoKey;
+
+  /// No description provided for @capFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format de l’image'**
+  String get capFormat;
+
+  /// No description provided for @capFormatDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'PNG garde tous les détails ; JPG et WebP sont plus légers.'**
+  String get capFormatDesc;
+
+  /// No description provided for @capDelay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retardateur'**
+  String get capDelay;
+
+  /// No description provided for @capDelayDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le temps d’ouvrir un menu avant la capture.'**
+  String get capDelayDesc;
+
+  /// No description provided for @capDelayNone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun'**
+  String get capDelayNone;
+
+  /// No description provided for @capDelaySecs.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} s'**
+  String capDelaySecs(int n);
+
+  /// No description provided for @capSaveTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer dans'**
+  String get capSaveTo;
+
+  /// No description provided for @capOpenFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le dossier'**
+  String get capOpenFolder;
+
+  /// No description provided for @capCopySetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier dans le presse-papiers'**
+  String get capCopySetting;
+
+  /// No description provided for @capCopySettingDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour coller tout de suite avec Ctrl V.'**
+  String get capCopySettingDesc;
+
+  /// No description provided for @capPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher un aperçu'**
+  String get capPreview;
+
+  /// No description provided for @capPreviewDesc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une vignette apparaît en bas à droite pendant 4 secondes.'**
+  String get capPreviewDesc;
+
+  /// No description provided for @capSound.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son d’obturateur'**
+  String get capSound;
+
+  /// No description provided for @capCursor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Inclure le curseur'**
+  String get capCursor;
+
+  /// No description provided for @capNeedModifier.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il faut Ctrl, Alt ou Maj avec une autre touche.'**
+  String get capNeedModifier;
+
+  /// No description provided for @capKeyUnsupported.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cette touche ne peut pas servir de raccourci global.'**
+  String get capKeyUnsupported;
+
+  /// No description provided for @capConflict.
+  ///
+  /// In fr, this message translates to:
+  /// **'{keys} sert déjà à « {action} ».'**
+  String capConflict(String keys, String action);
+
+  /// No description provided for @capTaken.
+  ///
+  /// In fr, this message translates to:
+  /// **'{keys} est déjà pris par une autre application.'**
+  String capTaken(String keys);
+
+  /// No description provided for @capTakenShort.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pris par une autre application'**
+  String get capTakenShort;
+
+  /// No description provided for @capHelp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glissez pour choisir une zone'**
+  String get capHelp;
+
+  /// No description provided for @capHelpEnter.
+  ///
+  /// In fr, this message translates to:
+  /// **'capturer'**
+  String get capHelpEnter;
+
+  /// No description provided for @capHelpEsc.
+  ///
+  /// In fr, this message translates to:
+  /// **'annuler'**
+  String get capHelpEsc;
+
+  /// No description provided for @capKeyEnter.
+  ///
+  /// In fr, this message translates to:
+  /// **'Entrée'**
+  String get capKeyEnter;
+
+  /// No description provided for @capKeyEsc.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échap'**
+  String get capKeyEsc;
+
+  /// No description provided for @capWholeScreen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout l’écran'**
+  String get capWholeScreen;
+
+  /// No description provided for @capFilm.
+  ///
+  /// In fr, this message translates to:
+  /// **'Filmer'**
+  String get capFilm;
+
+  /// No description provided for @capCopy.
+  ///
+  /// In fr, this message translates to:
+  /// **'Copier'**
+  String get capCopy;
+
+  /// No description provided for @capSave.
+  ///
+  /// In fr, this message translates to:
+  /// **'Enregistrer'**
+  String get capSave;
+
+  /// No description provided for @capClose.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fermer'**
+  String get capClose;
+
+  /// No description provided for @capCopied.
+  ///
+  /// In fr, this message translates to:
+  /// **'Capture copiée dans le presse-papiers'**
+  String get capCopied;
+
+  /// No description provided for @capOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir'**
+  String get capOpen;
+
+  /// No description provided for @capFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'La capture n’a pas pu être faite.'**
+  String get capFailed;
+
+  /// No description provided for @capPngFallback.
+  ///
+  /// In fr, this message translates to:
+  /// **'{name} (JPG/WebP indisponible : enregistrée en PNG)'**
+  String capPngFallback(String name);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

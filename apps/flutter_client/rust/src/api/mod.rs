@@ -1,6 +1,7 @@
 pub mod app;
 pub mod browser;
 pub mod browser_spike;
+pub mod capture;
 pub mod cinema;
 pub mod converter;
 pub mod extension;

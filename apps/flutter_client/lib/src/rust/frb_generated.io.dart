@@ -6,6 +6,7 @@
 import 'api/app.dart';
 import 'api/browser.dart';
 import 'api/browser_spike.dart';
+import 'api/capture.dart';
 import 'api/cinema.dart';
 import 'api/converter.dart';
 import 'api/extension.dart';

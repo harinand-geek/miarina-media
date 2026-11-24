@@ -7,6 +7,7 @@
 #include <memory>
 
 #include "file_drop.h"
+#include "screen_tools.h"
 #include "single_instance.h"
 #include "taskbar_buttons.h"
 #include "win32_window.h"
@@ -40,6 +41,9 @@ class FlutterWindow : public Win32Window {
 
   // Files dropped from the Explorer.
   std::unique_ptr<FileDropChannel> file_drop_;
+
+  // Outils PC: shortcuts, screen pictures, overlay.
+  std::unique_ptr<ScreenTools> screen_tools_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

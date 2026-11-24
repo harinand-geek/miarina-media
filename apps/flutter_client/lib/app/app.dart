@@ -3,6 +3,8 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/theme.dart';
 import '../design/tokens.dart';
+import '../features/capture/capture_data.dart';
+import '../features/capture/capture_overlay.dart';
 import '../features/cinema/series_audio.dart';
 import '../features/focus/focus_data.dart';
 import '../features/get/download_notifications.dart';
@@ -36,6 +38,8 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(downloadsProvider.select((s) => s.ready));
     // Android: download notifications and their buttons.
     ref.watch(downloadNotifierProvider);
+    // Outils PC (Windows): the capture shortcuts work from any app.
+    ref.watch(captureHotkeysProvider);
     final look = ref.watch(appearanceProvider).value ?? const AppearancePrefs();
     return MaterialApp.router(
       title: 'Miarina Media',
@@ -65,7 +69,10 @@ class MiarinaApp extends ConsumerWidget {
           // closing stops torrents and flushes downloads first.
           // Updates are looked for after launch and every six hours.
           child: ExitGuard(
-            child: UpdateMonitor(child: TaskbarSync(child: child!)),
+            child: UpdateMonitor(
+              // The capture overlay covers every screen while it is open.
+              child: TaskbarSync(child: CaptureHost(child: child!)),
+            ),
           ),
         );
       },

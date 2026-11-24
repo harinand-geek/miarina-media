@@ -31,6 +31,8 @@ bool FlutterWindow::OnCreate() {
       flutter_controller_->engine()->messenger(), GetHandle());
   file_drop_ = std::make_unique<FileDropChannel>(
       flutter_controller_->engine()->messenger(), GetHandle());
+  screen_tools_ = std::make_unique<ScreenTools>(
+      flutter_controller_->engine()->messenger(), GetHandle());
   SetChildContent(flutter_controller_->view()->GetNativeWindow());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
@@ -49,6 +51,7 @@ void FlutterWindow::OnDestroy() {
   taskbar_buttons_ = nullptr;
   open_files_ = nullptr;
   file_drop_ = nullptr;
+  screen_tools_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
   }
@@ -68,6 +71,9 @@ FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
     return TRUE;
   }
   if (file_drop_ && file_drop_->HandleMessage(message, wparam, lparam)) {
+    return 0;
+  }
+  if (screen_tools_ && screen_tools_->HandleMessage(message, wparam, lparam)) {
     return 0;
   }
 
