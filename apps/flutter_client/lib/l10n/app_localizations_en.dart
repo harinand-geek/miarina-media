@@ -3999,4 +3999,298 @@ class L10nEn extends L10n {
 
   @override
   String get addQueueOne => 'Add to the queue';
+
+  @override
+  String get toolsGroup => 'PC tools';
+
+  @override
+  String get navConvert => 'Convert';
+
+  @override
+  String get convLead =>
+      'Choose a format or a tool, add your files, then start. Everything stays on this computer.';
+
+  @override
+  String get convRemove => 'Remove';
+
+  @override
+  String get convClear => 'Clear list';
+
+  @override
+  String get convStart => 'Start';
+
+  @override
+  String get convStop => 'Stop';
+
+  @override
+  String get catVideo => 'Video';
+
+  @override
+  String get catAudio => 'Audio';
+
+  @override
+  String get catImage => 'Image';
+
+  @override
+  String get fmtHelpMp4 => 'H.264 + AAC, plays everywhere';
+
+  @override
+  String get fmtHelpMkv => 'Every track and subtitle';
+
+  @override
+  String get fmtHelpWebm => 'VP9 + Opus, for the web';
+
+  @override
+  String get fmtHelpAvi => 'Older players and TVs';
+
+  @override
+  String get fmtHelpMov => 'Editing, Apple devices';
+
+  @override
+  String get fmtHelpGif => 'Short animation, no sound';
+
+  @override
+  String get fmtHelpMp3 => 'Plays everywhere';
+
+  @override
+  String get fmtHelpM4a => 'AAC, Apple devices';
+
+  @override
+  String get fmtHelpFlac => 'Lossless';
+
+  @override
+  String get fmtHelpWav => 'Uncompressed';
+
+  @override
+  String get fmtHelpOgg => 'Vorbis, open format';
+
+  @override
+  String get fmtHelpOpus => 'Very light, voice and music';
+
+  @override
+  String get fmtHelpPng => 'Lossless, transparency';
+
+  @override
+  String get fmtHelpJpg => 'Photos, light';
+
+  @override
+  String get fmtHelpWebp => 'Web, very light';
+
+  @override
+  String get fmtHelpIco => 'Windows icon (256 px)';
+
+  @override
+  String get fmtHelpBmp => 'Uncompressed';
+
+  @override
+  String get toolJoin => 'Join';
+
+  @override
+  String get toolCut => 'Cut';
+
+  @override
+  String get toolCrop => 'Crop';
+
+  @override
+  String get toolCompress => 'Compress';
+
+  @override
+  String get toolFrames => 'Export frames';
+
+  @override
+  String get toolExtract => 'Extract from a video';
+
+  @override
+  String get toolResize => 'Resize';
+
+  @override
+  String get toolHelpJoinVideo => 'Several videos end to end, in one MP4';
+
+  @override
+  String get toolHelpJoinAudio => 'Several files end to end, in one MP3';
+
+  @override
+  String get toolHelpCut => 'Keep a part, without re-encoding';
+
+  @override
+  String get toolHelpCrop => 'Crop to the centre: 16:9, 4:3, 1:1, 9:16';
+
+  @override
+  String get toolHelpCompress => 'Lighter file (MP4, 1080p at most)';
+
+  @override
+  String get toolHelpFrames => 'A JPG picture every few seconds';
+
+  @override
+  String get toolHelpExtract => 'Keep the sound, as MP3';
+
+  @override
+  String get toolHelpResize => 'Change the width, keeping the proportions';
+
+  @override
+  String convTo(String format) {
+    return 'Convert to $format';
+  }
+
+  @override
+  String get convNoFiles => 'No files. Add some or drop them here.';
+
+  @override
+  String get convAddFiles => 'Add files';
+
+  @override
+  String get convAddFolder => 'Add a folder';
+
+  @override
+  String convAddToList(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Add to the list ($n)',
+      zero: 'Add to the list',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get convJoinNeedsTwo => 'Add at least two files to join.';
+
+  @override
+  String get optQuality => 'Quality';
+
+  @override
+  String get optSource => 'Source';
+
+  @override
+  String get optHigh => 'High';
+
+  @override
+  String get optMedium => 'Medium';
+
+  @override
+  String get optSmall => 'Small';
+
+  @override
+  String get optResolution => 'Resolution';
+
+  @override
+  String get optBitrate => 'Bit rate';
+
+  @override
+  String get optKeep => 'Keep from… to…';
+
+  @override
+  String get optKeepHint => 'hh:mm:ss; an empty end = to the end';
+
+  @override
+  String get optCrop => 'Format';
+
+  @override
+  String get optEvery => 'One picture every';
+
+  @override
+  String get optWidth => 'Width';
+
+  @override
+  String get optOutDir => 'Output folder';
+
+  @override
+  String optSeconds(int n) {
+    return '$n s';
+  }
+
+  @override
+  String get colPreview => 'Preview';
+
+  @override
+  String colSource(int n) {
+    return 'Source · $n';
+  }
+
+  @override
+  String get colOutput => 'Output / status';
+
+  @override
+  String get stWaiting => 'Waiting';
+
+  @override
+  String get stConverting => 'Converting…';
+
+  @override
+  String get stDone => 'Done';
+
+  @override
+  String get stStopped => 'Stopped';
+
+  @override
+  String get stFailed => 'Failed';
+
+  @override
+  String convLineFormat(String quality) {
+    return 'Conversion · $quality quality';
+  }
+
+  @override
+  String get convLineSame => 'Conversion · same quality as the source';
+
+  @override
+  String convFiles(int n) {
+    return '$n files';
+  }
+
+  @override
+  String get convEmptyTitle => 'The list is empty';
+
+  @override
+  String get convEmptyBody =>
+      'Choose a format on the left, or drop files here.';
+
+  @override
+  String get convDropHint =>
+      'Drop files here to add them with the last format chosen';
+
+  @override
+  String get convDropNoChoice => 'First choose a format or a tool on the left.';
+
+  @override
+  String get convMulti => 'Multi-conversion';
+
+  @override
+  String get convElapsed => 'Elapsed time';
+
+  @override
+  String get convShutdown => 'Shut down PC when done';
+
+  @override
+  String get convNotify => 'Notify';
+
+  @override
+  String get convDone => 'Conversion finished';
+
+  @override
+  String get convOpenFolder => 'Open the folder';
+
+  @override
+  String convRemoveRunning(String name) {
+    return '“$name” is being converted. Removing it stops its conversion.';
+  }
+
+  @override
+  String get convShutdownTitle => 'The PC will shut down';
+
+  @override
+  String get convShutdownBody =>
+      'The conversions are finished. Windows shuts the PC down in a minute.';
+
+  @override
+  String get convShutdownCancel => 'Cancel the shutdown';
+
+  @override
+  String get convToolsMissing =>
+      'The media tools are not installed: analyse a link in Obtenir to install them.';
+
+  @override
+  String convFailed(String reason) {
+    return 'Could not add: $reason';
+  }
 }

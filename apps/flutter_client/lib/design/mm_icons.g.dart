@@ -36,6 +36,10 @@ abstract final class PhosphorRegular {
     0xe094,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData arrowsMerge = IconData(
+    0xed3e,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData arrowsOutSimple = IconData(
     0xe0a6,
     fontFamily: 'PhosphorRegular',
@@ -61,6 +65,7 @@ abstract final class PhosphorRegular {
     0xe5f0,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData broom = IconData(0xec54, fontFamily: 'PhosphorRegular');
   static const IconData camera = IconData(
     0xe10e,
     fontFamily: 'PhosphorRegular',
@@ -125,6 +130,10 @@ abstract final class PhosphorRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const IconData crop = IconData(0xe1d4, fontFamily: 'PhosphorRegular');
+  static const IconData cursorClick = IconData(
+    0xe7c8,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData database = IconData(
     0xe1de,
     fontFamily: 'PhosphorRegular',
@@ -171,6 +180,10 @@ abstract final class PhosphorRegular {
   );
   static const IconData fileText = IconData(
     0xe23a,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData fileZip = IconData(
+    0xe958,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData filmSlate = IconData(
@@ -249,6 +262,7 @@ abstract final class PhosphorRegular {
     fontFamily: 'PhosphorRegular',
   );
   static const IconData house = IconData(0xe2c2, fontFamily: 'PhosphorRegular');
+  static const IconData image = IconData(0xe2ca, fontFamily: 'PhosphorRegular');
   static const IconData imageBroken = IconData(
     0xe7a8,
     fontFamily: 'PhosphorRegular',
@@ -316,6 +330,10 @@ abstract final class PhosphorRegular {
     0xe326,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData microphoneSlash = IconData(
+    0xe328,
+    fontFamily: 'PhosphorRegular',
+  );
   static const IconData minus = IconData(0xe32a, fontFamily: 'PhosphorRegular');
   static const IconData minusCircle = IconData(
     0xe32c,
@@ -323,6 +341,10 @@ abstract final class PhosphorRegular {
   );
   static const IconData minusSquare = IconData(
     0xed4c,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData monitor = IconData(
+    0xe32e,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData monitorPlay = IconData(
@@ -376,6 +398,7 @@ abstract final class PhosphorRegular {
   );
   static const IconData plugs = IconData(0xeb56, fontFamily: 'PhosphorRegular');
   static const IconData plus = IconData(0xe3d4, fontFamily: 'PhosphorRegular');
+  static const IconData power = IconData(0xe3da, fontFamily: 'PhosphorRegular');
   static const IconData pushPin = IconData(
     0xe3e2,
     fontFamily: 'PhosphorRegular',
@@ -387,6 +410,10 @@ abstract final class PhosphorRegular {
   );
   static const IconData radioButton = IconData(
     0xeb08,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData record = IconData(
+    0xe3ee,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData repeat = IconData(
@@ -407,6 +434,10 @@ abstract final class PhosphorRegular {
   );
   static const IconData sealCheck = IconData(
     0xe606,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData selection = IconData(
+    0xe69a,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData shareNetwork = IconData(
@@ -475,6 +506,7 @@ abstract final class PhosphorRegular {
   );
   static const IconData stack = IconData(0xe466, fontFamily: 'PhosphorRegular');
   static const IconData star = IconData(0xe46a, fontFamily: 'PhosphorRegular');
+  static const IconData stop = IconData(0xe46c, fontFamily: 'PhosphorRegular');
   static const IconData subtitles = IconData(
     0xe1a8,
     fontFamily: 'PhosphorRegular',
@@ -488,6 +520,7 @@ abstract final class PhosphorRegular {
     0xe484,
     fontFamily: 'PhosphorRegular',
   );
+  static const IconData timer = IconData(0xe492, fontFamily: 'PhosphorRegular');
   static const IconData trash = IconData(0xe4a6, fontFamily: 'PhosphorRegular');
   static const IconData trashSimple = IconData(
     0xe4a8,
@@ -501,6 +534,10 @@ abstract final class PhosphorRegular {
   static const IconData user = IconData(0xe4c2, fontFamily: 'PhosphorRegular');
   static const IconData userSound = IconData(
     0xeca8,
+    fontFamily: 'PhosphorRegular',
+  );
+  static const IconData videoCamera = IconData(
+    0xe4da,
     fontFamily: 'PhosphorRegular',
   );
   static const IconData vinylRecord = IconData(
@@ -556,6 +593,10 @@ abstract final class PhosphorFill {
     0xe094,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData arrowsMerge = IconData(
+    0xed3e,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData arrowsOutSimple = IconData(
     0xe0a6,
     fontFamily: 'PhosphorFill',
@@ -581,6 +622,7 @@ abstract final class PhosphorFill {
     0xe5f0,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData broom = IconData(0xec54, fontFamily: 'PhosphorFill');
   static const IconData camera = IconData(0xe10e, fontFamily: 'PhosphorFill');
   static const IconData caretDown = IconData(
     0xe136,
@@ -636,6 +678,10 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData crop = IconData(0xe1d4, fontFamily: 'PhosphorFill');
+  static const IconData cursorClick = IconData(
+    0xe7c8,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData database = IconData(0xe1de, fontFamily: 'PhosphorFill');
   static const IconData dotsSixVertical = IconData(
     0xeae2,
@@ -669,6 +715,7 @@ abstract final class PhosphorFill {
   );
   static const IconData filePlus = IconData(0xe236, fontFamily: 'PhosphorFill');
   static const IconData fileText = IconData(0xe23a, fontFamily: 'PhosphorFill');
+  static const IconData fileZip = IconData(0xe958, fontFamily: 'PhosphorFill');
   static const IconData filmSlate = IconData(
     0xe8c2,
     fontFamily: 'PhosphorFill',
@@ -736,6 +783,7 @@ abstract final class PhosphorFill {
     fontFamily: 'PhosphorFill',
   );
   static const IconData house = IconData(0xe2c2, fontFamily: 'PhosphorFill');
+  static const IconData image = IconData(0xe2ca, fontFamily: 'PhosphorFill');
   static const IconData imageBroken = IconData(
     0xe7a8,
     fontFamily: 'PhosphorFill',
@@ -794,6 +842,10 @@ abstract final class PhosphorFill {
     0xe326,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData microphoneSlash = IconData(
+    0xe328,
+    fontFamily: 'PhosphorFill',
+  );
   static const IconData minus = IconData(0xe32a, fontFamily: 'PhosphorFill');
   static const IconData minusCircle = IconData(
     0xe32c,
@@ -803,6 +855,7 @@ abstract final class PhosphorFill {
     0xed4c,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData monitor = IconData(0xe32e, fontFamily: 'PhosphorFill');
   static const IconData monitorPlay = IconData(
     0xe58c,
     fontFamily: 'PhosphorFill',
@@ -851,6 +904,7 @@ abstract final class PhosphorFill {
   static const IconData playlist = IconData(0xe6aa, fontFamily: 'PhosphorFill');
   static const IconData plugs = IconData(0xeb56, fontFamily: 'PhosphorFill');
   static const IconData plus = IconData(0xe3d4, fontFamily: 'PhosphorFill');
+  static const IconData power = IconData(0xe3da, fontFamily: 'PhosphorFill');
   static const IconData pushPin = IconData(0xe3e2, fontFamily: 'PhosphorFill');
   static const IconData queue = IconData(0xe6ac, fontFamily: 'PhosphorFill');
   static const IconData quotes = IconData(0xe660, fontFamily: 'PhosphorFill');
@@ -858,6 +912,7 @@ abstract final class PhosphorFill {
     0xeb08,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData record = IconData(0xe3ee, fontFamily: 'PhosphorFill');
   static const IconData repeat = IconData(0xe3f6, fontFamily: 'PhosphorFill');
   static const IconData repeatOnce = IconData(
     0xe3f8,
@@ -870,6 +925,10 @@ abstract final class PhosphorFill {
   );
   static const IconData sealCheck = IconData(
     0xe606,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData selection = IconData(
+    0xe69a,
     fontFamily: 'PhosphorFill',
   );
   static const IconData shareNetwork = IconData(
@@ -926,6 +985,7 @@ abstract final class PhosphorFill {
   );
   static const IconData stack = IconData(0xe466, fontFamily: 'PhosphorFill');
   static const IconData star = IconData(0xe46a, fontFamily: 'PhosphorFill');
+  static const IconData stop = IconData(0xe46c, fontFamily: 'PhosphorFill');
   static const IconData subtitles = IconData(
     0xe1a8,
     fontFamily: 'PhosphorFill',
@@ -936,6 +996,7 @@ abstract final class PhosphorFill {
     0xe484,
     fontFamily: 'PhosphorFill',
   );
+  static const IconData timer = IconData(0xe492, fontFamily: 'PhosphorFill');
   static const IconData trash = IconData(0xe4a6, fontFamily: 'PhosphorFill');
   static const IconData trashSimple = IconData(
     0xe4a8,
@@ -946,6 +1007,10 @@ abstract final class PhosphorFill {
   static const IconData user = IconData(0xe4c2, fontFamily: 'PhosphorFill');
   static const IconData userSound = IconData(
     0xeca8,
+    fontFamily: 'PhosphorFill',
+  );
+  static const IconData videoCamera = IconData(
+    0xe4da,
     fontFamily: 'PhosphorFill',
   );
   static const IconData vinylRecord = IconData(

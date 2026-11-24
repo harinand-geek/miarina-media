@@ -4032,4 +4032,299 @@ class L10nFr extends L10n {
 
   @override
   String get addQueueOne => 'Ajouter à la file';
+
+  @override
+  String get toolsGroup => 'Outils PC';
+
+  @override
+  String get navConvert => 'Convertir';
+
+  @override
+  String get convLead =>
+      'Choisissez un format ou un outil, ajoutez vos fichiers, puis démarrez. Tout reste sur cet ordinateur.';
+
+  @override
+  String get convRemove => 'Retirer';
+
+  @override
+  String get convClear => 'Vider la liste';
+
+  @override
+  String get convStart => 'Démarrer';
+
+  @override
+  String get convStop => 'Arrêter';
+
+  @override
+  String get catVideo => 'Vidéo';
+
+  @override
+  String get catAudio => 'Audio';
+
+  @override
+  String get catImage => 'Image';
+
+  @override
+  String get fmtHelpMp4 => 'H.264 + AAC, lisible partout';
+
+  @override
+  String get fmtHelpMkv => 'Toutes les pistes et sous-titres';
+
+  @override
+  String get fmtHelpWebm => 'VP9 + Opus, pour le web';
+
+  @override
+  String get fmtHelpAvi => 'Anciens lecteurs et TV';
+
+  @override
+  String get fmtHelpMov => 'Montage, appareils Apple';
+
+  @override
+  String get fmtHelpGif => 'Animation courte sans son';
+
+  @override
+  String get fmtHelpMp3 => 'Lisible partout';
+
+  @override
+  String get fmtHelpM4a => 'AAC, appareils Apple';
+
+  @override
+  String get fmtHelpFlac => 'Sans perte';
+
+  @override
+  String get fmtHelpWav => 'Non compressé';
+
+  @override
+  String get fmtHelpOgg => 'Vorbis, format libre';
+
+  @override
+  String get fmtHelpOpus => 'Très léger, voix et musique';
+
+  @override
+  String get fmtHelpPng => 'Sans perte, transparence';
+
+  @override
+  String get fmtHelpJpg => 'Photos, léger';
+
+  @override
+  String get fmtHelpWebp => 'Web, très léger';
+
+  @override
+  String get fmtHelpIco => 'Icône Windows (256 px)';
+
+  @override
+  String get fmtHelpBmp => 'Non compressé';
+
+  @override
+  String get toolJoin => 'Fusionner';
+
+  @override
+  String get toolCut => 'Découper';
+
+  @override
+  String get toolCrop => 'Rogner';
+
+  @override
+  String get toolCompress => 'Compresser';
+
+  @override
+  String get toolFrames => 'Exporter les images';
+
+  @override
+  String get toolExtract => 'Extraire d’une vidéo';
+
+  @override
+  String get toolResize => 'Redimensionner';
+
+  @override
+  String get toolHelpJoinVideo => 'Plusieurs vidéos bout à bout, en un MP4';
+
+  @override
+  String get toolHelpJoinAudio => 'Plusieurs fichiers bout à bout, en un MP3';
+
+  @override
+  String get toolHelpCut => 'Garder une partie, sans réencoder';
+
+  @override
+  String get toolHelpCrop => 'Recadrer au centre : 16:9, 4:3, 1:1, 9:16';
+
+  @override
+  String get toolHelpCompress => 'Fichier plus léger (MP4, 1080p au plus)';
+
+  @override
+  String get toolHelpFrames => 'Une image JPG toutes les quelques secondes';
+
+  @override
+  String get toolHelpExtract => 'Garder le son, en MP3';
+
+  @override
+  String get toolHelpResize => 'Changer la largeur, proportions gardées';
+
+  @override
+  String convTo(String format) {
+    return 'Convertir en $format';
+  }
+
+  @override
+  String get convNoFiles => 'Aucun fichier. Ajoutez-en ou glissez-les ici.';
+
+  @override
+  String get convAddFiles => 'Ajouter des fichiers';
+
+  @override
+  String get convAddFolder => 'Ajouter un dossier';
+
+  @override
+  String convAddToList(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: 'Ajouter à la liste ($n)',
+      zero: 'Ajouter à la liste',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get convJoinNeedsTwo => 'Ajoutez au moins deux fichiers à fusionner.';
+
+  @override
+  String get optQuality => 'Qualité';
+
+  @override
+  String get optSource => 'Source';
+
+  @override
+  String get optHigh => 'Haute';
+
+  @override
+  String get optMedium => 'Moyenne';
+
+  @override
+  String get optSmall => 'Petite';
+
+  @override
+  String get optResolution => 'Résolution';
+
+  @override
+  String get optBitrate => 'Débit';
+
+  @override
+  String get optKeep => 'Garder de… à…';
+
+  @override
+  String get optKeepHint => 'hh:mm:ss ; la fin vide = jusqu’au bout';
+
+  @override
+  String get optCrop => 'Format';
+
+  @override
+  String get optEvery => 'Une image toutes les';
+
+  @override
+  String get optWidth => 'Largeur';
+
+  @override
+  String get optOutDir => 'Dossier de sortie';
+
+  @override
+  String optSeconds(int n) {
+    return '$n s';
+  }
+
+  @override
+  String get colPreview => 'Aperçu';
+
+  @override
+  String colSource(int n) {
+    return 'Source · $n';
+  }
+
+  @override
+  String get colOutput => 'Sortie / état';
+
+  @override
+  String get stWaiting => 'En attente';
+
+  @override
+  String get stConverting => 'Conversion…';
+
+  @override
+  String get stDone => 'Terminé';
+
+  @override
+  String get stStopped => 'Arrêté';
+
+  @override
+  String get stFailed => 'Échec';
+
+  @override
+  String convLineFormat(String quality) {
+    return 'Conversion · qualité $quality';
+  }
+
+  @override
+  String get convLineSame => 'Conversion · qualité identique à la source';
+
+  @override
+  String convFiles(int n) {
+    return '$n fichiers';
+  }
+
+  @override
+  String get convEmptyTitle => 'La liste est vide';
+
+  @override
+  String get convEmptyBody =>
+      'Choisissez un format à gauche, ou glissez des fichiers ici.';
+
+  @override
+  String get convDropHint =>
+      'Glissez des fichiers ici pour les ajouter avec le dernier format choisi';
+
+  @override
+  String get convDropNoChoice =>
+      'Choisissez d’abord un format ou un outil à gauche.';
+
+  @override
+  String get convMulti => 'Multi-conversion';
+
+  @override
+  String get convElapsed => 'Temps écoulé';
+
+  @override
+  String get convShutdown => 'Éteindre le PC à la fin';
+
+  @override
+  String get convNotify => 'Notifier';
+
+  @override
+  String get convDone => 'Conversion terminée';
+
+  @override
+  String get convOpenFolder => 'Ouvrir le dossier';
+
+  @override
+  String convRemoveRunning(String name) {
+    return '« $name » est en cours de conversion. La retirer arrête sa conversion.';
+  }
+
+  @override
+  String get convShutdownTitle => 'Le PC va s’éteindre';
+
+  @override
+  String get convShutdownBody =>
+      'Les conversions sont terminées. Windows éteint le PC dans une minute.';
+
+  @override
+  String get convShutdownCancel => 'Annuler l’arrêt';
+
+  @override
+  String get convToolsMissing =>
+      'Les outils média ne sont pas installés : analysez un lien dans Obtenir pour les installer.';
+
+  @override
+  String convFailed(String reason) {
+    return 'Ajout impossible : $reason';
+  }
 }

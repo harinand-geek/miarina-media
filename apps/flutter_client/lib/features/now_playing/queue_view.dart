@@ -515,4 +515,3 @@ class _SmartQueueCard extends ConsumerWidget {
     );
   }
 }
-

@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "file_drop.h"
 #include "single_instance.h"
 #include "taskbar_buttons.h"
 #include "win32_window.h"
@@ -36,6 +37,9 @@ class FlutterWindow : public Win32Window {
 
   // Files handed over by a later launch (single instance).
   std::unique_ptr<OpenFilesChannel> open_files_;
+
+  // Files dropped from the Explorer.
+  std::unique_ptr<FileDropChannel> file_drop_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

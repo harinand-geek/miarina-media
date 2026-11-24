@@ -14,6 +14,7 @@ import '../features/cinema/watch_screen.dart';
 import '../features/focus/focus_player.dart';
 import '../features/focus/focus_screen.dart';
 import '../features/get/get_history_screen.dart';
+import '../features/convert/convert_screen.dart';
 import '../features/get/get_screens.dart';
 import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
@@ -60,6 +61,9 @@ abstract final class Routes {
   static const getAnalysis = '/get/analysis';
   static const getDownloads = '/get/downloads';
   static const getBatch = '/get/batch';
+
+  /// Outils PC (Windows): Convertir.
+  static const convert = '/get/convert';
   static const getBrowser = '/get/browser';
   static const getTorrents = '/get/torrents';
   static const getHistory = '/get/history';
@@ -255,6 +259,8 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ),
           screen(Routes.getBatch, () => const GetBatchScreen()),
+          if (desktop && Platform.isWindows)
+            screen(Routes.convert, () => const ConvertScreen()),
           GoRoute(
             path: Routes.getDownloads,
             pageBuilder: (context, state) => _ScreenPage(

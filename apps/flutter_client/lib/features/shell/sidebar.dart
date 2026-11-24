@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -8,6 +10,7 @@ import '../../design/tokens.dart';
 import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../convert/convert_data.dart' show convertProvider;
 import '../get/get_data.dart';
 import '../health/health_data.dart';
 import '../library/library_data.dart';
@@ -60,6 +63,7 @@ class Sidebar extends ConsumerWidget {
         location == Routes.missing || location == Routes.duplicates;
 
     final open = ref.watch(downloadsSummaryProvider).openCount;
+    final converting = ref.watch(convertProvider.select((s) => s.running));
     // Obtenir: the Tauri app's sections, in its order.
     final getGroups = <(String?, List<_Entry>)>[
       (
@@ -99,6 +103,21 @@ class Sidebar extends ConsumerWidget {
           ),
         ],
       ),
+      // Outils PC (design_handoff_outils_pc): Windows only.
+      if (Platform.isWindows)
+        (
+          t.toolsGroup,
+          [
+            _Entry(
+              Routes.convert,
+              t.navConvert,
+              PhosphorRegular.arrowsClockwise,
+              PhosphorFill.arrowsClockwise,
+              count: converting ? '●' : null,
+              accent: true,
+            ),
+          ],
+        ),
     ];
     final groups = inGet
         ? getGroups

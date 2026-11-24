@@ -6510,6 +6510,540 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Ajouter à la file'**
   String get addQueueOne;
+
+  /// No description provided for @toolsGroup.
+  ///
+  /// In fr, this message translates to:
+  /// **'Outils PC'**
+  String get toolsGroup;
+
+  /// No description provided for @navConvert.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convertir'**
+  String get navConvert;
+
+  /// No description provided for @convLead.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un format ou un outil, ajoutez vos fichiers, puis démarrez. Tout reste sur cet ordinateur.'**
+  String get convLead;
+
+  /// No description provided for @convRemove.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer'**
+  String get convRemove;
+
+  /// No description provided for @convClear.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vider la liste'**
+  String get convClear;
+
+  /// No description provided for @convStart.
+  ///
+  /// In fr, this message translates to:
+  /// **'Démarrer'**
+  String get convStart;
+
+  /// No description provided for @convStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter'**
+  String get convStop;
+
+  /// No description provided for @catVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vidéo'**
+  String get catVideo;
+
+  /// No description provided for @catAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Audio'**
+  String get catAudio;
+
+  /// No description provided for @catImage.
+  ///
+  /// In fr, this message translates to:
+  /// **'Image'**
+  String get catImage;
+
+  /// No description provided for @fmtHelpMp4.
+  ///
+  /// In fr, this message translates to:
+  /// **'H.264 + AAC, lisible partout'**
+  String get fmtHelpMp4;
+
+  /// No description provided for @fmtHelpMkv.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toutes les pistes et sous-titres'**
+  String get fmtHelpMkv;
+
+  /// No description provided for @fmtHelpWebm.
+  ///
+  /// In fr, this message translates to:
+  /// **'VP9 + Opus, pour le web'**
+  String get fmtHelpWebm;
+
+  /// No description provided for @fmtHelpAvi.
+  ///
+  /// In fr, this message translates to:
+  /// **'Anciens lecteurs et TV'**
+  String get fmtHelpAvi;
+
+  /// No description provided for @fmtHelpMov.
+  ///
+  /// In fr, this message translates to:
+  /// **'Montage, appareils Apple'**
+  String get fmtHelpMov;
+
+  /// No description provided for @fmtHelpGif.
+  ///
+  /// In fr, this message translates to:
+  /// **'Animation courte sans son'**
+  String get fmtHelpGif;
+
+  /// No description provided for @fmtHelpMp3.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lisible partout'**
+  String get fmtHelpMp3;
+
+  /// No description provided for @fmtHelpM4a.
+  ///
+  /// In fr, this message translates to:
+  /// **'AAC, appareils Apple'**
+  String get fmtHelpM4a;
+
+  /// No description provided for @fmtHelpFlac.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans perte'**
+  String get fmtHelpFlac;
+
+  /// No description provided for @fmtHelpWav.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non compressé'**
+  String get fmtHelpWav;
+
+  /// No description provided for @fmtHelpOgg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vorbis, format libre'**
+  String get fmtHelpOgg;
+
+  /// No description provided for @fmtHelpOpus.
+  ///
+  /// In fr, this message translates to:
+  /// **'Très léger, voix et musique'**
+  String get fmtHelpOpus;
+
+  /// No description provided for @fmtHelpPng.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sans perte, transparence'**
+  String get fmtHelpPng;
+
+  /// No description provided for @fmtHelpJpg.
+  ///
+  /// In fr, this message translates to:
+  /// **'Photos, léger'**
+  String get fmtHelpJpg;
+
+  /// No description provided for @fmtHelpWebp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Web, très léger'**
+  String get fmtHelpWebp;
+
+  /// No description provided for @fmtHelpIco.
+  ///
+  /// In fr, this message translates to:
+  /// **'Icône Windows (256 px)'**
+  String get fmtHelpIco;
+
+  /// No description provided for @fmtHelpBmp.
+  ///
+  /// In fr, this message translates to:
+  /// **'Non compressé'**
+  String get fmtHelpBmp;
+
+  /// No description provided for @toolJoin.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fusionner'**
+  String get toolJoin;
+
+  /// No description provided for @toolCut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Découper'**
+  String get toolCut;
+
+  /// No description provided for @toolCrop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rogner'**
+  String get toolCrop;
+
+  /// No description provided for @toolCompress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Compresser'**
+  String get toolCompress;
+
+  /// No description provided for @toolFrames.
+  ///
+  /// In fr, this message translates to:
+  /// **'Exporter les images'**
+  String get toolFrames;
+
+  /// No description provided for @toolExtract.
+  ///
+  /// In fr, this message translates to:
+  /// **'Extraire d’une vidéo'**
+  String get toolExtract;
+
+  /// No description provided for @toolResize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Redimensionner'**
+  String get toolResize;
+
+  /// No description provided for @toolHelpJoinVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs vidéos bout à bout, en un MP4'**
+  String get toolHelpJoinVideo;
+
+  /// No description provided for @toolHelpJoinAudio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plusieurs fichiers bout à bout, en un MP3'**
+  String get toolHelpJoinAudio;
+
+  /// No description provided for @toolHelpCut.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder une partie, sans réencoder'**
+  String get toolHelpCut;
+
+  /// No description provided for @toolHelpCrop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recadrer au centre : 16:9, 4:3, 1:1, 9:16'**
+  String get toolHelpCrop;
+
+  /// No description provided for @toolHelpCompress.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier plus léger (MP4, 1080p au plus)'**
+  String get toolHelpCompress;
+
+  /// No description provided for @toolHelpFrames.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une image JPG toutes les quelques secondes'**
+  String get toolHelpFrames;
+
+  /// No description provided for @toolHelpExtract.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder le son, en MP3'**
+  String get toolHelpExtract;
+
+  /// No description provided for @toolHelpResize.
+  ///
+  /// In fr, this message translates to:
+  /// **'Changer la largeur, proportions gardées'**
+  String get toolHelpResize;
+
+  /// No description provided for @convTo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Convertir en {format}'**
+  String convTo(String format);
+
+  /// No description provided for @convNoFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun fichier. Ajoutez-en ou glissez-les ici.'**
+  String get convNoFiles;
+
+  /// No description provided for @convAddFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter des fichiers'**
+  String get convAddFiles;
+
+  /// No description provided for @convAddFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouter un dossier'**
+  String get convAddFolder;
+
+  /// No description provided for @convAddToList.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n, plural, =0{Ajouter à la liste} other{Ajouter à la liste ({n})}}'**
+  String convAddToList(int n);
+
+  /// No description provided for @convJoinNeedsTwo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutez au moins deux fichiers à fusionner.'**
+  String get convJoinNeedsTwo;
+
+  /// No description provided for @optQuality.
+  ///
+  /// In fr, this message translates to:
+  /// **'Qualité'**
+  String get optQuality;
+
+  /// No description provided for @optSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source'**
+  String get optSource;
+
+  /// No description provided for @optHigh.
+  ///
+  /// In fr, this message translates to:
+  /// **'Haute'**
+  String get optHigh;
+
+  /// No description provided for @optMedium.
+  ///
+  /// In fr, this message translates to:
+  /// **'Moyenne'**
+  String get optMedium;
+
+  /// No description provided for @optSmall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Petite'**
+  String get optSmall;
+
+  /// No description provided for @optResolution.
+  ///
+  /// In fr, this message translates to:
+  /// **'Résolution'**
+  String get optResolution;
+
+  /// No description provided for @optBitrate.
+  ///
+  /// In fr, this message translates to:
+  /// **'Débit'**
+  String get optBitrate;
+
+  /// No description provided for @optKeep.
+  ///
+  /// In fr, this message translates to:
+  /// **'Garder de… à…'**
+  String get optKeep;
+
+  /// No description provided for @optKeepHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'hh:mm:ss ; la fin vide = jusqu’au bout'**
+  String get optKeepHint;
+
+  /// No description provided for @optCrop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format'**
+  String get optCrop;
+
+  /// No description provided for @optEvery.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une image toutes les'**
+  String get optEvery;
+
+  /// No description provided for @optWidth.
+  ///
+  /// In fr, this message translates to:
+  /// **'Largeur'**
+  String get optWidth;
+
+  /// No description provided for @optOutDir.
+  ///
+  /// In fr, this message translates to:
+  /// **'Dossier de sortie'**
+  String get optOutDir;
+
+  /// No description provided for @optSeconds.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} s'**
+  String optSeconds(int n);
+
+  /// No description provided for @colPreview.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aperçu'**
+  String get colPreview;
+
+  /// No description provided for @colSource.
+  ///
+  /// In fr, this message translates to:
+  /// **'Source · {n}'**
+  String colSource(int n);
+
+  /// No description provided for @colOutput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sortie / état'**
+  String get colOutput;
+
+  /// No description provided for @stWaiting.
+  ///
+  /// In fr, this message translates to:
+  /// **'En attente'**
+  String get stWaiting;
+
+  /// No description provided for @stConverting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion…'**
+  String get stConverting;
+
+  /// No description provided for @stDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Terminé'**
+  String get stDone;
+
+  /// No description provided for @stStopped.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêté'**
+  String get stStopped;
+
+  /// No description provided for @stFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Échec'**
+  String get stFailed;
+
+  /// No description provided for @convLineFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion · qualité {quality}'**
+  String convLineFormat(String quality);
+
+  /// No description provided for @convLineSame.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion · qualité identique à la source'**
+  String get convLineSame;
+
+  /// No description provided for @convFiles.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} fichiers'**
+  String convFiles(int n);
+
+  /// No description provided for @convEmptyTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La liste est vide'**
+  String get convEmptyTitle;
+
+  /// No description provided for @convEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez un format à gauche, ou glissez des fichiers ici.'**
+  String get convEmptyBody;
+
+  /// No description provided for @convDropHint.
+  ///
+  /// In fr, this message translates to:
+  /// **'Glissez des fichiers ici pour les ajouter avec le dernier format choisi'**
+  String get convDropHint;
+
+  /// No description provided for @convDropNoChoice.
+  ///
+  /// In fr, this message translates to:
+  /// **'Choisissez d’abord un format ou un outil à gauche.'**
+  String get convDropNoChoice;
+
+  /// No description provided for @convMulti.
+  ///
+  /// In fr, this message translates to:
+  /// **'Multi-conversion'**
+  String get convMulti;
+
+  /// No description provided for @convElapsed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Temps écoulé'**
+  String get convElapsed;
+
+  /// No description provided for @convShutdown.
+  ///
+  /// In fr, this message translates to:
+  /// **'Éteindre le PC à la fin'**
+  String get convShutdown;
+
+  /// No description provided for @convNotify.
+  ///
+  /// In fr, this message translates to:
+  /// **'Notifier'**
+  String get convNotify;
+
+  /// No description provided for @convDone.
+  ///
+  /// In fr, this message translates to:
+  /// **'Conversion terminée'**
+  String get convDone;
+
+  /// No description provided for @convOpenFolder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ouvrir le dossier'**
+  String get convOpenFolder;
+
+  /// No description provided for @convRemoveRunning.
+  ///
+  /// In fr, this message translates to:
+  /// **'« {name} » est en cours de conversion. La retirer arrête sa conversion.'**
+  String convRemoveRunning(String name);
+
+  /// No description provided for @convShutdownTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le PC va s’éteindre'**
+  String get convShutdownTitle;
+
+  /// No description provided for @convShutdownBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les conversions sont terminées. Windows éteint le PC dans une minute.'**
+  String get convShutdownBody;
+
+  /// No description provided for @convShutdownCancel.
+  ///
+  /// In fr, this message translates to:
+  /// **'Annuler l’arrêt'**
+  String get convShutdownCancel;
+
+  /// No description provided for @convToolsMissing.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les outils média ne sont pas installés : analysez un lien dans Obtenir pour les installer.'**
+  String get convToolsMissing;
+
+  /// No description provided for @convFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajout impossible : {reason}'**
+  String convFailed(String reason);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

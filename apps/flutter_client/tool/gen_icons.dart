@@ -9,6 +9,24 @@ import 'dart:io';
 
 /// Glyphs used by the app that are not in the mockup mapping table.
 const _extras = [
+  // Outils PC (design_handoff_outils_pc): Convertir, Capture, Enregistrer.
+  'arrows-merge',
+  'file-zip',
+  'stop',
+  'power',
+  'image',
+  'record',
+  'camera',
+  'video-camera',
+  'microphone-slash',
+  'copy',
+  'keyboard',
+  'monitor',
+  'timer',
+  'cursor-click',
+  'selection',
+  'screencast',
+  'broom',
   'repeat-once',
   'speaker-slash',
   'speaker-none',
