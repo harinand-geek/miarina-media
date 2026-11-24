@@ -7,6 +7,7 @@ import '../../design/widgets/logo.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
 import '../library/library_data.dart';
+import '../playback/settings_store.dart';
 import 'device_media.dart';
 
 /// Android Musique tab without the phone's media: the explanation before the
@@ -25,7 +26,12 @@ class DeviceMediaGate extends ConsumerStatefulWidget {
 }
 
 class _DeviceMediaGateState extends ConsumerState<DeviceMediaGate> {
+  static const bannerHiddenKey = 'deviceMediaBannerHidden';
+
   late final AppLifecycleListener _lifecycle;
+
+  /// The banner was closed with its ✕ (null until read).
+  bool? _bannerHidden;
 
   @override
   void initState() {
@@ -33,6 +39,14 @@ class _DeviceMediaGateState extends ConsumerState<DeviceMediaGate> {
     _lifecycle = AppLifecycleListener(
       onResume: () => ref.read(deviceMediaProvider.notifier).recheck(),
     );
+    ref.read(settingsStoreProvider).read(bannerHiddenKey).then((v) {
+      if (mounted) setState(() => _bannerHidden = v == true);
+    });
+  }
+
+  void _hideBanner() {
+    setState(() => _bannerHidden = true);
+    ref.read(settingsStoreProvider).write(bannerHiddenKey, true);
   }
 
   @override
@@ -48,13 +62,97 @@ class _DeviceMediaGateState extends ConsumerState<DeviceMediaGate> {
     }
     final device = ref.watch(deviceMediaProvider).value;
     final stats = ref.watch(libraryStatsProvider).value;
-    if (device == null ||
-        stats == null ||
-        device.access.any ||
-        stats.total > BigInt.zero) {
-      return widget.child;
+    if (device == null || stats == null) return widget.child;
+    if (!device.access.any && stats.total == BigInt.zero) {
+      return device.asked ? const AccessDeniedView() : const AskAccessView();
     }
-    return device.asked ? const AccessDeniedView() : const AskAccessView();
+    // Something downloaded before the phone's music was allowed: the
+    // library is not empty, so the explanation above never shows; this
+    // banner still offers the access (0.2.7).
+    final banner = !device.access.audio && _bannerHidden == false;
+    return Column(
+      children: [
+        Expanded(child: widget.child),
+        if (banner)
+          DeviceAccessBanner(asked: device.asked, onClose: _hideBanner),
+      ],
+    );
+  }
+}
+
+/// Musique with downloads but without the phone's music: a card above the
+/// tab bar to allow it (or to open the Android settings after a refusal).
+class DeviceAccessBanner extends ConsumerWidget {
+  const DeviceAccessBanner({
+    super.key,
+    required this.asked,
+    required this.onClose,
+  });
+
+  final bool asked;
+  final VoidCallback onClose;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final device = ref.read(deviceMediaProvider.notifier);
+    final action = asked ? t.deviceDeniedSettings : t.deviceBannerAllow;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(14, 12, 4, 12),
+        decoration: BoxDecoration(
+          color: c.surface,
+          borderRadius: BorderRadius.circular(MmRadius.card),
+          border: Border.all(color: c.cardHover),
+        ),
+        child: Row(
+          children: [
+            Icon(PhosphorRegular.musicNotes, size: 24, color: c.accent),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    t.deviceBannerTitle,
+                    style: MmType.heading.copyWith(color: c.fg),
+                  ),
+                  const SizedBox(height: 6),
+                  Pressable(
+                    onTap: asked ? device.openSettings : device.request,
+                    semanticLabel: action,
+                    borderRadius: BorderRadius.circular(MmRadius.pill),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 14,
+                        vertical: 8,
+                      ),
+                      decoration: BoxDecoration(
+                        color: c.accent,
+                        borderRadius: BorderRadius.circular(MmRadius.pill),
+                      ),
+                      child: Text(
+                        action,
+                        style: MmType.labelStrong.copyWith(
+                          color: const Color(0xFF062320),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            IconButton(
+              tooltip: t.close,
+              onPressed: onClose,
+              icon: Icon(PhosphorRegular.x, size: 18, color: c.muted),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
 

@@ -2575,5 +2575,7 @@
   "optGoalSize": "Taille maximale",
   "optBalanced": "Équilibrée",
   "optTargetMb": "Taille max. par fichier",
-  "optMb": "Mo"
+  "optMb": "Mo",
+  "deviceBannerTitle": "La musique de ce téléphone n'est pas encore affichée",
+  "deviceBannerAllow": "Autoriser l'accès"
 }

@@ -8036,6 +8036,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Mo'**
   String get optMb;
+
+  /// No description provided for @deviceBannerTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La musique de ce téléphone n\'est pas encore affichée'**
+  String get deviceBannerTitle;
+
+  /// No description provided for @deviceBannerAllow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser l\'accès'**
+  String get deviceBannerAllow;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

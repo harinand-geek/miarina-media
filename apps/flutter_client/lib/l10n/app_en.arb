@@ -1390,5 +1390,7 @@
   "optGoalSize": "Maximum size",
   "optBalanced": "Balanced",
   "optTargetMb": "Max. size per file",
-  "optMb": "MB"
+  "optMb": "MB",
+  "deviceBannerTitle": "This phone's music isn't shown yet",
+  "deviceBannerAllow": "Allow access"
 }

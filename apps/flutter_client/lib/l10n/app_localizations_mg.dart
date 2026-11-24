@@ -4887,4 +4887,11 @@ class L10nMg extends L10n {
 
   @override
   String get optMb => 'Mo';
+
+  @override
+  String get deviceBannerTitle =>
+      'Mbola tsy aseho ny hira ato amin\'ity finday ity';
+
+  @override
+  String get deviceBannerAllow => 'Omeo alalana';
 }

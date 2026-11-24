@@ -1322,5 +1322,7 @@
   "optGoalSize": "Habe ambony indrindra",
   "optBalanced": "Voalanjalanja",
   "optTargetMb": "Habe ambony isaky ny rakitra",
-  "optMb": "Mo"
+  "optMb": "Mo",
+  "deviceBannerTitle": "Mbola tsy aseho ny hira ato amin'ity finday ity",
+  "deviceBannerAllow": "Omeo alalana"
 }

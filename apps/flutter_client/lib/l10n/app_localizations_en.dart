@@ -4831,4 +4831,10 @@ class L10nEn extends L10n {
 
   @override
   String get optMb => 'MB';
+
+  @override
+  String get deviceBannerTitle => 'This phone\'s music isn\'t shown yet';
+
+  @override
+  String get deviceBannerAllow => 'Allow access';
 }

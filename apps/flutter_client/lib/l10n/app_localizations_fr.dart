@@ -4870,4 +4870,11 @@ class L10nFr extends L10n {
 
   @override
   String get optMb => 'Mo';
+
+  @override
+  String get deviceBannerTitle =>
+      'La musique de ce téléphone n\'est pas encore affichée';
+
+  @override
+  String get deviceBannerAllow => 'Autoriser l\'accès';
 }

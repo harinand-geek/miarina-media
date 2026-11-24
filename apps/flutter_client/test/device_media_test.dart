@@ -15,6 +15,8 @@ import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 
+import 'package:miarina_media/src/rust/api/library.dart';
+
 import 'support/fakes.dart';
 
 Future<void> settle(WidgetTester tester) async {
@@ -57,7 +59,11 @@ void main() {
   late FakeIndexerApi indexer;
   late FakeSettingsStore settings;
 
-  Future<void> pumpPhone(WidgetTester tester, {String? start}) async {
+  Future<void> pumpPhone(
+    WidgetTester tester, {
+    String? start,
+    List<LibraryItem> tracks = const [],
+  }) async {
     tester.view.physicalSize = const Size(400, 860);
     tester.view.devicePixelRatio = 1;
     tester.platformDispatcher.localesTestValue = const [Locale('fr')];
@@ -67,7 +73,7 @@ void main() {
       ProviderScope(
         overrides: [
           mediaEngineProvider.overrideWithValue(FakeEngine()),
-          libraryApiProvider.overrideWithValue(FakeLibraryApi([])),
+          libraryApiProvider.overrideWithValue(FakeLibraryApi([...tracks])),
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi()),
           indexerApiProvider.overrideWithValue(indexer),
@@ -144,6 +150,40 @@ void main() {
     settings.values[DeviceMediaController.askedKey] = true;
     await pumpPhone(tester);
     expect(find.byType(AccessDeniedView), findsOneWidget);
+  });
+
+  // 0.2.7: downloaded first, the library was not empty and the access was
+  // never offered, so the phone's music never showed.
+  testWidgets('downloads before the access: a banner offers it', (
+    tester,
+  ) async {
+    await pumpPhone(tester, tracks: [track(1, 'Volamena')]);
+    expect(find.byType(AskAccessView), findsNothing);
+    expect(find.byType(DeviceAccessBanner), findsOneWidget);
+    await tester.tap(
+      find.descendant(
+        of: find.byType(DeviceAccessBanner),
+        matching: find.text("Autoriser l'accès"),
+      ),
+    );
+    await settle(tester);
+    expect(device.requests, 1);
+    expect(indexer.synced.last, ['/storage/emulated/0/Music/a.flac']);
+    expect(find.byType(DeviceAccessBanner), findsNothing);
+  });
+
+  testWidgets('the banner: Android settings after a refusal, ✕ hides it', (
+    tester,
+  ) async {
+    settings.values[DeviceMediaController.askedKey] = true;
+    await pumpPhone(tester, tracks: [track(1, 'Volamena')]);
+    await tester.tap(find.text('Ouvrir les paramètres Android'));
+    await settle(tester);
+    expect(device.settingsOpened, 1);
+    await tester.tap(find.byTooltip('Fermer'));
+    await settle(tester);
+    expect(find.byType(DeviceAccessBanner), findsNothing);
+    expect(settings.values['deviceMediaBannerHidden'], true);
   });
 
   testWidgets('with access, the phone is indexed again at launch', (
