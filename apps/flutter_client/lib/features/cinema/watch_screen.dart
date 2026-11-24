@@ -17,6 +17,7 @@ import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
+import '../playback/audio_only.dart';
 import '../playback/playback_memory.dart' show playbackStoreProvider;
 import '../settings/settings_data.dart' show playbackPrefsProvider;
 import '../shortcuts/keymap.dart';
@@ -104,6 +105,12 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
     super.initState();
     _container = ProviderScope.containerOf(context, listen: false);
     WidgetsBinding.instance.addPostFrameCallback((_) => _focus.requestFocus());
+    // A video listened to only shows its picture again here.
+    if (ref.read(audioOnlyProvider)) {
+      Future.microtask(
+        () => _container.read(audioOnlyProvider.notifier).set(false),
+      );
+    }
     final control = _control = ref.read(screenControlProvider);
     if (control != null) {
       unawaited(control.brightness().then((v) => _brightness = v));
@@ -513,6 +520,12 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             ],
           ),
         ),
+        if (current != null)
+          topButton(
+            PhosphorRegular.headphones,
+            t.listenOnly,
+            () => unawaited(listenOnly(context, ref)),
+          ),
         if (mobile && control != null) ...[
           if (ref.watch(pipSupportedProvider).value ?? false)
             topButton(

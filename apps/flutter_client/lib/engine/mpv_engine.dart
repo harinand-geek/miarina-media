@@ -80,6 +80,9 @@ class MpvEngine implements MediaEngine {
     await _applyFilters();
   }
 
+  @override
+  Future<void> setVideoEnabled(bool on) => _set('vid', on ? 'auto' : 'no');
+
   Future<void> _set(String property, String value) async {
     final native = _player.platform;
     if (native is mk.NativePlayer) await native.setProperty(property, value);

@@ -570,6 +570,30 @@ void main() {
       expect([for (final e in q.entries) e.libraryId], [11, 12, 13]);
     });
 
+    testWidgets('Android: listen only, then the video again', (tester) async {
+      await pumpApp(
+        tester,
+        start: Routes.cinema,
+        desktop: false,
+        size: const Size(400, 860),
+        control: _FakeControl(),
+      );
+      await tester.tap(find.text('Les Hautes Terres · S1 É2'));
+      await settle(tester);
+      await tester.tap(find.bySemanticsLabel('Écouter seulement'));
+      await settle(tester);
+      // The picture is not decoded; the audio player shows, sound goes on.
+      expect(engine.videoEnabled, isFalse);
+      expect(find.byType(WatchScreen), findsNothing);
+      expect(find.bySemanticsLabel('Revoir la vidéo'), findsOneWidget);
+      final opened = engine.opened.length;
+      await tester.tap(find.bySemanticsLabel('Revoir la vidéo'));
+      await settle(tester);
+      expect(engine.videoEnabled, isTrue);
+      expect(find.byType(WatchScreen), findsOneWidget);
+      expect(engine.opened.length, opened, reason: 'never opened again');
+    });
+
     testWidgets('Android video page: gestures, lock, picture in picture', (
       tester,
     ) async {

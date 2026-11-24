@@ -141,6 +141,12 @@ class FakeEngine implements MediaEngine {
     required bool voiceBoost,
   }) async => speechAids = (skipSilence, voiceBoost);
 
+  /// The last « Écouter seulement » switch (null: never asked).
+  bool? videoEnabled;
+
+  @override
+  Future<void> setVideoEnabled(bool on) async => videoEnabled = on;
+
   /// What the queue prepared to follow, and its crossfade.
   MediaSource? prepared;
   Duration preparedFade = Duration.zero;

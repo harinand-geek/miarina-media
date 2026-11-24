@@ -4708,4 +4708,10 @@ class L10nEn extends L10n {
   String videoSubsN(int n) {
     return '$n subs';
   }
+
+  @override
+  String get listenOnly => 'Listen only';
+
+  @override
+  String get showVideo => 'Show the video';
 }

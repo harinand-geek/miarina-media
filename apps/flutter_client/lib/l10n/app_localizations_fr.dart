@@ -4748,4 +4748,10 @@ class L10nFr extends L10n {
   String videoSubsN(int n) {
     return '$n ST';
   }
+
+  @override
+  String get listenOnly => 'Écouter seulement';
+
+  @override
+  String get showVideo => 'Revoir la vidéo';
 }

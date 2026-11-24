@@ -2538,5 +2538,7 @@
   "videoTracksN": "{n} pistes",
   "@videoTracksN": {"placeholders": {"n": {"type": "int"}}},
   "videoSubsN": "{n} ST",
-  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}}
+  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}},
+  "listenOnly": "Écouter seulement",
+  "showVideo": "Revoir la vidéo"
 }

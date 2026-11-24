@@ -1353,5 +1353,7 @@
   "videoTracksN": "{n} tracks",
   "@videoTracksN": {"placeholders": {"n": {"type": "int"}}},
   "videoSubsN": "{n} subs",
-  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}}
+  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}},
+  "listenOnly": "Listen only",
+  "showVideo": "Show the video"
 }

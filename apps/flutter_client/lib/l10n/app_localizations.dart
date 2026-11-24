@@ -7812,6 +7812,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{n} ST'**
   String videoSubsN(int n);
+
+  /// No description provided for @listenOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écouter seulement'**
+  String get listenOnly;
+
+  /// No description provided for @showVideo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Revoir la vidéo'**
+  String get showVideo;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

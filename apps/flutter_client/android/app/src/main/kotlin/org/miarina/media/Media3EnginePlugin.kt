@@ -155,6 +155,10 @@ class Media3EnginePlugin(
 
   private fun handle(c: MediaController, call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
+      // « Écouter seulement »: no video track is decoded until turned back on.
+      "setVideoEnabled" -> c.trackSelectionParameters = c.trackSelectionParameters.buildUpon()
+        .setTrackTypeDisabled(C.TRACK_TYPE_VIDEO, call.argument<Boolean>("on") != true)
+        .build()
       "open" -> {
         val uri = call.argument<String>("uri") ?: throw IllegalArgumentException("uri")
         val item = MediaItem.Builder()

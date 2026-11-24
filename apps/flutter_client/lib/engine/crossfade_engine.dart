@@ -280,6 +280,12 @@ class CrossfadeEngine implements MediaEngine {
   Future<String?> hardwareDecoder() => _active.hardwareDecoder();
 
   @override
+  Future<void> setVideoEnabled(bool on) async {
+    await _b.setVideoEnabled(on);
+    return _a.setVideoEnabled(on);
+  }
+
+  @override
   Future<void> setSpeechAids({
     required bool skipSilence,
     required bool voiceBoost,

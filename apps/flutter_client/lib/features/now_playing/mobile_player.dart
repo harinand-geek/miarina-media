@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/physics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +17,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
 import '../playback/playback.dart';
 import 'lyrics_view.dart';
+import '../playback/audio_only.dart';
 import 'now_playing_shared.dart';
 import 'queue_view.dart';
 import 'sound_view.dart';
@@ -120,7 +123,14 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                     style: MmType.heading.copyWith(color: c.fg),
                   ),
                 ),
-                const SizedBox(width: 48),
+                if (entry?.isVideo ?? false)
+                  _RoundIcon(
+                    icon: PhosphorRegular.monitorPlay,
+                    label: t.showVideo,
+                    onTap: () => unawaited(showVideoAgain(context, ref)),
+                  )
+                else
+                  const SizedBox(width: 48),
               ],
             ),
           ),

@@ -107,6 +107,9 @@ class Media3Engine implements MediaEngine {
   @override
   Future<String?> hardwareDecoder() async => null;
 
+  @override
+  Future<void> setVideoEnabled(bool on) => _call('setVideoEnabled', {'on': on});
+
   /// Media3's own silence skipping; no voice boost on Android.
   @override
   Future<void> setSpeechAids({

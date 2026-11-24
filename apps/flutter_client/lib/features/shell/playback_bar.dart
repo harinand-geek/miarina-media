@@ -15,6 +15,7 @@ import '../../l10n/app_localizations.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../mini/mini_player.dart';
 import '../playback/playback.dart';
+import '../playback/audio_only.dart';
 import '../shortcuts/global_shortcuts.dart';
 
 /// Windows playback bar (Handoff, shell): 80 px, full width, always visible;
@@ -121,7 +122,7 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
     if (entry == null) return row;
     return Pressable(
       onTap: () {
-        if (entry.isVideo) {
+        if (opensVideoPage(ref, entry)) {
           context.go(Routes.watch);
           return;
         }

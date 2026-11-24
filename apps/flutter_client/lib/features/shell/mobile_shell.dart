@@ -15,6 +15,7 @@ import '../device_media/device_media_view.dart';
 import '../health/health_screens.dart' show MissingSkipListener;
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
+import '../playback/audio_only.dart';
 
 /// Android shell (decision 0006 extended, D2): tabs Musique · Cinéma · Focus
 /// (coral) and Obtenir (teal), the 64 dp mini player above them whenever
@@ -224,7 +225,7 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
 
   void _open() {
     final current = ref.read(queueProvider).current;
-    if (current?.isVideo ?? false) {
+    if (current != null && opensVideoPage(ref, current)) {
       context.push(Routes.watch);
       return;
     }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -10,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
+import '../playback/audio_only.dart';
 import 'lyrics_view.dart';
 import 'now_playing_shared.dart';
 import 'queue_view.dart';
@@ -110,6 +113,42 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                         ),
                       ),
                     ),
+                    if (entry?.isVideo ?? false)
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Pressable(
+                          onTap: () => unawaited(showVideoAgain(context, ref)),
+                          semanticLabel: t.showVideo,
+                          child: Container(
+                            height: 32,
+                            padding: const EdgeInsets.fromLTRB(10, 0, 12, 0),
+                            decoration: BoxDecoration(
+                              color: c.fg.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(
+                                MmRadius.pill,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  PhosphorRegular.monitorPlay,
+                                  size: 17,
+                                  color: c.fgSoft,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  t.showVideo,
+                                  style: MmType.label.copyWith(
+                                    fontSize: 13,
+                                    color: c.fgSoft,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
                     if (entry == null)
                       Center(
                         child: Text(

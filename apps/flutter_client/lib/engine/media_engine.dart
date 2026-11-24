@@ -333,6 +333,10 @@ abstract interface class MediaEngine {
   /// Applies the playback settings to what plays and what will.
   Future<void> applyPreferences(EnginePreferences preferences);
 
+  /// « Écouter seulement »: the picture is not decoded (battery, data);
+  /// sound goes on. Kept for the next files until turned back on.
+  Future<void> setVideoEnabled(bool on);
+
   /// Spoken content (Focus): silences skipped, voices made clearer.
   Future<void> setSpeechAids({
     required bool skipSilence,
