@@ -4738,4 +4738,14 @@ class L10nFr extends L10n {
   String playlistExportAndroid(String path) {
     return 'Exportée dans $path';
   }
+
+  @override
+  String videoTracksN(int n) {
+    return '$n pistes';
+  }
+
+  @override
+  String videoSubsN(int n) {
+    return '$n ST';
+  }
 }

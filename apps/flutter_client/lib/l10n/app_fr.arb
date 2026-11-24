@@ -2534,5 +2534,9 @@
   "fillScreen": "Remplir l’écran",
   "fitScreen": "Image entière",
   "playlistExportAndroid": "Exportée dans {path}",
-  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}}
+  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}},
+  "videoTracksN": "{n} pistes",
+  "@videoTracksN": {"placeholders": {"n": {"type": "int"}}},
+  "videoSubsN": "{n} ST",
+  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}}
 }

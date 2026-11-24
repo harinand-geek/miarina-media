@@ -4698,4 +4698,14 @@ class L10nEn extends L10n {
   String playlistExportAndroid(String path) {
     return 'Exported to $path';
   }
+
+  @override
+  String videoTracksN(int n) {
+    return '$n tracks';
+  }
+
+  @override
+  String videoSubsN(int n) {
+    return '$n subs';
+  }
 }

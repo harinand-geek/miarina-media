@@ -10,6 +10,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
+import 'package:miarina_media/design/widgets/play_button.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/cinema/screen_control.dart';
@@ -583,6 +584,17 @@ void main() {
       await tester.tap(find.text('Les Hautes Terres · S1 É2'));
       await settle(tester);
       expect(find.byType(WatchScreen), findsOneWidget);
+      // Above the tabs, text still has the app's style (no fallback
+      // underline), and the centre holds the big play button.
+      final title = find.text('É2 · Les bergers').first;
+      expect(
+        DefaultTextStyle.of(tester.element(title)).style.decoration,
+        isNot(TextDecoration.underline),
+      );
+      expect(
+        find.byWidgetPredicate((w) => w is PlayPauseButton && w.size == 68),
+        findsOneWidget,
+      );
 
       // Slide up on the left: brightness; on the right: volume.
       await tester.dragFrom(const Offset(80, 520), const Offset(0, -240));

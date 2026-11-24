@@ -1349,5 +1349,9 @@
   "fillScreen": "Fill the screen",
   "fitScreen": "Whole picture",
   "playlistExportAndroid": "Exported to {path}",
-  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}}
+  "@playlistExportAndroid": {"placeholders": {"path": {"type": "String"}}},
+  "videoTracksN": "{n} tracks",
+  "@videoTracksN": {"placeholders": {"n": {"type": "int"}}},
+  "videoSubsN": "{n} subs",
+  "@videoSubsN": {"placeholders": {"n": {"type": "int"}}}
 }

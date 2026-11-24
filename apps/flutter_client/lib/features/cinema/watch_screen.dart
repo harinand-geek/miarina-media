@@ -483,15 +483,34 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
         ),
         const SizedBox(width: 10),
         Expanded(
-          child: Text(
-            title,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            style: MmType.heading.copyWith(
-              fontWeight: FontWeight.w800,
-              color: c.fg,
-              shadows: const [Shadow(color: Color(0x99000000), blurRadius: 3)],
-            ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: MmType.heading.copyWith(
+                  fontSize: mobile ? 16 : null,
+                  fontWeight: mobile ? FontWeight.w700 : FontWeight.w800,
+                  color: c.fg,
+                  shadows: const [
+                    Shadow(color: Color(0x99000000), blurRadius: 3),
+                  ],
+                ),
+              ),
+              if (mobile && techLine(t, snap, current).isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(
+                    techLine(t, snap, current),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: MmType.monoStyle(size: 11, color: c.muted),
+                  ),
+                ),
+            ],
           ),
         ),
         if (mobile && control != null) ...[
@@ -576,6 +595,13 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                                 : 18,
                             child: top,
                           ),
+                          if (mobile)
+                            Center(
+                              child: _CenterControls(
+                                playing: snap.isPlaying,
+                                onSkip: _skip,
+                              ),
+                            ),
                           Positioned(
                             left: 0,
                             right: 0,
@@ -781,26 +807,28 @@ class _Controls extends ConsumerWidget {
     final hasNext = queue.hasNext;
     final row = Row(
       children: [
-        PlayPauseButton(
-          playing: snap.isPlaying,
-          size: overlay ? 48 : 40,
-          onPressed: () => ref.read(queueProvider.notifier).togglePlay(),
-          playLabel: t.play,
-          pauseLabel: t.pause,
-        ),
-        SizedBox(width: mobile ? 2 : 8),
-        icon(
-          PhosphorRegular.arrowCounterClockwise,
-          t.replay10,
-          () => onSkip(const Duration(seconds: -10)),
-          child: const _SkipGlyph(back: true),
-        ),
-        icon(
-          PhosphorRegular.arrowClockwise,
-          t.forward10,
-          () => onSkip(const Duration(seconds: 10)),
-          child: const _SkipGlyph(back: false),
-        ),
+        if (!mobile) ...[
+          PlayPauseButton(
+            playing: snap.isPlaying,
+            size: overlay ? 48 : 40,
+            onPressed: () => ref.read(queueProvider.notifier).togglePlay(),
+            playLabel: t.play,
+            pauseLabel: t.pause,
+          ),
+          SizedBox(width: mobile ? 2 : 8),
+          icon(
+            PhosphorRegular.arrowCounterClockwise,
+            t.replay10,
+            () => onSkip(const Duration(seconds: -10)),
+            child: const _SkipGlyph(back: true),
+          ),
+          icon(
+            PhosphorRegular.arrowClockwise,
+            t.forward10,
+            () => onSkip(const Duration(seconds: 10)),
+            child: const _SkipGlyph(back: false),
+          ),
+        ],
         if (hasNext)
           icon(
             PhosphorFill.skipForward,
@@ -911,6 +939,74 @@ class _Controls extends ConsumerWidget {
         border: Border(top: BorderSide(color: c.divider)),
       ),
       child: content,
+    );
+  }
+}
+
+/// « MKV · 1080p · AAC · 2 pistes · 3 ST »: what the file really holds
+/// (design § 13); parts the engine does not report are left out.
+String techLine(L10n t, PlaybackSnapshot snap, QueueEntry? current) {
+  final path = current?.source.uri.path ?? '';
+  final dot = path.lastIndexOf('.');
+  final ext = dot > 0 && path.length - dot <= 5
+      ? path.substring(dot + 1).toUpperCase()
+      : null;
+  final h = snap.videoSize?.height.round();
+  final audio = snap.audioTracks
+      .where((a) => a.id == snap.selectedAudio)
+      .firstOrNull
+      ?.codec;
+  return [
+    ?ext,
+    if (h != null && h > 0) '${h}p',
+    if (audio != null && audio.isNotEmpty) audio.toUpperCase(),
+    if (snap.audioTracks.length > 1) t.videoTracksN(snap.audioTracks.length),
+    if (snap.subtitleTracks.isNotEmpty)
+      t.videoSubsN(snap.subtitleTracks.length),
+  ].join(' · ');
+}
+
+/// Phone: back 10 s, play / pause 68 in coral, forward 10 s, over the
+/// middle of the picture.
+class _CenterControls extends ConsumerWidget {
+  const _CenterControls({required this.playing, required this.onSkip});
+
+  final bool playing;
+  final Future<void> Function(Duration) onSkip;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = L10n.of(context);
+    Widget skip(bool back) => Pressable(
+      onTap: () => onSkip(Duration(seconds: back ? -10 : 10)),
+      semanticLabel: back ? t.replay10 : t.forward10,
+      child: Container(
+        width: 52,
+        height: 52,
+        decoration: const BoxDecoration(
+          color: Color(0x66070B0F),
+          shape: BoxShape.circle,
+        ),
+        child: Center(
+          child: Transform.scale(scale: 1.25, child: _SkipGlyph(back: back)),
+        ),
+      ),
+    );
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        skip(true),
+        const SizedBox(width: 36),
+        PlayPauseButton(
+          playing: playing,
+          size: 68,
+          onPressed: () => ref.read(queueProvider.notifier).togglePlay(),
+          playLabel: t.play,
+          pauseLabel: t.pause,
+        ),
+        const SizedBox(width: 36),
+        skip(false),
+      ],
     );
   }
 }

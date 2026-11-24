@@ -321,6 +321,9 @@ class _ScreenPage extends CustomTransitionPage<void> {
             parent: animation,
             curve: MmMotion.standard,
           );
+          // Pages above the tab shell (Android player, video, Focus) have
+          // no Scaffold: text gets its style and ink from here.
+          child = Material(type: MaterialType.transparency, child: child);
           return FadeTransition(
             opacity: curved,
             child: motion.reduced

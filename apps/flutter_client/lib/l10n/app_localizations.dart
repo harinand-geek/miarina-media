@@ -7800,6 +7800,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Exportée dans {path}'**
   String playlistExportAndroid(String path);
+
+  /// No description provided for @videoTracksN.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} pistes'**
+  String videoTracksN(int n);
+
+  /// No description provided for @videoSubsN.
+  ///
+  /// In fr, this message translates to:
+  /// **'{n} ST'**
+  String videoSubsN(int n);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
