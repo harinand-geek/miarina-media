@@ -504,6 +504,7 @@ class _General extends ConsumerWidget {
               (null, t.languageSystem),
               ('fr', 'Français'),
               ('en', 'English'),
+              ('mg', 'Malagasy'),
             ],
             selected: look.language,
             onChanged: (v) => ctl.save(look.copyWith(language: v)),

@@ -405,8 +405,7 @@ class _AppearanceStep extends ConsumerWidget {
           children: [
             langChip('fr', 'Français'),
             langChip('en', 'English'),
-            // Planned translation: listed, not selectable (FUTUR).
-            langChip('mg', 'Malagasy', future: true),
+            langChip('mg', 'Malagasy'),
           ],
         ),
         const SizedBox(height: 26),

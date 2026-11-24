@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../design/theme.dart';
+import 'malagasy_fallback.dart';
 import '../design/tokens.dart';
 import '../features/capture/capture_data.dart';
 import '../features/capture/capture_overlay.dart';
@@ -85,9 +86,11 @@ class MiarinaApp extends ConsumerWidget {
           ),
         );
       },
-      localizationsDelegates: const [
+      localizationsDelegates: [
         L10n.delegate,
         ...GlobalMaterialLocalizations.delegates,
+        // Malagasy: Flutter's own texts (dialog buttons, pickers) in French.
+        ...malagasyFallbacks,
       ],
       supportedLocales: L10n.supportedLocales,
     );

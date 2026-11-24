@@ -28,7 +28,7 @@ class AppearancePrefs {
 
   final ThemePref theme;
 
-  /// 'fr' or 'en'; null follows the system.
+  /// 'fr', 'en' or 'mg'; null follows the system.
   final String? language;
 
   /// 0.9 to 1.3.
@@ -173,7 +173,7 @@ class AppearanceController extends AsyncNotifier<AppearancePrefs> {
     final scale = _pick<num>(raw, 'textScale', 1).toDouble();
     return AppearancePrefs(
       theme: ThemePref.values.asNameMap()[theme] ?? ThemePref.dark,
-      language: lang == 'fr' || lang == 'en' ? lang : null,
+      language: const {'fr', 'en', 'mg'}.contains(lang) ? lang as String : null,
       textScale: scale.clamp(0.9, 1.3),
       density:
           Density.values.asNameMap()[_pick<String>(raw, 'density', '')] ??

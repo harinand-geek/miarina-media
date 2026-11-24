@@ -114,7 +114,7 @@ class DownloadNotifier {
   Locale _locale() {
     final chosen = _ref.read(appearanceProvider).value?.language;
     final code = chosen ?? PlatformDispatcher.instance.locale.languageCode;
-    return Locale(code == 'en' ? 'en' : 'fr');
+    return Locale(const {'en', 'mg'}.contains(code) ? code : 'fr');
   }
 }
 

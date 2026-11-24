@@ -350,14 +350,19 @@ class _TourCard extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(3),
                   ),
                 ),
+              const SizedBox(width: 12),
               const Spacer(),
               if (!last)
-                Pressable(
-                  onTap: () => unawaited(tour.finish()),
-                  semanticLabel: t.tourSkip,
-                  child: Text(
-                    t.tourSkip,
-                    style: MmType.caption.copyWith(color: c.muted),
+                Flexible(
+                  child: Pressable(
+                    onTap: () => unawaited(tour.finish()),
+                    semanticLabel: t.tourSkip,
+                    child: Text(
+                      t.tourSkip,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: MmType.caption.copyWith(color: c.muted),
+                    ),
                   ),
                 ),
             ],
