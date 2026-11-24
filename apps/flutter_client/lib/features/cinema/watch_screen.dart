@@ -17,8 +17,10 @@ import '../../design/widgets/track_bar.dart';
 import '../../engine/media_engine.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
+import '../playback/playback_memory.dart' show playbackStoreProvider;
 import '../shortcuts/keymap.dart';
 import 'cinema_data.dart';
+import 'series_audio.dart';
 import 'video_adjust.dart';
 
 /// Full screen of the video player (W-C4). On Windows it also switches the
@@ -908,7 +910,15 @@ class _MenuPanel extends ConsumerWidget {
                   : [a.title, a.language].whereType<String>().join(' · '),
               detail: a.codec?.toUpperCase(),
               selected: snap.selectedAudio == a.id,
-              onTap: () => engine?.selectAudioTrack(a.id),
+              onTap: () {
+                engine?.selectAudioTrack(a.id);
+                // The next episodes of the series keep this language.
+                rememberSeriesAudio(
+                  ref.read(playbackStoreProvider),
+                  ref.read(queueProvider).current,
+                  a,
+                );
+              },
             ),
           );
         }

@@ -3,6 +3,7 @@ import 'package:material_ui/material_ui.dart';
 
 import '../design/theme.dart';
 import '../design/tokens.dart';
+import '../features/cinema/series_audio.dart';
 import '../features/focus/focus_data.dart';
 import '../features/get/download_notifications.dart';
 import '../features/get/get_data.dart';
@@ -23,6 +24,8 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(focusSpeedProvider);
     // Playback settings (W-S2) reach the engine.
     ref.watch(enginePreferencesProvider);
+    // Episodes of a series start in the audio language chosen before.
+    ref.watch(seriesAudioProvider);
     // Followed folders are scanned at launch; screens refresh as the
     // background worker reads them (W-O1).
     ref.watch(indexingProvider);
