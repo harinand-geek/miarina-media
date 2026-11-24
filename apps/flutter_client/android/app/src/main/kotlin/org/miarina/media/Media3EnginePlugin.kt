@@ -126,6 +126,14 @@ class Media3EnginePlugin(
         // and applied when it attaches.
         result.success(MiarinaEqualizer.supported)
       }
+      // Focus: silences skipped by ExoPlayer itself (same process), kept for
+      // the player the service creates next.
+      "setSkipSilence" -> {
+        val on = call.argument<Boolean>("on") == true
+        PlaybackService.skipSilence = on
+        PlaybackService.current?.skipSilenceEnabled = on
+        result.success(null)
+      }
       "dispose" -> {
         dispose()
         result.success(null)

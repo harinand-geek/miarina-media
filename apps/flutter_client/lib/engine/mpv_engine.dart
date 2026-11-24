@@ -54,7 +54,31 @@ class MpvEngine implements MediaEngine {
     subtitleTiming: true,
     videoFrame: true,
     hardwareDecoding: true,
+    // The bundled libmpv's FFmpeg only has the equalizer filter: no
+    // silence removal (nor volume, compressor, loudnorm). Voice boost is
+    // made of equalizer bands.
+    voiceBoost: true,
   );
+
+  bool _skipSilence = false;
+  bool _voiceBoost = false;
+
+  /// Voice boost with equalizer bands only (the filter libmpv has): the
+  /// low end turned down, the voice's presence (around 3 kHz) brought
+  /// forward.
+  static const _voice =
+      'equalizer=f=120:t=o:w=2:g=-6,equalizer=f=3000:t=o:w=1.2:g=5';
+
+  @override
+  Future<void> setSpeechAids({
+    required bool skipSilence,
+    required bool voiceBoost,
+  }) async {
+    if (skipSilence == _skipSilence && voiceBoost == _voiceBoost) return;
+    _skipSilence = skipSilence;
+    _voiceBoost = voiceBoost;
+    await _applyFilters();
+  }
 
   Future<void> _set(String property, String value) async {
     final native = _player.platform;
@@ -186,9 +210,9 @@ class MpvEngine implements MediaEngine {
   Future<void> _applyFilters() async {
     final native = _player.platform;
     if (native is! mk.NativePlayer) return;
-    final chain = _eqChain;
+    final chain = [?_eqChain, if (_voiceBoost) _voice].join(',');
     await native.setProperty('replaygain', _normalize ? 'track' : 'no');
-    await native.setProperty('af', chain == null ? '' : 'lavfi=[$chain]');
+    await native.setProperty('af', chain.isEmpty ? '' : 'lavfi=[$chain]');
   }
 
   @override

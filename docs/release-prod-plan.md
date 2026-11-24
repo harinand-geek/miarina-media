@@ -28,6 +28,10 @@ Après les lots A, avant la production. Windows seulement, jamais sur Android. L
 | C2 | Capture d'écran : Réglages › Capture d'écran, raccourcis globaux (Alt+C, Alt+Shift+C), superposition de sélection, copier / enregistrer, aperçu. |
 | C3 | Enregistrer l'écran : écran Enregistreur (plein écran, fenêtre, zone ; format, i/s, qualité ; son du PC, micro, curseur, compte à rebours), barre flottante exclue de la capture, Alt+R, enregistrements récents dans la bibliothèque. |
 
+## À décider
+
+- **libmpv plus complète (Windows)** : la build livrée (mpv-winbuild-cmake 20261111) n'a que le filtre FFmpeg `equalizer` ; une build avec les filtres audio permettrait « Sauter les silences » et une normalisation en direct. Choix de build, taille et licences à faire avant de l'activer.
+
 ## Préparation de la production
 
 | Lot | Contenu |

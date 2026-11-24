@@ -82,6 +82,8 @@ class FakeEngine implements MediaEngine {
     subtitleTiming: true,
     videoFrame: true,
     hardwareDecoding: true,
+    skipSilence: true,
+    voiceBoost: true,
   );
 
   @override
@@ -130,6 +132,14 @@ class FakeEngine implements MediaEngine {
 
   @override
   Future<String?> hardwareDecoder() async => decoder;
+
+  (bool, bool) speechAids = (false, false);
+
+  @override
+  Future<void> setSpeechAids({
+    required bool skipSilence,
+    required bool voiceBoost,
+  }) async => speechAids = (skipSilence, voiceBoost);
 
   /// What the queue prepared to follow, and its crossfade.
   MediaSource? prepared;

@@ -128,4 +128,20 @@ void main() {
       await engine.setAbLoop(null, null);
     });
   });
+
+  testWidgets('voice boost plays; no silence skipping on libmpv', (
+    tester,
+  ) async {
+    await tester.runAsync(() async {
+      await engine.setVolume(0.1); // short tones, kept quiet
+      expect(engine.capabilities.skipSilence, isFalse);
+      expect(engine.capabilities.voiceBoost, isTrue);
+      await engine.setSpeechAids(skipSilence: false, voiceBoost: true);
+      await engine.open(MediaSource.file('$_dir/speech.mp3'));
+      await Future<void>.delayed(const Duration(milliseconds: 1500));
+      expect(engine.current.error, isNull);
+      expect(engine.current.position, greaterThan(Duration.zero));
+      await engine.setSpeechAids(skipSilence: false, voiceBoost: false);
+    });
+  });
 }

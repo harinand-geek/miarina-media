@@ -40,6 +40,7 @@ class PlaybackService : MediaSessionService() {
     )
     session = MediaSession.Builder(this, player).setSessionActivity(openApp).build()
     current = player
+    player.skipSilenceEnabled = skipSilence
     // The equalizer follows the player's audio session.
     MiarinaEqualizer.attach(player.audioSessionId)
     player.addListener(object : Player.Listener {
@@ -76,5 +77,9 @@ class PlaybackService : MediaSessionService() {
      * session: a sideloaded subtitle configuration (same process).
      */
     var current: ExoPlayer? = null
+
+    /** Focus: skip silences (Media3's audio processor). */
+    @Volatile
+    var skipSilence = false
   }
 }

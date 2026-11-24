@@ -22,6 +22,8 @@ class MiarinaApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // Remembered Focus speeds follow what plays, whichever screen started it.
     ref.watch(focusSpeedProvider);
+    // Skip silences and voice boost, for Focus programs only.
+    ref.watch(focusSpeechProvider);
     // Playback settings (W-S2) reach the engine.
     ref.watch(enginePreferencesProvider);
     // Episodes of a series start in the audio language chosen before.

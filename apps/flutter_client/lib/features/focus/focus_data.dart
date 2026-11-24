@@ -8,6 +8,7 @@ import '../cinema/cinema_data.dart';
 import '../library/library_data.dart';
 import '../playback/playback.dart';
 import '../playback/playback_memory.dart';
+import '../playback/settings_store.dart';
 
 /// What the Focus screens need from the core; tests use an in-memory one.
 abstract interface class FocusApi {
@@ -293,6 +294,61 @@ final focusSpeedProvider = Provider<void>((ref) {
       await engine.setSpeed(1);
     }
   });
+});
+
+/// Focus listening aids (handoff Cinéma Focus): skip silences, voice
+/// boost. Kept in the settings table (`focusSpeech`); they apply to Focus
+/// programs only, never to music or films.
+@immutable
+class SpeechAids {
+  const SpeechAids({this.skipSilence = false, this.voiceBoost = false});
+
+  final bool skipSilence;
+  final bool voiceBoost;
+}
+
+final speechAidsProvider =
+    AsyncNotifierProvider<SpeechAidsController, SpeechAids>(
+      SpeechAidsController.new,
+    );
+
+class SpeechAidsController extends AsyncNotifier<SpeechAids> {
+  @override
+  Future<SpeechAids> build() async {
+    final raw = await ref.read(settingsStoreProvider).read('focusSpeech');
+    bool pick(String key) => raw is Map && raw[key] == true;
+    return SpeechAids(
+      skipSilence: pick('skipSilence'),
+      voiceBoost: pick('voiceBoost'),
+    );
+  }
+
+  Future<void> save(SpeechAids next) async {
+    state = AsyncData(next);
+    await ref.read(settingsStoreProvider).write('focusSpeech', {
+      'skipSilence': next.skipSilence,
+      'voiceBoost': next.voiceBoost,
+    });
+  }
+}
+
+/// Applies the aids while a Focus program plays, and lifts them otherwise.
+final focusSpeechProvider = Provider<void>((ref) {
+  Future<void> apply() async {
+    final engine = ref.read(mediaEngineProvider);
+    if (engine == null) return;
+    final focus = ref.read(queueProvider).current?.focusKey != null;
+    final aids = ref.read(speechAidsProvider).value ?? const SpeechAids();
+    await engine.setSpeechAids(
+      skipSilence: focus && aids.skipSilence,
+      voiceBoost: focus && aids.voiceBoost,
+    );
+  }
+
+  ref.listen(queueProvider.select((q) => q.current?.focusKey), (_, _) {
+    apply();
+  });
+  ref.listen(speechAidsProvider, (_, _) => apply());
 });
 
 /// Time left at [rate], as the listener will hear it.

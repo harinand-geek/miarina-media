@@ -501,6 +501,9 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
 
     final timer = ref.watch(sleepTimerProvider);
     final hasChapters = snap.chapters.isNotEmpty;
+    final aids = ref.watch(speechAidsProvider).value;
+    final aidsCtl = ref.read(speechAidsProvider.notifier);
+    final caps = ref.watch(mediaEngineProvider)?.capabilities;
     final chips = Wrap(
       spacing: 10,
       runSpacing: 10,
@@ -524,10 +527,30 @@ class _FocusPlayerScreenState extends ConsumerState<FocusPlayerScreen> {
             }
           },
         ),
-        _Chip(icon: PhosphorRegular.scissors, label: t.skipSilence),
-        _Chip(icon: PhosphorRegular.userSound, label: t.voiceBoost),
-        const _P1(),
-        Text(t.p1Later, style: MmType.caption.copyWith(color: c.faint)),
+        if ((caps?.skipSilence ?? false) && aids != null)
+          _Chip(
+            icon: PhosphorRegular.scissors,
+            label: t.skipSilence,
+            active: aids.skipSilence,
+            onTap: () => aidsCtl.save(
+              SpeechAids(
+                skipSilence: !aids.skipSilence,
+                voiceBoost: aids.voiceBoost,
+              ),
+            ),
+          ),
+        if ((caps?.voiceBoost ?? false) && aids != null)
+          _Chip(
+            icon: PhosphorRegular.userSound,
+            label: t.voiceBoost,
+            active: aids.voiceBoost,
+            onTap: () => aidsCtl.save(
+              SpeechAids(
+                skipSilence: aids.skipSilence,
+                voiceBoost: !aids.voiceBoost,
+              ),
+            ),
+          ),
       ],
     );
 
@@ -651,27 +674,6 @@ class _Chip extends StatelessWidget {
             ],
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _P1 extends StatelessWidget {
-  const _P1();
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 4),
-      decoration: BoxDecoration(
-        color: c.warningSubtle,
-        borderRadius: BorderRadius.circular(3),
-        border: Border.all(color: c.warningBorder),
-      ),
-      child: Text(
-        'P1',
-        style: MmType.monoStyle(size: 9.5, weight: 700, color: c.warning),
       ),
     );
   }

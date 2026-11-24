@@ -127,6 +127,8 @@ class EngineCapabilities {
     this.subtitleTiming = false,
     this.videoFrame = false,
     this.hardwareDecoding = false,
+    this.skipSilence = false,
+    this.voiceBoost = false,
   });
 
   final bool video;
@@ -173,6 +175,10 @@ class EngineCapabilities {
   /// [EnginePreferences.hardwareDecoding] is honoured and
   /// [MediaEngine.hardwareDecoder] says what decodes.
   final bool hardwareDecoding;
+
+  /// [MediaEngine.setSpeechAids] can skip silences, and boost voices.
+  final bool skipSilence;
+  final bool voiceBoost;
 }
 
 class PlaybackError {
@@ -326,6 +332,12 @@ abstract interface class MediaEngine {
 
   /// Applies the playback settings to what plays and what will.
   Future<void> applyPreferences(EnginePreferences preferences);
+
+  /// Spoken content (Focus): silences skipped, voices made clearer.
+  Future<void> setSpeechAids({
+    required bool skipSilence,
+    required bool voiceBoost,
+  });
 
   /// Repeats the part of the file between [a] and [b]; null clears it.
   Future<void> setAbLoop(Duration? a, Duration? b);

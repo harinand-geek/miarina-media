@@ -63,6 +63,8 @@ class CrossfadeEngine implements MediaEngine {
       subtitleTiming: c.subtitleTiming,
       videoFrame: c.videoFrame,
       hardwareDecoding: c.hardwareDecoding,
+      skipSilence: c.skipSilence,
+      voiceBoost: c.voiceBoost,
     );
   }
 
@@ -276,6 +278,15 @@ class CrossfadeEngine implements MediaEngine {
 
   @override
   Future<String?> hardwareDecoder() => _active.hardwareDecoder();
+
+  @override
+  Future<void> setSpeechAids({
+    required bool skipSilence,
+    required bool voiceBoost,
+  }) async {
+    await _b.setSpeechAids(skipSilence: skipSilence, voiceBoost: voiceBoost);
+    return _a.setSpeechAids(skipSilence: skipSilence, voiceBoost: voiceBoost);
+  }
 
   @override
   Future<void> dispose() async {

@@ -134,9 +134,7 @@ void main() {
     expect(store.values['mm:lang'], 'en');
   });
 
-  testWidgets('W-S2: real settings reach the engine', (
-    tester,
-  ) async {
+  testWidgets('W-S2: real settings reach the engine', (tester) async {
     await pumpApp(
       tester,
       start: '${Routes.settings}/playback',

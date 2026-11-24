@@ -48,6 +48,7 @@ class Media3Engine implements MediaEngine {
     subtitleLanguage: true,
     abLoop: true,
     videoFrame: true,
+    skipSilence: true,
   );
 
   /// Not chained yet on Android (capabilities say so): files play one by
@@ -93,6 +94,13 @@ class Media3Engine implements MediaEngine {
 
   @override
   Future<String?> hardwareDecoder() async => null;
+
+  /// Media3's own silence skipping; no voice boost on Android.
+  @override
+  Future<void> setSpeechAids({
+    required bool skipSilence,
+    required bool voiceBoost,
+  }) => _methods.invokeMethod<void>('setSkipSilence', {'on': skipSilence});
 
   void _onEvent(dynamic raw) {
     if (raw is! Map) return;
