@@ -335,33 +335,51 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         },
       );
     } else {
+      // Windows grids in the expressive style (decision 0010): albums as
+      // cards tinted by their covers (play on hover), artists in the flower
+      // shape with their number of albums.
       body = LayoutBuilder(
         builder: (context, box) {
-          final pad = mobile ? 16.0 : 32.0;
-          final gap = albums ? 18.0 : 16.0;
-          final minTile = albums ? 168.0 : 140.0;
+          const pad = 32.0;
+          final gap = albums ? 16.0 : 24.0;
+          final minTile = albums ? 180.0 : 160.0;
           final width = box.maxWidth - pad * 2;
-          final cols = mobile
-              ? (albums ? 2 : 3)
-              : math.max(2, ((width + gap) / (minTile + gap)).floor());
+          final cols = math.max(2, ((width + gap) / (minTile + gap)).floor());
           final tile = (width - gap * (cols - 1)) / cols;
-          // Album cards have an 8 px hover padding around the cover.
-          final cover = albums ? tile - 16 : tile - 12;
-          final height = albums
-              ? cover + 16 + 9 + 18 + 16
-              : cover + 8 + 10 + 18 + 16;
           return GridView.builder(
-            padding: EdgeInsets.fromLTRB(pad, 0, pad, 24),
+            padding: const EdgeInsets.fromLTRB(pad, 0, pad, 24),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: cols,
               crossAxisSpacing: gap,
-              mainAxisSpacing: albums ? 14 : 18,
-              mainAxisExtent: height,
+              mainAxisSpacing: albums ? 16 : 24,
+              mainAxisExtent: albums ? tile + 62 : tile + 56,
             ),
             itemCount: list.length,
-            itemBuilder: (context, i) => albums
-                ? AlbumCard(group: list[i], size: cover)
-                : ArtistCircle(group: list[i], size: cover),
+            itemBuilder: (context, i) {
+              final g = list[i];
+              final key = (kind: kind, name: g.name);
+              return albums
+                  ? TintedCoverCard(
+                      width: tile,
+                      imagePath: g.thumbnail,
+                      seed: g.name.hashCode,
+                      title: g.name,
+                      subtitle: [
+                        g.detail ?? t.unknownArtist,
+                        g.year?.toString(),
+                      ].whereType<String>().join(' · '),
+                      onTap: () => openGroup(context, ref, key),
+                      onPlay: () => playGroup(ref, t, key),
+                      playLabel: '${t.play} ${g.name}',
+                    )
+                  : ArtistBlob(
+                      group: g,
+                      size: tile,
+                      subtitle: t.albumsCount(
+                        int.tryParse(g.detail ?? '') ?? 0,
+                      ),
+                    );
+            },
           );
         },
       );

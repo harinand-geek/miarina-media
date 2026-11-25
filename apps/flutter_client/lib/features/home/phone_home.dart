@@ -35,7 +35,14 @@ import 'phone_home_data.dart';
 /// hides itself when there is nothing true to show. Sections rise in one
 /// after the other; the shuffle button folds into a square while scrolling.
 class PhoneMusicHome extends ConsumerStatefulWidget {
-  const PhoneMusicHome({super.key});
+  const PhoneMusicHome({super.key, this.wide = false, this.lead = const []});
+
+  /// Windows (W-00, same design): no search field, chips or settings button
+  /// (the title bar and the sidebar have them), cards side by side, and
+  /// [lead] (the resume card and the automatic lists) instead of the
+  /// carousel.
+  final bool wide;
+  final List<Widget> lead;
 
   @override
   ConsumerState<PhoneMusicHome> createState() => _PhoneMusicHomeState();
@@ -74,11 +81,17 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
       return const SkeletonGrid(minTile: 160, padding: 20);
     }
     final sections = _sections(context, home);
+    final wide = widget.wide;
     return Stack(
       children: [
         ListView.builder(
           controller: _scroll,
-          padding: const EdgeInsets.only(bottom: 110),
+          padding: EdgeInsets.fromLTRB(
+            wide ? 12 : 0,
+            wide ? 8 : 0,
+            wide ? 12 : 0,
+            110,
+          ),
           itemCount: sections.length,
           itemBuilder: (context, i) => _Reveal(index: i, child: sections[i]),
         ),
@@ -94,25 +107,27 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
 
   List<Widget> _sections(BuildContext context, PhoneHome home) {
     final t = L10n.of(context);
+    final wide = widget.wide;
     return [
-      const _Header(),
+      if (!wide) const _Header(),
       Padding(
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 14),
-        child: Text(t.tabMusic, style: _Type.page(context)),
+        padding: EdgeInsets.fromLTRB(20, wide ? 12 : 18, 20, 14),
+        child: Text(wide ? t.navHome : t.tabMusic, style: _Type.page(context)),
       ),
-      const MusicChips(current: Routes.listenHome),
+      if (!wide) const MusicChips(current: Routes.listenHome),
+      ...widget.lead,
       if (home.isEmpty)
         const Padding(
           padding: EdgeInsets.only(top: 48),
           child: EmptyListenHome(),
         )
       else ...[
-        if (home.recent.isNotEmpty) ...[
+        if (home.recent.isNotEmpty && widget.lead.isEmpty) ...[
           const SizedBox(height: 20),
           _Hero(items: home.recent.take(5).toList()),
         ],
         const SizedBox(height: 16),
-        _QuickTiles(home: home),
+        _QuickTiles(home: home, wide: wide),
         if (home.recent.isNotEmpty)
           _Section(
             title: t.recentlyPlayed,
@@ -183,24 +198,58 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
               children: [for (final a in home.artists) _ArtistCard(group: a)],
             ),
           ),
-        if (home.mix.isNotEmpty) ...[
+        if (wide) ...[
+          // Windows: mix | discover, counters and tiles; artist | week.
           const SizedBox(height: 28),
-          _MixCard(items: home.mix),
-        ],
-        const SizedBox(height: 12),
-        _Counters(home: home),
-        if (home.discover.isNotEmpty) ...[
-          const SizedBox(height: 28),
-          _DiscoverCard(home: home),
-        ],
-        const SizedBox(height: 12),
-        _Tiles(home: home),
-        if (home.topArtist != null) ...[
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (home.mix.isNotEmpty)
+                Expanded(child: _MixCard(items: home.mix)),
+              Expanded(
+                child: Column(
+                  children: [
+                    if (home.discover.isNotEmpty) ...[
+                      _DiscoverCard(home: home),
+                      const SizedBox(height: 12),
+                    ],
+                    _Counters(home: home),
+                    const SizedBox(height: 12),
+                    _Tiles(home: home),
+                  ],
+                ),
+              ),
+            ],
+          ),
           const SizedBox(height: 12),
-          _TopArtist(home: home),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (home.topArtist != null)
+                Expanded(child: _TopArtist(home: home)),
+              Expanded(child: _WeekChart(home: home)),
+            ],
+          ),
+        ] else ...[
+          if (home.mix.isNotEmpty) ...[
+            const SizedBox(height: 28),
+            _MixCard(items: home.mix),
+          ],
+          const SizedBox(height: 12),
+          _Counters(home: home),
+          if (home.discover.isNotEmpty) ...[
+            const SizedBox(height: 28),
+            _DiscoverCard(home: home),
+          ],
+          const SizedBox(height: 12),
+          _Tiles(home: home),
+          if (home.topArtist != null) ...[
+            const SizedBox(height: 12),
+            _TopArtist(home: home),
+          ],
+          const SizedBox(height: 12),
+          _WeekChart(home: home),
         ],
-        const SizedBox(height: 12),
-        _WeekChart(home: home),
         if (home.history.isNotEmpty)
           _Section(
             title: t.navHistory,
@@ -623,9 +672,10 @@ class _Dots extends StatelessWidget {
 
 /// Favoris · Récents · Plus joués · Mix du jour.
 class _QuickTiles extends ConsumerWidget {
-  const _QuickTiles({required this.home});
+  const _QuickTiles({required this.home, this.wide = false});
 
   final PhoneHome home;
+  final bool wide;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -655,7 +705,8 @@ class _QuickTiles extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: LayoutBuilder(
         builder: (context, box) {
-          final w = (box.maxWidth - 10) / 2;
+          final across = wide ? 4 : 2;
+          final w = (box.maxWidth - 10 * (across - 1)) / across;
           return Wrap(
             spacing: 10,
             runSpacing: 10,
@@ -783,7 +834,7 @@ class _ArtistCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final tones = watchCoverTones(ref, context, group.thumbnail);
-    final width = MediaQuery.sizeOf(context).width * 0.56;
+    final width = math.min(MediaQuery.sizeOf(context).width * 0.56, 260.0);
     return Pressable(
       onTap: () =>
           openGroup(context, ref, (kind: GroupKind.artist, name: group.name)),

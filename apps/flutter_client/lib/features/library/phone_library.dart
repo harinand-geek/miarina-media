@@ -300,7 +300,7 @@ class ToolChip extends StatelessWidget {
 }
 
 /// Cover on top, its title on a band tinted by the cover.
-class TintedCoverCard extends ConsumerWidget {
+class TintedCoverCard extends ConsumerStatefulWidget {
   const TintedCoverCard({
     super.key,
     required this.imagePath,
@@ -310,6 +310,8 @@ class TintedCoverCard extends ConsumerWidget {
     required this.onTap,
     this.width = 150,
     this.onLongPress,
+    this.onPlay,
+    this.playLabel,
   });
 
   final String? imagePath;
@@ -320,13 +322,30 @@ class TintedCoverCard extends ConsumerWidget {
   final VoidCallback? onLongPress;
   final double width;
 
+  /// Windows: a play button on the cover while the pointer is over the card
+  /// (the album cards' hover play of W-M1a).
+  final VoidCallback? onPlay;
+  final String? playLabel;
+
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<TintedCoverCard> createState() => _TintedCoverCardState();
+}
+
+class _TintedCoverCardState extends ConsumerState<TintedCoverCard> {
+  bool _hover = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final imagePath = widget.imagePath;
+    final seed = widget.seed;
+    final title = widget.title;
+    final subtitle = widget.subtitle;
+    final width = widget.width;
     final tones = watchCoverTones(ref, context, imagePath);
     final small = width < 140;
-    return Pressable(
-      onTap: onTap,
-      onLongPress: onLongPress,
+    final card = Pressable(
+      onTap: widget.onTap,
+      onLongPress: widget.onLongPress,
       semanticLabel: '$title, $subtitle',
       pressScale: 0.96,
       borderRadius: BorderRadius.circular(small ? 20 : 24),
@@ -351,12 +370,49 @@ class TintedCoverCard extends ConsumerWidget {
                   stops: [0.72, 1],
                 ).createShader(rect),
                 blendMode: BlendMode.dstIn,
-                child: CoverArt(
-                  size: width,
-                  radius: 0,
-                  seed: seed,
-                  imagePath: imagePath,
-                  shadow: false,
+                child: Stack(
+                  children: [
+                    CoverArt(
+                      size: width,
+                      radius: 0,
+                      seed: seed,
+                      imagePath: imagePath,
+                      shadow: false,
+                    ),
+                    if (widget.onPlay != null)
+                      Positioned(
+                        right: 10,
+                        top: 10,
+                        child: AnimatedScale(
+                          scale: _hover ? 1 : 0.6,
+                          duration: MmMotion.of(context).state,
+                          curve: MmMotion.spring,
+                          child: AnimatedOpacity(
+                            opacity: _hover ? 1 : 0,
+                            duration: MmMotion.of(context).state,
+                            child: Pressable(
+                              onTap: widget.onPlay,
+                              semanticLabel: widget.playLabel ?? title,
+                              tooltip: widget.playLabel,
+                              pressScale: 0.9,
+                              child: Container(
+                                width: 46,
+                                height: 46,
+                                decoration: BoxDecoration(
+                                  color: tones.primary,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(
+                                  PhosphorFill.play,
+                                  size: 20,
+                                  color: tones.onPrimary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ),
               Padding(
@@ -390,16 +446,29 @@ class TintedCoverCard extends ConsumerWidget {
         ),
       ),
     );
+    return MouseRegion(
+      onEnter: (_) => setState(() => _hover = true),
+      onExit: (_) => setState(() => _hover = false),
+      child: card,
+    );
   }
 }
 
 /// An artist: one of their covers in the flower shape, which turns slowly
 /// while one of their titles plays; the name under it.
 class ArtistBlob extends ConsumerWidget {
-  const ArtistBlob({super.key, required this.group, required this.size});
+  const ArtistBlob({
+    super.key,
+    required this.group,
+    required this.size,
+    this.subtitle,
+  });
 
   final LibraryGroup group;
   final double size;
+
+  /// Under the name (Windows: the number of albums).
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -439,6 +508,14 @@ class ArtistBlob extends ConsumerWidget {
               color: playing ? c.coralStrong : c.fg,
             ),
           ),
+          if (subtitle != null)
+            Text(
+              subtitle!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: MmType.body.copyWith(fontSize: 14, color: c.muted),
+            ),
         ],
       ),
     );

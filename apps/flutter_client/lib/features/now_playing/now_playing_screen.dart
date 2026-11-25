@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
+import '../../design/cover_tones.dart';
+import '../settings/settings_data.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
@@ -62,14 +64,21 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     );
     final eq = ref.watch(equalizerProvider);
     final back = ref.watch(lastLocationProvider);
+    // Expressive redesign (decision 0010): the page takes the cover's
+    // colours; Settings › Appearance can still turn the cover ground off.
+    final look = ref.watch(appearanceProvider).value;
+    final plain =
+        (look?.reduceTransparency ?? false) || !(look?.coverBackdrop ?? true);
+    final tones = plain
+        ? CoverTones.neutral(c)
+        : watchCoverTones(ref, context, entry?.artwork);
 
     return Stack(
       children: [
         Positioned.fill(
-          child: CoverBackdrop(
-            nowPlaying: true,
-            seed: entry?.seed ?? 0,
-            imagePath: entry?.artwork,
+          child: AnimatedCoverTones(
+            tones: tones,
+            builder: (context, tones, _) => ColoredBox(color: tones.ground),
           ),
         ),
         Padding(
@@ -175,6 +184,8 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                     size: size,
                                     seed: entry.seed,
                                     imagePath: entry.artwork,
+                                    radius: 32,
+                                    shadow: false,
                                   ),
                                   const SizedBox(height: 26),
                                   Row(
@@ -311,8 +322,10 @@ class _Panel extends StatelessWidget {
     };
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0x8C0D141B),
-        borderRadius: BorderRadius.circular(MmRadius.sheet),
+        color: c.brightness == Brightness.dark
+            ? const Color(0x8C0D141B)
+            : c.surface.withValues(alpha: 0.72),
+        borderRadius: BorderRadius.circular(32),
         border: Border.all(color: c.fg.withValues(alpha: 0.06)),
       ),
       padding: const EdgeInsets.all(12),

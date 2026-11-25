@@ -3,9 +3,11 @@ import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
+import '../../design/cover_tones.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
+import '../../design/widgets/expressive.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
@@ -225,184 +227,216 @@ class _Header extends ConsumerWidget {
     final t = L10n.of(context);
     final album = kind == GroupKind.album;
     final artist = album ? group?.detail : null;
-    return SizedBox(
-      height: album ? 290 : 240,
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          Opacity(
-            opacity: 0.55,
-            child: CoverBackdrop(seed: name.hashCode, imagePath: artwork),
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [c.bg.withValues(alpha: 0), c.bg],
-                stops: const [0.45, 1],
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(28, 16, 32, 18),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Pressable(
-                  onTap: () =>
-                      context.go(album ? Routes.albums : Routes.artists),
-                  semanticLabel: album ? t.navAlbums : t.navArtists,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(PhosphorRegular.caretLeft, size: 16, color: c.fg),
-                        const SizedBox(width: 4),
-                        Text(
-                          album ? t.navAlbums : t.navArtists,
-                          style: MmType.label.copyWith(
-                            fontSize: 13,
+    // Expressive redesign (decision 0010): a rounded panel in the cover's
+    // colours instead of the blurred backdrop.
+    return AnimatedCoverTones(
+      tones: watchCoverTones(ref, context, artwork),
+      builder: (context, tones, _) => Container(
+        height: album ? 300 : 260,
+        margin: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+        decoration: BoxDecoration(
+          color: tones.card,
+          borderRadius: BorderRadius.circular(32),
+        ),
+        clipBehavior: Clip.antiAlias,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(28, 16, 32, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Pressable(
+                    onTap: () =>
+                        context.go(album ? Routes.albums : Routes.artists),
+                    semanticLabel: album ? t.navAlbums : t.navArtists,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(4, 4, 10, 4),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            PhosphorRegular.caretLeft,
+                            size: 16,
                             color: c.fg,
                           ),
-                        ),
-                      ],
+                          const SizedBox(width: 4),
+                          Text(
+                            album ? t.navAlbums : t.navArtists,
+                            style: MmType.label.copyWith(
+                              fontSize: 13,
+                              color: c.fg,
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const Spacer(),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    if (album) ...[
-                      CoverArt(
-                        size: 200,
-                        radius: MmRadius.card,
-                        seed: name.hashCode,
-                        imagePath: artwork,
-                      ),
-                      const SizedBox(width: 28),
-                    ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (album)
-                            Text(
-                              [
-                                t.albumOverline,
-                                group?.year?.toString(),
-                              ].whereType<String>().join(' · ').toUpperCase(),
-                              style: MmType.overline.copyWith(color: c.fg),
-                            ),
-                          Text(
-                            name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: MmType.displayXl.copyWith(color: c.fg),
+                  const Spacer(),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      if (album) ...[
+                        CoverArt(
+                          size: 210,
+                          radius: 28,
+                          seed: name.hashCode,
+                          imagePath: artwork,
+                          shadow: false,
+                        ),
+                        const SizedBox(width: 28),
+                      ] else ...[
+                        ScallopClip(
+                          child: CoverArt(
+                            size: 170,
+                            radius: 0,
+                            seed: name.hashCode,
+                            imagePath: artwork,
+                            shadow: false,
                           ),
-                          const SizedBox(height: 4),
-                          Wrap(
-                            crossAxisAlignment: WrapCrossAlignment.center,
-                            children: [
-                              // A compilation's "Various Artists" is not
-                              // an artist page (its tracks go to their own).
-                              if (artist != null && group?.compilation == true)
-                                Text(
-                                  artist,
-                                  style: MmType.labelStrong.copyWith(
-                                    color: c.fg,
-                                  ),
-                                )
-                              else if (artist != null)
-                                Pressable(
-                                  onTap: () => openGroup(context, ref, (
-                                    kind: GroupKind.artist,
-                                    name: artist,
-                                  )),
-                                  semanticLabel: artist,
-                                  child: Text(
+                        ),
+                        const SizedBox(width: 28),
+                      ],
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (album)
+                              Text(
+                                [
+                                  t.albumOverline,
+                                  group?.year?.toString(),
+                                ].whereType<String>().join(' · ').toUpperCase(),
+                                style: MmType.overline.copyWith(color: c.fg),
+                              ),
+                            Text(
+                              name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: MmType.displayXl.copyWith(
+                                fontWeight: FontWeight.w600,
+                                fontVariations: const [
+                                  FontVariation.weight(600),
+                                ],
+                                color: tones.onCard,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Wrap(
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                // A compilation's "Various Artists" is not
+                                // an artist page (its tracks go to their own).
+                                if (artist != null &&
+                                    group?.compilation == true)
+                                  Text(
                                     artist,
                                     style: MmType.labelStrong.copyWith(
                                       color: c.fg,
                                     ),
+                                  )
+                                else if (artist != null)
+                                  Pressable(
+                                    onTap: () => openGroup(context, ref, (
+                                      kind: GroupKind.artist,
+                                      name: artist,
+                                    )),
+                                    semanticLabel: artist,
+                                    child: Text(
+                                      artist,
+                                      style: MmType.labelStrong.copyWith(
+                                        color: c.fg,
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              Text(
-                                '${artist != null ? ' · ' : ''}$meta',
-                                style: MmType.bodySm.copyWith(color: c.fgSoft),
-                              ),
-                              if (format != null)
                                 Text(
-                                  ' · $format',
-                                  style: MmType.monoStyle(
-                                    size: 12.5,
+                                  '${artist != null ? ' · ' : ''}$meta',
+                                  style: MmType.bodySm.copyWith(
                                     color: c.fgSoft,
                                   ),
                                 ),
+                                if (format != null)
+                                  Text(
+                                    ' · $format',
+                                    style: MmType.monoStyle(
+                                      size: 12.5,
+                                      color: c.fgSoft,
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            if (album) ...[
+                              const SizedBox(height: 16),
+                              _Actions(
+                                onPlay: onPlay,
+                                onShuffle: onShuffle,
+                                tones: tones,
+                              ),
                             ],
-                          ),
-                          if (album) ...[
-                            const SizedBox(height: 16),
-                            _Actions(onPlay: onPlay, onShuffle: onShuffle),
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                    if (!album) _Actions(onPlay: onPlay, onShuffle: onShuffle),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _Actions extends StatelessWidget {
-  const _Actions({required this.onPlay, required this.onShuffle});
-
-  final VoidCallback onPlay;
-  final VoidCallback onShuffle;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    final t = L10n.of(context);
-    Widget pill(
-      String label,
-      IconData icon,
-      VoidCallback onTap, {
-      required bool primary,
-    }) => Pressable(
-      onTap: onTap,
-      semanticLabel: label,
-      child: Container(
-        height: 42,
-        padding: const EdgeInsets.fromLTRB(16, 0, 20, 0),
-        decoration: BoxDecoration(
-          color: primary ? c.coral : c.fg.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(MmRadius.pill),
-          boxShadow: primary ? MmShadows.playHalo : null,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 18, color: primary ? c.coralInk : c.fg),
-            const SizedBox(width: 8),
-            Text(
-              label,
-              style: MmType.labelStrong.copyWith(
-                color: primary ? c.coralInk : c.fg,
+                      if (!album)
+                        _Actions(
+                          onPlay: onPlay,
+                          onShuffle: onShuffle,
+                          tones: tones,
+                        ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class _Actions extends StatelessWidget {
+  const _Actions({
+    required this.onPlay,
+    required this.onShuffle,
+    required this.tones,
+  });
+
+  final VoidCallback onPlay;
+  final VoidCallback onShuffle;
+  final CoverTones tones;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = L10n.of(context);
+    Widget pill(
+      String label,
+      IconData icon,
+      VoidCallback onTap, {
+      required bool primary,
+    }) {
+      final fg = primary ? tones.onPrimary : tones.onButton;
+      return MorphButton(
+        onTap: onTap,
+        color: primary ? tones.primary : tones.button,
+        semanticLabel: label,
+        height: 48,
+        radius: 24,
+        pressedRadius: 12,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(18, 0, 22, 0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon, size: 18, color: fg),
+              const SizedBox(width: 8),
+              Text(label, style: MmType.labelStrong.copyWith(color: fg)),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [

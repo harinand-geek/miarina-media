@@ -57,37 +57,47 @@ class ListenHomeScreen extends ConsumerWidget {
       });
     }
 
+    // Expressive redesign (decision 0010): the phone's home, laid out wide,
+    // led by the resume card and the automatic lists of W-00.
     final body = home.isEmpty
         ? const EmptyListenHome()
-        : ListView(
-            padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
-            children: [
-              if (home.resume.isNotEmpty) ...[
-                _ResumeCard(items: home.resume),
-                const SizedBox(height: 30),
-              ],
-              if (home.lists.isNotEmpty) ...[
-                _SectionTitle(t.autoLists),
-                const SizedBox(height: 12),
-                LayoutBuilder(
-                  builder: (context, box) {
-                    const gap = 16.0;
-                    final w = (box.maxWidth - gap * 3) / 4;
-                    return Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        for (final l in home.lists) ...[
-                          SizedBox(
-                            width: w,
-                            child: _AutoListCard(list: l),
-                          ),
-                          const SizedBox(width: gap),
-                        ],
-                      ],
-                    );
-                  },
+        : PhoneMusicHome(
+            wide: true,
+            lead: [
+              if (home.resume.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
+                  child: _ResumeCard(items: home.resume),
                 ),
-              ],
+              if (home.lists.isNotEmpty)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 22, 20, 0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      _SectionTitle(t.autoLists),
+                      const SizedBox(height: 12),
+                      LayoutBuilder(
+                        builder: (context, box) {
+                          const gap = 16.0;
+                          final w = (box.maxWidth - gap * 3) / 4;
+                          return Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              for (final l in home.lists) ...[
+                                SizedBox(
+                                  width: w,
+                                  child: _AutoListCard(list: l),
+                                ),
+                                const SizedBox(width: gap),
+                              ],
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                ),
             ],
           );
     return Row(

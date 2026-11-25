@@ -111,6 +111,7 @@ Future<void> _images(WidgetTester tester) async {
 }
 
 final _shotKey = GlobalKey();
+var _desktop = false;
 
 Future<void> _shot(WidgetTester tester, String name) async {
   // ignore: avoid_print
@@ -119,7 +120,7 @@ Future<void> _shot(WidgetTester tester, String name) async {
   await tester.runAsync(() async {
     final boundary =
         _shotKey.currentContext!.findRenderObject()! as RenderRepaintBoundary;
-    final image = await boundary.toImage(pixelRatio: _dpr);
+    final image = await boundary.toImage(pixelRatio: _desktop ? 1 : _dpr);
     final png = await image.toByteData(format: ui.ImageByteFormat.png);
     await File('$_out/$name.png').writeAsBytes(png!.buffer.asUint8List());
   });
@@ -171,9 +172,11 @@ void main() {
     required bool light,
     String start = Routes.tracks,
     bool history = false,
+    bool desktop = false,
   }) async {
-    tester.view.physicalSize = _size * _dpr;
-    tester.view.devicePixelRatio = _dpr;
+    _desktop = desktop;
+    tester.view.physicalSize = desktop ? const Size(1440, 900) : _size * _dpr;
+    tester.view.devicePixelRatio = desktop ? 1 : _dpr;
     tester.platformDispatcher.localesTestValue = const [Locale('fr')];
     addTearDown(tester.view.reset);
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
@@ -220,7 +223,7 @@ void main() {
             mediaEngineProvider.overrideWithValue(FakeEngine()),
             libraryApiProvider.overrideWithValue(library),
             focusApiProvider.overrideWithValue(FakeFocusApi()),
-            desktopShellProvider.overrideWithValue(false),
+            desktopShellProvider.overrideWithValue(desktop),
             settingsStoreProvider.overrideWithValue(settings),
             indexerApiProvider.overrideWithValue(FakeIndexerApi()),
             lyricsLoaderProvider.overrideWithValue((_) async => null),
@@ -303,6 +306,36 @@ void main() {
       await tester.tap(find.text('Hanta').first);
       await _settle(tester);
       await _shot(tester, '$theme-25-artist');
+    }, skip: _out == null);
+  }
+
+  for (final light in [true, false]) {
+    final theme = light ? 'light' : 'dark';
+    testWidgets('$theme: desktop', (tester) async {
+      await pump(
+        tester,
+        light: light,
+        start: Routes.listenHome,
+        history: true,
+        desktop: true,
+      );
+      await _shot(tester, 'pc-$theme-01-home');
+      await tester.tap(find.text('Titres').first);
+      await _settle(tester);
+      await tester.tap(find.text('Kabary').first);
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.tap(find.text('Kabary').first);
+      await _settle(tester);
+      await _shot(tester, 'pc-$theme-02-tracks');
+      await tester.tap(find.text('Albums').first);
+      await _settle(tester);
+      await _shot(tester, 'pc-$theme-03-albums');
+      await tester.tap(find.text('Ny lanitra').first);
+      await _settle(tester);
+      await _shot(tester, 'pc-$theme-04-album');
+      await tester.tap(find.bySemanticsLabel(RegExp('^Ouvrir En lecture')));
+      await _settle(tester);
+      await _shot(tester, 'pc-$theme-05-now');
     }, skip: _out == null);
   }
 

@@ -66,3 +66,17 @@ Chaque étape : analyse, tests, captures (outil
 `test/tool/phone_shots_test.dart`, sans appareil), commit et push. Essai
 sur le Redmi du propriétaire avant toute publication ; rien n'est publié
 sans son accord.
+
+## Windows (2026-11-25)
+
+Après la publication de l'Android 0.2.9, le propriétaire a demandé le même
+style sur PC, sans toucher aux fonctions. Fait : barre de lecture aux
+couleurs de la pochette (barre ondulée, boutons en pilule, volume),
+accueil W-00 avec les sections du téléphone sur deux colonnes, la carte
+« Reprendre » et les listes automatiques gardées en tête, grilles albums
+(cartes teintées, lecture au survol) et artistes (forme fleur, nombre
+d'albums), en-tête des pages album / artiste en panneau teinté, écran
+« En lecture » sur le fond de la pochette (le réglage « fond de pochette »
+reste respecté). La table des titres, la barre latérale et les menus
+gardent leur forme.
+

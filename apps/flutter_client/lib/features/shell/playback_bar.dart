@@ -2,13 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../design/cover_tones.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
+import '../../design/widgets/expressive.dart';
 import '../../design/widgets/mm_icon.dart';
-import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
+import '../../design/widgets/wavy_slider.dart';
 import '../../engine/media_engine.dart';
 import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
@@ -28,25 +30,51 @@ class PlaybackBar extends ConsumerWidget {
     final c = MmColors.of(context);
     final narrow = MediaQuery.sizeOf(context).width < 1024;
     final side = narrow ? 240.0 : 320.0;
-    return Container(
-      height: 80,
-      padding: const EdgeInsets.fromLTRB(16, 0, 20, 0),
-      decoration: BoxDecoration(
-        color: c.playerChrome,
-        border: Border(top: BorderSide(color: c.divider)),
-      ),
-      child: Row(
-        children: [
-          SizedBox(width: side, child: const _NowPlayingInfo()),
-          const Expanded(child: _Transport()),
-          SizedBox(
-            width: side,
-            child: _SideControls(narrow: narrow),
+    final artwork = ref.watch(queueProvider.select((q) => q.current?.artwork));
+    // Expressive redesign (decision 0010): the bar takes a light tint of the
+    // cover; the controls use its colours.
+    return AnimatedCoverTones(
+      tones: watchCoverTones(ref, context, artwork),
+      builder: (context, tones, _) => _BarTones(
+        tones: tones,
+        child: Container(
+          height: 88,
+          padding: const EdgeInsets.fromLTRB(16, 0, 20, 0),
+          decoration: BoxDecoration(
+            color: Color.lerp(
+              c.playerChrome,
+              tones.card,
+              c.brightness == Brightness.dark ? 0.35 : 0.45,
+            ),
+            border: Border(top: BorderSide(color: c.divider)),
           ),
-        ],
+          child: Row(
+            children: [
+              SizedBox(width: side, child: const _NowPlayingInfo()),
+              const Expanded(child: _Transport()),
+              SizedBox(
+                width: side,
+                child: _SideControls(narrow: narrow),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
+}
+
+/// The current cover's tones for the bar's controls.
+class _BarTones extends InheritedWidget {
+  const _BarTones({required this.tones, required super.child});
+
+  final CoverTones tones;
+
+  static CoverTones of(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_BarTones>()!.tones;
+
+  @override
+  bool updateShouldNotify(_BarTones old) => old.tones != tones;
 }
 
 class _NowPlayingInfo extends ConsumerStatefulWidget {
@@ -80,8 +108,8 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
           KeyedSubtree(
             key: _cover,
             child: CoverArt(
-              size: 52,
-              radius: MmRadius.md,
+              size: 56,
+              radius: 14,
               seed: entry?.seed ?? 0,
               imagePath: entry?.artwork,
               shadow: entry != null,
@@ -147,70 +175,116 @@ class _Transport extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final c = MmColors.of(context);
     final t = L10n.of(context);
+    final tones = _BarTones.of(context);
     final q = ref.watch(queueProvider);
     final queue = ref.read(queueProvider.notifier);
     final snap = currentSnapshot(ref);
     final hasMedia = q.current != null;
+    final motion = MmMotion.of(context);
     final repeatLabel = switch (q.repeat) {
       RepeatSetting.off => t.repeatOff,
       RepeatSetting.all => t.repeatAll,
       RepeatSetting.one => t.repeatOne,
     };
+    Widget toggle(IconData icon, String label, bool on, VoidCallback onTap) =>
+        MorphButton(
+          onTap: onTap,
+          color: on ? tones.primary : Colors.transparent,
+          semanticLabel: label,
+          tooltip: label,
+          selected: on,
+          width: 40,
+          height: 36,
+          radius: 18,
+          pressedRadius: 10,
+          child: Icon(
+            icon,
+            size: 19,
+            color: on ? tones.onPrimary : tones.onGround,
+          ),
+        );
+    Widget pill(IconData icon, String label, VoidCallback? onTap) =>
+        MorphButton(
+          onTap: onTap,
+          color: tones.button,
+          semanticLabel: label,
+          tooltip: label,
+          width: 52,
+          height: 40,
+          radius: 20,
+          pressedRadius: 10,
+          child: Icon(icon, size: 20, color: tones.onButton),
+        );
+    final glyph = snap.isPlaying ? PhosphorFill.pause : PhosphorFill.play;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            _IconButton(
-              icon: PhosphorRegular.shuffle,
-              size: 20,
-              label: t.shuffle,
-              color: q.shuffle ? c.coralStrong : c.muted,
-              selected: q.shuffle,
-              onTap: queue.toggleShuffle,
+            toggle(
+              PhosphorRegular.shuffle,
+              t.shuffle,
+              q.shuffle,
+              queue.toggleShuffle,
             ),
-            const SizedBox(width: 18),
-            _IconButton(
-              icon: PhosphorFill.skipBack,
-              size: 26,
-              label: t.previous,
-              color: c.fg,
-              onTap: hasMedia ? queue.previous : null,
+            const SizedBox(width: 10),
+            pill(
+              PhosphorFill.skipBack,
+              t.previous,
+              hasMedia ? queue.previous : null,
             ),
-            const SizedBox(width: 18),
-            PlayPauseButton(
-              playing: snap.isPlaying,
-              onPressed: hasMedia ? queue.togglePlay : null,
-              playLabel: t.play,
-              pauseLabel: t.pause,
+            const SizedBox(width: 6),
+            MorphButton(
+              onTap: hasMedia ? queue.togglePlay : null,
+              color: tones.primary,
+              semanticLabel: snap.isPlaying ? t.pause : t.play,
+              tooltip: snap.isPlaying ? t.pause : t.play,
+              width: 72,
+              height: 44,
+              radius: 22,
+              pressedRadius: 12,
+              child: AnimatedSwitcher(
+                duration: motion.reduced
+                    ? motion.state
+                    : const Duration(milliseconds: 180),
+                switchInCurve: MmMotion.spring,
+                transitionBuilder: (child, anim) => FadeTransition(
+                  opacity: anim,
+                  child: ScaleTransition(
+                    scale: Tween(begin: 0.5, end: 1.0).animate(anim),
+                    child: child,
+                  ),
+                ),
+                child: Icon(
+                  glyph,
+                  key: ValueKey(glyph),
+                  size: 22,
+                  color: tones.onPrimary,
+                ),
+              ),
             ),
-            const SizedBox(width: 18),
-            _IconButton(
-              icon: PhosphorFill.skipForward,
-              size: 26,
-              label: t.next,
-              color: c.fg,
-              onTap: q.hasNext ? queue.next : null,
+            const SizedBox(width: 6),
+            pill(
+              PhosphorFill.skipForward,
+              t.next,
+              q.hasNext ? queue.next : null,
             ),
-            const SizedBox(width: 18),
-            _IconButton(
-              icon: q.repeat == RepeatSetting.one
+            const SizedBox(width: 10),
+            toggle(
+              q.repeat == RepeatSetting.one
                   ? PhosphorRegular.repeatOnce
                   : PhosphorRegular.repeat,
-              size: 20,
-              label: repeatLabel,
-              color: q.repeat == RepeatSetting.off ? c.muted : c.coralStrong,
-              selected: q.repeat != RepeatSetting.off,
-              onTap: queue.cycleRepeat,
+              repeatLabel,
+              q.repeat != RepeatSetting.off,
+              queue.cycleRepeat,
             ),
           ],
         ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 4),
         ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 520),
+          constraints: const BoxConstraints(maxWidth: 560),
           child: _Seek(snap: snap, label: t.seek),
         ),
       ],
@@ -249,9 +323,14 @@ class _Seek extends ConsumerWidget {
             ),
             const SizedBox(width: 10),
             Expanded(
-              child: TrackBar(
+              child: ExpressiveSlider(
                 value: ratio,
-                fillColor: c.coral,
+                wavy: true,
+                playing: snap.isPlaying && !snap.buffering,
+                activeColor: _BarTones.of(context).primary,
+                trackColor: _BarTones.of(context).track,
+                height: 22,
+                stroke: 4,
                 semanticLabel: label,
                 semanticValue:
                     '${formatClock(position)} / ${formatClock(total)}',
@@ -335,11 +414,13 @@ class _SideControlsState extends ConsumerState<_SideControls> {
         ),
         const SizedBox(width: 10),
         SizedBox(
-          width: widget.narrow ? 64 : 84,
-          child: TrackBar(
+          width: widget.narrow ? 70 : 96,
+          child: ExpressiveSlider(
             value: volume,
-            fillColor: c.fg,
-            thumbAlways: false,
+            activeColor: _BarTones.of(context).onGround,
+            trackColor: _BarTones.of(context).track,
+            height: 28,
+            stroke: 6,
             semanticLabel: t.volume,
             onChanged: (v) => engine?.setVolume(v),
           ),
@@ -356,7 +437,6 @@ class _IconButton extends StatelessWidget {
     required this.label,
     required this.color,
     required this.onTap,
-    this.selected = false,
   });
 
   final IconData icon;
@@ -364,7 +444,6 @@ class _IconButton extends StatelessWidget {
   final String label;
   final Color color;
   final VoidCallback? onTap;
-  final bool selected;
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +452,6 @@ class _IconButton extends StatelessWidget {
       onTap: onTap,
       semanticLabel: label,
       tooltip: label,
-      selected: selected,
       pressScale: 0.9,
       child: Padding(
         padding: const EdgeInsets.all(4),
