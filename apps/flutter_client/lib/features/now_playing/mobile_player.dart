@@ -942,7 +942,7 @@ class _VolumeRowState extends ConsumerState<_VolumeRow> {
             trackColor: tones.track,
             semanticLabel: t.volume,
             height: 40,
-            stroke: 14,
+            stroke: 12,
             step: 1 / 15,
             onChanged: set,
           ),

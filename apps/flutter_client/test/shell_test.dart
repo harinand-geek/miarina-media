@@ -472,10 +472,21 @@ void main() {
         start: Routes.listenHome,
         store: storeWithHistory(),
       );
+      // Expressive home (decision 0010): carousel of the last plays, quick
+      // tiles, sections further down, shuffle button.
       expect(find.text('Musique'), findsWidgets);
-      expect(find.text('Albums récents'), findsOneWidget);
-      expect(find.text('Reprendre'), findsWidgets);
-      expect(find.text('Échos'), findsWidgets);
+      expect(find.text('Plus joués'), findsOneWidget);
+      expect(find.text('Mix du jour'), findsOneWidget);
+      expect(find.text('Tout mélanger'), findsOneWidget);
+      await tester.drag(find.byType(ListView).first, const Offset(0, -500));
+      await settle(tester);
+      expect(find.text('Récemment joués'), findsOneWidget);
+      await tester.drag(find.byType(ListView).first, const Offset(0, 500));
+      await settle(tester);
+      // The first card of the carousel resumes where it stopped.
+      await tester.tap(find.text('Échos').first);
+      await settle(tester);
+      expect(engine.starts.single, const Duration(seconds: 94));
     });
   });
 }

@@ -48,8 +48,12 @@ modification (fonctions déjà présentes / manquantes).
 
 1. Bases du style (couleurs de pochette, composants) — fait.
 2. Lecteur plein écran, mini-lecteur, fiches d'actions — fait.
-3. Accueil Musique (carrousel, raccourcis, rangées, mix du jour, à
-   découvrir, statistiques 7 jours) — en cours.
+3. Accueil Musique (carrousel des dernières écoutes, raccourcis, rangées
+   teintées, les plus joués, vos artistes, mix du jour, compteurs, à
+   découvrir, album au hasard, artiste de la semaine, 7 derniers jours,
+   historique, bouton « Tout mélanger ») — fait. Le Windows garde son
+   accueil W-00. Pas d'« Épinglés » ni de « Genre du jour » : il n'existe
+   pas encore d'épinglage, et le genre n'est pas exposé par le cœur.
 4. Bibliothèque et pages album / artiste teintées.
 
 Chaque étape : analyse, tests, captures (outil

@@ -1423,7 +1423,6 @@
   "randomAlbum": "Random album",
   "artistOfWeek": "Artist of the week",
   "last7Days": "Last 7 days",
-  "listenToday": "{time} today",
   "shuffleAll": "Shuffle all",
   "addAllToQueue": "Add all to the queue",
   "noListenYet": "Play some music to see your listening time here.",

@@ -20,8 +20,8 @@ import '../library/library_data.dart';
 import '../now_playing/lyrics_view.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
-import '../search/search_screen.dart' show SearchButton;
 import 'home_data.dart';
+import 'phone_home.dart';
 
 /// W-00 Accueil Écouter (Windows) and A-00 Accueil Musique (Android):
 /// resume card, automatic lists, recent albums; on wide Windows windows a
@@ -31,10 +31,12 @@ class ListenHomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final t = L10n.of(context);
-    final data = ref.watch(homeProvider);
     final width = MediaQuery.sizeOf(context).width;
     final mobile = width < 720;
+    // A-00 on the phone: the expressive home (2026-11-25).
+    if (mobile) return const PhoneMusicHome();
+    final t = L10n.of(context);
+    final data = ref.watch(homeProvider);
     final home = data.value;
     if (data.hasError) {
       return LibraryErrorView(
@@ -54,10 +56,9 @@ class ListenHomeScreen extends ConsumerWidget {
         if (context.mounted) context.go(Routes.welcome);
       });
     }
-    if (mobile) return _MobileHome(home: home);
 
     final body = home.isEmpty
-        ? const _EmptyHome()
+        ? const EmptyListenHome()
         : ListView(
             padding: const EdgeInsets.fromLTRB(32, 24, 32, 28),
             children: [
@@ -157,7 +158,7 @@ String _kindLabel(L10n t, ResumeItem r) => r.item.isVideo
 
 /// Resumes [r]; a video opens its player (W-C3 / A-04), an episode with
 /// the rest of its series after it.
-Future<void> _resume(
+Future<void> resumeItem(
   BuildContext context,
   WidgetRef ref,
   L10n t,
@@ -374,7 +375,7 @@ class _ResumePage extends ConsumerWidget {
                             label: t.homeResumeAt(formatClock(r.position)),
                             icon: PhosphorFill.play,
                             primary: true,
-                            onTap: () => _resume(context, ref, t, r),
+                            onTap: () => resumeItem(context, ref, t, r),
                           ),
                         ),
                         if (i.album != null) ...[
@@ -465,10 +466,9 @@ class _Pill extends StatelessWidget {
 
 /// Card of an automatic list: cover, count badge, play on hover.
 class _AutoListCard extends ConsumerStatefulWidget {
-  const _AutoListCard({required this.list, this.coverSize});
+  const _AutoListCard({required this.list});
 
   final AutoList list;
-  final double? coverSize;
 
   @override
   ConsumerState<_AutoListCard> createState() => _AutoListCardState();
@@ -537,7 +537,7 @@ class _AutoListCardState extends ConsumerState<_AutoListCard> {
           ),
           child: LayoutBuilder(
             builder: (context, box) {
-              final size = widget.coverSize ?? box.maxWidth;
+              final size = box.maxWidth;
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -873,8 +873,8 @@ class _LyricPeek extends ConsumerWidget {
   }
 }
 
-class _EmptyHome extends StatelessWidget {
-  const _EmptyHome();
+class EmptyListenHome extends StatelessWidget {
+  const EmptyListenHome({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -923,172 +923,6 @@ class _EmptyHome extends StatelessWidget {
           ),
         ),
       ),
-    );
-  }
-}
-
-/// A-00 Accueil Musique (Android).
-class _MobileHome extends ConsumerWidget {
-  const _MobileHome({required this.home});
-
-  final HomeData home;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final c = MmColors.of(context);
-    final t = L10n.of(context);
-    final r = home.resume.firstOrNull;
-    return ListView(
-      padding: const EdgeInsets.only(bottom: 24),
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(20, 12, 8, 8),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  t.tabMusic,
-                  style: MmType.display.copyWith(color: c.fg),
-                ),
-              ),
-              const SearchButton(),
-              Pressable(
-                onTap: () => context.go(Routes.settings),
-                semanticLabel: t.navSettings,
-                child: SizedBox(
-                  width: 48,
-                  height: 48,
-                  child: Icon(
-                    PhosphorRegular.gearSix,
-                    size: 24,
-                    color: c.fgSoft,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const MusicChips(current: Routes.listenHome),
-        if (home.isEmpty)
-          const Padding(padding: EdgeInsets.only(top: 40), child: _EmptyHome()),
-        if (r != null)
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 0),
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: c.surface,
-                borderRadius: BorderRadius.circular(MmRadius.sheet),
-                border: Border.all(color: c.line),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          t.homeResume,
-                          style: MmType.captionStrong.copyWith(
-                            color: c.coralStrong,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          _resumeTitle(t, r),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.titleLg.copyWith(
-                            fontSize: 20,
-                            color: c.fg,
-                          ),
-                        ),
-                        Text(
-                          [
-                            r.item.artist,
-                            if (r.remaining != null)
-                              t.minutesLeft(r.remaining!.inMinutes),
-                          ].whereType<String>().join(' · '),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.caption.copyWith(
-                            fontSize: 12.5,
-                            color: c.fgSoft,
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        _Pill(
-                          label: t.homeResume,
-                          icon: PhosphorFill.play,
-                          primary: true,
-                          onTap: () => _resume(context, ref, t, r),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  CoverArt(
-                    size: 92,
-                    radius: MmRadius.md,
-                    seed: r.item.id,
-                    imagePath: r.item.thumbnail,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        if (home.recentAlbums.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 22, 12, 6),
-            child: _SectionTitle(
-              t.recentAlbums,
-              action: _Link(t.seeAll, () => context.go(Routes.albums)),
-            ),
-          ),
-          LayoutBuilder(
-            builder: (context, box) {
-              final tile = (box.maxWidth - 16 * 2 - 12) / 2;
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Wrap(
-                  spacing: 12,
-                  runSpacing: 4,
-                  children: [
-                    for (final a in home.recentAlbums)
-                      SizedBox(
-                        width: tile,
-                        child: AlbumCard(group: a, size: tile - 16),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ],
-        if (home.lists.isNotEmpty) ...[
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 12, 10),
-            child: _SectionTitle(t.autoLists),
-          ),
-          SizedBox(
-            height: 236,
-            child: ListView(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              children: [
-                for (final l in home.lists)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 12),
-                    child: SizedBox(
-                      width: 156,
-                      child: _AutoListCard(list: l, coverSize: 132),
-                    ),
-                  ),
-              ],
-            ),
-          ),
-        ],
-      ],
     );
   }
 }

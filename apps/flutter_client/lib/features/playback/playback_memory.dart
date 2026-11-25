@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/media_engine.dart';
 import '../../src/rust/api/settings.dart';
 import '../library/library_data.dart';
+import 'listen_journal.dart';
 import 'playback.dart';
 
 /// Resume positions and play history, stored exactly like the 0.1.x app
@@ -165,6 +166,12 @@ class PlaybackMemory {
   Duration _savedAt = Duration.zero;
   PlaybackSnapshot? _last;
 
+  /// Listening journal: whether the current file is music that counts, its
+  /// artist, and the milliseconds heard not yet written.
+  bool _counts = false;
+  String? _artist;
+  double _heardMs = 0;
+
   // The store refuses nothing that matters here; a failed write only loses
   // a resume point.
   Future<void> _write(Map<String, String?> changes) async {
@@ -215,8 +222,17 @@ class PlaybackMemory {
     _currentId = entry.libraryId;
     _currentUri = entry.source.uri;
     _savedAt = Duration.zero;
+    _heardMs = 0;
+    _counts = false;
+    _artist = null;
     final id = entry.libraryId;
     if (id == null) return;
+    if (!entry.isVideo && entry.focusKey == null) {
+      _counts = true;
+      try {
+        _artist = (await _ref.read(libraryApiProvider).item(id))?.artist;
+      } catch (_) {}
+    }
     final kind = entry.isVideo ? 'video' : 'audio';
     final before = await history();
     final next = notePlayed(
@@ -249,6 +265,14 @@ class PlaybackMemory {
     final previous = _last;
     _last = s;
     if (_currentId == null || s.duration == Duration.zero) return;
+    // Time really heard: the position moving forward while playing (seeks
+    // are jumps of more than 3 s and do not count), at the playback speed.
+    if (_counts && previous != null && previous.isPlaying && s.isPlaying) {
+      final moved = s.position - previous.position;
+      if (moved > Duration.zero && moved <= const Duration(seconds: 3)) {
+        _heardMs += moved.inMilliseconds / (s.speed <= 0 ? 1 : s.speed);
+      }
+    }
     final paused = previous?.isPlaying == true && !s.isPlaying;
     if (s.status == PlaybackStatus.ended) {
       // Like 0.1.x: history keeps the end position (watched to the end), the
@@ -265,10 +289,29 @@ class PlaybackMemory {
     if (id == null) return;
     _savedAt = position;
     final h = noteStopped(await history(), id, position.inSeconds);
+    final heard = (_heardMs / 1000).floor();
+    String? journal;
+    if (heard > 0) {
+      _heardMs -= heard * 1000;
+      journal = (await listenJournal())
+          .add(DateTime.now(), heard, artist: _artist)
+          .encode();
+    }
     await _write({
       positionKey(id): resumeValue(position, duration),
       historyKey: jsonEncode([for (final e in h) e.toJson()]),
+      listenJournalKey: ?journal,
     });
+  }
+
+  Future<ListenJournal> listenJournal() async {
+    try {
+      return ListenJournal.parse(
+        await _ref.read(playbackStoreProvider).read(listenJournalKey),
+      );
+    } catch (_) {
+      return ListenJournal.empty;
+    }
   }
 
   /// Saves where the previous track stopped before another one starts.

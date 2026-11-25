@@ -2610,8 +2610,6 @@
   "randomAlbum": "Album au hasard",
   "artistOfWeek": "Artiste de la semaine",
   "last7Days": "7 derniers jours",
-  "listenToday": "{time} aujourd'hui",
-  "@listenToday": {"placeholders": {"time": {"type": "String"}}},
   "shuffleAll": "Tout mélanger",
   "addAllToQueue": "Tout ajouter à la file",
   "noListenYet": "Écoutez de la musique pour voir ici votre temps d'écoute.",

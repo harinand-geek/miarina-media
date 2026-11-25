@@ -4985,11 +4985,6 @@ class L10nFr extends L10n {
   String get last7Days => '7 derniers jours';
 
   @override
-  String listenToday(String time) {
-    return '$time aujourd\'hui';
-  }
-
-  @override
   String get shuffleAll => 'Tout mélanger';
 
   @override

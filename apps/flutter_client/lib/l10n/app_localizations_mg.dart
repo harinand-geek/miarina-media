@@ -5002,11 +5002,6 @@ class L10nMg extends L10n {
   String get last7Days => 'Andro 7 farany';
 
   @override
-  String listenToday(String time) {
-    return '$time androany';
-  }
-
-  @override
   String get shuffleAll => 'Afangaro daholo';
 
   @override

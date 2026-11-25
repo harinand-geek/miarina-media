@@ -4,6 +4,8 @@
 //   $env:MM_SHOTS = "<folder>"; flutter test test/tool/phone_shots_test.dart
 //
 // Skipped when MM_SHOTS is not set, so the normal suite ignores it.
+import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -19,6 +21,7 @@ import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
+import 'package:miarina_media/features/playback/listen_journal.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -82,23 +85,28 @@ Future<void> _settle(WidgetTester tester) async {
   }
 }
 
-/// Lets real file images decode, then draws a frame.
+/// Lets real file images decode, then draws a frame. Loads started under
+/// the test's fake clock never finish: the cache is emptied, the pictures
+/// are loaded for real, then the widgets ask for them again (reassemble).
 Future<void> _images(WidgetTester tester) async {
-  // ignore: avoid_print
-  print('images ${find.byType(Image).evaluate().length}');
+  final found = find.byType(Image).evaluate().toList();
+  if (found.isEmpty) return;
+  final providers = {for (final e in found) (e.widget as Image).image};
+  final context = found.first;
+  imageCache
+    ..clear()
+    ..clearLiveImages();
   await tester.runAsync(() async {
-    for (final e in find.byType(Image).evaluate()) {
-      final w = e.widget as Image;
+    for (final p in providers) {
       try {
-        await precacheImage(w.image, e).timeout(const Duration(seconds: 2));
+        await precacheImage(p, context).timeout(const Duration(seconds: 8));
       } catch (_) {
         // ignore: avoid_print
-        print('image not loaded: ${w.image}');
+        print('image not loaded: $p');
       }
     }
   });
-  // ignore: avoid_print
-  print('images done');
+  unawaited(tester.binding.reassembleApplication());
   await _settle(tester);
 }
 
@@ -162,6 +170,7 @@ void main() {
     WidgetTester tester, {
     required bool light,
     String start = Routes.tracks,
+    bool history = false,
   }) async {
     tester.view.physicalSize = _size * _dpr;
     tester.view.devicePixelRatio = _dpr;
@@ -171,6 +180,38 @@ void main() {
     final settings = FakeSettingsStore()..values['onboardingDone'] = true;
     final store = FakePlaybackStore();
     if (light) store.values['mm:theme'] = 'light';
+    if (history) {
+      final now = DateTime.now();
+      store.values[historyKey] = jsonEncode([
+        for (final (i, id) in const [3, 2, 5, 1, 7, 2, 3, 3].indexed)
+          {
+            'id': id,
+            'title': 'x',
+            'kind': 'audio',
+            'at': now
+                .subtract(Duration(minutes: 3 + i * 40))
+                .millisecondsSinceEpoch,
+            'position': 60,
+            'duration': 245,
+          },
+      ]);
+      var journal = ListenJournal.empty;
+      for (final (d, mins, artist) in const [
+        (6, 35, 'Hanta'),
+        (5, 0, null),
+        (4, 72, 'Toky'),
+        (3, 20, 'Hanta'),
+        (1, 140, 'Hanta'),
+        (0, 58, 'Toky'),
+      ]) {
+        journal = journal.add(
+          now.subtract(Duration(days: d)),
+          mins * 60,
+          artist: artist,
+        );
+      }
+      store.values[listenJournalKey] = journal.encode();
+    }
     await tester.pumpWidget(
       RepaintBoundary(
         key: _shotKey,
@@ -206,9 +247,7 @@ void main() {
 
   for (final light in [true, false]) {
     final theme = light ? 'light' : 'dark';
-    testWidgets('$theme: library, mini player, player, sheets', (
-      tester,
-    ) async {
+    testWidgets('$theme: library, mini player, player, sheets', (tester) async {
       await pump(tester, light: light);
       await play(tester, 'Basse marée');
       await _shot(tester, '$theme-01-tracks-mini');
@@ -225,6 +264,19 @@ void main() {
       await tester.longPress(find.text('Kabary').first);
       await _settle(tester);
       await _shot(tester, '$theme-05-track-sheet');
+    }, skip: _out == null);
+  }
+
+  for (final light in [true, false]) {
+    final theme = light ? 'light' : 'dark';
+    testWidgets('$theme: music home', (tester) async {
+      await pump(tester, light: light, start: Routes.listenHome, history: true);
+      await _shot(tester, '$theme-10-home');
+      for (var i = 1; i <= 5; i++) {
+        await tester.drag(find.byType(ListView).first, const Offset(0, -700));
+        await _settle(tester);
+        await _shot(tester, '$theme-1$i-home');
+      }
     }, skip: _out == null);
   }
 

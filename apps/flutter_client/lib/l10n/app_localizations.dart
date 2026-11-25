@@ -8229,12 +8229,6 @@ abstract class L10n {
   /// **'7 derniers jours'**
   String get last7Days;
 
-  /// No description provided for @listenToday.
-  ///
-  /// In fr, this message translates to:
-  /// **'{time} aujourd\'hui'**
-  String listenToday(String time);
-
   /// No description provided for @shuffleAll.
   ///
   /// In fr, this message translates to:
