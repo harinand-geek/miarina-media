@@ -690,6 +690,10 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
               value: ratio,
               wavy: true,
               playing: snap.isPlaying && !snap.buffering,
+              bpm: entry == null
+                  ? null
+                  : ref.watch(trackBpmProvider(entry.source.uri)).value,
+              position: position,
               activeColor: tones.primary,
               trackColor: tones.track,
               semanticLabel: t.seek,

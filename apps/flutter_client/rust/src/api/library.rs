@@ -250,6 +250,12 @@ pub fn library_item_by_path(db_path: String, path: String) -> Result<Option<Libr
 
 /// Marks or unmarks a library entry as a favorite.
 /// A play of a library entry, as the player notes it (once per play).
+/// Tempo of a music file from its tags, if it has one (the seek bar's wave
+/// moves on the beat).
+pub fn library_bpm(path: String) -> Option<f64> {
+    library::tags::read_bpm(Path::new(&path))
+}
+
 pub fn library_note_played(db_path: String, media_id: i64) -> Result<()> {
     let now = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)

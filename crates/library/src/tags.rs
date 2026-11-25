@@ -51,6 +51,26 @@ pub fn read(path: &Path) -> Option<MediaTags> {
     (tags != MediaTags::default()).then_some(tags)
 }
 
+/// Tempo of `path` from its tags (ID3 TBPM, Vorbis BPM, MP4 tmpo), when
+/// plausible (30 to 300 beats a minute). Drives the seek bar's wave on the
+/// beat (vinyl handoff, 2026-11-25).
+pub fn read_bpm(path: &Path) -> Option<f64> {
+    let tagged = lofty::read_from_path(path).ok()?;
+    for tag in tagged.tags() {
+        for key in [ItemKey::Bpm, ItemKey::IntegerBpm] {
+            let Some(value) = tag.get_string(key) else {
+                continue;
+            };
+            if let Ok(bpm) = value.trim().replace(',', ".").parse::<f64>()
+                && (30.0..=300.0).contains(&bpm)
+            {
+                return Some(bpm);
+            }
+        }
+    }
+    None
+}
+
 #[derive(Debug, thiserror::Error)]
 pub enum TagWriteError {
     #[error("Tags cannot be written to this file type.")]
@@ -134,4 +154,49 @@ fn temp_copy_path(path: &Path) -> PathBuf {
         .map(|n| n.to_string_lossy().into_owned())
         .unwrap_or_default();
     path.with_file_name(format!(".{name}.miarina-tags.tmp"))
+}
+
+#[cfg(test)]
+mod bpm_tests {
+    use super::*;
+    use lofty::tag::TagType;
+
+    /// A short silent WAV file (8 kHz, 16 bits, mono).
+    fn wav(path: &Path) {
+        let samples = 800u32;
+        let data = samples * 2;
+        let mut b = Vec::new();
+        b.extend_from_slice(b"RIFF");
+        b.extend_from_slice(&(36 + data).to_le_bytes());
+        b.extend_from_slice(b"WAVEfmt ");
+        b.extend_from_slice(&16u32.to_le_bytes());
+        b.extend_from_slice(&1u16.to_le_bytes());
+        b.extend_from_slice(&1u16.to_le_bytes());
+        b.extend_from_slice(&8000u32.to_le_bytes());
+        b.extend_from_slice(&16000u32.to_le_bytes());
+        b.extend_from_slice(&2u16.to_le_bytes());
+        b.extend_from_slice(&16u16.to_le_bytes());
+        b.extend_from_slice(b"data");
+        b.extend_from_slice(&data.to_le_bytes());
+        b.resize(b.len() + data as usize, 0);
+        std::fs::write(path, b).unwrap();
+    }
+
+    #[test]
+    fn tempo_from_tags_and_implausible_values_ignored() {
+        let dir = tempfile::tempdir().unwrap();
+        let path = dir.path().join("beat.wav");
+        wav(&path);
+        assert_eq!(read_bpm(&path), None, "no tag yet");
+
+        let mut tag = Tag::new(TagType::Id3v2);
+        tag.insert_text(ItemKey::IntegerBpm, "128".into());
+        tag.save_to_path(&path, WriteOptions::default()).unwrap();
+        assert_eq!(read_bpm(&path), Some(128.0));
+
+        let mut tag = Tag::new(TagType::Id3v2);
+        tag.insert_text(ItemKey::IntegerBpm, "4000".into());
+        tag.save_to_path(&path, WriteOptions::default()).unwrap();
+        assert_eq!(read_bpm(&path), None, "not a tempo");
+    }
 }

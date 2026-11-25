@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
 import '../health/health_data.dart';
+import '../../src/rust/api/library.dart' as rust_library;
 import '../settings/settings_data.dart';
 import 'playback_memory.dart';
 
@@ -538,3 +539,24 @@ class SleepTimerController extends Notifier<SleepTimer> {
     }
   }
 }
+
+/// Reads a music file's tempo from its tags (tests answer it).
+final bpmLoaderProvider = Provider<Future<double?> Function(String path)>(
+  (_) =>
+      (path) => rust_library.libraryBpm(path: path),
+);
+
+/// Tempo of the file at [QueueEntry.source] when its tags give one: the
+/// seek bar's wave then moves on the beat (vinyl handoff). Null otherwise,
+/// or for streams and content URIs.
+final trackBpmProvider = FutureProvider.autoDispose.family<double?, Uri>((
+  ref,
+  uri,
+) async {
+  if (uri.scheme != 'file') return null;
+  try {
+    return await ref.read(bpmLoaderProvider)(uri.toFilePath());
+  } catch (_) {
+    return null;
+  }
+});

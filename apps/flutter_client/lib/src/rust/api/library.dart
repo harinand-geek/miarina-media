@@ -81,6 +81,11 @@ Future<LibraryItem?> libraryItemByPath({
 
 /// Marks or unmarks a library entry as a favorite.
 /// A play of a library entry, as the player notes it (once per play).
+/// Tempo of a music file from its tags, if it has one (the seek bar's wave
+/// moves on the beat).
+Future<double?> libraryBpm({required String path}) =>
+    RustLib.instance.api.crateApiLibraryLibraryBpm(path: path);
+
 Future<void> libraryNotePlayed({
   required String dbPath,
   required PlatformInt64 mediaId,

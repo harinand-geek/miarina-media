@@ -303,6 +303,7 @@ class _Seek extends ConsumerWidget {
     final c = MmColors.of(context);
     final engine = ref.read(mediaEngineProvider);
     final total = snap.duration;
+    final uri = ref.watch(queueProvider.select((q) => q.current?.source.uri));
     final time = MmType.monoStyle(color: c.muted);
     return InterpolatedPosition(
       position: snap.position,
@@ -327,6 +328,10 @@ class _Seek extends ConsumerWidget {
                 value: ratio,
                 wavy: true,
                 playing: snap.isPlaying && !snap.buffering,
+                bpm: uri == null
+                    ? null
+                    : ref.watch(trackBpmProvider(uri)).value,
+                position: position,
                 activeColor: _BarTones.of(context).primary,
                 trackColor: _BarTones.of(context).track,
                 height: 22,
