@@ -8,6 +8,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../playback/playing_bars.dart';
 import '../device_media/device_media.dart';
 import '../get/get_screens.dart' show revealProvider;
 import '../health/health_data.dart';
@@ -1294,10 +1295,12 @@ class _TrackRow extends StatelessWidget {
               child: Row(
                 children: _grid([
                   playing
-                      ? Icon(
-                          PhosphorFill.equalizer,
-                          size: 16,
-                          color: c.coralStrong,
+                      ? Align(
+                          alignment: Alignment.centerLeft,
+                          child: LivePlayingBars(
+                            color: c.coralStrong,
+                            size: 15,
+                          ),
                         )
                       : Text(
                           '${index + 1}',

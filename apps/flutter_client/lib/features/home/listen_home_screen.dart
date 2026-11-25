@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../playback/playing_bars.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/theme.dart';
@@ -671,11 +672,7 @@ class _NowPanel extends ConsumerWidget {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      PhosphorFill.equalizer,
-                      size: 15,
-                      color: c.coralStrong,
-                    ),
+                    LivePlayingBars(color: c.coralStrong, size: 14),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(

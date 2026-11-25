@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../playback/playing_bars.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
@@ -82,10 +83,9 @@ class QueueView extends ConsumerWidget {
                             seed: current.seed,
                             shadow: false,
                             imagePath: current.artwork,
-                            child: Icon(
-                              PhosphorFill.equalizer,
-                              size: 16,
+                            child: LivePlayingBars(
                               color: c.coralStrong,
+                              size: 16,
                             ),
                           ),
                           const SizedBox(width: 12),
