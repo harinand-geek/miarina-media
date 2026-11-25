@@ -10,8 +10,8 @@ import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
 
 /// The cover as a record on a turntable: the record turns (one turn per
-/// 2.7 s) while the music plays and stops dead on pause; the label (cover)
-/// and the spindle stay still; the tonearm sets down when playing, tracks
+/// 4 s, slowed at the owner's request) while the music plays and stops
+/// dead on pause; the label (cover) and the spindle stay still; the tonearm sets down when playing, tracks
 /// inward with [progress] and swings back to its rest on pause.
 class VinylTurntable extends StatefulWidget {
   const VinylTurntable({
@@ -41,7 +41,7 @@ class _VinylTurntableState extends State<VinylTurntable>
     with SingleTickerProviderStateMixin {
   late final AnimationController _turn = AnimationController(
     vsync: this,
-    duration: const Duration(milliseconds: 2700),
+    duration: const Duration(milliseconds: 4000),
   );
 
   @override
