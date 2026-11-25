@@ -65,7 +65,16 @@ class ExpressiveSlider extends StatefulWidget {
     this.step = 0.05,
     this.height = 44,
     this.stroke = 5,
+    this.bpm,
+    this.position,
   });
+
+  /// Wave on the beat (vinyl handoff, 2026-11-25): with the track's tempo
+  /// and the current [position], the wave moves one wavelength per beat
+  /// and swells on each beat, more on the first of four. Without a known
+  /// tempo it keeps its steady motion.
+  final double? bpm;
+  final Duration? position;
 
   /// 0..1.
   final double value;
@@ -182,8 +191,8 @@ class _ExpressiveSliderState extends State<ExpressiveSlider> {
                       size: Size.infinite,
                       painter: _SliderPainter(
                         value: value,
-                        phase: phase,
-                        amplitude: amp * 3.2,
+                        phase: _beat(phase, amp).$1,
+                        amplitude: _beat(phase, amp).$2,
                         active: enabled
                             ? widget.activeColor
                             : widget.activeColor.withValues(alpha: 0.4),
@@ -203,6 +212,22 @@ class _ExpressiveSliderState extends State<ExpressiveSlider> {
         ),
       ),
     );
+  }
+}
+
+/// Phase and amplitude of the wave: on the beat when the tempo is known.
+extension on _ExpressiveSliderState {
+  (double, double) _beat(double phase, double amp) {
+    final bpm = widget.bpm;
+    final at = widget.position;
+    if (bpm == null || bpm <= 0 || at == null) return (phase, amp * 3.2);
+    final beat = 60 / bpm;
+    final t = at.inMicroseconds / 1e6;
+    final beats = t / beat;
+    final since = (beats - beats.floor()) * beat;
+    final downbeat = beats.floor() % 4 == 0;
+    final pulse = math.exp(-since / 0.16) * (downbeat ? 5.2 : 3.4);
+    return (beats * 2 * math.pi, amp * (2.2 + pulse));
   }
 }
 
