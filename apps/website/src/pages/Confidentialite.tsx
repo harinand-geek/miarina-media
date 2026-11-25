@@ -10,7 +10,7 @@ export function Confidentialite() {
         <h1>Ce que Miarina Media traite, et ce qu’il ne fait pas</h1>
         <p className="doc-lead">
           Description factuelle des versions Windows {RELEASE.windows.version} et Android{' '}
-          {RELEASE.android.version} et de ce site, mise à jour le 10 novembre 2026.
+          {RELEASE.android.version} et de ce site, mise à jour le 25 novembre 2026.
         </p>
 
         <h2>Dans l’application</h2>
@@ -73,8 +73,8 @@ export function Confidentialite() {
             <strong>Torrents (Windows) :</strong> après activation de la session, l’application
             contacte des pairs, trackers et nœuds DHT. Votre adresse IP et les identifiants des
             torrents sont visibles par ces participants. Les morceaux téléchargés peuvent être
-            partagés, y compris après la fin du téléchargement. Pause ou « Stop all torrents and
-            sharing » arrête ce partage. Les données de reprise restent sur votre appareil.
+            partagés, y compris après la fin du téléchargement. Pause ou « Arrêter tout et le
+            partage » arrête ce partage. Les données de reprise restent sur votre appareil.
           </li>
           <li>
             <strong>Extension Chrome/Edge :</strong> elle transmet uniquement les liens que vous

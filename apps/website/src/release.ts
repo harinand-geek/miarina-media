@@ -273,12 +273,12 @@ export const CHANGELOG: Release[] = [
       'Nouvelle interface Windows : espaces Obtenir et Écouter, mini-lecteur, écrans revus, français et anglais complets, nouveau logo',
       'Bibliothèque musicale : albums, artistes, dossiers, éditeur de tags et pochettes',
       'Playlists, favoris, import et export M3U ; file de lecture, positions et historique d’écoute conservés',
-      'Lecteur libVLC intégré : MKV, HEVC, AVI et autres formats, pistes audio, sous-titres SRT et VTT avec décalage, égaliseur à 6 bandes ; image dans l’image retirée avec ce lecteur',
+      'Lecteur intégré : MKV, HEVC, AVI et autres formats, pistes audio, sous-titres SRT et VTT avec décalage, égaliseur à 6 bandes ; image dans l’image retirée avec ce lecteur',
       'Ouvrir des fichiers, importer un dossier, déposer des fichiers sur la fenêtre',
       'Navigateur : plusieurs onglets et historique local',
       'Téléchargements : reprise vérifiée, attente du retour du réseau, disque plein et dossier inaccessible signalés',
       'Mises à jour : annulation et reprise du téléchargement, canal stable ou bêta, téléchargement automatique sur réseau non limité (désactivé par défaut), copie de la bibliothèque avant mise à jour',
-      'Installateur plus gros (libVLC inclus) ; Android reste en 0.1.7',
+      'Installateur plus gros (lecteur inclus) ; Android reste en 0.1.7',
     ],
   },
   {
@@ -431,7 +431,7 @@ export const PLATFORMS: { feature: string; windows: Cell; android: Cell }[] = [
   { feature: 'Playlists et favoris', windows: true, android: true },
   { feature: 'Import et export M3U', windows: true, android: 'soon' },
   { feature: 'Titres récents et plus écoutés', windows: 'Historique d’écoute', android: true },
-  { feature: 'Lecteur intégré', windows: 'libVLC', android: 'Media3' },
+  { feature: 'Lecteur intégré', windows: true, android: true },
   {
     feature: 'Commandes système : écran verrouillé, notification, casque Bluetooth',
     windows: 'Bêta 0.2.3 : touches multimédia',

@@ -166,7 +166,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'Lecteur et égaliseur',
-            'Sous Windows, libVLC est fourni avec l’installateur : pistes audio, sous-titres SRT et VTT, vitesse, égaliseur à 6 bandes. Sous Android, la musique continue écran éteint, avec les commandes de l’écran verrouillé et du casque Bluetooth, et l’égaliseur du téléphone.',
+            'Sous Windows, le lecteur intégré gère les pistes audio, les sous-titres SRT et VTT, la vitesse et l’égaliseur. Sous Android, la musique continue écran éteint, avec les commandes de l’écran verrouillé et du casque Bluetooth, et l’égaliseur du téléphone.',
           ],
           [
             'Vos fichiers aussi',
@@ -208,23 +208,23 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'album',
         'Windows · Albums',
-        'Windows 0.2.0 (bêta) : albums, artistes, titres, playlists et favoris, avec les pochettes des fichiers, des filtres et un éditeur de tags.',
+        'Windows 0.2.10 : albums, artistes, titres, playlists et favoris, avec les pochettes des fichiers, des filtres et un éditeur de tags.',
       ],
       [
         'play_circle',
         'Windows · En lecture',
-        'Windows 0.2.0 (bêta) : paroles synchronisées, file de lecture, égaliseur, vitesse et minuteur. La lecture reprend où vous l’aviez laissée.',
+        'Windows 0.2.10 : l’écran prend les couleurs de la pochette ; paroles synchronisées, file de lecture, égaliseur, vitesse, minuteur et mode vinyle. La lecture reprend où vous l’aviez laissée.',
       ],
       [
         'android',
         'Android',
-        'Sur Android, Miarina Media s’ouvre sur votre musique : titres, playlists, dossiers, artistes et albums. La lecture continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.',
+        'Sur Android, Miarina Media s’ouvre sur votre musique : reprise de lecture, favoris, récents, plus joués, mix du jour, albums, artistes et playlists. La lecture continue écran éteint ; les vidéos passent en plein écran paysage avec pistes, sous-titres et image dans l’image.',
       ],
     ],
     shotAlts: [
-      'Bibliothèque musicale Windows 0.2.0 : albums d’œuvres libres avec leurs pochettes',
-      'Lecteur Windows 0.2.0 : un concerto en lecture, avec sa pochette et la file de lecture',
-      'Android : la musique de Miarina Media, titres et onglets',
+      'Bibliothèque musicale Windows 0.2.10 : des albums de démonstration avec leurs pochettes',
+      'Lecteur Windows 0.2.10 : un titre en lecture, l’écran aux couleurs de sa pochette',
+      'Android 0.2.10 : l’accueil Musique de Miarina Media',
     ],
     dlTitle: 'Télécharger Miarina Media',
     dlLead:
@@ -331,7 +331,7 @@ export const LANDING: Record<Lang, LandingText> = {
           ],
           [
             'Player and equalizer',
-            'On Windows, libVLC ships with the installer: audio tracks, SRT and VTT subtitles, speed, 6-band equalizer. On Android, music keeps playing with the screen off, with lock-screen and Bluetooth headset controls and the phone’s equalizer.',
+            'On Windows, the built-in player handles audio tracks, SRT and VTT subtitles, speed and the equalizer. On Android, music keeps playing with the screen off, with lock-screen and Bluetooth headset controls and the phone’s equalizer.',
           ],
           [
             'Your files too',
@@ -373,23 +373,23 @@ export const LANDING: Record<Lang, LandingText> = {
       [
         'album',
         'Windows · Albums',
-        'Windows 0.2.0 (beta): albums, artists, songs, playlists and favourites, with the files’ cover art, filters and a tag editor.',
+        'Windows 0.2.10: albums, artists, songs, playlists and favourites, with the files’ cover art, filters and a tag editor.',
       ],
       [
         'play_circle',
         'Windows · Now playing',
-        'Windows 0.2.0 (beta): synced lyrics, play queue, equalizer, speed and sleep timer. Playback resumes where you left off.',
+        'Windows 0.2.10: the screen takes on the cover’s colours; synced lyrics, play queue, equalizer, speed, sleep timer and vinyl mode. Playback resumes where you left off.',
       ],
       [
         'android',
         'Android',
-        'On Android, Miarina Media opens on your music: songs, playlists, folders, artists and albums. Playback continues with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.',
+        'On Android, Miarina Media opens on your music: resume playback, favourites, recent, most played, mix of the day, albums, artists and playlists. Playback continues with the screen off; videos go full-screen landscape with tracks, subtitles and picture-in-picture.',
       ],
     ],
     shotAlts: [
-      'Windows 0.2.0 music library: albums of freely licensed works with their covers',
-      'Windows 0.2.0 player: a concerto playing, with its cover and the play queue',
-      'Android: Miarina Media’s music, songs and tabs',
+      'Windows 0.2.10 music library: demo albums with their covers',
+      'Windows 0.2.10 player: a song playing, the screen in its cover’s colours',
+      'Android 0.2.10: Miarina Media’s Music home',
     ],
     dlTitle: 'Download Miarina Media',
     dlLead: 'Free, no ads, no account. The app sends no usage statistics and no crash reports.',
