@@ -2614,5 +2614,6 @@
   "addAllToQueue": "Tout ajouter à la file",
   "noListenYet": "Écoutez de la musique pour voir ici votre temps d'écoute.",
   "minutesCount": "{count, plural, =1{1 minute} other{{count} minutes}}",
-  "@minutesCount": {"placeholders": {"count": {"type": "int"}}}
+  "@minutesCount": {"placeholders": {"count": {"type": "int"}}},
+  "phoneLibrary": "Bibliothèque"
 }

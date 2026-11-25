@@ -280,6 +280,32 @@ void main() {
     }, skip: _out == null);
   }
 
+  for (final light in [true, false]) {
+    final theme = light ? 'light' : 'dark';
+    testWidgets('$theme: library', (tester) async {
+      await pump(tester, light: light);
+      await play(tester, 'Kabary');
+      await _shot(tester, '$theme-20-tracks');
+      await tester.tap(find.bySemanticsLabel('Grille'));
+      await _settle(tester);
+      await _shot(tester, '$theme-21-tracks-grid');
+      await tester.tap(find.text('Albums').first);
+      await _settle(tester);
+      await _shot(tester, '$theme-22-albums');
+      await tester.tap(find.text('Ny lanitra').first);
+      await _settle(tester);
+      await _shot(tester, '$theme-23-album');
+      await tester.tap(find.bySemanticsLabel('Retour').first);
+      await _settle(tester);
+      await tester.tap(find.text('Artistes').first);
+      await _settle(tester);
+      await _shot(tester, '$theme-24-artists');
+      await tester.tap(find.text('Hanta').first);
+      await _settle(tester);
+      await _shot(tester, '$theme-25-artist');
+    }, skip: _out == null);
+  }
+
   testWidgets('players in other colours', (tester) async {
     await pump(tester, light: true);
     for (final (i, title) in const [

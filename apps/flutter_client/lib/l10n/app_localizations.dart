@@ -8252,6 +8252,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
   String minutesCount(int count);
+
+  /// No description provided for @phoneLibrary.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bibliothèque'**
+  String get phoneLibrary;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

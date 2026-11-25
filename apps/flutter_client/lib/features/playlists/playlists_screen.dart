@@ -20,6 +20,7 @@ import '../../src/rust/api/library.dart';
 import '../../src/rust/api/playlists.dart';
 import '../focus/focus_screen.dart' show shortDuration;
 import '../get/get_data.dart' show androidMediaTools;
+import '../library/phone_library.dart' show PhoneLibraryHeader;
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../now_playing/sound_view.dart' show MmSwitch;
@@ -141,14 +142,8 @@ class PlaylistsScreen extends ConsumerWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-            child: Text(
-              t.navPlaylists,
-              style: MmType.titleLg.copyWith(fontSize: 20, color: c.fg),
-            ),
-          ),
-          const MusicChips(current: Routes.playlists),
+          // Same header as the other library tabs (decision 0010).
+          const PhoneLibraryHeader(current: Routes.playlists),
           const SizedBox(height: 12),
           Expanded(child: list),
         ],

@@ -54,7 +54,13 @@ modification (fonctions déjà présentes / manquantes).
    historique, bouton « Tout mélanger ») — fait. Le Windows garde son
    accueil W-00. Pas d'« Épinglés » ni de « Genre du jour » : il n'existe
    pas encore d'épinglage, et le genre n'est pas exposé par le cœur.
-4. Bibliothèque et pages album / artiste teintées.
+4. Bibliothèque (titre, recherche, onglets avec leurs nombres, tri, filtres,
+   grille ou liste mémorisée, lignes en blocs arrondis avec le format du
+   fichier), albums en cartes teintées, artistes en forme de fleur, pages
+   album / artiste (pochette fondue dans la page, Lecture / Aléatoire aux
+   couleurs de la pochette, fiche d'actions partagée) — fait. Le badge de
+   qualité montre le format (FLAC, MP3…) : la profondeur en bits n'est pas
+   encore exposée par le cœur aux listes.
 
 Chaque étape : analyse, tests, captures (outil
 `test/tool/phone_shots_test.dart`, sans appareil), commit et push. Essai

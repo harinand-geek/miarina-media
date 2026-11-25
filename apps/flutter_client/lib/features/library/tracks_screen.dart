@@ -29,6 +29,7 @@ import '../settings/settings_data.dart';
 import '../../app/router.dart';
 import 'groups.dart';
 import 'library_data.dart';
+import 'phone_library.dart';
 import 'tag_editor.dart';
 import 'track_info.dart';
 
@@ -737,28 +738,34 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
   /// (more than 16 bits or 48 kHz), Ajoutés ce mois. Introuvables · N opens
   /// the W-O2 screen, shown when files are missing.
   List<Widget> _chips(L10n t, {required double height}) {
+    // The phone toolbar (40 dp) uses the expressive chips.
+    final phone = height >= 40;
+    Widget chip0({
+      required String label,
+      required bool on,
+      VoidCallback? onTap,
+    }) => phone
+        ? ToolChip(label: label, on: on, onTap: onTap)
+        : _Chip(label: label, on: on, height: height, onTap: onTap);
     final missing = ref.watch(healthCountsProvider).value?.missing.toInt() ?? 0;
-    Widget quick(_Quick q, String label) => _Chip(
+    Widget quick(_Quick q, String label) => chip0(
       label: label,
       on: _quick == q,
-      height: height,
       onTap: () => _setQuick(_quick == q ? null : q),
     );
     const gap = SizedBox(width: 8);
     return [
-      _Chip(
+      chip0(
         label: t.filterAll,
         on: !_favoritesOnly && _quick == null,
-        height: height,
         onTap: _favoritesOnly
             ? () => context.go(Routes.tracks)
             : (_quick == null ? null : () => _setQuick(null)),
       ),
       gap,
-      _Chip(
+      chip0(
         label: t.navFavorites,
         on: _favoritesOnly,
-        height: height,
         onTap: _favoritesOnly ? null : () => context.go(Routes.favorites),
       ),
       gap,
@@ -767,10 +774,9 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       quick(_Quick.hiRes, t.filterHiRes),
       if (missing > 0) ...[
         gap,
-        _Chip(
+        chip0(
           label: t.filterMissingCount(missing),
           on: false,
-          height: height,
           onTap: () => context.go(Routes.missing),
         ),
       ],
@@ -863,67 +869,151 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
     );
   }
 
-  /// A-01 (Android, 360 dp reference): 60 dp rows, a tap plays.
+  /// A-01 on the phone, expressive redesign (decision 0010): library header
+  /// with tabs and counts, a toolbar (count, sort, favorites and quick
+  /// filters, shuffle, grid or list), then the titles as rows joined into
+  /// rounded blocks or as a three-column grid. A tap plays.
   Widget _mobile(MmColors c, L10n t, int? playingId) {
     final queue = ref.read(queueProvider.notifier);
+    final grid = ref.watch(phoneTracksGridProvider).value ?? false;
+    Widget iconButton(IconData icon, String label, VoidCallback? onTap) =>
+        Pressable(
+          onTap: onTap,
+          semanticLabel: label,
+          tooltip: label,
+          pressScale: 0.88,
+          child: SizedBox(
+            width: 46,
+            height: 46,
+            child: Icon(
+              icon,
+              size: 24,
+              color: onTap == null ? c.faintIcon : c.fg,
+            ),
+          ),
+        );
+    final sortLabel = switch (_sort) {
+      TrackSort.title => t.colTitle,
+      TrackSort.artist => t.colArtist,
+      TrackSort.album => t.colAlbum,
+      TrackSort.format => t.colFormat,
+      TrackSort.duration => t.colDuration,
+      TrackSort.added => t.groupSortAdded,
+    };
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 2),
-          child: Text(
-            widget.favorites ? t.navFavorites : t.navTracks,
-            style: MmType.titleLg.copyWith(fontSize: 20, color: c.fg),
-          ),
+        PhoneLibraryHeader(
+          current: widget.favorites ? Routes.favorites : Routes.tracks,
+          title: widget.favorites ? t.navFavorites : null,
         ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-          child: Text(
-            t.tracksSummary(_total),
-            style: MmType.bodySm.copyWith(color: c.muted),
-          ),
-        ),
-        const MusicChips(current: Routes.tracks),
-        const SizedBox(height: 10),
         SizedBox(
-          height: 34,
-          child: ListView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            children: _chips(t, height: 34),
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
+          height: 66,
           child: Row(
             children: [
               Expanded(
-                child: _WideButton(
-                  label: t.playAll,
-                  icon: PhosphorFill.play,
-                  primary: true,
-                  onTap: _items.isEmpty ? null : () => _play(0),
+                // The chips fade out under the two buttons on the right.
+                child: ShaderMask(
+                  shaderCallback: (rect) => const LinearGradient(
+                    colors: [Color(0xFF000000), Color(0x00000000)],
+                    stops: [0.9, 1],
+                  ).createShader(rect),
+                  blendMode: BlendMode.dstIn,
+                  child: ListView(
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.fromLTRB(20, 13, 24, 13),
+                    children: [
+                      Center(
+                        child: Text(
+                          t.tracksSummary(_total),
+                          style: MmType.body.copyWith(
+                            fontSize: 15,
+                            color: c.fgSoft,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      ToolChip(
+                        label: sortLabel,
+                        icon: _reverse
+                            ? PhosphorRegular.arrowDown
+                            : PhosphorRegular.arrowUp,
+                        onTap: () => _sortSheet(t),
+                      ),
+                      const SizedBox(width: 8),
+                      ..._chips(t, height: 40),
+                    ],
+                  ),
                 ),
+              ),
+              iconButton(
+                PhosphorRegular.shuffle,
+                t.shuffle,
+                _items.isEmpty
+                    ? null
+                    : () async {
+                        if (!ref.read(queueProvider).shuffle) {
+                          await queue.toggleShuffle();
+                        }
+                        _play(math.Random().nextInt(_items.length));
+                      },
+              ),
+              iconButton(
+                grid ? PhosphorRegular.listBullets : PhosphorRegular.gridFour,
+                grid ? t.viewList : t.viewGrid,
+                () => ref.read(phoneTracksGridProvider.notifier).set(!grid),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: _WideButton(
-                  label: t.shuffle,
-                  icon: PhosphorRegular.shuffle,
-                  onTap: _items.isEmpty
-                      ? null
-                      : () async {
-                          if (!ref.read(queueProvider).shuffle) {
-                            await queue.toggleShuffle();
-                          }
-                          _play(math.Random().nextInt(_items.length));
-                        },
-                ),
-              ),
             ],
           ),
         ),
-        Expanded(child: _mobileList(c, t, playingId)),
+        Expanded(
+          child: AnimatedSwitcher(
+            duration: MmMotion.of(context).screen,
+            child: KeyedSubtree(
+              key: ValueKey(grid),
+              child: grid
+                  ? _mobileGrid(c, t, playingId)
+                  : _mobileList(c, t, playingId),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  /// Sort of the phone list: one sheet; the current order again reverses it.
+  void _sortSheet(L10n t) {
+    showActionSheet(
+      context,
+      header: SheetHeader(
+        leading: Icon(
+          PhosphorRegular.sortAscending,
+          size: 30,
+          color: MmColors.of(context).fg,
+        ),
+        title: t.sortBy,
+      ),
+      groups: [
+        [
+          for (final (s, label) in [
+            (TrackSort.title, t.colTitle),
+            (TrackSort.artist, t.colArtist),
+            (TrackSort.album, t.colAlbum),
+            (TrackSort.added, t.groupSortAdded),
+            (TrackSort.duration, t.colDuration),
+          ])
+            SheetAction(
+              icon: s == _sort
+                  ? (_reverse
+                        ? PhosphorRegular.arrowDown
+                        : PhosphorRegular.arrowUp)
+                  : PhosphorRegular.sortAscending,
+              label: label,
+              value: s == _sort ? '✓' : null,
+              onTap: () => _setSort(s),
+            ),
+        ],
       ],
     );
   }
@@ -933,99 +1023,56 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       return _body(c, t, playingId, true);
     }
     return ListView.builder(
-      itemExtent: 60,
-      padding: const EdgeInsets.fromLTRB(8, 0, 8, 16),
+      itemExtent: 79,
+      padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
       itemCount: _items.length,
       itemBuilder: (context, i) {
         if (i >= _items.length - 40 && _items.length < _total) _loadMore();
         final item = _items[i];
-        final playing = playingId == item.id;
-        return Opacity(
-          opacity: item.missing ? 0.72 : 1,
-          child: Pressable(
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 3),
+          child: PhoneTrackRow(
+            item: item,
+            first: i == 0,
+            last: i == _items.length - 1,
             onTap: () => _play(i),
-            onLongPress: () => _openSheet(i),
-            semanticLabel: '${item.title}, ${item.artist ?? t.unknownArtist}',
-            borderRadius: BorderRadius.circular(MmRadius.lg),
-            pressScale: 0.98,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                children: [
-                  CoverArt(
-                    size: 48,
-                    radius: 10,
-                    seed: item.id,
-                    shadow: false,
-                    imagePath: item.thumbnail,
-                    child: playing
-                        ? Icon(
-                            PhosphorFill.equalizer,
-                            size: 20,
-                            color: c.coralStrong,
-                          )
-                        : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          item.title,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.heading.copyWith(
-                            fontSize: 15,
-                            color: playing ? c.coralStrong : c.fg,
-                          ),
-                        ),
-                        Text(
-                          item.missing
-                              ? '${t.fileMissing} · ${t.locate}'
-                              : (item.artist ?? t.unknownArtist),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.caption.copyWith(
-                            fontSize: 12.5,
-                            color: item.missing ? c.warning : c.muted,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Pressable(
-                    onTap: () => _toggleFavorite(i),
-                    semanticLabel: item.favorite
-                        ? t.favoriteRemove
-                        : t.favoriteAdd,
-                    pressScale: 0.85,
-                    child: SizedBox(
-                      width: 44,
-                      height: 48,
-                      child: Center(child: _Heart(on: item.favorite)),
-                    ),
-                  ),
-                  Pressable(
-                    key: ValueKey('track-more-${item.id}'),
-                    onTap: () => _openSheet(i),
-                    semanticLabel: t.moreOptions,
-                    pressScale: 0.85,
-                    child: SizedBox(
-                      width: 36,
-                      height: 48,
-                      child: Icon(
-                        PhosphorRegular.dotsThreeVertical,
-                        size: 22,
-                        color: c.muted,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            onMore: () => _openSheet(i),
+            moreKey: ValueKey('track-more-${item.id}'),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _mobileGrid(MmColors c, L10n t, int? playingId) {
+    if (_error != null || (_items.isEmpty && !_loading)) {
+      return _body(c, t, playingId, true);
+    }
+    return LayoutBuilder(
+      builder: (context, box) {
+        const pad = 20.0;
+        const gap = 10.0;
+        final tile = (box.maxWidth - pad * 2 - gap * 2) / 3;
+        return GridView.builder(
+          padding: const EdgeInsets.fromLTRB(pad, 4, pad, 24),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+            crossAxisSpacing: gap,
+            mainAxisSpacing: 14,
+            mainAxisExtent: tile + 54,
+          ),
+          itemCount: _items.length,
+          itemBuilder: (context, i) {
+            if (i >= _items.length - 40 && _items.length < _total) {
+              _loadMore();
+            }
+            return PhoneTrackTile(
+              item: _items[i],
+              size: tile,
+              onTap: () => _play(i),
+              onMore: () => _openSheet(i),
+            );
+          },
         );
       },
     );
@@ -1503,60 +1550,6 @@ class _Chip extends StatelessWidget {
           style: MmType.captionStrong.copyWith(
             fontSize: 12.5,
             color: on ? c.coralStrong : c.muted,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Full-width action of the Android lists (A-01): 44 dp, radius 14.
-class _WideButton extends StatelessWidget {
-  const _WideButton({
-    required this.label,
-    required this.icon,
-    required this.onTap,
-    this.primary = false,
-  });
-
-  final String label;
-  final IconData icon;
-  final VoidCallback? onTap;
-  final bool primary;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    final fg = primary ? c.coralInk : c.fg;
-    return Pressable(
-      onTap: onTap,
-      semanticLabel: label,
-      borderRadius: BorderRadius.circular(MmRadius.lg),
-      child: Opacity(
-        opacity: onTap == null ? 0.5 : 1,
-        child: Container(
-          height: 44,
-          decoration: BoxDecoration(
-            color: primary ? c.coral : c.surface2,
-            borderRadius: BorderRadius.circular(MmRadius.lg),
-          ),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(icon, size: 20, color: fg),
-              const SizedBox(width: 6),
-              Flexible(
-                child: Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.heading.copyWith(
-                    color: fg,
-                    fontWeight: primary ? FontWeight.w700 : FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
           ),
         ),
       ),

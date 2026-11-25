@@ -5021,4 +5021,7 @@ class L10nMg extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get phoneLibrary => 'Tranomboky';
 }

@@ -15,6 +15,7 @@ import '../health/health_screens.dart' show formatSize;
 import '../playback/settings_store.dart';
 import '../../src/rust/api/library.dart';
 import 'groups.dart';
+import 'phone_library.dart';
 import 'library_data.dart';
 
 /// Orders of the Albums and Artists views (W-M1a / W-M1b).
@@ -186,9 +187,20 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       ],
     );
     final header = mobile
-        ? Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 10),
-            child: title,
+        ? Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              PhoneLibraryHeader(
+                current: albums ? Routes.albums : Routes.artists,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 14, 20, 12),
+                child: Text(
+                  summary,
+                  style: MmType.body.copyWith(fontSize: 15, color: c.fgSoft),
+                ),
+              ),
+            ],
           )
         : Padding(
             padding: const EdgeInsets.fromLTRB(32, 24, 32, 0),
@@ -285,6 +297,43 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
         itemCount: list.length,
         itemBuilder: (context, i) => _AlbumRow(group: list[i]),
       );
+    } else if (mobile) {
+      // Expressive phone grids (decision 0010): albums as cards tinted by
+      // their covers, three across; artists in the flower shape, two across.
+      body = LayoutBuilder(
+        builder: (context, box) {
+          const pad = 20.0;
+          final cols = albums ? 3 : 2;
+          final gap = albums ? 10.0 : 18.0;
+          final tile = (box.maxWidth - pad * 2 - gap * (cols - 1)) / cols;
+          return GridView.builder(
+            padding: const EdgeInsets.fromLTRB(pad, 0, pad, 28),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: cols,
+              crossAxisSpacing: gap,
+              mainAxisSpacing: albums ? 10 : 22,
+              mainAxisExtent: albums ? tile + 58 : tile + 34,
+            ),
+            itemCount: list.length,
+            itemBuilder: (context, i) {
+              final g = list[i];
+              return albums
+                  ? TintedCoverCard(
+                      width: tile,
+                      imagePath: g.thumbnail,
+                      seed: g.name.hashCode,
+                      title: g.name,
+                      subtitle: g.detail ?? t.unknownArtist,
+                      onTap: () => openGroup(context, ref, (
+                        kind: GroupKind.album,
+                        name: g.name,
+                      )),
+                    )
+                  : ArtistBlob(group: g, size: tile);
+            },
+          );
+        },
+      );
     } else {
       body = LayoutBuilder(
         builder: (context, box) {
@@ -322,10 +371,6 @@ class _GroupsScreenState extends ConsumerState<GroupsScreen> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         header,
-        if (mobile) ...[
-          MusicChips(current: albums ? Routes.albums : Routes.artists),
-          const SizedBox(height: 12),
-        ],
         Expanded(child: body),
       ],
     );

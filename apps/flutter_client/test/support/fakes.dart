@@ -389,7 +389,8 @@ class FakeLibraryApi implements LibraryApi {
           count: BigInt.from(by[k]!.length),
           durationSecs: by[k]!.fold(0.0, (t, i) => t + (i.durationSecs ?? 0)),
           year: null,
-          thumbnail: null,
+          // Like the core: the cover of one of its titles.
+          thumbnail: by[k]!.map((i) => i.thumbnail).nonNulls.firstOrNull,
           // Higher ids were added later in these fixtures.
           addedAt: by[k]!.map((i) => i.id).reduce((a, b) => a > b ? a : b),
           plays: BigInt.from(by[k]!.fold<int>(0, (n, i) => n + i.plays)),

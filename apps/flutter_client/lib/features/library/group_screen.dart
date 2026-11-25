@@ -13,6 +13,8 @@ import '../../src/rust/api/library.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../playback/playback.dart';
 import 'groups.dart';
+import 'phone_library.dart';
+import 'track_actions.dart';
 import 'library_data.dart';
 
 /// W-M2a Album / W-M2b Artist (Windows) and A-02 (Android): blurred cover
@@ -80,7 +82,7 @@ class GroupScreen extends ConsumerWidget {
         : const <LibraryItem>[];
 
     return mobile
-        ? _MobileGroup(
+        ? PhoneGroupPage(
             kind: kind,
             name: name,
             group: group,
@@ -90,6 +92,12 @@ class GroupScreen extends ConsumerWidget {
             albums: albumsOfArtist,
             onPlay: (i) => playGroup(ref, t, _key, start: i),
             onShuffle: () => playGroup(ref, t, _key, shuffle: true),
+            onMore: (item) => showTrackActions(
+              context,
+              ref,
+              item,
+              onChanged: () => ref.invalidate(groupTracksProvider(_key)),
+            ),
           )
         : ListView(
             padding: const EdgeInsets.only(bottom: 24),
@@ -413,14 +421,12 @@ class _TrackList extends ConsumerWidget {
     required this.items,
     required this.onPlay,
     this.numbered = false,
-    this.mobile = false,
     this.showPlays = false,
   });
 
   final List<LibraryItem> items;
   final ValueChanged<int> onPlay;
   final bool numbered;
-  final bool mobile;
 
   /// "58 écoutes" before the length ("Les plus écoutés").
   final bool showPlays;
@@ -443,14 +449,14 @@ class _TrackList extends ConsumerWidget {
               return Opacity(
                 opacity: item.missing ? 0.72 : 1,
                 child: Pressable(
-                  onTap: mobile ? () => onPlay(i) : () {},
-                  onDoubleTap: mobile ? null : () => onPlay(i),
+                  onTap: () {},
+                  onDoubleTap: () => onPlay(i),
                   semanticLabel: item.title,
-                  pressScale: mobile ? 0.98 : 1,
+                  pressScale: 1,
                   hoverColor: on ? null : c.cardHover,
                   borderRadius: BorderRadius.circular(10),
                   child: Container(
-                    height: mobile ? 60 : 42,
+                    height: 42,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     decoration: BoxDecoration(
                       color: on ? c.coralSubtle : null,
@@ -484,31 +490,15 @@ class _TrackList extends ConsumerWidget {
                                 item.title,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style:
-                                    (mobile
-                                            ? MmType.heading.copyWith(
-                                                fontSize: 15,
-                                              )
-                                            : MmType.labelStrong)
-                                        .copyWith(
-                                          color: on ? c.coralStrong : c.fg,
-                                        ),
+                                style: MmType.labelStrong.copyWith(
+                                  color: on ? c.coralStrong : c.fg,
+                                ),
                               ),
                               if (item.missing)
                                 Text(
                                   t.fileMissing,
                                   style: MmType.caption.copyWith(
                                     color: c.warning,
-                                  ),
-                                )
-                              else if (mobile && item.artist != null)
-                                Text(
-                                  item.artist!,
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: MmType.caption.copyWith(
-                                    fontSize: 12.5,
-                                    color: on ? c.coralStrong : c.muted,
                                   ),
                                 ),
                             ],
@@ -541,199 +531,6 @@ class _TrackList extends ConsumerWidget {
               );
             },
           ),
-      ],
-    );
-  }
-}
-
-class _MobileGroup extends StatelessWidget {
-  const _MobileGroup({
-    required this.kind,
-    required this.name,
-    required this.group,
-    required this.artwork,
-    required this.items,
-    required this.meta,
-    required this.albums,
-    required this.onPlay,
-    required this.onShuffle,
-  });
-
-  final GroupKind kind;
-  final String name;
-  final LibraryGroup? group;
-  final String? artwork;
-  final List<LibraryItem> items;
-  final String meta;
-  final List<LibraryGroup> albums;
-  final ValueChanged<int> onPlay;
-  final VoidCallback onShuffle;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    final t = L10n.of(context);
-    final album = kind == GroupKind.album;
-    final artist = album ? group?.detail : null;
-    return Stack(
-      children: [
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 0,
-          height: 520,
-          // Eased fade: a linear one ends on a visible edge (Mach band).
-          child: ShaderMask(
-            shaderCallback: (r) => const LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFFFFFFF),
-                Color(0xD9FFFFFF),
-                Color(0x8CFFFFFF),
-                Color(0x40FFFFFF),
-                Color(0x14FFFFFF),
-                Color(0x00FFFFFF),
-              ],
-              stops: [0, 0.35, 0.6, 0.78, 0.91, 1],
-            ).createShader(r),
-            blendMode: BlendMode.dstIn,
-            child: CoverBackdrop(seed: name.hashCode, imagePath: artwork),
-          ),
-        ),
-        ListView(
-          padding: const EdgeInsets.only(bottom: 24),
-          children: [
-            Row(
-              children: [
-                Pressable(
-                  onTap: () => context.canPop()
-                      ? context.pop()
-                      : context.go(album ? Routes.albums : Routes.artists),
-                  semanticLabel: t.back,
-                  child: SizedBox(
-                    width: 48,
-                    height: 48,
-                    child: Icon(
-                      PhosphorRegular.arrowLeft,
-                      size: 24,
-                      color: c.fg,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Center(
-              child: CoverArt(
-                size: 210,
-                radius: album ? MmRadius.xl : 105,
-                seed: name.hashCode,
-                imagePath: artwork,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              name,
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: MmType.titleLg.copyWith(fontSize: 22, color: c.fg),
-            ),
-            if (artist != null)
-              Text(
-                artist,
-                textAlign: TextAlign.center,
-                style: MmType.heading.copyWith(color: c.coralStrong),
-              ),
-            const SizedBox(height: 2),
-            Text(
-              [
-                if (album) group?.year?.toString(),
-                meta,
-              ].whereType<String>().join(' · '),
-              textAlign: TextAlign.center,
-              style: MmType.caption.copyWith(fontSize: 12.5, color: c.fgSoft),
-            ),
-            Padding(
-              padding: const EdgeInsets.fromLTRB(20, 14, 20, 10),
-              child: Row(
-                children: [
-                  const Spacer(),
-                  Pressable(
-                    onTap: onShuffle,
-                    semanticLabel: t.shuffle,
-                    child: SizedBox(
-                      width: 48,
-                      height: 48,
-                      child: Icon(
-                        PhosphorRegular.shuffle,
-                        size: 24,
-                        color: c.fg,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Pressable(
-                    onTap: () => onPlay(0),
-                    semanticLabel: t.play,
-                    pressScale: 0.92,
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        color: c.coral,
-                        shape: BoxShape.circle,
-                        boxShadow: MmShadows.playHalo,
-                      ),
-                      child: Icon(
-                        PhosphorFill.play,
-                        size: 26,
-                        color: c.coralInk,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              child: _TrackList(
-                items: items,
-                numbered: album,
-                mobile: true,
-                onPlay: onPlay,
-              ),
-            ),
-            if (albums.isNotEmpty) ...[
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16, 18, 16, 8),
-                child: Text(
-                  t.navAlbums,
-                  style: MmType.title.copyWith(color: c.fg),
-                ),
-              ),
-              SizedBox(
-                height: 196,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  children: [
-                    for (final a in albums)
-                      SizedBox(
-                        width: 148,
-                        child: AlbumCard(
-                          group: a,
-                          size: 132,
-                          subtitle: a.year?.toString() ?? '',
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            ],
-          ],
-        ),
       ],
     );
   }

@@ -1426,5 +1426,6 @@
   "shuffleAll": "Shuffle all",
   "addAllToQueue": "Add all to the queue",
   "noListenYet": "Play some music to see your listening time here.",
-  "minutesCount": "{count, plural, =1{1 minute} other{{count} minutes}}"
+  "minutesCount": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "phoneLibrary": "Library"
 }

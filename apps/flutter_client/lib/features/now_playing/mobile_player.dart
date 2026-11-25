@@ -1014,11 +1014,15 @@ class _SleepPillState extends ConsumerState<_SleepPill> {
                       color: widget.tones.onButton,
                     ),
                     const SizedBox(width: 6),
-                    Text(
-                      label,
-                      style: MmType.captionStrong.copyWith(
-                        fontSize: 13,
-                        color: widget.tones.onButton,
+                    Flexible(
+                      child: Text(
+                        label,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.captionStrong.copyWith(
+                          fontSize: 13,
+                          color: widget.tones.onButton,
+                        ),
                       ),
                     ),
                   ],

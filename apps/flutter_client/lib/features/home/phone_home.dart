@@ -22,6 +22,7 @@ import '../cinema/cinema_screen.dart' show resumeTitle;
 import '../common/state_views.dart';
 import '../library/groups.dart';
 import '../library/library_data.dart';
+import '../library/phone_library.dart';
 import '../playback/playback.dart';
 import 'home_data.dart';
 import 'listen_home_screen.dart' show EmptyListenHome, resumeItem;
@@ -123,7 +124,7 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
             child: _Row(
               children: [
                 for (final r in home.recent)
-                  _TintedCard(
+                  TintedCoverCard(
                     imagePath: r.item.thumbnail,
                     seed: r.item.id,
                     title: _titleOf(t, r),
@@ -140,7 +141,7 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
             child: _Row(
               children: [
                 for (final a in home.recentAlbums)
-                  _TintedCard(
+                  TintedCoverCard(
                     imagePath: a.thumbnail,
                     seed: a.name.hashCode,
                     title: a.name,
@@ -698,86 +699,6 @@ class _QuickTiles extends ConsumerWidget {
             ],
           );
         },
-      ),
-    );
-  }
-}
-
-/// Cover on top, its title on a band tinted by the cover.
-class _TintedCard extends ConsumerWidget {
-  const _TintedCard({
-    required this.imagePath,
-    required this.seed,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  final String? imagePath;
-  final int seed;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  static const width = 150.0;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final tones = watchCoverTones(ref, context, imagePath);
-    return Pressable(
-      onTap: onTap,
-      semanticLabel: '$title, $subtitle',
-      pressScale: 0.96,
-      borderRadius: BorderRadius.circular(24),
-      child: AnimatedCoverTones(
-        tones: tones,
-        builder: (context, tones, _) => Container(
-          width: width,
-          decoration: BoxDecoration(
-            color: tones.card,
-            borderRadius: BorderRadius.circular(24),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ShaderMask(
-                shaderCallback: (rect) => const LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [Color(0xFF000000), Color(0x00000000)],
-                  stops: [0.72, 1],
-                ).createShader(rect),
-                blendMode: BlendMode.dstIn,
-                child: CoverArt(
-                  size: width,
-                  radius: 0,
-                  seed: seed,
-                  imagePath: imagePath,
-                  shadow: false,
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 2, 12, 0),
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _Type.cardTitle(tones.onCard),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(14, 0, 12, 0),
-                child: Text(
-                  subtitle,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: _Type.cardSub(tones.onCard.withValues(alpha: 0.75)),
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
     );
   }

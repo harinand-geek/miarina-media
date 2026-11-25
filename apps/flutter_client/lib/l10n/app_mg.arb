@@ -1358,5 +1358,6 @@
   "shuffleAll": "Afangaro daholo",
   "addAllToQueue": "Ampidiro daholo amin'ny filaharana",
   "noListenYet": "Mihainoa mozika dia hiseho eto ny fotoana nihainoanao.",
-  "minutesCount": "{count, plural, =1{minitra 1} other{minitra {count}}}"
+  "minutesCount": "{count, plural, =1{minitra 1} other{minitra {count}}}",
+  "phoneLibrary": "Tranomboky"
 }

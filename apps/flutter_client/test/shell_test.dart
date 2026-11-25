@@ -176,13 +176,15 @@ void main() {
     tester,
   ) async {
     await pumpApp(tester, size: const Size(392, 850), desktop: false);
+    // Expressive library (decision 0010): title, tabs, toolbar.
     for (final label in [
       'Musique',
       'Cinéma',
       'Focus',
       'Obtenir',
-      'Tout lire',
-      'Aléatoire',
+      'Bibliothèque',
+      'Titres',
+      'Albums',
     ]) {
       expect(find.text(label), findsWidgets, reason: label);
     }
@@ -239,7 +241,7 @@ void main() {
     await settle(tester);
     expect(find.bySemanticsLabel('Réduire le lecteur'), findsOneWidget);
     // Expressive player: format chip, the other actions behind the dots.
-    expect(find.text('FLAC'), findsOneWidget);
+    expect(find.text('FLAC'), findsWidgets);
     await tester.tap(find.bySemanticsLabel("Plus d'options").last);
     await settle(tester);
     for (final label in [
@@ -261,7 +263,7 @@ void main() {
     await tester.tap(find.bySemanticsLabel('Réduire le lecteur'));
     await settle(tester);
     expect(find.bySemanticsLabel('Réduire le lecteur'), findsNothing);
-    expect(find.text('Tout lire'), findsOneWidget);
+    expect(find.text('Bibliothèque'), findsOneWidget);
   });
 
   group('albums and artists', () {
