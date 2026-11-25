@@ -10,9 +10,13 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.graphics.drawable.Icon
 import android.media.AudioManager
 import android.os.Build
+import android.os.Handler
+import android.os.Looper
+import android.provider.Settings
 import android.util.Rational
 import androidx.core.content.ContextCompat
 import io.flutter.plugin.common.BinaryMessenger
@@ -43,8 +47,30 @@ class ScreenControlChannel(
     }
   }
 
+  // The phone's volume buttons move the music player's volume slider too.
+  private var lastVolume = -1.0
+  private val volumeObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+    override fun onChange(selfChange: Boolean) {
+      val v = mediaVolume()
+      if (v != lastVolume) {
+        lastVolume = v
+        channel.invokeMethod("volume", v)
+      }
+    }
+  }
+
+  private fun mediaVolume(): Double {
+    val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
+    return audio.getStreamVolume(AudioManager.STREAM_MUSIC).toDouble() / max
+  }
+
   init {
     channel.setMethodCallHandler(this)
+    activity.contentResolver.registerContentObserver(
+      Settings.System.CONTENT_URI,
+      true,
+      volumeObserver,
+    )
     ContextCompat.registerReceiver(
       activity,
       receiver,
@@ -81,8 +107,7 @@ class ScreenControlChannel(
         result.success(null)
       }
       "volume" -> {
-        val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC).coerceAtLeast(1)
-        result.success(audio.getStreamVolume(AudioManager.STREAM_MUSIC).toDouble() / max)
+        result.success(mediaVolume())
       }
       "setVolume" -> {
         val max = audio.getStreamMaxVolume(AudioManager.STREAM_MUSIC)
@@ -183,6 +208,7 @@ class ScreenControlChannel(
 
   fun dispose() {
     channel.setMethodCallHandler(null)
+    activity.contentResolver.unregisterContentObserver(volumeObserver)
     try {
       activity.unregisterReceiver(receiver)
     } catch (e: Exception) {

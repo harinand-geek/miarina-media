@@ -4900,4 +4900,113 @@ class L10nFr extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get on => 'Activé';
+
+  @override
+  String get skipBack10 => 'Reculer de 10 secondes';
+
+  @override
+  String get skipForward10 => 'Avancer de 10 secondes';
+
+  @override
+  String get showVinyl => 'Afficher le vinyle';
+
+  @override
+  String get viewAlbum => 'Voir l\'album';
+
+  @override
+  String get viewArtist => 'Voir l\'artiste';
+
+  @override
+  String get trackInfo => 'Infos du morceau';
+
+  @override
+  String get trackPlays => 'Écoutes';
+
+  @override
+  String get trackFile => 'Fichier';
+
+  @override
+  String get playbackSpeed => 'Vitesse de lecture';
+
+  @override
+  String get quickRecent => 'Récents';
+
+  @override
+  String get quickMostPlayed => 'Plus joués';
+
+  @override
+  String get dailyMix => 'Mix du jour';
+
+  @override
+  String get recentlyPlayed => 'Récemment joués';
+
+  @override
+  String get recentlyAddedAlbums => 'Récemment ajoutés';
+
+  @override
+  String get mostPlayedTitle => 'Les plus joués';
+
+  @override
+  String get yourArtists => 'Vos artistes';
+
+  @override
+  String get counterNever => 'Jamais écoutés';
+
+  @override
+  String get counterAdded => 'Ajoutés ce mois';
+
+  @override
+  String get discoverTitle => 'À découvrir';
+
+  @override
+  String discoverCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titres jamais écoutés',
+      one: '1 titre jamais écouté',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shufflePlay => 'Lecture aléatoire';
+
+  @override
+  String get randomAlbum => 'Album au hasard';
+
+  @override
+  String get artistOfWeek => 'Artiste de la semaine';
+
+  @override
+  String get last7Days => '7 derniers jours';
+
+  @override
+  String listenToday(String time) {
+    return '$time aujourd\'hui';
+  }
+
+  @override
+  String get shuffleAll => 'Tout mélanger';
+
+  @override
+  String get addAllToQueue => 'Tout ajouter à la file';
+
+  @override
+  String get noListenYet =>
+      'Écoutez de la musique pour voir ici votre temps d\'écoute.';
+
+  @override
+  String minutesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
 }

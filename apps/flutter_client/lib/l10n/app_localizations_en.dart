@@ -4860,4 +4860,112 @@ class L10nEn extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get on => 'On';
+
+  @override
+  String get skipBack10 => 'Back 10 seconds';
+
+  @override
+  String get skipForward10 => 'Forward 10 seconds';
+
+  @override
+  String get showVinyl => 'Show the record';
+
+  @override
+  String get viewAlbum => 'Go to album';
+
+  @override
+  String get viewArtist => 'Go to artist';
+
+  @override
+  String get trackInfo => 'Track info';
+
+  @override
+  String get trackPlays => 'Plays';
+
+  @override
+  String get trackFile => 'File';
+
+  @override
+  String get playbackSpeed => 'Playback speed';
+
+  @override
+  String get quickRecent => 'Recent';
+
+  @override
+  String get quickMostPlayed => 'Most played';
+
+  @override
+  String get dailyMix => 'Daily mix';
+
+  @override
+  String get recentlyPlayed => 'Recently played';
+
+  @override
+  String get recentlyAddedAlbums => 'Recently added';
+
+  @override
+  String get mostPlayedTitle => 'Most played';
+
+  @override
+  String get yourArtists => 'Your artists';
+
+  @override
+  String get counterNever => 'Never played';
+
+  @override
+  String get counterAdded => 'Added this month';
+
+  @override
+  String get discoverTitle => 'To discover';
+
+  @override
+  String discoverCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count titles never played',
+      one: '1 title never played',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shufflePlay => 'Shuffle play';
+
+  @override
+  String get randomAlbum => 'Random album';
+
+  @override
+  String get artistOfWeek => 'Artist of the week';
+
+  @override
+  String get last7Days => 'Last 7 days';
+
+  @override
+  String listenToday(String time) {
+    return '$time today';
+  }
+
+  @override
+  String get shuffleAll => 'Shuffle all';
+
+  @override
+  String get addAllToQueue => 'Add all to the queue';
+
+  @override
+  String get noListenYet => 'Play some music to see your listening time here.';
+
+  @override
+  String minutesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count minutes',
+      one: '1 minute',
+    );
+    return '$_temp0';
+  }
 }

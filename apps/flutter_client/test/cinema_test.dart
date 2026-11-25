@@ -728,6 +728,9 @@ class _FakeControl implements ScreenControl {
 
   @override
   Stream<bool> get pip => _pip.stream;
+
+  @override
+  Stream<double> get volumeChanges => const Stream.empty();
 }
 
 /// The core's tag editor for videos: library only, every call recorded.

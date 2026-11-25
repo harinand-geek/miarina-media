@@ -268,6 +268,7 @@ LibraryItem track(
   bool favorite = false,
   int plays = 0,
   String format = 'FLAC',
+  String? thumbnail,
 }) => LibraryItem(
   id: id,
   title: title,
@@ -281,6 +282,7 @@ LibraryItem track(
   favorite: favorite,
   plays: plays,
   trackNo: trackNo,
+  thumbnail: thumbnail,
 );
 
 /// Same rules as the core: albums grouped by name (case-insensitive) with

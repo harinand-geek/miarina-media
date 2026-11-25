@@ -36,6 +36,9 @@ abstract class ScreenControl {
 
   /// True while the app shows only in the small window.
   Stream<bool> get pip;
+
+  /// The media volume (0..1) whenever it changes, buttons included.
+  Stream<double> get volumeChanges;
 }
 
 class ChannelScreenControl implements ScreenControl {
@@ -44,11 +47,18 @@ class ChannelScreenControl implements ScreenControl {
       if (call.method == 'pip' && call.arguments is bool) {
         _pip.add(call.arguments as bool);
       }
+      if (call.method == 'volume' && call.arguments is num) {
+        _volume.add((call.arguments as num).toDouble());
+      }
     });
   }
 
   static const _channel = MethodChannel('org.miarina.media/screen_control');
   final _pip = StreamController<bool>.broadcast();
+  final _volume = StreamController<double>.broadcast();
+
+  @override
+  Stream<double> get volumeChanges => _volume.stream;
 
   @override
   Future<double> brightness() async =>

@@ -8078,6 +8078,186 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'{count, plural, =1{Supprimé du téléphone} other{{count} fichiers supprimés du téléphone}}'**
   String deletedFromPhone(int count);
+
+  /// No description provided for @on.
+  ///
+  /// In fr, this message translates to:
+  /// **'Activé'**
+  String get on;
+
+  /// No description provided for @skipBack10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Reculer de 10 secondes'**
+  String get skipBack10;
+
+  /// No description provided for @skipForward10.
+  ///
+  /// In fr, this message translates to:
+  /// **'Avancer de 10 secondes'**
+  String get skipForward10;
+
+  /// No description provided for @showVinyl.
+  ///
+  /// In fr, this message translates to:
+  /// **'Afficher le vinyle'**
+  String get showVinyl;
+
+  /// No description provided for @viewAlbum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l\'album'**
+  String get viewAlbum;
+
+  /// No description provided for @viewArtist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir l\'artiste'**
+  String get viewArtist;
+
+  /// No description provided for @trackInfo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Infos du morceau'**
+  String get trackInfo;
+
+  /// No description provided for @trackPlays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoutes'**
+  String get trackPlays;
+
+  /// No description provided for @trackFile.
+  ///
+  /// In fr, this message translates to:
+  /// **'Fichier'**
+  String get trackFile;
+
+  /// No description provided for @playbackSpeed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vitesse de lecture'**
+  String get playbackSpeed;
+
+  /// No description provided for @quickRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récents'**
+  String get quickRecent;
+
+  /// No description provided for @quickMostPlayed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus joués'**
+  String get quickMostPlayed;
+
+  /// No description provided for @dailyMix.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mix du jour'**
+  String get dailyMix;
+
+  /// No description provided for @recentlyPlayed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récemment joués'**
+  String get recentlyPlayed;
+
+  /// No description provided for @recentlyAddedAlbums.
+  ///
+  /// In fr, this message translates to:
+  /// **'Récemment ajoutés'**
+  String get recentlyAddedAlbums;
+
+  /// No description provided for @mostPlayedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les plus joués'**
+  String get mostPlayedTitle;
+
+  /// No description provided for @yourArtists.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos artistes'**
+  String get yourArtists;
+
+  /// No description provided for @counterNever.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jamais écoutés'**
+  String get counterNever;
+
+  /// No description provided for @counterAdded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajoutés ce mois'**
+  String get counterAdded;
+
+  /// No description provided for @discoverTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'À découvrir'**
+  String get discoverTitle;
+
+  /// No description provided for @discoverCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 titre jamais écouté} other{{count} titres jamais écoutés}}'**
+  String discoverCount(int count);
+
+  /// No description provided for @shufflePlay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture aléatoire'**
+  String get shufflePlay;
+
+  /// No description provided for @randomAlbum.
+  ///
+  /// In fr, this message translates to:
+  /// **'Album au hasard'**
+  String get randomAlbum;
+
+  /// No description provided for @artistOfWeek.
+  ///
+  /// In fr, this message translates to:
+  /// **'Artiste de la semaine'**
+  String get artistOfWeek;
+
+  /// No description provided for @last7Days.
+  ///
+  /// In fr, this message translates to:
+  /// **'7 derniers jours'**
+  String get last7Days;
+
+  /// No description provided for @listenToday.
+  ///
+  /// In fr, this message translates to:
+  /// **'{time} aujourd\'hui'**
+  String listenToday(String time);
+
+  /// No description provided for @shuffleAll.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout mélanger'**
+  String get shuffleAll;
+
+  /// No description provided for @addAllToQueue.
+  ///
+  /// In fr, this message translates to:
+  /// **'Tout ajouter à la file'**
+  String get addAllToQueue;
+
+  /// No description provided for @noListenYet.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoutez de la musique pour voir ici votre temps d\'écoute.'**
+  String get noListenYet;
+
+  /// No description provided for @minutesCount.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  String minutesCount(int count);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

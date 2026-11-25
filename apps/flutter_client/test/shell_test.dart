@@ -238,7 +238,23 @@ void main() {
     await tester.tap(find.bySemanticsLabel(RegExp('^Ouvrir En lecture')));
     await settle(tester);
     expect(find.bySemanticsLabel('Réduire le lecteur'), findsOneWidget);
-    expect(find.text('Album 1'), findsWidgets);
+    // Expressive player: format chip, the other actions behind the dots.
+    expect(find.text('FLAC'), findsOneWidget);
+    await tester.tap(find.bySemanticsLabel("Plus d'options").last);
+    await settle(tester);
+    for (final label in [
+      'Minuteur',
+      'Égaliseur',
+      'Vitesse de lecture',
+      'Reculer de 10 secondes',
+      'Afficher le vinyle',
+      "Voir l'album",
+      'Infos du morceau',
+    ]) {
+      expect(find.text(label), findsOneWidget, reason: label);
+    }
+    await tester.tap(find.text('Afficher le vinyle'));
+    await settle(tester);
     await tester.tap(find.bySemanticsLabel('Afficher les paroles'));
     await settle(tester);
     expect(find.text('Pas de paroles pour ce titre'), findsOneWidget);

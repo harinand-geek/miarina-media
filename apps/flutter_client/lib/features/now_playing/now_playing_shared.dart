@@ -114,12 +114,14 @@ class FlyingCover extends ConsumerStatefulWidget {
     required this.seed,
     this.radius = 16,
     this.imagePath,
+    this.shadow = true,
   });
 
   final double size;
   final int seed;
   final double radius;
   final String? imagePath;
+  final bool shadow;
 
   @override
   ConsumerState<FlyingCover> createState() => _FlyingCoverState();
@@ -174,6 +176,7 @@ class _FlyingCoverState extends ConsumerState<FlyingCover>
       radius: widget.radius,
       seed: widget.seed,
       imagePath: widget.imagePath,
+      shadow: widget.shadow,
     );
     return AnimatedBuilder(
       animation: _ctl,
@@ -207,10 +210,20 @@ class _FlyingCoverState extends ConsumerState<FlyingCover>
 
 /// Favorite heart: 1 → 1.15 → 1 and fill in 180 ms (Handoff §03).
 class FavoriteHeart extends StatelessWidget {
-  const FavoriteHeart({super.key, required this.on, this.size = 24});
+  const FavoriteHeart({
+    super.key,
+    required this.on,
+    this.size = 24,
+    this.color,
+    this.activeColor,
+  });
 
   final bool on;
   final double size;
+
+  /// Outline and filled colours; the coral family by default.
+  final Color? color;
+  final Color? activeColor;
 
   @override
   Widget build(BuildContext context) {
@@ -229,7 +242,7 @@ class FavoriteHeart extends StatelessWidget {
         filled: PhosphorFill.heart,
         active: on,
         size: size,
-        color: on ? c.coralStrong : c.fgSoft,
+        color: on ? (activeColor ?? c.coralStrong) : (color ?? c.fgSoft),
       ),
     );
   }

@@ -1,15 +1,18 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
+import '../../design/cover_tones.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/cover_art.dart';
+import '../../design/widgets/expressive.dart';
 import '../../design/widgets/mm_icon.dart';
-import '../../design/widgets/play_button.dart';
 import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
+import '../../design/widgets/wavy_slider.dart';
 import '../../l10n/app_localizations.dart';
 import '../device_media/device_media_view.dart';
 import '../health/health_screens.dart' show MissingSkipListener;
@@ -53,12 +56,13 @@ class MobileShell extends ConsumerWidget {
     double navHeight,
     double bottomInset,
   ) {
+    final motion = MmMotion.of(context);
     return Scaffold(
       backgroundColor: c.bg,
       body: Stack(
         children: [
           Positioned.fill(
-            bottom: navHeight + (hasMedia ? 72 : 0),
+            bottom: navHeight + (hasMedia ? _miniHeight : 0),
             child: SafeArea(
               bottom: false,
               // Musique without the phone's media: A-06 / A-07.
@@ -70,15 +74,17 @@ class MobileShell extends ConsumerWidget {
               ),
             ),
           ),
+          // The mini player and the tabs make one dock; the player slides
+          // out of it when something is loaded.
           AnimatedPositioned(
-            duration: MmMotion.of(context).sheetSettle,
-            curve: MmMotion.standard,
-            left: 8,
-            right: 8,
-            bottom: hasMedia ? navHeight + 8 : navHeight - 72,
-            height: 64,
+            duration: motion.sheetSettle,
+            curve: MmMotion.spring,
+            left: 0,
+            right: 0,
+            bottom: hasMedia ? navHeight - 1 : navHeight - _miniHeight,
+            height: _miniHeight + 1,
             child: AnimatedOpacity(
-              duration: MmMotion.of(context).screen,
+              duration: motion.screen,
               opacity: hasMedia ? 1 : 0,
               child: const _MiniPlayer(),
             ),
@@ -88,7 +94,11 @@ class MobileShell extends ConsumerWidget {
             right: 0,
             bottom: 0,
             height: navHeight,
-            child: _TabBar(location: location, bottomInset: bottomInset),
+            child: _TabBar(
+              location: location,
+              bottomInset: bottomInset,
+              attached: hasMedia,
+            ),
           ),
         ],
       ),
@@ -96,11 +106,26 @@ class MobileShell extends ConsumerWidget {
   }
 }
 
+/// Height of the mini player in the dock.
+const _miniHeight = 80.0;
+
+/// Background of the dock (mini player + tabs).
+Color dockColor(MmColors c) => c.brightness == Brightness.dark
+    ? c.sidebar
+    : Color.lerp(c.bg, c.fg, 0.045)!;
+
 class _TabBar extends StatelessWidget {
-  const _TabBar({required this.location, required this.bottomInset});
+  const _TabBar({
+    required this.location,
+    required this.bottomInset,
+    required this.attached,
+  });
 
   final String location;
   final double bottomInset;
+
+  /// Under the mini player: square top, no line between them.
+  final bool attached;
 
   @override
   Widget build(BuildContext context) {
@@ -144,11 +169,15 @@ class _TabBar extends StatelessWidget {
         c.accentSubtle,
       ),
     ];
-    return Container(
+    return AnimatedContainer(
+      duration: MmMotion.of(context).sheetSettle,
+      curve: MmMotion.standard,
       padding: EdgeInsets.only(bottom: bottomInset + 6),
       decoration: BoxDecoration(
-        color: c.sidebar,
-        border: Border(top: BorderSide(color: c.divider)),
+        color: dockColor(c),
+        borderRadius: BorderRadius.vertical(
+          top: Radius.circular(attached ? 0 : 28),
+        ),
       ),
       child: Row(
         children: [
@@ -212,7 +241,10 @@ class _TabBar extends StatelessWidget {
   }
 }
 
-/// 64 dp mini player: cover, title, play; 3 dp progress along the bottom.
+//// Mini player of the dock (expressive redesign, 2026-11-25): a waving
+/// progress line along the top, the cover, title and artist, play in a
+/// rounded pill tinted by the cover, next. Tap or swipe up opens the player;
+/// swipe sideways for the next or previous title.
 class _MiniPlayer extends ConsumerStatefulWidget {
   const _MiniPlayer();
 
@@ -222,6 +254,7 @@ class _MiniPlayer extends ConsumerStatefulWidget {
 
 class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
   final _cover = GlobalKey();
+  double _swipe = 0;
 
   void _open() {
     final current = ref.read(queueProvider).current;
@@ -241,113 +274,179 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
-    final entry = ref.watch(queueProvider.select((q) => q.current));
+    final q = ref.watch(queueProvider);
+    final entry = q.current;
+    final queue = ref.read(queueProvider.notifier);
     final snap = currentSnapshot(ref);
-    final card = Container(
-      decoration: BoxDecoration(
-        color: c.surface2,
-        borderRadius: BorderRadius.circular(MmRadius.sheet),
-        border: Border.all(color: c.lineStrong),
-        boxShadow: MmShadows.floating,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Stack(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 0, 6, 0),
-            child: Row(
-              children: [
-                CoverArt(
-                  key: _cover,
-                  size: 48,
-                  radius: MmRadius.md,
-                  seed: entry?.seed ?? 0,
-                  imagePath: entry?.artwork,
-                  shadow: false,
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry?.title ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MmType.heading.copyWith(color: c.fg),
-                      ),
-                      if (entry?.subtitle != null)
-                        Text(
-                          entry!.subtitle!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: MmType.caption.copyWith(color: c.muted),
-                        ),
-                    ],
-                  ),
-                ),
-                PlayPauseButton(
-                  playing: snap.isPlaying,
-                  onPressed: entry == null
-                      ? null
-                      : ref.read(queueProvider.notifier).togglePlay,
-                  playLabel: t.play,
-                  pauseLabel: t.pause,
-                  halo: false,
-                ),
-              ],
+    final tones = watchCoverTones(ref, context, entry?.artwork);
+    final playing = snap.isPlaying && !snap.buffering;
+    final motion = MmMotion.of(context);
+    final glyph = snap.isPlaying ? PhosphorFill.pause : PhosphorFill.play;
+
+    final card = AnimatedCoverTones(
+      tones: tones,
+      builder: (context, tones, _) => Container(
+        decoration: BoxDecoration(
+          color: dockColor(c),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        ),
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(22, 4, 22, 0),
+              child: InterpolatedPosition(
+                position: snap.position,
+                duration: snap.duration,
+                playing: playing,
+                speed: snap.speed,
+                builder: (context, position) {
+                  final total = snap.duration.inMilliseconds;
+                  return WavyProgress(
+                    value: total > 0
+                        ? (position.inMilliseconds / total).clamp(0.0, 1.0)
+                        : 0.0,
+                    playing: playing,
+                    color: c.brightness == Brightness.dark
+                        ? tones.primary
+                        : tones.onCard,
+                    trackColor: c.fg.withValues(alpha: 0.12),
+                    stroke: 3.5,
+                    height: 14,
+                  );
+                },
+              ),
             ),
-          ),
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 0,
-            height: 3,
-            child: InterpolatedPosition(
-              position: snap.position,
-              duration: snap.duration,
-              playing: snap.isPlaying && !snap.buffering,
-              speed: snap.speed,
-              builder: (context, position) {
-                final total = snap.duration.inMilliseconds;
-                final ratio = total > 0
-                    ? (position.inMilliseconds / total).clamp(0.0, 1.0)
-                    : 0.0;
-                return DecoratedBox(
-                  decoration: BoxDecoration(
-                    color: c.line,
-                    borderRadius: BorderRadius.circular(MmRadius.pill),
-                  ),
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: ratio,
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: c.coral,
-                        borderRadius: BorderRadius.circular(MmRadius.pill),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(14, 0, 8, 6),
+                child: Row(
+                  children: [
+                    AnimatedSwitcher(
+                      duration: motion.album,
+                      child: CoverArt(
+                        key: _cover,
+                        size: 52,
+                        radius: 14,
+                        seed: entry?.seed ?? 0,
+                        imagePath: entry?.artwork,
+                        shadow: false,
                       ),
                     ),
-                  ),
-                );
-              },
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: AnimatedSwitcher(
+                        duration: motion.screen,
+                        layoutBuilder: (current, previous) => Stack(
+                          alignment: Alignment.centerLeft,
+                          children: [...previous, ?current],
+                        ),
+                        child: Column(
+                          key: ValueKey(entry?.title),
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              entry?.title ?? '',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: MmType.title.copyWith(
+                                fontSize: 17,
+                                fontWeight: FontWeight.w600,
+                                fontVariations: const [
+                                  FontVariation.weight(600),
+                                ],
+                                color: c.fg,
+                              ),
+                            ),
+                            if (entry?.subtitle != null)
+                              Text(
+                                entry!.subtitle!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: MmType.body.copyWith(
+                                  fontSize: 14,
+                                  color: c.muted,
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    MorphButton(
+                      onTap: entry == null ? null : queue.togglePlay,
+                      color: tones.card,
+                      semanticLabel: snap.isPlaying ? t.pause : t.play,
+                      tooltip: snap.isPlaying ? t.pause : t.play,
+                      width: 58,
+                      height: 50,
+                      radius: 18,
+                      pressedRadius: 25,
+                      child: AnimatedSwitcher(
+                        duration: motion.state,
+                        transitionBuilder: (child, anim) => ScaleTransition(
+                          scale: Tween(begin: 0.6, end: 1.0).animate(anim),
+                          child: FadeTransition(opacity: anim, child: child),
+                        ),
+                        child: Icon(
+                          glyph,
+                          key: ValueKey(glyph),
+                          size: 24,
+                          color: tones.onCard,
+                        ),
+                      ),
+                    ),
+                    Pressable(
+                      onTap: q.hasNext ? queue.next : null,
+                      semanticLabel: t.next,
+                      tooltip: t.next,
+                      pressScale: 0.85,
+                      child: SizedBox(
+                        width: 46,
+                        height: 50,
+                        child: Icon(
+                          PhosphorFill.skipForward,
+                          size: 24,
+                          color: q.hasNext ? c.fg : c.faintIcon,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
     if (entry == null) return card;
-    // Tap or swipe up opens the full player (A-03).
     return GestureDetector(
       onVerticalDragEnd: (d) {
         if ((d.primaryVelocity ?? 0) < -300) _open();
       },
+      onHorizontalDragUpdate: (d) => setState(() => _swipe += d.delta.dx),
+      onHorizontalDragEnd: (d) {
+        final v = d.primaryVelocity ?? 0;
+        if (_swipe < -80 || v < -700) {
+          HapticFeedback.selectionClick();
+          if (q.hasNext) queue.next();
+        } else if (_swipe > 80 || v > 700) {
+          HapticFeedback.selectionClick();
+          queue.previous();
+        }
+        setState(() => _swipe = 0);
+      },
       child: Pressable(
         onTap: _open,
         semanticLabel: t.openNowPlaying,
-        pressScale: 0.98,
-        borderRadius: BorderRadius.circular(MmRadius.sheet),
-        child: card,
+        pressScale: 0.99,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: AnimatedSlide(
+          offset: Offset(_swipe / 1200, 0),
+          duration: _swipe == 0 ? motion.album : Duration.zero,
+          curve: MmMotion.spring,
+          child: card,
+        ),
       ),
     );
   }

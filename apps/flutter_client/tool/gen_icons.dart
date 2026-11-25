@@ -9,6 +9,24 @@ import 'dart:io';
 
 /// Glyphs used by the app that are not in the mockup mapping table.
 const _extras = [
+  // Expressive phone redesign (2026-11-25): player, sheets, home, library.
+  'clock-clockwise',
+  'disc',
+  'sparkle',
+  'chart-bar',
+  'list-bullets',
+  'arrow-down',
+  'funnel',
+  'users-three',
+  'arrow-bend-down-right',
+  'speaker-simple-high',
+  'speaker-simple-low',
+  'microphone-stage',
+  'grid-four',
+  'calendar-blank',
+  'dice-five',
+  'tag',
+  'seal',
   // Android video page (A7): rotation.
   'device-rotate',
   // Outils PC (design_handoff_outils_pc): Convertir, Capture, Enregistrer.

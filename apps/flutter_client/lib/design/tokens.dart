@@ -342,6 +342,10 @@ class MmMotion {
 
   static const standard = Cubic(0.2, 0, 0, 1);
   static const exit = Cubic(0.3, 0, 1, 1);
+
+  /// Expressive phone design: a light overshoot, like a fast spring
+  /// (button shapes, widths, cards settling).
+  static const spring = Cubic(0.34, 1.32, 0.64, 1);
   static const _fade = Duration(milliseconds: 120);
 
   static MmMotion of(BuildContext context) =>

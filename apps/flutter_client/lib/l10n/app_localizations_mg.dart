@@ -4917,4 +4917,113 @@ class L10nMg extends L10n {
     );
     return '$_temp0';
   }
+
+  @override
+  String get on => 'Alefa';
+
+  @override
+  String get skipBack10 => 'Hiverina 10 segondra';
+
+  @override
+  String get skipForward10 => 'Handroso 10 segondra';
+
+  @override
+  String get showVinyl => 'Asehoy ho kapila';
+
+  @override
+  String get viewAlbum => 'Jereo ny rakikira';
+
+  @override
+  String get viewArtist => 'Jereo ny mpanakanto';
+
+  @override
+  String get trackInfo => 'Momba ilay hira';
+
+  @override
+  String get trackPlays => 'Fihainoana';
+
+  @override
+  String get trackFile => 'Rakitra';
+
+  @override
+  String get playbackSpeed => 'Hafainganam-pamakiana';
+
+  @override
+  String get quickRecent => 'Vao haino';
+
+  @override
+  String get quickMostPlayed => 'Matetika haino';
+
+  @override
+  String get dailyMix => 'Fifangaroana androany';
+
+  @override
+  String get recentlyPlayed => 'Vao nohenoina';
+
+  @override
+  String get recentlyAddedAlbums => 'Vao nampidirina';
+
+  @override
+  String get mostPlayedTitle => 'Matetika henoina';
+
+  @override
+  String get yourArtists => 'Ireo mpanakantonao';
+
+  @override
+  String get counterNever => 'Mbola tsy nohenoina';
+
+  @override
+  String get counterAdded => 'Vao nampidirina';
+
+  @override
+  String get discoverTitle => 'Hojerena';
+
+  @override
+  String discoverCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Hira $count mbola tsy nohenoina',
+      one: 'Hira 1 mbola tsy nohenoina',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get shufflePlay => 'Vakio kisendrasendra';
+
+  @override
+  String get randomAlbum => 'Rakikira kisendrasendra';
+
+  @override
+  String get artistOfWeek => 'Mpanakanton\'ny herinandro';
+
+  @override
+  String get last7Days => 'Andro 7 farany';
+
+  @override
+  String listenToday(String time) {
+    return '$time androany';
+  }
+
+  @override
+  String get shuffleAll => 'Afangaro daholo';
+
+  @override
+  String get addAllToQueue => 'Ampidiro daholo amin\'ny filaharana';
+
+  @override
+  String get noListenYet =>
+      'Mihainoa mozika dia hiseho eto ny fotoana nihainoanao.';
+
+  @override
+  String minutesCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'minitra $count',
+      one: 'minitra 1',
+    );
+    return '$_temp0';
+  }
 }

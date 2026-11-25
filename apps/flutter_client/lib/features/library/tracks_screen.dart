@@ -17,6 +17,7 @@ import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../common/state_views.dart';
 import '../../design/widgets/states.dart';
+import '../../design/widgets/action_sheet.dart';
 import '../../design/widgets/cover_art.dart';
 import '../../design/widgets/mm_icon.dart';
 import '../../design/widgets/pressable.dart';
@@ -29,6 +30,7 @@ import '../../app/router.dart';
 import 'groups.dart';
 import 'library_data.dart';
 import 'tag_editor.dart';
+import 'track_info.dart';
 
 /// W-M1c Titres: every audio track of the library, sorted by title, in a
 /// virtualised table loaded page by page. [favorites]: the Favoris entry of
@@ -413,16 +415,99 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
       _selected = i;
     });
     final phone = ref.read(deviceMediaSupportedProvider);
-    final action = await showModalBottomSheet<_Act>(
-      context: context,
-      backgroundColor: MmColors.of(context).bg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(MmRadius.xxl)),
+    final t = L10n.of(context);
+    void run(_Act a) {
+      if (mounted) _run(a);
+    }
+
+    // Expressive grouped sheet (2026-11-25).
+    await showActionSheet(
+      context,
+      header: SheetHeader(
+        leading: CoverArt(
+          size: 64,
+          radius: 16,
+          seed: item.id,
+          imagePath: item.thumbnail,
+          shadow: false,
+        ),
+        title: item.title,
+        subtitle: item.artist ?? t.unknownArtist,
       ),
-      builder: (context) => _TrackSheet(item: item, phone: phone),
+      groups: [
+        [
+          SheetAction(
+            icon: PhosphorRegular.arrowBendDownRight,
+            label: t.playNext,
+            onTap: () => run(_Act.playNext),
+          ),
+          SheetAction(
+            icon: PhosphorRegular.queue,
+            label: t.addToQueue,
+            onTap: () => run(_Act.queue),
+          ),
+          SheetAction(
+            icon: PhosphorRegular.listPlus,
+            label: t.addToPlaylist,
+            onTap: () => run(_Act.playlist),
+          ),
+          SheetAction(
+            icon: item.favorite ? PhosphorFill.heart : PhosphorRegular.heart,
+            label: item.favorite ? t.favoriteRemove : t.favoriteAdd,
+            onTap: () {
+              final at = _items.indexWhere((x) => x.id == item.id);
+              if (mounted && at >= 0) unawaited(_toggleFavorite(at));
+            },
+          ),
+        ],
+        [
+          if (item.album != null)
+            SheetAction(
+              icon: PhosphorRegular.disc,
+              label: t.viewAlbum,
+              onTap: () => openGroup(context, ref, (
+                kind: GroupKind.album,
+                name: item.album!,
+              )),
+            ),
+          if (item.artist != null)
+            SheetAction(
+              icon: PhosphorRegular.user,
+              label: t.viewArtist,
+              onTap: () => openGroup(context, ref, (
+                kind: GroupKind.artist,
+                name: item.artist!,
+              )),
+            ),
+          SheetAction(
+            icon: PhosphorRegular.info,
+            label: t.trackInfo,
+            onTap: () => unawaited(showTrackInfo(context, item)),
+          ),
+        ],
+        [
+          if (phone) ...[
+            SheetAction(
+              icon: PhosphorRegular.shareNetwork,
+              label: t.share,
+              onTap: () => run(_Act.share),
+            ),
+            SheetAction(
+              icon: PhosphorRegular.trash,
+              label: t.deleteFromPhone,
+              danger: true,
+              onTap: () => run(_Act.delete),
+            ),
+          ] else
+            SheetAction(
+              icon: PhosphorRegular.minusCircle,
+              label: t.removeEllipsis,
+              danger: true,
+              onTap: () => run(_Act.remove),
+            ),
+        ],
+      ],
     );
-    if (!mounted || action == null) return;
-    _run(action);
   }
 
   Future<void> _share() async {
@@ -1263,125 +1348,6 @@ class _TrackRow extends StatelessWidget {
 
 /// Quick filters of Titres, one at a time.
 enum _Quick { neverPlayed, hiRes, addedThisMonth }
-
-/// The phone's actions on one title (long press or the dots).
-class _TrackSheet extends StatelessWidget {
-  const _TrackSheet({required this.item, required this.phone});
-
-  final LibraryItem item;
-
-  /// Android: share and delete the file; elsewhere, remove from the library.
-  final bool phone;
-
-  @override
-  Widget build(BuildContext context) {
-    final c = MmColors.of(context);
-    final t = L10n.of(context);
-    Widget row(_Act act, IconData icon, String label, {bool danger = false}) {
-      return Pressable(
-        onTap: () => Navigator.of(context).pop(act),
-        semanticLabel: label,
-        child: SizedBox(
-          height: 52,
-          child: Row(
-            children: [
-              const SizedBox(width: 20),
-              Icon(icon, size: 22, color: danger ? c.danger : c.muted),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  label,
-                  style: MmType.label.copyWith(
-                    fontSize: 15,
-                    color: danger ? c.danger : c.fg,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return SafeArea(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          const SizedBox(height: 8),
-          Center(
-            child: Container(
-              width: 36,
-              height: 4,
-              decoration: BoxDecoration(
-                color: c.faintIcon,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Row(
-              children: [
-                CoverArt(
-                  size: 48,
-                  radius: 10,
-                  seed: item.id,
-                  shadow: false,
-                  imagePath: item.thumbnail,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        item.title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MmType.heading.copyWith(
-                          fontSize: 15,
-                          color: c.fg,
-                        ),
-                      ),
-                      Text(
-                        item.artist ?? t.unknownArtist,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MmType.caption.copyWith(color: c.muted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Divider(height: 1, color: c.line),
-          const SizedBox(height: 6),
-          row(_Act.playNext, PhosphorRegular.playlist, t.playNext),
-          row(_Act.queue, PhosphorRegular.queue, t.addToQueue),
-          row(_Act.playlist, PhosphorRegular.listPlus, t.addToPlaylist),
-          if (phone) ...[
-            row(_Act.share, PhosphorRegular.shareNetwork, t.share),
-            row(
-              _Act.delete,
-              PhosphorRegular.trash,
-              t.deleteFromPhone,
-              danger: true,
-            ),
-          ] else
-            row(
-              _Act.remove,
-              PhosphorRegular.minusCircle,
-              t.removeEllipsis,
-              danger: true,
-            ),
-          const SizedBox(height: 8),
-        ],
-      ),
-    );
-  }
-}
 
 enum _Act {
   play,
