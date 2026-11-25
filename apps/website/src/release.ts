@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.2.9',
+  version: '0.2.10',
   windows: {
-    version: '0.2.8',
-    name: 'MiarinaMedia-0.2.8-x64-setup.exe',
-    size: '113,4 Mio',
-    sha256: '3f620b8be77eddf726e4c5b8bcca974e246df6313a9e7e12a1c74c488949640a',
+    version: '0.2.10',
+    name: 'MiarinaMedia-0.2.10-x64-setup.exe',
+    size: '113,5 Mio',
+    sha256: 'c43877b05a1d22df6b26b8cbcc737a2479d07ff3b3646a6ab0085accc59fad69',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.2.9',
-    name: 'MiarinaMedia-0.2.9.apk',
+    version: '0.2.10',
+    name: 'MiarinaMedia-0.2.10.apk',
     size: '64,9 Mio',
-    sha256: '456445893c33b45de6e1d82fc859d746fb272c98fa065b6047a73a961aa68505',
+    sha256: '139b5b125c38b063ee2fdaa7c6ac3021985cc65ed3a40f0b7f8aa7d7424450a2',
   } satisfies ReleaseFile,
 };
 
@@ -60,14 +60,25 @@ export const CHANGELOG: Release[] = [
     date: 'En préparation',
     planned: true,
     items: [
-      'Mises à jour automatiques dans l’application Android',
       'Choix du micro pour l’enregistrement de l’écran',
+    ],
+  },
+  {
+    name: '0.2.10 · Windows et Android',
+    date: '25 novembre 2026',
+    current: true,
+    items: [
+      'Windows : le même style que sur Android : barre de lecture aux couleurs de la pochette, accueil avec vos statistiques d’écoute, albums et artistes redessinés',
+      'Vue vinyle : une platine avec son bras de lecture, sur Windows et Android',
+      'La vague de la barre de lecture suit le tempo des morceaux qui l’indiquent',
+      'Android : le temps d’écoute des 7 derniers jours se met bien à jour',
+      'Android : mise à jour depuis l’application (Réglages › Mises à jour) ; depuis la 0.2.9, installez cette version une fois depuis le site',
+      'Android : onglet Accueil dans la bibliothèque ; les fichiers vides ne sont plus listés',
     ],
   },
   {
     name: '0.2.9 · Android',
     date: '25 novembre 2026',
-    current: true,
     items: [
       'Android : nouveau lecteur aux couleurs de la pochette, avec une barre de lecture animée, de grands boutons et le volume du téléphone',
       'Android : nouvel accueil Musique : dernières écoutes, titres les plus joués, vos artistes, mix du jour, titres à découvrir et temps d’écoute des 7 derniers jours',
