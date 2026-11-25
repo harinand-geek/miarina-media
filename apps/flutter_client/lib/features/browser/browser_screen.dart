@@ -662,13 +662,26 @@ class _PageHostState extends ConsumerState<_PageHost> {
   (int, int, int, int)? _shown;
   late final BrowserApi _api = ref.read(browserApiProvider);
 
+  /// The host that showed the page last. Only it may hide the page: during
+  /// a screen transition the leaving host is disposed after the new one
+  /// has shown the page, and used to hide it again (blank browser,
+  /// 2026-11-25).
+  static _PageHostState? _owner;
+
+  void _hide() {
+    if (identical(_owner, this)) {
+      _api.hide();
+      _owner = null;
+    }
+    _shown = null;
+  }
+
   void _report() {
     if (!mounted) return;
     final box = context.findRenderObject() as RenderBox?;
     if (box == null || !box.hasSize) return;
     if (!TickerMode.valuesOf(context).enabled) {
-      if (_shown != null) _api.hide();
-      _shown = null;
+      if (_shown != null) _hide();
       return;
     }
     final dpr = MediaQuery.devicePixelRatioOf(context);
@@ -679,14 +692,15 @@ class _PageHostState extends ConsumerState<_PageHost> {
       (box.size.width * dpr).round(),
       (box.size.height * dpr).round(),
     );
-    if (rect == _shown) return;
+    if (rect == _shown && identical(_owner, this)) return;
     _shown = rect;
+    _owner = this;
     _api.show(rect.$1, rect.$2, rect.$3, rect.$4);
   }
 
   @override
   void dispose() {
-    _api.hide();
+    _hide();
     super.dispose();
   }
 

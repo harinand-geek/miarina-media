@@ -674,8 +674,10 @@ mod platform {
         });
         let pages: Vec<(u32, ICoreWebView2Controller)> =
             PAGES.with(|p| p.borrow().iter().map(|(k, v)| (*k, v.clone())).collect());
+        let mut any_shown = false;
         for (id, c) in pages {
             let shown = id == active && web && frame.is_some();
+            any_shown |= shown;
             unsafe {
                 if let (true, Some((x, y, w, h))) = (shown, frame) {
                     let _ = c.SetBounds(RECT {
@@ -688,6 +690,36 @@ mod platform {
                 let _ = c.SetIsVisible(shown);
             }
         }
+        if any_shown {
+            keep_page_above_flutter();
+        }
+    }
+
+    /// The page and Flutter's view are sibling windows: Flutter's must stay
+    /// under it, or it covers the page and Chromium treats the page as
+    /// hidden (blank browser, 2026-11-25).
+    fn keep_page_above_flutter() {
+        use windows::Win32::UI::WindowsAndMessaging::{
+            FindWindowExW, HWND_BOTTOM, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SetWindowPos,
+        };
+        let Some(parent) = flutter_window() else {
+            return;
+        };
+        let Ok(view) = (unsafe { FindWindowExW(Some(parent), None, w!("FLUTTERVIEW"), None) })
+        else {
+            return;
+        };
+        let _ = unsafe {
+            SetWindowPos(
+                view,
+                Some(HWND_BOTTOM),
+                0,
+                0,
+                0,
+                0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE,
+            )
+        };
     }
 
     pub fn page_action(id: u32, action: &str) {

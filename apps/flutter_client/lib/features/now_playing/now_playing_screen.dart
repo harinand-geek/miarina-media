@@ -178,9 +178,14 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                             box.maxHeight - 250,
                             box.maxWidth - 40,
                           ].reduce((a, b) => a < b ? a : b);
+                          // The text column may be wider than the cover so
+                          // the chips stay on one line.
                           return Center(
                             child: SizedBox(
-                              width: size,
+                              width: [
+                                box.maxWidth - 40,
+                                size > 430 ? size : 430.0,
+                              ].reduce((a, b) => a < b ? a : b),
                               child: Column(
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
