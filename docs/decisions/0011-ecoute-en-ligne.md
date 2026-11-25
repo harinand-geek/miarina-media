@@ -140,7 +140,9 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - `features/online/online_tile.dart` : la ligne et son menu ;
 - `features/online/obtain_sheet.dart` : le choix de format ;
 - `features/search/search_screen.dart` : filtre et section En ligne.
-- Pochettes : URL de la miniature, mises en cache par le cache d'images existant.
+- Pochettes : URL de la miniature (`CoverArt.imageUrl`, https seulement, décodée à la taille affichée). Cache en mémoire seulement (celui de Flutter) : pas de nouvelle dépendance ; un cache disque n'est utile que si les mesures le demandent.
+- Riverpod 3 relance par défaut un provider en échec : désactivé pour la recherche en ligne (chaque essai lance l'extracteur), l'écran propose « Réessayer ».
+- Lot 2 : un clic sur un résultat ne fait encore rien ; la lecture arrive au lot 3.
 
 ### 4. Intégration au lecteur — `features/playback/playback.dart`
 
@@ -211,7 +213,7 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | Lot | Contenu | Vérification |
 |---|---|---|
 | 1 ✅ | Rust : `search.rs`, `Ytdlp::search`, `Ytdlp::resolve_audio`, `api/online.rs`, liaisons Dart, tests | `cargo test`, clippy, appel réel par `examples/online_probe.rs` |
-| 2 | Filtre et section En ligne dans la recherche globale, entrée de menu, recherches récentes, états | Tests de widgets, capture d'écran Windows |
+| 2 ✅ | Filtre et section En ligne dans la recherche globale, entrée de menu, recherches récentes, états | Tests de widgets (`test/online_test.dart`, 15 tests) ; capture d'écran Windows à faire par le propriétaire |
 | 3 | Lecteur : `httpHeaders`, `onlineId`, `OnlineResolver`, préchargement, reprise sur 403 | Tests du résolveur, recette lecture |
 | 4 | Obtenir avec choix de format, badge « Hors connexion ✓ », état sans réseau, option d'obtention automatique | Téléchargement réel, arrivée en bibliothèque, lecture en mode avion, pas de doublon |
 | 5 | Android : mesures, ajustements Media3, recette sur téléphone | Mesures dans `performance.md` |

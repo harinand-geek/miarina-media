@@ -4979,4 +4979,77 @@ class L10nEn extends L10n {
 
   @override
   String get vinylChip => 'Record';
+
+  @override
+  String get navOnline => 'Online';
+
+  @override
+  String get onlineSubtitle =>
+      'Listen to music from YouTube in your player. Get a track to listen to it offline.';
+
+  @override
+  String get onlinePlaceholder => 'Search for a track or an artist online';
+
+  @override
+  String get onlineHintTitle => 'Search for a track or an artist';
+
+  @override
+  String get onlineHintBody =>
+      'Results come from YouTube and play in your player, without downloading.';
+
+  @override
+  String get onlineRecent => 'Recent searches';
+
+  @override
+  String get onlineClearRecent => 'Clear';
+
+  @override
+  String onlineRemoveRecent(String query) {
+    return 'Remove “$query”';
+  }
+
+  @override
+  String onlineNoResult(String query) {
+    return 'No online result for “$query”';
+  }
+
+  @override
+  String get onlineNoResultBody =>
+      'Check the spelling or try the artist\'s name.';
+
+  @override
+  String get onlineMore => 'More results';
+
+  @override
+  String get onlineToolsTitle => 'The extractor is not installed';
+
+  @override
+  String get onlineToolsBody =>
+      'Online listening uses the same extractor as the Get space. Install it to continue.';
+
+  @override
+  String get onlineToolsInstall => 'Install the tools';
+
+  @override
+  String get onlineOfflineTitle => 'No connection';
+
+  @override
+  String get onlineOfflineBody =>
+      'Online search needs the Internet. The tracks you got stay available offline.';
+
+  @override
+  String get onlineOpenTracks => 'See my tracks';
+
+  @override
+  String get onlineBlockedTitle => 'YouTube is limiting requests';
+
+  @override
+  String get onlineBlockedBody => 'Try again in a few minutes.';
+
+  @override
+  String get onlineErrorTitle => 'Online search failed';
+
+  @override
+  String get onlineErrorBody =>
+      'Try again. If it keeps happening, update the extractor in Get.';
 }

@@ -5037,4 +5037,77 @@ class L10nMg extends L10n {
 
   @override
   String get vinylChip => 'Kapila';
+
+  @override
+  String get navOnline => 'An-tserasera';
+
+  @override
+  String get onlineSubtitle =>
+      'Henoy ao amin\'ny mpamaky anao ny mozika avy amin\'ny YouTube. Alao ny hira iray mba hihainoana azy na tsy misy aterineto.';
+
+  @override
+  String get onlinePlaceholder => 'Hitady hira na mpanakanto an-tserasera';
+
+  @override
+  String get onlineHintTitle => 'Hitady hira na mpanakanto';
+
+  @override
+  String get onlineHintBody =>
+      'Avy amin\'ny YouTube ny valiny ary henoina ao amin\'ny mpamaky anao, tsy misy fisintonana.';
+
+  @override
+  String get onlineRecent => 'Fikarohana farany';
+
+  @override
+  String get onlineClearRecent => 'Fafao';
+
+  @override
+  String onlineRemoveRecent(String query) {
+    return 'Esory « $query »';
+  }
+
+  @override
+  String onlineNoResult(String query) {
+    return 'Tsy misy valiny an-tserasera ho an\'ny « $query »';
+  }
+
+  @override
+  String get onlineNoResultBody =>
+      'Hamarino ny tsipelina na andramo amin\'ny anaran\'ny mpanakanto.';
+
+  @override
+  String get onlineMore => 'Valiny fanampiny';
+
+  @override
+  String get onlineToolsTitle => 'Tsy mbola voapetraka ny mpaka media';
+
+  @override
+  String get onlineToolsBody =>
+      'Mampiasa ny mpaka media mitovy amin\'ny an\'ny Haka ny fihainoana an-tserasera. Apetraho izy mba hanohizana.';
+
+  @override
+  String get onlineToolsInstall => 'Apetraho ny fitaovana';
+
+  @override
+  String get onlineOfflineTitle => 'Tsy misy fifandraisana';
+
+  @override
+  String get onlineOfflineBody =>
+      'Mila aterineto ny fikarohana an-tserasera. Mbola azo henoina na tsy misy aterineto ny hira efa azonao.';
+
+  @override
+  String get onlineOpenTracks => 'Jereo ny hirako';
+
+  @override
+  String get onlineBlockedTitle => 'Mametra ny fangatahana ny YouTube';
+
+  @override
+  String get onlineBlockedBody => 'Andramo indray afaka minitra vitsivitsy.';
+
+  @override
+  String get onlineErrorTitle => 'Tsy nahomby ny fikarohana an-tserasera';
+
+  @override
+  String get onlineErrorBody =>
+      'Andramo indray. Raha mitohy, havaozy ao amin\'ny Haka ny mpaka media.';
 }

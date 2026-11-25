@@ -10,7 +10,8 @@ import 'logo.dart';
 /// decoded at the displayed size. Without a picture, or when it cannot be
 /// read, it shows the Miarina Media mark at low opacity on a tone picked
 /// from [seed] (owner's choice, 2026-11-21, instead of the mockups'
-/// hatching); never a stock image.
+/// hatching); never a stock image. [imageUrl]: an online result's picture
+/// (decision 0011), used when there is no file; https only.
 class CoverArt extends StatelessWidget {
   const CoverArt({
     super.key,
@@ -21,6 +22,7 @@ class CoverArt extends StatelessWidget {
     this.child,
     this.aspectRatio = 1,
     this.imagePath,
+    this.imageUrl,
   });
 
   final double size;
@@ -30,6 +32,7 @@ class CoverArt extends StatelessWidget {
   final Widget? child;
   final double aspectRatio;
   final String? imagePath;
+  final String? imageUrl;
 
   // Placeholder tones, from the prototypes' hatching pairs (warm, green,
   // plum, olive, teal, slate…); the first of each pair is used.
@@ -65,9 +68,14 @@ class CoverArt extends StatelessWidget {
       ),
     );
     final path = imagePath;
+    final url = imageUrl;
     Widget picture = placeholder;
+    final px = (size * MediaQuery.devicePixelRatioOf(context)).round();
+    Widget framed(BuildContext context, Widget img, int? frame, bool sync) =>
+        sync || frame != null
+        ? img
+        : Stack(fit: StackFit.expand, children: [placeholder, img]);
     if (path != null && path.isNotEmpty) {
-      final px = (size * MediaQuery.devicePixelRatioOf(context)).round();
       picture = Image.file(
         File(path),
         width: size,
@@ -76,9 +84,21 @@ class CoverArt extends StatelessWidget {
         cacheWidth: px,
         gaplessPlayback: true,
         filterQuality: FilterQuality.medium,
-        frameBuilder: (context, img, frame, sync) => sync || frame != null
-            ? img
-            : Stack(fit: StackFit.expand, children: [placeholder, img]),
+        frameBuilder: framed,
+        errorBuilder: (_, _, _) => placeholder,
+      );
+    } else if (url != null && url.startsWith('https://')) {
+      picture = Image.network(
+        url,
+        width: size,
+        height: size / aspectRatio,
+        fit: BoxFit.cover,
+        // Online pictures are wide (16:9): decoded by height so a square
+        // cover crops them without upscaling.
+        cacheHeight: (px / aspectRatio).round(),
+        gaplessPlayback: true,
+        filterQuality: FilterQuality.medium,
+        frameBuilder: framed,
         errorBuilder: (_, _, _) => placeholder,
       );
     }

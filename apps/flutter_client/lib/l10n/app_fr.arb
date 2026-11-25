@@ -2618,5 +2618,40 @@
   "phoneLibrary": "Bibliothèque",
   "updAllowInstall": "Autorisez Miarina Media à installer des applications (l'écran vient de s'ouvrir), puis appuyez de nouveau sur « Installer maintenant ».",
   "updAndroidNote": "Android ouvre l'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n'est installé sans votre accord.",
-  "vinylChip": "Vinyle"
+  "vinylChip": "Vinyle",
+  "navOnline": "En ligne",
+  "onlineSubtitle": "Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l'écouter hors connexion.",
+  "onlinePlaceholder": "Rechercher un titre ou un artiste en ligne",
+  "onlineHintTitle": "Cherchez un titre ou un artiste",
+  "onlineHintBody": "Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.",
+  "onlineRecent": "Recherches récentes",
+  "onlineClearRecent": "Effacer",
+  "onlineRemoveRecent": "Retirer « {query} »",
+  "@onlineRemoveRecent": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineNoResult": "Aucun résultat en ligne pour « {query} »",
+  "@onlineNoResult": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineNoResultBody": "Vérifiez l'orthographe ou essayez avec le nom de l'artiste.",
+  "onlineMore": "Plus de résultats",
+  "onlineToolsTitle": "L'extracteur n'est pas installé",
+  "onlineToolsBody": "L'écoute en ligne utilise le même extracteur que l'espace Obtenir. Installez-le pour continuer.",
+  "onlineToolsInstall": "Installer les outils",
+  "onlineOfflineTitle": "Pas de connexion",
+  "onlineOfflineBody": "La recherche en ligne a besoin d'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.",
+  "onlineOpenTracks": "Voir mes titres",
+  "onlineBlockedTitle": "YouTube limite les requêtes",
+  "onlineBlockedBody": "Réessayez dans quelques minutes.",
+  "onlineErrorTitle": "La recherche en ligne a échoué",
+  "onlineErrorBody": "Réessayez. Si cela continue, mettez à jour l'extracteur dans Obtenir."
 }

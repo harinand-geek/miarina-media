@@ -20,6 +20,7 @@ import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
 import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
+import '../features/online/online_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/recorder/recorder_screen.dart';
 import '../features/settings/settings_screen.dart';
@@ -40,6 +41,9 @@ abstract final class Routes {
   static const welcome = '/welcome';
   static const history = '/listen/history';
   static const search = '/listen/search';
+
+  /// Online listening (decision 0011): YouTube search, `?q=`.
+  static const online = '/listen/online';
   static const albums = '/listen/music/albums';
   static const album = '/listen/music/albums/album';
   static const artists = '/listen/music/artists';
@@ -217,6 +221,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             pageBuilder: (context, state) => _ScreenPage(
               key: const ValueKey('search'),
               child: SearchScreen(query: state.uri.queryParameters['q'] ?? ''),
+            ),
+          ),
+          GoRoute(
+            path: Routes.online,
+            // Same page while typing, as for the search.
+            pageBuilder: (context, state) => _ScreenPage(
+              key: const ValueKey('online'),
+              child: OnlineScreen(query: state.uri.queryParameters['q'] ?? ''),
             ),
           ),
           screen(Routes.cinema, () => const CinemaScreen()),

@@ -5020,4 +5020,77 @@ class L10nFr extends L10n {
 
   @override
   String get vinylChip => 'Vinyle';
+
+  @override
+  String get navOnline => 'En ligne';
+
+  @override
+  String get onlineSubtitle =>
+      'Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l\'écouter hors connexion.';
+
+  @override
+  String get onlinePlaceholder => 'Rechercher un titre ou un artiste en ligne';
+
+  @override
+  String get onlineHintTitle => 'Cherchez un titre ou un artiste';
+
+  @override
+  String get onlineHintBody =>
+      'Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.';
+
+  @override
+  String get onlineRecent => 'Recherches récentes';
+
+  @override
+  String get onlineClearRecent => 'Effacer';
+
+  @override
+  String onlineRemoveRecent(String query) {
+    return 'Retirer « $query »';
+  }
+
+  @override
+  String onlineNoResult(String query) {
+    return 'Aucun résultat en ligne pour « $query »';
+  }
+
+  @override
+  String get onlineNoResultBody =>
+      'Vérifiez l\'orthographe ou essayez avec le nom de l\'artiste.';
+
+  @override
+  String get onlineMore => 'Plus de résultats';
+
+  @override
+  String get onlineToolsTitle => 'L\'extracteur n\'est pas installé';
+
+  @override
+  String get onlineToolsBody =>
+      'L\'écoute en ligne utilise le même extracteur que l\'espace Obtenir. Installez-le pour continuer.';
+
+  @override
+  String get onlineToolsInstall => 'Installer les outils';
+
+  @override
+  String get onlineOfflineTitle => 'Pas de connexion';
+
+  @override
+  String get onlineOfflineBody =>
+      'La recherche en ligne a besoin d\'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.';
+
+  @override
+  String get onlineOpenTracks => 'Voir mes titres';
+
+  @override
+  String get onlineBlockedTitle => 'YouTube limite les requêtes';
+
+  @override
+  String get onlineBlockedBody => 'Réessayez dans quelques minutes.';
+
+  @override
+  String get onlineErrorTitle => 'La recherche en ligne a échoué';
+
+  @override
+  String get onlineErrorBody =>
+      'Réessayez. Si cela continue, mettez à jour l\'extracteur dans Obtenir.';
 }

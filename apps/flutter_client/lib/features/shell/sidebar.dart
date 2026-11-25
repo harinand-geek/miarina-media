@@ -165,6 +165,13 @@ class Sidebar extends ConsumerWidget {
             (
               t.navSectionMusic,
               [
+                // Decision 0011: YouTube results in the app's own player.
+                _Entry(
+                  Routes.online,
+                  t.navOnline,
+                  PhosphorRegular.globe,
+                  PhosphorFill.globe,
+                ),
                 _Entry(
                   Routes.albums,
                   t.navAlbums,

@@ -23,10 +23,13 @@ import '../focus/focus_data.dart';
 import '../focus/focus_screen.dart' show kindLabel;
 import '../library/groups.dart';
 import '../library/library_data.dart';
+import '../online/online_data.dart';
+import '../online/online_screen.dart' show onlineSettle;
+import '../online/online_widgets.dart';
 import '../playback/playback.dart';
 import 'search_data.dart';
 
-enum SearchFilter { all, music, cinema, focus }
+enum SearchFilter { all, music, cinema, focus, online }
 
 String searchUri(String query) =>
     Uri(path: Routes.search, queryParameters: {'q': query}).toString();
@@ -34,7 +37,8 @@ String searchUri(String query) =>
 /// W-02 search results (Windows: typed in the title bar, Ctrl K) and A-01b
 /// (Android: its own field). Grouped by type and section, counters on the
 /// filters, best result first; accent-insensitive, words matched from
-/// their start.
+/// their start. Below the library, an « En ligne » section (decision 0011)
+/// searches YouTube once the user stops typing.
 class SearchScreen extends ConsumerStatefulWidget {
   const SearchScreen({super.key, required this.query});
 
@@ -49,15 +53,37 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
   late final _field = TextEditingController(text: widget.query);
   Timer? _debounce;
 
+  /// The query YouTube is searched for: the typed one, once it has not
+  /// changed for [onlineSettle].
+  String _settled = '';
+  Timer? _settle;
+
+  @override
+  void initState() {
+    super.initState();
+    _settleLater();
+  }
+
   @override
   void didUpdateWidget(SearchScreen old) {
     super.didUpdateWidget(old);
-    if (old.query != widget.query) _filter = SearchFilter.all;
+    if (old.query != widget.query) {
+      _filter = SearchFilter.all;
+      _settleLater();
+    }
+  }
+
+  void _settleLater() {
+    _settle?.cancel();
+    _settle = Timer(onlineSettle, () {
+      if (mounted) setState(() => _settled = widget.query.trim());
+    });
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _settle?.cancel();
     _field.dispose();
     super.dispose();
   }
@@ -70,6 +96,13 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final q = widget.query.trim();
     final data = q.isEmpty ? null : ref.watch(searchProvider(q));
     final d = data?.value;
+    final onlineOn =
+        q.isNotEmpty && ref.watch(onlineStatusProvider) == OnlineStatus.ready;
+    final onlineKey = (query: q, limit: onlinePageSize);
+    // Null while the user is still typing.
+    final online = onlineOn && _settled == q
+        ? ref.watch(onlineSearchProvider(onlineKey))
+        : null;
 
     final mobileField = Padding(
       padding: EdgeInsets.fromLTRB(
@@ -148,7 +181,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       );
     } else if (d == null) {
       body = SkeletonList(padding: mobile ? 16 : 32);
-    } else if (d.isEmpty) {
+    } else if (d.isEmpty && !onlineOn) {
       body = LibraryMessage(
         icon: PhosphorRegular.magnifyingGlass,
         title: t.searchEmptyTitle(q),
@@ -160,6 +193,9 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
         filter: _filter,
         mobile: mobile,
         onFilter: (f) => setState(() => _filter = f),
+        onlineOn: onlineOn,
+        online: online,
+        onRetryOnline: () => ref.invalidate(onlineSearchProvider(onlineKey)),
       );
     }
 
@@ -201,6 +237,9 @@ class _Results extends ConsumerWidget {
     required this.filter,
     required this.mobile,
     required this.onFilter,
+    this.onlineOn = false,
+    this.online,
+    this.onRetryOnline,
   });
 
   final SearchData data;
@@ -208,16 +247,26 @@ class _Results extends ConsumerWidget {
   final bool mobile;
   final ValueChanged<SearchFilter> onFilter;
 
+  /// YouTube can be searched (the extractor is ready).
+  final bool onlineOn;
+
+  /// The YouTube results; null while the user is still typing.
+  final AsyncValue<List<OnlineTrack>>? online;
+  final VoidCallback? onRetryOnline;
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final d = data;
+    final onlineTracks = online?.value;
     final chips = [
       (SearchFilter.all, t.segAll, d.total),
       (SearchFilter.music, t.tabMusic, d.musicCount),
       (SearchFilter.cinema, t.tabCinema, d.cinema.length),
       (SearchFilter.focus, t.tabFocus, d.focus.length),
+      if (onlineOn)
+        (SearchFilter.online, t.navOnline, onlineTracks?.length ?? -1),
     ];
 
     Widget chipRow = Wrap(
@@ -225,7 +274,9 @@ class _Results extends ConsumerWidget {
       runSpacing: 8,
       children: [
         for (final (value, label, count) in chips)
-          if (value == SearchFilter.all || count > 0)
+          if (value == SearchFilter.all ||
+              value == SearchFilter.online ||
+              count > 0)
             Pressable(
               onTap: () => onFilter(value),
               selected: value == filter,
@@ -253,7 +304,8 @@ class _Results extends ConsumerWidget {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '$count',
+                      // -1: the online results are still coming.
+                      count < 0 ? '…' : '$count',
                       style: MmType.monoStyle(
                         size: 11,
                         color: value == filter ? c.coralStrong : c.muted,
@@ -303,6 +355,76 @@ class _Results extends ConsumerWidget {
       );
     }
 
+    Widget onlineSection() {
+      if (!onlineOn) return const SizedBox.shrink();
+      final v = online;
+      final failure = v != null && v.hasError && !v.isLoading
+          ? OnlineFailure.of(v.error!)
+          : null;
+      final tracks = v?.value;
+      final List<Widget> content;
+      if (failure != null && failure.kind != OnlineFailureKind.canceled) {
+        content = [
+          OnlineProblemLine(
+            kind: failure.kind,
+            onRetry: onRetryOnline ?? () {},
+          ),
+        ];
+      } else if (tracks == null) {
+        content = [const SkeletonList(rows: 4, padding: 0)];
+      } else if (tracks.isEmpty) {
+        content = [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+            child: Text(
+              t.onlineNoResult(data.query),
+              style: MmType.caption.copyWith(color: c.muted),
+            ),
+          ),
+        ];
+      } else {
+        content = [for (final tr in tracks.take(limit)) OnlineTile(track: tr)];
+      }
+      final total = tracks?.length ?? 0;
+      Widget? link;
+      if (filter == SearchFilter.all && total > limit) {
+        link = Pressable(
+          onTap: () => onFilter(SearchFilter.online),
+          semanticLabel: t.seeAllCount(total),
+          child: Text(
+            t.seeAllCount(total),
+            style: MmType.label.copyWith(fontSize: 13, color: c.muted),
+          ),
+        );
+      } else if (filter == SearchFilter.online && total > 0) {
+        // The En ligne page lists more, and keeps the search.
+        link = Pressable(
+          onTap: () => context.go(onlineUri(data.query)),
+          semanticLabel: t.onlineMore,
+          child: Text(
+            t.onlineMore,
+            style: MmType.label.copyWith(fontSize: 13, color: c.muted),
+          ),
+        );
+      }
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Row(
+              children: [
+                Expanded(child: SectionHeader(t.navOnline)),
+                ?link,
+              ],
+            ),
+            const SizedBox(height: 8),
+            ...content,
+          ],
+        ),
+      );
+    }
+
     final showMusic =
         filter == SearchFilter.all || filter == SearchFilter.music;
     final sections = Column(
@@ -342,6 +464,8 @@ class _Results extends ConsumerWidget {
             (h) => _HitRow(hit: h),
             SearchFilter.cinema,
           ),
+        if (filter == SearchFilter.all || filter == SearchFilter.online)
+          onlineSection(),
         Center(
           child: Wrap(
             crossAxisAlignment: WrapCrossAlignment.center,

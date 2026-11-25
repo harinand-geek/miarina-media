@@ -682,6 +682,7 @@ class _QuickTiles extends ConsumerWidget {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final tiles = [
+      (PhosphorRegular.globe, t.navOnline, () => context.push(Routes.online)),
       (
         PhosphorRegular.heart,
         t.navFavorites,

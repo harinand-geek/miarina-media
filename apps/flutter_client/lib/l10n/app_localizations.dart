@@ -8276,6 +8276,132 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Vinyle'**
   String get vinylChip;
+
+  /// No description provided for @navOnline.
+  ///
+  /// In fr, this message translates to:
+  /// **'En ligne'**
+  String get navOnline;
+
+  /// No description provided for @onlineSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l\'écouter hors connexion.'**
+  String get onlineSubtitle;
+
+  /// No description provided for @onlinePlaceholder.
+  ///
+  /// In fr, this message translates to:
+  /// **'Rechercher un titre ou un artiste en ligne'**
+  String get onlinePlaceholder;
+
+  /// No description provided for @onlineHintTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Cherchez un titre ou un artiste'**
+  String get onlineHintTitle;
+
+  /// No description provided for @onlineHintBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.'**
+  String get onlineHintBody;
+
+  /// No description provided for @onlineRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Recherches récentes'**
+  String get onlineRecent;
+
+  /// No description provided for @onlineClearRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Effacer'**
+  String get onlineClearRecent;
+
+  /// No description provided for @onlineRemoveRecent.
+  ///
+  /// In fr, this message translates to:
+  /// **'Retirer « {query} »'**
+  String onlineRemoveRecent(String query);
+
+  /// No description provided for @onlineNoResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucun résultat en ligne pour « {query} »'**
+  String onlineNoResult(String query);
+
+  /// No description provided for @onlineNoResultBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vérifiez l\'orthographe ou essayez avec le nom de l\'artiste.'**
+  String get onlineNoResultBody;
+
+  /// No description provided for @onlineMore.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus de résultats'**
+  String get onlineMore;
+
+  /// No description provided for @onlineToolsTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'extracteur n\'est pas installé'**
+  String get onlineToolsTitle;
+
+  /// No description provided for @onlineToolsBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'écoute en ligne utilise le même extracteur que l\'espace Obtenir. Installez-le pour continuer.'**
+  String get onlineToolsBody;
+
+  /// No description provided for @onlineToolsInstall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Installer les outils'**
+  String get onlineToolsInstall;
+
+  /// No description provided for @onlineOfflineTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas de connexion'**
+  String get onlineOfflineTitle;
+
+  /// No description provided for @onlineOfflineBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'La recherche en ligne a besoin d\'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.'**
+  String get onlineOfflineBody;
+
+  /// No description provided for @onlineOpenTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir mes titres'**
+  String get onlineOpenTracks;
+
+  /// No description provided for @onlineBlockedTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'YouTube limite les requêtes'**
+  String get onlineBlockedTitle;
+
+  /// No description provided for @onlineBlockedBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayez dans quelques minutes.'**
+  String get onlineBlockedBody;
+
+  /// No description provided for @onlineErrorTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'La recherche en ligne a échoué'**
+  String get onlineErrorTitle;
+
+  /// No description provided for @onlineErrorBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réessayez. Si cela continue, mettez à jour l\'extracteur dans Obtenir.'**
+  String get onlineErrorBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
