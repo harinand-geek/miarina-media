@@ -6,6 +6,7 @@ pub mod info;
 pub mod offers;
 pub mod playlist;
 pub mod runtime;
+pub mod search;
 pub mod update;
 
 use std::collections::VecDeque;
@@ -30,8 +31,13 @@ use crate::{EngineError, Progress, Stage};
 pub use info::RawInfo;
 pub use offers::{FormatSpec, Offer, Offers, build_offers, subtitle_offers};
 pub use playlist::{MAX_PLAYLIST_ITEMS, Playlist, PlaylistItem, playlist_offers};
+pub use search::{OnlineHit, OnlineStream, is_video_id, watch_url};
 
 const ANALYZE_TIMEOUT: Duration = Duration::from_secs(90);
+/// Online listening: a search or a stream resolution the listener waits for
+/// (Python yt-dlp on Android starts slower than the Windows build).
+const SEARCH_TIMEOUT: Duration = Duration::from_secs(30);
+const RESOLVE_TIMEOUT: Duration = Duration::from_secs(30);
 const STDERR_TAIL: usize = 30;
 const MAX_LINE: usize = 4096;
 /// Prefix of the progress lines we ask yt-dlp to print.
@@ -216,39 +222,8 @@ impl YtDlpEngine {
                 "--playlist-items".to_owned(),
                 format!("1-{}", MAX_PLAYLIST_ITEMS + 1),
             ])
-            .args(["--dump-single-json", "--no-warnings", "--", url.as_str()])
-            .stdin(Stdio::null())
-            .stdout(Stdio::piped())
-            .stderr(Stdio::piped());
-        configure(&mut command, false);
-        let mut child = command.spawn().map_err(EngineError::from_io)?;
-        let _tree = ProcessTree::adopt(&child).ok();
-
-        // Bounded reads: the extractor output is untrusted.
-        let mut stdout = child
-            .stdout
-            .take()
-            .expect("piped stdout")
-            .take(info::MAX_JSON_BYTES as u64 + 1);
-        let mut stderr = child.stderr.take().expect("piped stderr").take(64 * 1024);
-        let read = async {
-            let mut out = Vec::new();
-            let mut err = Vec::new();
-            let (a, b) = tokio::join!(stdout.read_to_end(&mut out), stderr.read_to_end(&mut err));
-            a.and(b).map(|_| (out, err))
-        };
-        let (out, err) = tokio::select! {
-            _ = cancel.cancelled() => return Err(EngineError::Canceled),
-            _ = tokio::time::sleep(ANALYZE_TIMEOUT) => {
-                return Err(EngineError::network("the source took too long to answer"));
-            }
-            r = read => r.map_err(EngineError::from_io)?,
-        };
-        let status = child.wait().await.map_err(EngineError::from_io)?;
-        if !status.success() {
-            let tail = String::from_utf8_lossy(&err);
-            return Err(classify(tail.lines().rev().take(STDERR_TAIL)));
-        }
+            .args(["--dump-single-json", "--no-warnings", "--", url.as_str()]);
+        let out = self.dump_json(command, ANALYZE_TIMEOUT, cancel).await?;
         let info = RawInfo::parse(&out).map_err(|reason| EngineError::Unsupported { reason })?;
         if info.kind.as_deref() == Some("playlist") {
             let playlist = playlist::playlist_of(&info);
@@ -284,6 +259,102 @@ impl YtDlpEngine {
             offers,
             playlist: None,
         })
+    }
+
+    /// Runs a prepared `--dump-single-json` command and returns its
+    /// standard output, bounded (the extractor output is untrusted). A
+    /// failure is classified from the end of the error output.
+    async fn dump_json(
+        &self,
+        mut command: Command,
+        timeout: Duration,
+        cancel: &CancellationToken,
+    ) -> Result<Vec<u8>, EngineError> {
+        command
+            .stdin(Stdio::null())
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped());
+        configure(&mut command, false);
+        let mut child = command.spawn().map_err(EngineError::from_io)?;
+        let _tree = ProcessTree::adopt(&child).ok();
+
+        let mut stdout = child
+            .stdout
+            .take()
+            .expect("piped stdout")
+            .take(info::MAX_JSON_BYTES as u64 + 1);
+        let mut stderr = child.stderr.take().expect("piped stderr").take(64 * 1024);
+        let read = async {
+            let mut out = Vec::new();
+            let mut err = Vec::new();
+            let (a, b) = tokio::join!(stdout.read_to_end(&mut out), stderr.read_to_end(&mut err));
+            a.and(b).map(|_| (out, err))
+        };
+        let (out, err) = tokio::select! {
+            _ = cancel.cancelled() => return Err(EngineError::Canceled),
+            _ = tokio::time::sleep(timeout) => {
+                return Err(EngineError::network("the source took too long to answer"));
+            }
+            r = read => r.map_err(EngineError::from_io)?,
+        };
+        let status = child.wait().await.map_err(EngineError::from_io)?;
+        if !status.success() {
+            let tail = String::from_utf8_lossy(&err);
+            return Err(classify(tail.lines().rev().take(STDERR_TAIL)));
+        }
+        Ok(out)
+    }
+
+    /// Online listening: YouTube videos matching `query`, at most `limit`
+    /// (bounded by `search::MAX_SEARCH_RESULTS`), listed flat (no formats).
+    pub async fn search(
+        &self,
+        query: &str,
+        limit: u32,
+        cancel: &CancellationToken,
+    ) -> Result<Vec<OnlineHit>, EngineError> {
+        let Some(term) = search::search_term(query, limit) else {
+            return Ok(Vec::new());
+        };
+        let mut command = self.command()?;
+        command
+            .args(self.args())
+            .args([
+                "--flat-playlist",
+                "--dump-single-json",
+                "--no-warnings",
+                "--",
+            ])
+            .arg(term);
+        let out = self.dump_json(command, SEARCH_TIMEOUT, cancel).await?;
+        let info = RawInfo::parse(&out).map_err(|reason| EngineError::Unsupported { reason })?;
+        Ok(search::hits_of(&info))
+    }
+
+    /// Online listening: the audio stream of one video, for the player to
+    /// open now. The page URL is built from the validated id; the stream URL
+    /// it returns expires (see `OnlineStream::expires_at`).
+    pub async fn resolve_audio(
+        &self,
+        video_id: &str,
+        cancel: &CancellationToken,
+    ) -> Result<OnlineStream, EngineError> {
+        let page = watch_url(video_id).ok_or_else(|| EngineError::Unsupported {
+            reason: "this is not a valid video id".into(),
+        })?;
+        let mut command = self.command()?;
+        command
+            .args(self.args())
+            .args([
+                "-f",
+                "bestaudio[ext=m4a]/bestaudio",
+                "--dump-single-json",
+                "--no-warnings",
+                "--",
+            ])
+            .arg(page);
+        let out = self.dump_json(command, RESOLVE_TIMEOUT, cancel).await?;
+        search::stream_of(&out, video_id).map_err(|reason| EngineError::Unsupported { reason })
     }
 
     async fn run(

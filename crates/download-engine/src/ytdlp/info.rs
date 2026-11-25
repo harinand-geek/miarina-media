@@ -94,6 +94,12 @@ pub struct RawSubtitle {
 pub struct RawEntry {
     #[serde(rename = "_type")]
     pub kind: Option<String>,
+    /// The source's own id (a YouTube video id for search results).
+    pub id: Option<String>,
+    pub channel: Option<String>,
+    pub uploader: Option<String>,
+    /// `is_live`, `is_upcoming`, `was_live`, `not_live`… when listed.
+    pub live_status: Option<String>,
     pub url: Option<String>,
     pub webpage_url: Option<String>,
     pub title: Option<String>,

@@ -75,7 +75,7 @@ fn entry_url(entry: &RawEntry) -> Option<String> {
 }
 
 /// The largest picture of an entry not wider than a list thumbnail needs.
-fn entry_thumbnail(entry: &RawEntry) -> Option<String> {
+pub(crate) fn entry_thumbnail(entry: &RawEntry) -> Option<String> {
     let listed = entry.thumbnails.as_deref().unwrap_or_default();
     listed
         .iter()

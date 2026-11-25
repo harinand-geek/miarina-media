@@ -81,3 +81,15 @@ Même machine (Intel Core i5-8300H, 4 cœurs / 8 fils, 16 Go, Windows 11 Pro 10.
 | Working set, idem | 379 – 401 Mio | 184 – 189 Mio | somme des `WorkingSet64` de l'arbre |
 
 Lecture : la 0.2.0 ouvre sa fenêtre plus tard parce qu'elle l'affiche une fois la base ouverte et l'interface prête (contenu visible dès 5 s dans les captures, y compris au premier lancement), alors que la 0.1.11 crée sa fenêtre tout de suite puis charge son interface web dedans ; les deux mesures « fenêtre créée » ne mesurent donc pas la même chose. La mémoire totale est voisine en privé et nettement plus basse en working set (un seul processus, pas de WebView2 au repos). À suivre en bêta : un essai sur trois a montré, au premier lancement après la mise à jour, un accueil encore vide à 10 s (barre latérale affichée, compteurs absents) ; non reproduit dans les deux essais suivants (accueil complet à 5 s).
+
+## Écoute en ligne, lot 1 (décision 0011) — 2026-11-25
+
+Même machine (Intel Core i5-8300H, Windows 11 Pro 10.0.22000), yt-dlp et QuickJS-NG embarqués de la 0.2.10 (`%LOCALAPPDATA%\Miarina Media\tools`), connexion domestique. Mesuré avec `cargo run -p download-engine --example online_probe -- <tools> "Sakaté Boy Zanak Antesaka"`, deux essais.
+
+| Mesure | Valeur | Méthode |
+|---|---|---|
+| Recherche, 10 résultats | 4,1 – 4,8 s | `YtDlpEngine::search`, du lancement du processus au JSON lu |
+| Résolution du flux audio | 7,9 s (un essai) | `YtDlpEngine::resolve_audio` sur le premier résultat |
+| Flux obtenu | M4A, AAC (`mp4a.40.2`), 129 kbit/s, valable 359 min | champs `ext`, `acodec`, `abr` et paramètre `expire` de l'URL |
+
+Non mesuré : Android (yt-dlp en Python), mémoire pendant la lecture d'un flux, délai jusqu'au premier son dans le lecteur (lot 3).

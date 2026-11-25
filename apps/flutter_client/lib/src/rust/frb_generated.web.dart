@@ -18,6 +18,7 @@ import 'api/get.dart';
 import 'api/health.dart';
 import 'api/indexer.dart';
 import 'api/library.dart';
+import 'api/online.dart';
 import 'api/playlists.dart';
 import 'api/recorder.dart';
 import 'api/search.dart';
@@ -335,6 +336,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<MissingGroupInfo> dco_decode_list_missing_group_info(dynamic raw);
 
   @protected
+  List<OnlineHeader> dco_decode_list_online_header(dynamic raw);
+
+  @protected
+  List<OnlineTrack> dco_decode_list_online_track(dynamic raw);
+
+  @protected
   List<PlaylistInfo> dco_decode_list_playlist_info(dynamic raw);
 
   @protected
@@ -387,6 +394,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MissingGroupInfo dco_decode_missing_group_info(dynamic raw);
+
+  @protected
+  OnlineHeader dco_decode_online_header(dynamic raw);
+
+  @protected
+  OnlineResults dco_decode_online_results(dynamic raw);
+
+  @protected
+  OnlineStreamInfo dco_decode_online_stream_info(dynamic raw);
+
+  @protected
+  OnlineTrack dco_decode_online_track(dynamic raw);
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
@@ -913,6 +932,14 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<OnlineHeader> sse_decode_list_online_header(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<OnlineTrack> sse_decode_list_online_track(SseDeserializer deserializer);
+
+  @protected
   List<PlaylistInfo> sse_decode_list_playlist_info(
     SseDeserializer deserializer,
   );
@@ -975,6 +1002,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   MissingGroupInfo sse_decode_missing_group_info(SseDeserializer deserializer);
+
+  @protected
+  OnlineHeader sse_decode_online_header(SseDeserializer deserializer);
+
+  @protected
+  OnlineResults sse_decode_online_results(SseDeserializer deserializer);
+
+  @protected
+  OnlineStreamInfo sse_decode_online_stream_info(SseDeserializer deserializer);
+
+  @protected
+  OnlineTrack sse_decode_online_track(SseDeserializer deserializer);
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
@@ -1639,6 +1678,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_online_header(
+    List<OnlineHeader> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_online_track(
+    List<OnlineTrack> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_playlist_info(
     List<PlaylistInfo> self,
     SseSerializer serializer,
@@ -1736,6 +1787,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     MissingGroupInfo self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_online_header(OnlineHeader self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_online_results(OnlineResults self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_online_stream_info(
+    OnlineStreamInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_online_track(OnlineTrack self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);

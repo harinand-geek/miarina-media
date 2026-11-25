@@ -124,6 +124,14 @@ pub(crate) fn converting() -> bool {
         })
 }
 
+/// The extractor and the runtime it runs on, for online listening
+/// (`api/online.rs`). Fails until Obtenir has started (`get_start`).
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn extractor() -> Result<(YtDlpEngine, tokio::runtime::Handle)> {
+    let g = getter()?;
+    Ok((g.ytdlp.clone(), g.runtime.clone()))
+}
+
 fn getter() -> Result<Arc<Getter>> {
     GETTER
         .lock()

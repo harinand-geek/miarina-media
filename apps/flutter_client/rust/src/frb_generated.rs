@@ -28,7 +28,7 @@
 // Section: imports
 
 use flutter_rust_bridge::for_generated::byteorder::{NativeEndian, ReadBytesExt, WriteBytesExt};
-use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
 use flutter_rust_bridge::{Handler, IntoIntoDart};
 
 // Section: boilerplate
@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1849908598;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1640111936;
 
 // Section: executor
 
@@ -3389,6 +3389,138 @@ fn wire__crate__api__library__library_tracks_impl(
         },
     )
 }
+fn wire__crate__api__online__online_available_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "online_available",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::online::online_available())?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
+fn wire__crate__api__online__online_resolve_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "online_resolve",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_video_id = <String>::sse_decode(&mut deserializer);
+            let api_fresh = <bool>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok =
+                            crate::api::online::online_resolve(api_video_id, api_fresh)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__online__online_search_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "online_search",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_query = <String>::sse_decode(&mut deserializer);
+            let api_limit = <u32>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
+                    (move || {
+                        let output_ok = crate::api::online::online_search(api_query, api_limit)?;
+                        std::result::Result::Ok(output_ok)
+                    })(),
+                )
+            }
+        },
+    )
+}
+fn wire__crate__api__online__online_watch_url_impl(
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "online_watch_url",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_video_id = <String>::sse_decode(&mut deserializer);
+            deserializer.end();
+            transform_result_sse::<_, ()>((move || {
+                let output_ok = Ok::<_, ()>(crate::api::online::online_watch_url(api_video_id))?;
+                std::result::Result::Ok(output_ok)
+            })())
+        },
+    )
+}
 fn wire__crate__api__settings__playback_get_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
@@ -6338,6 +6470,30 @@ impl SseDecode for Vec<crate::api::health::MissingGroupInfo> {
     }
 }
 
+impl SseDecode for Vec<crate::api::online::OnlineHeader> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::online::OnlineHeader>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::api::online::OnlineTrack> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::online::OnlineTrack>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::api::playlists::PlaylistInfo> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -6585,6 +6741,72 @@ impl SseDecode for crate::api::health::MissingGroupInfo {
             folder: var_folder,
             target: var_target,
             files: var_files,
+        };
+    }
+}
+
+impl SseDecode for crate::api::online::OnlineHeader {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_name = <String>::sse_decode(deserializer);
+        let mut var_value = <String>::sse_decode(deserializer);
+        return crate::api::online::OnlineHeader {
+            name: var_name,
+            value: var_value,
+        };
+    }
+}
+
+impl SseDecode for crate::api::online::OnlineResults {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_query = <String>::sse_decode(deserializer);
+        let mut var_tracks = <Vec<crate::api::online::OnlineTrack>>::sse_decode(deserializer);
+        return crate::api::online::OnlineResults {
+            query: var_query,
+            tracks: var_tracks,
+        };
+    }
+}
+
+impl SseDecode for crate::api::online::OnlineStreamInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_videoId = <String>::sse_decode(deserializer);
+        let mut var_url = <String>::sse_decode(deserializer);
+        let mut var_httpHeaders = <Vec<crate::api::online::OnlineHeader>>::sse_decode(deserializer);
+        let mut var_expiresAtMs = <i64>::sse_decode(deserializer);
+        let mut var_durationSecs = <Option<f64>>::sse_decode(deserializer);
+        let mut var_ext = <Option<String>>::sse_decode(deserializer);
+        let mut var_codec = <Option<String>>::sse_decode(deserializer);
+        let mut var_bitrateKbps = <Option<f64>>::sse_decode(deserializer);
+        return crate::api::online::OnlineStreamInfo {
+            video_id: var_videoId,
+            url: var_url,
+            http_headers: var_httpHeaders,
+            expires_at_ms: var_expiresAtMs,
+            duration_secs: var_durationSecs,
+            ext: var_ext,
+            codec: var_codec,
+            bitrate_kbps: var_bitrateKbps,
+        };
+    }
+}
+
+impl SseDecode for crate::api::online::OnlineTrack {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_videoId = <String>::sse_decode(deserializer);
+        let mut var_title = <String>::sse_decode(deserializer);
+        let mut var_channel = <Option<String>>::sse_decode(deserializer);
+        let mut var_durationSecs = <f64>::sse_decode(deserializer);
+        let mut var_thumbnail = <Option<String>>::sse_decode(deserializer);
+        return crate::api::online::OnlineTrack {
+            video_id: var_videoId,
+            title: var_title,
+            channel: var_channel,
+            duration_secs: var_durationSecs,
+            thumbnail: var_thumbnail,
         };
     }
 }
@@ -7634,59 +7856,61 @@ fn pde_ffi_dispatcher_primary_impl(
         }
         95 => wire__crate__api__library__library_summary_impl(port, ptr, rust_vec_len, data_len),
         96 => wire__crate__api__library__library_tracks_impl(port, ptr, rust_vec_len, data_len),
-        97 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
-        98 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
-        99 => wire__crate__api__playlists__playlist_add_impl(port, ptr, rust_vec_len, data_len),
-        100 => wire__crate__api__playlists__playlist_create_impl(port, ptr, rust_vec_len, data_len),
-        101 => wire__crate__api__playlists__playlist_delete_impl(port, ptr, rust_vec_len, data_len),
-        102 => {
+        98 => wire__crate__api__online__online_resolve_impl(port, ptr, rust_vec_len, data_len),
+        99 => wire__crate__api__online__online_search_impl(port, ptr, rust_vec_len, data_len),
+        101 => wire__crate__api__settings__playback_get_impl(port, ptr, rust_vec_len, data_len),
+        102 => wire__crate__api__settings__playback_set_impl(port, ptr, rust_vec_len, data_len),
+        103 => wire__crate__api__playlists__playlist_add_impl(port, ptr, rust_vec_len, data_len),
+        104 => wire__crate__api__playlists__playlist_create_impl(port, ptr, rust_vec_len, data_len),
+        105 => wire__crate__api__playlists__playlist_delete_impl(port, ptr, rust_vec_len, data_len),
+        106 => {
             wire__crate__api__playlists__playlist_export_m3u_impl(port, ptr, rust_vec_len, data_len)
         }
-        103 => wire__crate__api__playlists__playlist_get_impl(port, ptr, rust_vec_len, data_len),
-        104 => {
+        107 => wire__crate__api__playlists__playlist_get_impl(port, ptr, rust_vec_len, data_len),
+        108 => {
             wire__crate__api__playlists__playlist_import_m3u_impl(port, ptr, rust_vec_len, data_len)
         }
-        105 => wire__crate__api__playlists__playlist_move_impl(port, ptr, rust_vec_len, data_len),
-        106 => wire__crate__api__playlists__playlist_remove_impl(port, ptr, rust_vec_len, data_len),
-        107 => wire__crate__api__playlists__playlist_rename_impl(port, ptr, rust_vec_len, data_len),
-        108 => wire__crate__api__playlists__playlists_list_impl(port, ptr, rust_vec_len, data_len),
-        111 => wire__crate__api__recorder__recorder_events_impl(port, ptr, rust_vec_len, data_len),
-        112 => wire__crate__api__recorder__recorder_pause_impl(port, ptr, rust_vec_len, data_len),
-        113 => wire__crate__api__recorder__recorder_resume_impl(port, ptr, rust_vec_len, data_len),
-        115 => wire__crate__api__recorder__recorder_start_impl(port, ptr, rust_vec_len, data_len),
-        117 => wire__crate__api__recorder__recorder_stop_impl(port, ptr, rust_vec_len, data_len),
-        118 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
-        119 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
-        120 => {
+        109 => wire__crate__api__playlists__playlist_move_impl(port, ptr, rust_vec_len, data_len),
+        110 => wire__crate__api__playlists__playlist_remove_impl(port, ptr, rust_vec_len, data_len),
+        111 => wire__crate__api__playlists__playlist_rename_impl(port, ptr, rust_vec_len, data_len),
+        112 => wire__crate__api__playlists__playlists_list_impl(port, ptr, rust_vec_len, data_len),
+        115 => wire__crate__api__recorder__recorder_events_impl(port, ptr, rust_vec_len, data_len),
+        116 => wire__crate__api__recorder__recorder_pause_impl(port, ptr, rust_vec_len, data_len),
+        117 => wire__crate__api__recorder__recorder_resume_impl(port, ptr, rust_vec_len, data_len),
+        119 => wire__crate__api__recorder__recorder_start_impl(port, ptr, rust_vec_len, data_len),
+        121 => wire__crate__api__recorder__recorder_stop_impl(port, ptr, rust_vec_len, data_len),
+        122 => wire__crate__api__settings__settings_get_impl(port, ptr, rust_vec_len, data_len),
+        123 => wire__crate__api__settings__settings_set_impl(port, ptr, rust_vec_len, data_len),
+        124 => {
             wire__crate__api__converter__source_info_default_impl(port, ptr, rust_vec_len, data_len)
         }
-        121 => wire__crate__api__system_media__system_media_buttons_impl(
+        125 => wire__crate__api__system_media__system_media_buttons_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
-        123 => wire__crate__api__tags__tags_cover_impl(port, ptr, rust_vec_len, data_len),
-        124 => wire__crate__api__tags__tags_get_impl(port, ptr, rust_vec_len, data_len),
-        125 => wire__crate__api__tags__tags_save_impl(port, ptr, rust_vec_len, data_len),
-        126 => wire__crate__api__torrents__torrents_action_impl(port, ptr, rust_vec_len, data_len),
-        127 => wire__crate__api__torrents__torrents_disable_impl(port, ptr, rust_vec_len, data_len),
-        128 => wire__crate__api__torrents__torrents_enable_impl(port, ptr, rust_vec_len, data_len),
-        129 => wire__crate__api__torrents__torrents_limits_impl(port, ptr, rust_vec_len, data_len),
-        130 => wire__crate__api__torrents__torrents_list_impl(port, ptr, rust_vec_len, data_len),
-        131 => wire__crate__api__torrents__torrents_preview_impl(port, ptr, rust_vec_len, data_len),
-        132 => wire__crate__api__torrents__torrents_sharing_impl(port, ptr, rust_vec_len, data_len),
-        133 => wire__crate__api__torrents__torrents_start_impl(port, ptr, rust_vec_len, data_len),
-        134 => {
+        127 => wire__crate__api__tags__tags_cover_impl(port, ptr, rust_vec_len, data_len),
+        128 => wire__crate__api__tags__tags_get_impl(port, ptr, rust_vec_len, data_len),
+        129 => wire__crate__api__tags__tags_save_impl(port, ptr, rust_vec_len, data_len),
+        130 => wire__crate__api__torrents__torrents_action_impl(port, ptr, rust_vec_len, data_len),
+        131 => wire__crate__api__torrents__torrents_disable_impl(port, ptr, rust_vec_len, data_len),
+        132 => wire__crate__api__torrents__torrents_enable_impl(port, ptr, rust_vec_len, data_len),
+        133 => wire__crate__api__torrents__torrents_limits_impl(port, ptr, rust_vec_len, data_len),
+        134 => wire__crate__api__torrents__torrents_list_impl(port, ptr, rust_vec_len, data_len),
+        135 => wire__crate__api__torrents__torrents_preview_impl(port, ptr, rust_vec_len, data_len),
+        136 => wire__crate__api__torrents__torrents_sharing_impl(port, ptr, rust_vec_len, data_len),
+        137 => wire__crate__api__torrents__torrents_start_impl(port, ptr, rust_vec_len, data_len),
+        138 => {
             wire__crate__api__updates__updates_auto_allowed_impl(port, ptr, rust_vec_len, data_len)
         }
-        136 => wire__crate__api__updates__updates_check_impl(port, ptr, rust_vec_len, data_len),
-        137 => wire__crate__api__updates__updates_download_impl(port, ptr, rust_vec_len, data_len),
-        138 => wire__crate__api__updates__updates_install_impl(port, ptr, rust_vec_len, data_len),
-        139 => wire__crate__api__updates__updates_prefs_impl(port, ptr, rust_vec_len, data_len),
-        141 => wire__crate__api__updates__updates_set_prefs_impl(port, ptr, rust_vec_len, data_len),
-        142 => wire__crate__api__updates__updates_start_impl(port, ptr, rust_vec_len, data_len),
-        143 => wire__crate__api__updates__updates_status_impl(port, ptr, rust_vec_len, data_len),
+        140 => wire__crate__api__updates__updates_check_impl(port, ptr, rust_vec_len, data_len),
+        141 => wire__crate__api__updates__updates_download_impl(port, ptr, rust_vec_len, data_len),
+        142 => wire__crate__api__updates__updates_install_impl(port, ptr, rust_vec_len, data_len),
+        143 => wire__crate__api__updates__updates_prefs_impl(port, ptr, rust_vec_len, data_len),
+        145 => wire__crate__api__updates__updates_set_prefs_impl(port, ptr, rust_vec_len, data_len),
+        146 => wire__crate__api__updates__updates_start_impl(port, ptr, rust_vec_len, data_len),
+        147 => wire__crate__api__updates__updates_status_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -7727,24 +7951,26 @@ fn pde_ffi_dispatcher_sync_impl(
         40 => wire__crate__api__extension__extension_set_enabled_impl(ptr, rust_vec_len, data_len),
         41 => wire__crate__api__extension__extension_status_impl(ptr, rust_vec_len, data_len),
         55 => wire__crate__api__get__get_preset_offers_impl(ptr, rust_vec_len, data_len),
-        109 => wire__crate__api__recorder__recorder_abort_impl(ptr, rust_vec_len, data_len),
-        110 => wire__crate__api__recorder__recorder_default_dir_impl(ptr, rust_vec_len, data_len),
-        114 => wire__crate__api__recorder__recorder_set_mic_muted_impl(ptr, rust_vec_len, data_len),
-        116 => wire__crate__api__recorder__recorder_status_impl(ptr, rust_vec_len, data_len),
-        122 => {
+        97 => wire__crate__api__online__online_available_impl(ptr, rust_vec_len, data_len),
+        100 => wire__crate__api__online__online_watch_url_impl(ptr, rust_vec_len, data_len),
+        113 => wire__crate__api__recorder__recorder_abort_impl(ptr, rust_vec_len, data_len),
+        114 => wire__crate__api__recorder__recorder_default_dir_impl(ptr, rust_vec_len, data_len),
+        118 => wire__crate__api__recorder__recorder_set_mic_muted_impl(ptr, rust_vec_len, data_len),
+        120 => wire__crate__api__recorder__recorder_status_impl(ptr, rust_vec_len, data_len),
+        126 => {
             wire__crate__api__system_media__system_media_update_impl(ptr, rust_vec_len, data_len)
         }
-        135 => wire__crate__api__updates__updates_cancel_impl(ptr, rust_vec_len, data_len),
-        140 => wire__crate__api__updates__updates_progress_impl(ptr, rust_vec_len, data_len),
-        144 => {
+        139 => wire__crate__api__updates__updates_cancel_impl(ptr, rust_vec_len, data_len),
+        144 => wire__crate__api__updates__updates_progress_impl(ptr, rust_vec_len, data_len),
+        148 => {
             wire__crate__api__browser_spike__webview_spike_close_impl(ptr, rust_vec_len, data_len)
         }
-        145 => wire__crate__api__browser_spike__webview_spike_detections_impl(
+        149 => wire__crate__api__browser_spike__webview_spike_detections_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        146 => {
+        150 => {
             wire__crate__api__browser_spike__webview_spike_open_impl(ptr, rust_vec_len, data_len)
         }
         _ => unreachable!(),
@@ -8753,6 +8979,99 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::health::MissingGroupInfo>
     for crate::api::health::MissingGroupInfo
 {
     fn into_into_dart(self) -> crate::api::health::MissingGroupInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::online::OnlineHeader {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.name.into_into_dart().into_dart(),
+            self.value.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::online::OnlineHeader
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::online::OnlineHeader>
+    for crate::api::online::OnlineHeader
+{
+    fn into_into_dart(self) -> crate::api::online::OnlineHeader {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::online::OnlineResults {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.query.into_into_dart().into_dart(),
+            self.tracks.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::online::OnlineResults
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::online::OnlineResults>
+    for crate::api::online::OnlineResults
+{
+    fn into_into_dart(self) -> crate::api::online::OnlineResults {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::online::OnlineStreamInfo {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.video_id.into_into_dart().into_dart(),
+            self.url.into_into_dart().into_dart(),
+            self.http_headers.into_into_dart().into_dart(),
+            self.expires_at_ms.into_into_dart().into_dart(),
+            self.duration_secs.into_into_dart().into_dart(),
+            self.ext.into_into_dart().into_dart(),
+            self.codec.into_into_dart().into_dart(),
+            self.bitrate_kbps.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::online::OnlineStreamInfo
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::online::OnlineStreamInfo>
+    for crate::api::online::OnlineStreamInfo
+{
+    fn into_into_dart(self) -> crate::api::online::OnlineStreamInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::online::OnlineTrack {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.video_id.into_into_dart().into_dart(),
+            self.title.into_into_dart().into_dart(),
+            self.channel.into_into_dart().into_dart(),
+            self.duration_secs.into_into_dart().into_dart(),
+            self.thumbnail.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::online::OnlineTrack
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::online::OnlineTrack>
+    for crate::api::online::OnlineTrack
+{
+    fn into_into_dart(self) -> crate::api::online::OnlineTrack {
         self
     }
 }
@@ -10350,6 +10669,26 @@ impl SseEncode for Vec<crate::api::health::MissingGroupInfo> {
     }
 }
 
+impl SseEncode for Vec<crate::api::online::OnlineHeader> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::online::OnlineHeader>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::api::online::OnlineTrack> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::online::OnlineTrack>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::api::playlists::PlaylistInfo> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -10537,6 +10876,47 @@ impl SseEncode for crate::api::health::MissingGroupInfo {
         <String>::sse_encode(self.folder, serializer);
         <Option<String>>::sse_encode(self.target, serializer);
         <Vec<crate::api::health::MissingFileInfo>>::sse_encode(self.files, serializer);
+    }
+}
+
+impl SseEncode for crate::api::online::OnlineHeader {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.name, serializer);
+        <String>::sse_encode(self.value, serializer);
+    }
+}
+
+impl SseEncode for crate::api::online::OnlineResults {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.query, serializer);
+        <Vec<crate::api::online::OnlineTrack>>::sse_encode(self.tracks, serializer);
+    }
+}
+
+impl SseEncode for crate::api::online::OnlineStreamInfo {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.video_id, serializer);
+        <String>::sse_encode(self.url, serializer);
+        <Vec<crate::api::online::OnlineHeader>>::sse_encode(self.http_headers, serializer);
+        <i64>::sse_encode(self.expires_at_ms, serializer);
+        <Option<f64>>::sse_encode(self.duration_secs, serializer);
+        <Option<String>>::sse_encode(self.ext, serializer);
+        <Option<String>>::sse_encode(self.codec, serializer);
+        <Option<f64>>::sse_encode(self.bitrate_kbps, serializer);
+    }
+}
+
+impl SseEncode for crate::api::online::OnlineTrack {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.video_id, serializer);
+        <String>::sse_encode(self.title, serializer);
+        <Option<String>>::sse_encode(self.channel, serializer);
+        <f64>::sse_encode(self.duration_secs, serializer);
+        <Option<String>>::sse_encode(self.thumbnail, serializer);
     }
 }
 
@@ -11209,7 +11589,7 @@ mod io {
     use flutter_rust_bridge::for_generated::byteorder::{
         NativeEndian, ReadBytesExt, WriteBytesExt,
     };
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate
@@ -11233,7 +11613,7 @@ mod web {
     };
     use flutter_rust_bridge::for_generated::wasm_bindgen;
     use flutter_rust_bridge::for_generated::wasm_bindgen::prelude::*;
-    use flutter_rust_bridge::for_generated::{transform_result_dco, Lifetimeable, Lockable};
+    use flutter_rust_bridge::for_generated::{Lifetimeable, Lockable, transform_result_dco};
     use flutter_rust_bridge::{Handler, IntoIntoDart};
 
     // Section: boilerplate

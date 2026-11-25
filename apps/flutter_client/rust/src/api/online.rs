@@ -1,0 +1,328 @@
+//! Online listening (decision 0011): YouTube search and the audio stream of
+//! one video, played directly without a file. Everything runs on the device
+//! with the bundled extractor; nothing is stored on disk. Stream URLs carry
+//! tokens: they are kept in memory only and never logged.
+//!
+//! Errors reach Dart as `"<code>: <detail>"`, the code being one of
+//! `tools` (extractor missing), `network`, `blocked` (the source refuses or
+//! limits requests), `unavailable` (private, removed, protected, live…),
+//! `canceled` (a newer search replaced this one) or `other`.
+
+use std::collections::{HashMap, VecDeque};
+use std::sync::Mutex;
+use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
+
+use anyhow::{Result, anyhow};
+use download_engine::EngineError;
+use download_engine::ytdlp::{self, OnlineHit, OnlineStream};
+use tokio::sync::Semaphore;
+use tokio_util::sync::CancellationToken;
+
+use super::get::extractor;
+
+/// Results kept per query, and for how long.
+const SEARCH_CACHE_LEN: usize = 50;
+const SEARCH_CACHE_TTL: Duration = Duration::from_secs(10 * 60);
+/// A cached stream is dropped this long before its URL expires.
+const STREAM_MARGIN_SECS: u64 = 5 * 60;
+const STREAM_CACHE_LEN: usize = 100;
+
+static SEARCH_CACHE: Mutex<VecDeque<(String, Instant, Vec<OnlineTrack>)>> =
+    Mutex::new(VecDeque::new());
+static STREAM_CACHE: Mutex<Option<HashMap<String, OnlineStream>>> = Mutex::new(None);
+/// The running search: a newer one cancels it (its process is killed).
+static CURRENT_SEARCH: Mutex<Option<CancellationToken>> = Mutex::new(None);
+/// Stream resolutions at once: the track to play and the next one.
+static RESOLVE_SLOTS: Semaphore = Semaphore::const_new(2);
+
+pub struct OnlineTrack {
+    pub video_id: String,
+    pub title: String,
+    pub channel: Option<String>,
+    pub duration_secs: f64,
+    /// Picture published by the site (https URL), for the list and the
+    /// player's artwork.
+    pub thumbnail: Option<String>,
+}
+
+pub struct OnlineResults {
+    pub query: String,
+    pub tracks: Vec<OnlineTrack>,
+}
+
+pub struct OnlineHeader {
+    pub name: String,
+    pub value: String,
+}
+
+pub struct OnlineStreamInfo {
+    pub video_id: String,
+    /// Short-lived: open it now, never store it.
+    pub url: String,
+    pub http_headers: Vec<OnlineHeader>,
+    /// Unix milliseconds after which `url` stops working.
+    pub expires_at_ms: i64,
+    pub duration_secs: Option<f64>,
+    pub ext: Option<String>,
+    pub codec: Option<String>,
+    pub bitrate_kbps: Option<f64>,
+}
+
+/// The extractor is installed and Obtenir has started.
+#[flutter_rust_bridge::frb(sync)]
+pub fn online_available() -> bool {
+    extractor().is_ok_and(|(engine, _)| engine.available())
+}
+
+/// The video's page, for Obtenir. `None` for a malformed id.
+#[flutter_rust_bridge::frb(sync)]
+pub fn online_watch_url(video_id: String) -> Option<String> {
+    ytdlp::watch_url(&video_id)
+}
+
+/// Videos matching `query`, at most `limit` (1–30). A newer call cancels
+/// this one (`canceled`). Blocking: runs on the download runtime.
+pub fn online_search(query: String, limit: u32) -> Result<OnlineResults> {
+    let key = format!("{limit}:{}", cache_key(&query));
+    if let Some(tracks) = cached_search(&key) {
+        return Ok(OnlineResults { query, tracks });
+    }
+    let (engine, runtime) = extractor().map_err(|_| coded("tools", "Obtenir has not started"))?;
+    if !engine.available() {
+        return Err(coded("tools", "the media extractor is not installed"));
+    }
+    let cancel = CancellationToken::new();
+    if let Ok(mut current) = CURRENT_SEARCH.lock()
+        && let Some(previous) = current.replace(cancel.clone())
+    {
+        previous.cancel();
+    }
+    let hits = runtime.block_on(engine.search(&query, limit, &cancel));
+    let hits = hits.map_err(|e| engine_error(&e))?;
+    let tracks: Vec<OnlineTrack> = hits.into_iter().map(track).collect();
+    remember_search(key, &tracks);
+    Ok(OnlineResults { query, tracks })
+}
+
+/// The audio stream to open for `video_id`. `fresh`: ignore the cached
+/// one (the player was refused with it, e.g. HTTP 403 after a long pause).
+pub fn online_resolve(video_id: String, fresh: bool) -> Result<OnlineStreamInfo> {
+    if !ytdlp::is_video_id(&video_id) {
+        return Err(coded("unavailable", "this is not a valid video id"));
+    }
+    if !fresh && let Some(stream) = cached_stream(&video_id) {
+        return Ok(stream_info(stream));
+    }
+    let (engine, runtime) = extractor().map_err(|_| coded("tools", "Obtenir has not started"))?;
+    if !engine.available() {
+        return Err(coded("tools", "the media extractor is not installed"));
+    }
+    let stream = runtime.block_on(async {
+        let _slot = RESOLVE_SLOTS
+            .acquire()
+            .await
+            .map_err(|_| EngineError::Canceled)?;
+        // Another call may have resolved it while this one waited.
+        if !fresh && let Some(stream) = cached_stream(&video_id) {
+            return Ok(stream);
+        }
+        engine
+            .resolve_audio(&video_id, &CancellationToken::new())
+            .await
+    });
+    let stream = stream.map_err(|e| engine_error(&e))?;
+    remember_stream(stream.clone());
+    Ok(stream_info(stream))
+}
+
+fn track(hit: OnlineHit) -> OnlineTrack {
+    OnlineTrack {
+        video_id: hit.video_id,
+        title: hit.title,
+        channel: hit.channel,
+        duration_secs: hit.duration,
+        thumbnail: hit.thumbnail,
+    }
+}
+
+fn stream_info(stream: OnlineStream) -> OnlineStreamInfo {
+    OnlineStreamInfo {
+        video_id: stream.video_id,
+        url: stream.url,
+        http_headers: stream
+            .http_headers
+            .into_iter()
+            .map(|(name, value)| OnlineHeader { name, value })
+            .collect(),
+        expires_at_ms: i64::try_from(stream.expires_at.saturating_mul(1000)).unwrap_or(i64::MAX),
+        duration_secs: stream.duration,
+        ext: stream.ext,
+        codec: stream.codec,
+        bitrate_kbps: stream.bitrate,
+    }
+}
+
+fn coded(code: &str, detail: &str) -> anyhow::Error {
+    anyhow!("{code}: {detail}")
+}
+
+/// The UI's error code for an extractor failure. Details never carry the
+/// stream URL (the extractor's messages are about the page).
+fn engine_error(error: &EngineError) -> anyhow::Error {
+    match error {
+        EngineError::Canceled => coded("canceled", ""),
+        EngineError::Network { .. } => coded("network", "the source did not answer"),
+        EngineError::Http { status: 403 | 429 } => {
+            coded("blocked", "the source refused the request")
+        }
+        EngineError::Http { status } => coded("network", &format!("HTTP {status}")),
+        EngineError::Unsupported { reason } if reason.contains("not installed") => {
+            coded("tools", reason)
+        }
+        EngineError::Unsupported { reason } => coded("unavailable", reason),
+        other => coded("other", &other.to_string()),
+    }
+}
+
+fn now_secs() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map_or(0, |d| d.as_secs())
+}
+
+/// Case and spacing do not make a different search.
+fn cache_key(query: &str) -> String {
+    query
+        .split_whitespace()
+        .collect::<Vec<_>>()
+        .join(" ")
+        .to_lowercase()
+}
+
+fn cached_search(key: &str) -> Option<Vec<OnlineTrack>> {
+    let cache = SEARCH_CACHE.lock().ok()?;
+    cache
+        .iter()
+        .find(|(k, at, _)| k == key && at.elapsed() < SEARCH_CACHE_TTL)
+        .map(|(_, _, tracks)| tracks.iter().map(copy_track).collect())
+}
+
+fn remember_search(key: String, tracks: &[OnlineTrack]) {
+    if let Ok(mut cache) = SEARCH_CACHE.lock() {
+        cache.retain(|(k, at, _)| *k != key && at.elapsed() < SEARCH_CACHE_TTL);
+        cache.push_front((key, Instant::now(), tracks.iter().map(copy_track).collect()));
+        cache.truncate(SEARCH_CACHE_LEN);
+    }
+}
+
+fn copy_track(t: &OnlineTrack) -> OnlineTrack {
+    OnlineTrack {
+        video_id: t.video_id.clone(),
+        title: t.title.clone(),
+        channel: t.channel.clone(),
+        duration_secs: t.duration_secs,
+        thumbnail: t.thumbnail.clone(),
+    }
+}
+
+fn fresh_enough(stream: &OnlineStream, now: u64) -> bool {
+    stream.expires_at > now + STREAM_MARGIN_SECS
+}
+
+fn cached_stream(video_id: &str) -> Option<OnlineStream> {
+    let cache = STREAM_CACHE.lock().ok()?;
+    let stream = cache.as_ref()?.get(video_id)?;
+    fresh_enough(stream, now_secs()).then(|| stream.clone())
+}
+
+fn remember_stream(stream: OnlineStream) {
+    let Ok(mut cache) = STREAM_CACHE.lock() else {
+        return;
+    };
+    let cache = cache.get_or_insert_with(HashMap::new);
+    let now = now_secs();
+    cache.retain(|_, s| fresh_enough(s, now));
+    if cache.len() >= STREAM_CACHE_LEN
+        && let Some(oldest) = cache
+            .iter()
+            .min_by_key(|(_, s)| s.expires_at)
+            .map(|(id, _)| id.clone())
+    {
+        cache.remove(&oldest);
+    }
+    cache.insert(stream.video_id.clone(), stream);
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn stream(id: &str, expires_at: u64) -> OnlineStream {
+        OnlineStream {
+            video_id: id.to_owned(),
+            url: "https://h.example/a".to_owned(),
+            http_headers: vec![("User-Agent".to_owned(), "x".to_owned())],
+            expires_at,
+            duration: Some(10.0),
+            ext: Some("m4a".to_owned()),
+            codec: None,
+            bitrate: None,
+        }
+    }
+
+    #[test]
+    fn queries_differing_by_case_or_spaces_share_a_cache_entry() {
+        assert_eq!(cache_key("  Sakaté   BOY "), cache_key("sakaté boy"));
+        assert_ne!(cache_key("sakaté boy"), cache_key("sakate boy"));
+    }
+
+    #[test]
+    fn streams_close_to_expiry_are_not_reused() {
+        let now = now_secs();
+        remember_stream(stream("AAAAAAAAAAA", now + 3600));
+        remember_stream(stream("BBBBBBBBBBB", now + 60));
+        assert!(cached_stream("AAAAAAAAAAA").is_some());
+        assert!(cached_stream("BBBBBBBBBBB").is_none());
+        assert!(cached_stream("CCCCCCCCCCC").is_none());
+    }
+
+    #[test]
+    fn errors_carry_a_code_the_ui_can_read() {
+        let code = |e: EngineError| engine_error(&e).to_string();
+        assert!(code(EngineError::Canceled).starts_with("canceled:"));
+        assert!(
+            code(EngineError::Network {
+                message: "x".into()
+            })
+            .starts_with("network:")
+        );
+        assert!(code(EngineError::Http { status: 429 }).starts_with("blocked:"));
+        assert!(code(EngineError::Http { status: 403 }).starts_with("blocked:"));
+        assert!(code(EngineError::Http { status: 500 }).starts_with("network:"));
+        assert!(
+            code(EngineError::Unsupported {
+                reason: "the media extractor (yt-dlp) is not installed".into()
+            })
+            .starts_with("tools:")
+        );
+        assert!(
+            code(EngineError::Unsupported {
+                reason: "this media requires an account or is private".into()
+            })
+            .starts_with("unavailable:")
+        );
+    }
+
+    #[test]
+    fn invalid_ids_are_refused_before_any_work() {
+        let err = online_resolve("../etc/passwd".into(), false).err().unwrap();
+        assert!(err.to_string().starts_with("unavailable:"));
+    }
+
+    #[test]
+    fn stream_expiry_is_given_in_milliseconds() {
+        let info = stream_info(stream("AAAAAAAAAAA", 1_764_100_000));
+        assert_eq!(info.expires_at_ms, 1_764_100_000_000);
+        assert_eq!(info.http_headers[0].name, "User-Agent");
+    }
+}
