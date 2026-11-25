@@ -8270,6 +8270,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Android ouvre l\'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n\'est installé sans votre accord.'**
   String get updAndroidNote;
+
+  /// No description provided for @vinylChip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vinyle'**
+  String get vinylChip;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

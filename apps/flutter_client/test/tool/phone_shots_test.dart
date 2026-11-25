@@ -336,6 +336,9 @@ void main() {
       await tester.tap(find.bySemanticsLabel(RegExp('^Ouvrir En lecture')));
       await _settle(tester);
       await _shot(tester, 'pc-$theme-05-now');
+      await tester.tap(find.text('Vinyle'));
+      await _settle(tester);
+      await _shot(tester, 'pc-$theme-06-vinyl');
     }, skip: _out == null);
   }
 

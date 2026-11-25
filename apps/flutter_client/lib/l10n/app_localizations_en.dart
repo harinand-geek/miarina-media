@@ -4976,4 +4976,7 @@ class L10nEn extends L10n {
   @override
   String get updAndroidNote =>
       'Android opens the installer: tap “Update”. Your library, playlists, resume points and settings are kept. Nothing is installed without your consent.';
+
+  @override
+  String get vinylChip => 'Record';
 }

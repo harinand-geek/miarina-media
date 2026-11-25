@@ -1429,5 +1429,6 @@
   "minutesCount": "{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}",
   "phoneLibrary": "Library",
   "updAllowInstall": "Allow Miarina Media to install apps (the screen just opened), then tap “Install now” again.",
-  "updAndroidNote": "Android opens the installer: tap “Update”. Your library, playlists, resume points and settings are kept. Nothing is installed without your consent."
+  "updAndroidNote": "Android opens the installer: tap “Update”. Your library, playlists, resume points and settings are kept. Nothing is installed without your consent.",
+  "vinylChip": "Record"
 }

@@ -5034,4 +5034,7 @@ class L10nMg extends L10n {
   @override
   String get updAndroidNote =>
       'Manokatra ny fametrahana i Android: tsindrio ny « Havaozina ». Voatahiry ny tranombokinao, ny lisitry ny hiranao, ny toerana nijanonanao ary ny fandrindranao. Tsy misy apetraka raha tsy ekenao.';
+
+  @override
+  String get vinylChip => 'Kapila';
 }

@@ -5017,4 +5017,7 @@ class L10nFr extends L10n {
   @override
   String get updAndroidNote =>
       'Android ouvre l\'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n\'est installé sans votre accord.';
+
+  @override
+  String get vinylChip => 'Vinyle';
 }

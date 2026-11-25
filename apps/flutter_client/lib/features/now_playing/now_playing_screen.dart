@@ -10,15 +10,18 @@ import '../settings/settings_data.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
+import '../../design/widgets/track_bar.dart' show InterpolatedPosition;
 import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
 import '../playback/audio_only.dart';
 import 'lyrics_view.dart';
+import 'mobile_player.dart' show vinylModeProvider;
 import 'now_playing_shared.dart';
 import 'queue_view.dart';
 import 'sound_view.dart';
+import 'vinyl_turntable.dart';
 
 enum NowTab { lyrics, queue, sound }
 
@@ -64,6 +67,8 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
     );
     final eq = ref.watch(equalizerProvider);
     final back = ref.watch(lastLocationProvider);
+    final vinyl = ref.watch(vinylModeProvider);
+    final snap = currentSnapshot(ref);
     // Expressive redesign (decision 0010): the page takes the cover's
     // colours; Settings › Appearance can still turn the cover ground off.
     final look = ref.watch(appearanceProvider).value;
@@ -180,12 +185,58 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                 mainAxisSize: MainAxisSize.min,
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  FlyingCover(
-                                    size: size,
-                                    seed: entry.seed,
-                                    imagePath: entry.artwork,
-                                    radius: 32,
-                                    shadow: false,
+                                  // The turntable view of the phone (vinyl
+                                  // handoff), switched by the Vinyle chip.
+                                  AnimatedSwitcher(
+                                    duration: MmMotion.of(context).album,
+                                    switchInCurve: MmMotion.spring,
+                                    transitionBuilder: (child, anim) =>
+                                        FadeTransition(
+                                          opacity: anim,
+                                          child: ScaleTransition(
+                                            scale: Tween(
+                                              begin: 0.9,
+                                              end: 1.0,
+                                            ).animate(anim),
+                                            child: child,
+                                          ),
+                                        ),
+                                    child: vinyl
+                                        ? InterpolatedPosition(
+                                            key: const ValueKey('vinyl'),
+                                            position: snap.position,
+                                            duration: snap.duration,
+                                            playing:
+                                                snap.isPlaying &&
+                                                !snap.buffering,
+                                            speed: snap.speed,
+                                            builder: (context, position) =>
+                                                VinylTurntable(
+                                                  size: size,
+                                                  seed: entry.seed,
+                                                  imagePath: entry.artwork,
+                                                  playing:
+                                                      snap.isPlaying &&
+                                                      !snap.buffering,
+                                                  progress:
+                                                      snap.duration >
+                                                          Duration.zero
+                                                      ? position.inMilliseconds /
+                                                            snap
+                                                                .duration
+                                                                .inMilliseconds
+                                                      : 0,
+                                                  tones: tones,
+                                                ),
+                                          )
+                                        : FlyingCover(
+                                            key: const ValueKey('cover'),
+                                            size: size,
+                                            seed: entry.seed,
+                                            imagePath: entry.artwork,
+                                            radius: 32,
+                                            shadow: false,
+                                          ),
                                   ),
                                   const SizedBox(height: 26),
                                   Row(
@@ -266,6 +317,17 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                           ),
                                         ),
                                       const SleepTimerChip(),
+                                      InfoChip(
+                                        icon: PhosphorRegular.vinylRecord,
+                                        label: t.vinylChip,
+                                        active: vinyl,
+                                        tooltip: vinyl
+                                            ? t.showCover
+                                            : t.showVinyl,
+                                        onTap: ref
+                                            .read(vinylModeProvider.notifier)
+                                            .toggle,
+                                      ),
                                       if (entry.format != null)
                                         InfoChip(
                                           icon: PhosphorRegular.fileAudio,

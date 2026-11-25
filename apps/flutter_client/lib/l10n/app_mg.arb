@@ -1361,5 +1361,6 @@
   "minutesCount": "{count, plural, =0{minitra 0} =1{minitra 1} other{minitra {count}}}",
   "phoneLibrary": "Tranomboky",
   "updAllowInstall": "Avelao hametraka rindranasa ny Miarina Media (efa nisokatra ny efijery), dia tsindrio indray ny « Apetraho izao ».",
-  "updAndroidNote": "Manokatra ny fametrahana i Android: tsindrio ny « Havaozina ». Voatahiry ny tranombokinao, ny lisitry ny hiranao, ny toerana nijanonanao ary ny fandrindranao. Tsy misy apetraka raha tsy ekenao."
+  "updAndroidNote": "Manokatra ny fametrahana i Android: tsindrio ny « Havaozina ». Voatahiry ny tranombokinao, ny lisitry ny hiranao, ny toerana nijanonanao ary ny fandrindranao. Tsy misy apetraka raha tsy ekenao.",
+  "vinylChip": "Kapila"
 }

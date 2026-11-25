@@ -2617,5 +2617,6 @@
   "@minutesCount": {"placeholders": {"count": {"type": "int"}}},
   "phoneLibrary": "Bibliothèque",
   "updAllowInstall": "Autorisez Miarina Media à installer des applications (l'écran vient de s'ouvrir), puis appuyez de nouveau sur « Installer maintenant ».",
-  "updAndroidNote": "Android ouvre l'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n'est installé sans votre accord."
+  "updAndroidNote": "Android ouvre l'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n'est installé sans votre accord.",
+  "vinylChip": "Vinyle"
 }
