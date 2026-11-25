@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
 import '../health/health_data.dart';
+import '../online/online_data.dart' show OnlineFailure;
+import '../online/online_playback.dart';
 import '../../src/rust/api/library.dart' as rust_library;
 import '../settings/settings_data.dart';
 import 'playback_memory.dart';
@@ -26,6 +28,7 @@ class QueueEntry {
     this.artwork,
     this.isVideo = false,
     this.focusKey,
+    this.onlineId,
   });
 
   final MediaSource source;
@@ -47,6 +50,10 @@ class QueueEntry {
   /// "course:architecture"; its speed is remembered per program.
   final String? focusKey;
 
+  /// Online listening (decision 0011): the YouTube video, whose stream is
+  /// found just before it plays. Not in the library ([libraryId] is null).
+  final String? onlineId;
+
   QueueEntry withFavorite(bool value) => QueueEntry(
     source: source,
     title: title,
@@ -59,6 +66,7 @@ class QueueEntry {
     artwork: artwork,
     isVideo: isVideo,
     focusKey: focusKey,
+    onlineId: onlineId,
   );
 
   /// Stable tint of the placeholder cover.
@@ -200,6 +208,15 @@ class QueueController extends Notifier<QueueState> {
   /// The entry prepared in the engine to follow the current one.
   QueueEntry? _prepared;
 
+  StreamSubscription<PlaybackSnapshot>? _online;
+
+  /// The online entry whose stream was found again after the engine was
+  /// refused (an address expired during a long pause): once per play.
+  String? _refreshedOnline;
+
+  /// Where the current online entry was, to resume it on a fresh stream.
+  Duration _onlineAt = Duration.zero;
+
   MediaEngine? get _engine => ref.read(mediaEngineProvider);
 
   @override
@@ -209,9 +226,11 @@ class QueueController extends Notifier<QueueState> {
         .where((s) => s.status == PlaybackStatus.ended)
         .listen((_) => _advanceAfterEnd());
     _moved = engine?.snapshots.listen(_followEngine);
+    _online = engine?.snapshots.listen(_watchOnline);
     ref.onDispose(() {
       _ended?.cancel();
       _moved?.cancel();
+      _online?.cancel();
     });
     // A changed setting changes what may follow (the sleep timer says so
     // itself: it reads the queue).
@@ -246,12 +265,19 @@ class QueueController extends Notifier<QueueState> {
     final engine = _engine;
     if (engine == null) return;
     final s = engine.current;
-    if (s.source == null) {
-      if (state.current != null) await _load();
+    final current = state.current;
+    // An online entry whose stream was not found: play tries again (the
+    // engine may still hold the previous track, paused).
+    if (s.source == null ||
+        (current?.onlineId != null && s.source?.uri != current!.source.uri)) {
+      if (current != null) await _load();
       return;
     }
     s.isPlaying ? await engine.pause() : await engine.play();
   }
+
+  /// « Réessayer » of the player's error card.
+  Future<void> retryCurrent() => _load();
 
   Future<void> next() async {
     if (state.order.isEmpty) return;
@@ -414,7 +440,68 @@ class QueueController extends Notifier<QueueState> {
     // snapshot, which open() replaces.
     await memory.started(entry);
     _prepared = null;
-    await engine.open(entry.source, startAt: start);
+    _refreshedOnline = null;
+    _onlineAt = Duration.zero;
+    var source = entry.source;
+    if (entry.onlineId != null) {
+      // Finding the stream takes seconds: the previous track stops now.
+      if (engine.current.isPlaying) await engine.pause();
+      final resolved = await _resolveOnline(entry);
+      // Another entry was chosen meanwhile: that load goes on.
+      if (!identical(state.current, entry)) return;
+      // The player says why, with « Réessayer ».
+      if (resolved == null) return;
+      source = resolved;
+    } else {
+      ref.read(onlinePlaybackProvider.notifier).clear();
+    }
+    await engine.open(source, startAt: start);
+    await _prepareNext();
+  }
+
+  /// The stream of an online [entry], or null when it cannot be had
+  /// ([report]: the players show the search and its failure).
+  Future<MediaSource?> _resolveOnline(
+    QueueEntry entry, {
+    bool fresh = false,
+    bool report = true,
+  }) async {
+    final notifier = ref.read(onlinePlaybackProvider.notifier);
+    if (report) notifier.resolving(entry);
+    try {
+      final source = await ref
+          .read(onlineStreamsProvider)
+          .resolve(entry.source, entry.onlineId!, fresh: fresh);
+      if (report) notifier.done(entry);
+      return source;
+    } catch (e) {
+      if (report) notifier.failed(entry, OnlineFailure.of(e));
+      return null;
+    }
+  }
+
+  /// An online stream refused during playback (its address expired after
+  /// a long pause, a network change): found again once, resumed where it
+  /// was. A second failure shows the player's error card.
+  void _watchOnline(PlaybackSnapshot s) {
+    final current = state.current;
+    final id = current?.onlineId;
+    if (id == null || s.source?.uri != current!.source.uri) return;
+    if (s.status == PlaybackStatus.playing && s.position > Duration.zero) {
+      _onlineAt = s.position;
+    }
+    if (s.status != PlaybackStatus.error || _refreshedOnline == id) return;
+    _refreshedOnline = id;
+    unawaited(_reopenOnline(current, _onlineAt));
+  }
+
+  Future<void> _reopenOnline(QueueEntry entry, Duration at) async {
+    final source = await _resolveOnline(entry, fresh: true);
+    final engine = _engine;
+    if (source == null || engine == null || !identical(state.current, entry)) {
+      return;
+    }
+    await engine.open(source, startAt: at > Duration.zero ? at : null);
     await _prepareNext();
   }
 
@@ -441,9 +528,15 @@ class QueueController extends Notifier<QueueState> {
     final fadeSecs = caps.crossfade ? (prefs?.crossfadeSecs ?? 0) : 0;
     final chain = (caps.gapless && (prefs?.gapless ?? false)) || fadeSecs > 0;
     final p = _nextPosition;
+    // An online entry next: its stream is found now (it takes seconds), so
+    // the change of track does not wait, gapless or not.
+    final upcoming = p >= 0 ? state.entries[state.order[p]] : null;
+    if (!chain && upcoming?.onlineId != null) {
+      unawaited(_resolveOnline(upcoming!, report: false));
+    }
     QueueEntry? next =
         chain && p >= 0 && !ref.read(sleepTimerProvider).endOfTrack
-        ? state.entries[state.order[p]]
+        ? upcoming
         : null;
     // The same file again (a repeated queue of one): the end of track
     // handles it.
@@ -455,6 +548,12 @@ class QueueController extends Notifier<QueueState> {
         next = null;
       }
     }
+    var nextSource = next?.source;
+    if (next != null && next.onlineId != null) {
+      nextSource = await _resolveOnline(next, report: false);
+      // Not found: the usual end of track tries again, and says why.
+      if (nextSource == null) next = null;
+    }
     // The queue moved on meanwhile: the newer call decides.
     if (!identical(state.current, current)) return;
     _prepared = next;
@@ -465,7 +564,7 @@ class QueueController extends Notifier<QueueState> {
       await engine.prepareNext(null);
       return;
     }
-    await engine.prepareNext(next?.source, crossfade: fade);
+    await engine.prepareNext(next == null ? null : nextSource, crossfade: fade);
   }
 
   /// The engine went on to the prepared entry by itself: the queue follows,

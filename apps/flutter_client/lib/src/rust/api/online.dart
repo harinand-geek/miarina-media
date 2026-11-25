@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `now_secs`, `remember_search`, `remember_stream`, `stream_info`, `track`
+// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `remember_search`, `remember_stream`, `stream_info`, `track`
 
 /// The extractor is installed and Obtenir has started.
 bool onlineAvailable() => RustLib.instance.api.crateApiOnlineOnlineAvailable();
@@ -33,6 +33,12 @@ Future<OnlineStreamInfo> onlineResolve({
   videoId: videoId,
   fresh: fresh,
 );
+
+/// The result's picture as a local file (the UI never loads remote
+/// images), cached with the source thumbnails. Only YouTube's picture
+/// hosts are fetched; anything else, or a failure, gives `None`.
+Future<String?> onlineThumbnail({required String url}) =>
+    RustLib.instance.api.crateApiOnlineOnlineThumbnail(url: url);
 
 class OnlineHeader {
   final String name;

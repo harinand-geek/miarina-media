@@ -383,7 +383,10 @@ class _Results extends ConsumerWidget {
           ),
         ];
       } else {
-        content = [for (final tr in tracks.take(limit)) OnlineTile(track: tr)];
+        content = [
+          for (final tr in tracks.take(limit))
+            OnlineTile(track: tr, tracks: tracks),
+        ];
       }
       final total = tracks?.length ?? 0;
       Widget? link;

@@ -121,8 +121,16 @@ class MpvEngine implements MediaEngine {
   /// current one).
   MediaSource? _prepared;
 
-  static String _resource(MediaSource m) =>
-      m.uri.isScheme('file') ? m.uri.toFilePath() : m.uri.toString();
+  static String _resource(MediaSource m) => m.playable.isScheme('file')
+      ? m.playable.toFilePath()
+      : m.playable.toString();
+
+  /// [mk.Media] of [m], with the headers an online stream needs.
+  static mk.Media _media(MediaSource m, {Duration? start}) => mk.Media(
+    _resource(m),
+    start: start,
+    httpHeaders: m.httpHeaders.isEmpty ? null : m.httpHeaders,
+  );
 
   @override
   Future<void> prepareNext(
@@ -137,7 +145,7 @@ class MpvEngine implements MediaEngine {
       await _player.remove(i);
     }
     _prepared = next;
-    if (next != null) await _player.add(mk.Media(_resource(next)));
+    if (next != null) await _player.add(_media(next));
   }
 
   // Gapless needs mpv to read the next file ahead and keep the audio
@@ -435,10 +443,7 @@ class MpvEngine implements MediaEngine {
     );
     // A new file replaces mpv's playlist, the prepared one with it.
     _prepared = null;
-    await _player.open(
-      mk.Media(_resource(media), start: startAt),
-      play: autoplay,
-    );
+    await _player.open(_media(media, start: startAt), play: autoplay);
     if (!autoplay && _state.status == PlaybackStatus.loading) {
       _emit(_state.copyWith(status: PlaybackStatus.paused));
     }

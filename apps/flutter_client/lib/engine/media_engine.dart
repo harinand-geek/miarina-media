@@ -7,13 +7,35 @@ enum RepeatSetting { off, one, all }
 enum PlaybackStatus { idle, loading, playing, paused, ended, error }
 
 class MediaSource {
-  const MediaSource(this.uri, {this.title});
+  const MediaSource(
+    this.uri, {
+    this.title,
+    this.stream,
+    this.httpHeaders = const {},
+  });
 
+  /// What the entry is: stable, compared by the queue and the players.
   final Uri uri;
   final String? title;
 
+  /// The address the engine actually opens, when it differs from [uri]:
+  /// online listening (decision 0011) keeps `miarina-online:<id>` as [uri]
+  /// and opens a short-lived stream URL, never stored.
+  final Uri? stream;
+
+  /// Headers the engine sends with its requests for [stream].
+  final Map<String, String> httpHeaders;
+
+  /// The address to open.
+  Uri get playable => stream ?? uri;
+
   factory MediaSource.file(String path, {String? title}) =>
       MediaSource(Uri.file(path), title: title);
+
+  MediaSource withStream(
+    Uri stream, {
+    Map<String, String> headers = const {},
+  }) => MediaSource(uri, title: title, stream: stream, httpHeaders: headers);
 }
 
 class TrackInfo {

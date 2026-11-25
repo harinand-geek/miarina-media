@@ -140,9 +140,9 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - `features/online/online_tile.dart` : la ligne et son menu ;
 - `features/online/obtain_sheet.dart` : le choix de format ;
 - `features/search/search_screen.dart` : filtre et section En ligne.
-- Pochettes : URL de la miniature (`CoverArt.imageUrl`, https seulement, décodée à la taille affichée). Cache en mémoire seulement (celui de Flutter) : pas de nouvelle dépendance ; un cache disque n'est utile que si les mesures le demandent.
+- Pochettes : l'interface ne charge jamais d'image distante (règle de `crates/download-engine/src/thumbnail.rs`). Le cœur télécharge la miniature (`online_thumbnail` : hôtes `*.ytimg.com` en https seulement, taille bornée, JPEG/PNG/WebP vérifiés) dans le dossier des miniatures sources ; la ligne et le lecteur affichent ce fichier local. Ce cache est compté et vidé par le réglage existant « Vider les miniatures », et c'est le seul dossier dont Obtenir accepte une pochette (lot 4). Le lot 2 chargeait les images par Flutter : corrigé au lot 3.
 - Riverpod 3 relance par défaut un provider en échec : désactivé pour la recherche en ligne (chaque essai lance l'extracteur), l'écran propose « Réessayer ».
-- Lot 2 : un clic sur un résultat ne fait encore rien ; la lecture arrive au lot 3.
+- Un clic sur un résultat lit la liste à partir de lui (lot 3).
 
 ### 4. Intégration au lecteur — `features/playback/playback.dart`
 
@@ -154,6 +154,15 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
   - en cas d'erreur d'accès pendant la lecture (URL expirée, 403) : une seule nouvelle résolution, puis reprise à la dernière position ; sinon, erreur normale du lecteur.
 - **Ce qui marche tel quel** : lecture/pause, avance, vitesse, minuteur, vinyle, égaliseur, file, mini-lecteur, lecture en arrière-plan Android (MediaSession).
 - **Masqué ou désactivé en V1** pour une entrée en ligne, selon la règle « une fonction absente est masquée, jamais simulée » (décision 0007) : Favoris, ajout à une playlist, informations du fichier. L'onglet Paroles affiche son état vide actuel.
+
+**Réalisé au lot 3** (écarts avec ce qui précède) :
+
+- `MediaSource.uri` reste `miarina-online:<id>` (identité stable : file, mémoire de lecture, comparaisons) ; `MediaSource.stream` porte l'URL du flux et `httpHeaders` ses en-têtes. Les moteurs ouvrent `playable` (`stream ?? uri`) ; mpv passe les en-têtes à `Media(httpHeaders:)`, Media3 les reçoit dans le message (`headers`, seulement s'il y en a), appliqués par le plugin au lot 5.
+- Pendant la résolution (environ 7,5 s mesurés, même avec le cache de yt-dlp ; les autres clients YouTube échouent), le morceau précédent se met en pause et le bouton lecture de la barre (Windows) et du mini-lecteur (Android) affiche une roue.
+- Échec : la barre affiche la raison sous le titre, l'écran En lecture la carte d'erreur (« Réessayer », « Titre suivant ») ; le bouton lecture réessaie aussi.
+- Le flux du morceau suivant est cherché dès que le morceau courant démarre, avec ou sans enchaînement sans blanc ; le cache du cœur le rend instantané au changement.
+- Un flux refusé pendant la lecture est cherché à nouveau (sans cache) une fois, et la lecture reprend à la dernière position ; un second refus montre la carte d'erreur.
+- Non vérifié à ce stade : la lecture réelle par libmpv dans l'appli Windows (les tests utilisent un moteur factice).
 
 ### 5. Bonus : Obtenir
 
@@ -214,7 +223,7 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 |---|---|---|
 | 1 ✅ | Rust : `search.rs`, `Ytdlp::search`, `Ytdlp::resolve_audio`, `api/online.rs`, liaisons Dart, tests | `cargo test`, clippy, appel réel par `examples/online_probe.rs` |
 | 2 ✅ | Filtre et section En ligne dans la recherche globale, entrée de menu, recherches récentes, états | Tests de widgets (`test/online_test.dart`, 15 tests) ; capture d'écran Windows à faire par le propriétaire |
-| 3 | Lecteur : `httpHeaders`, `onlineId`, `OnlineResolver`, préchargement, reprise sur 403 | Tests du résolveur, recette lecture |
+| 3 ✅ | Lecteur : `MediaSource.stream` et `httpHeaders`, `QueueEntry.onlineId`, résolution avant ouverture, préchargement du suivant, reprise sur refus, roue de chargement, carte d'erreur | Tests de widgets (20 au total) ; recette dans l'appli par le propriétaire |
 | 4 | Obtenir avec choix de format, badge « Hors connexion ✓ », état sans réseau, option d'obtention automatique | Téléchargement réel, arrivée en bibliothèque, lecture en mode avion, pas de doublon |
 | 5 | Android : mesures, ajustements Media3, recette sur téléphone | Mesures dans `performance.md` |
 

@@ -18,7 +18,7 @@ use download_engine::ytdlp::{self, OnlineHit, OnlineStream};
 use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 
-use super::get::extractor;
+use super::get::{extractor, thumbnail_fetcher};
 
 /// Results kept per query, and for how long.
 const SEARCH_CACHE_LEN: usize = 50;
@@ -26,6 +26,8 @@ const SEARCH_CACHE_TTL: Duration = Duration::from_secs(10 * 60);
 /// A cached stream is dropped this long before its URL expires.
 const STREAM_MARGIN_SECS: u64 = 5 * 60;
 const STREAM_CACHE_LEN: usize = 100;
+/// A picture slower than this is shown as the placeholder.
+const THUMBNAIL_TIMEOUT: Duration = Duration::from_secs(15);
 
 static SEARCH_CACHE: Mutex<VecDeque<(String, Instant, Vec<OnlineTrack>)>> =
     Mutex::new(VecDeque::new());
@@ -133,6 +135,31 @@ pub fn online_resolve(video_id: String, fresh: bool) -> Result<OnlineStreamInfo>
     let stream = stream.map_err(|e| engine_error(&e))?;
     remember_stream(stream.clone());
     Ok(stream_info(stream))
+}
+
+/// The result's picture as a local file (the UI never loads remote
+/// images), cached with the source thumbnails. Only YouTube's picture
+/// hosts are fetched; anything else, or a failure, gives `None`.
+pub fn online_thumbnail(url: String) -> Option<String> {
+    let url = media_core::validate_media_url(&url).ok()?;
+    if !is_picture_host(&url) {
+        return None;
+    }
+    let (http, dir, runtime) = thumbnail_fetcher().ok()?;
+    let path = runtime
+        .block_on(async {
+            tokio::time::timeout(THUMBNAIL_TIMEOUT, http.fetch_thumbnail(&url, &dir)).await
+        })
+        .ok()?
+        .ok()?;
+    Some(path.to_string_lossy().into_owned())
+}
+
+/// `https://i.ytimg.com/…`, `https://i9.ytimg.com/…`: where YouTube
+/// serves its thumbnails.
+fn is_picture_host(url: &media_core::ValidatedUrl) -> bool {
+    url.as_str().starts_with("https://")
+        && (url.host() == "ytimg.com" || url.host().ends_with(".ytimg.com"))
 }
 
 fn track(hit: OnlineHit) -> OnlineTrack {
@@ -317,6 +344,17 @@ mod tests {
     fn invalid_ids_are_refused_before_any_work() {
         let err = online_resolve("../etc/passwd".into(), false).err().unwrap();
         assert!(err.to_string().starts_with("unavailable:"));
+    }
+
+    #[test]
+    fn only_youtube_pictures_are_fetched() {
+        let ok = |u: &str| is_picture_host(&media_core::validate_media_url(u).unwrap());
+        assert!(ok("https://i.ytimg.com/vi/AAAAAAAAAAA/hq720.jpg?sqp=x"));
+        assert!(ok("https://i9.ytimg.com/vi/AAAAAAAAAAA/default.jpg"));
+        assert!(!ok("http://i.ytimg.com/vi/AAAAAAAAAAA/hq720.jpg"));
+        assert!(!ok("https://ytimg.com.evil.example/a.jpg"));
+        assert!(!ok("https://evilytimg.com/a.jpg"));
+        assert!(!ok("https://example.com/a.jpg"));
     }
 
     #[test]

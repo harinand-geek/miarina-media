@@ -16,6 +16,9 @@ import '../../app/router.dart';
 import '../../l10n/app_localizations.dart';
 import '../now_playing/now_playing_shared.dart';
 import '../mini/mini_player.dart';
+import '../online/online_playback.dart'
+    show onlineFailureProvider, onlineResolvingProvider;
+import '../online/online_widgets.dart' show onlineProblemText;
 import '../playback/playback.dart';
 import '../playback/audio_only.dart';
 import '../shortcuts/global_shortcuts.dart';
@@ -95,6 +98,7 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final entry = ref.watch(queueProvider.select((q) => q.current));
+    final failure = ref.watch(onlineFailureProvider);
     if (entry?.source.uri != _coverOf) {
       _coverOf = entry?.source.uri;
       _cover = GlobalKey();
@@ -129,7 +133,18 @@ class _NowPlayingInfoState extends ConsumerState<_NowPlayingInfo> {
                     color: entry == null ? c.muted : c.fg,
                   ),
                 ),
-                if (entry?.subtitle != null) ...[
+                if (failure != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    onlineProblemText(t, failure.kind).title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: MmType.bodySm.copyWith(
+                      fontSize: 12.5,
+                      color: c.coralStrong,
+                    ),
+                  ),
+                ] else if (entry?.subtitle != null) ...[
                   const SizedBox(height: 2),
                   Text(
                     entry!.subtitle!,
@@ -217,6 +232,8 @@ class _Transport extends ConsumerWidget {
           child: Icon(icon, size: 20, color: tones.onButton),
         );
     final glyph = snap.isPlaying ? PhosphorFill.pause : PhosphorFill.play;
+    // An online entry's stream is being found (decision 0011).
+    final resolving = ref.watch(onlineResolvingProvider);
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -257,12 +274,22 @@ class _Transport extends ConsumerWidget {
                     child: child,
                   ),
                 ),
-                child: Icon(
-                  glyph,
-                  key: ValueKey(glyph),
-                  size: 22,
-                  color: tones.onPrimary,
-                ),
+                child: resolving
+                    ? SizedBox(
+                        key: const ValueKey('resolving'),
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2.4,
+                          color: tones.onPrimary,
+                        ),
+                      )
+                    : Icon(
+                        glyph,
+                        key: ValueKey(glyph),
+                        size: 22,
+                        color: tones.onPrimary,
+                      ),
               ),
             ),
             const SizedBox(width: 6),

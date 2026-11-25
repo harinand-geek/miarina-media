@@ -56,8 +56,9 @@ class Media3Engine implements MediaEngine {
   /// The file prepared after the current one, until Media3 starts it.
   MediaSource? _prepared;
 
-  static String _native(MediaSource m) =>
-      m.uri.isScheme('file') ? m.uri.toFilePath() : m.uri.toString();
+  static String _native(MediaSource m) => m.playable.isScheme('file')
+      ? m.playable.toFilePath()
+      : m.playable.toString();
 
   @override
   Future<void> prepareNext(
@@ -68,6 +69,8 @@ class Media3Engine implements MediaEngine {
     await _call('prepareNext', {
       'uri': next == null ? null : _native(next),
       'title': next?.title,
+      if (next != null && next.httpHeaders.isNotEmpty)
+        'headers': next.httpHeaders,
     });
   }
 
@@ -202,6 +205,8 @@ class Media3Engine implements MediaEngine {
       'title': media.title,
       'autoplay': autoplay,
       'startMs': startAt?.inMilliseconds ?? 0,
+      // Online streams (decision 0011); applied by the plugin in lot 5.
+      if (media.httpHeaders.isNotEmpty) 'headers': media.httpHeaders,
     });
   }
 

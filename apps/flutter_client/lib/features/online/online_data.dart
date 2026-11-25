@@ -46,6 +46,9 @@ abstract interface class OnlineApi {
 
   /// Throws an [OnlineFailure].
   Future<List<OnlineTrack>> search(String query, {int limit = 20});
+
+  /// A result's picture as a local file; null when it cannot be had.
+  Future<String?> thumbnail(String url);
 }
 
 class RustOnlineApi implements OnlineApi {
@@ -72,6 +75,17 @@ class RustOnlineApi implements OnlineApi {
       return (await onlineSearch(query: query, limit: limit)).tracks;
     } catch (e) {
       throw OnlineFailure.of(e);
+    }
+  }
+
+  @override
+  Future<String?> thumbnail(String url) async {
+    if (!RustLib.instance.initialized) return null;
+    await _ref.read(downloadsProvider.notifier).started;
+    try {
+      return await onlineThumbnail(url: url);
+    } catch (_) {
+      return null;
     }
   }
 }

@@ -10,23 +10,47 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/states.dart';
 import '../../design/widgets/track_bar.dart' show formatClock;
 import '../../l10n/app_localizations.dart';
+import '../playback/playback.dart' show queueProvider;
 import 'online_data.dart';
+import 'online_playback.dart';
 
 /// One online result, in the style of the Titres rows: picture, title,
-/// channel, duration.
+/// channel, duration. A tap plays [tracks] from this one, the others
+/// following.
 class OnlineTile extends ConsumerWidget {
-  const OnlineTile({super.key, required this.track, this.onTap});
+  const OnlineTile({
+    super.key,
+    required this.track,
+    this.tracks = const [],
+    this.onPlay,
+  });
 
   final OnlineTrack track;
-  final VoidCallback? onTap;
+
+  /// The list the result belongs to: it becomes the queue.
+  final List<OnlineTrack> tracks;
+
+  /// Called before playing (the En ligne page remembers its search).
+  final VoidCallback? onPlay;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final tr = track;
+    final picture = tr.thumbnail == null
+        ? null
+        : ref.watch(onlineThumbnailProvider(tr.thumbnail!)).value;
+    final playing = ref.watch(
+      queueProvider.select((q) => q.current?.onlineId == tr.videoId),
+    );
+    final list = tracks.isEmpty ? [tr] : tracks;
     return Pressable(
-      onTap: onTap,
+      onTap: () {
+        onPlay?.call();
+        final i = list.indexWhere((x) => x.videoId == tr.videoId);
+        playOnline(ref, list, i < 0 ? 0 : i, unknownArtist: t.unknownArtist);
+      },
       semanticLabel: tr.title,
       borderRadius: BorderRadius.circular(MmRadius.md),
       hoverColor: c.cardHover,
@@ -39,7 +63,7 @@ class OnlineTile extends ConsumerWidget {
               radius: MmRadius.sm,
               shadow: false,
               seed: tr.videoId.hashCode,
-              imageUrl: tr.thumbnail,
+              imagePath: picture,
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -50,7 +74,9 @@ class OnlineTile extends ConsumerWidget {
                     tr.title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: MmType.labelStrong.copyWith(color: c.fg),
+                    style: MmType.labelStrong.copyWith(
+                      color: playing ? c.coralHover : c.fg,
+                    ),
                   ),
                   Text(
                     tr.channel ?? t.unknownArtist,

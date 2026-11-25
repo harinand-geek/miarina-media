@@ -212,7 +212,13 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
         body = ListView(
           padding: EdgeInsets.fromLTRB(pad, 8, pad, 24),
           children: [
-            for (final tr in tracks) OnlineTile(track: tr),
+            for (final tr in tracks)
+              OnlineTile(
+                track: tr,
+                tracks: tracks,
+                // A search the user listened from is worth finding again.
+                onPlay: () => ref.read(recentOnlineProvider.notifier).add(q),
+              ),
             if (results.isLoading)
               const Padding(
                 padding: EdgeInsets.all(16),

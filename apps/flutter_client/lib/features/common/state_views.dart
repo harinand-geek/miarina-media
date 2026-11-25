@@ -10,6 +10,9 @@ import '../../l10n/app_localizations.dart';
 import '../import/import_data.dart';
 import '../import/welcome_screen.dart' show pickFolder, scanFolders;
 import '../library/library_data.dart';
+import '../online/online_data.dart' show OnlineFailure;
+import '../online/online_playback.dart' show onlineFailureProvider;
+import '../online/online_widgets.dart' show onlineProblemText;
 import '../playback/playback.dart';
 import 'open_media.dart';
 
@@ -223,13 +226,56 @@ class PlaybackErrorView extends ConsumerWidget {
   }
 }
 
-/// The error card of W-E3 when the current file stopped with an error;
-/// nothing otherwise. Placed by the players.
+/// W-E3 for an online entry whose stream could not be found (decision
+/// 0011): why, « Réessayer », the next track.
+class OnlineErrorView extends ConsumerWidget {
+  const OnlineErrorView({super.key, required this.failure});
+
+  final OnlineFailure failure;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final t = L10n.of(context);
+    final text = onlineProblemText(t, failure.kind);
+    final queue = ref.watch(queueProvider);
+    return ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: ErrorCard(
+        title: text.title,
+        body: text.body,
+        details: [
+          ?queue.current?.title,
+          failure.toString(),
+        ].join('\n'),
+        copyLabel: t.copyDetails,
+        copiedLabel: t.detailsCopied,
+        actions: [
+          StateAction(
+            t.retry,
+            () => ref.read(queueProvider.notifier).retryCurrent(),
+            primary: true,
+          ),
+          if (queue.hasNext)
+            StateAction(
+              t.skipNext,
+              () => ref.read(queueProvider.notifier).next(),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The error card of W-E3 when the current file stopped with an error, or
+/// an online entry could not be found; nothing otherwise. Placed by the
+/// players.
 class PlaybackErrorOverlay extends ConsumerWidget {
   const PlaybackErrorOverlay({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final online = ref.watch(onlineFailureProvider);
+    if (online != null) return OnlineErrorView(failure: online);
     final snap = currentSnapshot(ref);
     final error = snap.error;
     if (snap.status != PlaybackStatus.error || error == null) {

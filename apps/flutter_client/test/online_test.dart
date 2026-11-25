@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart'
@@ -10,7 +12,9 @@ import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/focus/focus_player.dart';
+import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/online/online_data.dart';
+import 'package:miarina_media/features/online/online_playback.dart';
 import 'package:miarina_media/features/online/online_screen.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
@@ -34,6 +38,9 @@ class FakeOnlineApi implements OnlineApi {
   bool available() => true;
 
   @override
+  Future<String?> thumbnail(String url) async => null;
+
+  @override
   Future<List<OnlineTrack>> search(String query, {int limit = 20}) async {
     queries.add(query);
     if (failure != null) throw failure!;
@@ -41,6 +48,30 @@ class FakeOnlineApi implements OnlineApi {
       for (final t in tracks)
         if (matchesWords('${t.title} ${t.channel ?? ''}', query)) t,
     ].take(limit).toList();
+  }
+}
+
+/// Streams found instantly, or held by [gate], or refused with [failure].
+class FakeOnlineStreams implements OnlineStreams {
+  final calls = <(String, bool)>[];
+  OnlineFailure? failure;
+  Completer<void>? gate;
+  var _n = 0;
+
+  @override
+  Future<MediaSource> resolve(
+    MediaSource source,
+    String videoId, {
+    bool fresh = false,
+  }) async {
+    calls.add((videoId, fresh));
+    if (gate != null) await gate!.future;
+    if (failure != null) throw failure!;
+    _n++;
+    return source.withStream(
+      Uri.parse('https://stream.example/$videoId?n=$_n'),
+      headers: const {'User-Agent': 'UA'},
+    );
   }
 }
 
@@ -104,10 +135,14 @@ void main() {
   ];
   late FakeOnlineApi online;
   late FakeSettingsStore settings;
+  late FakeOnlineStreams streams;
+  late FakeEngine engine;
 
   setUp(() {
     online = FakeOnlineApi(hits);
     settings = FakeSettingsStore();
+    streams = FakeOnlineStreams();
+    engine = FakeEngine();
   });
 
   Future<void> pumpApp(
@@ -125,7 +160,8 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
-          mediaEngineProvider.overrideWithValue(FakeEngine()),
+          mediaEngineProvider.overrideWithValue(engine),
+          onlineStreamsProvider.overrideWithValue(streams),
           libraryApiProvider.overrideWithValue(FakeLibraryApi([song])),
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi(const [])),
@@ -316,6 +352,123 @@ void main() {
       );
       expect(find.text('Aucun résultat pour « zzz »'), findsOneWidget);
       expect(online.queries, isEmpty);
+    });
+  });
+
+  group('playing (lot 3)', () {
+    const first = 'AAAAAAAAAAA';
+    const second = 'BBBBBBBBBBB';
+
+    Future<void> playFirst(WidgetTester tester) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+    }
+
+    testWidgets('a result plays in the player; the others follow', (
+      tester,
+    ) async {
+      await playFirst(tester);
+      final opened = engine.opened.single;
+      expect(opened.uri, onlineSourceUri(first), reason: 'stable identity');
+      expect(opened.playable.toString(), startsWith('https://stream.example/'));
+      expect(opened.httpHeaders, {'User-Agent': 'UA'});
+      expect(opened.title, 'SAKATÉ BOY - Zanak Antesaka');
+
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      final queue = container.read(queueProvider);
+      expect(queue.current?.onlineId, first);
+      expect(queue.current?.subtitle, 'Lalix Music Média');
+      expect(queue.upcoming.map((e) => e.onlineId), [
+        second,
+        'CCCCCCCCCCC',
+        'DDDDDDDDDDD',
+        'EEEEEEEEEEE',
+      ]);
+      // The next one's stream is found ahead, so the change does not wait.
+      expect(streams.calls, contains((second, false)));
+      expect(settings.values[recentOnlineKey], ['zanak']);
+    });
+
+    testWidgets('while the stream is found, the play button spins', (
+      tester,
+    ) async {
+      streams.gate = Completer();
+      await playFirst(tester);
+      expect(find.byKey(const ValueKey('resolving')), findsWidgets);
+      expect(engine.opened, isEmpty);
+      streams.gate!.complete();
+      await settleOnline(tester);
+      expect(engine.opened, hasLength(1));
+      expect(find.byKey(const ValueKey('resolving')), findsNothing);
+    });
+
+    testWidgets('a stream not found says why; play tries again', (
+      tester,
+    ) async {
+      streams.failure = const OnlineFailure(OnlineFailureKind.network);
+      await playFirst(tester);
+      expect(engine.opened, isEmpty);
+      expect(find.text('Pas de connexion'), findsOneWidget, reason: 'bar');
+
+      streams.failure = null;
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      await container.read(queueProvider.notifier).togglePlay();
+      await settleOnline(tester);
+      expect(engine.opened.single.uri, onlineSourceUri(first));
+      expect(find.text('Pas de connexion'), findsNothing);
+    });
+
+    testWidgets('a refused stream is found again once, where it was', (
+      tester,
+    ) async {
+      await playFirst(tester);
+      final opened = engine.opened.single;
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.playing,
+          source: opened,
+          position: const Duration(seconds: 90),
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await tester.pump();
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.error,
+          source: opened,
+          error: const PlaybackError('HTTP error 403 Forbidden'),
+        ),
+      );
+      await settleOnline(tester);
+      expect(streams.calls, contains((first, true)));
+      expect(engine.opened, hasLength(2));
+      expect(engine.starts.last, const Duration(seconds: 90));
+      expect(engine.opened.last.playable, isNot(opened.playable));
+
+      // A second refusal: the error card, no loop.
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.error,
+          source: engine.opened.last,
+          error: const PlaybackError('HTTP error 403 Forbidden'),
+        ),
+      );
+      await settleOnline(tester);
+      expect(engine.opened, hasLength(2));
+    });
+
+    testWidgets('the playing result is marked in the list', (tester) async {
+      await playFirst(tester);
+      final title = tester.widget<Text>(
+        find.text('SAKATÉ BOY - Zanak Antesaka').first,
+      );
+      final other = tester.widget<Text>(find.text('Zanak Antesaka live'));
+      expect(title.style?.color, isNot(other.style?.color));
     });
   });
 }

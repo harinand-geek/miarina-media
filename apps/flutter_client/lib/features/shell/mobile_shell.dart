@@ -17,6 +17,7 @@ import '../../l10n/app_localizations.dart';
 import '../device_media/device_media_view.dart';
 import '../health/health_screens.dart' show MissingSkipListener;
 import '../now_playing/now_playing_shared.dart';
+import '../online/online_playback.dart' show onlineResolvingProvider;
 import '../playback/playback.dart';
 import '../playback/audio_only.dart';
 
@@ -286,6 +287,8 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
     final playing = snap.isPlaying && !snap.buffering;
     final motion = MmMotion.of(context);
     final glyph = snap.isPlaying ? PhosphorFill.pause : PhosphorFill.play;
+    // An online entry's stream is being found (decision 0011).
+    final resolving = ref.watch(onlineResolvingProvider);
 
     final card = AnimatedCoverTones(
       tones: tones,
@@ -392,12 +395,22 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
                           scale: Tween(begin: 0.6, end: 1.0).animate(anim),
                           child: FadeTransition(opacity: anim, child: child),
                         ),
-                        child: Icon(
-                          glyph,
-                          key: ValueKey(glyph),
-                          size: 24,
-                          color: tones.onCard,
-                        ),
+                        child: resolving
+                            ? SizedBox(
+                                key: const ValueKey('resolving'),
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2.4,
+                                  color: tones.onCard,
+                                ),
+                              )
+                            : Icon(
+                                glyph,
+                                key: ValueKey(glyph),
+                                size: 24,
+                                color: tones.onCard,
+                              ),
                       ),
                     ),
                     Pressable(

@@ -132,6 +132,18 @@ pub(crate) fn extractor() -> Result<(YtDlpEngine, tokio::runtime::Handle)> {
     Ok((g.ytdlp.clone(), g.runtime.clone()))
 }
 
+/// Where online pictures are cached (`api/online.rs`): the source
+/// thumbnails folder, so Obtenir may reuse one as the cover.
+#[flutter_rust_bridge::frb(ignore)]
+pub(crate) fn thumbnail_fetcher() -> Result<(HttpEngine, PathBuf, tokio::runtime::Handle)> {
+    let g = getter()?;
+    Ok((
+        g.http.clone(),
+        g.library.source_thumbnails_dir(),
+        g.runtime.clone(),
+    ))
+}
+
 fn getter() -> Result<Arc<Getter>> {
     GETTER
         .lock()

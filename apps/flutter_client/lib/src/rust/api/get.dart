@@ -7,7 +7,7 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `apply_options`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `extractor`, `ffmpeg_tools`, `format_offer`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `page_host`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `subtitle_lang`, `task_info`, `tools_status`, `url_path`
+// These functions are ignored because they are not marked as `pub`: `analyze`, `apply_limits`, `apply_options`, `check_ytdlp_update`, `clean_text`, `converting`, `cpu_count`, `current_limits`, `daily_ytdlp_updates`, `direct_analysis`, `download_dir`, `emit`, `extractor_analysis`, `extractor`, `ffmpeg_tools`, `format_offer`, `getter`, `guess_extension`, `history_info`, `lock`, `new_task_id`, `no_media`, `no_media`, `of`, `page_host`, `platform`, `playlist_thumbnails`, `ready`, `settings_of`, `should_extract`, `shutdown_downloads`, `source_thumbnail`, `subtitle_lang`, `task_info`, `thumbnail_fetcher`, `tools_status`, `url_path`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `Getter`
 
 /// Réglages › Téléchargements: default qualities, speed limit, subtitles.
