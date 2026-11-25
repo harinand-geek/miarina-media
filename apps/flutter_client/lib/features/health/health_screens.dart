@@ -12,6 +12,7 @@ import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
 import '../import/import_data.dart';
 import '../library/groups.dart';
+import '../online/online_obtain.dart' show OnlineObtainListener;
 import '../playback/playback.dart' show skippedMissingProvider;
 import 'health_data.dart';
 import '../../app/malagasy_fallback.dart';
@@ -1075,6 +1076,8 @@ class MissingSkipListener extends ConsumerWidget {
           ),
         );
     });
-    return child;
+    // The shells' other listener: online tracks obtained when heard to the
+    // end (decision 0011).
+    return OnlineObtainListener(child: child);
   }
 }

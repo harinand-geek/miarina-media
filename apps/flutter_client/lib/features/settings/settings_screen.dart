@@ -23,6 +23,7 @@ import '../import/import_data.dart';
 import '../import/welcome_screen.dart';
 import '../history/history_screen.dart' show confirmClearHistory;
 import '../library/library_data.dart';
+import '../online/online_obtain.dart' show OnlineSettingsGroup;
 import '../playback/playback.dart';
 import '../shortcuts/shortcuts_view.dart';
 import '../now_playing/now_playing_screen.dart' show lastLocationProvider;
@@ -831,6 +832,8 @@ class _Playback extends ConsumerWidget {
               ),
           ],
         ),
+        // Decision 0011: Obtenir for online tracks.
+        const OnlineSettingsGroup(),
       ],
     );
   }

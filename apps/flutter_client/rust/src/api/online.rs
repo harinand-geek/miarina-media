@@ -14,11 +14,12 @@ use std::time::{Duration, Instant, SystemTime, UNIX_EPOCH};
 
 use anyhow::{Result, anyhow};
 use download_engine::EngineError;
-use download_engine::ytdlp::{self, OnlineHit, OnlineStream};
+use download_engine::ytdlp::{self, FormatSpec, OnlineHit, OnlineStream};
 use tokio::sync::Semaphore;
 use tokio_util::sync::CancellationToken;
 
 use super::get::{extractor, thumbnail_fetcher};
+use super::library::{LibraryItem, item, with_db};
 
 /// Results kept per query, and for how long.
 const SEARCH_CACHE_LEN: usize = 50;
@@ -160,6 +161,92 @@ pub fn online_thumbnail(url: String) -> Option<String> {
 fn is_picture_host(url: &media_core::ValidatedUrl) -> bool {
     url.as_str().starts_with("https://")
         && (url.host() == "ytimg.com" || url.host().ends_with(".ytimg.com"))
+}
+
+/// A format Obtenir offers for an online result (decision 0011):
+/// `original` (the source's audio, no conversion), `mp3-320`, `mp3-128`.
+pub struct OnlineOffer {
+    pub key: String,
+    /// Engine format spec for `get_start_download`.
+    pub format_id: String,
+    pub label: String,
+    pub extension: String,
+}
+
+/// The formats Obtenir offers for online results. Without FFmpeg, only the
+/// source's own audio (nothing can be converted).
+#[flutter_rust_bridge::frb(sync)]
+pub fn online_obtain_offers() -> Vec<OnlineOffer> {
+    let ffmpeg = extractor().is_ok_and(|(engine, _)| engine.has_ffmpeg());
+    obtain_offers(ffmpeg)
+}
+
+fn obtain_offers(ffmpeg: bool) -> Vec<OnlineOffer> {
+    let offer = |key: &str, label: &str, extension: &str, spec: FormatSpec| OnlineOffer {
+        key: key.into(),
+        format_id: spec.encode(),
+        label: label.into(),
+        extension: extension.into(),
+    };
+    let mp3 = |kbps: u32| FormatSpec {
+        selector: "ba/b".into(),
+        merge: None,
+        extract_audio: Some("mp3".into()),
+        audio_kbps: Some(kbps),
+        subtitles: None,
+    };
+    let mut offers = vec![offer(
+        "original",
+        "M4A",
+        "m4a",
+        FormatSpec {
+            selector: "ba[ext=m4a]/ba".into(),
+            merge: None,
+            extract_audio: None,
+            audio_kbps: None,
+            subtitles: None,
+        },
+    )];
+    if ffmpeg {
+        offers.push(offer("mp3-320", "MP3 · 320 kbps", "mp3", mp3(320)));
+        offers.push(offer("mp3-128", "MP3 · 128 kbps", "mp3", mp3(128)));
+    }
+    offers
+}
+
+/// A result already obtained: its library entry, played instead of the
+/// stream (works offline).
+pub struct OnlineLocal {
+    pub video_id: String,
+    pub item: LibraryItem,
+}
+
+/// Which of `video_ids` are in the library (obtained from their page,
+/// file present). Malformed ids are ignored.
+pub fn online_local(db_path: String, video_ids: Vec<String>) -> Result<Vec<OnlineLocal>> {
+    let pages: Vec<(String, String)> = video_ids
+        .into_iter()
+        .take(100)
+        .filter_map(|id| ytdlp::watch_url(&id).map(|url| (id, url)))
+        .collect();
+    if pages.is_empty() {
+        return Ok(Vec::new());
+    }
+    let urls: Vec<String> = pages.iter().map(|(_, url)| url.clone()).collect();
+    with_db(&db_path, |db| {
+        let found = db.media_by_source_urls(&urls)?;
+        let mut local = Vec::new();
+        for (id, url) in &pages {
+            // The newest copy when the same page was obtained twice.
+            if let Some(m) = found.iter().find(|m| m.source_url.as_deref() == Some(url)) {
+                local.push(OnlineLocal {
+                    video_id: id.clone(),
+                    item: item(m.clone()),
+                });
+            }
+        }
+        Ok(local)
+    })
 }
 
 fn track(hit: OnlineHit) -> OnlineTrack {
@@ -355,6 +442,20 @@ mod tests {
         assert!(!ok("https://ytimg.com.evil.example/a.jpg"));
         assert!(!ok("https://evilytimg.com/a.jpg"));
         assert!(!ok("https://example.com/a.jpg"));
+    }
+
+    #[test]
+    fn obtain_offers_convert_only_with_ffmpeg() {
+        let keys =
+            |ffmpeg| -> Vec<String> { obtain_offers(ffmpeg).into_iter().map(|o| o.key).collect() };
+        assert_eq!(keys(true), ["original", "mp3-320", "mp3-128"]);
+        assert_eq!(keys(false), ["original"]);
+        for o in obtain_offers(true) {
+            let spec = FormatSpec::decode(&o.format_id).unwrap();
+            assert_eq!(spec.extract_audio.is_some(), o.extension == "mp3");
+        }
+        let mp3 = FormatSpec::decode(&obtain_offers(true)[2].format_id).unwrap();
+        assert_eq!(mp3.audio_kbps, Some(128));
     }
 
     #[test]

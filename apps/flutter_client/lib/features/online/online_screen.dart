@@ -12,7 +12,9 @@ import '../../design/widgets/states.dart';
 import '../../l10n/app_localizations.dart';
 import '../cinema/cinema_widgets.dart' show SectionHeader;
 import '../library/groups.dart' show LibraryMessage;
+import '../../src/rust/api/library.dart' show LibraryItem;
 import 'online_data.dart';
+import 'online_obtain.dart' show onlineLocalKey, onlineLocalProvider;
 import 'online_widgets.dart';
 
 /// Typing pause before searching YouTube: each search starts the extractor,
@@ -205,6 +207,15 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
           body: t.onlineNoResultBody,
         );
       } else {
+        final local =
+            ref
+                .watch(
+                  onlineLocalProvider(
+                    onlineLocalKey(tracks.map((x) => x.videoId)),
+                  ),
+                )
+                .value ??
+            const <String, LibraryItem>{};
         final more =
             !results.isLoading &&
             tracks.length >= _limit &&
@@ -216,6 +227,7 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
               OnlineTile(
                 track: tr,
                 tracks: tracks,
+                local: local,
                 // A search the user listened from is worth finding again.
                 onPlay: () => ref.read(recentOnlineProvider.notifier).add(q),
               ),

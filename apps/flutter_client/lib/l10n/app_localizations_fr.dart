@@ -5093,4 +5093,77 @@ class L10nFr extends L10n {
   @override
   String get onlineErrorBody =>
       'Réessayez. Si cela continue, mettez à jour l\'extracteur dans Obtenir.';
+
+  @override
+  String onlineObtainTitle(String title) {
+    return 'Obtenir « $title »';
+  }
+
+  @override
+  String get onlineObtainBody =>
+      'Le titre rejoint votre bibliothèque et s\'écoute hors connexion.';
+
+  @override
+  String get onlineFormatOriginal => 'Original';
+
+  @override
+  String get onlineFormatOriginalBody =>
+      'Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.';
+
+  @override
+  String get onlineFormatMp3High => 'MP3 320 kbps';
+
+  @override
+  String get onlineFormatMp3HighBody => 'Se lit partout.';
+
+  @override
+  String get onlineFormatMp3Low => 'MP3 128 kbps';
+
+  @override
+  String get onlineFormatMp3LowBody => 'Léger, pour garder de la place.';
+
+  @override
+  String get onlineFormatAlways => 'Toujours utiliser ce format';
+
+  @override
+  String get onlineFormatAsk => 'Demander';
+
+  @override
+  String onlineObtainStarted(String title) {
+    return 'Obtention lancée : $title';
+  }
+
+  @override
+  String onlineObtainAuto(String title) {
+    return 'Ajouté hors connexion : $title';
+  }
+
+  @override
+  String get onlineObtainFailed => 'L\'obtention n\'a pas pu démarrer.';
+
+  @override
+  String get onlineSeeDownloads => 'Voir';
+
+  @override
+  String get onlineOffline => 'Hors connexion';
+
+  @override
+  String get onlineObtaining => 'Obtention…';
+
+  @override
+  String get onlineSettingsSection => 'Écoute en ligne';
+
+  @override
+  String get onlineAutoObtain => 'Obtenir les titres écoutés en entier';
+
+  @override
+  String get onlineAutoObtainBody =>
+      'Un titre en ligne écouté jusqu\'au bout (ou presque) rejoint votre bibliothèque, pour l\'écouter hors connexion.';
+
+  @override
+  String get onlineObtainFormat => 'Format d\'Obtenir';
+
+  @override
+  String get onlineObtainFormatBody =>
+      'Pour les titres en ligne et l\'obtention automatique.';
 }

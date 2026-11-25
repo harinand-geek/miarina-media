@@ -3,12 +3,14 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge.dart'
     show AnyhowException;
 
 import '../../app/router.dart';
+import '../../src/rust/api/library.dart' show LibraryItem;
 import '../../src/rust/api/online.dart';
 import '../../src/rust/frb_generated.dart';
 import '../get/get_data.dart';
+import '../library/library_data.dart' show dbPathProvider;
 import '../playback/settings_store.dart';
 
-export '../../src/rust/api/online.dart' show OnlineTrack;
+export '../../src/rust/api/online.dart' show OnlineOffer, OnlineTrack;
 
 /// Online listening (decision 0011): YouTube results played in the app's
 /// own player; Obtenir keeps a track for offline listening.
@@ -49,6 +51,15 @@ abstract interface class OnlineApi {
 
   /// A result's picture as a local file; null when it cannot be had.
   Future<String?> thumbnail(String url);
+
+  /// The video's page (what Obtenir downloads); null for a bad id.
+  String? watchUrl(String videoId);
+
+  /// The formats Obtenir offers (`original`, `mp3-320`, `mp3-128`).
+  List<OnlineOffer> offers();
+
+  /// Which of [videoIds] were obtained: their library entries.
+  Future<Map<String, LibraryItem>> local(List<String> videoIds);
 }
 
 class RustOnlineApi implements OnlineApi {
@@ -86,6 +97,34 @@ class RustOnlineApi implements OnlineApi {
       return await onlineThumbnail(url: url);
     } catch (_) {
       return null;
+    }
+  }
+
+  @override
+  String? watchUrl(String videoId) =>
+      RustLib.instance.initialized ? onlineWatchUrl(videoId: videoId) : null;
+
+  @override
+  List<OnlineOffer> offers() {
+    if (!RustLib.instance.initialized) return const [];
+    try {
+      return onlineObtainOffers();
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  @override
+  Future<Map<String, LibraryItem>> local(List<String> videoIds) async {
+    if (!RustLib.instance.initialized || videoIds.isEmpty) return const {};
+    try {
+      final found = await onlineLocal(
+        dbPath: await _ref.read(dbPathProvider.future),
+        videoIds: videoIds,
+      );
+      return {for (final l in found) l.videoId: l.item};
+    } catch (_) {
+      return const {};
     }
   }
 }

@@ -4,10 +4,11 @@
 // ignore_for_file: invalid_use_of_internal_member, unused_import, unnecessary_import
 
 import '../frb_generated.dart';
+import 'library.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `remember_search`, `remember_stream`, `stream_info`, `track`
+// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `obtain_offers`, `remember_search`, `remember_stream`, `stream_info`, `track`
 
 /// The extractor is installed and Obtenir has started.
 bool onlineAvailable() => RustLib.instance.api.crateApiOnlineOnlineAvailable();
@@ -40,6 +41,21 @@ Future<OnlineStreamInfo> onlineResolve({
 Future<String?> onlineThumbnail({required String url}) =>
     RustLib.instance.api.crateApiOnlineOnlineThumbnail(url: url);
 
+/// The formats Obtenir offers for online results. Without FFmpeg, only the
+/// source's own audio (nothing can be converted).
+List<OnlineOffer> onlineObtainOffers() =>
+    RustLib.instance.api.crateApiOnlineOnlineObtainOffers();
+
+/// Which of `video_ids` are in the library (obtained from their page,
+/// file present). Malformed ids are ignored.
+Future<List<OnlineLocal>> onlineLocal({
+  required String dbPath,
+  required List<String> videoIds,
+}) => RustLib.instance.api.crateApiOnlineOnlineLocal(
+  dbPath: dbPath,
+  videoIds: videoIds,
+);
+
 class OnlineHeader {
   final String name;
   final String value;
@@ -56,6 +72,58 @@ class OnlineHeader {
           runtimeType == other.runtimeType &&
           name == other.name &&
           value == other.value;
+}
+
+/// A result already obtained: its library entry, played instead of the
+/// stream (works offline).
+class OnlineLocal {
+  final String videoId;
+  final LibraryItem item;
+
+  const OnlineLocal({required this.videoId, required this.item});
+
+  @override
+  int get hashCode => videoId.hashCode ^ item.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OnlineLocal &&
+          runtimeType == other.runtimeType &&
+          videoId == other.videoId &&
+          item == other.item;
+}
+
+/// A format Obtenir offers for an online result (decision 0011):
+/// `original` (the source's audio, no conversion), `mp3-320`, `mp3-128`.
+class OnlineOffer {
+  final String key;
+
+  /// Engine format spec for `get_start_download`.
+  final String formatId;
+  final String label;
+  final String extension_;
+
+  const OnlineOffer({
+    required this.key,
+    required this.formatId,
+    required this.label,
+    required this.extension_,
+  });
+
+  @override
+  int get hashCode =>
+      key.hashCode ^ formatId.hashCode ^ label.hashCode ^ extension_.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OnlineOffer &&
+          runtimeType == other.runtimeType &&
+          key == other.key &&
+          formatId == other.formatId &&
+          label == other.label &&
+          extension_ == other.extension_;
 }
 
 class OnlineResults {

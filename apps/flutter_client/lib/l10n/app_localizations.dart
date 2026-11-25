@@ -8402,6 +8402,132 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Réessayez. Si cela continue, mettez à jour l\'extracteur dans Obtenir.'**
   String get onlineErrorBody;
+
+  /// No description provided for @onlineObtainTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir « {title} »'**
+  String onlineObtainTitle(String title);
+
+  /// No description provided for @onlineObtainBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le titre rejoint votre bibliothèque et s\'écoute hors connexion.'**
+  String get onlineObtainBody;
+
+  /// No description provided for @onlineFormatOriginal.
+  ///
+  /// In fr, this message translates to:
+  /// **'Original'**
+  String get onlineFormatOriginal;
+
+  /// No description provided for @onlineFormatOriginalBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.'**
+  String get onlineFormatOriginalBody;
+
+  /// No description provided for @onlineFormatMp3High.
+  ///
+  /// In fr, this message translates to:
+  /// **'MP3 320 kbps'**
+  String get onlineFormatMp3High;
+
+  /// No description provided for @onlineFormatMp3HighBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se lit partout.'**
+  String get onlineFormatMp3HighBody;
+
+  /// No description provided for @onlineFormatMp3Low.
+  ///
+  /// In fr, this message translates to:
+  /// **'MP3 128 kbps'**
+  String get onlineFormatMp3Low;
+
+  /// No description provided for @onlineFormatMp3LowBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Léger, pour garder de la place.'**
+  String get onlineFormatMp3LowBody;
+
+  /// No description provided for @onlineFormatAlways.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toujours utiliser ce format'**
+  String get onlineFormatAlways;
+
+  /// No description provided for @onlineFormatAsk.
+  ///
+  /// In fr, this message translates to:
+  /// **'Demander'**
+  String get onlineFormatAsk;
+
+  /// No description provided for @onlineObtainStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtention lancée : {title}'**
+  String onlineObtainStarted(String title);
+
+  /// No description provided for @onlineObtainAuto.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ajouté hors connexion : {title}'**
+  String onlineObtainAuto(String title);
+
+  /// No description provided for @onlineObtainFailed.
+  ///
+  /// In fr, this message translates to:
+  /// **'L\'obtention n\'a pas pu démarrer.'**
+  String get onlineObtainFailed;
+
+  /// No description provided for @onlineSeeDownloads.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir'**
+  String get onlineSeeDownloads;
+
+  /// No description provided for @onlineOffline.
+  ///
+  /// In fr, this message translates to:
+  /// **'Hors connexion'**
+  String get onlineOffline;
+
+  /// No description provided for @onlineObtaining.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtention…'**
+  String get onlineObtaining;
+
+  /// No description provided for @onlineSettingsSection.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoute en ligne'**
+  String get onlineSettingsSection;
+
+  /// No description provided for @onlineAutoObtain.
+  ///
+  /// In fr, this message translates to:
+  /// **'Obtenir les titres écoutés en entier'**
+  String get onlineAutoObtain;
+
+  /// No description provided for @onlineAutoObtainBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un titre en ligne écouté jusqu\'au bout (ou presque) rejoint votre bibliothèque, pour l\'écouter hors connexion.'**
+  String get onlineAutoObtainBody;
+
+  /// No description provided for @onlineObtainFormat.
+  ///
+  /// In fr, this message translates to:
+  /// **'Format d\'Obtenir'**
+  String get onlineObtainFormat;
+
+  /// No description provided for @onlineObtainFormatBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pour les titres en ligne et l\'obtention automatique.'**
+  String get onlineObtainFormatBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

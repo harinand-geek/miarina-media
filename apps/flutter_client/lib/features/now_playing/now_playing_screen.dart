@@ -13,6 +13,7 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart' show InterpolatedPosition;
 import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
+import '../online/online_obtain.dart' show OnlineObtainChip;
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
 import '../playback/audio_only.dart';
@@ -338,6 +339,9 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                           icon: PhosphorRegular.fileAudio,
                                           label: entry.format!,
                                         ),
+                                      // Decision 0011: keep it offline.
+                                      if (entry.onlineId != null)
+                                        OnlineObtainChip(entry: entry),
                                     ],
                                   ),
                                 ],

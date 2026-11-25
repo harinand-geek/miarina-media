@@ -339,6 +339,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<OnlineHeader> dco_decode_list_online_header(dynamic raw);
 
   @protected
+  List<OnlineLocal> dco_decode_list_online_local(dynamic raw);
+
+  @protected
+  List<OnlineOffer> dco_decode_list_online_offer(dynamic raw);
+
+  @protected
   List<OnlineTrack> dco_decode_list_online_track(dynamic raw);
 
   @protected
@@ -397,6 +403,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   OnlineHeader dco_decode_online_header(dynamic raw);
+
+  @protected
+  OnlineLocal dco_decode_online_local(dynamic raw);
+
+  @protected
+  OnlineOffer dco_decode_online_offer(dynamic raw);
 
   @protected
   OnlineResults dco_decode_online_results(dynamic raw);
@@ -937,6 +949,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  List<OnlineLocal> sse_decode_list_online_local(SseDeserializer deserializer);
+
+  @protected
+  List<OnlineOffer> sse_decode_list_online_offer(SseDeserializer deserializer);
+
+  @protected
   List<OnlineTrack> sse_decode_list_online_track(SseDeserializer deserializer);
 
   @protected
@@ -1005,6 +1023,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   OnlineHeader sse_decode_online_header(SseDeserializer deserializer);
+
+  @protected
+  OnlineLocal sse_decode_online_local(SseDeserializer deserializer);
+
+  @protected
+  OnlineOffer sse_decode_online_offer(SseDeserializer deserializer);
 
   @protected
   OnlineResults sse_decode_online_results(SseDeserializer deserializer);
@@ -1684,6 +1708,18 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_online_local(
+    List<OnlineLocal> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_online_offer(
+    List<OnlineOffer> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_online_track(
     List<OnlineTrack> self,
     SseSerializer serializer,
@@ -1790,6 +1826,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_online_header(OnlineHeader self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_online_local(OnlineLocal self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_online_offer(OnlineOffer self, SseSerializer serializer);
 
   @protected
   void sse_encode_online_results(OnlineResults self, SseSerializer serializer);

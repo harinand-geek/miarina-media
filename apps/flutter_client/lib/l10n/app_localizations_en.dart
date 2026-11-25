@@ -5052,4 +5052,77 @@ class L10nEn extends L10n {
   @override
   String get onlineErrorBody =>
       'Try again. If it keeps happening, update the extractor in Get.';
+
+  @override
+  String onlineObtainTitle(String title) {
+    return 'Get “$title”';
+  }
+
+  @override
+  String get onlineObtainBody =>
+      'The track joins your library and plays offline.';
+
+  @override
+  String get onlineFormatOriginal => 'Original';
+
+  @override
+  String get onlineFormatOriginalBody =>
+      'YouTube\'s sound as it is, no conversion: the best quality, the fastest.';
+
+  @override
+  String get onlineFormatMp3High => 'MP3 320 kbps';
+
+  @override
+  String get onlineFormatMp3HighBody => 'Plays everywhere.';
+
+  @override
+  String get onlineFormatMp3Low => 'MP3 128 kbps';
+
+  @override
+  String get onlineFormatMp3LowBody => 'Light, to save space.';
+
+  @override
+  String get onlineFormatAlways => 'Always use this format';
+
+  @override
+  String get onlineFormatAsk => 'Ask';
+
+  @override
+  String onlineObtainStarted(String title) {
+    return 'Getting: $title';
+  }
+
+  @override
+  String onlineObtainAuto(String title) {
+    return 'Added for offline: $title';
+  }
+
+  @override
+  String get onlineObtainFailed => 'Getting could not start.';
+
+  @override
+  String get onlineSeeDownloads => 'View';
+
+  @override
+  String get onlineOffline => 'Offline';
+
+  @override
+  String get onlineObtaining => 'Getting…';
+
+  @override
+  String get onlineSettingsSection => 'Online listening';
+
+  @override
+  String get onlineAutoObtain => 'Get the tracks played to the end';
+
+  @override
+  String get onlineAutoObtainBody =>
+      'An online track played to the end (or nearly) joins your library, to listen to it offline.';
+
+  @override
+  String get onlineObtainFormat => 'Get format';
+
+  @override
+  String get onlineObtainFormatBody =>
+      'For online tracks and automatic getting.';
 }

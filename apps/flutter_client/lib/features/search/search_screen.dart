@@ -24,6 +24,7 @@ import '../focus/focus_screen.dart' show kindLabel;
 import '../library/groups.dart';
 import '../library/library_data.dart';
 import '../online/online_data.dart';
+import '../online/online_obtain.dart' show onlineLocalKey, onlineLocalProvider;
 import '../online/online_screen.dart' show onlineSettle;
 import '../online/online_widgets.dart';
 import '../playback/playback.dart';
@@ -383,9 +384,18 @@ class _Results extends ConsumerWidget {
           ),
         ];
       } else {
+        final local =
+            ref
+                .watch(
+                  onlineLocalProvider(
+                    onlineLocalKey(tracks.map((x) => x.videoId)),
+                  ),
+                )
+                .value ??
+            const <String, LibraryItem>{};
         content = [
           for (final tr in tracks.take(limit))
-            OnlineTile(track: tr, tracks: tracks),
+            OnlineTile(track: tr, tracks: tracks, local: local),
         ];
       }
       final total = tracks?.length ?? 0;

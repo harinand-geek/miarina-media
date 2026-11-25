@@ -193,6 +193,16 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
   - Android : sous-option **« Uniquement en Wi-Fi »**, activée par défaut.
   - Un petit message discret (« Ajouté hors connexion ») confirme chaque ajout.
 
+**Réalisé au lot 4** (écarts avec ce qui précède) :
+
+- Le bouton Obtenir est **toujours visible** en bout de ligne (Windows et Android), plutôt qu'au survol ou à l'appui long : plus facile à découvrir, utilisable au doigt. Il devient une roue pendant le téléchargement, puis une coche « Hors connexion ».
+- Formats : Original (`ba[ext=m4a]/ba`, sans conversion), MP3 320 et MP3 128 (avec FFmpeg seulement). Le choix « Toujours utiliser ce format » est enregistré, et modifiable dans **Réglages › Lecture › Écoute en ligne** (« Format d'Obtenir » : Demander, Original, MP3 320, MP3 128).
+- « Déjà obtenu » : la bibliothèque garde l'adresse d'origine d'un fichier obtenu (`media.source_url`) ; `Storage::media_by_source_urls` retrouve les titres d'une liste de résultats (fichiers présents seulement). Aucune migration. La liste est relue à chaque téléchargement terminé.
+- Un résultat obtenu se lit depuis son fichier, même au milieu d'une file de résultats en ligne.
+- Obtention automatique : interrupteur dans le même groupe de réglages, désactivé par défaut ; « en entier » = fin du titre, ou 90 % d'un titre d'au moins 30 s ; une fois par titre et par session, jamais si le titre est déjà obtenu ou en cours ; message « Ajouté hors connexion ». Le format est celui des réglages, sinon le dernier choisi, sinon Original.
+- **Reporté au lot 5** : « Uniquement en Wi-Fi » (il faut connaître le type de réseau côté Android ; une option qui ne ferait rien n'est pas affichée).
+- **Non fait** : une entrée en ligne de la file ne bascule pas vers le fichier quand son téléchargement se termine pendant la lecture ; c'est la prochaine lecture du titre qui utilise le fichier.
+
 ### 7. Android
 
 - Même API Rust : yt-dlp et QuickJS sont déjà embarqués (décision 0004).
@@ -224,7 +234,7 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | 1 ✅ | Rust : `search.rs`, `Ytdlp::search`, `Ytdlp::resolve_audio`, `api/online.rs`, liaisons Dart, tests | `cargo test`, clippy, appel réel par `examples/online_probe.rs` |
 | 2 ✅ | Filtre et section En ligne dans la recherche globale, entrée de menu, recherches récentes, états | Tests de widgets (`test/online_test.dart`, 15 tests) ; capture d'écran Windows à faire par le propriétaire |
 | 3 ✅ | Lecteur : `MediaSource.stream` et `httpHeaders`, `QueueEntry.onlineId`, résolution avant ouverture, préchargement du suivant, reprise sur refus, roue de chargement, carte d'erreur | Tests de widgets (20 au total) ; recette dans l'appli par le propriétaire |
-| 4 | Obtenir avec choix de format, badge « Hors connexion ✓ », état sans réseau, option d'obtention automatique | Téléchargement réel, arrivée en bibliothèque, lecture en mode avion, pas de doublon |
+| 4 ✅ | Obtenir avec choix de format, badge « Hors connexion ✓ », lecture depuis le fichier, option d'obtention automatique | Tests de widgets (26 au total) et de stockage ; téléchargement réel et mode avion à vérifier par le propriétaire |
 | 5 | Android : mesures, ajustements Media3, recette sur téléphone | Mesures dans `performance.md` |
 
 ## Questions encore ouvertes

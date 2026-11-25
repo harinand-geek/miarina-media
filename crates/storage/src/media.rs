@@ -383,6 +383,26 @@ impl Storage {
             .transpose()
     }
 
+    /// Library entries obtained from one of `urls` (their `source_url`),
+    /// missing files excluded: online listening (decision 0011) plays those
+    /// instead of the stream. At most 100 URLs are looked up.
+    pub fn media_by_source_urls(&self, urls: &[String]) -> Result<Vec<MediaRecord>> {
+        let urls = &urls[..urls.len().min(100)];
+        if urls.is_empty() {
+            return Ok(Vec::new());
+        }
+        let marks = vec!["?"; urls.len()].join(", ");
+        let mut stmt = self.conn.prepare(&format!(
+            "SELECT {COLUMNS} FROM media WHERE missing = 0 AND source_url IN ({marks})              ORDER BY id DESC"
+        ))?;
+        let rows = stmt.query_map(rusqlite::params_from_iter(urls.iter()), row_to_media)?;
+        let mut found = Vec::new();
+        for row in rows {
+            found.push(row??);
+        }
+        Ok(found)
+    }
+
     /// Searches the library (missing files excluded).
     pub fn query_media(&self, query: &MediaQuery) -> Result<MediaPage> {
         let mut conditions = vec!["m.missing = 0".to_owned()];

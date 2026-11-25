@@ -5110,4 +5110,77 @@ class L10nMg extends L10n {
   @override
   String get onlineErrorBody =>
       'Andramo indray. Raha mitohy, havaozy ao amin\'ny Haka ny mpaka media.';
+
+  @override
+  String onlineObtainTitle(String title) {
+    return 'Alao « $title »';
+  }
+
+  @override
+  String get onlineObtainBody =>
+      'Miditra ao amin\'ny tranombokinao ny hira ary azo henoina na tsy misy aterineto.';
+
+  @override
+  String get onlineFormatOriginal => 'Tany am-boalohany';
+
+  @override
+  String get onlineFormatOriginalBody =>
+      'Ny feo avy amin\'ny YouTube araka ny misy azy, tsy ovaina: kalitao tsara indrindra, haingana indrindra.';
+
+  @override
+  String get onlineFormatMp3High => 'MP3 320 kbps';
+
+  @override
+  String get onlineFormatMp3HighBody => 'Azo henoina na aiza na aiza.';
+
+  @override
+  String get onlineFormatMp3Low => 'MP3 128 kbps';
+
+  @override
+  String get onlineFormatMp3LowBody => 'Maivana, mba hitahirizana toerana.';
+
+  @override
+  String get onlineFormatAlways => 'Ampiasao foana ity endrika ity';
+
+  @override
+  String get onlineFormatAsk => 'Anontanio';
+
+  @override
+  String onlineObtainStarted(String title) {
+    return 'Alaina: $title';
+  }
+
+  @override
+  String onlineObtainAuto(String title) {
+    return 'Voatahiry ho henoina tsy misy aterineto: $title';
+  }
+
+  @override
+  String get onlineObtainFailed => 'Tsy afaka natomboka ny fakana.';
+
+  @override
+  String get onlineSeeDownloads => 'Jereo';
+
+  @override
+  String get onlineOffline => 'Tsy misy aterineto';
+
+  @override
+  String get onlineObtaining => 'Alaina…';
+
+  @override
+  String get onlineSettingsSection => 'Fihainoana an-tserasera';
+
+  @override
+  String get onlineAutoObtain => 'Alao ny hira henoina hatramin\'ny farany';
+
+  @override
+  String get onlineAutoObtainBody =>
+      'Miditra ao amin\'ny tranombokinao ny hira an-tserasera henoina hatramin\'ny farany (na saika), mba hihainoana azy tsy misy aterineto.';
+
+  @override
+  String get onlineObtainFormat => 'Endrika hakana';
+
+  @override
+  String get onlineObtainFormatBody =>
+      'Ho an\'ny hira an-tserasera sy ny fakana mandeha ho azy.';
 }

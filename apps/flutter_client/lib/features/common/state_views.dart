@@ -243,10 +243,7 @@ class OnlineErrorView extends ConsumerWidget {
       child: ErrorCard(
         title: text.title,
         body: text.body,
-        details: [
-          ?queue.current?.title,
-          failure.toString(),
-        ].join('\n'),
+        details: [?queue.current?.title, failure.toString()].join('\n'),
         copyLabel: t.copyDetails,
         copiedLabel: t.detailsCopied,
         actions: [

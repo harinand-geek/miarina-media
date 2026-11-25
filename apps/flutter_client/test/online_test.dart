@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge.dart'
     show AnyhowException;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:material_ui/material_ui.dart' show AlertDialog, FilledButton;
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
@@ -13,13 +14,16 @@ import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
 import 'package:miarina_media/features/focus/focus_player.dart';
 import 'package:miarina_media/engine/media_engine.dart';
+import 'package:miarina_media/features/get/get_data.dart';
 import 'package:miarina_media/features/online/online_data.dart';
+import 'package:miarina_media/features/online/online_obtain.dart';
 import 'package:miarina_media/features/online/online_playback.dart';
 import 'package:miarina_media/features/online/online_screen.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/features/search/search_data.dart';
+import 'package:miarina_media/src/rust/api/library.dart';
 import 'package:miarina_media/src/rust/api/search.dart';
 
 import 'support/fakes.dart';
@@ -39,6 +43,33 @@ class FakeOnlineApi implements OnlineApi {
 
   @override
   Future<String?> thumbnail(String url) async => null;
+
+  /// Results already in the library, by video id.
+  var obtained = <String, LibraryItem>{};
+
+  @override
+  String? watchUrl(String videoId) =>
+      'https://www.youtube.com/watch?v=$videoId';
+
+  @override
+  List<OnlineOffer> offers() => [
+    for (final (key, label, ext) in [
+      ('original', 'M4A', 'm4a'),
+      ('mp3-320', 'MP3 · 320 kbps', 'mp3'),
+      ('mp3-128', 'MP3 · 128 kbps', 'mp3'),
+    ])
+      OnlineOffer(
+        key: key,
+        formatId: 'fmt-$key',
+        label: label,
+        extension_: ext,
+      ),
+  ];
+
+  @override
+  Future<Map<String, LibraryItem>> local(List<String> videoIds) async => {
+    for (final id in videoIds) id: ?obtained[id],
+  };
 
   @override
   Future<List<OnlineTrack>> search(String query, {int limit = 20}) async {
@@ -137,12 +168,14 @@ void main() {
   late FakeSettingsStore settings;
   late FakeOnlineStreams streams;
   late FakeEngine engine;
+  late FakeGetApi get;
 
   setUp(() {
     online = FakeOnlineApi(hits);
     settings = FakeSettingsStore();
     streams = FakeOnlineStreams();
     engine = FakeEngine();
+    get = FakeGetApi();
   });
 
   Future<void> pumpApp(
@@ -162,6 +195,7 @@ void main() {
         overrides: [
           mediaEngineProvider.overrideWithValue(engine),
           onlineStreamsProvider.overrideWithValue(streams),
+          getApiProvider.overrideWithValue(get),
           libraryApiProvider.overrideWithValue(FakeLibraryApi([song])),
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi(const [])),
@@ -469,6 +503,135 @@ void main() {
       );
       final other = tester.widget<Text>(find.text('Zanak Antesaka live'));
       expect(title.style?.color, isNot(other.style?.color));
+    });
+  });
+
+  group('Obtenir (lot 4)', () {
+    const first = 'AAAAAAAAAAA';
+    const title = 'SAKATÉ BOY - Zanak Antesaka';
+
+    testWidgets('the format is asked, then remembered when always used', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.bySemanticsLabel('Obtenir $title'));
+      await settleOnline(tester);
+      expect(find.text('Obtenir « $title »'), findsOneWidget);
+      expect(find.text('Original'), findsOneWidget);
+      expect(find.text('MP3 128 kbps'), findsOneWidget);
+
+      await tester.tap(find.text('MP3 320 kbps'));
+      await tester.tap(
+        find.bySemanticsLabel('Toujours utiliser ce format').last,
+      );
+      await tester.pump();
+      await tester.tap(find.widgetWithText(FilledButton, 'Obtenir'));
+      await settleOnline(tester);
+      final request = get.started.single;
+      expect(request.url, 'https://www.youtube.com/watch?v=$first');
+      expect(request.isAudio, isTrue);
+      expect(request.formatId, 'fmt-mp3-320');
+      expect(request.extension_, 'mp3');
+      expect(request.startNow, isTrue);
+      expect(find.text('Obtention lancée : $title'), findsOneWidget);
+      expect((settings.values[onlineSettingsKey] as Map)['format'], 'mp3-320');
+
+      // Next time: no question.
+      await tester.tap(find.bySemanticsLabel('Obtenir Zanak Antesaka live'));
+      await settleOnline(tester);
+      expect(find.byType(AlertDialog), findsNothing);
+      expect(get.started.last.formatId, 'fmt-mp3-320');
+    });
+
+    testWidgets('an obtained result says so and plays from its file', (
+      tester,
+    ) async {
+      online.obtained = {first: song};
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      expect(find.byTooltip('Hors connexion'), findsOneWidget);
+      expect(find.bySemanticsLabel('Obtenir $title'), findsNothing);
+
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      expect(engine.opened.single.uri, Uri.file(song.path));
+      expect(streams.calls.map((c) => c.$1), isNot(contains(first)));
+    });
+
+    testWidgets('Now playing offers Obtenir for an online track', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      container.read(routerProvider).go(Routes.now);
+      await settleOnline(tester);
+      await tester.tap(find.text('Obtenir').last);
+      await settleOnline(tester);
+      expect(find.text('Obtenir « $title »'), findsOneWidget);
+    });
+
+    testWidgets('tracks heard to the end are obtained once, when asked', (
+      tester,
+    ) async {
+      settings.values[onlineSettingsKey] = {
+        'autoObtain': true,
+        'format': 'ask',
+        'lastFormat': 'mp3-128',
+      };
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      final opened = engine.opened.single;
+      PlaybackSnapshot at(int secs) => PlaybackSnapshot(
+        status: PlaybackStatus.playing,
+        source: opened,
+        position: Duration(seconds: secs),
+        duration: const Duration(minutes: 4),
+      );
+      engine.emit(at(60));
+      await settleOnline(tester);
+      expect(get.started, isEmpty, reason: 'not heard yet');
+      engine.emit(at(220));
+      await settleOnline(tester);
+      expect(get.started.single.formatId, 'fmt-mp3-128');
+      expect(find.text('Ajouté hors connexion : $title'), findsOneWidget);
+      engine.emit(at(230));
+      await settleOnline(tester);
+      expect(get.started, hasLength(1), reason: 'once');
+    });
+
+    testWidgets('off by default: nothing is obtained by itself', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.ended,
+          source: engine.opened.single,
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await settleOnline(tester);
+      expect(get.started, isEmpty);
+    });
+
+    testWidgets('Réglages › Lecture: automatic obtaining and the format', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.settings}/playback');
+      final label = find.text('Écoute en ligne'.toUpperCase());
+      await reveal(tester, label);
+      expect(label, findsOneWidget);
+      await tester.tap(
+        find.bySemanticsLabel('Obtenir les titres écoutés en entier'),
+      );
+      await settleOnline(tester);
+      expect((settings.values[onlineSettingsKey] as Map)['autoObtain'], isTrue);
     });
   });
 }

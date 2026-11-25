@@ -2653,5 +2653,47 @@
   "onlineBlockedTitle": "YouTube limite les requêtes",
   "onlineBlockedBody": "Réessayez dans quelques minutes.",
   "onlineErrorTitle": "La recherche en ligne a échoué",
-  "onlineErrorBody": "Réessayez. Si cela continue, mettez à jour l'extracteur dans Obtenir."
+  "onlineErrorBody": "Réessayez. Si cela continue, mettez à jour l'extracteur dans Obtenir.",
+  "onlineObtainTitle": "Obtenir « {title} »",
+  "@onlineObtainTitle": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineObtainBody": "Le titre rejoint votre bibliothèque et s'écoute hors connexion.",
+  "onlineFormatOriginal": "Original",
+  "onlineFormatOriginalBody": "Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.",
+  "onlineFormatMp3High": "MP3 320 kbps",
+  "onlineFormatMp3HighBody": "Se lit partout.",
+  "onlineFormatMp3Low": "MP3 128 kbps",
+  "onlineFormatMp3LowBody": "Léger, pour garder de la place.",
+  "onlineFormatAlways": "Toujours utiliser ce format",
+  "onlineFormatAsk": "Demander",
+  "onlineObtainStarted": "Obtention lancée : {title}",
+  "@onlineObtainStarted": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineObtainAuto": "Ajouté hors connexion : {title}",
+  "@onlineObtainAuto": {
+    "placeholders": {
+      "title": {
+        "type": "String"
+      }
+    }
+  },
+  "onlineObtainFailed": "L'obtention n'a pas pu démarrer.",
+  "onlineSeeDownloads": "Voir",
+  "onlineOffline": "Hors connexion",
+  "onlineObtaining": "Obtention…",
+  "onlineSettingsSection": "Écoute en ligne",
+  "onlineAutoObtain": "Obtenir les titres écoutés en entier",
+  "onlineAutoObtainBody": "Un titre en ligne écouté jusqu'au bout (ou presque) rejoint votre bibliothèque, pour l'écouter hors connexion.",
+  "onlineObtainFormat": "Format d'Obtenir",
+  "onlineObtainFormatBody": "Pour les titres en ligne et l'obtention automatique."
 }

@@ -1000,3 +1000,34 @@ fn artists_group_by_album_artist_except_compilations() {
         (2, 1, 0)
     );
 }
+
+#[test]
+fn media_are_found_by_the_page_they_were_obtained_from() {
+    let storage = Storage::open_in_memory().unwrap();
+    let add = |path: &str, url: Option<&str>| {
+        storage
+            .upsert_media(&NewMedia {
+                path: path.into(),
+                title: path.into(),
+                kind: MediaKind::Audio,
+                source_host: url.map(|_| "www.youtube.com".into()),
+                source_url: url.map(Into::into),
+                task_id: None,
+                size_bytes: 3,
+            })
+            .unwrap()
+            .id
+    };
+    let a = "https://www.youtube.com/watch?v=AAAAAAAAAAA";
+    let b = "https://www.youtube.com/watch?v=BBBBBBBBBBB";
+    let first = add("C:/M/a.mp3", Some(a));
+    let gone = add("C:/M/b.mp3", Some(b));
+    add("C:/M/c.mp3", None);
+    storage.set_media_missing(gone, true).unwrap();
+
+    let found = storage
+        .media_by_source_urls(&[a.into(), b.into(), "https://x.example/".into()])
+        .unwrap();
+    assert_eq!(found.iter().map(|m| m.id).collect::<Vec<_>>(), [first]);
+    assert!(storage.media_by_source_urls(&[]).unwrap().is_empty());
+}

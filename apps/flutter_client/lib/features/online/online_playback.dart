@@ -4,9 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../engine/media_engine.dart';
+import '../../src/rust/api/library.dart' show LibraryItem;
 import '../../src/rust/api/online.dart';
 import '../../src/rust/frb_generated.dart';
 import '../get/get_data.dart';
+import '../library/library_data.dart' show queueEntryOf;
 import '../playback/playback.dart';
 import 'online_data.dart';
 
@@ -134,16 +136,18 @@ QueueEntry onlineEntry(
 const _artworkWait = Duration(milliseconds: 1500);
 
 /// Plays [tracks] from [index], the others following like an album's.
+/// Those in [local] (already obtained) play from their file, offline too.
 Future<void> playOnline(
   WidgetRef ref,
   List<OnlineTrack> tracks,
   int index, {
   required String unknownArtist,
+  Map<String, LibraryItem> local = const {},
 }) async {
   final art = <String, String?>{};
   await Future.wait([
     for (final t in tracks)
-      if (t.thumbnail case final url?)
+      if (t.thumbnail case final url? when !local.containsKey(t.videoId))
         ref
             .read(onlineThumbnailProvider(url).future)
             .then((path) => art[t.videoId] = path)
@@ -151,6 +155,9 @@ Future<void> playOnline(
   ]).timeout(_artworkWait, onTimeout: () => const []);
   await ref.read(queueProvider.notifier).playAll([
     for (final t in tracks)
-      onlineEntry(t, unknownArtist: unknownArtist, artwork: art[t.videoId]),
+      if (local[t.videoId] case final item?)
+        queueEntryOf(item, unknownArtist: unknownArtist)
+      else
+        onlineEntry(t, unknownArtist: unknownArtist, artwork: art[t.videoId]),
   ], start: index);
 }

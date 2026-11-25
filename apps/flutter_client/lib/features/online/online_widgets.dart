@@ -12,16 +12,20 @@ import '../../design/widgets/track_bar.dart' show formatClock;
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart' show queueProvider;
 import 'online_data.dart';
+import '../../src/rust/api/library.dart' show LibraryItem;
+import 'online_obtain.dart';
 import 'online_playback.dart';
 
 /// One online result, in the style of the Titres rows: picture, title,
-/// channel, duration. A tap plays [tracks] from this one, the others
-/// following.
+/// channel, duration, then Obtenir (or « Hors connexion » once
+/// obtained). A tap plays [tracks] from this one, the others following;
+/// obtained ones play from their file.
 class OnlineTile extends ConsumerWidget {
   const OnlineTile({
     super.key,
     required this.track,
     this.tracks = const [],
+    this.local = const {},
     this.onPlay,
   });
 
@@ -29,6 +33,9 @@ class OnlineTile extends ConsumerWidget {
 
   /// The list the result belongs to: it becomes the queue.
   final List<OnlineTrack> tracks;
+
+  /// The results already obtained, by video id.
+  final Map<String, LibraryItem> local;
 
   /// Called before playing (the En ligne page remembers its search).
   final VoidCallback? onPlay;
@@ -41,15 +48,26 @@ class OnlineTile extends ConsumerWidget {
     final picture = tr.thumbnail == null
         ? null
         : ref.watch(onlineThumbnailProvider(tr.thumbnail!)).value;
+    final obtained = local[tr.videoId];
     final playing = ref.watch(
-      queueProvider.select((q) => q.current?.onlineId == tr.videoId),
+      queueProvider.select(
+        (q) =>
+            q.current?.onlineId == tr.videoId ||
+            (obtained != null && q.current?.libraryId == obtained.id),
+      ),
     );
     final list = tracks.isEmpty ? [tr] : tracks;
     return Pressable(
       onTap: () {
         onPlay?.call();
         final i = list.indexWhere((x) => x.videoId == tr.videoId);
-        playOnline(ref, list, i < 0 ? 0 : i, unknownArtist: t.unknownArtist);
+        playOnline(
+          ref,
+          list,
+          i < 0 ? 0 : i,
+          unknownArtist: t.unknownArtist,
+          local: local,
+        );
       },
       semanticLabel: tr.title,
       borderRadius: BorderRadius.circular(MmRadius.md),
@@ -94,6 +112,8 @@ class OnlineTile extends ConsumerWidget {
               ),
               style: MmType.monoStyle(size: 11.5, color: c.muted),
             ),
+            const SizedBox(width: 4),
+            OnlineObtainButton(track: tr, local: obtained, picture: picture),
           ],
         ),
       ),
