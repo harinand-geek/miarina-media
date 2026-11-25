@@ -5208,7 +5208,7 @@ abstract class L10n {
   /// No description provided for @playsCount.
   ///
   /// In fr, this message translates to:
-  /// **'{count, plural, =1{1 écoute} other{{count} écoutes}}'**
+  /// **'{count, plural, =0{aucune écoute} =1{1 écoute} other{{count} écoutes}}'**
   String playsCount(int count);
 
   /// No description provided for @playedTimes.
@@ -8250,7 +8250,7 @@ abstract class L10n {
   /// No description provided for @minutesCount.
   ///
   /// In fr, this message translates to:
-  /// **'{count, plural, =1{1 minute} other{{count} minutes}}'**
+  /// **'{count, plural, =0{0 minute} =1{1 minute} other{{count} minutes}}'**
   String minutesCount(int count);
 
   /// No description provided for @phoneLibrary.
@@ -8258,6 +8258,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Bibliothèque'**
   String get phoneLibrary;
+
+  /// No description provided for @updAllowInstall.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autorisez Miarina Media à installer des applications (l\'écran vient de s\'ouvrir), puis appuyez de nouveau sur « Installer maintenant ».'**
+  String get updAllowInstall;
+
+  /// No description provided for @updAndroidNote.
+  ///
+  /// In fr, this message translates to:
+  /// **'Android ouvre l\'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n\'est installé sans votre accord.'**
+  String get updAndroidNote;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -1898,7 +1898,7 @@
   "filterEmptyBody": "Choisissez « Tous » pour revoir toute la liste.",
   "viewGrid": "Grille",
   "viewList": "Liste",
-  "playsCount": "{count, plural, =1{1 écoute} other{{count} écoutes}}",
+  "playsCount": "{count, plural, =0{aucune écoute} =1{1 écoute} other{{count} écoutes}}",
   "@playsCount": {
     "placeholders": {
       "count": {
@@ -2613,7 +2613,9 @@
   "shuffleAll": "Tout mélanger",
   "addAllToQueue": "Tout ajouter à la file",
   "noListenYet": "Écoutez de la musique pour voir ici votre temps d'écoute.",
-  "minutesCount": "{count, plural, =1{1 minute} other{{count} minutes}}",
+  "minutesCount": "{count, plural, =0{0 minute} =1{1 minute} other{{count} minutes}}",
   "@minutesCount": {"placeholders": {"count": {"type": "int"}}},
-  "phoneLibrary": "Bibliothèque"
+  "phoneLibrary": "Bibliothèque",
+  "updAllowInstall": "Autorisez Miarina Media à installer des applications (l'écran vient de s'ouvrir), puis appuyez de nouveau sur « Installer maintenant ».",
+  "updAndroidNote": "Android ouvre l'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n'est installé sans votre accord."
 }

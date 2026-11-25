@@ -781,11 +781,14 @@ pub async fn install(converting: bool) -> Outcome<()> {
     std::process::Command::new(&files.dest)
         .spawn()
         .map_err(err)?;
-    #[cfg(not(windows))]
+    // Android: the APK checked just above stays in the app cache; the
+    // interface hands it to the system installer (AppUpdateChannel.kt),
+    // which asks the user.
+    #[cfg(not(any(windows, target_os = "android")))]
     return Err(err(
         "Installing updates is not available on this platform yet",
     ));
-    #[cfg(windows)]
+    #[cfg(any(windows, target_os = "android"))]
     Ok(())
 }
 

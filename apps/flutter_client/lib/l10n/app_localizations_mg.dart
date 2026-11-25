@@ -3229,6 +3229,7 @@ class L10nMg extends L10n {
       locale: localeName,
       other: 'fihainoana $count',
       one: 'fihainoana 1',
+      zero: 'tsy mbola nohenoina',
     );
     return '$_temp0';
   }
@@ -5018,10 +5019,19 @@ class L10nMg extends L10n {
       locale: localeName,
       other: 'minitra $count',
       one: 'minitra 1',
+      zero: 'minitra 0',
     );
     return '$_temp0';
   }
 
   @override
   String get phoneLibrary => 'Tranomboky';
+
+  @override
+  String get updAllowInstall =>
+      'Avelao hametraka rindranasa ny Miarina Media (efa nisokatra ny efijery), dia tsindrio indray ny « Apetraho izao ».';
+
+  @override
+  String get updAndroidNote =>
+      'Manokatra ny fametrahana i Android: tsindrio ny « Havaozina ». Voatahiry ny tranombokinao, ny lisitry ny hiranao, ny toerana nijanonanao ary ny fandrindranao. Tsy misy apetraka raha tsy ekenao.';
 }

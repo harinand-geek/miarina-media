@@ -851,7 +851,7 @@
   "filterEmptyBody": "Fidio ny « Daholo » hijerena ny lisitra iray manontolo.",
   "viewGrid": "Takelaka",
   "viewList": "Lisitra",
-  "playsCount": "{count, plural, =1{fihainoana 1} other{fihainoana {count}}}",
+  "playsCount": "{count, plural, =0{tsy mbola nohenoina} =1{fihainoana 1} other{fihainoana {count}}}",
   "playedTimes": "{count, plural, =1{nohenoina indray mandeha} other{nohenoina in-{count}}}",
   "saveAsPlaylist": "Tehirizo ho lisitra",
   "editTags": "Ovay ny marika",
@@ -1358,6 +1358,8 @@
   "shuffleAll": "Afangaro daholo",
   "addAllToQueue": "Ampidiro daholo amin'ny filaharana",
   "noListenYet": "Mihainoa mozika dia hiseho eto ny fotoana nihainoanao.",
-  "minutesCount": "{count, plural, =1{minitra 1} other{minitra {count}}}",
-  "phoneLibrary": "Tranomboky"
+  "minutesCount": "{count, plural, =0{minitra 0} =1{minitra 1} other{minitra {count}}}",
+  "phoneLibrary": "Tranomboky",
+  "updAllowInstall": "Avelao hametraka rindranasa ny Miarina Media (efa nisokatra ny efijery), dia tsindrio indray ny « Apetraho izao ».",
+  "updAndroidNote": "Manokatra ny fametrahana i Android: tsindrio ny « Havaozina ». Voatahiry ny tranombokinao, ny lisitry ny hiranao, ny toerana nijanonanao ary ny fandrindranao. Tsy misy apetraka raha tsy ekenao."
 }

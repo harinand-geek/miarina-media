@@ -154,6 +154,8 @@ class LibraryTabs extends ConsumerWidget {
     final t = L10n.of(context);
     final counts = ref.watch(libraryCountsProvider).value;
     final tabs = [
+      // Back to the Music home (owner's request, 2026-11-25).
+      (t.navHome, Routes.listenHome, null),
       (t.navTracks, Routes.tracks, counts?.$1),
       (t.navAlbums, Routes.albums, counts?.$2),
       (t.navArtists, Routes.artists, counts?.$3),

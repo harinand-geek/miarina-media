@@ -190,8 +190,12 @@ class _TabBar extends StatelessWidget {
                       location.startsWith(prefix) ||
                       (prefix == '/listen/music' &&
                           location == Routes.listenHome);
+                  // The tab already shown goes back to its first page
+                  // (Music: from a library page to the home).
                   return Pressable(
-                    onTap: on ? null : () => context.go(route),
+                    onTap: on && location == route
+                        ? null
+                        : () => context.go(route),
                     semanticLabel: label,
                     selected: on,
                     borderRadius: BorderRadius.circular(MmRadius.lg),

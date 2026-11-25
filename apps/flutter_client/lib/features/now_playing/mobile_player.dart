@@ -1033,8 +1033,6 @@ class _SleepPillState extends ConsumerState<_SleepPill> {
   }
 }
 
-/// The cover as a record: grooves, the picture as its label, turning at
-/// 33⅓ rpm while the music plays and stopping where it is on pause.
 class _Vinyl extends StatefulWidget {
   const _Vinyl({
     super.key,
@@ -1053,6 +1051,10 @@ class _Vinyl extends StatefulWidget {
   State<_Vinyl> createState() => _VinylState();
 }
 
+/// The record (owner's request, 2026-11-25): the cover fills the whole
+/// disc, darkened under the grooves, and again as the round label with a
+/// thin ring; the light on the vinyl stays still while the disc turns, so
+/// the turning reads as real.
 class _VinylState extends State<_Vinyl> with SingleTickerProviderStateMixin {
   late final AnimationController _turn = AnimationController(
     vsync: this,
@@ -1089,81 +1091,159 @@ class _VinylState extends State<_Vinyl> with SingleTickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final s = widget.size;
-    return RotationTransition(
-      turns: _turn,
-      child: SizedBox(
-        width: s,
-        height: s,
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            DecoratedBox(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: MmShadows.card,
-              ),
-              child: CustomPaint(size: Size.square(s), painter: _Grooves()),
+    final label = s * 0.36;
+    final cover = CoverArt(
+      size: s,
+      radius: 0,
+      seed: widget.seed,
+      imagePath: widget.imagePath,
+      shadow: false,
+    );
+    final disc = Stack(
+      alignment: Alignment.center,
+      children: [
+        // The cover across the whole record, pressed into dark vinyl.
+        ClipOval(
+          child: ColorFiltered(
+            colorFilter: const ColorFilter.mode(
+              Color(0xB30B0D10),
+              BlendMode.srcATop,
             ),
-            ClipOval(
-              child: CoverArt(
-                size: s * 0.4,
-                radius: 0,
-                seed: widget.seed,
-                imagePath: widget.imagePath,
-                shadow: false,
-              ),
-            ),
-            Container(
-              width: s * 0.035,
-              height: s * 0.035,
-              decoration: const BoxDecoration(
-                color: Color(0xFF101418),
-                shape: BoxShape.circle,
-              ),
-            ),
-          ],
+            child: cover,
+          ),
         ),
+        CustomPaint(size: Size.square(s), painter: _Grooves()),
+        // The label: the cover again, with a thin light ring.
+        Container(
+          width: label + 6,
+          height: label + 6,
+          decoration: const BoxDecoration(
+            shape: BoxShape.circle,
+            color: Color(0x33FFFFFF),
+          ),
+          alignment: Alignment.center,
+          child: ClipOval(
+            child: CoverArt(
+              size: label,
+              radius: 0,
+              seed: widget.seed,
+              imagePath: widget.imagePath,
+              shadow: false,
+            ),
+          ),
+        ),
+        Container(
+          width: s * 0.04,
+          height: s * 0.04,
+          decoration: BoxDecoration(
+            color: const Color(0xFF0B0D10),
+            shape: BoxShape.circle,
+            border: Border.all(color: const Color(0x55FFFFFF), width: 1),
+          ),
+        ),
+      ],
+    );
+    return SizedBox(
+      width: s,
+      height: s,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Container(
+            width: s,
+            height: s,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: Color(0x66000000),
+                  blurRadius: 30,
+                  offset: Offset(0, 14),
+                ),
+              ],
+            ),
+          ),
+          RotationTransition(turns: _turn, child: disc),
+          // Light on the vinyl: still while the record turns.
+          IgnorePointer(
+            child: CustomPaint(size: Size.square(s), painter: _Sheen()),
+          ),
+        ],
       ),
     );
   }
 }
 
+/// Grooves over the cover, a dark rim and the run-out area by the label.
 class _Grooves extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final c = size.center(Offset.zero);
     final r = size.shortestSide / 2;
-    canvas.drawCircle(
-      c,
-      r,
-      Paint()
-        ..shader = const RadialGradient(
-          colors: [Color(0xFF23272C), Color(0xFF0E1013), Color(0xFF1A1D21)],
-          stops: [0.2, 0.75, 1],
-        ).createShader(Rect.fromCircle(center: c, radius: r)),
-    );
     final groove = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 0.7
-      ..color = const Color(0x22FFFFFF);
-    for (var k = r * 0.24; k < r * 0.97; k += r * 0.028) {
+      ..strokeWidth = 0.8;
+    var i = 0;
+    for (var k = r * 0.24; k < r * 0.965; k += r * 0.018, i++) {
+      groove.color = i.isEven
+          ? const Color(0x1FFFFFFF)
+          : const Color(0x33000000);
       canvas.drawCircle(c, k, groove);
     }
-    // A soft light streak across the record.
-    canvas.drawArc(
-      Rect.fromCircle(center: c, radius: r * 0.62),
-      -math.pi * 0.85,
-      math.pi * 0.25,
-      false,
+    // Smooth bands between tracks.
+    final band = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = r * 0.012
+      ..color = const Color(0x40000000);
+    for (final f in const [0.46, 0.63, 0.8]) {
+      canvas.drawCircle(c, r * f, band);
+    }
+    canvas.drawCircle(
+      c,
+      r - r * 0.02,
       Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = r * 0.66
-        ..color = const Color(0x0DFFFFFF),
+        ..strokeWidth = r * 0.04
+        ..color = const Color(0xFF0B0D10),
     );
   }
 
   @override
   bool shouldRepaint(_Grooves old) => false;
+}
+
+/// Two soft reflections across the record, like a lamp above it.
+class _Sheen extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final c = size.center(Offset.zero);
+    final r = size.shortestSide / 2;
+    final rect = Rect.fromCircle(center: c, radius: r);
+    canvas.save();
+    canvas.clipPath(Path()..addOval(rect));
+    canvas.drawCircle(
+      c,
+      r,
+      Paint()
+        ..shader = const SweepGradient(
+          colors: [
+            Color(0x00FFFFFF),
+            Color(0x26FFFFFF),
+            Color(0x00FFFFFF),
+            Color(0x00FFFFFF),
+            Color(0x1AFFFFFF),
+            Color(0x00FFFFFF),
+            Color(0x00FFFFFF),
+          ],
+          stops: [0.0, 0.09, 0.2, 0.5, 0.59, 0.7, 1.0],
+          transform: GradientRotation(-0.6),
+        ).createShader(rect),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_Sheen old) => false;
 }
 
 class _SheetGlyph extends StatelessWidget {

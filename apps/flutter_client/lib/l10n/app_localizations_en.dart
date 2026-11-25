@@ -3194,6 +3194,7 @@ class L10nEn extends L10n {
       locale: localeName,
       other: '$count plays',
       one: '1 play',
+      zero: 'no plays',
     );
     return '$_temp0';
   }
@@ -4960,10 +4961,19 @@ class L10nEn extends L10n {
       locale: localeName,
       other: '$count minutes',
       one: '1 minute',
+      zero: '0 minutes',
     );
     return '$_temp0';
   }
 
   @override
   String get phoneLibrary => 'Library';
+
+  @override
+  String get updAllowInstall =>
+      'Allow Miarina Media to install apps (the screen just opened), then tap “Install now” again.';
+
+  @override
+  String get updAndroidNote =>
+      'Android opens the installer: tap “Update”. Your library, playlists, resume points and settings are kept. Nothing is installed without your consent.';
 }

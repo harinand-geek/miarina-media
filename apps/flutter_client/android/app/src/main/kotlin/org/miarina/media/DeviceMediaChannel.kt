@@ -139,7 +139,8 @@ class DeviceMediaChannel(
             activity.contentResolver.query(
               MediaStore.Audio.Media.getContentUri(volume),
               arrayOf(MediaStore.MediaColumns.DATA, MediaStore.Audio.Media.DURATION),
-              "${MediaStore.Audio.Media.IS_MUSIC} != 0",
+              // Empty files (0 bytes, broken downloads) cannot play: not listed.
+              "${MediaStore.Audio.Media.IS_MUSIC} != 0 AND ${MediaStore.MediaColumns.SIZE} > 0",
               null,
               null,
             )?.use { c ->
@@ -156,7 +157,7 @@ class DeviceMediaChannel(
             activity.contentResolver.query(
               MediaStore.Video.Media.getContentUri(volume),
               arrayOf(MediaStore.MediaColumns.DATA),
-              null,
+              "${MediaStore.MediaColumns.SIZE} > 0",
               null,
               null,
             )?.use { c ->

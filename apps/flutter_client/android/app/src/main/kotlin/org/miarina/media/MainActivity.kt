@@ -16,6 +16,7 @@ class MainActivity : FlutterActivity() {
   private var downloads: DownloadNotificationsChannel? = null
   private var browser: BrowserChannel? = null
   private var screen: ScreenControlChannel? = null
+  private var appUpdate: AppUpdateChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -67,6 +68,7 @@ class MainActivity : FlutterActivity() {
     downloads = DownloadNotificationsChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     browser = BrowserChannel(this, flutterEngine.dartExecutor.binaryMessenger, flutterEngine.platformViewsController.registry)
     screen = ScreenControlChannel(this, flutterEngine.dartExecutor.binaryMessenger) { engine?.togglePlay() }
+    appUpdate = AppUpdateChannel(this, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   override fun onPause() {
@@ -134,6 +136,8 @@ class MainActivity : FlutterActivity() {
     browser = null
     screen?.dispose()
     screen = null
+    appUpdate?.dispose()
+    appUpdate = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

@@ -879,7 +879,7 @@
   "filterEmptyBody": "Choose “All” to see the whole list again.",
   "viewGrid": "Grid",
   "viewList": "List",
-  "playsCount": "{count, plural, =1{1 play} other{{count} plays}}",
+  "playsCount": "{count, plural, =0{no plays} =1{1 play} other{{count} plays}}",
   "playedTimes": "{count, plural, =1{played once} other{played {count} times}}",
   "saveAsPlaylist": "Save as playlist",
   "editTags": "Edit tags",
@@ -1426,6 +1426,8 @@
   "shuffleAll": "Shuffle all",
   "addAllToQueue": "Add all to the queue",
   "noListenYet": "Play some music to see your listening time here.",
-  "minutesCount": "{count, plural, =1{1 minute} other{{count} minutes}}",
-  "phoneLibrary": "Library"
+  "minutesCount": "{count, plural, =0{0 minutes} =1{1 minute} other{{count} minutes}}",
+  "phoneLibrary": "Library",
+  "updAllowInstall": "Allow Miarina Media to install apps (the screen just opened), then tap “Install now” again.",
+  "updAndroidNote": "Android opens the installer: tap “Update”. Your library, playlists, resume points and settings are kept. Nothing is installed without your consent."
 }

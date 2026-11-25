@@ -2,7 +2,9 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:path_provider/path_provider.dart';
 
 import '../../src/rust/api/updates.dart' as rust;
 import '../../src/rust/frb_generated.dart' show RustLib;
@@ -15,7 +17,7 @@ export '../../src/rust/api/updates.dart'
 /// App updates in the core (`api/updates.rs`, the 0.1.x rules); tests use a
 /// fake. Errors carry the 0.1.x codes at the start of their text.
 abstract interface class UpdatesApi {
-  /// Release builds only (`MM_VERSION`), Windows only for now.
+  /// Release builds only (`MM_VERSION`), Windows and Android.
   bool get enabled;
   Future<rust.UpdateStatusInfo> status();
   Future<rust.UpdateRelease?> check();
@@ -31,11 +33,14 @@ abstract interface class UpdatesApi {
 class RustUpdatesApi implements UpdatesApi {
   const RustUpdatesApi();
 
+  static const _android = MethodChannel('org.miarina.media/app_update');
+
   @override
   bool get enabled =>
-      Platform.isWindows &&
+      (Platform.isWindows || Platform.isAndroid) &&
       appVersion.isNotEmpty &&
-      RustLib.instance.initialized;
+      RustLib.instance.initialized &&
+      (!Platform.isAndroid || androidUpdateApk != null);
 
   @override
   Future<rust.UpdateStatusInfo> status() => rust.updatesStatus();
@@ -52,8 +57,17 @@ class RustUpdatesApi implements UpdatesApi {
   @override
   int progress() => rust.updatesProgress().toInt();
 
+  /// Windows starts the installer from the core; Android checks the APK in
+  /// the core, then the system installer opens it (AppUpdateChannel.kt).
   @override
-  Future<void> install() => rust.updatesInstall();
+  Future<void> install() async {
+    await rust.updatesInstall();
+    if (!Platform.isAndroid) return;
+    final answer = await _android.invokeMethod<String>('installApk', {
+      'path': androidUpdateApk,
+    });
+    if (answer == 'permission') throw Exception('update_permission');
+  }
 
   @override
   Future<rust.UpdatePrefsInfo> prefs() => rust.updatesPrefs();
@@ -71,19 +85,39 @@ final updatesApiProvider = Provider<UpdatesApi>((_) => const RustUpdatesApi());
 /// Once at launch, before the interface (release builds): the cache folder
 /// of 0.1.x, so an update it was downloading is found and cleaned up.
 Future<void> startUpdates(String dbPath) async {
-  if (!Platform.isWindows || appVersion.isEmpty) return;
-  final local = Platform.environment['LOCALAPPDATA'];
-  if (local == null || local.isEmpty) return;
+  if (appVersion.isEmpty) return;
+  String cacheDir;
+  if (Platform.isAndroid) {
+    // Android: the app cache, the only folder the update file provider
+    // serves (res/xml/update_paths.xml).
+    try {
+      final dir = Directory('${(await getTemporaryDirectory()).path}/updates');
+      await dir.create(recursive: true);
+      cacheDir = dir.path;
+    } catch (_) {
+      return;
+    }
+  } else if (Platform.isWindows) {
+    final local = Platform.environment['LOCALAPPDATA'];
+    if (local == null || local.isEmpty) return;
+    cacheDir = '$local${Platform.pathSeparator}$appId';
+  } else {
+    return;
+  }
   try {
     await rust.updatesStart(
       installed: appVersion,
-      cacheDir: '$local${Platform.pathSeparator}$appId',
+      cacheDir: cacheDir,
       dbPath: dbPath,
     );
+    if (Platform.isAndroid) androidUpdateApk = '$cacheDir/miarina-update.apk';
   } catch (_) {
     // Updates stay off; the app works without them.
   }
 }
+
+/// Where the core keeps the verified APK on Android (set at launch).
+String? androidUpdateApk;
 
 enum UpdatePhase { idle, checking, available, downloading, ready, installing }
 
@@ -146,6 +180,7 @@ String updateError(Object e) {
     'update_converting',
     'update_network',
     'update_canceled',
+    'update_permission',
   ]) {
     if (s.contains(code)) return code;
   }
@@ -257,12 +292,18 @@ class UpdatesController extends Notifier<UpdatesState> {
     if (state.phase == UpdatePhase.downloading) _api.cancel();
   }
 
-  /// Starts the verified installer; true when the app must now close.
+  /// Starts the verified installer; true when the app must now close
+  /// (Windows). On Android the system installer opens over the app, which
+  /// keeps running until Android replaces it.
   Future<bool> install() async {
     if (state.phase != UpdatePhase.ready) return false;
     state = state.copyWith(phase: UpdatePhase.installing, error: '');
     try {
       await _api.install();
+      if (Platform.isAndroid) {
+        state = state.copyWith(phase: UpdatePhase.ready);
+        return false;
+      }
       return true;
     } catch (e) {
       // The file may have been removed if it no longer matched.

@@ -3219,6 +3219,7 @@ class L10nFr extends L10n {
       locale: localeName,
       other: '$count écoutes',
       one: '1 écoute',
+      zero: 'aucune écoute',
     );
     return '$_temp0';
   }
@@ -5001,10 +5002,19 @@ class L10nFr extends L10n {
       locale: localeName,
       other: '$count minutes',
       one: '1 minute',
+      zero: '0 minute',
     );
     return '$_temp0';
   }
 
   @override
   String get phoneLibrary => 'Bibliothèque';
+
+  @override
+  String get updAllowInstall =>
+      'Autorisez Miarina Media à installer des applications (l\'écran vient de s\'ouvrir), puis appuyez de nouveau sur « Installer maintenant ».';
+
+  @override
+  String get updAndroidNote =>
+      'Android ouvre l\'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n\'est installé sans votre accord.';
 }

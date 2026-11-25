@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui' show AppExitType;
 
 import 'package:flutter/services.dart';
@@ -36,6 +37,7 @@ String _mib(BuildContext context, int bytes) {
 String _errorText(L10n t, String error) => switch (error) {
   'update_converting' => t.updConverting,
   'update_network' => t.updNetwork,
+  'update_permission' => t.updAllowInstall,
   _ => error,
 };
 
@@ -431,7 +433,7 @@ class _UpdatesSettingsState extends ConsumerState<UpdatesSettings> {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  t.updWindowsNote,
+                  Platform.isAndroid ? t.updAndroidNote : t.updWindowsNote,
                   style: MmType.caption.copyWith(
                     fontSize: 12.5,
                     height: 1.45,

@@ -167,10 +167,56 @@ class PlaybackMemory {
   PlaybackSnapshot? _last;
 
   /// Listening journal: whether the current file is music that counts, its
-  /// artist, and the milliseconds heard not yet written.
+  /// artist, and the time heard not yet written. Measured on the clock while
+  /// the engine says it plays: Media3 does not send positions as they move,
+  /// only states, so positions cannot measure it (2026-11-25 fix).
   bool _counts = false;
   String? _artist;
-  double _heardMs = 0;
+  final _clock = Stopwatch();
+  int _carryMs = 0;
+  Timer? _journalTick;
+
+  /// Time really heard: the clock runs while the music plays.
+  void _syncClock(PlaybackSnapshot s) {
+    final hearing =
+        _counts &&
+        _currentId != null &&
+        s.isPlaying &&
+        !s.buffering &&
+        s.status != PlaybackStatus.ended;
+    if (hearing && !_clock.isRunning) {
+      _clock.start();
+      _journalTick?.cancel();
+      _journalTick = Timer.periodic(
+        const Duration(seconds: 30),
+        (_) => unawaited(_writeJournal()),
+      );
+    } else if (!hearing && _clock.isRunning) {
+      _clock.stop();
+      _journalTick?.cancel();
+      unawaited(_writeJournal());
+    }
+  }
+
+  /// Seconds heard since the last call; the rest is kept for the next one.
+  int _takeHeard() {
+    final ms = _clock.elapsedMilliseconds + _carryMs;
+    _clock.reset();
+    final secs = ms ~/ 1000;
+    _carryMs = ms - secs * 1000;
+    return secs;
+  }
+
+  /// Writes what was heard to the journal (every 30 s while playing, so a
+  /// killed app loses at most that).
+  Future<void> _writeJournal() async {
+    final heard = _takeHeard();
+    if (heard <= 0) return;
+    final journal = (await listenJournal())
+        .add(DateTime.now(), heard, artist: _artist)
+        .encode();
+    await _write({listenJournalKey: journal});
+  }
 
   // The store refuses nothing that matters here; a failed write only loses
   // a resume point.
@@ -222,7 +268,11 @@ class PlaybackMemory {
     _currentId = entry.libraryId;
     _currentUri = entry.source.uri;
     _savedAt = Duration.zero;
-    _heardMs = 0;
+    _clock
+      ..stop()
+      ..reset();
+    _carryMs = 0;
+    _journalTick?.cancel();
     _counts = false;
     _artist = null;
     final id = entry.libraryId;
@@ -232,6 +282,9 @@ class PlaybackMemory {
       try {
         _artist = (await _ref.read(libraryApiProvider).item(id))?.artist;
       } catch (_) {}
+      // The engine may already have said it plays (states come once).
+      final now = _ref.read(mediaEngineProvider)?.current;
+      if (now != null && now.source?.uri == _currentUri) _syncClock(now);
     }
     final kind = entry.isVideo ? 'video' : 'audio';
     final before = await history();
@@ -264,15 +317,8 @@ class PlaybackMemory {
     if (uri != null && _currentUri != null && uri != _currentUri) return;
     final previous = _last;
     _last = s;
+    _syncClock(s);
     if (_currentId == null || s.duration == Duration.zero) return;
-    // Time really heard: the position moving forward while playing (seeks
-    // are jumps of more than 3 s and do not count), at the playback speed.
-    if (_counts && previous != null && previous.isPlaying && s.isPlaying) {
-      final moved = s.position - previous.position;
-      if (moved > Duration.zero && moved <= const Duration(seconds: 3)) {
-        _heardMs += moved.inMilliseconds / (s.speed <= 0 ? 1 : s.speed);
-      }
-    }
     final paused = previous?.isPlaying == true && !s.isPlaying;
     if (s.status == PlaybackStatus.ended) {
       // Like 0.1.x: history keeps the end position (watched to the end), the
@@ -289,10 +335,9 @@ class PlaybackMemory {
     if (id == null) return;
     _savedAt = position;
     final h = noteStopped(await history(), id, position.inSeconds);
-    final heard = (_heardMs / 1000).floor();
+    final heard = _takeHeard();
     String? journal;
     if (heard > 0) {
-      _heardMs -= heard * 1000;
       journal = (await listenJournal())
           .add(DateTime.now(), heard, artist: _artist)
           .encode();
@@ -322,5 +367,8 @@ class PlaybackMemory {
     }
   }
 
-  void dispose() => _sub?.cancel();
+  void dispose() {
+    _journalTick?.cancel();
+    _sub?.cancel();
+  }
 }
