@@ -16,7 +16,7 @@ export const RELEASE = {
     version: '0.2.10',
     name: 'MiarinaMedia-0.2.10-x64-setup.exe',
     size: '113,5 Mio',
-    sha256: 'c43877b05a1d22df6b26b8cbcc737a2479d07ff3b3646a6ab0085accc59fad69',
+    sha256: '973a393d13fd90e44494aae3601ef554b9595ae146dd0eb7ec590d645548d813',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {

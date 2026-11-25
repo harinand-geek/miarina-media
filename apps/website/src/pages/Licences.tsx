@@ -16,7 +16,7 @@ export function Licences() {
         <p>
           Miarina Media 0.2.10 pour Windows, qui remplace la 0.1.12, est sous GPL-3.0-only. Ses
           sources exactes et ses scripts de construction sont à l’étiquette{' '}
-          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.10">v0.2.10</a> du dépôt
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.10-windows">v0.2.10-windows</a> du dépôt
           public, avec le sous-module Mister Download Manager. Ses composants sont ceux de la bêta
           0.2.4 ci-dessous (Flutter, flutter_rust_bridge, media_kit et libmpv, icônes Phosphor,
           yt-dlp, FFmpeg et QuickJS-NG), plus le crate wasapi (MIT) pour le son de l’enregistrement
