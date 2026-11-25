@@ -11,7 +11,7 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.2.8',
+  version: '0.2.9',
   windows: {
     version: '0.2.8',
     name: 'MiarinaMedia-0.2.8-x64-setup.exe',
@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.2.8',
-    name: 'MiarinaMedia-0.2.8.apk',
-    size: '64,8 Mio',
-    sha256: '8175034b01f07ea42000e58f27b7768bab10565600c964bb35dcace88bbd18a0',
+    version: '0.2.9',
+    name: 'MiarinaMedia-0.2.9.apk',
+    size: '64,9 Mio',
+    sha256: '456445893c33b45de6e1d82fc859d746fb272c98fa065b6047a73a961aa68505',
   } satisfies ReleaseFile,
 };
 
@@ -65,9 +65,20 @@ export const CHANGELOG: Release[] = [
     ],
   },
   {
+    name: '0.2.9 · Android',
+    date: '25 novembre 2026',
+    current: true,
+    items: [
+      'Android : nouveau lecteur aux couleurs de la pochette, avec une barre de lecture animée, de grands boutons et le volume du téléphone',
+      'Android : nouvel accueil Musique : dernières écoutes, titres les plus joués, vos artistes, mix du jour, titres à découvrir et temps d’écoute des 7 derniers jours',
+      'Android : bibliothèque redessinée : onglets avec leurs nombres, grille ou liste, albums aux couleurs de leur pochette, nouvelles pages d’album et d’artiste',
+      'Android : menu du lecteur avec minuteur, égaliseur, vitesse, recul et avance de 10 secondes, vue vinyle, album, artiste et infos du morceau',
+      'Windows reste en 0.2.8',
+    ],
+  },
+  {
     name: '0.2.8 · Windows et Android',
     date: '24 novembre 2026',
-    current: true,
     items: [
       'En malagasy, les écrans Historique s’affichent de nouveau (ils restaient gris)',
       'Android : si vous avez téléchargé avant d’ouvrir Musique, un bandeau propose maintenant d’afficher la musique du téléphone',

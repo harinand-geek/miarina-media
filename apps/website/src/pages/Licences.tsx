@@ -23,11 +23,11 @@ export function Licences() {
           de l’écran. La compression AV1 passe par SVT-AV1 (licence BSD), inclus dans le FFmpeg livré.
         </p>
 
-        <h2>Application Android 0.2.8</h2>
+        <h2>Application Android 0.2.9</h2>
         <p>
-          Miarina Media 0.2.8 pour Android, qui remplace la 0.1.11, est sous GPL-3.0-only. Ses
+          Miarina Media 0.2.9 pour Android, qui remplace la 0.1.11, est sous GPL-3.0-only. Ses
           sources exactes et ses scripts de construction sont à l’étiquette{' '}
-          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.8">v0.2.8</a> du dépôt
+          <a href="https://github.com/harinand-geek/miarina-media/tree/v0.2.9">v0.2.9</a> du dépôt
           public, avec le sous-module{' '}
           <a href="https://github.com/anefzaoui/misterdownloadmanager">Mister Download Manager</a>.
           Ses composants sont ceux de la bêta 0.2.4 ci-dessous : Flutter (licence BSD),
