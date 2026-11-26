@@ -24,6 +24,7 @@ import '../common/state_views.dart';
 import '../device_media/device_media.dart';
 import '../library/library_data.dart';
 import '../library/track_info.dart';
+import '../online/online_obtain.dart' show obtainOnline;
 import '../playback/audio_only.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
@@ -267,6 +268,19 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
         subtitle: entry.subtitle,
       ),
       groups: [
+        // Decision 0011: keep an online track for offline listening.
+        if (entry.onlineId case final id?)
+          [
+            SheetAction(
+              icon: PhosphorRegular.downloadSimple,
+              label: t.tabGet,
+              onTap: () => obtainOnline(context, ref, (
+                videoId: id,
+                title: entry.title,
+                thumbnail: entry.artwork,
+              )),
+            ),
+          ],
         if (inLibrary)
           [
             SheetAction(

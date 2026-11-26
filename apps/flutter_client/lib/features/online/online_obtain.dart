@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,6 +35,7 @@ const askFormat = 'ask';
 class OnlineSettings {
   const OnlineSettings({
     this.autoObtain = false,
+    this.wifiOnly = true,
     this.format = askFormat,
     this.lastFormat,
   });
@@ -42,6 +44,7 @@ class OnlineSettings {
     if (raw is! Map) return const OnlineSettings();
     return OnlineSettings(
       autoObtain: raw['autoObtain'] == true,
+      wifiOnly: raw['wifiOnly'] != false,
       format: raw['format'] is String ? raw['format'] as String : askFormat,
       lastFormat: raw['lastFormat'] is String
           ? raw['lastFormat'] as String
@@ -51,6 +54,9 @@ class OnlineSettings {
 
   /// Obtain the online tracks played to the end (off by default).
   final bool autoObtain;
+
+  /// Phone: automatic obtaining waits for Wi-Fi (on by default).
+  final bool wifiOnly;
 
   /// [askFormat], or the offer key used without asking.
   final String format;
@@ -64,16 +70,19 @@ class OnlineSettings {
 
   OnlineSettings copyWith({
     bool? autoObtain,
+    bool? wifiOnly,
     String? format,
     String? lastFormat,
   }) => OnlineSettings(
     autoObtain: autoObtain ?? this.autoObtain,
+    wifiOnly: wifiOnly ?? this.wifiOnly,
     format: format ?? this.format,
     lastFormat: lastFormat ?? this.lastFormat,
   );
 
   Map<String, Object?> toJson() => {
     'autoObtain': autoObtain,
+    'wifiOnly': wifiOnly,
     'format': format,
     'lastFormat': ?lastFormat,
   };
@@ -105,6 +114,19 @@ final onlineSettingsProvider =
     AsyncNotifierProvider<OnlineSettingsNotifier, OnlineSettings>(
       OnlineSettingsNotifier.new,
     );
+
+/// Whether the phone is on Wi-Fi (or Ethernet), not mobile data; always
+/// true on Windows. Tests answer it.
+final onWifiProvider = Provider<Future<bool> Function()>(
+  (ref) => () async {
+    if (!Platform.isAndroid) return true;
+    try {
+      return await androidMediaTools.invokeMethod<bool>('onWifi') ?? false;
+    } catch (_) {
+      return false;
+    }
+  },
+);
 
 /// The library entries of the videos already obtained, keyed by video id.
 /// The key is the ids joined with commas ([onlineLocalKey]).
@@ -527,6 +549,17 @@ class OnlineSettingsGroup extends ConsumerWidget {
             onChanged: (v) => save(s.copyWith(autoObtain: v)),
           ),
         ),
+        if (!ref.watch(desktopShellProvider))
+          SettingsRow(
+            title: t.onlineWifiOnly,
+            control: MmSwitch(
+              value: s.wifiOnly,
+              label: t.onlineWifiOnly,
+              onChanged: s.autoObtain
+                  ? (v) => save(s.copyWith(wifiOnly: v))
+                  : null,
+            ),
+          ),
         SettingsRow(
           title: t.onlineObtainFormat,
           control: SettingsMenu<String>(
@@ -572,9 +605,17 @@ class _OnlineObtainListenerState extends ConsumerState<OnlineObtainListener> {
     if (s == null || !_heard(s)) return;
     final settings = ref.read(onlineSettingsProvider).value;
     if (settings == null || !settings.autoObtain) return;
-    final entry = ref.read(queueProvider).current;
+    // The track that was heard, found by its stream: at its end the queue
+    // may already have moved on to the next one.
+    final uri = s.source?.uri;
+    if (uri == null) return;
+    final entry = ref
+        .read(queueProvider)
+        .entries
+        .where((e) => e.onlineId != null && e.source.uri == uri)
+        .firstOrNull;
     final id = entry?.onlineId;
-    if (id == null || s.source?.uri != entry!.source.uri) return;
+    if (entry == null || id == null) return;
     if (!_handled.add(id)) return;
     unawaited(_obtain(entry, id, settings));
   }
@@ -589,6 +630,11 @@ class _OnlineObtainListenerState extends ConsumerState<OnlineObtainListener> {
     if (url == null) return;
     if ((await api.local([id])).isNotEmpty) return;
     if (onlineTaskOf(ref.read(downloadsProvider), url) != null) return;
+    // Phone: not over mobile data unless allowed (Réglages).
+    final phone = !ref.read(desktopShellProvider);
+    if (phone && settings.wifiOnly && !await ref.read(onWifiProvider)()) {
+      return;
+    }
     final offers = api.offers();
     final offer =
         offers.where((o) => o.key == settings.autoFormat).firstOrNull ??

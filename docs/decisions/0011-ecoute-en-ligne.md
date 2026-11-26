@@ -209,6 +209,16 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - Media3 lit l'URL HTTPS avec les en-têtes ; arrière-plan et écran verrouillé déjà en place.
 - À mesurer avant de livrer : délai de résolution avec yt-dlp en Python sur le Redmi Note 10 Pro, consommation de données, comportement quand l'URL expire écran éteint.
 
+**Réalisé au lot 5** (2026-11-26) :
+
+- `Media3EnginePlugin.parseUri` traitait toute adresse autre que `content://` et `file://` comme un chemin : un flux `https://` ne pouvait pas jouer. Corrigé.
+- En-têtes : le plugin les note dans `OnlineHeaders` (même processus, les 8 derniers) ; le lecteur de `PlaybackService` passe par un `ResolvingDataSource` qui les ajoute aux requêtes de ce flux. Fichiers et URI de contenu inchangés.
+- « Uniquement en Wi-Fi » (Réglages › Lecture › Écoute en ligne, sur téléphone, activé par défaut) : l'obtention automatique attend le Wi-Fi ou l'Ethernet (`media_tools.onWifi`, `ConnectivityManager`). `ACCESS_NETWORK_STATE` était déjà dans l'APK (fusionnée par une bibliothèque) ; déclarée dans le manifeste pour la clarté, sans changer les permissions de l'app.
+- Lecteur du téléphone : Obtenir dans son menu « ⋯ » pour un titre en ligne. Puce « En ligne » dans la rangée Albums / Titres / Artistes / Playlists, pour qu'elle soit accessible même bibliothèque vide.
+- Obtention automatique : le titre entendu est retrouvé par son flux, car à sa fin la file est déjà passée au suivant (défaut aussi sur Windows).
+- Une réponse lente (`slow`) est retentée une fois avant d'afficher « YouTube ne répond pas » : vu sur Windows quand l'ordinateur compilait en même temps.
+- Recette par le propriétaire sur le Redmi Note 10 Pro (Android 13, APK bêta `org.miarina.media.beta`) : recherche et lecture en ligne fonctionnent. Journal Android pendant l'essai : aucune erreur liée à l'écoute en ligne. Non mesuré : délai de résolution sur le téléphone, données consommées.
+
 ## Risques
 
 | Risque | Effet | Parade |
@@ -235,7 +245,7 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | 2 ✅ | Filtre et section En ligne dans la recherche globale, entrée de menu, recherches récentes, états | Tests de widgets (`test/online_test.dart`, 15 tests) ; capture d'écran Windows à faire par le propriétaire |
 | 3 ✅ | Lecteur : `MediaSource.stream` et `httpHeaders`, `QueueEntry.onlineId`, résolution avant ouverture, préchargement du suivant, reprise sur refus, roue de chargement, carte d'erreur | Tests de widgets (20 au total) ; recette dans l'appli par le propriétaire |
 | 4 ✅ | Obtenir avec choix de format, badge « Hors connexion ✓ », lecture depuis le fichier, option d'obtention automatique | Tests de widgets (26 au total) et de stockage ; téléchargement réel et mode avion à vérifier par le propriétaire |
-| 5 | Android : mesures, ajustements Media3, recette sur téléphone | Mesures dans `performance.md` |
+| 5 ✅ | Android : lecture des flux `https`, en-têtes Media3, Wi-Fi seulement, Obtenir sur téléphone | Recette du propriétaire sur le Redmi ; mesures sur téléphone encore à faire |
 
 ## Questions encore ouvertes
 

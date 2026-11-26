@@ -247,6 +247,8 @@ class MusicChips extends StatelessWidget {
       (t.navTracks, Routes.tracks),
       (t.navArtists, Routes.artists),
       (t.navPlaylists, Routes.playlists),
+      // Decision 0011: reachable even while the library is empty.
+      (t.navOnline, Routes.online),
     ];
     return SizedBox(
       height: 36,

@@ -87,6 +87,9 @@ class FakeOnlineStreams implements OnlineStreams {
   final calls = <(String, bool)>[];
   final aheadCalls = <String>[];
   OnlineFailure? failure;
+
+  /// Thrown by the next stream waited for only.
+  OnlineFailure? failOnce;
   Completer<void>? gate;
   var _n = 0;
 
@@ -101,6 +104,10 @@ class FakeOnlineStreams implements OnlineStreams {
     if (ahead) aheadCalls.add(videoId);
     if (gate != null) await gate!.future;
     if (failure != null) throw failure!;
+    if (failOnce case final f? when !ahead) {
+      failOnce = null;
+      throw f;
+    }
     _n++;
     return source.withStream(
       Uri.parse('https://stream.example/$videoId?n=$_n'),
@@ -178,6 +185,7 @@ void main() {
   late FakeOnlineStreams streams;
   late FakeEngine engine;
   late FakeGetApi get;
+  var onWifi = true;
 
   setUp(() {
     online = FakeOnlineApi(hits);
@@ -185,6 +193,7 @@ void main() {
     streams = FakeOnlineStreams();
     engine = FakeEngine();
     get = FakeGetApi();
+    onWifi = true;
   });
 
   Future<void> pumpApp(
@@ -205,6 +214,7 @@ void main() {
           mediaEngineProvider.overrideWithValue(engine),
           onlineStreamsProvider.overrideWithValue(streams),
           getApiProvider.overrideWithValue(get),
+          onWifiProvider.overrideWithValue(() async => onWifi),
           libraryApiProvider.overrideWithValue(FakeLibraryApi([song])),
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi(const [])),
@@ -587,6 +597,18 @@ void main() {
       await playFirst(tester);
       expect(find.text('YouTube ne répond pas'), findsOneWidget);
       expect(find.text('Pas de connexion'), findsNothing);
+      // Tried twice before saying so (besides the one prepared ahead).
+      final waited =
+          streams.calls.where((c) => c.$1 == first).length -
+          streams.aheadCalls.where((id) => id == first).length;
+      expect(waited, 2);
+    });
+
+    testWidgets('a slow answer once is tried again, silently', (tester) async {
+      streams.failOnce = const OnlineFailure(OnlineFailureKind.slow);
+      await playFirst(tester);
+      expect(engine.opened.single.uri, onlineSourceUri(first));
+      expect(find.text('YouTube ne répond pas'), findsNothing);
     });
 
     testWidgets('the playing result is marked in the list', (tester) async {
@@ -694,6 +716,55 @@ void main() {
       engine.emit(at(230));
       await settleOnline(tester);
       expect(get.started, hasLength(1), reason: 'once');
+    });
+
+    testWidgets('phone: not over mobile data unless allowed', (tester) async {
+      settings.values[onlineSettingsKey] = {
+        'autoObtain': true,
+        'format': 'original',
+      };
+      onWifi = false;
+      await pumpApp(
+        tester,
+        start: '${Routes.online}?q=zanak',
+        desktop: false,
+        size: const Size(400, 860),
+      );
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.ended,
+          source: engine.opened.single,
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await settleOnline(tester);
+      expect(get.started, isEmpty, reason: 'mobile data');
+    });
+
+    testWidgets('phone on Wi-Fi: obtained', (tester) async {
+      settings.values[onlineSettingsKey] = {
+        'autoObtain': true,
+        'format': 'original',
+      };
+      await pumpApp(
+        tester,
+        start: '${Routes.online}?q=zanak',
+        desktop: false,
+        size: const Size(400, 860),
+      );
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.ended,
+          source: engine.opened.single,
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await settleOnline(tester);
+      expect(get.started.single.formatId, 'fmt-original');
     });
 
     testWidgets('off by default: nothing is obtained by itself', (

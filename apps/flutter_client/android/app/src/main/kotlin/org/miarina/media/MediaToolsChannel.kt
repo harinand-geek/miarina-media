@@ -3,6 +3,8 @@ package org.miarina.media
 import android.app.Activity
 import android.content.ContentValues
 import android.media.MediaScannerConnection
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Build
 import android.os.Handler
 import android.os.Looper
@@ -61,6 +63,8 @@ class MediaToolsChannel(
         }
       }
       "publish" -> publish(call.argument<String>("path"), result)
+      // Online listening: automatic obtaining may wait for Wi-Fi.
+      "onWifi" -> result.success(onWifi())
       "saveToDownloads" -> saveToDownloads(call.argument<String>("path"), call.argument<String>("name"), result)
       else -> result.notImplemented()
     }
@@ -164,5 +168,13 @@ class MediaToolsChannel(
       }
       main.post { result.success(visible) }
     }
+  }
+
+  /** The active network is Wi-Fi or Ethernet (not mobile data). */
+  private fun onWifi(): Boolean {
+    val cm = activity.getSystemService(ConnectivityManager::class.java) ?: return false
+    val caps = cm.getNetworkCapabilities(cm.activeNetwork) ?: return false
+    return caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) ||
+      caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET)
   }
 }

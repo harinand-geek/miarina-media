@@ -5144,4 +5144,7 @@ class L10nMg extends L10n {
 
   @override
   String get onlineSlowTitle => 'Tsy mamaly ny YouTube';
+
+  @override
+  String get onlineWifiOnly => 'Amin\'ny Wi-Fi ihany';
 }

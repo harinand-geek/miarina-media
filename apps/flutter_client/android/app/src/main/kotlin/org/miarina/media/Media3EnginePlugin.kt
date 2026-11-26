@@ -161,6 +161,7 @@ class Media3EnginePlugin(
         .build()
       "open" -> {
         val uri = call.argument<String>("uri") ?: throw IllegalArgumentException("uri")
+        OnlineHeaders.put(uri, call.argument<Map<String, String>>("headers"))
         val item = MediaItem.Builder()
           .setMediaId(uri)
           .setUri(parseUri(uri))
@@ -180,6 +181,7 @@ class Media3EnginePlugin(
         if (c.mediaItemCount > index + 1) c.removeMediaItems(index + 1, c.mediaItemCount)
         if (index > 0) c.removeMediaItems(0, index)
         val uri = call.argument<String>("uri")
+        if (uri != null) OnlineHeaders.put(uri, call.argument<Map<String, String>>("headers"))
         if (uri != null && c.mediaItemCount > 0) {
           c.addMediaItem(
             MediaItem.Builder()
@@ -228,7 +230,12 @@ class Media3EnginePlugin(
   }
 
   private fun parseUri(value: String): Uri =
-    if (value.startsWith("content://") || value.startsWith("file://")) Uri.parse(value) else Uri.fromFile(File(value))
+    if (value.startsWith("content://") || value.startsWith("file://") || value.startsWith("https://")) {
+      // https: an online stream (decision 0011).
+      Uri.parse(value)
+    } else {
+      Uri.fromFile(File(value))
+    }
 
   private fun texture(): Long {
     producer?.let { return it.id() }

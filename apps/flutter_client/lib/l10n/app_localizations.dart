@@ -8468,6 +8468,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'YouTube ne répond pas'**
   String get onlineSlowTitle;
+
+  /// No description provided for @onlineWifiOnly.
+  ///
+  /// In fr, this message translates to:
+  /// **'Uniquement en Wi-Fi'**
+  String get onlineWifiOnly;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

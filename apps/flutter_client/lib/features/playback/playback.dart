@@ -7,7 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
 import '../health/health_data.dart';
-import '../online/online_data.dart' show OnlineFailure;
+import '../online/online_data.dart' show OnlineFailure, OnlineFailureKind;
 import '../online/online_playback.dart';
 import '../../src/rust/api/library.dart' as rust_library;
 import '../settings/settings_data.dart';
@@ -473,10 +473,23 @@ class QueueController extends Notifier<QueueState> {
   }) async {
     final notifier = ref.read(onlinePlaybackProvider.notifier);
     if (report) notifier.resolving(entry);
+    Future<MediaSource> attempt() => ref
+        .read(onlineStreamsProvider)
+        .resolve(entry.source, entry.onlineId!, fresh: fresh, ahead: !report);
     try {
-      final source = await ref
-          .read(onlineStreamsProvider)
-          .resolve(entry.source, entry.onlineId!, fresh: fresh, ahead: !report);
+      MediaSource source;
+      try {
+        source = await attempt();
+      } on OnlineFailure catch (f) {
+        // A slow answer is often passing (a busy computer, a slow
+        // moment at YouTube): one more try before saying so.
+        if (f.kind != OnlineFailureKind.slow ||
+            !report ||
+            !identical(state.current, entry)) {
+          rethrow;
+        }
+        source = await attempt();
+      }
       if (report) notifier.done(entry);
       return source;
     } catch (e) {

@@ -5127,4 +5127,7 @@ class L10nFr extends L10n {
 
   @override
   String get onlineSlowTitle => 'YouTube ne répond pas';
+
+  @override
+  String get onlineWifiOnly => 'Uniquement en Wi-Fi';
 }

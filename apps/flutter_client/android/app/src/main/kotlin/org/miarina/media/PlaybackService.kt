@@ -2,10 +2,15 @@ package org.miarina.media
 
 import android.app.PendingIntent
 import android.content.Intent
+import androidx.annotation.OptIn
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.C
 import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.datasource.DefaultDataSource
+import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import androidx.media3.session.MediaSession
 import androidx.media3.session.MediaSessionService
 
@@ -19,9 +24,16 @@ import androidx.media3.session.MediaSessionService
 class PlaybackService : MediaSessionService() {
   private var session: MediaSession? = null
 
+  @OptIn(UnstableApi::class)
   override fun onCreate() {
     super.onCreate()
+    // Files, content URIs and streams as before; an online stream also gets
+    // the headers it was resolved with (OnlineHeaders, decision 0011).
+    val data = ResolvingDataSource.Factory(DefaultDataSource.Factory(this)) { spec ->
+      OnlineHeaders.of(spec.uri)?.let { spec.withAdditionalHeaders(it) } ?: spec
+    }
     val player = ExoPlayer.Builder(this)
+      .setMediaSourceFactory(DefaultMediaSourceFactory(data))
       .setAudioAttributes(
         AudioAttributes.Builder()
           .setUsage(C.USAGE_MEDIA)
