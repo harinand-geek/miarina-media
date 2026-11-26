@@ -61,12 +61,29 @@ export const CHANGELOG: Release[] = [
     planned: true,
     items: [
       'Choix du micro pour l’enregistrement de l’écran',
+      'Sous-titres en ligne pour les films et les vidéos',
+    ],
+  },
+  {
+    name: '0.3.0 · Windows et Android',
+    date: 'Novembre 2026',
+    current: true,
+    items: [
+      'En ligne : cherchez un titre ou un artiste et écoutez-le tout de suite dans le lecteur de l’app, sans le télécharger',
+      'En ligne s’ouvre sur des grilles de clips : nouveautés, et d’après votre dernière recherche',
+      'Voir le clip d’un titre en ligne dans le lecteur vidéo, au moment où vous en êtes',
+      'Obtenir un titre écouté en ligne : Original, MP3 320 ou MP3 128 ; il s’écoute ensuite hors connexion. Option : obtenir les titres écoutés en entier (en Wi-Fi seulement sur Android)',
+      'Paroles trouvées automatiquement pour les titres qui n’en ont pas : synchronisées quand elles existent, et les chansons malgaches grâce à Tononkira ; gardées pour l’écoute hors connexion (réglage pour le désactiver)',
+      'Sans paroles : les chercher soi-même, sur le web, ou importer un fichier .lrc ; des paroles gardées se remplacent ou se suppriment',
+      'Thème sombre neutre, sans reflet bleu',
+      'Navigateur : les vrais logos des sites de départ',
+      'Android : en baissant le lecteur, la pochette et le titre rejoignent le mini-lecteur',
+      'Les écoutes en ligne comptent dans les statistiques d’écoute',
     ],
   },
   {
     name: '0.2.10 · Windows et Android',
     date: '25 novembre 2026',
-    current: true,
     items: [
       'Windows : le même style que sur Android : barre de lecture aux couleurs de la pochette, accueil avec vos statistiques d’écoute, albums et artistes redessinés',
       'Vue vinyle : une platine avec son bras de lecture, sur Windows et Android',
