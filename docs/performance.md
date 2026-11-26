@@ -93,3 +93,13 @@ Même machine (Intel Core i5-8300H, Windows 11 Pro 10.0.22000), yt-dlp et QuickJ
 | Flux obtenu | M4A, AAC (`mp4a.40.2`), 129 kbit/s, valable 359 min | champs `ext`, `acodec`, `abr` et paramètre `expire` de l'URL |
 
 Non mesuré : Android (yt-dlp en Python), mémoire pendant la lecture d'un flux, délai jusqu'au premier son dans le lecteur (lot 3).
+
+## Paquets 0.3.0 — 2026-11-26
+
+| Paquet | 0.2.10 | 0.3.0 |
+|---|---:|---:|
+| Installateur Windows | 118 982 873 o (113,5 Mio) | 119 119 103 o (113,6 Mio) |
+| APK Android ARM64 | 68 099 691 o (64,9 Mio) | 68 320 287 o (65,2 Mio) |
+| Application Windows installée | — | 336,3 Mio (dossier assemblé) |
+
+Windows 0.3.0 installée, juste après le lancement : 217 Mio de mémoire de travail (une mesure, bibliothèque du propriétaire). Non mesuré : démarrage, mémoire pendant une écoute en ligne, Android.

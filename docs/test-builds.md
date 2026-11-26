@@ -2,6 +2,20 @@
 
 Préversions publiées sur https://media.miarina.org. Depuis la 0.1.7, recherche automatique et téléchargement des mises à jour dans les réglages, puis installation à la demande. L’installateur Windows n’est pas signé avec Authenticode.
 
+## Windows et Android 0.3.0 — 2026-11-26
+
+Décision 0011 : écoute en ligne dans le lecteur de l'app, grilles de clips, voir le clip, Obtenir (Original, MP3 320, MP3 128) et obtention automatique en option, paroles automatiques (sous-titres YouTube, LRCLIB, Tononkira lu deux fois pour retirer les mots parasites), recherche manuelle, web et import .lrc, remplacer ou supprimer des paroles gardées ; thème sombre neutre, logos des sites, vol de la pochette et du titre vers le mini-lecteur (Android), écoutes en ligne dans les statistiques. Pas de changement de schéma de la base. Android Stable `org.miarina.media`, versionCode 2012, ARM64, même certificat (`11de8715…6479e1`), aucune permission ajoutée. La recherche de sous-titres OpenSubtitles n'est pas incluse (clé hors dépôt, version suivante).
+
+| Fichier | Octets | SHA-256 |
+|---|---:|---|
+| MiarinaMedia-0.3.0-x64-setup.exe | 119119103 | 82230c2cb5547aa35f5a8da0a139ff06f377a01ff4ffb741ee3f114df28dba84 |
+| MiarinaMedia-0.3.0.apk | 68320287 | fc7e329635e410b459235ca20448016d9d59decd9f08f6f100070e3d29c19ff5 |
+| MiarinaMedia-0.3.0-website.tar.gz | — | ad9d1bb11cf30e32d2e902a334f53a299c1737868309fd62de7a2340815e5637 |
+
+Validation : 331 tests Flutter, tests Rust (download-engine, storage, pont), clippy, `flutter analyze`, TypeScript du site. Builds de test essayées par le propriétaire sur ce PC et sur le Redmi Note 10 Pro (bêta `org.miarina.media.beta`) : écoute en ligne, clip, Obtenir, paroles sur PC et téléphone. Paquets publiés installés tels quels par-dessus la 0.2.10 : Windows (installation silencieuse, retour 0, version 0.3.0+12, appli lancée) et téléphone (adb `install -r`, données gardées, démarrage sans plantage). **Non testé** : machine Windows propre, mise à jour par Réglages › Mises à jour depuis la 0.2.10 (les deux appareils du propriétaire ont été mis à jour directement, à sa demande). Installateur non signé Authenticode.
+
+Publication le 2026-11-26, avec l'accord explicite du propriétaire : envoi par morceaux vérifiés, fichiers, site (sauvegarde `/root/miarina-site-before-0.3.0-20261126-193555.tar.gz`), manifestes stable et bêta en dernier. `verify-app-update.mjs` réussi sur les manifestes locaux puis sur `https://media.miarina.org/updates/{stable,beta}.json`. En ligne : `/`, `/en/`, licences, confidentialité (Tononkira mentionné) et `SHA256SUMS-0.3.0` en HTTP 200 ; liens 0.3.0 présents.
+
 ## Windows et Android 0.1.11 — 2026-11-15
 
 Décision 0006 : le lecteur d'abord, recherche unique (logos des sites), style arrondi, en-tête « retour rapide » et lecteur qui se réduit au glissement (Android), écran d'attente de l'analyse, pages du navigateur au thème de l'app (Windows). Android passe de 0.1.9 à 0.1.11 (versionCode 1011) et n'est plus publié qu'en **ARM64** (téléphones 64 bits) : 64,0 Mio au lieu de 128,3 Mio pour l'APK universel ; yt-dlp n'y est plus qu'en un exemplaire (même version 2026.08.19).

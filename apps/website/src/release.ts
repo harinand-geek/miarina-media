@@ -11,12 +11,12 @@ export interface ReleaseFile {
 }
 
 export const RELEASE = {
-  version: '0.2.10',
+  version: '0.3.0',
   windows: {
-    version: '0.2.10',
-    name: 'MiarinaMedia-0.2.10-x64-setup.exe',
-    size: '113,5 Mio',
-    sha256: '973a393d13fd90e44494aae3601ef554b9595ae146dd0eb7ec590d645548d813',
+    version: '0.3.0',
+    name: 'MiarinaMedia-0.3.0-x64-setup.exe',
+    size: '113,6 Mio',
+    sha256: '82230c2cb5547aa35f5a8da0a139ff06f377a01ff4ffb741ee3f114df28dba84',
   } satisfies ReleaseFile,
   /** Windows on the Beta channel, offered next to the stable build. */
   beta: {
@@ -33,10 +33,10 @@ export const RELEASE = {
     sha256: 'c58a620258ddf02417759d1249187e2acd4d71a3463c8e73b56d82d36aeb73be',
   } satisfies ReleaseFile,
   android: {
-    version: '0.2.10',
-    name: 'MiarinaMedia-0.2.10.apk',
-    size: '64,9 Mio',
-    sha256: '139b5b125c38b063ee2fdaa7c6ac3021985cc65ed3a40f0b7f8aa7d7424450a2',
+    version: '0.3.0',
+    name: 'MiarinaMedia-0.3.0.apk',
+    size: '65,2 Mio',
+    sha256: 'fc7e329635e410b459235ca20448016d9d59decd9f08f6f100070e3d29c19ff5',
   } satisfies ReleaseFile,
 };
 
@@ -66,7 +66,7 @@ export const CHANGELOG: Release[] = [
   },
   {
     name: '0.3.0 · Windows et Android',
-    date: 'Novembre 2026',
+    date: '26 novembre 2026',
     current: true,
     items: [
       'En ligne : cherchez un titre ou un artiste et écoutez-le tout de suite dans le lecteur de l’app, sans le télécharger',
