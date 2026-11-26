@@ -5142,4 +5142,37 @@ class L10nFr extends L10n {
 
   @override
   String get onlineWatchClip => 'Voir le clip';
+
+  @override
+  String get lyricsSearch => 'Chercher les paroles';
+
+  @override
+  String get lyricsSearchWeb => 'Chercher sur le web';
+
+  @override
+  String get lyricsImport => 'Importer un .lrc';
+
+  @override
+  String get lyricsImportEmpty => 'Ce fichier ne contient pas de paroles.';
+
+  @override
+  String get lyricsFieldTitle => 'Titre';
+
+  @override
+  String get lyricsFieldArtist => 'Artiste';
+
+  @override
+  String get lyricsSearchGo => 'Chercher';
+
+  @override
+  String get lyricsNoResult => 'Aucune parole trouvée.';
+
+  @override
+  String get lyricsSynced => 'synchronisées';
+
+  @override
+  String get lyricsPlain => 'texte';
+
+  @override
+  String get lyricsWebWord => 'paroles';
 }

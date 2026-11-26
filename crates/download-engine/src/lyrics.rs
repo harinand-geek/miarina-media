@@ -193,16 +193,51 @@ const NOISE: [&str; 22] = [
 /// 2026) » → (Artist, Title). Brackets, the year and what follows « | » or
 /// « @ » go; without a dash, the channel is taken as the artist (« … -
 /// Topic », « VEVO » removed).
+/// A bracketed part that belongs to the clip, not the song: a clip word, a
+/// year, a featuring, a producer. « (I Told You I Like You) » stays.
+fn clip_noise(part: &str) -> bool {
+    part.split_whitespace().any(|w| {
+        let l = w.to_lowercase();
+        let l = l.trim_matches(|c: char| !c.is_alphanumeric());
+        let year = l.len() == 4 && l.starts_with("20") && l.chars().all(|c| c.is_ascii_digit());
+        year || NOISE.contains(&l) || matches!(l, "feat" | "ft" | "featuring" | "with" | "by")
+    })
+}
+
+/// Artist names that mean « none » (the app's own label for a file
+/// without one).
+const NO_ARTIST: [&str; 3] = [
+    "artiste inconnu",
+    "unknown artist",
+    "mpanakanto tsy fantatra",
+];
+
 pub fn clean_title(raw: &str, channel: Option<&str>) -> (Option<String>, String) {
-    // Brackets of any kind, with what they hold.
+    let channel = channel.filter(|c| !NO_ARTIST.contains(&c.trim().to_lowercase().as_str()));
+    // Bracketed parts: those of the clip go, the song's stay.
     let mut text = String::new();
+    let mut part = String::new();
     let mut depth = 0usize;
     for ch in raw.chars() {
         match ch {
-            '(' | '[' | '{' | '【' | '「' => depth += 1,
-            ')' | ']' | '}' | '】' | '」' => depth = depth.saturating_sub(1),
+            '(' | '[' | '{' | '【' | '「' => {
+                depth += 1;
+                if depth > 1 {
+                    part.push(' ');
+                }
+            }
+            ')' | ']' | '}' | '】' | '」' if depth > 0 => {
+                depth -= 1;
+                if depth == 0 {
+                    let kept = part.trim();
+                    if !kept.is_empty() && !clip_noise(kept) {
+                        text.push_str(&format!("({kept})"));
+                    }
+                    part.clear();
+                }
+            }
             _ if depth == 0 => text.push(ch),
-            _ => {}
+            _ => part.push(ch),
         }
     }
     for cut in ['|', '@', '#'] {
@@ -282,6 +317,11 @@ pub fn lrclib_get_url(artist: &str, title: &str, duration: Option<f64>) -> Optio
     url::Url::parse_with_params(&format!("{LRCLIB}/get"), &params).ok()
 }
 
+/// LRCLIB's full-text search (any field), the last resort.
+pub fn lrclib_query_url(q: &str) -> Option<url::Url> {
+    url::Url::parse_with_params(&format!("{LRCLIB}/search"), &[("q", q)]).ok()
+}
+
 /// LRCLIB's search, for a title without a reliable artist.
 pub fn lrclib_search_url(artist: Option<&str>, title: &str) -> Option<url::Url> {
     let mut params = vec![("track_name", title.to_owned())];
@@ -298,6 +338,55 @@ struct LrclibEntry {
     duration: Option<f64>,
     #[serde(default)]
     instrumental: bool,
+    #[serde(rename = "trackName")]
+    track: Option<String>,
+    #[serde(rename = "artistName")]
+    artist: Option<String>,
+    #[serde(rename = "albumName")]
+    album: Option<String>,
+}
+
+/// One LRCLIB result with synchronised lyrics, for the user to choose.
+#[derive(Debug, Clone, PartialEq)]
+pub struct LrclibHit {
+    pub track: String,
+    pub artist: Option<String>,
+    pub album: Option<String>,
+    pub duration: Option<f64>,
+    pub lrc: String,
+}
+
+/// The synchronised results of an LRCLIB search, at most [limit], those
+/// closest to [duration] first when it is known.
+pub fn lrclib_hits(json: &str, duration: Option<f64>, limit: usize) -> Vec<LrclibHit> {
+    let Ok(entries) = serde_json::from_str::<Vec<LrclibEntry>>(json) else {
+        return Vec::new();
+    };
+    let mut hits: Vec<LrclibHit> = entries
+        .into_iter()
+        .filter(|e| !e.instrumental)
+        .filter_map(|e| {
+            let lrc = e
+                .synced
+                .filter(|s| s.contains('[') && s.trim().len() > 10)?;
+            Some(LrclibHit {
+                track: e.track.filter(|t| !t.trim().is_empty())?,
+                artist: e.artist,
+                album: e.album,
+                duration: e.duration,
+                lrc,
+            })
+        })
+        .collect();
+    if let Some(d) = duration {
+        hits.sort_by(|a, b| {
+            let da = a.duration.map_or(f64::MAX, |x| (x - d).abs());
+            let db = b.duration.map_or(f64::MAX, |x| (x - d).abs());
+            da.total_cmp(&db)
+        });
+    }
+    hits.truncate(limit);
+    hits
 }
 
 /// Synchronised lyrics from an LRCLIB answer (an entry or a list), the
@@ -314,6 +403,187 @@ pub fn pick_lrclib(json: &str, duration: Option<f64>) -> Option<String> {
             _ => true,
         })
         .find_map(|e| e.synced.filter(|s| s.contains('[') && s.trim().len() > 10))
+}
+
+/// Tononkira (https://tononkira.serasera.org), the reference for Malagasy
+/// lyrics, suggested by the owner: plain text, no timing. Read from its
+/// public pages (search, then the song's page).
+pub const TONONKIRA: &str = "https://tononkira.serasera.org";
+
+/// Tononkira's search by title (`lohateny`) and artist (`mpihira`).
+pub fn tononkira_search_url(title: &str, artist: Option<&str>) -> Option<url::Url> {
+    let mut params = vec![("lohateny", title.to_owned())];
+    if let Some(a) = artist {
+        params.push(("mpihira", a.to_owned()));
+    }
+    url::Url::parse_with_params(&format!("{TONONKIRA}/tononkira"), &params).ok()
+}
+
+/// One song in Tononkira's results.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TononkiraHit {
+    pub title: String,
+    pub artist: Option<String>,
+    /// The song's page, on tononkira.serasera.org.
+    pub url: String,
+}
+
+/// HTML entities that matter in song titles and lyrics.
+fn unescape(text: &str) -> String {
+    let mut out = String::with_capacity(text.len());
+    let mut rest = text;
+    while let Some(i) = rest.find('&') {
+        out.push_str(&rest[..i]);
+        rest = &rest[i..];
+        let Some(end) = rest.find(';').filter(|e| *e <= 10) else {
+            out.push('&');
+            rest = &rest[1..];
+            continue;
+        };
+        let name = &rest[1..end];
+        let ch = match name {
+            "amp" => Some('&'),
+            "lt" => Some('<'),
+            "gt" => Some('>'),
+            "quot" => Some('"'),
+            "apos" => Some('\''),
+            "nbsp" => Some(' '),
+            _ => name
+                .strip_prefix("#x")
+                .and_then(|h| u32::from_str_radix(h, 16).ok())
+                .or_else(|| name.strip_prefix('#').and_then(|d| d.parse().ok()))
+                .and_then(char::from_u32),
+        };
+        match ch {
+            Some(c) => {
+                out.push(c);
+                rest = &rest[end + 1..];
+            }
+            None => {
+                out.push('&');
+                rest = &rest[1..];
+            }
+        }
+    }
+    out.push_str(rest);
+    out
+}
+
+/// Text without tags.
+fn strip_tags(html: &str) -> String {
+    let mut out = String::new();
+    let mut in_tag = false;
+    for ch in html.chars() {
+        match ch {
+            '<' => in_tag = true,
+            '>' if in_tag => in_tag = false,
+            _ if !in_tag => out.push(ch),
+            _ => {}
+        }
+    }
+    out
+}
+
+/// A link's address and text: `<a href="…">text</a>` at the start of
+/// [html].
+fn link(html: &str) -> Option<(String, String, &str)> {
+    let start = html.find("<a ")?;
+    let html = &html[start..];
+    let href_at = html.find("href=\"")? + 6;
+    let href_end = href_at + html[href_at..].find('"')?;
+    let text_at = href_end + html[href_end..].find('>')? + 1;
+    let text_end = text_at + html[text_at..].find("</a>")?;
+    Some((
+        html[href_at..href_end].to_owned(),
+        unescape(strip_tags(&html[text_at..text_end]).trim()),
+        &html[text_end + 4..],
+    ))
+}
+
+/// The songs of a Tononkira results page, in its order.
+pub fn tononkira_hits(html: &str) -> Vec<TononkiraHit> {
+    let song = format!("{TONONKIRA}/hira/");
+    let singer = format!("{TONONKIRA}/mpihira/");
+    let mut hits = Vec::new();
+    for block in html.split("<div class=\"border p-2 mb-3\">").skip(1) {
+        let block = block.split("</div>").next().unwrap_or_default();
+        let Some((href, title, rest)) = link(block) else {
+            continue;
+        };
+        // /hira/<artist>/<song>, not its « ankafizo » (like) link.
+        let ok = href
+            .strip_prefix(&song)
+            .is_some_and(|p| p.split('/').filter(|s| !s.is_empty()).count() == 2);
+        if !ok || title.is_empty() {
+            continue;
+        }
+        let artist = link(rest)
+            .filter(|(h, _, _)| h.starts_with(&singer))
+            .map(|(_, a, _)| a)
+            .filter(|a| !a.is_empty());
+        hits.push(TononkiraHit {
+            title,
+            artist,
+            url: href,
+        });
+    }
+    hits
+}
+
+/// The lyrics of a Tononkira song page: its lines, blank lines between
+/// verses kept (one at most). `None` when the page has none.
+pub fn tononkira_lyrics(html: &str) -> Option<String> {
+    let mark = html.find("Nalaina tao amin")?;
+    let after = &html[mark..];
+    let div = after.find("<div id=")?;
+    let body = &after[div..];
+    let open = body.find('>')? + 1;
+    let close = open + body[open..].find("</div>")?;
+    // Line ends in the HTML are only spaces; <br> makes the lines.
+    let raw = body[open..close]
+        .replace(['\r', '\n'], " ")
+        .replace("<br />", "\n")
+        .replace("<br/>", "\n")
+        .replace("<br>", "\n");
+    let text = unescape(&strip_tags(&raw));
+    let mut lines: Vec<String> = Vec::new();
+    for line in text.lines() {
+        let line = line.split_whitespace().collect::<Vec<_>>().join(" ");
+        if line.is_empty() && lines.last().is_none_or(|l| l.is_empty()) {
+            continue;
+        }
+        lines.push(line);
+    }
+    while lines.last().is_some_and(|l| l.is_empty()) {
+        lines.pop();
+    }
+    let words = lines.iter().filter(|l| !l.is_empty()).count();
+    (words >= 2).then(|| lines.join("\n"))
+}
+
+/// Lower case letters and digits only, for comparing titles.
+fn plain_key(s: &str) -> String {
+    s.chars()
+        .filter(|c| c.is_alphanumeric())
+        .flat_map(char::to_lowercase)
+        .collect()
+}
+
+/// The hit whose title matches [title] best: the same letters first, then
+/// one containing the other; `None` when none is close.
+pub fn best_tononkira_hit<'a>(hits: &'a [TononkiraHit], title: &str) -> Option<&'a TononkiraHit> {
+    let want = plain_key(title);
+    if want.is_empty() {
+        return None;
+    }
+    hits.iter()
+        .find(|h| plain_key(&h.title) == want)
+        .or_else(|| {
+            hits.iter().find(|h| {
+                let k = plain_key(&h.title);
+                !k.is_empty() && (k.contains(&want) || want.contains(&k))
+            })
+        })
 }
 
 #[cfg(test)]
@@ -374,6 +644,29 @@ mod tests {
             (Some("DORENJY".into()), "Tefihaja & Bob tobias".into())
         );
         assert_eq!(c("Song", None), (None, "Song".into()));
+        // The song's own brackets stay; « Artiste inconnu » is no artist.
+        assert_eq!(
+            c(
+                "Johnny Orlando, kenzie - What If (I Told You I Like You)",
+                Some("Artiste inconnu")
+            ),
+            (
+                Some("Johnny Orlando".into()),
+                "What If (I Told You I Like You)".into()
+            )
+        );
+        assert_eq!(
+            c("keen'v - DIS MOI OUI (MARINA) Clip Officiel", None),
+            (Some("keen'v".into()), "DIS MOI OUI (MARINA)".into())
+        );
+        assert_eq!(
+            c("Havagna", Some("Unknown artist")),
+            (None, "Havagna".into())
+        );
+        assert_eq!(
+            c("Zanak'antesaka ( vasia label 2026 )", Some("Kenny")),
+            (Some("Kenny".into()), "Zanak'antesaka".into())
+        );
     }
 
     #[test]
@@ -384,6 +677,82 @@ mod tests {
         assert!(u.as_str().contains("duration=238"));
         let s = lrclib_search_url(None, "A & B").unwrap();
         assert!(s.as_str().ends_with("track_name=A+%26+B"));
+    }
+
+    const TK_RESULTS: &str = r#"<form method="get"></form>
+        <div class="border p-2 mb-3">
+            1. <a href="https://tononkira.serasera.org/hira/sakat%C3%A9-boy/zanakantesaka">Zanak&#039;antesaka</a> - <a href="https://tononkira.serasera.org/mpihira/sakat%C3%A9-boy">Sakaté Boy</a> <a href="https://tononkira.serasera.org/hira/sakat%C3%A9-boy/zanakantesaka/ankafizo"><i class="bi-heart-fill"></i> 0</a>
+        </div>
+        <div class="border p-2 mb-3">
+            2. <a href="https://tononkira.serasera.org/hira/x/zanaka">Zanaka</a> - <a href="https://evil.example/mpihira/x">X</a>
+        </div>
+        <div class="border p-2 mb-3">3. <a href="https://evil.example/hira/a/b">Bad</a></div>"#;
+
+    #[test]
+    fn tononkira_results_are_read() {
+        let hits = tononkira_hits(TK_RESULTS);
+        assert_eq!(
+            hits[0],
+            TononkiraHit {
+                title: "Zanak'antesaka".into(),
+                artist: Some("Sakaté Boy".into()),
+                url: "https://tononkira.serasera.org/hira/sakat%C3%A9-boy/zanakantesaka".into(),
+            }
+        );
+        assert_eq!(hits[1].artist, None, "artist link elsewhere ignored");
+        assert_eq!(hits.len(), 2, "links off the site ignored");
+        assert_eq!(
+            best_tononkira_hit(&hits, "Zanak'Antesaka").unwrap().title,
+            "Zanak'antesaka"
+        );
+        assert_eq!(best_tononkira_hit(&hits, "zanaka").unwrap().title, "Zanaka");
+        assert!(best_tononkira_hit(&hits, "Havagna").is_none());
+        let u = tononkira_search_url("Zanak'antesaka", Some("Sakaté Boy")).unwrap();
+        assert_eq!(u.host_str(), Some("tononkira.serasera.org"));
+        assert!(u.as_str().contains("lohateny=Zanak%27antesaka"));
+        assert!(u.as_str().contains("mpihira=Sakat%C3%A9+Boy"));
+    }
+
+    #[test]
+    fn tononkira_lyrics_are_read() {
+        let page = r#"<h2>Zanak&#039;antesaka</h2>
+        <div class="print my-3 fst-italic">
+            (Nalaina tao amin'ny tononkira.serasera.org)
+        </div>
+
+        <div id="6b08606387908">
+        Gne carisme vaňy fombafombanay<br />
+Sakaté boy, zanak'i Vangai!<br />
+<br />
+<br />
+ Somary nagnotaniany aho hoe,<br />
+&nbsp;&nbsp;Zanak'antesaka a,<br />
+        </div>
+        <div>Other</div>"#;
+        assert_eq!(
+            tononkira_lyrics(page).unwrap(),
+            "Gne carisme vaňy fombafombanay\nSakaté boy, zanak'i Vangai!\n\nSomary nagnotaniany aho hoe,\nZanak'antesaka a,"
+        );
+        assert!(tononkira_lyrics("<html>no lyrics</html>").is_none());
+        assert_eq!(
+            unescape("a &amp; b &#039;c&#x27; &bogus; &"),
+            "a & b 'c' &bogus; &"
+        );
+    }
+
+    #[test]
+    fn lrclib_hits_are_listed_closest_first() {
+        let list = r#"[{"trackName":"Far","artistName":"A","duration":300,"syncedLyrics":"[00:01.00]far far away"},
+                       {"trackName":"Plain","duration":200,"syncedLyrics":null},
+                       {"trackName":"Near","artistName":"B","albumName":"X","duration":201,"syncedLyrics":"[00:01.00]near and dear"}]"#;
+        let hits = lrclib_hits(list, Some(200.0), 10);
+        assert_eq!(
+            hits.iter().map(|h| h.track.as_str()).collect::<Vec<_>>(),
+            ["Near", "Far"]
+        );
+        assert_eq!(hits[0].album.as_deref(), Some("X"));
+        assert_eq!(lrclib_hits(list, None, 1).len(), 1);
+        assert!(lrclib_hits("{}", None, 5).is_empty());
     }
 
     #[test]

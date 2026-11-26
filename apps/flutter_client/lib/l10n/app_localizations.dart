@@ -8492,6 +8492,72 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Voir le clip'**
   String get onlineWatchClip;
+
+  /// No description provided for @lyricsSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher les paroles'**
+  String get lyricsSearch;
+
+  /// No description provided for @lyricsSearchWeb.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher sur le web'**
+  String get lyricsSearchWeb;
+
+  /// No description provided for @lyricsImport.
+  ///
+  /// In fr, this message translates to:
+  /// **'Importer un .lrc'**
+  String get lyricsImport;
+
+  /// No description provided for @lyricsImportEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce fichier ne contient pas de paroles.'**
+  String get lyricsImportEmpty;
+
+  /// No description provided for @lyricsFieldTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Titre'**
+  String get lyricsFieldTitle;
+
+  /// No description provided for @lyricsFieldArtist.
+  ///
+  /// In fr, this message translates to:
+  /// **'Artiste'**
+  String get lyricsFieldArtist;
+
+  /// No description provided for @lyricsSearchGo.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher'**
+  String get lyricsSearchGo;
+
+  /// No description provided for @lyricsNoResult.
+  ///
+  /// In fr, this message translates to:
+  /// **'Aucune parole trouvée.'**
+  String get lyricsNoResult;
+
+  /// No description provided for @lyricsSynced.
+  ///
+  /// In fr, this message translates to:
+  /// **'synchronisées'**
+  String get lyricsSynced;
+
+  /// No description provided for @lyricsPlain.
+  ///
+  /// In fr, this message translates to:
+  /// **'texte'**
+  String get lyricsPlain;
+
+  /// No description provided for @lyricsWebWord.
+  ///
+  /// In fr, this message translates to:
+  /// **'paroles'**
+  String get lyricsWebWord;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

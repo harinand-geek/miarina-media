@@ -2703,5 +2703,16 @@
     }
   },
   "onlineLyricsSetting": "Chercher les paroles en ligne",
-  "onlineWatchClip": "Voir le clip"
+  "onlineWatchClip": "Voir le clip",
+  "lyricsSearch": "Chercher les paroles",
+  "lyricsSearchWeb": "Chercher sur le web",
+  "lyricsImport": "Importer un .lrc",
+  "lyricsImportEmpty": "Ce fichier ne contient pas de paroles.",
+  "lyricsFieldTitle": "Titre",
+  "lyricsFieldArtist": "Artiste",
+  "lyricsSearchGo": "Chercher",
+  "lyricsNoResult": "Aucune parole trouvée.",
+  "lyricsSynced": "synchronisées",
+  "lyricsPlain": "texte",
+  "lyricsWebWord": "paroles"
 }

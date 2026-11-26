@@ -1398,5 +1398,16 @@
   "onlineNewQuery": "nouveauté gasy {year} clip officiel",
   "onlineFromSearch": "Araka ny « {query} »",
   "onlineLyricsSetting": "Hitady ny tononkira an-tserasera",
-  "onlineWatchClip": "Jereo ny horonantsary"
+  "onlineWatchClip": "Jereo ny horonantsary",
+  "lyricsSearch": "Hitady tononkira",
+  "lyricsSearchWeb": "Hitady amin'ny Internet",
+  "lyricsImport": "Hampiditra .lrc",
+  "lyricsImportEmpty": "Tsy misy tononkira ity rakitra ity.",
+  "lyricsFieldTitle": "Lohateny",
+  "lyricsFieldArtist": "Mpihira",
+  "lyricsSearchGo": "Hitady",
+  "lyricsNoResult": "Tsy nahitana tononkira.",
+  "lyricsSynced": "mifanaraka amin'ny hira",
+  "lyricsPlain": "lahatsoratra",
+  "lyricsWebWord": "tononkira"
 }

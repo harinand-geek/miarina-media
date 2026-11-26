@@ -5,7 +5,8 @@
 
 use download_engine::HttpEngine;
 use download_engine::lyrics::{
-    MAX_LYRICS_BYTES, clean_title, lrclib_get_url, lrclib_search_url, pick_lrclib,
+    MAX_LYRICS_BYTES, best_tononkira_hit, clean_title, lrclib_get_url, lrclib_search_url,
+    pick_lrclib, tononkira_hits, tononkira_lyrics, tononkira_search_url,
 };
 use media_core::validate_media_url;
 
@@ -43,6 +44,37 @@ async fn main() {
             },
             Ok(None) => println!("{kind}: not found"),
             Err(e) => println!("{kind}: error {e}"),
+        }
+    }
+    // Tononkira: plain lyrics of Malagasy songs.
+    let Some(url) = tononkira_search_url(&title, artist.as_deref())
+        .and_then(|u| validate_media_url(u.as_str()).ok())
+    else {
+        return;
+    };
+    let Ok(Some(html)) = http.fetch_text(&url, MAX_LYRICS_BYTES * 2).await else {
+        println!("tononkira: search failed");
+        return;
+    };
+    let hits = tononkira_hits(&html);
+    println!("tononkira: {} hits", hits.len());
+    let Some(hit) = best_tononkira_hit(&hits, &title) else {
+        return;
+    };
+    let Ok(page) = validate_media_url(&hit.url) else {
+        return;
+    };
+    if let Ok(Some(html)) = http.fetch_text(&page, MAX_LYRICS_BYTES * 2).await
+        && let Some(text) = tononkira_lyrics(&html)
+    {
+        println!(
+            "tononkira: {} — {:?}, {} lines",
+            hit.title,
+            hit.artist,
+            text.lines().count()
+        );
+        for line in text.lines().take(3) {
+            println!("  {line}");
         }
     }
 }

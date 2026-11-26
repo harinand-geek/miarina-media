@@ -13,13 +13,17 @@ class LyricLine {
 
 @immutable
 class Lyrics {
-  const Lyrics(this.lines, {this.source});
+  const Lyrics(this.lines, {this.source, this.synced = true});
 
   /// Sorted by time; never empty for parsed lyrics.
   final List<LyricLine> lines;
 
   /// File the lyrics come from, for the footer ("marée-haute.lrc").
   final String? source;
+
+  /// Timed lines; false for plain text (Tononkira), shown without
+  /// following the song.
+  final bool synced;
 
   /// Index of the line being sung at [position], -1 before the first one.
   int indexAt(Duration position) {
@@ -84,6 +88,22 @@ Lyrics? parseLrc(String text, {String? source}) {
   if (lines.isEmpty) return null;
   lines.sort((a, b) => a.time.compareTo(b.time));
   return Lyrics(List.unmodifiable(lines), source: source);
+}
+
+/// Plain lyrics (no timing): one line each, a blank line between verses
+/// kept. Null when there is no text.
+Lyrics? parsePlainLyrics(String text, {String? source}) {
+  final lines = <LyricLine>[];
+  for (final raw in const LineSplitter().convert(text)) {
+    final line = raw.trim();
+    if (line.isEmpty && (lines.isEmpty || lines.last.text.isEmpty)) continue;
+    lines.add(LyricLine(Duration.zero, line));
+  }
+  while (lines.isNotEmpty && lines.last.text.isEmpty) {
+    lines.removeLast();
+  }
+  if (lines.where((l) => l.text.isNotEmpty).length < 2) return null;
+  return Lyrics(List.unmodifiable(lines), source: source, synced: false);
 }
 
 /// Larger files are not lyrics; they are not read.

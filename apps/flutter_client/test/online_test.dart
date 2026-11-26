@@ -106,13 +106,29 @@ class FakeOnlineApi implements OnlineApi {
 
 class FakeLyricsApi implements OnlineLyricsApi {
   final asked = <LyricsLookup>[];
-  ({String lrc, String source})? answer;
+  FoundOnline? answer;
+  var options = <LyricsOption>[];
+  final searched = <(String, String?)>[];
+  final pages = <String, String>{};
 
   @override
-  Future<({String lrc, String source})?> find(LyricsLookup query) async {
+  Future<FoundOnline?> find(LyricsLookup query) async {
     asked.add(query);
     return answer;
   }
+
+  @override
+  Future<List<LyricsOption>> search(
+    String title,
+    String? artist,
+    Duration? duration,
+  ) async {
+    searched.add((title, artist));
+    return options;
+  }
+
+  @override
+  Future<String?> fetch(String url) async => pages[url];
 }
 
 class MemoryLyricsCache implements LyricsCache {
@@ -825,6 +841,7 @@ void main() {
       lyricsApi.answer = (
         lrc: '[00:01.00]Tiako ianao\n[00:04.00]Mila anao\n',
         source: 'youtube',
+        synced: true,
       );
       await pumpApp(tester, start: '${Routes.online}?q=zanak');
       await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
@@ -845,7 +862,11 @@ void main() {
     });
 
     testWidgets('an online clip has its lyrics too', (tester) async {
-      lyricsApi.answer = (lrc: '[00:03.00]Hira', source: 'lrclib');
+      lyricsApi.answer = (
+        lrc: '[00:03.00]Hira',
+        source: 'lrclib',
+        synced: true,
+      );
       await pumpApp(tester, start: '${Routes.online}?q=zanak');
       await tester.tap(
         find.bySemanticsLabel('Voir le clip SAKATÉ BOY - Zanak Antesaka'),
@@ -853,6 +874,72 @@ void main() {
       await settleOnline(tester);
       final l = await current(tester);
       expect(l?.lines.single.text, 'Hira');
+    });
+
+    test('plain lyrics keep one blank line between verses', () {
+      final l = parsePlainLyrics('\n\nA\nB\n\n\n\nC\n\n')!;
+      expect(l.lines.map((x) => x.text), ['A', 'B', '', 'C']);
+      expect(l.synced, isFalse);
+      expect(parsePlainLyrics('one line'), isNull);
+    });
+
+    testWidgets('Malagasy plain lyrics show as text and are kept', (
+      tester,
+    ) async {
+      lyricsApi.answer = (
+        lrc: 'Gne carisme\nSakaté boy\n\nZanak\'antesaka',
+        source: 'tononkira',
+        synced: false,
+      );
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      final l = await current(tester);
+      expect(l?.synced, isFalse);
+      expect(l?.source, 'Tononkira');
+      expect(l?.lines.first.text, 'Gne carisme');
+      expect(
+        lyricsCache.files['v-AAAAAAAAAAA'],
+        startsWith('[re:Tononkira]\n[plain]\n'),
+      );
+    });
+
+    testWidgets('no lyrics: search by hand and choose', (tester) async {
+      lyricsApi.options = [
+        (
+          track: 'Zanak\'antesaka',
+          artist: 'Sakaté Boy',
+          album: null,
+          duration: null,
+          source: 'tononkira',
+          lrc: null,
+          url: 'https://tononkira.serasera.org/hira/s/z',
+        ),
+      ];
+      lyricsApi.pages['https://tononkira.serasera.org/hira/s/z'] =
+          'Andalana voalohany\nAndalana faharoa';
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      container.read(routerProvider).go(Routes.now);
+      await settleOnline(tester);
+      expect(find.text('Pas de paroles pour ce titre'), findsOneWidget);
+      await tester.tap(find.text('Chercher les paroles'));
+      await settleOnline(tester);
+      await tester.tap(find.widgetWithText(FilledButton, 'Chercher'));
+      await settleOnline(tester);
+      expect(lyricsApi.searched.single.$1, 'SAKATÉ BOY - Zanak Antesaka');
+      expect(lyricsApi.searched.single.$2, 'Lalix Music Média');
+      await tester.tap(find.text('Zanak\'antesaka'));
+      await settleOnline(tester);
+      expect(find.text('Andalana voalohany'), findsOneWidget);
+      expect(
+        lyricsCache.files['v-AAAAAAAAAAA'],
+        startsWith('[re:Tononkira]\n[plain]\n'),
+      );
     });
 
     testWidgets('kept lyrics need no lookup', (tester) async {
@@ -868,7 +955,7 @@ void main() {
 
     testWidgets('setting off: nothing is looked up', (tester) async {
       settings.values[onlineSettingsKey] = {'lyrics': false};
-      lyricsApi.answer = (lrc: '[00:01.00]x', source: 'lrclib');
+      lyricsApi.answer = (lrc: '[00:01.00]x', source: 'lrclib', synced: true);
       await pumpApp(tester, start: '${Routes.online}?q=zanak');
       await tester.tap(find.text('Zanak Antesaka live'));
       await settleOnline(tester);

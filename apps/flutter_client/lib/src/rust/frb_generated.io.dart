@@ -338,6 +338,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<LibraryItem> dco_decode_list_library_item(dynamic raw);
 
   @protected
+  List<LyricsChoice> dco_decode_list_lyrics_choice(dynamic raw);
+
+  @protected
   List<MissingFileInfo> dco_decode_list_missing_file_info(dynamic raw);
 
   @protected
@@ -396,6 +399,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   List<WebPlaylistPick> dco_decode_list_web_playlist_pick(dynamic raw);
+
+  @protected
+  LyricsChoice dco_decode_lyrics_choice(dynamic raw);
 
   @protected
   LyricsQuery dco_decode_lyrics_query(dynamic raw);
@@ -957,6 +963,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<LibraryItem> sse_decode_list_library_item(SseDeserializer deserializer);
 
   @protected
+  List<LyricsChoice> sse_decode_list_lyrics_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<MissingFileInfo> sse_decode_list_missing_file_info(
     SseDeserializer deserializer,
   );
@@ -1031,6 +1042,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<WebPlaylistPick> sse_decode_list_web_playlist_pick(
     SseDeserializer deserializer,
   );
+
+  @protected
+  LyricsChoice sse_decode_lyrics_choice(SseDeserializer deserializer);
 
   @protected
   LyricsQuery sse_decode_lyrics_query(SseDeserializer deserializer);
@@ -1736,6 +1750,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_lyrics_choice(
+    List<LyricsChoice> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_missing_file_info(
     List<MissingFileInfo> self,
     SseSerializer serializer,
@@ -1851,6 +1871,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
     List<WebPlaylistPick> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_lyrics_choice(LyricsChoice self, SseSerializer serializer);
 
   @protected
   void sse_encode_lyrics_query(LyricsQuery self, SseSerializer serializer);

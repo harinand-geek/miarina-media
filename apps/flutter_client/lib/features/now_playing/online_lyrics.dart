@@ -24,9 +24,33 @@ typedef LyricsLookup = ({
 
 /// The core's lookup; tests use a fake.
 abstract interface class OnlineLyricsApi {
-  /// Synchronised LRC text and where it comes from (`youtube`, `lrclib`).
-  Future<({String lrc, String source})?> find(LyricsLookup query);
+  /// The lyrics and where they come from (`youtube`, `lrclib`: LRC;
+  /// `tononkira`: plain text).
+  Future<FoundOnline?> find(LyricsLookup query);
+
+  /// « Chercher les paroles »: choices for what the user typed.
+  Future<List<LyricsOption>> search(
+    String title,
+    String? artist,
+    Duration? duration,
+  );
+
+  /// The plain text of a Tononkira choice.
+  Future<String?> fetch(String url);
 }
+
+typedef FoundOnline = ({String lrc, String source, bool synced});
+
+/// One result of « Chercher les paroles ».
+typedef LyricsOption = ({
+  String track,
+  String? artist,
+  String? album,
+  Duration? duration,
+  String source,
+  String? lrc,
+  String? url,
+});
 
 class RustOnlineLyricsApi implements OnlineLyricsApi {
   RustOnlineLyricsApi(this._ref);
@@ -34,7 +58,7 @@ class RustOnlineLyricsApi implements OnlineLyricsApi {
   final Ref _ref;
 
   @override
-  Future<({String lrc, String source})?> find(LyricsLookup q) async {
+  Future<FoundOnline?> find(LyricsLookup q) async {
     if (!RustLib.instance.initialized) return null;
     await _ref.read(downloadsProvider.notifier).started;
     final found = await rust.lyricsFind(
@@ -47,7 +71,45 @@ class RustOnlineLyricsApi implements OnlineLyricsApi {
         videoId: q.videoId,
       ),
     );
-    return found == null ? null : (lrc: found.lrc, source: found.source);
+    return found == null
+        ? null
+        : (lrc: found.lrc, source: found.source, synced: found.synced);
+  }
+
+  @override
+  Future<List<LyricsOption>> search(
+    String title,
+    String? artist,
+    Duration? duration,
+  ) async {
+    if (!RustLib.instance.initialized) return const [];
+    await _ref.read(downloadsProvider.notifier).started;
+    final found = await rust.lyricsSearch(
+      title: title,
+      artist: artist,
+      durationSecs: duration == null ? null : duration.inMilliseconds / 1000,
+    );
+    return [
+      for (final c in found)
+        (
+          track: c.track,
+          artist: c.artist,
+          album: c.album,
+          duration: c.durationSecs == null
+              ? null
+              : Duration(milliseconds: (c.durationSecs! * 1000).round()),
+          source: c.source,
+          lrc: c.lrc,
+          url: c.url,
+        ),
+    ];
+  }
+
+  @override
+  Future<String?> fetch(String url) async {
+    if (!RustLib.instance.initialized) return null;
+    await _ref.read(downloadsProvider.notifier).started;
+    return rust.lyricsFetch(url: url);
   }
 }
 
@@ -121,19 +183,69 @@ String lyricsTitleKey(String title) {
 /// parser: no timestamp).
 const _sourceTag = '[re:';
 
+/// The line that marks kept lyrics as plain text.
+const _plainTag = '[plain]';
+
 String sourceLabel(String source) => switch (source) {
   'youtube' => 'YouTube',
   'lrclib' => 'LRCLIB',
+  'tononkira' => 'Tononkira',
   _ => source,
 };
 
 Lyrics? _parseKept(String text) {
-  final first = text.split('\n').first.trim();
+  final lines = text.split('\n');
+  final first = lines.first.trim();
   final source = first.startsWith(_sourceTag) && first.endsWith(']')
       ? first.substring(_sourceTag.length, first.length - 1)
       : null;
+  if (lines.length > 1 && lines[1].trim() == _plainTag) {
+    return parsePlainLyrics(lines.skip(2).join('\n'), source: source);
+  }
   return parseLrc(text, source: source);
 }
+
+/// The kept form of lyrics: where they come from, plain or timed.
+String _keptText(String body, String label, {required bool synced}) => synced
+    ? '$_sourceTag$label]\n$body'
+    : '$_sourceTag$label]\n$_plainTag\n$body';
+
+/// Keeps [body] for [entry] (a choice, an imported file) and shows it.
+Future<void> keepLyrics(
+  WidgetRef ref,
+  QueueEntry entry,
+  String body, {
+  required String label,
+  required bool synced,
+}) async {
+  final cache = ref.read(lyricsCacheProvider);
+  final keys = _keysOf(entry);
+  final text = _keptText(body, label, synced: synced);
+  for (final key in keys) {
+    await cache.write(key, text);
+  }
+  ref.read(_missedProvider).removeAll(keys);
+  ref.read(chosenLyricsProvider.notifier).set(entry, _parseKept(text));
+}
+
+/// Lyrics the user just chose or imported, shown at once (and kept).
+final chosenLyricsProvider =
+    NotifierProvider<ChosenLyrics, ({QueueEntry? entry, Lyrics? lyrics})>(
+      ChosenLyrics.new,
+    );
+
+class ChosenLyrics extends Notifier<({QueueEntry? entry, Lyrics? lyrics})> {
+  @override
+  ({QueueEntry? entry, Lyrics? lyrics}) build() => (entry: null, lyrics: null);
+
+  void set(QueueEntry entry, Lyrics? lyrics) =>
+      state = (entry: entry, lyrics: lyrics);
+}
+
+List<String> _keysOf(QueueEntry entry) => [
+  if (entry.onlineId case final id?) 'v-$id',
+  lyricsTitleKey(entry.title),
+];
 
 /// Lookups that found nothing this session: not asked again.
 final _missedProvider = Provider<Set<String>>((_) => <String>{});
@@ -144,10 +256,7 @@ Future<Lyrics?> loadOnlineLyrics(
   QueueEntry entry, {
   required bool online,
 }) async {
-  final keys = [
-    if (entry.onlineId case final id?) 'v-$id',
-    lyricsTitleKey(entry.title),
-  ];
+  final keys = _keysOf(entry);
   final cache = ref.read(lyricsCacheProvider);
   for (final key in keys) {
     final text = await cache.read(key);
@@ -172,9 +281,9 @@ Future<Lyrics?> loadOnlineLyrics(
     return null;
   }
   final label = sourceLabel(found.source);
-  final text = '$_sourceTag$label]\n${found.lrc}';
+  final text = _keptText(found.lrc, label, synced: found.synced);
   for (final key in keys) {
     await cache.write(key, text);
   }
-  return parseLrc(found.lrc, source: label);
+  return _parseKept(text);
 }

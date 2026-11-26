@@ -5159,4 +5159,37 @@ class L10nMg extends L10n {
 
   @override
   String get onlineWatchClip => 'Jereo ny horonantsary';
+
+  @override
+  String get lyricsSearch => 'Hitady tononkira';
+
+  @override
+  String get lyricsSearchWeb => 'Hitady amin\'ny Internet';
+
+  @override
+  String get lyricsImport => 'Hampiditra .lrc';
+
+  @override
+  String get lyricsImportEmpty => 'Tsy misy tononkira ity rakitra ity.';
+
+  @override
+  String get lyricsFieldTitle => 'Lohateny';
+
+  @override
+  String get lyricsFieldArtist => 'Mpihira';
+
+  @override
+  String get lyricsSearchGo => 'Hitady';
+
+  @override
+  String get lyricsNoResult => 'Tsy nahitana tononkira.';
+
+  @override
+  String get lyricsSynced => 'mifanaraka amin\'ny hira';
+
+  @override
+  String get lyricsPlain => 'lahatsoratra';
+
+  @override
+  String get lyricsWebWord => 'tononkira';
 }

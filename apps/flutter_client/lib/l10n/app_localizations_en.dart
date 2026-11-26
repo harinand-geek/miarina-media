@@ -5101,4 +5101,37 @@ class L10nEn extends L10n {
 
   @override
   String get onlineWatchClip => 'Watch the clip';
+
+  @override
+  String get lyricsSearch => 'Search lyrics';
+
+  @override
+  String get lyricsSearchWeb => 'Search the web';
+
+  @override
+  String get lyricsImport => 'Import an .lrc';
+
+  @override
+  String get lyricsImportEmpty => 'This file has no lyrics.';
+
+  @override
+  String get lyricsFieldTitle => 'Title';
+
+  @override
+  String get lyricsFieldArtist => 'Artist';
+
+  @override
+  String get lyricsSearchGo => 'Search';
+
+  @override
+  String get lyricsNoResult => 'No lyrics found.';
+
+  @override
+  String get lyricsSynced => 'synced';
+
+  @override
+  String get lyricsPlain => 'text';
+
+  @override
+  String get lyricsWebWord => 'lyrics';
 }

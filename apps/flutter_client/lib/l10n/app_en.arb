@@ -1466,5 +1466,16 @@
   "onlineNewQuery": "new official music video {year}",
   "onlineFromSearch": "Based on “{query}”",
   "onlineLyricsSetting": "Look up lyrics online",
-  "onlineWatchClip": "Watch the clip"
+  "onlineWatchClip": "Watch the clip",
+  "lyricsSearch": "Search lyrics",
+  "lyricsSearchWeb": "Search the web",
+  "lyricsImport": "Import an .lrc",
+  "lyricsImportEmpty": "This file has no lyrics.",
+  "lyricsFieldTitle": "Title",
+  "lyricsFieldArtist": "Artist",
+  "lyricsSearchGo": "Search",
+  "lyricsNoResult": "No lyrics found.",
+  "lyricsSynced": "synced",
+  "lyricsPlain": "text",
+  "lyricsWebWord": "lyrics"
 }

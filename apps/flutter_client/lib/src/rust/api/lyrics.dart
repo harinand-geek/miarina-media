@@ -7,22 +7,50 @@ import '../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
+// These functions are ignored because they are not marked as `pub`: `tononkira_page`, `tononkira_search`
+
 /// Synchronised lyrics for a track, or `None` (nothing found, no network,
 /// Obtenir not started). Blocking: runs on the download runtime.
 Future<FoundLyrics?> lyricsFind({required LyricsQuery query}) =>
     RustLib.instance.api.crateApiLyricsLyricsFind(query: query);
 
+/// The plain lyrics of a Tononkira choice; `None` when the page has none
+/// or is not on tononkira.serasera.org.
+Future<String?> lyricsFetch({required String url}) =>
+    RustLib.instance.api.crateApiLyricsLyricsFetch(url: url);
+
+/// « Chercher les paroles »: LRCLIB results (synchronised) for the title
+/// and artist the user typed (not cleaned), the closest to [duration_secs]
+/// first, then Tononkira's (plain text); at most 20 of each. Empty when
+/// nothing is found or offline.
+Future<List<LyricsChoice>> lyricsSearch({
+  required String title,
+  String? artist,
+  double? durationSecs,
+}) => RustLib.instance.api.crateApiLyricsLyricsSearch(
+  title: title,
+  artist: artist,
+  durationSecs: durationSecs,
+);
+
 class FoundLyrics {
-  /// Synchronised LRC text.
+  /// LRC text when [synced], else plain lines.
   final String lrc;
 
-  /// `youtube` or `lrclib`.
+  /// `youtube`, `lrclib` or `tononkira`.
   final String source;
 
-  const FoundLyrics({required this.lrc, required this.source});
+  /// Timed lines (LRC); false for plain text (Tononkira).
+  final bool synced;
+
+  const FoundLyrics({
+    required this.lrc,
+    required this.source,
+    required this.synced,
+  });
 
   @override
-  int get hashCode => lrc.hashCode ^ source.hashCode;
+  int get hashCode => lrc.hashCode ^ source.hashCode ^ synced.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -30,7 +58,55 @@ class FoundLyrics {
       other is FoundLyrics &&
           runtimeType == other.runtimeType &&
           lrc == other.lrc &&
-          source == other.source;
+          source == other.source &&
+          synced == other.synced;
+}
+
+/// One result of a lyrics search the user runs, to choose from.
+class LyricsChoice {
+  final String track;
+  final String? artist;
+  final String? album;
+  final double? durationSecs;
+
+  /// `lrclib` (synchronised, [lrc] given) or `tononkira` (plain text,
+  /// fetched from [url] when chosen: `lyrics_fetch`).
+  final String source;
+  final String? lrc;
+  final String? url;
+
+  const LyricsChoice({
+    required this.track,
+    this.artist,
+    this.album,
+    this.durationSecs,
+    required this.source,
+    this.lrc,
+    this.url,
+  });
+
+  @override
+  int get hashCode =>
+      track.hashCode ^
+      artist.hashCode ^
+      album.hashCode ^
+      durationSecs.hashCode ^
+      source.hashCode ^
+      lrc.hashCode ^
+      url.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LyricsChoice &&
+          runtimeType == other.runtimeType &&
+          track == other.track &&
+          artist == other.artist &&
+          album == other.album &&
+          durationSecs == other.durationSecs &&
+          source == other.source &&
+          lrc == other.lrc &&
+          url == other.url;
 }
 
 class LyricsQuery {

@@ -9,6 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
 import '../online/online_obtain.dart' show onlineSettingsProvider;
 import '../online/online_playback.dart' show onlineResolvingProvider;
+import 'lyrics_search.dart' show LyricsActions;
 import 'online_lyrics.dart';
 import 'lyrics.dart';
 
@@ -22,6 +23,11 @@ final lyricsLoaderProvider = Provider<Future<Lyrics?> Function(String path)>(
 final currentLyricsProvider = FutureProvider<Lyrics?>((ref) async {
   final entry = ref.watch(queueProvider.select((q) => q.current));
   if (entry == null) return null;
+  // Chosen or imported by the user for this entry just now.
+  final chosen = ref.watch(chosenLyricsProvider);
+  if (chosen.lyrics != null && identical(chosen.entry, entry)) {
+    return chosen.lyrics;
+  }
   final uri = entry.source.uri;
   if (uri.isScheme('file')) {
     final side = await ref.read(lyricsLoaderProvider)(uri.toFilePath());
@@ -113,6 +119,7 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
       error: (_, _) => _none(c, t),
       data: (l) {
         if (l == null) return _none(c, t);
+        if (!l.synced) return _plain(l, c);
         return Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -205,6 +212,48 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
     );
   }
 
+  /// Plain lyrics (Tononkira): the whole text to scroll, nothing timed.
+  Widget _plain(Lyrics l, MmColors c) => Column(
+    crossAxisAlignment: CrossAxisAlignment.stretch,
+    children: [
+      Expanded(
+        child: ListView.builder(
+          padding: widget.padding.copyWith(bottom: 48),
+          itemCount: l.lines.length,
+          itemBuilder: (context, i) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 3),
+            child: Text(
+              l.lines[i].text,
+              style: MmType.display.copyWith(
+                fontSize: widget.fontSize * 0.72,
+                height: 1.35,
+                color: c.fg.withValues(alpha: 0.86),
+              ),
+            ),
+          ),
+        ),
+      ),
+      if (l.source != null)
+        Padding(
+          padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
+          child: Row(
+            children: [
+              Icon(PhosphorRegular.fileText, size: 15, color: c.muted),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  l.source!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: MmType.caption.copyWith(color: c.muted),
+                ),
+              ),
+            ],
+          ),
+        ),
+    ],
+  );
+
   Widget _none(MmColors c, L10n t) => Center(
     child: Padding(
       padding: const EdgeInsets.all(24),
@@ -218,6 +267,12 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
             textAlign: TextAlign.center,
             style: MmType.title.copyWith(color: c.fg),
           ),
+          // Look them up by hand, on the web, or from a file (music only).
+          if (ref.read(queueProvider).current case final entry?
+              when !entry.isVideo || entry.onlineId != null) ...[
+            const SizedBox(height: 16),
+            LyricsActions(entry: entry),
+          ],
         ],
       ),
     ),
