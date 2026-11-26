@@ -129,12 +129,12 @@ class OnlineTile extends ConsumerWidget {
   OnlineFailureKind.tools => (
     icon: PhosphorRegular.downloadSimple,
     title: t.onlineToolsTitle,
-    body: t.onlineToolsBody,
+    body: '',
   ),
   OnlineFailureKind.network => (
     icon: PhosphorRegular.wifiSlash,
     title: t.onlineOfflineTitle,
-    body: t.onlineOfflineBody,
+    body: '',
   ),
   OnlineFailureKind.blocked => (
     icon: PhosphorRegular.hourglass,

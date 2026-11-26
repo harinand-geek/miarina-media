@@ -5042,18 +5042,10 @@ class L10nMg extends L10n {
   String get navOnline => 'An-tserasera';
 
   @override
-  String get onlineSubtitle =>
-      'Henoy ao amin\'ny mpamaky anao ny mozika avy amin\'ny YouTube. Alao ny hira iray mba hihainoana azy na tsy misy aterineto.';
-
-  @override
   String get onlinePlaceholder => 'Hitady hira na mpanakanto an-tserasera';
 
   @override
   String get onlineHintTitle => 'Hitady hira na mpanakanto';
-
-  @override
-  String get onlineHintBody =>
-      'Avy amin\'ny YouTube ny valiny ary henoina ao amin\'ny mpamaky anao, tsy misy fisintonana.';
 
   @override
   String get onlineRecent => 'Fikarohana farany';
@@ -5072,28 +5064,16 @@ class L10nMg extends L10n {
   }
 
   @override
-  String get onlineNoResultBody =>
-      'Hamarino ny tsipelina na andramo amin\'ny anaran\'ny mpanakanto.';
-
-  @override
   String get onlineMore => 'Valiny fanampiny';
 
   @override
   String get onlineToolsTitle => 'Tsy mbola voapetraka ny mpaka media';
 
   @override
-  String get onlineToolsBody =>
-      'Mampiasa ny mpaka media mitovy amin\'ny an\'ny Haka ny fihainoana an-tserasera. Apetraho izy mba hanohizana.';
-
-  @override
   String get onlineToolsInstall => 'Apetraho ny fitaovana';
 
   @override
   String get onlineOfflineTitle => 'Tsy misy fifandraisana';
-
-  @override
-  String get onlineOfflineBody =>
-      'Mila aterineto ny fikarohana an-tserasera. Mbola azo henoina na tsy misy aterineto ny hira efa azonao.';
 
   @override
   String get onlineOpenTracks => 'Jereo ny hirako';
@@ -5117,27 +5097,13 @@ class L10nMg extends L10n {
   }
 
   @override
-  String get onlineObtainBody =>
-      'Miditra ao amin\'ny tranombokinao ny hira ary azo henoina na tsy misy aterineto.';
-
-  @override
   String get onlineFormatOriginal => 'Tany am-boalohany';
-
-  @override
-  String get onlineFormatOriginalBody =>
-      'Ny feo avy amin\'ny YouTube araka ny misy azy, tsy ovaina: kalitao tsara indrindra, haingana indrindra.';
 
   @override
   String get onlineFormatMp3High => 'MP3 320 kbps';
 
   @override
-  String get onlineFormatMp3HighBody => 'Azo henoina na aiza na aiza.';
-
-  @override
   String get onlineFormatMp3Low => 'MP3 128 kbps';
-
-  @override
-  String get onlineFormatMp3LowBody => 'Maivana, mba hitahirizana toerana.';
 
   @override
   String get onlineFormatAlways => 'Ampiasao foana ity endrika ity';
@@ -5174,13 +5140,5 @@ class L10nMg extends L10n {
   String get onlineAutoObtain => 'Alao ny hira henoina hatramin\'ny farany';
 
   @override
-  String get onlineAutoObtainBody =>
-      'Miditra ao amin\'ny tranombokinao ny hira an-tserasera henoina hatramin\'ny farany (na saika), mba hihainoana azy tsy misy aterineto.';
-
-  @override
   String get onlineObtainFormat => 'Endrika hakana';
-
-  @override
-  String get onlineObtainFormatBody =>
-      'Ho an\'ny hira an-tserasera sy ny fakana mandeha ho azy.';
 }

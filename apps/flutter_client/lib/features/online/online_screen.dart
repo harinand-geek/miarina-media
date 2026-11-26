@@ -161,11 +161,6 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(t.navOnline, style: MmType.display.copyWith(color: c.fg)),
-                const SizedBox(height: 4),
-                Text(
-                  t.onlineSubtitle,
-                  style: MmType.bodySm.copyWith(color: c.muted),
-                ),
                 const SizedBox(height: 16),
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 640),
@@ -204,7 +199,7 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
         body = LibraryMessage(
           icon: PhosphorRegular.magnifyingGlass,
           title: t.onlineNoResult(q),
-          body: t.onlineNoResultBody,
+          body: '',
         );
       } else {
         final local =
@@ -301,7 +296,7 @@ class _Recent extends ConsumerWidget {
       return LibraryMessage(
         icon: PhosphorRegular.globe,
         title: t.onlineHintTitle,
-        body: t.onlineHintBody,
+        body: '',
       );
     }
     final notifier = ref.read(recentOnlineProvider.notifier);
@@ -359,8 +354,6 @@ class _Recent extends ConsumerWidget {
               ),
             ),
           ),
-        const SizedBox(height: 12),
-        Text(t.onlineHintBody, style: MmType.caption.copyWith(color: c.faint)),
       ],
     );
   }

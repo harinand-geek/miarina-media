@@ -8283,12 +8283,6 @@ abstract class L10n {
   /// **'En ligne'**
   String get navOnline;
 
-  /// No description provided for @onlineSubtitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l\'écouter hors connexion.'**
-  String get onlineSubtitle;
-
   /// No description provided for @onlinePlaceholder.
   ///
   /// In fr, this message translates to:
@@ -8300,12 +8294,6 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Cherchez un titre ou un artiste'**
   String get onlineHintTitle;
-
-  /// No description provided for @onlineHintBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.'**
-  String get onlineHintBody;
 
   /// No description provided for @onlineRecent.
   ///
@@ -8331,12 +8319,6 @@ abstract class L10n {
   /// **'Aucun résultat en ligne pour « {query} »'**
   String onlineNoResult(String query);
 
-  /// No description provided for @onlineNoResultBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Vérifiez l\'orthographe ou essayez avec le nom de l\'artiste.'**
-  String get onlineNoResultBody;
-
   /// No description provided for @onlineMore.
   ///
   /// In fr, this message translates to:
@@ -8349,12 +8331,6 @@ abstract class L10n {
   /// **'L\'extracteur n\'est pas installé'**
   String get onlineToolsTitle;
 
-  /// No description provided for @onlineToolsBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'L\'écoute en ligne utilise le même extracteur que l\'espace Obtenir. Installez-le pour continuer.'**
-  String get onlineToolsBody;
-
   /// No description provided for @onlineToolsInstall.
   ///
   /// In fr, this message translates to:
@@ -8366,12 +8342,6 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Pas de connexion'**
   String get onlineOfflineTitle;
-
-  /// No description provided for @onlineOfflineBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'La recherche en ligne a besoin d\'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.'**
-  String get onlineOfflineBody;
 
   /// No description provided for @onlineOpenTracks.
   ///
@@ -8409,23 +8379,11 @@ abstract class L10n {
   /// **'Obtenir « {title} »'**
   String onlineObtainTitle(String title);
 
-  /// No description provided for @onlineObtainBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le titre rejoint votre bibliothèque et s\'écoute hors connexion.'**
-  String get onlineObtainBody;
-
   /// No description provided for @onlineFormatOriginal.
   ///
   /// In fr, this message translates to:
   /// **'Original'**
   String get onlineFormatOriginal;
-
-  /// No description provided for @onlineFormatOriginalBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.'**
-  String get onlineFormatOriginalBody;
 
   /// No description provided for @onlineFormatMp3High.
   ///
@@ -8433,23 +8391,11 @@ abstract class L10n {
   /// **'MP3 320 kbps'**
   String get onlineFormatMp3High;
 
-  /// No description provided for @onlineFormatMp3HighBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Se lit partout.'**
-  String get onlineFormatMp3HighBody;
-
   /// No description provided for @onlineFormatMp3Low.
   ///
   /// In fr, this message translates to:
   /// **'MP3 128 kbps'**
   String get onlineFormatMp3Low;
-
-  /// No description provided for @onlineFormatMp3LowBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Léger, pour garder de la place.'**
-  String get onlineFormatMp3LowBody;
 
   /// No description provided for @onlineFormatAlways.
   ///
@@ -8511,23 +8457,11 @@ abstract class L10n {
   /// **'Obtenir les titres écoutés en entier'**
   String get onlineAutoObtain;
 
-  /// No description provided for @onlineAutoObtainBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Un titre en ligne écouté jusqu\'au bout (ou presque) rejoint votre bibliothèque, pour l\'écouter hors connexion.'**
-  String get onlineAutoObtainBody;
-
   /// No description provided for @onlineObtainFormat.
   ///
   /// In fr, this message translates to:
   /// **'Format d\'Obtenir'**
   String get onlineObtainFormat;
-
-  /// No description provided for @onlineObtainFormatBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Pour les titres en ligne et l\'obtention automatique.'**
-  String get onlineObtainFormatBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

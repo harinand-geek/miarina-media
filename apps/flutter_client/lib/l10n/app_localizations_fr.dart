@@ -5025,18 +5025,10 @@ class L10nFr extends L10n {
   String get navOnline => 'En ligne';
 
   @override
-  String get onlineSubtitle =>
-      'Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l\'écouter hors connexion.';
-
-  @override
   String get onlinePlaceholder => 'Rechercher un titre ou un artiste en ligne';
 
   @override
   String get onlineHintTitle => 'Cherchez un titre ou un artiste';
-
-  @override
-  String get onlineHintBody =>
-      'Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.';
 
   @override
   String get onlineRecent => 'Recherches récentes';
@@ -5055,28 +5047,16 @@ class L10nFr extends L10n {
   }
 
   @override
-  String get onlineNoResultBody =>
-      'Vérifiez l\'orthographe ou essayez avec le nom de l\'artiste.';
-
-  @override
   String get onlineMore => 'Plus de résultats';
 
   @override
   String get onlineToolsTitle => 'L\'extracteur n\'est pas installé';
 
   @override
-  String get onlineToolsBody =>
-      'L\'écoute en ligne utilise le même extracteur que l\'espace Obtenir. Installez-le pour continuer.';
-
-  @override
   String get onlineToolsInstall => 'Installer les outils';
 
   @override
   String get onlineOfflineTitle => 'Pas de connexion';
-
-  @override
-  String get onlineOfflineBody =>
-      'La recherche en ligne a besoin d\'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.';
 
   @override
   String get onlineOpenTracks => 'Voir mes titres';
@@ -5100,27 +5080,13 @@ class L10nFr extends L10n {
   }
 
   @override
-  String get onlineObtainBody =>
-      'Le titre rejoint votre bibliothèque et s\'écoute hors connexion.';
-
-  @override
   String get onlineFormatOriginal => 'Original';
-
-  @override
-  String get onlineFormatOriginalBody =>
-      'Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.';
 
   @override
   String get onlineFormatMp3High => 'MP3 320 kbps';
 
   @override
-  String get onlineFormatMp3HighBody => 'Se lit partout.';
-
-  @override
   String get onlineFormatMp3Low => 'MP3 128 kbps';
-
-  @override
-  String get onlineFormatMp3LowBody => 'Léger, pour garder de la place.';
 
   @override
   String get onlineFormatAlways => 'Toujours utiliser ce format';
@@ -5157,13 +5123,5 @@ class L10nFr extends L10n {
   String get onlineAutoObtain => 'Obtenir les titres écoutés en entier';
 
   @override
-  String get onlineAutoObtainBody =>
-      'Un titre en ligne écouté jusqu\'au bout (ou presque) rejoint votre bibliothèque, pour l\'écouter hors connexion.';
-
-  @override
   String get onlineObtainFormat => 'Format d\'Obtenir';
-
-  @override
-  String get onlineObtainFormatBody =>
-      'Pour les titres en ligne et l\'obtention automatique.';
 }

@@ -321,12 +321,14 @@ class LibraryMessage extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: MmType.title.copyWith(color: c.fg),
               ),
-              const SizedBox(height: 6),
-              Text(
-                body,
-                textAlign: TextAlign.center,
-                style: MmType.bodySm.copyWith(color: c.muted),
-              ),
+              if (body.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                Text(
+                  body,
+                  textAlign: TextAlign.center,
+                  style: MmType.bodySm.copyWith(color: c.muted),
+                ),
+              ],
             ],
           ),
         ),

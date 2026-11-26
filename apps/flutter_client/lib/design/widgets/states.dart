@@ -127,12 +127,14 @@ class EmptyState extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: MmType.display.copyWith(fontSize: 24, color: c.fg),
               ),
-              const SizedBox(height: 10),
-              Text(
-                body,
-                textAlign: TextAlign.center,
-                style: MmType.body.copyWith(height: 1.6, color: c.muted),
-              ),
+              if (body.isNotEmpty) ...[
+                const SizedBox(height: 10),
+                Text(
+                  body,
+                  textAlign: TextAlign.center,
+                  style: MmType.body.copyWith(height: 1.6, color: c.muted),
+                ),
+              ],
               if (actions.isNotEmpty) ...[
                 const SizedBox(height: 20),
                 Wrap(

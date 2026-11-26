@@ -4984,18 +4984,10 @@ class L10nEn extends L10n {
   String get navOnline => 'Online';
 
   @override
-  String get onlineSubtitle =>
-      'Listen to music from YouTube in your player. Get a track to listen to it offline.';
-
-  @override
   String get onlinePlaceholder => 'Search for a track or an artist online';
 
   @override
   String get onlineHintTitle => 'Search for a track or an artist';
-
-  @override
-  String get onlineHintBody =>
-      'Results come from YouTube and play in your player, without downloading.';
 
   @override
   String get onlineRecent => 'Recent searches';
@@ -5014,28 +5006,16 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get onlineNoResultBody =>
-      'Check the spelling or try the artist\'s name.';
-
-  @override
   String get onlineMore => 'More results';
 
   @override
   String get onlineToolsTitle => 'The extractor is not installed';
 
   @override
-  String get onlineToolsBody =>
-      'Online listening uses the same extractor as the Get space. Install it to continue.';
-
-  @override
   String get onlineToolsInstall => 'Install the tools';
 
   @override
   String get onlineOfflineTitle => 'No connection';
-
-  @override
-  String get onlineOfflineBody =>
-      'Online search needs the Internet. The tracks you got stay available offline.';
 
   @override
   String get onlineOpenTracks => 'See my tracks';
@@ -5059,27 +5039,13 @@ class L10nEn extends L10n {
   }
 
   @override
-  String get onlineObtainBody =>
-      'The track joins your library and plays offline.';
-
-  @override
   String get onlineFormatOriginal => 'Original';
-
-  @override
-  String get onlineFormatOriginalBody =>
-      'YouTube\'s sound as it is, no conversion: the best quality, the fastest.';
 
   @override
   String get onlineFormatMp3High => 'MP3 320 kbps';
 
   @override
-  String get onlineFormatMp3HighBody => 'Plays everywhere.';
-
-  @override
   String get onlineFormatMp3Low => 'MP3 128 kbps';
-
-  @override
-  String get onlineFormatMp3LowBody => 'Light, to save space.';
 
   @override
   String get onlineFormatAlways => 'Always use this format';
@@ -5116,13 +5082,5 @@ class L10nEn extends L10n {
   String get onlineAutoObtain => 'Get the tracks played to the end';
 
   @override
-  String get onlineAutoObtainBody =>
-      'An online track played to the end (or nearly) joins your library, to listen to it offline.';
-
-  @override
   String get onlineObtainFormat => 'Get format';
-
-  @override
-  String get onlineObtainFormatBody =>
-      'For online tracks and automatic getting.';
 }

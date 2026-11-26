@@ -141,11 +141,11 @@ DownloadTask? onlineTaskOf(DownloadsState s, String? watchUrl) =>
 typedef ObtainTarget = ({String videoId, String title, String? thumbnail});
 
 /// Name of an offer, by its key.
-(String, String) offerText(L10n t, OnlineOffer o) => switch (o.key) {
-  'original' => (t.onlineFormatOriginal, t.onlineFormatOriginalBody),
-  'mp3-320' => (t.onlineFormatMp3High, t.onlineFormatMp3HighBody),
-  'mp3-128' => (t.onlineFormatMp3Low, t.onlineFormatMp3LowBody),
-  _ => (o.label, ''),
+String offerText(L10n t, OnlineOffer o) => switch (o.key) {
+  'original' => t.onlineFormatOriginal,
+  'mp3-320' => t.onlineFormatMp3High,
+  'mp3-128' => t.onlineFormatMp3Low,
+  _ => o.label,
 };
 
 /// Queues the download of [target] in [offer]; false when refused.
@@ -293,11 +293,6 @@ class _ObtainDialogState extends State<ObtainDialog> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(
-              t.onlineObtainBody,
-              style: MmType.bodySm.copyWith(color: c.muted),
-            ),
-            const SizedBox(height: 12),
             for (final o in widget.offers)
               _OfferRow(
                 offer: o,
@@ -358,7 +353,7 @@ class _OfferRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = MmColors.of(context);
-    final (title, body) = offerText(L10n.of(context), offer);
+    final title = offerText(L10n.of(context), offer);
     return Pressable(
       onTap: onTap,
       selected: selected,
@@ -377,13 +372,9 @@ class _OfferRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: MmType.labelStrong.copyWith(color: c.fg)),
-                  if (body.isNotEmpty)
-                    Text(body, style: MmType.caption.copyWith(color: c.muted)),
-                ],
+              child: Text(
+                title,
+                style: MmType.labelStrong.copyWith(color: c.fg),
               ),
             ),
           ],
@@ -505,7 +496,6 @@ class OnlineObtainChip extends ConsumerWidget {
     return InfoChip(
       icon: PhosphorRegular.downloadSimple,
       label: t.tabGet,
-      tooltip: t.onlineObtainBody,
       onTap: () => obtainOnline(context, ref, (
         videoId: id,
         title: entry.title,
@@ -531,7 +521,6 @@ class OnlineSettingsGroup extends ConsumerWidget {
       rows: [
         SettingsRow(
           title: t.onlineAutoObtain,
-          body: t.onlineAutoObtainBody,
           control: MmSwitch(
             value: s.autoObtain,
             label: t.onlineAutoObtain,
@@ -540,12 +529,11 @@ class OnlineSettingsGroup extends ConsumerWidget {
         ),
         SettingsRow(
           title: t.onlineObtainFormat,
-          body: t.onlineObtainFormatBody,
           control: SettingsMenu<String>(
             label: t.onlineObtainFormat,
             values: [
               (askFormat, t.onlineFormatAsk),
-              for (final o in offers) (o.key, offerText(t, o).$1),
+              for (final o in offers) (o.key, offerText(t, o)),
             ],
             selected: offers.any((o) => o.key == s.format)
                 ? s.format

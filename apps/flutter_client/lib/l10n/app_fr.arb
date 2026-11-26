@@ -2620,10 +2620,8 @@
   "updAndroidNote": "Android ouvre l'installation : appuyez sur « Mettre à jour ». Votre bibliothèque, vos playlists, vos positions de lecture et vos réglages sont conservés. Rien n'est installé sans votre accord.",
   "vinylChip": "Vinyle",
   "navOnline": "En ligne",
-  "onlineSubtitle": "Écoutez la musique de YouTube dans votre lecteur. Obtenez un titre pour l'écouter hors connexion.",
   "onlinePlaceholder": "Rechercher un titre ou un artiste en ligne",
   "onlineHintTitle": "Cherchez un titre ou un artiste",
-  "onlineHintBody": "Les résultats viennent de YouTube et se lisent dans votre lecteur, sans téléchargement.",
   "onlineRecent": "Recherches récentes",
   "onlineClearRecent": "Effacer",
   "onlineRemoveRecent": "Retirer « {query} »",
@@ -2642,13 +2640,10 @@
       }
     }
   },
-  "onlineNoResultBody": "Vérifiez l'orthographe ou essayez avec le nom de l'artiste.",
   "onlineMore": "Plus de résultats",
   "onlineToolsTitle": "L'extracteur n'est pas installé",
-  "onlineToolsBody": "L'écoute en ligne utilise le même extracteur que l'espace Obtenir. Installez-le pour continuer.",
   "onlineToolsInstall": "Installer les outils",
   "onlineOfflineTitle": "Pas de connexion",
-  "onlineOfflineBody": "La recherche en ligne a besoin d'Internet. Les titres que vous avez obtenus restent disponibles hors connexion.",
   "onlineOpenTracks": "Voir mes titres",
   "onlineBlockedTitle": "YouTube limite les requêtes",
   "onlineBlockedBody": "Réessayez dans quelques minutes.",
@@ -2662,13 +2657,9 @@
       }
     }
   },
-  "onlineObtainBody": "Le titre rejoint votre bibliothèque et s'écoute hors connexion.",
   "onlineFormatOriginal": "Original",
-  "onlineFormatOriginalBody": "Le son de YouTube tel quel, sans conversion : la meilleure qualité, le plus rapide.",
   "onlineFormatMp3High": "MP3 320 kbps",
-  "onlineFormatMp3HighBody": "Se lit partout.",
   "onlineFormatMp3Low": "MP3 128 kbps",
-  "onlineFormatMp3LowBody": "Léger, pour garder de la place.",
   "onlineFormatAlways": "Toujours utiliser ce format",
   "onlineFormatAsk": "Demander",
   "onlineObtainStarted": "Obtention lancée : {title}",
@@ -2693,7 +2684,5 @@
   "onlineObtaining": "Obtention…",
   "onlineSettingsSection": "Écoute en ligne",
   "onlineAutoObtain": "Obtenir les titres écoutés en entier",
-  "onlineAutoObtainBody": "Un titre en ligne écouté jusqu'au bout (ou presque) rejoint votre bibliothèque, pour l'écouter hors connexion.",
-  "onlineObtainFormat": "Format d'Obtenir",
-  "onlineObtainFormatBody": "Pour les titres en ligne et l'obtention automatique."
+  "onlineObtainFormat": "Format d'Obtenir"
 }
