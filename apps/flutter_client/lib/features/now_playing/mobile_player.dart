@@ -25,6 +25,7 @@ import '../device_media/device_media.dart';
 import '../library/library_data.dart';
 import '../library/track_info.dart';
 import '../online/online_obtain.dart' show obtainOnline;
+import '../shell/mobile_shell.dart' show miniCoverKey;
 import '../playback/audio_only.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
@@ -64,6 +65,16 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   late final AnimationController _drag = AnimationController.unbounded(
     vsync: this,
   );
+
+  /// Dragged down, the cover leaves the page and flies to the mini
+  /// player's cover (bottom left), following the finger both ways; these
+  /// are its two ends, in the player's coordinates, taken as the drag
+  /// starts. Null: the page moves as one (lyrics, record, no mini player).
+  Rect? _coverAtRest;
+  Rect? _coverInMini;
+  final _flying = ValueNotifier(false);
+  final _stackKey = GlobalKey();
+  final _bigCoverKey = GlobalKey();
   bool _lyrics = false;
   double _swipe = 0;
 
@@ -73,7 +84,26 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   @override
   void dispose() {
     _drag.dispose();
+    _flying.dispose();
     super.dispose();
+  }
+
+  /// Where the cover is now and where the mini player's is, when the cover
+  /// shows (not the lyrics or the record) and the page is at rest.
+  void _onDragStart() {
+    if (_drag.value > 1) return;
+    _coverAtRest = null;
+    _coverInMini = null;
+    if (_lyrics || ref.read(vinylModeProvider)) return;
+    if (MmMotion.of(context).reduced) return;
+    final stack = _stackKey.currentContext?.findRenderObject() as RenderBox?;
+    final big = _bigCoverKey.currentContext?.findRenderObject() as RenderBox?;
+    final mini = miniCoverKey.currentContext?.findRenderObject() as RenderBox?;
+    if (stack == null || big == null || mini == null) return;
+    if (!stack.hasSize || !big.hasSize || !mini.hasSize) return;
+    _coverAtRest = big.localToGlobal(Offset.zero, ancestor: stack) & big.size;
+    _coverInMini =
+        stack.globalToLocal(mini.localToGlobal(Offset.zero)) & mini.size;
   }
 
   void _close() {
@@ -84,7 +114,20 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
     final v = d.primaryVelocity ?? 0;
     // Handoff §03: past 30 % of the height or faster than 800 dp/s.
     if (_drag.value > height * 0.3 || v > 800) {
-      _close();
+      if (_coverAtRest == null) {
+        _close();
+        return;
+      }
+      // The cover ends its flight in the mini player, then the page goes.
+      _drag
+          .animateTo(
+            height,
+            duration: const Duration(milliseconds: 240),
+            curve: MmMotion.exit,
+          )
+          .whenCompleteOrCancel(() {
+            if (mounted) _close();
+          });
       return;
     }
     final spring = SpringDescription.withDampingRatio(
@@ -374,7 +417,15 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
       builder: (context, child) {
         final dy = _drag.value.clamp(0.0, size.height);
         final progress = (dy / size.height).clamp(0.0, 1.0);
-        return Transform.translate(
+        final from = _coverAtRest, to = _coverInMini;
+        final flying = from != null && to != null && progress > 0;
+        // Set after this frame: the page's cover hides while its copy flies.
+        if (_flying.value != flying) {
+          WidgetsBinding.instance.addPostFrameCallback(
+            (_) => _flying.value = flying,
+          );
+        }
+        final page = Transform.translate(
           offset: Offset(0, dy),
           child: Transform.scale(
             scale: 1 - progress * 0.06,
@@ -385,8 +436,33 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
             ),
           ),
         );
+        if (!flying) return Stack(key: _stackKey, children: [page]);
+        // Toward the bottom left, a little ahead of the page.
+        final t = Curves.easeOutCubic.transform(progress);
+        final r = Rect.lerp(from, to, t)!;
+        return Stack(
+          key: _stackKey,
+          children: [
+            page,
+            // At the end the mini player's own cover is under it.
+            if (progress < 1)
+              Positioned.fromRect(
+                rect: r,
+                child: IgnorePointer(
+                  child: CoverArt(
+                    size: r.width,
+                    radius: 32 + (14 - 32) * t,
+                    seed: entry?.seed ?? 0,
+                    imagePath: entry?.artwork,
+                    shadow: false,
+                  ),
+                ),
+              ),
+          ],
+        );
       },
       child: GestureDetector(
+        onVerticalDragStart: (_) => _onDragStart(),
         onVerticalDragUpdate: (d) =>
             _drag.value = (_drag.value + d.delta.dy).clamp(0.0, size.height),
         onVerticalDragEnd: (d) => _onDragEnd(d, size.height),
@@ -542,13 +618,26 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                                                     tones: tones,
                                                   ),
                                             )
-                                          : FlyingCover(
+                                          : ValueListenableBuilder(
                                               key: const ValueKey('cover'),
-                                              size: cover,
-                                              seed: entry?.seed ?? 0,
-                                              imagePath: entry?.artwork,
-                                              radius: 32,
-                                              shadow: false,
+                                              valueListenable: _flying,
+                                              // Hidden while its copy flies
+                                              // to the mini player.
+                                              builder: (context, flying, c) =>
+                                                  Opacity(
+                                                    opacity: flying ? 0 : 1,
+                                                    child: c,
+                                                  ),
+                                              child: KeyedSubtree(
+                                                key: _bigCoverKey,
+                                                child: FlyingCover(
+                                                  size: cover,
+                                                  seed: entry?.seed ?? 0,
+                                                  imagePath: entry?.artwork,
+                                                  radius: 32,
+                                                  shadow: false,
+                                                ),
+                                              ),
                                             ),
                                     ),
                                   ),

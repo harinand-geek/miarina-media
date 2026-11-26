@@ -257,8 +257,12 @@ class _MiniPlayer extends ConsumerStatefulWidget {
   ConsumerState<_MiniPlayer> createState() => _MiniPlayerState();
 }
 
+/// The phone mini player's cover: the player's cover flies to it when the
+/// player is dragged down (one mini player on a phone).
+final miniCoverKey = GlobalKey(debugLabel: 'mini cover');
+
 class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
-  final _cover = GlobalKey();
+  final _cover = miniCoverKey;
   double _swipe = 0;
 
   void _open() {

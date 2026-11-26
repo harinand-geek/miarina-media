@@ -25,6 +25,11 @@ import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/features/search/search_data.dart';
+import 'package:miarina_media/design/widgets/cover_art.dart';
+import 'package:miarina_media/features/shell/mobile_shell.dart'
+    show miniCoverKey;
+import 'package:miarina_media/features/now_playing/mobile_player.dart'
+    show MobilePlayer;
 import 'package:miarina_media/src/rust/api/library.dart';
 import 'package:miarina_media/src/rust/api/search.dart';
 
@@ -813,6 +818,58 @@ void main() {
       );
       await settleOnline(tester);
       expect(get.started.single.formatId, 'fmt-original');
+    });
+
+    testWidgets('phone: dragged down, the cover flies to the mini player', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        start: '${Routes.online}?q=zanak',
+        desktop: false,
+        size: const Size(400, 860),
+      );
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      await tester.tap(find.byKey(miniCoverKey));
+      await settleOnline(tester);
+      final player = find.byType(MobilePlayer);
+      expect(player, findsOneWidget);
+      final rest = tester.getRect(
+        find.descendant(of: player, matching: find.byType(CoverArt)).first,
+      );
+      final mini = tester.getRect(find.byKey(miniCoverKey));
+
+      final drag = await tester.startGesture(const Offset(200, 120));
+      await drag.moveBy(const Offset(0, 20));
+      await drag.moveBy(const Offset(0, 200));
+      await tester.pump();
+      final flying = find.descendant(
+        of: find.descendant(of: player, matching: find.byType(Positioned)),
+        matching: find.byType(CoverArt),
+      );
+      expect(flying, findsOneWidget);
+      final r = tester.getRect(flying);
+      // Down and to the left, smaller: toward the mini player's cover.
+      expect(r.top, greaterThan(rest.top));
+      expect(r.center.dx, lessThan(rest.center.dx - 40));
+      expect(r.width, lessThan(rest.width));
+      expect(
+        (r.center - mini.center).distance,
+        lessThan((rest.center - mini.center).distance),
+      );
+
+      // Back up: back toward its place.
+      await drag.moveBy(const Offset(0, -150));
+      await tester.pump();
+      final back = tester.getRect(flying);
+      expect(back.width, greaterThan(r.width));
+
+      // Released low enough: the player closes.
+      await drag.moveBy(const Offset(0, 400));
+      await drag.up();
+      await settleOnline(tester);
+      expect(player, findsNothing);
     });
 
     testWidgets('off by default: nothing is obtained by itself', (
