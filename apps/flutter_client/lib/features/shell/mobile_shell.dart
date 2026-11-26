@@ -261,6 +261,23 @@ class _MiniPlayer extends ConsumerStatefulWidget {
 /// player is dragged down (one mini player on a phone).
 final miniCoverKey = GlobalKey(debugLabel: 'mini cover');
 
+/// Its title and artist, where the player's fly to.
+final miniTitleKey = GlobalKey(debugLabel: 'mini title');
+
+/// True while the player's cover and title fly to the mini player: its own
+/// hide until the copies land on them.
+final miniHidden = ValueNotifier(false);
+
+TextStyle miniTitleStyle(MmColors c) => MmType.title.copyWith(
+  fontSize: 17,
+  fontWeight: FontWeight.w600,
+  fontVariations: const [FontVariation.weight(600)],
+  color: c.fg,
+);
+
+TextStyle miniArtistStyle(MmColors c) =>
+    MmType.body.copyWith(fontSize: 14, color: c.muted);
+
 class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
   final _cover = miniCoverKey;
   double _swipe = 0;
@@ -332,54 +349,55 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
                 padding: const EdgeInsets.fromLTRB(14, 0, 8, 6),
                 child: Row(
                   children: [
-                    AnimatedSwitcher(
-                      duration: motion.album,
-                      child: CoverArt(
-                        key: _cover,
-                        size: 52,
-                        radius: 14,
-                        seed: entry?.seed ?? 0,
-                        imagePath: entry?.artwork,
-                        shadow: false,
+                    ValueListenableBuilder(
+                      valueListenable: miniHidden,
+                      builder: (context, hidden, child) =>
+                          Opacity(opacity: hidden ? 0 : 1, child: child),
+                      child: AnimatedSwitcher(
+                        duration: motion.album,
+                        child: CoverArt(
+                          key: _cover,
+                          size: 52,
+                          radius: 14,
+                          seed: entry?.seed ?? 0,
+                          imagePath: entry?.artwork,
+                          shadow: false,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
-                      child: AnimatedSwitcher(
-                        duration: motion.screen,
-                        layoutBuilder: (current, previous) => Stack(
-                          alignment: Alignment.centerLeft,
-                          children: [...previous, ?current],
-                        ),
-                        child: Column(
-                          key: ValueKey(entry?.title),
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              entry?.title ?? '',
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: MmType.title.copyWith(
-                                fontSize: 17,
-                                fontWeight: FontWeight.w600,
-                                fontVariations: const [
-                                  FontVariation.weight(600),
-                                ],
-                                color: c.fg,
-                              ),
-                            ),
-                            if (entry?.subtitle != null)
+                      child: ValueListenableBuilder(
+                        valueListenable: miniHidden,
+                        builder: (context, hidden, child) =>
+                            Opacity(opacity: hidden ? 0 : 1, child: child),
+                        child: AnimatedSwitcher(
+                          key: miniTitleKey,
+                          duration: motion.screen,
+                          layoutBuilder: (current, previous) => Stack(
+                            alignment: Alignment.centerLeft,
+                            children: [...previous, ?current],
+                          ),
+                          child: Column(
+                            key: ValueKey(entry?.title),
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
                               Text(
-                                entry!.subtitle!,
+                                entry?.title ?? '',
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
-                                style: MmType.body.copyWith(
-                                  fontSize: 14,
-                                  color: c.muted,
-                                ),
+                                style: miniTitleStyle(c),
                               ),
-                          ],
+                              if (entry?.subtitle != null)
+                                Text(
+                                  entry!.subtitle!,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: miniArtistStyle(c),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

@@ -25,7 +25,13 @@ import '../device_media/device_media.dart';
 import '../library/library_data.dart';
 import '../library/track_info.dart';
 import '../online/online_obtain.dart' show obtainOnline;
-import '../shell/mobile_shell.dart' show miniCoverKey;
+import '../shell/mobile_shell.dart'
+    show
+        miniArtistStyle,
+        miniCoverKey,
+        miniHidden,
+        miniTitleKey,
+        miniTitleStyle;
 import '../playback/audio_only.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
@@ -72,9 +78,14 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   /// starts. Null: the page moves as one (lyrics, record, no mini player).
   Rect? _coverAtRest;
   Rect? _coverInMini;
+
+  /// The title and artist fly the same way, to the mini player's.
+  Rect? _titleAtRest;
+  Rect? _titleInMini;
   final _flying = ValueNotifier(false);
   final _stackKey = GlobalKey();
   final _bigCoverKey = GlobalKey();
+  final _bigTitleKey = GlobalKey();
   bool _lyrics = false;
   double _swipe = 0;
 
@@ -85,6 +96,8 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   void dispose() {
     _drag.dispose();
     _flying.dispose();
+    // The mini player shows its own cover and title again.
+    if (miniHidden.value) miniHidden.value = false;
     super.dispose();
   }
 
@@ -94,16 +107,28 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
     if (_drag.value > 1) return;
     _coverAtRest = null;
     _coverInMini = null;
+    _titleAtRest = null;
+    _titleInMini = null;
     if (_lyrics || ref.read(vinylModeProvider)) return;
     if (MmMotion.of(context).reduced) return;
     final stack = _stackKey.currentContext?.findRenderObject() as RenderBox?;
-    final big = _bigCoverKey.currentContext?.findRenderObject() as RenderBox?;
-    final mini = miniCoverKey.currentContext?.findRenderObject() as RenderBox?;
-    if (stack == null || big == null || mini == null) return;
-    if (!stack.hasSize || !big.hasSize || !mini.hasSize) return;
-    _coverAtRest = big.localToGlobal(Offset.zero, ancestor: stack) & big.size;
-    _coverInMini =
-        stack.globalToLocal(mini.localToGlobal(Offset.zero)) & mini.size;
+    if (stack == null || !stack.hasSize) return;
+    Rect? inStack(GlobalKey key, {required bool page}) {
+      final box = key.currentContext?.findRenderObject() as RenderBox?;
+      if (box == null || !box.hasSize) return null;
+      return page
+          ? box.localToGlobal(Offset.zero, ancestor: stack) & box.size
+          : stack.globalToLocal(box.localToGlobal(Offset.zero)) & box.size;
+    }
+
+    _coverAtRest = inStack(_bigCoverKey, page: true);
+    _coverInMini = inStack(miniCoverKey, page: false);
+    if (_coverAtRest == null || _coverInMini == null) {
+      _coverAtRest = _coverInMini = null;
+      return;
+    }
+    _titleAtRest = inStack(_bigTitleKey, page: true);
+    _titleInMini = inStack(miniTitleKey, page: false);
   }
 
   void _close() {
@@ -419,20 +444,31 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
         final progress = (dy / size.height).clamp(0.0, 1.0);
         final from = _coverAtRest, to = _coverInMini;
         final flying = from != null && to != null && progress > 0;
-        // Set after this frame: the page's cover hides while its copy flies.
-        if (_flying.value != flying) {
-          WidgetsBinding.instance.addPostFrameCallback(
-            (_) => _flying.value = flying,
-          );
+        // Set after this frame: the page's cover and title hide while their
+        // copies fly, and so do the mini player's until they land on them.
+        final landed = progress >= 1;
+        if (_flying.value != flying ||
+            miniHidden.value != (flying && !landed)) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _flying.value = flying;
+            miniHidden.value = flying && !landed;
+          });
         }
-        final page = Transform.translate(
-          offset: Offset(0, dy),
-          child: Transform.scale(
-            scale: 1 - progress * 0.06,
-            alignment: Alignment.topCenter,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(progress * 120),
-              child: child,
+        // The same widgets in both cases (only their values change), so the
+        // page and the drag survive the switch. Flying, the page fades as
+        // it sinks and shrinks a little: gone by the time the cover and
+        // title reach the mini player.
+        final page = Opacity(
+          opacity: flying ? (1 - progress / 0.6).clamp(0.0, 1.0) : 1,
+          child: Transform.translate(
+            offset: Offset(0, flying ? dy * 0.35 : dy),
+            child: Transform.scale(
+              scale: 1 - progress * (flying ? 0.12 : 0.06),
+              alignment: flying ? Alignment.center : Alignment.topCenter,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(progress * 120),
+                child: child,
+              ),
             ),
           ),
         );
@@ -440,12 +476,13 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
         // Toward the bottom left, a little ahead of the page.
         final t = Curves.easeOutCubic.transform(progress);
         final r = Rect.lerp(from, to, t)!;
+        final c = MmColors.of(context);
+        final titleFrom = _titleAtRest, titleTo = _titleInMini;
         return Stack(
           key: _stackKey,
           children: [
             page,
-            // At the end the mini player's own cover is under it.
-            if (progress < 1)
+            if (!landed)
               Positioned.fromRect(
                 rect: r,
                 child: IgnorePointer(
@@ -455,6 +492,40 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                     seed: entry?.seed ?? 0,
                     imagePath: entry?.artwork,
                     shadow: false,
+                  ),
+                ),
+              ),
+            if (!landed && titleFrom != null && titleTo != null)
+              Positioned(
+                left: titleFrom.left + (titleTo.left - titleFrom.left) * t,
+                top: titleFrom.top + (titleTo.top - titleFrom.top) * t,
+                width: titleFrom.width + (titleTo.width - titleFrom.width) * t,
+                child: IgnorePointer(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        entry?.title ?? '',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle.lerp(
+                          _bigTitleStyle(tones.onGround),
+                          miniTitleStyle(c),
+                          t,
+                        ),
+                      ),
+                      if (entry?.subtitle != null)
+                        Text(
+                          entry!.subtitle!,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle.lerp(
+                            _bigArtistStyle(tones.onGroundSoft),
+                            miniArtistStyle(c),
+                            t,
+                          ),
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -694,36 +765,44 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
         ),
       );
 
+  static TextStyle _bigTitleStyle(Color color) => MmType.titleLg.copyWith(
+    fontSize: 28,
+    height: 1.2,
+    fontWeight: FontWeight.w600,
+    fontVariations: const [FontVariation.weight(600)],
+    color: color,
+  );
+
+  static TextStyle _bigArtistStyle(Color color) =>
+      MmType.body.copyWith(fontSize: 18, height: 1.35, color: color);
+
   Widget _titleRow(BuildContext context, CoverTones tones, QueueEntry? entry) {
     final t = L10n.of(context);
     return Row(
       children: [
         Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              MarqueeText(
-                entry?.title ?? t.nothingPlaying,
-                style: MmType.titleLg.copyWith(
-                  fontSize: 28,
-                  height: 1.2,
-                  fontWeight: FontWeight.w600,
-                  fontVariations: const [FontVariation.weight(600)],
-                  color: tones.onGround,
+          // Hidden while its copy flies to the mini player.
+          child: ValueListenableBuilder(
+            valueListenable: _flying,
+            builder: (context, flying, c) =>
+                Opacity(opacity: flying ? 0 : 1, child: c),
+            child: Column(
+              key: _bigTitleKey,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                MarqueeText(
+                  entry?.title ?? t.nothingPlaying,
+                  style: _bigTitleStyle(tones.onGround),
                 ),
-              ),
-              if (entry?.subtitle != null)
-                Text(
-                  entry!.subtitle!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.body.copyWith(
-                    fontSize: 18,
-                    height: 1.35,
-                    color: tones.onGroundSoft,
+                if (entry?.subtitle != null)
+                  Text(
+                    entry!.subtitle!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: _bigArtistStyle(tones.onGroundSoft),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
         const SizedBox(width: 12),

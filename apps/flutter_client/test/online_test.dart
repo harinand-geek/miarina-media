@@ -27,7 +27,7 @@ import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/features/search/search_data.dart';
 import 'package:miarina_media/design/widgets/cover_art.dart';
 import 'package:miarina_media/features/shell/mobile_shell.dart'
-    show miniCoverKey;
+    show miniCoverKey, miniHidden, miniTitleKey;
 import 'package:miarina_media/features/now_playing/mobile_player.dart'
     show MobilePlayer;
 import 'package:miarina_media/src/rust/api/library.dart';
@@ -859,6 +859,18 @@ void main() {
         lessThan((rest.center - mini.center).distance),
       );
 
+      // The title flies too, toward the mini player's; the mini player
+      // hides its own until they land.
+      await tester.pump();
+      final flyingTitle = find.descendant(
+        of: find.descendant(of: player, matching: find.byType(Positioned)),
+        matching: find.text(title),
+      );
+      expect(flyingTitle, findsOneWidget);
+      final miniTitle = tester.getRect(find.byKey(miniTitleKey));
+      expect(tester.getRect(flyingTitle).top, lessThan(miniTitle.top));
+      expect(miniHidden.value, isTrue);
+
       // Back up: back toward its place.
       await drag.moveBy(const Offset(0, -150));
       await tester.pump();
@@ -870,6 +882,7 @@ void main() {
       await drag.up();
       await settleOnline(tester);
       expect(player, findsNothing);
+      expect(miniHidden.value, isFalse, reason: 'shown again');
     });
 
     testWidgets('off by default: nothing is obtained by itself', (
