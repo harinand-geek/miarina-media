@@ -1106,7 +1106,7 @@
   bottom: -7%;
   width: 22%;
   /* Real Android capture: the app area without the system bars. */
-  aspect-ratio: 540 / 1104;
+  aspect-ratio: 540 / 1169;
   border-radius: clamp(12px, 2vw, 26px);
   overflow: hidden;
   box-shadow: var(--shadow-lg);
