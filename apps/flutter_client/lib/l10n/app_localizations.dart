@@ -531,12 +531,6 @@ abstract class L10n {
   /// **'Pas de paroles pour ce titre'**
   String get lyricsNoneTitle;
 
-  /// No description provided for @lyricsNoneBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Placez un fichier .lrc du même nom à côté du fichier audio : il sera lu automatiquement.'**
-  String get lyricsNoneBody;
-
   /// No description provided for @equalizer.
   ///
   /// In fr, this message translates to:
@@ -8486,6 +8480,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'D\'après « {query} »'**
   String onlineFromSearch(String query);
+
+  /// No description provided for @onlineLyricsSetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher les paroles en ligne'**
+  String get onlineLyricsSetting;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

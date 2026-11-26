@@ -239,10 +239,6 @@ class L10nEn extends L10n {
   String get lyricsNoneTitle => 'No lyrics for this track';
 
   @override
-  String get lyricsNoneBody =>
-      'Put an .lrc file with the same name next to the audio file: it is read automatically.';
-
-  @override
   String get equalizer => 'Equalizer';
 
   @override
@@ -5099,4 +5095,7 @@ class L10nEn extends L10n {
   String onlineFromSearch(String query) {
     return 'Based on “$query”';
   }
+
+  @override
+  String get onlineLyricsSetting => 'Look up lyrics online';
 }

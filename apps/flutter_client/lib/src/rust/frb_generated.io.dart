@@ -15,6 +15,7 @@ import 'api/get.dart';
 import 'api/health.dart';
 import 'api/indexer.dart';
 import 'api/library.dart';
+import 'api/lyrics.dart';
 import 'api/online.dart';
 import 'api/playlists.dart';
 import 'api/recorder.dart';
@@ -112,6 +113,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusKind dco_decode_box_autoadd_focus_kind(dynamic raw);
 
   @protected
+  FoundLyrics dco_decode_box_autoadd_found_lyrics(dynamic raw);
+
+  @protected
   HistoryInfo dco_decode_box_autoadd_history_info(dynamic raw);
 
   @protected
@@ -122,6 +126,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LibraryItem dco_decode_box_autoadd_library_item(dynamic raw);
+
+  @protected
+  LyricsQuery dco_decode_box_autoadd_lyrics_query(dynamic raw);
 
   @protected
   MediaInfo dco_decode_box_autoadd_media_info(dynamic raw);
@@ -233,6 +240,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FormatOffer dco_decode_format_offer(dynamic raw);
+
+  @protected
+  FoundLyrics dco_decode_found_lyrics(dynamic raw);
 
   @protected
   GetEvent dco_decode_get_event(dynamic raw);
@@ -388,6 +398,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   List<WebPlaylistPick> dco_decode_list_web_playlist_pick(dynamic raw);
 
   @protected
+  LyricsQuery dco_decode_lyrics_query(dynamic raw);
+
+  @protected
   MediaInfo dco_decode_media_info(dynamic raw);
 
   @protected
@@ -439,6 +452,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusKind? dco_decode_opt_box_autoadd_focus_kind(dynamic raw);
+
+  @protected
+  FoundLyrics? dco_decode_opt_box_autoadd_found_lyrics(dynamic raw);
 
   @protected
   HistoryInfo? dco_decode_opt_box_autoadd_history_info(dynamic raw);
@@ -678,6 +694,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   FocusKind sse_decode_box_autoadd_focus_kind(SseDeserializer deserializer);
 
   @protected
+  FoundLyrics sse_decode_box_autoadd_found_lyrics(SseDeserializer deserializer);
+
+  @protected
   HistoryInfo sse_decode_box_autoadd_history_info(SseDeserializer deserializer);
 
   @protected
@@ -688,6 +707,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   LibraryItem sse_decode_box_autoadd_library_item(SseDeserializer deserializer);
+
+  @protected
+  LyricsQuery sse_decode_box_autoadd_lyrics_query(SseDeserializer deserializer);
 
   @protected
   MediaInfo sse_decode_box_autoadd_media_info(SseDeserializer deserializer);
@@ -821,6 +843,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FormatOffer sse_decode_format_offer(SseDeserializer deserializer);
+
+  @protected
+  FoundLyrics sse_decode_found_lyrics(SseDeserializer deserializer);
 
   @protected
   GetEvent sse_decode_get_event(SseDeserializer deserializer);
@@ -1008,6 +1033,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  LyricsQuery sse_decode_lyrics_query(SseDeserializer deserializer);
+
+  @protected
   MediaInfo sse_decode_media_info(SseDeserializer deserializer);
 
   @protected
@@ -1065,6 +1093,11 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   FocusKind? sse_decode_opt_box_autoadd_focus_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FoundLyrics? sse_decode_opt_box_autoadd_found_lyrics(
     SseDeserializer deserializer,
   );
 
@@ -1355,6 +1388,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_box_autoadd_found_lyrics(
+    FoundLyrics self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_history_info(
     HistoryInfo self,
     SseSerializer serializer,
@@ -1372,6 +1411,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_box_autoadd_library_item(
     LibraryItem self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_lyrics_query(
+    LyricsQuery self,
     SseSerializer serializer,
   );
 
@@ -1545,6 +1590,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
 
   @protected
   void sse_encode_format_offer(FormatOffer self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_found_lyrics(FoundLyrics self, SseSerializer serializer);
 
   @protected
   void sse_encode_get_event(GetEvent self, SseSerializer serializer);
@@ -1805,6 +1853,9 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_lyrics_query(LyricsQuery self, SseSerializer serializer);
+
+  @protected
   void sse_encode_media_info(MediaInfo self, SseSerializer serializer);
 
   @protected
@@ -1876,6 +1927,12 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   @protected
   void sse_encode_opt_box_autoadd_focus_kind(
     FocusKind? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_found_lyrics(
+    FoundLyrics? self,
     SseSerializer serializer,
   );
 

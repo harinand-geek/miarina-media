@@ -7,6 +7,9 @@ import '../../design/widgets/pressable.dart';
 import '../../design/widgets/track_bar.dart';
 import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
+import '../online/online_obtain.dart' show onlineSettingsProvider;
+import '../online/online_playback.dart' show onlineResolvingProvider;
+import 'online_lyrics.dart';
 import 'lyrics.dart';
 
 /// Reads the lyrics of a local file (the .lrc next to it); replaced in tests.
@@ -14,11 +17,29 @@ final lyricsLoaderProvider = Provider<Future<Lyrics?> Function(String path)>(
   (ref) => loadSidecarLyrics,
 );
 
-/// Lyrics of the current entry: the .lrc file with the same name next to it.
+/// Lyrics of the current entry: the .lrc file with the same name next to
+/// it, else those kept or found online (decision 0011, lot 7) for music.
 final currentLyricsProvider = FutureProvider<Lyrics?>((ref) async {
-  final uri = ref.watch(queueProvider.select((q) => q.current?.source.uri));
-  if (uri == null || !uri.isScheme('file')) return null;
-  return ref.read(lyricsLoaderProvider)(uri.toFilePath());
+  final entry = ref.watch(queueProvider.select((q) => q.current));
+  if (entry == null) return null;
+  final uri = entry.source.uri;
+  if (uri.isScheme('file')) {
+    final side = await ref.read(lyricsLoaderProvider)(uri.toFilePath());
+    if (side != null) return side;
+  }
+  if (entry.isVideo || entry.focusKey != null) return null;
+  // An online track's uploaded subtitles come with its stream: once found.
+  if (entry.onlineId != null && ref.watch(onlineResolvingProvider)) {
+    return null;
+  }
+  final online = ref.watch(
+    onlineSettingsProvider.select((s) => s.value?.onlineLyrics ?? true),
+  );
+  try {
+    return await loadOnlineLyrics(ref, entry, online: online);
+  } catch (_) {
+    return null;
+  }
 });
 
 /// Synchronised lyrics (W-M3, A-03): current line in full white, sung lines
@@ -193,12 +214,6 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
             t.lyricsNoneTitle,
             textAlign: TextAlign.center,
             style: MmType.title.copyWith(color: c.fg),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            t.lyricsNoneBody,
-            textAlign: TextAlign.center,
-            style: MmType.bodySm.copyWith(color: c.muted),
           ),
         ],
       ),

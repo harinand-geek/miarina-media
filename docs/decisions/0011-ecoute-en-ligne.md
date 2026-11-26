@@ -226,6 +226,15 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - Les recherches des grilles passent « en arrière-plan » dans le cœur (`online_search(…, background: true)`) : une à la fois, elles n'annulent pas la recherche tapée et ne sont pas annulées par elle.
 - Pas de compte YouTube, donc pas de recommandations personnelles.
 
+### 9. Paroles automatiques (lot 7, accord du propriétaire pour LRCLIB, 2026-11-26)
+
+- Pour un titre de musique sans `.lrc` à côté du fichier : d'abord les **sous-titres envoyés avec le clip** (yt-dlp les liste quand il prépare le flux ; WebVTT servi par youtube.com, converti en LRC synchronisé, sous-titres automatiques exclus), puis **LRCLIB** (`/api/get` avec artiste, titre et durée, sinon `/api/search`), entrée retenue si sa durée est à ±4 s.
+- Les titres YouTube sont nettoyés avant LRCLIB (« Artiste - Titre (Clip officiel 2026) » → « Artiste », « Titre » ; crochets, année, « feat. », « | … », mots de clip retirés) ; sans tiret, la chaîne sert d'artiste.
+- Ce qui sort de l'appareil : vers lrclib.net, le titre, l'artiste (ou la chaîne) et la durée ; rien d'autre. Réglage « Chercher les paroles en ligne » (Réglages › Lecture › Écoute en ligne), activé par défaut. **À ajouter à la page Confidentialité du site avant publication.**
+- Les paroles trouvées sont gardées dans les données de l'app (`lyrics/<clé>.lrc`, sous la vidéo et sous une clé du titre sans ponctuation) : elles reviennent hors connexion et quand le titre est obtenu. Rien n'est écrit à côté des fichiers de l'utilisateur (Android ne le permet pas dans ses dossiers de musique).
+- Essai réel de LRCLIB : « Shawn Mendes – Señorita » trouvée (57 lignes) ; « Keen'v – La vie du bon côté » et « Sakaté Boy – Zanak'Antesaka » absentes. La couverture malgache dépend des sous-titres envoyés sur YouTube.
+- Seules les paroles synchronisées sont affichées (le lecteur ne sait pas encore afficher un texte sans minutage).
+
 ## Risques
 
 | Risque | Effet | Parade |
@@ -255,6 +264,8 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | 5 ✅ | Android : lecture des flux `https`, en-têtes Media3, Wi-Fi seulement, Obtenir sur téléphone | Recette du propriétaire sur le Redmi ; mesures sur téléphone encore à faire |
 
 | 6 ✅ | Accueil « En ligne » en grilles de clips | Tests de widgets (37 au total) ; vu par le propriétaire sur Windows |
+
+| 7 ✅ | Paroles automatiques : sous-titres YouTube, LRCLIB, conservation locale, réglage | Tests Rust et de widgets ; essai réel de LRCLIB |
 
 ## Questions encore ouvertes
 

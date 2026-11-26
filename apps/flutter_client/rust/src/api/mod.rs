@@ -10,6 +10,7 @@ pub mod get;
 pub mod health;
 pub mod indexer;
 pub mod library;
+pub mod lyrics;
 pub mod online;
 pub mod playlists;
 pub mod recorder;

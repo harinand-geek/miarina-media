@@ -11,7 +11,9 @@ import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
+import 'package:miarina_media/features/now_playing/lyrics.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
+import 'package:miarina_media/features/now_playing/online_lyrics.dart';
 import 'package:miarina_media/features/focus/focus_player.dart';
 import 'package:miarina_media/engine/media_engine.dart';
 import 'package:miarina_media/features/get/get_data.dart';
@@ -98,6 +100,27 @@ class FakeOnlineApi implements OnlineApi {
         if (matchesWords('${t.title} ${t.channel ?? ''}', query)) t,
     ].take(limit).toList();
   }
+}
+
+class FakeLyricsApi implements OnlineLyricsApi {
+  final asked = <LyricsLookup>[];
+  ({String lrc, String source})? answer;
+
+  @override
+  Future<({String lrc, String source})?> find(LyricsLookup query) async {
+    asked.add(query);
+    return answer;
+  }
+}
+
+class MemoryLyricsCache implements LyricsCache {
+  final files = <String, String>{};
+
+  @override
+  Future<String?> read(String key) async => files[key];
+
+  @override
+  Future<void> write(String key, String lrc) async => files[key] = lrc;
 }
 
 /// Streams found instantly, or held by [gate], or refused with [failure].
@@ -204,6 +227,8 @@ void main() {
   late FakeEngine engine;
   late FakeGetApi get;
   late FakePlaybackStore playback;
+  late FakeLyricsApi lyricsApi;
+  late MemoryLyricsCache lyricsCache;
   var onWifi = true;
 
   setUp(() {
@@ -213,6 +238,8 @@ void main() {
     engine = FakeEngine();
     get = FakeGetApi();
     playback = FakePlaybackStore();
+    lyricsApi = FakeLyricsApi();
+    lyricsCache = MemoryLyricsCache();
     onWifi = true;
   });
 
@@ -235,6 +262,8 @@ void main() {
           onlineStreamsProvider.overrideWithValue(streams),
           getApiProvider.overrideWithValue(get),
           onWifiProvider.overrideWithValue(() async => onWifi),
+          onlineLyricsApiProvider.overrideWithValue(lyricsApi),
+          lyricsCacheProvider.overrideWithValue(lyricsCache),
           libraryApiProvider.overrideWithValue(FakeLibraryApi([song])),
           cinemaApiProvider.overrideWithValue(FakeCinemaApi(const [])),
           focusApiProvider.overrideWithValue(FakeFocusApi(const [])),
@@ -707,6 +736,75 @@ void main() {
       );
       final other = tester.widget<Text>(find.text('Zanak Antesaka live'));
       expect(title.style?.color, isNot(other.style?.color));
+    });
+  });
+
+  group('lyrics (lot 7)', () {
+    test('a title key ignores case, spaces and punctuation', () {
+      expect(
+        lyricsTitleKey('SAKATÉ BOY - Zanak Antesaka (Clip)'),
+        lyricsTitleKey('sakaté boy zanak antesaka clip'),
+      );
+      expect(
+        lyricsTitleKey('Zanak Antesaka'),
+        isNot(lyricsTitleKey('Zanak Antesaka 2')),
+      );
+    });
+
+    Future<Lyrics?> current(WidgetTester tester) async {
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      final l = await tester.runAsync(
+        () => container.read(currentLyricsProvider.future),
+      );
+      return l;
+    }
+
+    testWidgets('found online once the stream is ready, then kept', (
+      tester,
+    ) async {
+      lyricsApi.answer = (
+        lrc: '[00:01.00]Tiako ianao\n[00:04.00]Mila anao\n',
+        source: 'youtube',
+      );
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      final l = await current(tester);
+      expect(l?.lines.map((x) => x.text), ['Tiako ianao', 'Mila anao']);
+      expect(l?.source, 'YouTube');
+      final q = lyricsApi.asked.single;
+      expect(q.videoId, 'AAAAAAAAAAA');
+      expect(q.artist, 'Lalix Music Média');
+      expect(q.duration, const Duration(seconds: 238));
+      // Kept under the video and the title: offline, and once obtained.
+      expect(lyricsCache.files.keys, [
+        'v-AAAAAAAAAAA',
+        lyricsTitleKey('SAKATÉ BOY - Zanak Antesaka'),
+      ]);
+      expect(lyricsCache.files.values.first, startsWith('[re:YouTube]'));
+    });
+
+    testWidgets('kept lyrics need no lookup', (tester) async {
+      lyricsCache.files['v-AAAAAAAAAAA'] = '[re:LRCLIB]\n[00:02.00]Efa hita\n';
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      final l = await current(tester);
+      expect(l?.lines.single.text, 'Efa hita');
+      expect(l?.source, 'LRCLIB');
+      expect(lyricsApi.asked, isEmpty);
+    });
+
+    testWidgets('setting off: nothing is looked up', (tester) async {
+      settings.values[onlineSettingsKey] = {'lyrics': false};
+      lyricsApi.answer = (lrc: '[00:01.00]x', source: 'lrclib');
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('Zanak Antesaka live'));
+      await settleOnline(tester);
+      expect(await current(tester), isNull);
+      expect(lyricsApi.asked, isEmpty);
     });
   });
 

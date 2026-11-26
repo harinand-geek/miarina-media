@@ -240,10 +240,6 @@ class L10nMg extends L10n {
   String get lyricsNoneTitle => 'Tsy misy tononkira ity hira ity';
 
   @override
-  String get lyricsNoneBody =>
-      'Apetraho eo akaikin\'ny rakitra feo ny rakitra .lrc mitovy anarana : ho vakiana ho azy izy.';
-
-  @override
   String get equalizer => 'Mpandanja feo';
 
   @override
@@ -5157,4 +5153,7 @@ class L10nMg extends L10n {
   String onlineFromSearch(String query) {
     return 'Araka ny « $query »';
   }
+
+  @override
+  String get onlineLyricsSetting => 'Hitady ny tononkira an-tserasera';
 }

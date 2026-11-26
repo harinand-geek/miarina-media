@@ -8,7 +8,7 @@ import 'library.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `obtain_offers`, `remember_search`, `remember_stream`, `short`, `stream_info`, `track`
+// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `cached_subtitles`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `obtain_offers`, `remember_search`, `remember_stream`, `short`, `stream_info`, `track`
 
 /// The extractor is installed and Obtenir has started.
 bool onlineAvailable() => RustLib.instance.api.crateApiOnlineOnlineAvailable();

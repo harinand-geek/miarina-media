@@ -36,6 +36,7 @@ class OnlineSettings {
   const OnlineSettings({
     this.autoObtain = false,
     this.wifiOnly = true,
+    this.onlineLyrics = true,
     this.format = askFormat,
     this.lastFormat,
   });
@@ -45,6 +46,7 @@ class OnlineSettings {
     return OnlineSettings(
       autoObtain: raw['autoObtain'] == true,
       wifiOnly: raw['wifiOnly'] != false,
+      onlineLyrics: raw['lyrics'] != false,
       format: raw['format'] is String ? raw['format'] as String : askFormat,
       lastFormat: raw['lastFormat'] is String
           ? raw['lastFormat'] as String
@@ -57,6 +59,10 @@ class OnlineSettings {
 
   /// Phone: automatic obtaining waits for Wi-Fi (on by default).
   final bool wifiOnly;
+
+  /// Look up lyrics online for tracks without a .lrc (on by default): the
+  /// title, artist and duration go to LRCLIB.
+  final bool onlineLyrics;
 
   /// [askFormat], or the offer key used without asking.
   final String format;
@@ -71,11 +77,13 @@ class OnlineSettings {
   OnlineSettings copyWith({
     bool? autoObtain,
     bool? wifiOnly,
+    bool? onlineLyrics,
     String? format,
     String? lastFormat,
   }) => OnlineSettings(
     autoObtain: autoObtain ?? this.autoObtain,
     wifiOnly: wifiOnly ?? this.wifiOnly,
+    onlineLyrics: onlineLyrics ?? this.onlineLyrics,
     format: format ?? this.format,
     lastFormat: lastFormat ?? this.lastFormat,
   );
@@ -83,6 +91,7 @@ class OnlineSettings {
   Map<String, Object?> toJson() => {
     'autoObtain': autoObtain,
     'wifiOnly': wifiOnly,
+    'lyrics': onlineLyrics,
     'format': format,
     'lastFormat': ?lastFormat,
   };
@@ -560,6 +569,14 @@ class OnlineSettingsGroup extends ConsumerWidget {
                   : null,
             ),
           ),
+        SettingsRow(
+          title: t.onlineLyricsSetting,
+          control: MmSwitch(
+            value: s.onlineLyrics,
+            label: t.onlineLyricsSetting,
+            onChanged: (v) => save(s.copyWith(onlineLyrics: v)),
+          ),
+        ),
         SettingsRow(
           title: t.onlineObtainFormat,
           control: SettingsMenu<String>(

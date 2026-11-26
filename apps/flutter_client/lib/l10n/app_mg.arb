@@ -72,7 +72,6 @@
   "smartQueueBody": "Mpanakanto na rakikira mitovy, kajiana ao amin'ny fitaovana",
   "lyricsHint": "{file} · tsindrio andalana iray hankanesana any",
   "lyricsNoneTitle": "Tsy misy tononkira ity hira ity",
-  "lyricsNoneBody": "Apetraho eo akaikin'ny rakitra feo ny rakitra .lrc mitovy anarana : ho vakiana ho azy izy.",
   "equalizer": "Mpandanja feo",
   "equalizerBody": "Ampiharina amin'ny fandefasana feo rehetra",
   "equalizerUnsupported": "Tsy manana mpandanja feo ho an'ny fandefasana ity fitaovana ity.",
@@ -1397,5 +1396,6 @@
   "onlineWifiOnly": "Amin'ny Wi-Fi ihany",
   "onlineNew": "Vaovao",
   "onlineNewQuery": "nouveauté gasy {year} clip officiel",
-  "onlineFromSearch": "Araka ny « {query} »"
+  "onlineFromSearch": "Araka ny « {query} »",
+  "onlineLyricsSetting": "Hitady ny tononkira an-tserasera"
 }

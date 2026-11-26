@@ -399,6 +399,14 @@ fn copy_track(t: &OnlineTrack) -> OnlineTrack {
     }
 }
 
+/// The uploaded subtitles of a video whose stream is cached (it played or
+/// is about to): `(language, URL)`, for its lyrics.
+pub(crate) fn cached_subtitles(video_id: &str) -> Vec<(String, String)> {
+    cached_stream(video_id)
+        .map(|s| s.subtitles)
+        .unwrap_or_default()
+}
+
 fn fresh_enough(stream: &OnlineStream, now: u64) -> bool {
     stream.expires_at > now + STREAM_MARGIN_SECS
 }
@@ -441,6 +449,7 @@ mod tests {
             ext: Some("m4a".to_owned()),
             codec: None,
             bitrate: None,
+            subtitles: Vec::new(),
         }
     }
 

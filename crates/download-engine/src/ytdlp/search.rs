@@ -139,6 +139,16 @@ pub struct RawStream {
     pub is_live: Option<bool>,
     pub live_status: Option<String>,
     pub has_drm: Option<serde_json::Value>,
+    /// Subtitles uploaded with the video (not the automatic captions), by
+    /// language.
+    #[serde(default, deserialize_with = "lenient")]
+    pub subtitles: Option<BTreeMap<String, Vec<RawSubtitleTrack>>>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct RawSubtitleTrack {
+    pub ext: Option<String>,
+    pub url: Option<String>,
 }
 
 fn lenient<'de, D, T>(deserializer: D) -> Result<Option<T>, D::Error>
@@ -164,6 +174,32 @@ pub struct OnlineStream {
     pub codec: Option<String>,
     /// kbit/s.
     pub bitrate: Option<f64>,
+    /// WebVTT subtitles uploaded with the clip, `(language, URL)`: often
+    /// the lyrics. The URLs expire with the stream's.
+    pub subtitles: Vec<(String, String)>,
+}
+
+/// Uploaded WebVTT subtitles served by YouTube (https), live chat left out.
+fn uploaded_subtitles(
+    raw: Option<BTreeMap<String, Vec<RawSubtitleTrack>>>,
+) -> Vec<(String, String)> {
+    raw.unwrap_or_default()
+        .into_iter()
+        .filter(|(lang, _)| lang != "live_chat")
+        .filter_map(|(lang, tracks)| {
+            let url = tracks
+                .into_iter()
+                .filter(|t| t.ext.as_deref() == Some("vtt"))
+                .find_map(|t| {
+                    let url = validate_media_url(t.url.as_deref()?).ok()?;
+                    let host = url.host();
+                    (url.as_str().starts_with("https://")
+                        && (host == "youtube.com" || host.ends_with(".youtube.com")))
+                    .then(|| url.as_str().to_owned())
+                })?;
+            Some((lang, url))
+        })
+        .collect()
 }
 
 fn now_secs() -> u64 {
@@ -237,6 +273,7 @@ pub fn stream_of(bytes: &[u8], expected_id: &str) -> Result<OnlineStream, String
         ext: raw.ext,
         codec: raw.acodec.filter(|c| c != "none"),
         bitrate: raw.abr.filter(|b| b.is_finite() && *b > 0.0),
+        subtitles: uploaded_subtitles(raw.subtitles),
     })
 }
 
@@ -379,6 +416,24 @@ mod tests {
         let video_only = r#"{"id":"AAAAAAAAAAA","acodec":"none","url":"https://x.example/a"}"#;
         assert!(stream_of(video_only.as_bytes(), "AAAAAAAAAAA").is_err());
         assert!(stream_of(b"not json", "AAAAAAAAAAA").is_err());
+    }
+
+    #[test]
+    fn uploaded_subtitles_are_kept_when_vtt_from_youtube() {
+        let raw = r#"{"id":"AAAAAAAAAAA","acodec":"opus","url":"https://h.example/a",
+          "subtitles":{
+            "mg":[{"ext":"json3","url":"https://www.youtube.com/api/timedtext?f=j"},
+                  {"ext":"vtt","url":"https://www.youtube.com/api/timedtext?f=v"}],
+            "fr":[{"ext":"vtt","url":"https://evil.example/x.vtt"}],
+            "live_chat":[{"ext":"vtt","url":"https://www.youtube.com/live"}]}}"#;
+        let s = stream_of(raw.as_bytes(), "AAAAAAAAAAA").unwrap();
+        assert_eq!(
+            s.subtitles,
+            vec![(
+                "mg".to_owned(),
+                "https://www.youtube.com/api/timedtext?f=v".to_owned()
+            )]
+        );
     }
 
     #[test]

@@ -72,7 +72,6 @@
   "smartQueueBody": "Same artist or album, worked out on the device",
   "lyricsHint": "{file} · click a line to go there",
   "lyricsNoneTitle": "No lyrics for this track",
-  "lyricsNoneBody": "Put an .lrc file with the same name next to the audio file: it is read automatically.",
   "equalizer": "Equalizer",
   "equalizerBody": "Applied to all audio playback",
   "equalizerUnsupported": "This device offers no equalizer for playback.",
@@ -1465,5 +1464,6 @@
   "onlineWifiOnly": "Wi-Fi only",
   "onlineNew": "New releases",
   "onlineNewQuery": "new official music video {year}",
-  "onlineFromSearch": "Based on “{query}”"
+  "onlineFromSearch": "Based on “{query}”",
+  "onlineLyricsSetting": "Look up lyrics online"
 }

@@ -5,6 +5,7 @@ mod engine;
 mod error;
 pub mod fsops;
 mod http;
+pub mod lyrics;
 mod manager;
 pub mod net;
 pub mod process;
