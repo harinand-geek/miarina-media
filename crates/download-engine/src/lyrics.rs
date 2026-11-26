@@ -548,7 +548,12 @@ pub fn tononkira_lyrics(html: &str) -> Option<String> {
     let text = unescape(&strip_tags(&raw));
     let mut lines: Vec<String> = Vec::new();
     for line in text.lines() {
-        let line = line.split_whitespace().collect::<Vec<_>>().join(" ");
+        // The site's own address, slipped into the text as a watermark.
+        let line = line
+            .split_whitespace()
+            .filter(|w| !w.to_lowercase().contains("serasera"))
+            .collect::<Vec<_>>()
+            .join(" ");
         if line.is_empty() && lines.last().is_none_or(|l| l.is_empty()) {
             continue;
         }
@@ -559,6 +564,56 @@ pub fn tononkira_lyrics(html: &str) -> Option<String> {
     }
     let words = lines.iter().filter(|l| !l.is_empty()).count();
     (words >= 2).then(|| lines.join("\n"))
+}
+
+/// The words two readings of a line share, in order (longest common
+/// subsequence): Tononkira slips random words into its pages, different at
+/// each load, so a word in only one reading is noise.
+fn common_words(a: &str, b: &str) -> String {
+    let a: Vec<&str> = a.split(' ').filter(|w| !w.is_empty()).collect();
+    let b: Vec<&str> = b.split(' ').filter(|w| !w.is_empty()).collect();
+    let mut len = vec![vec![0u16; b.len() + 1]; a.len() + 1];
+    for i in (0..a.len()).rev() {
+        for j in (0..b.len()).rev() {
+            len[i][j] = if a[i] == b[j] {
+                len[i + 1][j + 1] + 1
+            } else {
+                len[i + 1][j].max(len[i][j + 1])
+            };
+        }
+    }
+    let (mut i, mut j, mut out) = (0, 0, Vec::new());
+    while i < a.len() && j < b.len() {
+        if a[i] == b[j] {
+            out.push(a[i]);
+            i += 1;
+            j += 1;
+        } else if len[i + 1][j] >= len[i][j + 1] {
+            i += 1;
+        } else {
+            j += 1;
+        }
+    }
+    out.join(" ")
+}
+
+/// Tononkira lyrics without the noise: the words found in both readings
+/// of the page, line by line. Readings of different shapes (the page
+/// changed between them): the first one as it is.
+pub fn tononkira_merge(first: &str, second: &str) -> String {
+    let a: Vec<&str> = first.lines().collect();
+    let b: Vec<&str> = second.lines().collect();
+    if a.len() != b.len() {
+        return first.to_owned();
+    }
+    a.iter()
+        .zip(&b)
+        .map(|(x, y)| common_words(x, y))
+        .collect::<Vec<_>>()
+        .join(
+            "
+",
+        )
 }
 
 /// Lower case letters and digits only, for comparing titles.
@@ -722,7 +777,7 @@ mod tests {
 
         <div id="6b08606387908">
         Gne carisme vaňy fombafombanay<br />
-Sakaté boy, zanak'i Vangai!<br />
+Sakaté boy, tononkira.serasera.org zanak'i Vangai!<br />
 <br />
 <br />
  Somary nagnotaniany aho hoe,<br />
@@ -737,6 +792,39 @@ Sakaté boy, zanak'i Vangai!<br />
         assert_eq!(
             unescape("a &amp; b &#039;c&#x27; &bogus; &"),
             "a & b 'c' &bogus; &"
+        );
+    }
+
+    #[test]
+    fn tononkira_noise_is_removed_by_two_readings() {
+        let a = "Atao nbvj fitia kuhakflu mifamaly ny antsika 2 dia milamina ny fo
+
+Ref:
+Adala ny xrnt fo";
+        let b = "Atao fitia mifamaly ny antsika 2 tononkira.serasera.org dia milamina ny nilduv fo
+
+Ref:
+Adala ny fo";
+        assert_eq!(
+            tononkira_merge(a, b),
+            "Atao fitia mifamaly ny antsika 2 dia milamina ny fo
+
+Ref:
+Adala ny fo"
+        );
+        // A repeated word stays when both readings have it.
+        assert_eq!(
+            common_words("tia tia ianao", "tia tia qq ianao"),
+            "tia tia ianao"
+        );
+        // Different shapes: the first reading.
+        assert_eq!(
+            tononkira_merge(
+                "a b
+c", "a b"
+            ),
+            "a b
+c"
         );
     }
 

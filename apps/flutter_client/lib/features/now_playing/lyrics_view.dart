@@ -9,7 +9,7 @@ import '../../l10n/app_localizations.dart';
 import '../playback/playback.dart';
 import '../online/online_obtain.dart' show onlineSettingsProvider;
 import '../online/online_playback.dart' show onlineResolvingProvider;
-import 'lyrics_search.dart' show LyricsActions;
+import 'lyrics_search.dart' show LyricsActions, LyricsSearchDialog;
 import 'online_lyrics.dart';
 import 'lyrics.dart';
 
@@ -188,24 +188,7 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
                 },
               ),
             ),
-            if (l.source != null)
-              Padding(
-                padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
-                child: Row(
-                  children: [
-                    Icon(PhosphorRegular.fileText, size: 15, color: c.muted),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        t.lyricsHint(l.source!),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: MmType.caption.copyWith(color: c.muted),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            _footer(l, c, t, t.lyricsHint(l.source ?? '')),
           ],
         );
       },
@@ -233,26 +216,59 @@ class _LyricsViewState extends ConsumerState<LyricsView> {
           ),
         ),
       ),
-      if (l.source != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(18, 8, 18, 14),
-          child: Row(
-            children: [
-              Icon(PhosphorRegular.fileText, size: 15, color: c.muted),
-              const SizedBox(width: 6),
-              Expanded(
-                child: Text(
-                  l.source!,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: MmType.caption.copyWith(color: c.muted),
-                ),
-              ),
-            ],
-          ),
-        ),
+      _footer(l, c, L10n.of(context), l.source ?? ''),
     ],
   );
+
+  /// Where the lyrics come from; kept ones can be replaced or deleted.
+  Widget _footer(Lyrics l, MmColors c, L10n t, String text) {
+    final entry = ref.read(queueProvider).current;
+    final editable = l.kept && entry != null;
+    if (l.source == null && !editable) return const SizedBox.shrink();
+    Widget button(IconData icon, String label, VoidCallback onTap) => Pressable(
+      onTap: onTap,
+      semanticLabel: label,
+      tooltip: label,
+      borderRadius: BorderRadius.circular(MmRadius.pill),
+      hoverColor: c.cardHover,
+      child: SizedBox(
+        width: 32,
+        height: 32,
+        child: Icon(icon, size: 17, color: c.muted),
+      ),
+    );
+    return Padding(
+      padding: EdgeInsets.fromLTRB(18, editable ? 2 : 8, 10, editable ? 6 : 14),
+      child: Row(
+        children: [
+          Icon(PhosphorRegular.fileText, size: 15, color: c.muted),
+          const SizedBox(width: 6),
+          Expanded(
+            child: Text(
+              l.source == null ? '' : text,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: MmType.caption.copyWith(color: c.muted),
+            ),
+          ),
+          if (editable) ...[
+            button(
+              PhosphorRegular.magnifyingGlass,
+              t.lyricsSearchOther,
+              () => showDialog<void>(
+                context: context,
+                builder: (_) => LyricsSearchDialog(entry: entry),
+              ),
+            ),
+            button(PhosphorRegular.trash, t.lyricsDelete, () async {
+              await forgetLyrics(ref, entry);
+              ref.invalidate(currentLyricsProvider);
+            }),
+          ],
+        ],
+      ),
+    );
+  }
 
   Widget _none(MmColors c, L10n t) => Center(
     child: Padding(

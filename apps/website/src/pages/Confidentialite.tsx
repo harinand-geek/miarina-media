@@ -47,7 +47,9 @@ export function Confidentialite() {
             <strong>Paroles :</strong> pour un titre sans fichier de paroles, l’application peut
             récupérer les sous-titres publiés avec le clip sur YouTube, puis interroger LRCLIB (
             <span className="mono">lrclib.net</span>) avec le titre, l’artiste et la durée du
-            morceau, et rien d’autre. Les paroles trouvées sont enregistrées sur votre appareil.
+            morceau, et rien d’autre. Pour les chansons malgaches, le titre et l’artiste sont aussi
+            envoyés à Tononkira (<span className="mono">tononkira.serasera.org</span>). Les paroles
+            trouvées sont enregistrées sur votre appareil, et vous pouvez les supprimer.
             Réglage « Chercher les paroles en ligne » pour désactiver ces envois.
           </li>
           <li>

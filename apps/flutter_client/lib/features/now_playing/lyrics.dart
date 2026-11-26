@@ -13,7 +13,12 @@ class LyricLine {
 
 @immutable
 class Lyrics {
-  const Lyrics(this.lines, {this.source, this.synced = true});
+  const Lyrics(
+    this.lines, {
+    this.source,
+    this.synced = true,
+    this.kept = false,
+  });
 
   /// Sorted by time; never empty for parsed lyrics.
   final List<LyricLine> lines;
@@ -24,6 +29,10 @@ class Lyrics {
   /// Timed lines; false for plain text (Tononkira), shown without
   /// following the song.
   final bool synced;
+
+  /// Kept by the app (found online, chosen, imported): may be replaced or
+  /// deleted, unlike a .lrc next to the file.
+  final bool kept;
 
   /// Index of the line being sung at [position], -1 before the first one.
   int indexAt(Duration position) {

@@ -11,7 +11,7 @@ use download_engine::HttpEngine;
 use download_engine::lyrics::{
     MAX_LYRICS_BYTES, TONONKIRA, TononkiraHit, best_tononkira_hit, clean_title, lrclib_get_url,
     lrclib_hits, lrclib_query_url, lrclib_search_url, pick_lrclib, tononkira_hits,
-    tononkira_lyrics, tononkira_search_url, vtt_to_lrc,
+    tononkira_lyrics, tononkira_merge, tononkira_search_url, vtt_to_lrc,
 };
 use media_core::validate_media_url;
 
@@ -65,14 +65,23 @@ async fn tononkira_search(
     Vec::new()
 }
 
-/// The lyrics on a Tononkira song page (its address checked).
+/// The lyrics on a Tononkira song page (its address checked), read twice
+/// at once: the site slips random words into each load, and only the words
+/// both readings share are kept (`tononkira_merge`).
 async fn tononkira_page(http: &HttpEngine, url: &str) -> Option<String> {
     if !url.starts_with(&format!("{TONONKIRA}/hira/")) {
         return None;
     }
     let url = validate_media_url(url).ok()?;
-    let html = http.fetch_text(&url, MAX_LYRICS_BYTES * 2).await.ok()??;
-    tononkira_lyrics(&html)
+    let read = || async {
+        let html = http.fetch_text(&url, MAX_LYRICS_BYTES * 2).await.ok()??;
+        tononkira_lyrics(&html)
+    };
+    let (first, second) = tokio::join!(read(), read());
+    match (first, second) {
+        (Some(a), Some(b)) => Some(tononkira_merge(&a, &b)),
+        (one, other) => one.or(other),
+    }
 }
 
 /// Subtitle languages tried first: the songs this app plays most.

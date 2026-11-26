@@ -1409,5 +1409,7 @@
   "lyricsNoResult": "Tsy nahitana tononkira.",
   "lyricsSynced": "mifanaraka amin'ny hira",
   "lyricsPlain": "lahatsoratra",
-  "lyricsWebWord": "tononkira"
+  "lyricsWebWord": "tononkira",
+  "lyricsSearchOther": "Hitady tononkira hafa",
+  "lyricsDelete": "Hamafa ity tononkira ity"
 }

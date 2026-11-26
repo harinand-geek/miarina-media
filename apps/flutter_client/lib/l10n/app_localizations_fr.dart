@@ -5175,4 +5175,10 @@ class L10nFr extends L10n {
 
   @override
   String get lyricsWebWord => 'paroles';
+
+  @override
+  String get lyricsSearchOther => 'Chercher d\'autres paroles';
+
+  @override
+  String get lyricsDelete => 'Supprimer ces paroles';
 }

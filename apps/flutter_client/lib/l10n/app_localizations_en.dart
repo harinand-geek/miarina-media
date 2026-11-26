@@ -5134,4 +5134,10 @@ class L10nEn extends L10n {
 
   @override
   String get lyricsWebWord => 'lyrics';
+
+  @override
+  String get lyricsSearchOther => 'Find other lyrics';
+
+  @override
+  String get lyricsDelete => 'Delete these lyrics';
 }

@@ -1477,5 +1477,7 @@
   "lyricsNoResult": "No lyrics found.",
   "lyricsSynced": "synced",
   "lyricsPlain": "text",
-  "lyricsWebWord": "lyrics"
+  "lyricsWebWord": "lyrics",
+  "lyricsSearchOther": "Find other lyrics",
+  "lyricsDelete": "Delete these lyrics"
 }

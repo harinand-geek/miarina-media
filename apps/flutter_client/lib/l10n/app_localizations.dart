@@ -8558,6 +8558,18 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'paroles'**
   String get lyricsWebWord;
+
+  /// No description provided for @lyricsSearchOther.
+  ///
+  /// In fr, this message translates to:
+  /// **'Chercher d\'autres paroles'**
+  String get lyricsSearchOther;
+
+  /// No description provided for @lyricsDelete.
+  ///
+  /// In fr, this message translates to:
+  /// **'Supprimer ces paroles'**
+  String get lyricsDelete;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

@@ -186,6 +186,9 @@ const _sourceTag = '[re:';
 /// The line that marks kept lyrics as plain text.
 const _plainTag = '[plain]';
 
+/// Kept in place of lyrics the user deleted: not looked up again.
+const _noneTag = '[none]';
+
 String sourceLabel(String source) => switch (source) {
   'youtube' => 'YouTube',
   'lrclib' => 'LRCLIB',
@@ -199,10 +202,12 @@ Lyrics? _parseKept(String text) {
   final source = first.startsWith(_sourceTag) && first.endsWith(']')
       ? first.substring(_sourceTag.length, first.length - 1)
       : null;
-  if (lines.length > 1 && lines[1].trim() == _plainTag) {
-    return parsePlainLyrics(lines.skip(2).join('\n'), source: source);
-  }
-  return parseLrc(text, source: source);
+  final l = lines.length > 1 && lines[1].trim() == _plainTag
+      ? parsePlainLyrics(lines.skip(2).join('\n'), source: source)
+      : parseLrc(text, source: source);
+  return l == null
+      ? null
+      : Lyrics(l.lines, source: l.source, synced: l.synced, kept: true);
 }
 
 /// The kept form of lyrics: where they come from, plain or timed.
@@ -226,6 +231,16 @@ Future<void> keepLyrics(
   }
   ref.read(_missedProvider).removeAll(keys);
   ref.read(chosenLyricsProvider.notifier).set(entry, _parseKept(text));
+}
+
+/// « Supprimer ces paroles »: forgotten for [entry], and not looked up
+/// again by themselves.
+Future<void> forgetLyrics(WidgetRef ref, QueueEntry entry) async {
+  final cache = ref.read(lyricsCacheProvider);
+  for (final key in _keysOf(entry)) {
+    await cache.write(key, _noneTag);
+  }
+  ref.read(chosenLyricsProvider.notifier).set(entry, null);
 }
 
 /// Lyrics the user just chose or imported, shown at once (and kept).
@@ -261,6 +276,7 @@ Future<Lyrics?> loadOnlineLyrics(
   for (final key in keys) {
     final text = await cache.read(key);
     if (text != null) {
+      if (text.trim() == _noneTag) return null;
       final kept = _parseKept(text);
       if (kept != null) return kept;
     }

@@ -904,6 +904,32 @@ void main() {
       );
     });
 
+    testWidgets('kept lyrics can be deleted and stay gone', (tester) async {
+      lyricsApi.answer = (
+        lrc: 'Gne carisme\nSakaté boy\n\nZanak\'antesaka',
+        source: 'tononkira',
+        synced: false,
+      );
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      container.read(routerProvider).go(Routes.now);
+      await settleOnline(tester);
+      expect(find.text('Gne carisme'), findsOneWidget);
+      expect(find.byTooltip('Chercher d\'autres paroles'), findsOneWidget);
+      final asked = lyricsApi.asked.length;
+      await tester.tap(find.byTooltip('Supprimer ces paroles'));
+      await settleOnline(tester);
+      expect(find.text('Gne carisme'), findsNothing);
+      expect(find.text('Pas de paroles pour ce titre'), findsOneWidget);
+      expect(lyricsCache.files['v-AAAAAAAAAAA'], '[none]');
+      expect(await current(tester), isNull);
+      expect(lyricsApi.asked.length, asked);
+    });
+
     testWidgets('no lyrics: search by hand and choose', (tester) async {
       lyricsApi.options = [
         (

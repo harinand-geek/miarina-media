@@ -5192,4 +5192,10 @@ class L10nMg extends L10n {
 
   @override
   String get lyricsWebWord => 'tononkira';
+
+  @override
+  String get lyricsSearchOther => 'Hitady tononkira hafa';
+
+  @override
+  String get lyricsDelete => 'Hamafa ity tononkira ity';
 }

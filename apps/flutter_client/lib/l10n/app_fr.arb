@@ -2714,5 +2714,7 @@
   "lyricsNoResult": "Aucune parole trouvée.",
   "lyricsSynced": "synchronisées",
   "lyricsPlain": "texte",
-  "lyricsWebWord": "paroles"
+  "lyricsWebWord": "paroles",
+  "lyricsSearchOther": "Chercher d'autres paroles",
+  "lyricsDelete": "Supprimer ces paroles"
 }
