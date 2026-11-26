@@ -264,6 +264,9 @@ final miniCoverKey = GlobalKey(debugLabel: 'mini cover');
 /// Its title and artist, where the player's fly to.
 final miniTitleKey = GlobalKey(debugLabel: 'mini title');
 
+/// The mini player's card: the player's ground shrinks into it.
+final miniBarKey = GlobalKey(debugLabel: 'mini bar');
+
 /// True while the player's cover and title fly to the mini player: its own
 /// hide until the copies land on them.
 final miniHidden = ValueNotifier(false);
@@ -314,6 +317,7 @@ class _MiniPlayerState extends ConsumerState<_MiniPlayer> {
     final card = AnimatedCoverTones(
       tones: tones,
       builder: (context, tones, _) => Container(
+        key: miniBarKey,
         decoration: BoxDecoration(
           color: dockColor(c),
           borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),

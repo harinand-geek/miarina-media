@@ -27,7 +27,9 @@ import '../library/track_info.dart';
 import '../online/online_obtain.dart' show obtainOnline;
 import '../shell/mobile_shell.dart'
     show
+        dockColor,
         miniArtistStyle,
+        miniBarKey,
         miniCoverKey,
         miniHidden,
         miniTitleKey,
@@ -82,6 +84,9 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   /// The title and artist fly the same way, to the mini player's.
   Rect? _titleAtRest;
   Rect? _titleInMini;
+
+  /// The mini player's card, where the player's ground shrinks into.
+  Rect? _barInMini;
   final _flying = ValueNotifier(false);
   final _stackKey = GlobalKey();
   final _bigCoverKey = GlobalKey();
@@ -129,6 +134,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
     }
     _titleAtRest = inStack(_bigTitleKey, page: true);
     _titleInMini = inStack(miniTitleKey, page: false);
+    _barInMini = inStack(miniBarKey, page: false);
   }
 
   void _close() {
@@ -455,32 +461,60 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
           });
         }
         // The same widgets in both cases (only their values change), so the
-        // page and the drag survive the switch. Flying, the page fades as
-        // it sinks and shrinks a little: gone by the time the cover and
-        // title reach the mini player.
-        final page = Opacity(
-          opacity: flying ? (1 - progress / 0.6).clamp(0.0, 1.0) : 1,
-          child: Transform.translate(
-            offset: Offset(0, flying ? dy * 0.35 : dy),
-            child: Transform.scale(
-              scale: 1 - progress * (flying ? 0.12 : 0.06),
-              alignment: flying ? Alignment.center : Alignment.topCenter,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(progress * 120),
-                child: child,
+        // page and the drag survive the switch. Flying, the page's content
+        // fades early over its own ground, which stays opaque (nothing
+        // shows through) and shrinks into the mini player's card.
+        final page = KeyedSubtree(
+          key: const ValueKey('page'),
+          child: Opacity(
+            opacity: flying ? (1 - progress / 0.3).clamp(0.0, 1.0) : 1,
+            child: Transform.translate(
+              offset: Offset(0, flying ? dy * 0.15 : dy),
+              child: Transform.scale(
+                scale: 1 - progress * (flying ? 0.04 : 0.06),
+                alignment: flying ? Alignment.center : Alignment.topCenter,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(progress * 120),
+                  child: child,
+                ),
               ),
             ),
           ),
         );
-        if (!flying) return Stack(key: _stackKey, children: [page]);
+        if (!flying) {
+          return Stack(
+            key: _stackKey,
+            children: [const SizedBox.shrink(), page],
+          );
+        }
         // Toward the bottom left, a little ahead of the page.
         final t = Curves.easeOutCubic.transform(progress);
         final r = Rect.lerp(from, to, t)!;
         final c = MmColors.of(context);
         final titleFrom = _titleAtRest, titleTo = _titleInMini;
+        final bar = _barInMini;
+        final ground = bar == null
+            ? null
+            : Rect.lerp(Offset.zero & size, bar, t)!;
         return Stack(
           key: _stackKey,
           children: [
+            if (ground == null)
+              const SizedBox.shrink()
+            else
+              Positioned.fromRect(
+                rect: ground,
+                child: IgnorePointer(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: Color.lerp(tones.ground, dockColor(c), t),
+                      borderRadius: BorderRadius.vertical(
+                        top: Radius.circular(28 * t),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             page,
             if (!landed)
               Positioned.fromRect(
@@ -501,31 +535,35 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                 top: titleFrom.top + (titleTo.top - titleFrom.top) * t,
                 width: titleFrom.width + (titleTo.width - titleFrom.width) * t,
                 child: IgnorePointer(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        entry?.title ?? '',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle.lerp(
-                          _bigTitleStyle(tones.onGround),
-                          miniTitleStyle(c),
-                          t,
-                        ),
-                      ),
-                      if (entry?.subtitle != null)
+                  // A text style ground (no debug underline).
+                  child: Material(
+                    type: MaterialType.transparency,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
                         Text(
-                          entry!.subtitle!,
+                          entry?.title ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: TextStyle.lerp(
-                            _bigArtistStyle(tones.onGroundSoft),
-                            miniArtistStyle(c),
+                            _bigTitleStyle(tones.onGround),
+                            miniTitleStyle(c),
                             t,
                           ),
                         ),
-                    ],
+                        if (entry?.subtitle != null)
+                          Text(
+                            entry!.subtitle!,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle.lerp(
+                              _bigArtistStyle(tones.onGroundSoft),
+                              miniArtistStyle(c),
+                              t,
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
