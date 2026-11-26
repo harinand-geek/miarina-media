@@ -464,7 +464,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
               width: 36,
               height: 36,
               decoration: const BoxDecoration(
-                color: Color(0x99070B0F),
+                color: Color(0x99080808),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, size: 20, color: c.fg),
@@ -482,7 +482,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
             width: 36,
             height: 36,
             decoration: const BoxDecoration(
-              color: Color(0x99070B0F),
+              color: Color(0x99080808),
               shape: BoxShape.circle,
             ),
             child: Icon(PhosphorRegular.arrowLeft, size: 20, color: c.fg),
@@ -590,10 +590,10 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                                   begin: Alignment.topCenter,
                                   end: Alignment.bottomCenter,
                                   colors: [
-                                    Color(0xA6070B0F),
-                                    Color(0x00070B0F),
-                                    Color(0x00070B0F),
-                                    Color(0xD9070B0F),
+                                    Color(0xA6080808),
+                                    Color(0x00080808),
+                                    Color(0x00080808),
+                                    Color(0xD9080808),
                                   ],
                                   stops: [0, 0.22, 0.6, 1],
                                 ),
@@ -658,7 +658,7 @@ class _WatchScreenState extends ConsumerState<WatchScreen> {
                         vertical: 8,
                       ),
                       decoration: BoxDecoration(
-                        color: const Color(0xA6070B0F),
+                        color: const Color(0xA6080808),
                         borderRadius: BorderRadius.circular(MmRadius.pill),
                       ),
                       child: Text(
@@ -997,7 +997,7 @@ class _CenterControls extends ConsumerWidget {
         width: 52,
         height: 52,
         decoration: const BoxDecoration(
-          color: Color(0x66070B0F),
+          color: Color(0x66080808),
           shape: BoxShape.circle,
         ),
         child: Center(
@@ -1041,7 +1041,7 @@ class _UnlockButton extends StatelessWidget {
         height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: const Color(0xCC070B0F),
+          color: const Color(0xCC080808),
           borderRadius: BorderRadius.circular(MmRadius.pill),
         ),
         child: Row(
@@ -1076,7 +1076,7 @@ class _SlideIndicator extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 12),
         decoration: BoxDecoration(
-          color: const Color(0xA6070B0F),
+          color: const Color(0xA6080808),
           borderRadius: BorderRadius.circular(MmRadius.lg),
         ),
         child: Column(

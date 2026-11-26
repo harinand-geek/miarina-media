@@ -94,24 +94,27 @@ class MmColors extends ThemeExtension<MmColors> {
   final Color hatchA;
   final Color hatchB;
 
+  // Neutral dark (owner's choice, 2026-11-26): the greys of most apps'
+  // dark themes, without the former blue cast (#101820…), so the app sits
+  // with the pages and videos it shows. Accents are unchanged.
   static const dark = MmColors(
     brightness: Brightness.dark,
-    bg: Color(0xFF101820),
-    surface: Color(0xFF182530),
-    surface2: Color(0xFF1F2F3B),
-    sidebar: Color(0xFF0D141B),
-    playerChrome: Color(0xFF0B1117),
-    line: Color(0xFF243545),
-    lineStrong: Color(0xFF2A3D4E),
-    divider: Color(0xFF1B2935),
-    cardHover: Color(0xFF1B2A36),
-    selected: Color(0xFF16302F),
-    overlayBorder: Color(0xFF2F4558),
-    fg: Color(0xFFF5F7FA),
-    fgSoft: Color(0xFFC7D0DB),
-    muted: Color(0xFF94A3B8),
-    faint: Color(0xFF64748B),
-    faintIcon: Color(0xFF3A4D5E),
+    bg: Color(0xFF121212),
+    surface: Color(0xFF1C1C1C),
+    surface2: Color(0xFF242424),
+    sidebar: Color(0xFF0E0E0E),
+    playerChrome: Color(0xFF0B0B0B),
+    line: Color(0xFF2E2E2E),
+    lineStrong: Color(0xFF363636),
+    divider: Color(0xFF222222),
+    cardHover: Color(0xFF232323),
+    selected: Color(0xFF14302D),
+    overlayBorder: Color(0xFF3A3A3A),
+    fg: Color(0xFFF1F1F1),
+    fgSoft: Color(0xFFCFCFCF),
+    muted: Color(0xFFA0A0A0),
+    faint: Color(0xFF717171),
+    faintIcon: Color(0xFF3D3D3D),
     accent: Color(0xFF35C9BD),
     accentStrong: Color(0xFF35C9BD),
     accentSubtle: Color(0xFF1F3A3C),
@@ -129,10 +132,10 @@ class MmColors extends ThemeExtension<MmColors> {
     warningBorder: Color(0xFF4A3F1F),
     warningInk: Color(0xFF1A1204),
     danger: Color(0xFFF07070),
-    video: Color(0xFF070B0F),
-    scrim: Color(0x9E05090D),
-    hatchA: Color(0xFF22333F),
-    hatchB: Color(0xFF1C2C37),
+    video: Color(0xFF080808),
+    scrim: Color(0x9E000000),
+    hatchA: Color(0xFF2A2A2A),
+    hatchB: Color(0xFF242424),
   );
 
   // Light values are the shipped [data-theme='light'] ones; those marked

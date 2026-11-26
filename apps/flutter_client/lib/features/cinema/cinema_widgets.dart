@@ -46,7 +46,7 @@ class PicturePill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
       decoration: BoxDecoration(
-        color: const Color(0xCC0D141B),
+        color: const Color(0xCC0E0E0E),
         borderRadius: BorderRadius.circular(MmRadius.pill),
       ),
       child: Text(

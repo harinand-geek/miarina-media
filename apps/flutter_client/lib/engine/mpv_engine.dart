@@ -578,7 +578,7 @@ class MpvEngine implements MediaEngine {
         fit: fit,
         aspectRatio: aspectRatio,
         controls: mkv.NoVideoControls,
-        fill: const Color(0xFF070B0F),
+        fill: const Color(0xFF080808),
       );
 
   @override

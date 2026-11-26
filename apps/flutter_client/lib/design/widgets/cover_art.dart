@@ -99,7 +99,7 @@ class CoverArt extends StatelessWidget {
                   picture,
                   // Keeps the overlay icon readable over a real picture.
                   if (picture != placeholder)
-                    const ColoredBox(color: Color(0x990D141B)),
+                    const ColoredBox(color: Color(0x990E0E0E)),
                   Center(child: child),
                 ],
               ),

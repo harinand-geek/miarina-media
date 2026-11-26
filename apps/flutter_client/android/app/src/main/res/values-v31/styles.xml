@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Android 12+ (design_handoff_splash): animated logo 4d (1000 ms) on
-         #101820, "Miarina Media" / "MIARINA" branding at the bottom. -->
+         #121212 (neutral dark, 2026-11-26), "Miarina Media" / "MIARINA" branding at the bottom. -->
     <style name="LaunchTheme" parent="Theme.SplashScreen">
-        <item name="windowSplashScreenBackground">@color/mm_bg</item>
+        <item name="windowSplashScreenBackground">@color/mm_window</item>
         <item name="windowSplashScreenAnimatedIcon">@drawable/splash_icon_animated</item>
         <item name="windowSplashScreenAnimationDuration">1000</item>
         <item name="android:windowSplashScreenBrandingImage">@drawable/splash_branding</item>

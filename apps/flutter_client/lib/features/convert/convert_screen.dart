@@ -111,7 +111,7 @@ String _categoryLabel(L10n t, ConvertCategory c) => switch (c) {
     ConvertCategory.video => (c.chipText, c.accentSubtle),
     ConvertCategory.audio =>
       dark
-          ? (const Color(0xFF8FB3D9), const Color(0xFF1F2F3B))
+          ? (const Color(0xFF8FB3D9), const Color(0xFF242424))
           : (const Color(0xFF2F5F8F), const Color(0xFFE3EDF7)),
     ConvertCategory.image =>
       dark

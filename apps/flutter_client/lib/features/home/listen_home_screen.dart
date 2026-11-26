@@ -304,12 +304,12 @@ class _ResumePage extends ConsumerWidget {
         CoverBackdrop(
           seed: i.id,
           imagePath: i.thumbnail,
-          veil: const Color(0x260D141B),
+          veil: const Color(0x260E0E0E),
         ),
         const DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Color(0xF00D141B), Color(0x330D141B)],
+              colors: [Color(0xF00E0E0E), Color(0x330E0E0E)],
             ),
           ),
         ),
@@ -568,7 +568,7 @@ class _AutoListCardState extends ConsumerState<_AutoListCard> {
                           height: 24,
                           padding: const EdgeInsets.symmetric(horizontal: 8),
                           decoration: BoxDecoration(
-                            color: const Color(0xB30D141B),
+                            color: const Color(0xB30E0E0E),
                             borderRadius: BorderRadius.circular(MmRadius.pill),
                           ),
                           child: Row(

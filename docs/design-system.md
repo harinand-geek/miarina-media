@@ -21,6 +21,23 @@ Le SVG du logo est inline dans le handoff ; il sera extrait tel quel en `apps/cl
 
 ### Dark (défaut)
 
+**Sombre neutre (app Flutter, 2026-11-26, choix du propriétaire).** Les gris bleutés ci-dessous sont remplacés par les gris neutres des thèmes sombres courants, pour que l'app s'accorde avec les pages et vidéos qu'elle affiche. Accents, corail, avertissements et clair inchangés ; le logo et le fond de l'icône Android gardent `#101820`. Valeurs dans `apps/flutter_client/lib/design/tokens.dart` :
+
+| Token | Avant | Sombre neutre |
+|---|---|---|
+| `bg` | `#101820` | `#121212` |
+| `surface` | `#182530` | `#1C1C1C` |
+| `surface-2` | `#1F2F3B` | `#242424` |
+| `sidebar` | `#0D141B` | `#0E0E0E` |
+| `player-chrome` | `#0B1117` | `#0B0B0B` |
+| `border` / `border-strong` | `#243545` / `#2A3D4E` | `#2E2E2E` / `#363636` |
+| `text` / `text-soft` | `#F5F7FA` / `#C7D0DB` | `#F1F1F1` / `#CFCFCF` |
+| `text-muted` / `text-faint` | `#94A3B8` / `#64748B` | `#A0A0A0` / `#717171` |
+
+Contrastes (calculés, WCAG) : `#F1F1F1`/`#121212` 16,6:1 ; `#A0A0A0`/`#1C1C1C` 6,5:1 ; `#A0A0A0`/`#242424` 5,9:1 ; `#717171`/`#121212` 3,8:1 (jamais pour du texte essentiel, comme avant).
+
+Valeurs d'origine (app Tauri 0.1.x) :
+
 | Token | Hex | Usage |
 |---|---|---|
 | `bg` | `#101820` | Fond d'application |

@@ -334,7 +334,7 @@ class _CueText extends StatelessWidget {
   Widget build(BuildContext context) {
     return DecoratedBox(
       decoration: BoxDecoration(
-        color: const Color(0x99070B0F),
+        color: const Color(0x99080808),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Padding(

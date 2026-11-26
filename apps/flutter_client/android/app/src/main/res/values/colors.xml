@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Design token bg (#101820): splash, window and adaptive icon background. -->
+    <!-- Brand navy (#101820): the adaptive launcher icon's background. -->
     <color name="mm_bg">#FF101820</color>
+    <!-- Dark ground (#121212, neutral dark of 2026-11-26): window and splash. -->
+    <color name="mm_window">#FF121212</color>
 </resources>
