@@ -1433,7 +1433,6 @@
   "vinylChip": "Record",
   "navOnline": "Online",
   "onlinePlaceholder": "Search for a track or an artist online",
-  "onlineHintTitle": "Search for a track or an artist",
   "onlineRecent": "Recent searches",
   "onlineClearRecent": "Clear",
   "onlineRemoveRecent": "Remove “{query}”",
@@ -1463,5 +1462,8 @@
   "onlineAutoObtain": "Get the tracks played to the end",
   "onlineObtainFormat": "Get format",
   "onlineSlowTitle": "YouTube is not answering",
-  "onlineWifiOnly": "Wi-Fi only"
+  "onlineWifiOnly": "Wi-Fi only",
+  "onlineNew": "New releases",
+  "onlineNewQuery": "new official music video {year}",
+  "onlineFromSearch": "Based on “{query}”"
 }

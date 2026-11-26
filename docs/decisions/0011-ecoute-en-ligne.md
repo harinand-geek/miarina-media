@@ -219,6 +219,13 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - Une réponse lente (`slow`) est retentée une fois avant d'afficher « YouTube ne répond pas » : vu sur Windows quand l'ordinateur compilait en même temps.
 - Recette par le propriétaire sur le Redmi Note 10 Pro (Android 13, APK bêta `org.miarina.media.beta`) : recherche et lecture en ligne fonctionnent. Journal Android pendant l'essai : aucune erreur liée à l'écoute en ligne. Non mesuré : délai de résolution sur le téléphone, données consommées.
 
+### 8. Accueil « En ligne » en grilles (lot 6, demande du propriétaire, 2026-11-26)
+
+- Avant toute recherche, la page montre des grilles de clips en 16:9 (miniature locale, durée, titre sur deux lignes, chaîne) : **Nouveautés** (recherche selon la langue de l'app : « nouveauté gasy <année> clip officiel » en français et en malgache, « new official music video <année> » en anglais) et **D'après « dernière recherche »**. Puis les recherches récentes.
+- 4 clips sur téléphone (2 × 2), une rangée de 4 à 6 sur ordinateur selon la largeur ; « Tout voir » lance la recherche de la grille. Une grille en échec (sans réseau…) n'est pas affichée.
+- Les recherches des grilles passent « en arrière-plan » dans le cœur (`online_search(…, background: true)`) : une à la fois, elles n'annulent pas la recherche tapée et ne sont pas annulées par elle.
+- Pas de compte YouTube, donc pas de recommandations personnelles.
+
 ## Risques
 
 | Risque | Effet | Parade |
@@ -246,6 +253,8 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | 3 ✅ | Lecteur : `MediaSource.stream` et `httpHeaders`, `QueueEntry.onlineId`, résolution avant ouverture, préchargement du suivant, reprise sur refus, roue de chargement, carte d'erreur | Tests de widgets (20 au total) ; recette dans l'appli par le propriétaire |
 | 4 ✅ | Obtenir avec choix de format, badge « Hors connexion ✓ », lecture depuis le fichier, option d'obtention automatique | Tests de widgets (26 au total) et de stockage ; téléchargement réel et mode avion à vérifier par le propriétaire |
 | 5 ✅ | Android : lecture des flux `https`, en-têtes Media3, Wi-Fi seulement, Obtenir sur téléphone | Recette du propriétaire sur le Redmi ; mesures sur téléphone encore à faire |
+
+| 6 ✅ | Accueil « En ligne » en grilles de clips | Tests de widgets (37 au total) ; vu par le propriétaire sur Windows |
 
 ## Questions encore ouvertes
 

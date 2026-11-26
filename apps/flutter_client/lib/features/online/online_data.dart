@@ -56,8 +56,13 @@ abstract interface class OnlineApi {
   /// The extractor is installed and Obtenir has started.
   bool available();
 
-  /// Throws an [OnlineFailure].
-  Future<List<OnlineTrack>> search(String query, {int limit = 20});
+  /// Throws an [OnlineFailure]. [background]: a search nobody typed (the
+  /// page's grids); it does not cancel the user's.
+  Future<List<OnlineTrack>> search(
+    String query, {
+    int limit = 20,
+    bool background = false,
+  });
 
   /// A result's picture as a local file; null when it cannot be had.
   Future<String?> thumbnail(String url);
@@ -89,11 +94,19 @@ class RustOnlineApi implements OnlineApi {
   }
 
   @override
-  Future<List<OnlineTrack>> search(String query, {int limit = 20}) async {
+  Future<List<OnlineTrack>> search(
+    String query, {
+    int limit = 20,
+    bool background = false,
+  }) async {
     // The extractor belongs to Obtenir, started with the app.
     await _ref.read(downloadsProvider.notifier).started;
     try {
-      return (await onlineSearch(query: query, limit: limit)).tracks;
+      return (await onlineSearch(
+        query: query,
+        limit: limit,
+        background: background,
+      )).tracks;
     } catch (e) {
       throw OnlineFailure.of(e);
     }
@@ -172,6 +185,19 @@ final onlineSearchProvider = FutureProvider.autoDispose
       },
       // Each try starts the extractor: the page offers « Réessayer » instead
       // of retrying on its own (Riverpod 3 retries failures by default).
+      retry: (_, _) => null,
+    );
+
+/// Results a grid of the En ligne page asks for.
+const onlineGridSize = 8;
+
+/// A grid of the En ligne page (decision 0011, lot 6): a search nobody
+/// typed, run in the background.
+final onlineGridProvider = FutureProvider.autoDispose
+    .family<List<OnlineTrack>, String>(
+      (ref, query) => ref
+          .watch(onlineApiProvider)
+          .search(query, limit: onlineGridSize, background: true),
       retry: (_, _) => null,
     );
 

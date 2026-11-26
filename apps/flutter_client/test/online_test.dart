@@ -19,6 +19,8 @@ import 'package:miarina_media/features/online/online_data.dart';
 import 'package:miarina_media/features/online/online_obtain.dart';
 import 'package:miarina_media/features/online/online_playback.dart';
 import 'package:miarina_media/features/online/online_screen.dart';
+import 'package:miarina_media/features/online/online_widgets.dart'
+    show OnlineCard;
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -36,6 +38,7 @@ class FakeOnlineApi implements OnlineApi {
 
   final List<OnlineTrack> tracks;
   final queries = <String>[];
+  final backgroundQueries = <String>[];
   OnlineFailure? failure;
 
   @override
@@ -72,7 +75,16 @@ class FakeOnlineApi implements OnlineApi {
   };
 
   @override
-  Future<List<OnlineTrack>> search(String query, {int limit = 20}) async {
+  Future<List<OnlineTrack>> search(
+    String query, {
+    int limit = 20,
+    bool background = false,
+  }) async {
+    // The page's grids: every result, whatever the query.
+    if (background) {
+      backgroundQueries.add(query);
+      return tracks.take(limit).toList();
+    }
     queries.add(query);
     if (failure != null) throw failure!;
     return [
@@ -239,14 +251,45 @@ void main() {
   }
 
   group('En ligne page', () {
-    testWidgets('the sidebar opens it; it explains itself before a search', (
-      tester,
-    ) async {
+    testWidgets('the sidebar opens it on a grid of new clips', (tester) async {
       await pumpApp(tester, start: Routes.tracks);
       await tester.tap(find.bySemanticsLabel(RegExp('^En ligne')).first);
       await settleOnline(tester);
-      expect(find.text('Cherchez un titre ou un artiste'), findsOneWidget);
-      expect(online.queries, isEmpty);
+      expect(find.text('Nouveautés'), findsOneWidget);
+      final year = DateTime.now().year;
+      expect(online.backgroundQueries, ['nouveauté gasy $year clip officiel']);
+      expect(online.queries, isEmpty, reason: 'nothing typed');
+      expect(find.byType(OnlineCard), findsNWidgets(4), reason: '1 row');
+      expect(find.text('Zanak Antesaka (Lyrics)'), findsOneWidget);
+    });
+
+    testWidgets('a card plays its clip, the grid following', (tester) async {
+      await pumpApp(tester, start: Routes.online);
+      await tester.tap(find.text('Zanak Antesaka live'));
+      await settleOnline(tester);
+      expect(engine.opened.single.uri, onlineSourceUri('CCCCCCCCCCC'));
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      expect(container.read(queueProvider).upcoming, hasLength(2));
+    });
+
+    testWidgets('« Tout voir » runs the grid\'s search', (tester) async {
+      await pumpApp(tester, start: Routes.online);
+      await tester.tap(find.text('Tout voir').first);
+      await settleOnline(tester);
+      final year = DateTime.now().year;
+      expect(online.queries, ['nouveauté gasy $year clip officiel']);
+    });
+
+    testWidgets('phone: a grid of four, two by two', (tester) async {
+      await pumpApp(
+        tester,
+        start: Routes.online,
+        desktop: false,
+        size: const Size(400, 860),
+      );
+      expect(find.byType(OnlineCard), findsNWidgets(4));
     });
 
     testWidgets('typing searches once the user stops; results are listed', (
@@ -275,6 +318,10 @@ void main() {
     testWidgets('recent searches: pick one, remove one, clear', (tester) async {
       settings.values[recentOnlineKey] = ['okay', 'kenny', 'bapampa'];
       await pumpApp(tester, start: Routes.online);
+      // A second grid from the last search, above the recent searches.
+      expect(find.text('D\'après « okay »'), findsOneWidget);
+      expect(online.backgroundQueries, contains('okay'));
+      await reveal(tester, find.text('bapampa'));
       expect(find.text('Recherches récentes'), findsOneWidget);
       expect(find.text('kenny'), findsOneWidget);
 
@@ -283,6 +330,7 @@ void main() {
       expect(find.text('bapampa'), findsNothing);
       expect(settings.values[recentOnlineKey], ['okay', 'kenny']);
 
+      await reveal(tester, find.text('kenny'));
       await tester.tap(find.text('kenny'));
       await settleOnline(tester);
       expect(online.queries, ['kenny']);

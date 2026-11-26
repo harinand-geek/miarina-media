@@ -1365,7 +1365,6 @@
   "vinylChip": "Kapila",
   "navOnline": "An-tserasera",
   "onlinePlaceholder": "Hitady hira na mpanakanto an-tserasera",
-  "onlineHintTitle": "Hitady hira na mpanakanto",
   "onlineRecent": "Fikarohana farany",
   "onlineClearRecent": "Fafao",
   "onlineRemoveRecent": "Esory « {query} »",
@@ -1395,5 +1394,8 @@
   "onlineAutoObtain": "Alao ny hira henoina hatramin'ny farany",
   "onlineObtainFormat": "Endrika hakana",
   "onlineSlowTitle": "Tsy mamaly ny YouTube",
-  "onlineWifiOnly": "Amin'ny Wi-Fi ihany"
+  "onlineWifiOnly": "Amin'ny Wi-Fi ihany",
+  "onlineNew": "Vaovao",
+  "onlineNewQuery": "nouveauté gasy {year} clip officiel",
+  "onlineFromSearch": "Araka ny « {query} »"
 }

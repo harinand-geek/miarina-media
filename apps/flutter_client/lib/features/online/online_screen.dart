@@ -183,7 +183,7 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
         onRetry: () => ref.invalidate(onlineStatusProvider),
       );
     } else if (q.isEmpty) {
-      body = _Recent(pad: pad, onPick: _submit);
+      body = _Discover(pad: pad, mobile: mobile, onPick: _submit);
     } else {
       final key = (query: q, limit: _limit);
       final results = ref.watch(onlineSearchProvider(key));
@@ -288,11 +288,17 @@ class _Spinner extends StatelessWidget {
   );
 }
 
-/// The page before any search: recent searches, or what the page does.
-class _Recent extends ConsumerWidget {
-  const _Recent({required this.pad, required this.onPick});
+/// The page before any search (lot 6): clip grids, « Nouveautés » and
+/// « D'après » the last search, then the recent searches.
+class _Discover extends ConsumerWidget {
+  const _Discover({
+    required this.pad,
+    required this.mobile,
+    required this.onPick,
+  });
 
   final double pad;
+  final bool mobile;
   final ValueChanged<String> onPick;
 
   @override
@@ -300,69 +306,161 @@ class _Recent extends ConsumerWidget {
     final c = MmColors.of(context);
     final t = L10n.of(context);
     final recent = ref.watch(recentOnlineProvider).value ?? const [];
-    if (recent.isEmpty) {
-      return LibraryMessage(
-        icon: PhosphorRegular.globe,
-        title: t.onlineHintTitle,
-        body: '',
-      );
-    }
     final notifier = ref.read(recentOnlineProvider.notifier);
+    final grids = [
+      (t.onlineNew, t.onlineNewQuery(DateTime.now().year)),
+      if (recent.isNotEmpty) (t.onlineFromSearch(recent.first), recent.first),
+    ];
     return ListView(
       padding: EdgeInsets.fromLTRB(pad, 16, pad, 24),
       children: [
-        Row(
-          children: [
-            Expanded(child: SectionHeader(t.onlineRecent)),
-            Pressable(
-              onTap: notifier.clear,
-              semanticLabel: t.onlineClearRecent,
-              child: Text(
-                t.onlineClearRecent,
-                style: MmType.label.copyWith(fontSize: 13, color: c.muted),
+        for (final (title, query) in grids)
+          _Grid(title: title, query: query, mobile: mobile, onPick: onPick),
+        if (recent.isNotEmpty) ...[
+          Row(
+            children: [
+              Expanded(child: SectionHeader(t.onlineRecent)),
+              Pressable(
+                onTap: notifier.clear,
+                semanticLabel: t.onlineClearRecent,
+                child: Text(
+                  t.onlineClearRecent,
+                  style: MmType.label.copyWith(fontSize: 13, color: c.muted),
+                ),
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        for (final q in recent)
-          Pressable(
-            onTap: () => onPick(q),
-            semanticLabel: q,
-            borderRadius: BorderRadius.circular(MmRadius.md),
-            hoverColor: c.cardHover,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-              child: Row(
-                children: [
-                  Icon(
-                    PhosphorRegular.clockCounterClockwise,
-                    size: 18,
-                    color: c.muted,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      q,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: MmType.body.copyWith(color: c.fg),
-                    ),
-                  ),
-                  Pressable(
-                    onTap: () => notifier.remove(q),
-                    semanticLabel: t.onlineRemoveRecent(q),
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: Icon(PhosphorRegular.x, size: 16, color: c.muted),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+            ],
           ),
+          const SizedBox(height: 8),
+          for (final q in recent)
+            Pressable(
+              onTap: () => onPick(q),
+              semanticLabel: q,
+              borderRadius: BorderRadius.circular(MmRadius.md),
+              hoverColor: c.cardHover,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                child: Row(
+                  children: [
+                    Icon(
+                      PhosphorRegular.clockCounterClockwise,
+                      size: 18,
+                      color: c.muted,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        q,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: MmType.body.copyWith(color: c.fg),
+                      ),
+                    ),
+                    Pressable(
+                      onTap: () => notifier.remove(q),
+                      semanticLabel: t.onlineRemoveRecent(q),
+                      child: SizedBox(
+                        width: 36,
+                        height: 36,
+                        child: Icon(
+                          PhosphorRegular.x,
+                          size: 16,
+                          color: c.muted,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
       ],
+    );
+  }
+}
+
+/// One grid of clips: 4 on a phone (2 × 2), one row of 4 to 6 on a
+/// computer. « Tout voir » runs its search on the page. A failure (no
+/// connection…) leaves the grid out: the page stays usable.
+class _Grid extends ConsumerWidget {
+  const _Grid({
+    required this.title,
+    required this.query,
+    required this.mobile,
+    required this.onPick,
+  });
+
+  final String title;
+  final String query;
+  final bool mobile;
+  final ValueChanged<String> onPick;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final grid = ref.watch(onlineGridProvider(query));
+    if (grid.hasError && !grid.isLoading) return const SizedBox.shrink();
+    final tracks = grid.value;
+    if (tracks != null && tracks.isEmpty) return const SizedBox.shrink();
+    final local = tracks == null
+        ? const <String, LibraryItem>{}
+        : ref
+                  .watch(
+                    onlineLocalProvider(
+                      onlineLocalKey(tracks.map((x) => x.videoId)),
+                    ),
+                  )
+                  .value ??
+              const <String, LibraryItem>{};
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            children: [
+              Expanded(child: SectionHeader(title)),
+              Pressable(
+                onTap: () => onPick(query),
+                semanticLabel: '${t.seeAll} $title',
+                child: Text(
+                  t.seeAll,
+                  style: MmType.label.copyWith(fontSize: 13, color: c.muted),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          LayoutBuilder(
+            builder: (context, box) {
+              const gap = 14.0;
+              final columns = mobile
+                  ? 2
+                  : ((box.maxWidth + gap) ~/ (200 + gap)).clamp(2, 6);
+              final count = mobile ? 4 : (columns >= 4 ? columns : columns * 2);
+              final width = (box.maxWidth - gap * (columns - 1)) / columns;
+              final shown = tracks?.take(count).toList();
+              return Wrap(
+                spacing: gap,
+                runSpacing: 16,
+                children: [
+                  if (shown == null)
+                    for (var i = 0; i < count; i++)
+                      SkeletonBox(width: width, height: width * 9 / 16 + 44)
+                  else
+                    for (final tr in shown)
+                      OnlineCard(
+                        track: tr,
+                        width: width,
+                        tracks: tracks!,
+                        local: local,
+                      ),
+                ],
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }

@@ -4987,9 +4987,6 @@ class L10nEn extends L10n {
   String get onlinePlaceholder => 'Search for a track or an artist online';
 
   @override
-  String get onlineHintTitle => 'Search for a track or an artist';
-
-  @override
   String get onlineRecent => 'Recent searches';
 
   @override
@@ -5089,4 +5086,17 @@ class L10nEn extends L10n {
 
   @override
   String get onlineWifiOnly => 'Wi-Fi only';
+
+  @override
+  String get onlineNew => 'New releases';
+
+  @override
+  String onlineNewQuery(int year) {
+    return 'new official music video $year';
+  }
+
+  @override
+  String onlineFromSearch(String query) {
+    return 'Based on “$query”';
+  }
 }

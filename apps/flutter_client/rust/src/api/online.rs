@@ -42,6 +42,9 @@ static CURRENT_RESOLVE: Mutex<Option<(String, CancellationToken)>> = Mutex::new(
 /// Streams found ahead (the next track, the first result): one at a time,
 /// and never in the way of the one the listener waits for.
 static AHEAD_SLOT: Semaphore = Semaphore::const_new(1);
+/// Searches nobody typed (the En ligne page's grids): one at a time, and
+/// they neither cancel nor are cancelled by the user's search.
+static BACKGROUND_SEARCH: Semaphore = Semaphore::const_new(1);
 
 pub struct OnlineTrack {
     pub video_id: String,
@@ -90,7 +93,9 @@ pub fn online_watch_url(video_id: String) -> Option<String> {
 
 /// Videos matching `query`, at most `limit` (1–30). A newer call cancels
 /// this one (`canceled`). Blocking: runs on the download runtime.
-pub fn online_search(query: String, limit: u32) -> Result<OnlineResults> {
+/// `background`: a search nobody typed (the page's grids), see
+/// `BACKGROUND_SEARCH`.
+pub fn online_search(query: String, limit: u32, background: bool) -> Result<OnlineResults> {
     let key = format!("{limit}:{}", cache_key(&query));
     if let Some(tracks) = cached_search(&key) {
         return Ok(OnlineResults { query, tracks });
@@ -100,13 +105,33 @@ pub fn online_search(query: String, limit: u32) -> Result<OnlineResults> {
         return Err(coded("tools", "the media extractor is not installed"));
     }
     let cancel = CancellationToken::new();
-    if let Ok(mut current) = CURRENT_SEARCH.lock()
+    if !background
+        && let Ok(mut current) = CURRENT_SEARCH.lock()
         && let Some(previous) = current.replace(cancel.clone())
     {
         previous.cancel();
     }
-    let hits = runtime.block_on(engine.search(&query, limit, &cancel));
-    let hits = hits.map_err(|e| engine_error(&e))?;
+    let hits = runtime.block_on(async {
+        let _slot = if background {
+            Some(
+                BACKGROUND_SEARCH
+                    .acquire()
+                    .await
+                    .map_err(|_| EngineError::Canceled)?,
+            )
+        } else {
+            None
+        };
+        // Another call may have run the same search meanwhile.
+        if let Some(tracks) = cached_search(&key) {
+            return Ok(Err(tracks));
+        }
+        engine.search(&query, limit, &cancel).await.map(Ok)
+    });
+    let hits = match hits.map_err(|e| engine_error(&e))? {
+        Ok(hits) => hits,
+        Err(tracks) => return Ok(OnlineResults { query, tracks }),
+    };
     let tracks: Vec<OnlineTrack> = hits.into_iter().map(track).collect();
     remember_search(key, &tracks);
     Ok(OnlineResults { query, tracks })

@@ -442,6 +442,7 @@ abstract class RustLibApi extends BaseApi {
   Future<OnlineResults> crateApiOnlineOnlineSearch({
     required String query,
     required int limit,
+    required bool background,
   });
 
   Future<String?> crateApiOnlineOnlineThumbnail({required String url});
@@ -3651,6 +3652,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<OnlineResults> crateApiOnlineOnlineSearch({
     required String query,
     required int limit,
+    required bool background,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -3658,6 +3660,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(query, serializer);
           sse_encode_u_32(limit, serializer);
+          sse_encode_bool(background, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -3670,7 +3673,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_AnyhowException,
         ),
         constMeta: kCrateApiOnlineOnlineSearchConstMeta,
-        argValues: [query, limit],
+        argValues: [query, limit, background],
         apiImpl: this,
       ),
     );
@@ -3678,7 +3681,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
 
   TaskConstMeta get kCrateApiOnlineOnlineSearchConstMeta => const TaskConstMeta(
     debugName: "online_search",
-    argNames: ["query", "limit"],
+    argNames: ["query", "limit", "background"],
   );
 
   @override

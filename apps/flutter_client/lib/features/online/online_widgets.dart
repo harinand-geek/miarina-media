@@ -121,6 +121,132 @@ class OnlineTile extends ConsumerWidget {
   }
 }
 
+/// One result as a card of the En ligne page's grids: the clip's picture
+/// in 16:9 with its duration, the title on two lines, the channel. A tap
+/// plays [tracks] from this one.
+class OnlineCard extends ConsumerWidget {
+  const OnlineCard({
+    super.key,
+    required this.track,
+    required this.width,
+    this.tracks = const [],
+    this.local = const {},
+  });
+
+  final OnlineTrack track;
+  final double width;
+  final List<OnlineTrack> tracks;
+  final Map<String, LibraryItem> local;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final c = MmColors.of(context);
+    final t = L10n.of(context);
+    final tr = track;
+    final picture = tr.thumbnail == null
+        ? null
+        : ref.watch(onlineThumbnailProvider(tr.thumbnail!)).value;
+    final obtained = local[tr.videoId];
+    final playing = ref.watch(
+      queueProvider.select(
+        (q) =>
+            q.current?.onlineId == tr.videoId ||
+            (obtained != null && q.current?.libraryId == obtained.id),
+      ),
+    );
+    final list = tracks.isEmpty ? [tr] : tracks;
+    return SizedBox(
+      width: width,
+      child: Pressable(
+        onTap: () {
+          final i = list.indexWhere((x) => x.videoId == tr.videoId);
+          playOnline(
+            ref,
+            list,
+            i < 0 ? 0 : i,
+            unknownArtist: t.unknownArtist,
+            local: local,
+          );
+        },
+        semanticLabel: tr.title,
+        borderRadius: BorderRadius.circular(MmRadius.md),
+        pressScale: 0.98,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Stack(
+              children: [
+                CoverArt(
+                  size: width,
+                  aspectRatio: 16 / 9,
+                  radius: MmRadius.md,
+                  shadow: false,
+                  seed: tr.videoId.hashCode,
+                  imagePath: picture,
+                ),
+                Positioned(
+                  right: 6,
+                  bottom: 6,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 5,
+                      vertical: 1,
+                    ),
+                    decoration: BoxDecoration(
+                      color: const Color(0xCC000000),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Text(
+                      formatClock(
+                        Duration(
+                          milliseconds: (tr.durationSecs * 1000).round(),
+                        ),
+                      ),
+                      style: MmType.monoStyle(
+                        size: 11,
+                        color: const Color(0xFFF1F1F1),
+                      ),
+                    ),
+                  ),
+                ),
+                if (obtained != null)
+                  Positioned(
+                    left: 6,
+                    bottom: 6,
+                    child: Tooltip(
+                      message: t.onlineOffline,
+                      child: Icon(
+                        PhosphorFill.checkCircle,
+                        size: 18,
+                        color: c.accent,
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              tr.title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: MmType.labelStrong.copyWith(
+                color: playing ? c.coralHover : c.fg,
+              ),
+            ),
+            const SizedBox(height: 2),
+            Text(
+              tr.channel ?? t.unknownArtist,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: MmType.caption.copyWith(color: c.muted),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 /// What to say when an online search fails, by the core's error code.
 ({IconData icon, String title, String body}) onlineProblemText(
   L10n t,

@@ -8289,12 +8289,6 @@ abstract class L10n {
   /// **'Rechercher un titre ou un artiste en ligne'**
   String get onlinePlaceholder;
 
-  /// No description provided for @onlineHintTitle.
-  ///
-  /// In fr, this message translates to:
-  /// **'Cherchez un titre ou un artiste'**
-  String get onlineHintTitle;
-
   /// No description provided for @onlineRecent.
   ///
   /// In fr, this message translates to:
@@ -8474,6 +8468,24 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Uniquement en Wi-Fi'**
   String get onlineWifiOnly;
+
+  /// No description provided for @onlineNew.
+  ///
+  /// In fr, this message translates to:
+  /// **'Nouveautés'**
+  String get onlineNew;
+
+  /// No description provided for @onlineNewQuery.
+  ///
+  /// In fr, this message translates to:
+  /// **'nouveauté gasy {year} clip officiel'**
+  String onlineNewQuery(int year);
+
+  /// No description provided for @onlineFromSearch.
+  ///
+  /// In fr, this message translates to:
+  /// **'D\'après « {query} »'**
+  String onlineFromSearch(String query);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

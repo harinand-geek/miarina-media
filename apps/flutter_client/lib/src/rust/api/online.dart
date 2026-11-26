@@ -8,7 +8,7 @@ import 'library.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `obtain_offers`, `remember_search`, `remember_stream`, `stream_info`, `track`
+// These functions are ignored because they are not marked as `pub`: `cache_key`, `cached_search`, `cached_stream`, `coded`, `copy_track`, `engine_error`, `fresh_enough`, `is_picture_host`, `now_secs`, `obtain_offers`, `remember_search`, `remember_stream`, `short`, `stream_info`, `track`
 
 /// The extractor is installed and Obtenir has started.
 bool onlineAvailable() => RustLib.instance.api.crateApiOnlineOnlineAvailable();
@@ -19,11 +19,17 @@ String? onlineWatchUrl({required String videoId}) =>
 
 /// Videos matching `query`, at most `limit` (1–30). A newer call cancels
 /// this one (`canceled`). Blocking: runs on the download runtime.
+/// `background`: a search nobody typed (the page's grids), see
+/// `BACKGROUND_SEARCH`.
 Future<OnlineResults> onlineSearch({
   required String query,
   required int limit,
-}) =>
-    RustLib.instance.api.crateApiOnlineOnlineSearch(query: query, limit: limit);
+  required bool background,
+}) => RustLib.instance.api.crateApiOnlineOnlineSearch(
+  query: query,
+  limit: limit,
+  background: background,
+);
 
 /// The audio stream to open for `video_id`. `fresh`: ignore the cached
 /// one (the player was refused with it, e.g. HTTP 403 after a long pause).

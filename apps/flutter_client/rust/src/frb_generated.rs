@@ -3546,11 +3546,16 @@ fn wire__crate__api__online__online_search_impl(
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
             let api_query = <String>::sse_decode(&mut deserializer);
             let api_limit = <u32>::sse_decode(&mut deserializer);
+            let api_background = <bool>::sse_decode(&mut deserializer);
             deserializer.end();
             move |context| {
                 transform_result_sse::<_, flutter_rust_bridge::for_generated::anyhow::Error>(
                     (move || {
-                        let output_ok = crate::api::online::online_search(api_query, api_limit)?;
+                        let output_ok = crate::api::online::online_search(
+                            api_query,
+                            api_limit,
+                            api_background,
+                        )?;
                         std::result::Result::Ok(output_ok)
                     })(),
                 )

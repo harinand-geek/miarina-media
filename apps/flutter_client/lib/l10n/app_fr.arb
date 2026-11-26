@@ -2621,7 +2621,6 @@
   "vinylChip": "Vinyle",
   "navOnline": "En ligne",
   "onlinePlaceholder": "Rechercher un titre ou un artiste en ligne",
-  "onlineHintTitle": "Cherchez un titre ou un artiste",
   "onlineRecent": "Recherches récentes",
   "onlineClearRecent": "Effacer",
   "onlineRemoveRecent": "Retirer « {query} »",
@@ -2686,5 +2685,22 @@
   "onlineAutoObtain": "Obtenir les titres écoutés en entier",
   "onlineObtainFormat": "Format d'Obtenir",
   "onlineSlowTitle": "YouTube ne répond pas",
-  "onlineWifiOnly": "Uniquement en Wi-Fi"
+  "onlineWifiOnly": "Uniquement en Wi-Fi",
+  "onlineNew": "Nouveautés",
+  "onlineNewQuery": "nouveauté gasy {year} clip officiel",
+  "@onlineNewQuery": {
+    "placeholders": {
+      "year": {
+        "type": "int"
+      }
+    }
+  },
+  "onlineFromSearch": "D'après « {query} »",
+  "@onlineFromSearch": {
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  }
 }

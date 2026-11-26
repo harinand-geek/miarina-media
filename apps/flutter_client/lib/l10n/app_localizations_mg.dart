@@ -5045,9 +5045,6 @@ class L10nMg extends L10n {
   String get onlinePlaceholder => 'Hitady hira na mpanakanto an-tserasera';
 
   @override
-  String get onlineHintTitle => 'Hitady hira na mpanakanto';
-
-  @override
   String get onlineRecent => 'Fikarohana farany';
 
   @override
@@ -5147,4 +5144,17 @@ class L10nMg extends L10n {
 
   @override
   String get onlineWifiOnly => 'Amin\'ny Wi-Fi ihany';
+
+  @override
+  String get onlineNew => 'Vaovao';
+
+  @override
+  String onlineNewQuery(int year) {
+    return 'nouveauté gasy $year clip officiel';
+  }
+
+  @override
+  String onlineFromSearch(String query) {
+    return 'Araka ny « $query »';
+  }
 }
