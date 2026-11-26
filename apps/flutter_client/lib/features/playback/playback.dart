@@ -269,8 +269,12 @@ class QueueController extends Notifier<QueueState> {
     // An online entry whose stream was not found: play tries again (the
     // engine may still hold the previous track, paused).
     if (s.source == null ||
-        (current?.onlineId != null && s.source?.uri != current!.source.uri)) {
-      if (current != null) await _load();
+        (current?.onlineId != null &&
+            (s.source?.uri != current!.source.uri ||
+                // A finished stream: loaded again (its address may have
+                // expired) rather than replayed by the engine.
+                s.status == PlaybackStatus.ended))) {
+      if (current != null) await _load(fromStart: true);
       return;
     }
     s.isPlaying ? await engine.pause() : await engine.play();
@@ -444,8 +448,9 @@ class QueueController extends Notifier<QueueState> {
     _onlineAt = Duration.zero;
     var source = entry.source;
     if (entry.onlineId != null) {
-      // Finding the stream takes seconds: the previous track stops now.
-      if (engine.current.isPlaying) await engine.pause();
+      // Finding the stream takes seconds: the previous track stops now,
+      // and the bar shows the new one from 0:00, not the old duration.
+      if (engine.current.source != null) await engine.stop();
       final resolved = await _resolveOnline(entry);
       // Another entry was chosen meanwhile: that load goes on.
       if (!identical(state.current, entry)) return;
@@ -471,7 +476,7 @@ class QueueController extends Notifier<QueueState> {
     try {
       final source = await ref
           .read(onlineStreamsProvider)
-          .resolve(entry.source, entry.onlineId!, fresh: fresh);
+          .resolve(entry.source, entry.onlineId!, fresh: fresh, ahead: !report);
       if (report) notifier.done(entry);
       return source;
     } catch (e) {
@@ -491,6 +496,13 @@ class QueueController extends Notifier<QueueState> {
       _onlineAt = s.position;
     }
     if (s.status != PlaybackStatus.error || _refreshedOnline == id) return;
+    // An error as the stream ends is its end, not a refused address.
+    final end = s.duration > Duration.zero ? s.duration : current.duration;
+    if (end != null &&
+        end > Duration.zero &&
+        _onlineAt >= end - const Duration(seconds: 3)) {
+      return;
+    }
     _refreshedOnline = id;
     unawaited(_reopenOnline(current, _onlineAt));
   }

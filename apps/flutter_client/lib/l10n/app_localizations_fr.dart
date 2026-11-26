@@ -5124,4 +5124,7 @@ class L10nFr extends L10n {
 
   @override
   String get onlineObtainFormat => 'Format d\'Obtenir';
+
+  @override
+  String get onlineSlowTitle => 'YouTube ne répond pas';
 }

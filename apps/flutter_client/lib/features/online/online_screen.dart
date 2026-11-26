@@ -15,6 +15,7 @@ import '../library/groups.dart' show LibraryMessage;
 import '../../src/rust/api/library.dart' show LibraryItem;
 import 'online_data.dart';
 import 'online_obtain.dart' show onlineLocalKey, onlineLocalProvider;
+import 'online_playback.dart' show prepareOnline;
 import 'online_widgets.dart';
 
 /// Typing pause before searching YouTube: each search starts the extractor,
@@ -42,6 +43,9 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
 
   /// Results shown while « Plus de résultats » loads the longer list.
   List<OnlineTrack>? _shown;
+
+  /// The search whose first result was prepared ahead.
+  String? _prepared;
 
   @override
   void didUpdateWidget(OnlineScreen old) {
@@ -202,15 +206,19 @@ class _OnlineScreenState extends ConsumerState<OnlineScreen> {
           body: '',
         );
       } else {
-        final local =
-            ref
-                .watch(
-                  onlineLocalProvider(
-                    onlineLocalKey(tracks.map((x) => x.videoId)),
-                  ),
-                )
-                .value ??
-            const <String, LibraryItem>{};
+        final obtained = ref.watch(
+          onlineLocalProvider(onlineLocalKey(tracks.map((x) => x.videoId))),
+        );
+        final local = obtained.value ?? const <String, LibraryItem>{};
+        // The first result is the likeliest click: its stream is found
+        // now, so it plays at once (once known not to be obtained already).
+        if (_prepared != q && results.hasValue && obtained.hasValue) {
+          _prepared = q;
+          final first = tracks.first;
+          if (!local.containsKey(first.videoId)) {
+            prepareOnline(ref, first.videoId);
+          }
+        }
         final more =
             !results.isLoading &&
             tracks.length >= _limit &&

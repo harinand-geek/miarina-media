@@ -24,11 +24,13 @@ Uri onlineSourceUri(String videoId) => Uri(scheme: onlineScheme, path: videoId);
 /// Finds the audio stream of an online entry; tests use a fake.
 abstract interface class OnlineStreams {
   /// [source] with the stream to open. Throws an [OnlineFailure]. [fresh]:
-  /// not the cached one (the engine was refused with it).
+  /// not the cached one (the engine was refused with it). [ahead]: found
+  /// before it is needed, never in the way of the one waited for.
   Future<MediaSource> resolve(
     MediaSource source,
     String videoId, {
     bool fresh = false,
+    bool ahead = false,
   });
 }
 
@@ -42,13 +44,18 @@ class RustOnlineStreams implements OnlineStreams {
     MediaSource source,
     String videoId, {
     bool fresh = false,
+    bool ahead = false,
   }) async {
     if (!RustLib.instance.initialized) {
       throw const OnlineFailure(OnlineFailureKind.tools);
     }
     await _ref.read(downloadsProvider.notifier).started;
     try {
-      final s = await onlineResolve(videoId: videoId, fresh: fresh);
+      final s = await onlineResolve(
+        videoId: videoId,
+        fresh: fresh,
+        ahead: ahead,
+      );
       return source.withStream(
         Uri.parse(s.url),
         headers: {for (final h in s.httpHeaders) h.name: h.value},
@@ -117,6 +124,15 @@ final onlineFailureProvider = Provider<OnlineFailure?>((ref) {
 final onlineThumbnailProvider = FutureProvider.family<String?, String>(
   (ref, url) => ref.watch(onlineApiProvider).thumbnail(url),
   retry: (_, _) => null,
+);
+
+/// Finds [videoId]'s stream ahead (the first result of a search): a
+/// click on it then plays at once. Failures are left to the click.
+void prepareOnline(WidgetRef ref, String videoId) => unawaited(
+  ref
+      .read(onlineStreamsProvider)
+      .resolve(MediaSource(onlineSourceUri(videoId)), videoId, ahead: true)
+      .then<void>((_) {}, onError: (Object _) {}),
 );
 
 QueueEntry onlineEntry(

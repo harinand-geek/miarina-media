@@ -85,6 +85,7 @@ class FakeOnlineApi implements OnlineApi {
 /// Streams found instantly, or held by [gate], or refused with [failure].
 class FakeOnlineStreams implements OnlineStreams {
   final calls = <(String, bool)>[];
+  final aheadCalls = <String>[];
   OnlineFailure? failure;
   Completer<void>? gate;
   var _n = 0;
@@ -94,8 +95,10 @@ class FakeOnlineStreams implements OnlineStreams {
     MediaSource source,
     String videoId, {
     bool fresh = false,
+    bool ahead = false,
   }) async {
     calls.add((videoId, fresh));
+    if (ahead) aheadCalls.add(videoId);
     if (gate != null) await gate!.future;
     if (failure != null) throw failure!;
     _n++;
@@ -145,6 +148,12 @@ void main() {
         'x',
       );
       expect(OnlineFailure.of('boom').kind, OnlineFailureKind.other);
+      expect(
+        OnlineFailure.of(
+          AnyhowException('slow: the source took too long to answer'),
+        ).kind,
+        OnlineFailureKind.slow,
+      );
       expect(
         OnlineFailure.of(AnyhowException('canceled: ')).kind,
         OnlineFailureKind.canceled,
@@ -439,6 +448,31 @@ void main() {
       expect(find.byKey(const ValueKey('resolving')), findsNothing);
     });
 
+    testWidgets('the first result is prepared; the next one too', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      expect(streams.aheadCalls, [first], reason: 'likeliest click');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      expect(streams.aheadCalls, contains(second), reason: 'next track');
+    });
+
+    testWidgets('another track: the old one stops, the bar starts at 0', (
+      tester,
+    ) async {
+      await playFirst(tester);
+      expect(engine.current.source, isNotNull);
+      streams.gate = Completer();
+      await tester.tap(find.text('Zanak Antesaka live'));
+      await settleOnline(tester);
+      expect(engine.current.source, isNull, reason: 'not the old duration');
+      expect(find.byKey(const ValueKey('resolving')), findsWidgets);
+      streams.gate!.complete();
+      await settleOnline(tester);
+      expect(engine.opened.last.uri, onlineSourceUri('CCCCCCCCCCC'));
+    });
+
     testWidgets('a stream not found says why; play tries again', (
       tester,
     ) async {
@@ -494,6 +528,65 @@ void main() {
       );
       await settleOnline(tester);
       expect(engine.opened, hasLength(2));
+    });
+
+    testWidgets('an error as the stream ends is its end', (tester) async {
+      await playFirst(tester);
+      final opened = engine.opened.single;
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.playing,
+          source: opened,
+          position: const Duration(seconds: 238),
+          duration: const Duration(seconds: 239),
+        ),
+      );
+      await tester.pump();
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.error,
+          source: opened,
+          duration: const Duration(seconds: 239),
+          error: const PlaybackError('stream ended'),
+        ),
+      );
+      await settleOnline(tester);
+      expect(streams.calls, isNot(contains((first, true))));
+      expect(engine.opened, hasLength(1));
+    });
+
+    testWidgets('a finished online track plays again from its start', (
+      tester,
+    ) async {
+      await playFirst(tester);
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      // The last of the queue ends; play starts it again.
+      container.read(queueProvider.notifier).clearUpcoming();
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.ended,
+          source: engine.opened.single,
+          position: const Duration(minutes: 4),
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await settleOnline(tester);
+      await container.read(queueProvider.notifier).togglePlay();
+      await settleOnline(tester);
+      expect(engine.opened, hasLength(2));
+      expect(engine.opened.last.uri, onlineSourceUri(first));
+      expect(engine.starts.last, isNull);
+    });
+
+    testWidgets('a slow answer is not called a lost connection', (
+      tester,
+    ) async {
+      streams.failure = const OnlineFailure(OnlineFailureKind.slow);
+      await playFirst(tester);
+      expect(find.text('YouTube ne répond pas'), findsOneWidget);
+      expect(find.text('Pas de connexion'), findsNothing);
     });
 
     testWidgets('the playing result is marked in the list', (tester) async {

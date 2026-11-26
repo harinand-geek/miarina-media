@@ -136,6 +136,11 @@ class OnlineTile extends ConsumerWidget {
     title: t.onlineOfflineTitle,
     body: '',
   ),
+  OnlineFailureKind.slow => (
+    icon: PhosphorRegular.hourglass,
+    title: t.onlineSlowTitle,
+    body: '',
+  ),
   OnlineFailureKind.blocked => (
     icon: PhosphorRegular.hourglass,
     title: t.onlineBlockedTitle,

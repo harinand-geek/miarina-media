@@ -16,7 +16,17 @@ export '../../src/rust/api/online.dart' show OnlineOffer, OnlineTrack;
 /// own player; Obtenir keeps a track for offline listening.
 
 /// Error codes of `api/online.rs` (`"<code>: <detail>"`).
-enum OnlineFailureKind { tools, network, blocked, unavailable, canceled, other }
+enum OnlineFailureKind {
+  tools,
+  network,
+
+  /// YouTube took too long to answer (not a lost connection).
+  slow,
+  blocked,
+  unavailable,
+  canceled,
+  other,
+}
 
 class OnlineFailure implements Exception {
   const OnlineFailure(this.kind, [this.detail = '']);

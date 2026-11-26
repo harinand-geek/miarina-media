@@ -1461,5 +1461,6 @@
   "onlineObtaining": "Getting…",
   "onlineSettingsSection": "Online listening",
   "onlineAutoObtain": "Get the tracks played to the end",
-  "onlineObtainFormat": "Get format"
+  "onlineObtainFormat": "Get format",
+  "onlineSlowTitle": "YouTube is not answering"
 }

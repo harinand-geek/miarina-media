@@ -8462,6 +8462,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Format d\'Obtenir'**
   String get onlineObtainFormat;
+
+  /// No description provided for @onlineSlowTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'YouTube ne répond pas'**
+  String get onlineSlowTitle;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

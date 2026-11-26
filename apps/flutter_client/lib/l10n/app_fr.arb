@@ -2684,5 +2684,6 @@
   "onlineObtaining": "Obtention…",
   "onlineSettingsSection": "Écoute en ligne",
   "onlineAutoObtain": "Obtenir les titres écoutés en entier",
-  "onlineObtainFormat": "Format d'Obtenir"
+  "onlineObtainFormat": "Format d'Obtenir",
+  "onlineSlowTitle": "YouTube ne répond pas"
 }

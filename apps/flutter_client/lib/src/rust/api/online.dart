@@ -27,12 +27,17 @@ Future<OnlineResults> onlineSearch({
 
 /// The audio stream to open for `video_id`. `fresh`: ignore the cached
 /// one (the player was refused with it, e.g. HTTP 403 after a long pause).
+/// `ahead`: found before it is needed (the next track, the first result),
+/// one at a time; otherwise the listener waits for it, and it cancels the
+/// previous such request for another video (`canceled`).
 Future<OnlineStreamInfo> onlineResolve({
   required String videoId,
   required bool fresh,
+  required bool ahead,
 }) => RustLib.instance.api.crateApiOnlineOnlineResolve(
   videoId: videoId,
   fresh: fresh,
+  ahead: ahead,
 );
 
 /// The result's picture as a local file (the UI never loads remote

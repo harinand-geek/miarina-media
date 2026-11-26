@@ -5141,4 +5141,7 @@ class L10nMg extends L10n {
 
   @override
   String get onlineObtainFormat => 'Endrika hakana';
+
+  @override
+  String get onlineSlowTitle => 'Tsy mamaly ny YouTube';
 }

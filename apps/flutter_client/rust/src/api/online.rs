@@ -36,7 +36,12 @@ static STREAM_CACHE: Mutex<Option<HashMap<String, OnlineStream>>> = Mutex::new(N
 /// The running search: a newer one cancels it (its process is killed).
 static CURRENT_SEARCH: Mutex<Option<CancellationToken>> = Mutex::new(None);
 /// Stream resolutions at once: the track to play and the next one.
-static RESOLVE_SLOTS: Semaphore = Semaphore::const_new(2);
+/// The track the listener is waiting for: a newer one cancels it (its
+/// process is killed), so a click never waits behind an older click.
+static CURRENT_RESOLVE: Mutex<Option<(String, CancellationToken)>> = Mutex::new(None);
+/// Streams found ahead (the next track, the first result): one at a time,
+/// and never in the way of the one the listener waits for.
+static AHEAD_SLOT: Semaphore = Semaphore::const_new(1);
 
 pub struct OnlineTrack {
     pub video_id: String,
@@ -109,7 +114,10 @@ pub fn online_search(query: String, limit: u32) -> Result<OnlineResults> {
 
 /// The audio stream to open for `video_id`. `fresh`: ignore the cached
 /// one (the player was refused with it, e.g. HTTP 403 after a long pause).
-pub fn online_resolve(video_id: String, fresh: bool) -> Result<OnlineStreamInfo> {
+/// `ahead`: found before it is needed (the next track, the first result),
+/// one at a time; otherwise the listener waits for it, and it cancels the
+/// previous such request for another video (`canceled`).
+pub fn online_resolve(video_id: String, fresh: bool, ahead: bool) -> Result<OnlineStreamInfo> {
     if !ytdlp::is_video_id(&video_id) {
         return Err(coded("unavailable", "this is not a valid video id"));
     }
@@ -120,18 +128,30 @@ pub fn online_resolve(video_id: String, fresh: bool) -> Result<OnlineStreamInfo>
     if !engine.available() {
         return Err(coded("tools", "the media extractor is not installed"));
     }
+    let cancel = CancellationToken::new();
+    if !ahead
+        && let Ok(mut current) = CURRENT_RESOLVE.lock()
+        && let Some((previous, token)) = current.replace((video_id.clone(), cancel.clone()))
+        && previous != video_id
+    {
+        token.cancel();
+    }
     let stream = runtime.block_on(async {
-        let _slot = RESOLVE_SLOTS
-            .acquire()
-            .await
-            .map_err(|_| EngineError::Canceled)?;
+        let _slot = if ahead {
+            Some(
+                AHEAD_SLOT
+                    .acquire()
+                    .await
+                    .map_err(|_| EngineError::Canceled)?,
+            )
+        } else {
+            None
+        };
         // Another call may have resolved it while this one waited.
         if !fresh && let Some(stream) = cached_stream(&video_id) {
             return Ok(stream);
         }
-        engine
-            .resolve_audio(&video_id, &CancellationToken::new())
-            .await
+        engine.resolve_audio(&video_id, &cancel).await
     });
     let stream = stream.map_err(|e| engine_error(&e))?;
     remember_stream(stream.clone());
@@ -285,7 +305,10 @@ fn coded(code: &str, detail: &str) -> anyhow::Error {
 fn engine_error(error: &EngineError) -> anyhow::Error {
     match error {
         EngineError::Canceled => coded("canceled", ""),
-        EngineError::Network { .. } => coded("network", "the source did not answer"),
+        // The extractor waited too long (a slow source, other downloads
+        // at once): not a lost connection.
+        EngineError::Network { message } if message.contains("too long") => coded("slow", message),
+        EngineError::Network { message } => coded("network", &short(message)),
         EngineError::Http { status: 403 | 429 } => {
             coded("blocked", "the source refused the request")
         }
@@ -296,6 +319,18 @@ fn engine_error(error: &EngineError) -> anyhow::Error {
         EngineError::Unsupported { reason } => coded("unavailable", reason),
         other => coded("other", &other.to_string()),
     }
+}
+
+/// An extractor message for the details: one line, bounded. It is about
+/// the page, never the stream URL.
+fn short(message: &str) -> String {
+    message
+        .lines()
+        .next()
+        .unwrap_or_default()
+        .chars()
+        .take(200)
+        .collect()
 }
 
 fn now_secs() -> u64 {
@@ -411,6 +446,14 @@ mod tests {
             .starts_with("network:")
         );
         assert!(code(EngineError::Http { status: 429 }).starts_with("blocked:"));
+        let slow = code(EngineError::Network {
+            message: "the source took too long to answer".into(),
+        });
+        assert_eq!(slow, "slow: the source took too long to answer");
+        let lost = code(EngineError::Network {
+            message: "[Errno 11001] getaddrinfo failed\nmore".into(),
+        });
+        assert_eq!(lost, "network: [Errno 11001] getaddrinfo failed");
         assert!(code(EngineError::Http { status: 403 }).starts_with("blocked:"));
         assert!(code(EngineError::Http { status: 500 }).starts_with("network:"));
         assert!(
@@ -429,7 +472,9 @@ mod tests {
 
     #[test]
     fn invalid_ids_are_refused_before_any_work() {
-        let err = online_resolve("../etc/passwd".into(), false).err().unwrap();
+        let err = online_resolve("../etc/passwd".into(), false, false)
+            .err()
+            .unwrap();
         assert!(err.to_string().starts_with("unavailable:"));
     }
 

@@ -436,6 +436,7 @@ abstract class RustLibApi extends BaseApi {
   Future<OnlineStreamInfo> crateApiOnlineOnlineResolve({
     required String videoId,
     required bool fresh,
+    required bool ahead,
   });
 
   Future<OnlineResults> crateApiOnlineOnlineSearch({
@@ -3613,6 +3614,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   Future<OnlineStreamInfo> crateApiOnlineOnlineResolve({
     required String videoId,
     required bool fresh,
+    required bool ahead,
   }) {
     return handler.executeNormal(
       NormalTask(
@@ -3620,6 +3622,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(videoId, serializer);
           sse_encode_bool(fresh, serializer);
+          sse_encode_bool(ahead, serializer);
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
@@ -3632,7 +3635,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           decodeErrorData: sse_decode_AnyhowException,
         ),
         constMeta: kCrateApiOnlineOnlineResolveConstMeta,
-        argValues: [videoId, fresh],
+        argValues: [videoId, fresh, ahead],
         apiImpl: this,
       ),
     );
@@ -3641,7 +3644,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   TaskConstMeta get kCrateApiOnlineOnlineResolveConstMeta =>
       const TaskConstMeta(
         debugName: "online_resolve",
-        argNames: ["videoId", "fresh"],
+        argNames: ["videoId", "fresh", "ahead"],
       );
 
   @override
