@@ -8,6 +8,8 @@ import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../app/router.dart';
+import '../../design/brand_marks.dart';
+import '../../design/widgets/brand_badge.dart';
 import '../../design/mm_icons.g.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/logo.dart';
@@ -809,24 +811,29 @@ class _StartPageState extends ConsumerState<_StartPage> {
                           padding: const EdgeInsets.symmetric(vertical: 6),
                           child: Column(
                             children: [
-                              // Letter tiles: no third-party logos are
-                              // shipped (nor loaded from the network).
-                              Container(
-                                width: 48,
-                                height: 48,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: c.surface2,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  name[0],
-                                  style: MmType.heading.copyWith(
-                                    fontSize: 18,
-                                    color: c.accent,
+                              // Brand marks shipped with the app (Simple
+                              // Icons, CC0; owner's request 2026-11-26),
+                              // never loaded from the network; a letter
+                              // for any other site.
+                              if (brandMarkFor(address) case final mark?)
+                                BrandBadge(mark: mark)
+                              else
+                                Container(
+                                  width: 48,
+                                  height: 48,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: c.surface2,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    name[0],
+                                    style: MmType.heading.copyWith(
+                                      fontSize: 18,
+                                      color: c.accent,
+                                    ),
                                   ),
                                 ),
-                              ),
                               const SizedBox(height: 8),
                               Text(
                                 name,
