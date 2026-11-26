@@ -180,7 +180,6 @@ class PlaybackMemory {
   void _syncClock(PlaybackSnapshot s) {
     final hearing =
         _counts &&
-        _currentId != null &&
         s.isPlaying &&
         !s.buffering &&
         s.status != PlaybackStatus.ended;
@@ -276,7 +275,18 @@ class PlaybackMemory {
     _counts = false;
     _artist = null;
     final id = entry.libraryId;
-    if (id == null) return;
+    if (id == null) {
+      // Online listening (decision 0011): music heard counts in the journal
+      // (« 7 derniers jours », « Artiste de la semaine »), its artist being
+      // the channel. No history or resume point: it is not in the library.
+      if (entry.onlineId != null && !entry.isVideo) {
+        _counts = true;
+        _artist = entry.subtitle;
+        final now = _ref.read(mediaEngineProvider)?.current;
+        if (now != null && now.source?.uri == _currentUri) _syncClock(now);
+      }
+      return;
+    }
     if (!entry.isVideo && entry.focusKey == null) {
       _counts = true;
       try {
@@ -364,6 +374,10 @@ class PlaybackMemory {
     final s = _last;
     if (_currentId != null && s != null && s.duration > Duration.zero) {
       await _save(s.position, s.duration);
+    } else if (_counts) {
+      // An online track (no resume point): what was heard still counts.
+      _clock.stop();
+      await _writeJournal();
     }
   }
 

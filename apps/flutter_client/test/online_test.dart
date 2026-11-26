@@ -22,6 +22,7 @@ import 'package:miarina_media/features/online/online_screen.dart';
 import 'package:miarina_media/features/online/online_widgets.dart'
     show OnlineCard;
 import 'package:miarina_media/features/playback/playback.dart';
+import 'package:miarina_media/features/playback/listen_journal.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/features/search/search_data.dart';
@@ -202,6 +203,7 @@ void main() {
   late FakeOnlineStreams streams;
   late FakeEngine engine;
   late FakeGetApi get;
+  late FakePlaybackStore playback;
   var onWifi = true;
 
   setUp(() {
@@ -210,6 +212,7 @@ void main() {
     streams = FakeOnlineStreams();
     engine = FakeEngine();
     get = FakeGetApi();
+    playback = FakePlaybackStore();
     onWifi = true;
   });
 
@@ -246,7 +249,7 @@ void main() {
           settingsStoreProvider.overrideWithValue(settings),
           lyricsLoaderProvider.overrideWithValue((_) async => null),
           transcriptLoaderProvider.overrideWithValue((_) async => null),
-          playbackStoreProvider.overrideWithValue(FakePlaybackStore()),
+          playbackStoreProvider.overrideWithValue(playback),
           initialRouteProvider.overrideWithValue(start),
         ],
         child: const MiarinaApp(),
@@ -662,6 +665,39 @@ void main() {
       await playFirst(tester);
       expect(engine.opened.single.uri, onlineSourceUri(first));
       expect(find.text('YouTube ne répond pas'), findsNothing);
+    });
+
+    testWidgets('time heard online counts in the listening journal', (
+      tester,
+    ) async {
+      await playFirst(tester);
+      final opened = engine.opened.single;
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.playing,
+          source: opened,
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await tester.pump();
+      // The journal measures real time while the music plays.
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 2100)),
+      );
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.paused,
+          source: opened,
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      await settleOnline(tester);
+      await tester.runAsync(() => Future<void>.delayed(Duration.zero));
+      final journal = ListenJournal.parse(playback.values[listenJournalKey]);
+      final today = journal.days[ListenJournal.dayKey(DateTime.now())];
+      expect(today, isNotNull);
+      expect(today!.seconds, greaterThanOrEqualTo(2));
+      expect(today.artists['Lalix Music Média'], greaterThanOrEqualTo(2));
     });
 
     testWidgets('the playing result is marked in the list', (tester) async {
