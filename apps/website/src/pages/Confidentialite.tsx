@@ -10,7 +10,7 @@ export function Confidentialite() {
         <h1>Ce que Miarina Media traite, et ce qu’il ne fait pas</h1>
         <p className="doc-lead">
           Description factuelle des versions Windows {RELEASE.windows.version} et Android{' '}
-          {RELEASE.android.version} et de ce site, mise à jour le 25 novembre 2026.
+          {RELEASE.android.version} et de ce site, mise à jour le 26 novembre 2026.
         </p>
 
         <h2>Dans l’application</h2>
@@ -35,6 +35,22 @@ export function Confidentialite() {
             accord (versions et empreintes fixées, voir <a href="/licences.html">Licences</a>).
           </li>
           <li>
+            <strong>Écoute en ligne :</strong> une recherche « En ligne » et la lecture d’un titre
+            ou d’un clip passent directement de votre appareil à YouTube (
+            <span className="mono">youtube.com</span>, <span className="mono">googlevideo.com</span>,{' '}
+            <span className="mono">i.ytimg.com</span>), sans serveur Miarina entre les deux :
+            YouTube reçoit votre recherche et votre adresse IP, comme depuis un navigateur. Aucun
+            compte YouTube n’est utilisé. Les recherches récentes, les miniatures et ce que vous
+            écoutez restent sur votre appareil.
+          </li>
+          <li>
+            <strong>Paroles :</strong> pour un titre sans fichier de paroles, l’application peut
+            récupérer les sous-titres publiés avec le clip sur YouTube, puis interroger LRCLIB (
+            <span className="mono">lrclib.net</span>) avec le titre, l’artiste et la durée du
+            morceau, et rien d’autre. Les paroles trouvées sont enregistrées sur votre appareil.
+            Réglage « Chercher les paroles en ligne » pour désactiver ces envois.
+          </li>
+          <li>
             <strong>Outils Android :</strong> l’extracteur et les outils de conversion sont intégrés
             à l’APK. Ils sont mis à jour par installation d’un nouvel APK, sans téléchargement
             automatique de code d’extraction à l’exécution.
@@ -55,7 +71,8 @@ export function Confidentialite() {
             développeurs de yt-dlp. Aucune donnée personnelle n’est envoyée.
           </li>
           <li>
-            <strong>Permissions Android :</strong> Internet ; notifications (demandées au premier
+            <strong>Permissions Android :</strong> Internet ; état du réseau (pour l’option
+            « Uniquement en Wi-Fi » de l’obtention automatique) ; notifications (demandées au premier
             téléchargement, pour la progression et « Téléchargement terminé » ; vous pouvez refuser)
             ; service de premier plan pour continuer les téléchargements quand l’application est en
             arrière-plan ; garder l’écran allumé pendant la lecture. Aucun accès à vos contacts,

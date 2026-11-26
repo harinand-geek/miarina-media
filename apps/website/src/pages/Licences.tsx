@@ -79,7 +79,7 @@ export function Licences() {
         <h2>Application Android</h2>
         <p>
           Elle est construite avec Flutter (licence BSD) et flutter_rust_bridge (MIT). Son lecteur
-          utilise AndroidX Media3 1.11.1 (Apache 2.0) et son interface les icônes Phosphor (MIT).
+          utilise AndroidX Media3 1.11.1 (Apache 2.0), dont son module HLS pour les clips en ligne, et son interface les icônes Phosphor (MIT).
           L’APK intègre youtubedl-android 0.18.1 (Python, FFmpeg, QuickJS) et yt-dlp 2026.08.19,
           sous leurs propres licences. L’inventaire des sources correspondant exactement aux
           bibliothèques natives de youtubedl-android reste incomplet.
@@ -95,6 +95,11 @@ export function Licences() {
           </li>
           <li>
             <strong>Phosphor Icons</strong> — licence MIT.
+          </li>
+          <li>
+            <strong>Simple Icons</strong> — CC0 1.0 (domaine public) : logos des sites proposés
+            au départ du navigateur. Les marques restent celles de leurs titulaires et désignent
+            seulement un lien vers leur site.
           </li>
           <li>
             <strong>Material Symbols Rounded</strong> (Google) — Apache License 2.0. Ce site en
