@@ -2407,7 +2407,7 @@ class L10nFr extends L10n {
   }
 
   @override
-  String get getStStep => 'étape 2/2 · ffmpeg';
+  String get getStStep => 'étape 2/2';
 
   @override
   String get getStPaused => 'En pause';

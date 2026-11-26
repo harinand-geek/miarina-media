@@ -3846,7 +3846,7 @@ abstract class L10n {
   /// No description provided for @getStStep.
   ///
   /// In fr, this message translates to:
-  /// **'étape 2/2 · ffmpeg'**
+  /// **'étape 2/2'**
   String get getStStep;
 
   /// No description provided for @getStPaused.

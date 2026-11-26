@@ -2414,7 +2414,7 @@ class L10nMg extends L10n {
   }
 
   @override
-  String get getStStep => 'dingana 2/2 · ffmpeg';
+  String get getStStep => 'dingana 2/2';
 
   @override
   String get getStPaused => 'Mijanona';

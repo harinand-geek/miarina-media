@@ -624,7 +624,7 @@
   "getStConverting": "Processing",
   "getStConvertingTo": "Converting to {ext}",
   "getStFinalizing": "Finalizing {ext}",
-  "getStStep": "step 2/2 · ffmpeg",
+  "getStStep": "step 2/2",
   "getStPaused": "Paused",
   "getStPausedRestart": "Paused · will restart",
   "getStDiskFull": "Failed · disk full",

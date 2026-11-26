@@ -1445,7 +1445,7 @@
       }
     }
   },
-  "getStStep": "étape 2/2 · ffmpeg",
+  "getStStep": "étape 2/2",
   "getStPaused": "En pause",
   "getStPausedRestart": "En pause · redémarrera",
   "getStDiskFull": "Échec · disque plein",

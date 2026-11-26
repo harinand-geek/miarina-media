@@ -624,7 +624,7 @@
   "getStConverting": "Famadihana",
   "getStConvertingTo": "Famadihana {ext}",
   "getStFinalizing": "Famaranana {ext}",
-  "getStStep": "dingana 2/2 · ffmpeg",
+  "getStStep": "dingana 2/2",
   "getStPaused": "Mijanona",
   "getStPausedRestart": "Mijanona · hanomboka indray",
   "getStDiskFull": "Tsy nahomby · feno ny kapila",
