@@ -34,6 +34,7 @@ import '../shell/mobile_shell.dart'
         miniHidden,
         miniTitleKey,
         miniTitleStyle;
+import '../online/online_playback.dart' show playOnlineClip;
 import '../playback/audio_only.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
@@ -342,9 +343,26 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
         subtitle: entry.subtitle,
       ),
       groups: [
-        // Decision 0011: keep an online track for offline listening.
+        // Decision 0011: keep an online track for offline listening, or
+        // watch its clip from where it is.
         if (entry.onlineId case final id?)
           [
+            if (!entry.isVideo)
+              SheetAction(
+                icon: PhosphorRegular.monitorPlay,
+                label: t.onlineWatchClip,
+                onTap: () => playOnlineClip(
+                  context,
+                  ref,
+                  videoId: id,
+                  title: entry.title,
+                  subtitle: entry.subtitle,
+                  duration: entry.duration,
+                  artwork: entry.artwork,
+                  replace: true,
+                  at: currentSnapshot(ref).position,
+                ),
+              ),
             SheetAction(
               icon: PhosphorRegular.downloadSimple,
               label: t.tabGet,

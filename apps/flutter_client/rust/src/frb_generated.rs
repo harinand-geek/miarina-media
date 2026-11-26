@@ -6998,6 +6998,7 @@ impl SseDecode for crate::api::online::OnlineStreamInfo {
         let mut var_ext = <Option<String>>::sse_decode(deserializer);
         let mut var_codec = <Option<String>>::sse_decode(deserializer);
         let mut var_bitrateKbps = <Option<f64>>::sse_decode(deserializer);
+        let mut var_hlsUrl = <Option<String>>::sse_decode(deserializer);
         return crate::api::online::OnlineStreamInfo {
             video_id: var_videoId,
             url: var_url,
@@ -7007,6 +7008,7 @@ impl SseDecode for crate::api::online::OnlineStreamInfo {
             ext: var_ext,
             codec: var_codec,
             bitrate_kbps: var_bitrateKbps,
+            hls_url: var_hlsUrl,
         };
     }
 }
@@ -9357,6 +9359,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::online::OnlineStreamInfo {
             self.ext.into_into_dart().into_dart(),
             self.codec.into_into_dart().into_dart(),
             self.bitrate_kbps.into_into_dart().into_dart(),
+            self.hls_url.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -11283,6 +11286,7 @@ impl SseEncode for crate::api::online::OnlineStreamInfo {
         <Option<String>>::sse_encode(self.ext, serializer);
         <Option<String>>::sse_encode(self.codec, serializer);
         <Option<f64>>::sse_encode(self.bitrate_kbps, serializer);
+        <Option<String>>::sse_encode(self.hls_url, serializer);
     }
 }
 

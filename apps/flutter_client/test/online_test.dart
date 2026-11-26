@@ -9,6 +9,8 @@ import 'package:material_ui/material_ui.dart' show AlertDialog, FilledButton;
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/features/cinema/cinema_data.dart';
+import 'package:miarina_media/features/cinema/watch_screen.dart'
+    show WatchScreen;
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics.dart';
@@ -140,6 +142,7 @@ class FakeOnlineStreams implements OnlineStreams {
     String videoId, {
     bool fresh = false,
     bool ahead = false,
+    bool clip = false,
   }) async {
     calls.add((videoId, fresh));
     if (ahead) aheadCalls.add(videoId);
@@ -150,6 +153,12 @@ class FakeOnlineStreams implements OnlineStreams {
       throw f;
     }
     _n++;
+    if (clip) {
+      return source.withStream(
+        Uri.parse('https://hls.example/$videoId.m3u8'),
+        mimeType: 'application/x-mpegURL',
+      );
+    }
     return source.withStream(
       Uri.parse('https://stream.example/$videoId?n=$_n'),
       headers: const {'User-Agent': 'UA'},
@@ -739,6 +748,55 @@ void main() {
     });
   });
 
+  group('clips (lot 8)', () {
+    testWidgets('a clip opens in the video player', (tester) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(
+        find.bySemanticsLabel('Voir le clip SAKATÉ BOY - Zanak Antesaka'),
+      );
+      await settleOnline(tester);
+      final opened = engine.opened.last;
+      expect(opened.uri, onlineClipUri('AAAAAAAAAAA'));
+      expect(
+        opened.playable.toString(),
+        'https://hls.example/AAAAAAAAAAA.m3u8',
+      );
+      expect(opened.mimeType, 'application/x-mpegURL');
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      expect(container.read(queueProvider).current?.isVideo, isTrue);
+      expect(find.byType(WatchScreen), findsOneWidget);
+    });
+
+    testWidgets('Now playing: the clip takes over where the sound was', (
+      tester,
+    ) async {
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(find.text('SAKATÉ BOY - Zanak Antesaka'));
+      await settleOnline(tester);
+      engine.emit(
+        PlaybackSnapshot(
+          status: PlaybackStatus.playing,
+          source: engine.opened.single,
+          position: const Duration(seconds: 75),
+          duration: const Duration(minutes: 4),
+        ),
+      );
+      final container = ProviderScope.containerOf(
+        tester.element(find.byType(MiarinaApp)),
+      );
+      container.read(routerProvider).go(Routes.now);
+      await settleOnline(tester);
+      await tester.tap(find.text('Voir le clip').last);
+      await settleOnline(tester);
+      expect(engine.opened.last.uri, onlineClipUri('AAAAAAAAAAA'));
+      expect(engine.starts.last, const Duration(seconds: 75));
+      // The rest of the queue stays.
+      expect(container.read(queueProvider).upcoming, hasLength(4));
+    });
+  });
+
   group('lyrics (lot 7)', () {
     test('a title key ignores case, spaces and punctuation', () {
       expect(
@@ -784,6 +842,17 @@ void main() {
         lyricsTitleKey('SAKATÉ BOY - Zanak Antesaka'),
       ]);
       expect(lyricsCache.files.values.first, startsWith('[re:YouTube]'));
+    });
+
+    testWidgets('an online clip has its lyrics too', (tester) async {
+      lyricsApi.answer = (lrc: '[00:03.00]Hira', source: 'lrclib');
+      await pumpApp(tester, start: '${Routes.online}?q=zanak');
+      await tester.tap(
+        find.bySemanticsLabel('Voir le clip SAKATÉ BOY - Zanak Antesaka'),
+      );
+      await settleOnline(tester);
+      final l = await current(tester);
+      expect(l?.lines.single.text, 'Hira');
     });
 
     testWidgets('kept lyrics need no lookup', (tester) async {

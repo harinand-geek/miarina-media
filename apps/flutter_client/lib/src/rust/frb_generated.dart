@@ -6595,8 +6595,8 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   OnlineStreamInfo dco_decode_online_stream_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return OnlineStreamInfo(
       videoId: dco_decode_String(arr[0]),
       url: dco_decode_String(arr[1]),
@@ -6606,6 +6606,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ext: dco_decode_opt_String(arr[5]),
       codec: dco_decode_opt_String(arr[6]),
       bitrateKbps: dco_decode_opt_box_autoadd_f_64(arr[7]),
+      hlsUrl: dco_decode_opt_String(arr[8]),
     );
   }
 
@@ -8915,6 +8916,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     var var_ext = sse_decode_opt_String(deserializer);
     var var_codec = sse_decode_opt_String(deserializer);
     var var_bitrateKbps = sse_decode_opt_box_autoadd_f_64(deserializer);
+    var var_hlsUrl = sse_decode_opt_String(deserializer);
     return OnlineStreamInfo(
       videoId: var_videoId,
       url: var_url,
@@ -8924,6 +8926,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       ext: var_ext,
       codec: var_codec,
       bitrateKbps: var_bitrateKbps,
+      hlsUrl: var_hlsUrl,
     );
   }
 
@@ -11234,6 +11237,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_opt_String(self.ext, serializer);
     sse_encode_opt_String(self.codec, serializer);
     sse_encode_opt_box_autoadd_f_64(self.bitrateKbps, serializer);
+    sse_encode_opt_String(self.hlsUrl, serializer);
   }
 
   @protected

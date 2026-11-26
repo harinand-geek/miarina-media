@@ -235,6 +235,15 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 - Essai réel de LRCLIB : « Shawn Mendes – Señorita » trouvée (57 lignes) ; « Keen'v – La vie du bon côté » et « Sakaté Boy – Zanak'Antesaka » absentes. La couverture malgache dépend des sous-titres envoyés sur YouTube.
 - Seules les paroles synchronisées sont affichées (le lecteur ne sait pas encore afficher un texte sans minutage).
 
+### 10. Voir le clip dans le lecteur (lot 8, option A choisie par le propriétaire)
+
+- YouTube ne sert plus de format vidéo avec le son intégré : vidéo et son sont séparés au-delà de 360p (`-F`, 2026-11-26). Son **manifeste HLS maître** (`manifest.googlevideo.com/api/manifest/hls_variant/…`) les réunit : groupes audio AAC et variantes H.264 de 144p à 1080p. C'est ce que le lecteur ouvre.
+- Le manifeste vient du même JSON que le flux audio (`formats[].manifest_url`, https googlevideo.com) : passer d'un titre à son clip ne relance pas yt-dlp quand le flux est en cache.
+- Windows : libmpv lit le manifeste (qualité adaptative). Android : module `androidx.media3:media3-exoplayer-hls` 1.11.1 ajouté (même famille que Media3), et le type `application/x-mpegURL` passé à l'élément, l'adresse ne se terminant pas par `.m3u8`.
+- Entrée de clip : `miarina-online:<id>?clip`, vidéo, même `onlineId`. Accès : icône écran sur chaque résultat ; « Voir le clip » dans En lecture (Windows) et le menu « ⋯ » du lecteur du téléphone, qui remplace le titre courant par son clip au même moment (le reste de la file est gardé).
+- Les paroles valent aussi pour un clip en ligne (c'est une chanson).
+- Vu fonctionner par le propriétaire.
+
 ## Risques
 
 | Risque | Effet | Parade |
@@ -266,6 +275,8 @@ Aucun stockage SQLite en V1 : les caches sont en mémoire et disparaissent à la
 | 6 ✅ | Accueil « En ligne » en grilles de clips | Tests de widgets (37 au total) ; vu par le propriétaire sur Windows |
 
 | 7 ✅ | Paroles automatiques : sous-titres YouTube, LRCLIB, conservation locale, réglage | Tests Rust et de widgets ; essai réel de LRCLIB |
+
+| 8 ✅ | Voir le clip (HLS) dans le lecteur, Windows et Android | Tests de widgets ; vu par le propriétaire |
 
 ## Questions encore ouvertes
 

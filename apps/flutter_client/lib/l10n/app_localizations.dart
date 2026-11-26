@@ -8486,6 +8486,12 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Chercher les paroles en ligne'**
   String get onlineLyricsSetting;
+
+  /// No description provided for @onlineWatchClip.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le clip'**
+  String get onlineWatchClip;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

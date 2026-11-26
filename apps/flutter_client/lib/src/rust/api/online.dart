@@ -169,6 +169,9 @@ class OnlineStreamInfo {
   final String? codec;
   final double? bitrateKbps;
 
+  /// The clip (HLS master playlist, video and sound), when offered.
+  final String? hlsUrl;
+
   const OnlineStreamInfo({
     required this.videoId,
     required this.url,
@@ -178,6 +181,7 @@ class OnlineStreamInfo {
     this.ext,
     this.codec,
     this.bitrateKbps,
+    this.hlsUrl,
   });
 
   @override
@@ -189,7 +193,8 @@ class OnlineStreamInfo {
       durationSecs.hashCode ^
       ext.hashCode ^
       codec.hashCode ^
-      bitrateKbps.hashCode;
+      bitrateKbps.hashCode ^
+      hlsUrl.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -203,7 +208,8 @@ class OnlineStreamInfo {
           durationSecs == other.durationSecs &&
           ext == other.ext &&
           codec == other.codec &&
-          bitrateKbps == other.bitrateKbps;
+          bitrateKbps == other.bitrateKbps &&
+          hlsUrl == other.hlsUrl;
 }
 
 class OnlineTrack {

@@ -117,6 +117,8 @@ dependencies {
     // Same Media3 release as the shipped Tauri Android app (validated on device).
     implementation("androidx.media3:media3-exoplayer:1.11.1")
     implementation("androidx.media3:media3-session:1.11.1")
+    // Online clips (decision 0011, lot 8): YouTube's HLS master playlist.
+    implementation("androidx.media3:media3-exoplayer-hls:1.11.1")
     // Same release as the shipped Tauri app (design_handoff_splash).
     implementation("androidx.core:core-splashscreen:1.2.0")
     // Obtenir (bêta 2): the extractor and FFmpeg of the Tauri app, same

@@ -2702,5 +2702,6 @@
       }
     }
   },
-  "onlineLyricsSetting": "Chercher les paroles en ligne"
+  "onlineLyricsSetting": "Chercher les paroles en ligne",
+  "onlineWatchClip": "Voir le clip"
 }

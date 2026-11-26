@@ -5098,4 +5098,7 @@ class L10nEn extends L10n {
 
   @override
   String get onlineLyricsSetting => 'Look up lyrics online';
+
+  @override
+  String get onlineWatchClip => 'Watch the clip';
 }

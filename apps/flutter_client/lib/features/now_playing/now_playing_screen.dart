@@ -14,6 +14,7 @@ import '../../design/widgets/track_bar.dart' show InterpolatedPosition;
 import '../../l10n/app_localizations.dart';
 import '../common/state_views.dart';
 import '../online/online_obtain.dart' show OnlineObtainChip;
+import '../online/online_playback.dart' show playOnlineClip;
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
 import '../playback/audio_only.dart';
@@ -339,9 +340,27 @@ class _NowPlayingScreenState extends ConsumerState<NowPlayingScreen> {
                                           icon: PhosphorRegular.fileAudio,
                                           label: entry.format!,
                                         ),
-                                      // Decision 0011: keep it offline.
+                                      // Decision 0011: keep it offline,
+                                      // or watch its clip from here.
                                       if (entry.onlineId != null)
                                         OnlineObtainChip(entry: entry),
+                                      if (entry.onlineId != null &&
+                                          !entry.isVideo)
+                                        InfoChip(
+                                          icon: PhosphorRegular.monitorPlay,
+                                          label: t.onlineWatchClip,
+                                          onTap: () => playOnlineClip(
+                                            context,
+                                            ref,
+                                            videoId: entry.onlineId!,
+                                            title: entry.title,
+                                            subtitle: entry.subtitle,
+                                            duration: entry.duration,
+                                            artwork: entry.artwork,
+                                            replace: true,
+                                            at: currentSnapshot(ref).position,
+                                          ),
+                                        ),
                                     ],
                                   ),
                                 ],

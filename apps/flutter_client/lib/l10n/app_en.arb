@@ -1465,5 +1465,6 @@
   "onlineNew": "New releases",
   "onlineNewQuery": "new official music video {year}",
   "onlineFromSearch": "Based on “{query}”",
-  "onlineLyricsSetting": "Look up lyrics online"
+  "onlineLyricsSetting": "Look up lyrics online",
+  "onlineWatchClip": "Watch the clip"
 }

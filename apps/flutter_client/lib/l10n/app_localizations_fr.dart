@@ -5139,4 +5139,7 @@ class L10nFr extends L10n {
 
   @override
   String get onlineLyricsSetting => 'Chercher les paroles en ligne';
+
+  @override
+  String get onlineWatchClip => 'Voir le clip';
 }

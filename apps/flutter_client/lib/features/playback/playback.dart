@@ -283,6 +283,19 @@ class QueueController extends Notifier<QueueState> {
   /// « Réessayer » of the player's error card.
   Future<void> retryCurrent() => _load();
 
+  /// Puts [entry] in place of the current one and plays it from [at]: an
+  /// online track becomes its clip, and back (decision 0011, lot 8).
+  Future<void> replaceCurrent(QueueEntry entry, {Duration? at}) async {
+    if (state.position < 0) {
+      await playAll([entry]);
+      return;
+    }
+    final entries = List.of(state.entries);
+    entries[state.order[state.position]] = entry;
+    state = state.copyWith(entries: List.unmodifiable(entries));
+    await _load(startAt: at);
+  }
+
   Future<void> next() async {
     if (state.order.isEmpty) return;
     if (state.position + 1 < state.order.length) {
@@ -416,7 +429,7 @@ class QueueController extends Notifier<QueueState> {
     return order;
   }
 
-  Future<void> _load({bool fromStart = false}) async {
+  Future<void> _load({bool fromStart = false, Duration? startAt}) async {
     final entry = state.current;
     final engine = _engine;
     if (entry == null || engine == null) return;
@@ -439,7 +452,7 @@ class QueueController extends Notifier<QueueState> {
     }
     _skipped = 0;
     final memory = ref.read(playbackMemoryProvider);
-    final start = fromStart ? null : await memory.startFor(entry);
+    final start = startAt ?? (fromStart ? null : await memory.startFor(entry));
     // Before open(): the previous track's position is saved from the last
     // snapshot, which open() replaces.
     await memory.started(entry);
@@ -475,7 +488,13 @@ class QueueController extends Notifier<QueueState> {
     if (report) notifier.resolving(entry);
     Future<MediaSource> attempt() => ref
         .read(onlineStreamsProvider)
-        .resolve(entry.source, entry.onlineId!, fresh: fresh, ahead: !report);
+        .resolve(
+          entry.source,
+          entry.onlineId!,
+          fresh: fresh,
+          ahead: !report,
+          clip: entry.isVideo,
+        );
     try {
       MediaSource source;
       try {

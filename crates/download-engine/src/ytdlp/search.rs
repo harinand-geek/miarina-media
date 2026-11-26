@@ -143,6 +143,16 @@ pub struct RawStream {
     /// language.
     #[serde(default, deserialize_with = "lenient")]
     pub subtitles: Option<BTreeMap<String, Vec<RawSubtitleTrack>>>,
+    /// Every format; the HLS ones carry the master playlist (the clip,
+    /// video and sound together).
+    #[serde(default, deserialize_with = "lenient")]
+    pub formats: Option<Vec<RawManifestFormat>>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct RawManifestFormat {
+    pub protocol: Option<String>,
+    pub manifest_url: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
@@ -177,6 +187,24 @@ pub struct OnlineStream {
     /// WebVTT subtitles uploaded with the clip, `(language, URL)`: often
     /// the lyrics. The URLs expire with the stream's.
     pub subtitles: Vec<(String, String)>,
+    /// The clip: YouTube's HLS master playlist (video and sound, 144p to
+    /// 1080p), when offered. Expires with the stream.
+    pub hls: Option<String>,
+}
+
+/// The HLS master playlist, served by googlevideo.com over https.
+fn hls_manifest(formats: Option<Vec<RawManifestFormat>>) -> Option<String> {
+    formats
+        .unwrap_or_default()
+        .into_iter()
+        .filter(|f| f.protocol.as_deref().is_some_and(|p| p.starts_with("m3u8")))
+        .find_map(|f| {
+            let url = validate_media_url(f.manifest_url.as_deref()?).ok()?;
+            let host = url.host();
+            (url.as_str().starts_with("https://")
+                && (host == "googlevideo.com" || host.ends_with(".googlevideo.com")))
+            .then(|| url.as_str().to_owned())
+        })
 }
 
 /// Uploaded WebVTT subtitles served by YouTube (https), live chat left out.
@@ -274,6 +302,7 @@ pub fn stream_of(bytes: &[u8], expected_id: &str) -> Result<OnlineStream, String
         codec: raw.acodec.filter(|c| c != "none"),
         bitrate: raw.abr.filter(|b| b.is_finite() && *b > 0.0),
         subtitles: uploaded_subtitles(raw.subtitles),
+        hls: hls_manifest(raw.formats),
     })
 }
 
@@ -434,6 +463,21 @@ mod tests {
                 "https://www.youtube.com/api/timedtext?f=v".to_owned()
             )]
         );
+    }
+
+    #[test]
+    fn the_clip_is_the_hls_master_playlist() {
+        let raw = r#"{"id":"AAAAAAAAAAA","acodec":"opus","url":"https://h.example/a",
+          "formats":[{"protocol":"https","manifest_url":null},
+            {"protocol":"m3u8_native","manifest_url":"https://evil.example/m.m3u8"},
+            {"protocol":"m3u8_native","manifest_url":"https://manifest.googlevideo.com/api/manifest/hls_variant/x"}]}"#;
+        let s = stream_of(raw.as_bytes(), "AAAAAAAAAAA").unwrap();
+        assert_eq!(
+            s.hls.as_deref(),
+            Some("https://manifest.googlevideo.com/api/manifest/hls_variant/x")
+        );
+        let none = r#"{"id":"AAAAAAAAAAA","acodec":"opus","url":"https://h.example/a"}"#;
+        assert_eq!(stream_of(none.as_bytes(), "AAAAAAAAAAA").unwrap().hls, None);
     }
 
     #[test]

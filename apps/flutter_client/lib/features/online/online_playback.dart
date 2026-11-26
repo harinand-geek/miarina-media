@@ -1,8 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../app/router.dart' show Routes;
 import '../../engine/media_engine.dart';
 import '../../src/rust/api/library.dart' show LibraryItem;
 import '../../src/rust/api/online.dart';
@@ -26,11 +30,13 @@ abstract interface class OnlineStreams {
   /// [source] with the stream to open. Throws an [OnlineFailure]. [fresh]:
   /// not the cached one (the engine was refused with it). [ahead]: found
   /// before it is needed, never in the way of the one waited for.
+  /// [clip]: the video with its sound (HLS) rather than the sound alone.
   Future<MediaSource> resolve(
     MediaSource source,
     String videoId, {
     bool fresh = false,
     bool ahead = false,
+    bool clip = false,
   });
 }
 
@@ -45,6 +51,7 @@ class RustOnlineStreams implements OnlineStreams {
     String videoId, {
     bool fresh = false,
     bool ahead = false,
+    bool clip = false,
   }) async {
     if (!RustLib.instance.initialized) {
       throw const OnlineFailure(OnlineFailureKind.tools);
@@ -56,6 +63,16 @@ class RustOnlineStreams implements OnlineStreams {
         fresh: fresh,
         ahead: ahead,
       );
+      if (clip) {
+        final hls = s.hlsUrl;
+        if (hls == null) {
+          throw const OnlineFailure(OnlineFailureKind.unavailable, 'no clip');
+        }
+        return source.withStream(
+          Uri.parse(hls),
+          mimeType: 'application/x-mpegURL',
+        );
+      }
       return source.withStream(
         Uri.parse(s.url),
         headers: {for (final h in s.httpHeaders) h.name: h.value},
@@ -135,6 +152,27 @@ void prepareOnline(WidgetRef ref, String videoId) => unawaited(
       .then<void>((_) {}, onError: (Object _) {}),
 );
 
+/// The clip of an online track (decision 0011, lot 8): same video, its
+/// picture and sound together, played in the video player.
+Uri onlineClipUri(String videoId) =>
+    Uri(scheme: onlineScheme, path: videoId, query: 'clip');
+
+QueueEntry onlineClipEntry({
+  required String videoId,
+  required String title,
+  String? subtitle,
+  Duration? duration,
+  String? artwork,
+}) => QueueEntry(
+  source: MediaSource(onlineClipUri(videoId), title: title),
+  title: title,
+  subtitle: subtitle,
+  duration: duration,
+  artwork: artwork,
+  isVideo: true,
+  onlineId: videoId,
+);
+
 QueueEntry onlineEntry(
   OnlineTrack track, {
   required String unknownArtist,
@@ -176,4 +214,32 @@ Future<void> playOnline(
       else
         onlineEntry(t, unknownArtist: unknownArtist, artwork: art[t.videoId]),
   ], start: index);
+}
+
+/// Plays an online track's clip in the video player (decision 0011, lot 8).
+/// [replace]: in place of the current entry (its sound), from [at].
+Future<void> playOnlineClip(
+  BuildContext context,
+  WidgetRef ref, {
+  required String videoId,
+  required String title,
+  String? subtitle,
+  Duration? duration,
+  String? artwork,
+  bool replace = false,
+  Duration? at,
+}) async {
+  final clip = onlineClipEntry(
+    videoId: videoId,
+    title: title,
+    subtitle: subtitle,
+    duration: duration,
+    artwork: artwork,
+  );
+  final queue = ref.read(queueProvider.notifier);
+  // The video page shows while the clip is found.
+  unawaited(
+    replace ? queue.replaceCurrent(clip, at: at) : queue.playAll([clip]),
+  );
+  if (context.mounted) await context.push(Routes.watch);
 }

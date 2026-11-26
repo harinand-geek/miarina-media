@@ -113,6 +113,30 @@ class OnlineTile extends ConsumerWidget {
               style: MmType.monoStyle(size: 11.5, color: c.muted),
             ),
             const SizedBox(width: 4),
+            Pressable(
+              onTap: () => playOnlineClip(
+                context,
+                ref,
+                videoId: tr.videoId,
+                title: tr.title,
+                subtitle: tr.channel ?? t.unknownArtist,
+                duration: Duration(
+                  milliseconds: (tr.durationSecs * 1000).round(),
+                ),
+                artwork: picture,
+              ),
+              semanticLabel: '${t.onlineWatchClip} ${tr.title}',
+              tooltip: t.onlineWatchClip,
+              child: SizedBox(
+                width: 36,
+                height: 36,
+                child: Icon(
+                  PhosphorRegular.monitorPlay,
+                  size: 18,
+                  color: c.muted,
+                ),
+              ),
+            ),
             OnlineObtainButton(track: tr, local: obtained, picture: picture),
           ],
         ),

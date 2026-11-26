@@ -71,6 +71,7 @@ class Media3Engine implements MediaEngine {
       'title': next?.title,
       if (next != null && next.httpHeaders.isNotEmpty)
         'headers': next.httpHeaders,
+      'mime': ?next?.mimeType,
     });
   }
 
@@ -207,6 +208,7 @@ class Media3Engine implements MediaEngine {
       'startMs': startAt?.inMilliseconds ?? 0,
       // Online streams (decision 0011); applied by the plugin in lot 5.
       if (media.httpHeaders.isNotEmpty) 'headers': media.httpHeaders,
+      'mime': ?media.mimeType,
     });
   }
 

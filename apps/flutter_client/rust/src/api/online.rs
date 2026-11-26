@@ -77,6 +77,8 @@ pub struct OnlineStreamInfo {
     pub ext: Option<String>,
     pub codec: Option<String>,
     pub bitrate_kbps: Option<f64>,
+    /// The clip (HLS master playlist, video and sound), when offered.
+    pub hls_url: Option<String>,
 }
 
 /// The extractor is installed and Obtenir has started.
@@ -318,6 +320,7 @@ fn stream_info(stream: OnlineStream) -> OnlineStreamInfo {
         ext: stream.ext,
         codec: stream.codec,
         bitrate_kbps: stream.bitrate,
+        hls_url: stream.hls,
     }
 }
 
@@ -450,6 +453,7 @@ mod tests {
             codec: None,
             bitrate: None,
             subtitles: Vec::new(),
+            hls: None,
         }
     }
 

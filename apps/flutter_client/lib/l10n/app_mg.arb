@@ -1397,5 +1397,6 @@
   "onlineNew": "Vaovao",
   "onlineNewQuery": "nouveauté gasy {year} clip officiel",
   "onlineFromSearch": "Araka ny « {query} »",
-  "onlineLyricsSetting": "Hitady ny tononkira an-tserasera"
+  "onlineLyricsSetting": "Hitady ny tononkira an-tserasera",
+  "onlineWatchClip": "Jereo ny horonantsary"
 }

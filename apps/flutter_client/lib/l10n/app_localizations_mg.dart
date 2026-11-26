@@ -5156,4 +5156,7 @@ class L10nMg extends L10n {
 
   @override
   String get onlineLyricsSetting => 'Hitady ny tononkira an-tserasera';
+
+  @override
+  String get onlineWatchClip => 'Jereo ny horonantsary';
 }

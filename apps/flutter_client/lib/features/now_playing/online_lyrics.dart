@@ -136,7 +136,7 @@ Lyrics? _parseKept(String text) {
 }
 
 /// Lookups that found nothing this session: not asked again.
-final _missed = <String>{};
+final _missedProvider = Provider<Set<String>>((_) => <String>{});
 
 /// Kept lyrics for [entry], else (when [online]) an online lookup, kept.
 Future<Lyrics?> loadOnlineLyrics(
@@ -156,7 +156,8 @@ Future<Lyrics?> loadOnlineLyrics(
       if (kept != null) return kept;
     }
   }
-  if (!online || keys.any(_missed.contains)) return null;
+  final missed = ref.read(_missedProvider);
+  if (!online || keys.any(missed.contains)) return null;
   final found = await ref
       .read(onlineLyricsApiProvider)
       .find((
@@ -167,7 +168,7 @@ Future<Lyrics?> loadOnlineLyrics(
       ))
       .catchError((Object _) => null);
   if (found == null) {
-    _missed.addAll(keys);
+    missed.addAll(keys);
     return null;
   }
   final label = sourceLabel(found.source);

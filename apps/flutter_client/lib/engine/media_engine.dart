@@ -12,6 +12,7 @@ class MediaSource {
     this.title,
     this.stream,
     this.httpHeaders = const {},
+    this.mimeType,
   });
 
   /// What the entry is: stable, compared by the queue and the players.
@@ -26,6 +27,10 @@ class MediaSource {
   /// Headers the engine sends with its requests for [stream].
   final Map<String, String> httpHeaders;
 
+  /// What [stream] is when its URL does not say (an online clip's HLS
+  /// manifest: `application/x-mpegURL`).
+  final String? mimeType;
+
   /// The address to open.
   Uri get playable => stream ?? uri;
 
@@ -35,7 +40,14 @@ class MediaSource {
   MediaSource withStream(
     Uri stream, {
     Map<String, String> headers = const {},
-  }) => MediaSource(uri, title: title, stream: stream, httpHeaders: headers);
+    String? mimeType,
+  }) => MediaSource(
+    uri,
+    title: title,
+    stream: stream,
+    httpHeaders: headers,
+    mimeType: mimeType,
+  );
 }
 
 class TrackInfo {

@@ -27,7 +27,10 @@ final currentLyricsProvider = FutureProvider<Lyrics?>((ref) async {
     final side = await ref.read(lyricsLoaderProvider)(uri.toFilePath());
     if (side != null) return side;
   }
-  if (entry.isVideo || entry.focusKey != null) return null;
+  // Music only: not films, podcasts or courses; an online clip is a song.
+  if ((entry.isVideo && entry.onlineId == null) || entry.focusKey != null) {
+    return null;
+  }
   // An online track's uploaded subtitles come with its stream: once found.
   if (entry.onlineId != null && ref.watch(onlineResolvingProvider)) {
     return null;

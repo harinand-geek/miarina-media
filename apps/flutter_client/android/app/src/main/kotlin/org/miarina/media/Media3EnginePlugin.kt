@@ -165,6 +165,8 @@ class Media3EnginePlugin(
         val item = MediaItem.Builder()
           .setMediaId(uri)
           .setUri(parseUri(uri))
+          // An online clip's HLS manifest: its URL does not say so.
+          .setMimeType(call.argument<String>("mime"))
           .setMediaMetadata(MediaMetadata.Builder().setTitle(call.argument<String>("title")).build())
           .build()
         error = null
@@ -187,6 +189,7 @@ class Media3EnginePlugin(
             MediaItem.Builder()
               .setMediaId(uri)
               .setUri(parseUri(uri))
+              .setMimeType(call.argument<String>("mime"))
               .setMediaMetadata(MediaMetadata.Builder().setTitle(call.argument<String>("title")).build())
               .build(),
           )
