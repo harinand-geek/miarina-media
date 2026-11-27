@@ -217,7 +217,7 @@ Icônes du handoff : `home download video_library play_circle history settings t
 
 Le handoff fournit un `tailwind.config.ts` (syntaxe Tailwind v3) fondé sur des variables CSS `--mm-*` en canaux RGB (`rgb(var(--mm-bg) / <alpha-value>)`), `darkMode: 'class'`. **Tailwind 4 (version stable actuelle 4.3.x) est configuré en CSS (`@theme`)** : ces tokens seront transcrits à l'identique dans `apps/client/src/styles/theme.css` (mêmes noms : `bg, surface, surface2, sidebar, line, lineStrong, accent.{DEFAULT,hover,press,ink,strong,subtle}, fg, muted, warn, danger`, mêmes tailles de police, rayons, ombres, easings et durées `fast 80 / base 150 / panel 200 / dialog 220`).
 
-## 13. Manques et incohérences du handoff (à trancher — voir aussi `phase-0-report.md`)
+## 13. Manques et incohérences du handoff (à trancher — voir aussi `archive/phase-0-report.md`)
 
 1. **Domaine** : le handoff indique `play.miarina.org` (en-tête du design system, « About » Android) alors que `CLAUDE.md` indique `media.miarina.org`. → Je retiens **media.miarina.org** sauf avis contraire ; le design devra être corrigé.
 2. **Thème clair** : tokens fournis, mais **aucun écran maquetté en clair**. Implémentation possible par substitution de tokens ; validation visuelle à faire.

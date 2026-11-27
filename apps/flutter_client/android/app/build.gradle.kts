@@ -7,10 +7,10 @@ plugins {
 }
 
 // Release signing: the key of the published Android app (0.1.x), read from
-// the Tauri project's keystore.properties (git-ignored, never copied here).
+// android/key.properties (git-ignored; the .jks itself stays outside the repo).
 // Without it the release APK is signed with the debug key and not published.
 val keystoreProperties = Properties().apply {
-    val propFile = rootProject.file("../../client/src-tauri/gen/android/keystore.properties")
+    val propFile = rootProject.file("key.properties")
     if (propFile.exists()) propFile.inputStream().use { load(it) }
 }
 

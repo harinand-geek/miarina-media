@@ -1,8 +1,8 @@
 [workspace]
 resolver = "3"
-members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/mdm-adapter", "crates/browser-bridge", "apps/client/src-tauri", "apps/flutter_client/rust"]
-# Feasibility spikes build on their own (they may enable unstable features).
-exclude = ["spikes", "vendor"]
+members = ["crates/media-core", "crates/storage", "crates/resource-manager", "crates/download-engine", "crates/library", "crates/browser-bridge", "apps/flutter_client/rust"]
+# Vendored sources build on their own.
+exclude = ["vendor"]
 
 [workspace.package]
 version = "0.1.12"

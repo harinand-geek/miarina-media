@@ -58,7 +58,7 @@ Proposition : user-initiated jobs sur API 34+, WorkManager + foreground service 
 
 - Google Play interdit les applications qui facilitent le téléchargement non autorisé de contenus de services tiers (en particulier YouTube) ; les applications de ce type (dont SnapTube) sont distribuées **hors Play Store**.
 - Conséquence probable : distribution **APK directe** (site media.miarina.org) et/ou F-Droid, signature et mises à jour gérées par MIARINA.
-- Décision business à prendre avant la Phase 4 (cf. `phase-0-report.md`, question Q4).
+- Décision business à prendre avant la Phase 4 (cf. `archive/phase-0-report.md`, question Q4).
 
 ## 8. Protocole du spike (Phase 4.0)
 

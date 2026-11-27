@@ -1,6 +1,6 @@
 # Miarina Media — client Flutter
 
-Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/0007-flutter-migration.md)). État : **phase 2, fondations** ([preuve de concept](../../docs/flutter-poc.md), [correspondance maquette ↔ code](../../docs/flutter-implementation-map.md)). L'app Tauri (`apps/client`) reste celle qui est publiée.
+Migration de l'interface vers Flutter (décision [0007](../../docs/decisions/0007-flutter-migration.md)). État : **phase 2, fondations** ([preuve de concept](../../docs/flutter-poc.md), [correspondance maquette ↔ code](../../docs/flutter-implementation-map.md)). C'est l'app publiée sur Windows et Android ; l'ancienne app Tauri + React a été retirée (tag git `archive/tauri-react-client`).
 
 ## Contenu
 
@@ -19,7 +19,7 @@ Flutter 3.50 stable, Rust (cibles `x86_64-pc-windows-msvc` et `*-linux-android`)
 
 ## Commandes
 
-En développement, faire pointer l'app vers un dossier de travail ou une **copie** d'un dossier de données 0.1.x, jamais vers celui de l'app Tauri en service :
+En développement, faire pointer l'app vers un dossier de travail ou une **copie** d'un dossier de données 0.1.x, jamais vers celui de l'app installée en service :
 
 ```powershell
 flutter run -d windows --dart-define=MM_DATA_DIR=<dossier>
@@ -44,3 +44,9 @@ flutter test integration_test -d windows `
 Sur Android, les médias doivent être dans le stockage de l'app (`run-as org.miarina.media.poc cp …`), et `POC_MEDIA` pointe vers `/data/user/0/org.miarina.media.poc/files/poc-media`.
 
 L'identifiant Android de test est `org.miarina.media.poc` : il ne remplace pas l'app `org.miarina.media` installée.
+
+## Signature Android et clés
+
+- `android/key.properties` (ignoré par git) : chemin et mots de passe du keystore de publication ; le fichier `.jks` reste hors du dépôt. Sans lui, l'APK de release est signé avec la clé de debug.
+- `rust/update-public-key.bin` : clé publique qui vérifie les mises à jour.
+- `windows/notices/` : textes de licence et notices copiés à côté des outils (yt-dlp, FFmpeg, QuickJS) par `tool/stage_windows.ps1`.

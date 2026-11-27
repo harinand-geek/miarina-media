@@ -1,5 +1,12 @@
 # Miarina Media — Architecture (proposition Phase 0, en attente de validation)
 
+> **Historique.** Ce document décrit la proposition de Phase 0 avec l'app Tauri + React (`apps/client`). Cette app a été retirée le 2026-11-27 (décision [0012](decisions/0012-retrait-app-tauri-react.md)). Organisation actuelle du dépôt :
+>
+> - `apps/flutter_client/` : l'app Windows et Android (Flutter), avec son pont Rust dans `rust/` ([correspondance maquette ↔ code](flutter-implementation-map.md)) ;
+> - `apps/website/` : le site (React, pré-rendu) ; `apps/browser-extension/` : l'extension Chrome/Edge ;
+> - `crates/` : le cœur Rust partagé (`media-core`, `storage`, `library`, `download-engine`, `resource-manager`, `browser-bridge`) ;
+> - `vendor/` : sources tierces (moteur torrent) ; `design/` : maquettes approuvées ; `docs/archive/` : rapports de l'époque Tauri.
+
 > Statut : **PROPOSITION**. Aucun code n'est écrit. Les choix marqués ❓ demandent une validation explicite.
 
 ## 1. Vue d'ensemble
@@ -38,7 +45,7 @@ miarina-media/
 │   ├── design-system.md
 │   ├── design-implementation-map.md
 │   ├── android-feasibility.md
-│   ├── phase-0-report.md           # risques, toolchain, plan, questions ouvertes
+│   ├── archive/                    # rapports de phases et audits de l’ère Tauri
 │   ├── performance.md              # créé en Phase 5 avec des mesures réelles
 │   └── decisions/                  # ADR numérotés
 ├── apps/

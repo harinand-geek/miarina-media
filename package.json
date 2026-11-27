@@ -6,12 +6,9 @@
     "node": ">=22"
   },
   "scripts": {
-    "dev": "pnpm --filter @miarina/client dev",
-    "tauri": "pnpm --filter @miarina/client tauri",
-    "build": "pnpm --filter @miarina/client build",
+    "website:dev": "pnpm --filter @miarina/website dev",
+    "website:build": "pnpm --filter @miarina/website build",
     "typecheck": "pnpm -r typecheck",
-    "lint": "pnpm -r lint",
-    "test": "pnpm -r test",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },

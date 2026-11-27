@@ -24,7 +24,7 @@ Le site snaptubeapp.com renvoyait un message de maintenance dans la source consu
 - Tests rapportés : 79 tests frontend et trois tests spécifiques à la signature/version des mises à jour ; audits de transferts HTTP et torrent local antérieurs. Le nombre de tests n’est pas un score de qualité comparatif.
 - Les torrents ne sont pas automatiquement indexés dans la bibliothèque média. Le moteur HTTP segmenté MDM reste désactivé dans les versions publiques.
 
-Preuves : `docs/test-builds.md`, `docs/app-updates.md`, `docs/prebuild-audit-2026-11-09.md`, `docs/android-extractor-validation.md`, `docs/integrations/misterdownloadmanager.md`, `apps/client/src-tauri/src/updates.rs`, `apps/client/src/features/settings/MobileSettings.tsx`.
+Preuves : `docs/test-builds.md`, `docs/app-updates.md`, `docs/archive/prebuild-audit-2026-11-09.md`, `docs/android-extractor-validation.md`, `docs/integrations/misterdownloadmanager.md`, `apps/client/src-tauri/src/updates.rs`, `apps/client/src/features/settings/MobileSettings.tsx`.
 
 ## Comparaison
 

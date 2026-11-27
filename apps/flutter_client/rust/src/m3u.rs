@@ -1,5 +1,5 @@
-//! M3U / M3U8 playlists (CDC COM-11), same rules as the Tauri app copy in
-//! apps/client/src-tauri/src/m3u.rs (kept while both apps coexist). Import only resolves local paths to
+//! M3U / M3U8 playlists (CDC COM-11), same rules as the retired Tauri app
+//! (tag `archive/tauri-react-client`). Import only resolves local paths to
 //! library entries; web addresses and unknown files are counted, never
 //! fetched or added.
 

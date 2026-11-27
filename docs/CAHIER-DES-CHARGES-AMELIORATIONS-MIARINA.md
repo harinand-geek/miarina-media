@@ -452,9 +452,9 @@ Hors première livraison : cloud et synchronisation, sauvegarde Drive, publicit�
 
 - [Analyse comparative](competitive-positioning-2026-11-11.md)
 - [Versions et validations](test-builds.md)
-- [Audit](prebuild-audit-2026-11-09.md)
+- [Audit](archive/prebuild-audit-2026-11-09.md)
 - [Validation Android](android-extractor-validation.md)
-- [Lecture Windows](desktop-playback-validation.md)
+- [Lecture Windows](archive/desktop-playback-validation.md)
 - [Mises à jour](app-updates.md)
 - [Inventaire MDM](integrations/misterdownloadmanager.md)
 - [Performances historiques](performance.md)

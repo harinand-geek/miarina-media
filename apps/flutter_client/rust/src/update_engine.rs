@@ -90,7 +90,7 @@ const ANDROID: bool = false;
 fn keys() -> Vec<Vec<u8>> {
     #[cfg(not(feature = "update-test-channel"))]
     {
-        vec![include_bytes!("../../../client/src-tauri/resources/update-public-key.bin").to_vec()]
+        vec![include_bytes!("../update-public-key.bin").to_vec()]
     }
     #[cfg(feature = "update-test-channel")]
     {

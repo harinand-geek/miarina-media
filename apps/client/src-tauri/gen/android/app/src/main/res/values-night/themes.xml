@@ -1,7 +1,0 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Theme.miarina_media" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- App background behind the system bars (design: bg #101820). -->
-        <item name="android:windowBackground">@color/mm_bg</item>
-    </style>
-</resources>

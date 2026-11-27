@@ -1,7 +1,7 @@
 //! Browser favorites: pages the user starred, shown on the start page and
 //! in the favorites tab. Kept in the settings table (`browser.favorites`,
-//! shared with the Tauri app, `apps/client/src-tauri/src/browser/
-//! favorites.rs`), on this device only.
+//! same key as the retired Tauri app, so 0.1.x favorites carry over), on
+//! this device only.
 
 use serde::{Deserialize, Serialize};
 use url::Url;

@@ -7,9 +7,7 @@ dist-ssr/
 .next/
 out/
 
-# Tauri / Rust
-**/src-tauri/target/
-**/src-tauri/gen/schemas/
+# Rust
 target/
 
 # Env
@@ -34,11 +32,6 @@ Thumbs.db
 *.local
 coverage/
 
-# Spike build output
-spikes/*/gen/
-
 # Local test builds (installers, signed APKs)
 builds/
 
-# yt-dlp / FFmpeg prepared for the Windows installer (fetch_tools example)
-apps/client/src-tauri/tools/

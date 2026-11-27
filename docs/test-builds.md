@@ -105,7 +105,7 @@ Windows : compilation release et paquet NSIS réussis ; intégrité du paquet v�
 
 Android : APK universel signé, versionCode 1006, Android 7+, ARM64 et x86_64. Signature v2 et alignement vérifiés. Certificat SHA-256 : `11de871564b14382fd46a210ea06327e6d260101125ad2b545159e8b1c6479e1`. Aucun appareil connecté lors de cette publication : essais téléphone, cycle de vie en arrière-plan et lecture native restent à effectuer. Avertissements de compilation non bloquants (imports inutilisés et API Gradle dépréciées).
 
-L’audit automatisé et le transfert torrent local sont décrits dans `prebuild-audit-2026-11-09.md`. La connexion de l’extension dans Chrome/Edge reste à valider manuellement ; distribution en mode développeur, sans publication en magasin. Les fonctions torrent sont Windows uniquement.
+L’audit automatisé et le transfert torrent local sont décrits dans `archive/prebuild-audit-2026-11-09.md`. La connexion de l’extension dans Chrome/Edge reste à valider manuellement ; distribution en mode développeur, sans publication en magasin. Les fonctions torrent sont Windows uniquement.
 
 L’archive source inclut la révision application et le sous-module Mister Download Manager épinglé ; elle ne constitue pas un ensemble complet des sources natives Android tierces (voir `android-extractor-validation.md`).
 
@@ -128,7 +128,7 @@ Binaire Windows compilé en release puis paquet NSIS terminé. Interface de fin
 vérifiée dans un aperçu sans installation : textes clairs, accents corrects,
 icône officielle dans la barre de titre. Le paquet contient aussi le logo
 discret pour les miniatures absentes et les corrections de fiabilité décrites
-dans `desktop-audit-2026-10-28.md` (170 tests Rust et 65 tests frontend).
+dans `archive/desktop-audit-2026-10-28.md` (170 tests Rust et 65 tests frontend).
 L'installation complète de ce paquet n'a pas été rejouée.
 
 Le second passage du bundler signale que le marqueur de type de paquet a déjà

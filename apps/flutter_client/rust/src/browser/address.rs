@@ -1,5 +1,5 @@
-//! What the browser's address bar opens (copied from the Tauri app,
-//! `apps/client/src-tauri/src/browser/address.rs`, until it is retired): a
+//! What the browser's address bar opens (ported from the retired Tauri app,
+//! tag `archive/tauri-react-client`): a
 //! web address opens the page, anything else is searched. Only http(s)
 //! pages are ever opened.
 

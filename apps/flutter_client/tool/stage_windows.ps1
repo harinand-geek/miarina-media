@@ -67,7 +67,7 @@ New-Item -ItemType Directory -Force "$Out\tools" | Out-Null
 foreach ($id in 'yt-dlp', 'ffmpeg', 'quickjs') {
   Copy-Item "$Cache\$id" "$Out\tools\$id" -Recurse
 }
-$res = Join-Path $repo 'apps\client\src-tauri\resources'
+$res = 'windows\notices'
 foreach ($f in 'LGPL-3.0.txt', 'GPL-3.0.txt', 'QuickJS-NG-LICENSE.txt', 'MDM-NOTICE.txt') {
   Copy-Item (Join-Path $res $f) "$Out\tools\$f"
 }
