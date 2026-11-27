@@ -10,10 +10,9 @@ Initialize the source dependency before building:
 ```sh
 git submodule update --init vendor/misterdownloadmanager-source
 cargo build -p miarina-browser-bridge
-node apps/client/scripts/prepare-bridge.mjs --debug
-cargo test -p miarina-mdm-adapter --locked
-cargo check -p miarina-media --features mdm-http --locked
 ```
+
+`apps/flutter_client/tool/stage_windows.ps1` builds the bridge in release mode and copies it next to the app. The former `mdm-adapter` crate (HTTP downloads through MDM, Tauri app only) was removed with that app (decision 0012).
 
 Windows development builds can select `--features mdm-http` to use the adapter
 for direct HTTP transfers. Default builds and Android keep the existing engine.

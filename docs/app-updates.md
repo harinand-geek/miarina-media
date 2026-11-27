@@ -54,8 +54,8 @@ The private Ed25519 release key is local in ignored `builds/update-signing-priva
 ## Publication (UPD-08)
 
 1. Build and verify Windows and Android artifacts with matching version metadata.
-2. `node apps/client/scripts/sign-app-update.mjs VERSION KEY WINDOWS_EXE ANDROID_APK OUTPUT NOTES_FILE [stable|beta]`.
-3. Upload the versioned artifacts first; previous versions stay on the server. Then check the local signed manifest against what the server serves: `node apps/client/scripts/verify-app-update.mjs OUTPUT [channel]` (downloads both artifacts and compares size and SHA-256).
+2. `node apps/flutter_client/tool/sign-app-update.mjs VERSION KEY WINDOWS_EXE ANDROID_APK OUTPUT NOTES_FILE [stable|beta]`.
+3. Upload the versioned artifacts first; previous versions stay on the server. Then check the local signed manifest against what the server serves: `node apps/flutter_client/tool/verify-app-update.mjs OUTPUT [channel]` (downloads both artifacts and compares size and SHA-256).
 4. Publish the manifest last at `/updates/CHANNEL.json` (atomic rename), served with revalidation/no-cache; the client adds a cache-busting query.
 5. Run `verify-app-update.mjs https://media.miarina.org/updates/CHANNEL.json CHANNEL` against the public URL.
 

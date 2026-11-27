@@ -20,6 +20,7 @@ Déplacés vers le client Flutter, parce qu'il les utilisait encore depuis `apps
 | --- | --- |
 | `apps/client/src-tauri/resources/update-public-key.bin` | `apps/flutter_client/rust/update-public-key.bin` |
 | `apps/client/src-tauri/resources/{GPL-3.0,LGPL-3.0,QuickJS-NG-LICENSE,MDM-NOTICE}.txt` | `apps/flutter_client/windows/notices/` |
+| `apps/client/scripts/{sign,verify}-app-update.mjs` (signature et vérification des manifestes de mise à jour) | `apps/flutter_client/tool/` |
 | `apps/client/src-tauri/gen/android/keystore.properties` (hors git) | `apps/flutter_client/android/key.properties` (hors git) |
 
 Le keystore `.jks` lui-même reste hors du dépôt, à l'endroit indiqué dans `key.properties`.
