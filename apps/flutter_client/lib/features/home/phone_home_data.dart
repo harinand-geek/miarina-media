@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
@@ -8,7 +9,10 @@ import '../cinema/cinema_data.dart';
 import '../focus/focus_data.dart';
 import '../library/library_data.dart';
 import '../playback/playback.dart';
+import '../playback/listen_journal.dart';
 import '../playback/playback_memory.dart';
+import '../playback/smart_queue.dart';
+import '../playback/taste.dart';
 import 'home_data.dart';
 
 /// Everything the phone's Music home shows (expressive redesign,
@@ -43,7 +47,8 @@ class PhoneHome {
   /// Artists by plays, then by number of titles.
   final List<LibraryGroup> artists;
 
-  /// « Mix du jour »: the same 30 titles all day, new ones tomorrow.
+  /// « Mix du jour »: 30 titles from the listener's taste (dailyMixPicks),
+  /// the same all day, new ones tomorrow.
   final List<LibraryItem> mix;
   final int neverPlayed;
   final int favorites;
@@ -72,6 +77,50 @@ int daySeed(DateTime now) => now.year * 10000 + now.month * 100 + now.day;
 /// [items] shuffled with [seed] (stable for a given seed and order).
 List<T> seededShuffle<T>(List<T> items, int seed) =>
     List<T>.of(items)..shuffle(math.Random(seed));
+
+/// The day's mix and its day, kept so it stays the same all day although
+/// the taste moves.
+const dailyMixKey = 'mm:dailyMix:v1';
+
+Future<List<LibraryItem>> _dailyMix(
+  Ref ref,
+  List<LibraryItem> tracks,
+  List<PlayEntry> plays,
+  DateTime now,
+) async {
+  final store = ref.read(playbackStoreProvider);
+  final day = ListenJournal.dayKey(now);
+  final byId = {for (final t in tracks) t.id: t};
+  try {
+    final json = jsonDecode(await store.read(dailyMixKey) ?? '');
+    if (json is Map && json['day'] == day && json['ids'] is List) {
+      final kept = [
+        for (final id in json['ids'] as List)
+          if (id is int && byId[id] != null) byId[id]!,
+      ];
+      if (kept.isNotEmpty && kept.length >= math.min(10, tracks.length)) {
+        return kept;
+      }
+    }
+  } catch (_) {}
+  await ref.read(tasteProvider.notifier).ready();
+  final mix = dailyMixPicks(
+    library: tracks,
+    taste: ref.read(tasteProvider),
+    recentIds: [for (final p in plays) p.id],
+    random: math.Random(daySeed(now)),
+    now: now,
+  );
+  try {
+    await store.write({
+      dailyMixKey: jsonEncode({
+        'day': day,
+        'ids': [for (final i in mix) i.id],
+      }),
+    });
+  } catch (_) {}
+  return mix;
+}
 
 final phoneHomeProvider = FutureProvider<PhoneHome>((ref) async {
   // Recomputed when another title starts: history and counts moved.
@@ -164,7 +213,7 @@ final phoneHomeProvider = FutureProvider<PhoneHome>((ref) async {
     mostPlayed: most,
     recentAlbums: recentAlbums.take(8).toList(),
     artists: byPlays.take(8).toList(),
-    mix: seededShuffle(tracks, seed).take(30).toList(),
+    mix: await _dailyMix(ref, tracks, plays, now),
     neverPlayed: never.total.toInt(),
     favorites: favorites.total.toInt(),
     addedMonth: added.total.toInt(),

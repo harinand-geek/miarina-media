@@ -221,3 +221,82 @@ List<LibraryItem> radioPicks({
   );
   return [for (final j in spread) pool[j]];
 }
+
+/// « Mix du jour » (2026-11-28, proposal 3): [count] tracks of [library]
+/// made of what the listener loves (half), tracks close to what was heard
+/// lately (a third: [recentIds], newest first) and forgotten favourites
+/// (liked, a favourite or played often, but not heard for 45 days), mixed
+/// with no artist twice in a row. With nothing learnt yet, favourites and
+/// plays lead, then chance.
+List<LibraryItem> dailyMixPicks({
+  required List<LibraryItem> library,
+  required Taste taste,
+  required List<int> recentIds,
+  required math.Random random,
+  required DateTime now,
+  int count = 30,
+}) {
+  final pool = [
+    for (final i in library)
+      if (!i.isVideo && !i.missing) i,
+  ];
+  if (pool.isEmpty) return const [];
+  final chosen = <int>{};
+  final out = <LibraryItem>[];
+
+  void takeWeighted(List<LibraryItem> from, List<double> weights, int n) {
+    for (final j in weightedOrder(weights, random)) {
+      if (n <= 0) return;
+      if (chosen.add(from[j].id)) {
+        out.add(from[j]);
+        n--;
+      }
+    }
+  }
+
+  double loved(LibraryItem i) =>
+      tasteWeight(
+        taste,
+        i.id,
+        now,
+        favorite: i.favorite,
+        recentGap: const Duration(hours: 12),
+      ) *
+      (1 + 0.5 * math.log(1 + i.plays));
+
+  // Forgotten favourites first (they are few), then close, then loved.
+  final heardLately = recentIds.toSet();
+  final forgotten = [
+    for (final i in pool)
+      if ((taste.score(i.id, now) > 0.5 || i.favorite || i.plays >= 3) &&
+          !heardLately.contains(i.id) &&
+          (taste.lastPlayed(i.id) == null ||
+              now.difference(taste.lastPlayed(i.id)!).inDays >= 45))
+        i,
+  ];
+  takeWeighted(forgotten, [for (final i in forgotten) loved(i)], count ~/ 5);
+
+  final byId = {for (final i in pool) i.id: i};
+  final seeds = [
+    for (final id in recentIds.take(5))
+      if (byId[id] case final i?) TrackKey.ofItem(i),
+  ];
+  if (seeds.isNotEmpty) {
+    for (final i in radioPicks(
+      seeds: seeds,
+      library: pool,
+      taste: taste,
+      random: random,
+      now: now,
+      exclude: {...chosen, ...recentIds.take(5)},
+      count: count ~/ 3,
+    )) {
+      if (chosen.add(i.id)) out.add(i);
+    }
+  }
+  takeWeighted(pool, [for (final i in pool) loved(i)], count - out.length);
+
+  final keys = [for (final i in out) TrackKey.ofItem(i)];
+  final mixed = weightedOrder(List.filled(out.length, 1.0), random);
+  return [for (final j in spreadArtists(mixed, keys)) out[j]];
+}

@@ -226,4 +226,98 @@ void main() {
       );
     });
   });
+
+  group('daily mix', () {
+    LibraryItem played(int id, {int plays = 0, bool favorite = false}) =>
+        LibraryItem(
+          id: id,
+          title: 'T$id',
+          path: '/m/a$id/t$id.mp3',
+          isVideo: false,
+          artist: 'A${id % 12}',
+          missing: false,
+          favorite: favorite,
+          plays: plays,
+        );
+
+    test('thirty different tracks, the loved ones far more often', () {
+      final library = [for (var i = 1; i <= 120; i++) played(i)];
+      var taste = Taste.empty;
+      for (final id in [1, 2, 3, 4, 5]) {
+        for (var k = 0; k < 4; k++) {
+          taste = taste.finished(id, now.subtract(const Duration(days: 2)));
+        }
+      }
+      var loved = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final mix = dailyMixPicks(
+          library: library,
+          taste: taste,
+          recentIds: const [],
+          random: math.Random(seed),
+          now: now,
+        );
+        expect(mix.length, 30);
+        expect(mix.map((i) => i.id).toSet().length, 30);
+        loved += mix.where((i) => i.id <= 5).length;
+      }
+      // By chance: 5 × 30 / 120 = 1.25 per mix.
+      expect(loved / 40, greaterThan(2.5));
+    });
+
+    test('forgotten favourites come back; the ones heard lately wait', () {
+      final library = [
+        for (var i = 1; i <= 100; i++) played(i),
+        played(200, favorite: true),
+        played(201, plays: 9),
+      ];
+      final taste = Taste.empty
+          .started(200, now.subtract(const Duration(days: 90)))
+          .started(201, now.subtract(const Duration(days: 2)));
+      var forgotten = 0, recent = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final ids = dailyMixPicks(
+          library: library,
+          taste: taste,
+          recentIds: const [201],
+          random: math.Random(seed),
+          now: now,
+        ).map((i) => i.id);
+        if (ids.contains(200)) forgotten++;
+        if (ids.contains(201)) recent++;
+      }
+      expect(forgotten, 40, reason: 'among the forgotten, always taken');
+      expect(recent, lessThan(forgotten));
+    });
+
+    test('close to what was heard lately', () {
+      final library = [for (var i = 1; i <= 100; i++) played(i)];
+      var close = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final mix = dailyMixPicks(
+          library: library,
+          taste: Taste.empty,
+          recentIds: const [12],
+          random: math.Random(seed),
+          now: now,
+        );
+        // Artist A0: ids 12, 24, 36… (8 others out of 99).
+        close += mix.where((i) => i.artist == 'A0' && i.id != 12).length;
+      }
+      expect(close / 40, greaterThan(4));
+    });
+
+    test('an empty library gives nothing', () {
+      expect(
+        dailyMixPicks(
+          library: const [],
+          taste: Taste.empty,
+          recentIds: const [],
+          random: math.Random(1),
+          now: now,
+        ),
+        isEmpty,
+      );
+    });
+  });
 }
