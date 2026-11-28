@@ -11,8 +11,8 @@ import androidx.media3.datasource.DefaultDataSource
 import androidx.media3.datasource.ResolvingDataSource
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
+import androidx.media3.session.MediaLibraryService
 import androidx.media3.session.MediaSession
-import androidx.media3.session.MediaSessionService
 
 /**
  * Owns the Media3 player so playback survives the screen turning off and the
@@ -20,9 +20,12 @@ import androidx.media3.session.MediaSessionService
  * lock-screen controls, and headset/Bluetooth buttons reach the session.
  * Flutter only controls it through Media3EnginePlugin (a MediaController).
  * Audio focus and "becoming noisy" are handled by ExoPlayer.
+ * A library service (decision 0013, proposal 11): Android Auto and other
+ * media browsers see a few lists to play from (AutoLibrary); for the app
+ * itself it is the same session as before.
  */
-class PlaybackService : MediaSessionService() {
-  private var session: MediaSession? = null
+class PlaybackService : MediaLibraryService() {
+  private var session: MediaLibrarySession? = null
 
   @OptIn(UnstableApi::class)
   override fun onCreate() {
@@ -50,7 +53,9 @@ class PlaybackService : MediaSessionService() {
       Intent(this, MainActivity::class.java).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP),
       PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
     )
-    session = MediaSession.Builder(this, player).setSessionActivity(openApp).build()
+    session = MediaLibrarySession.Builder(this, player, AutoLibrary(this))
+      .setSessionActivity(openApp)
+      .build()
     current = player
     player.skipSilenceEnabled = skipSilence
     // The equalizer follows the player's audio session.
@@ -67,7 +72,7 @@ class PlaybackService : MediaSessionService() {
     })
   }
 
-  override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaSession? = session
+  override fun onGetSession(controllerInfo: MediaSession.ControllerInfo): MediaLibrarySession? = session
 
   /** Swiping the app away stops a paused or empty player; playing media goes on. */
   override fun onTaskRemoved(rootIntent: Intent?) {

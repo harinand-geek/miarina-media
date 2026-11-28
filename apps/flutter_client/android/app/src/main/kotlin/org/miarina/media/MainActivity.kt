@@ -20,6 +20,7 @@ class MainActivity : FlutterActivity() {
   private var audioRoute: AudioRouteChannel? = null
   private var homeWidget: HomeWidgetChannel? = null
   private var alarm: AlarmChannel? = null
+  private var auto: AutoChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -94,6 +95,7 @@ class MainActivity : FlutterActivity() {
     audioRoute = AudioRouteChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     homeWidget = HomeWidgetChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
     alarm = AlarmChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    auto = AutoChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   override fun onPause() {
@@ -170,6 +172,8 @@ class MainActivity : FlutterActivity() {
     homeWidget = null
     alarm?.dispose()
     alarm = null
+    auto?.dispose()
+    auto = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

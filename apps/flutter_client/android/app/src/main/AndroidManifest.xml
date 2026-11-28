@@ -79,8 +79,15 @@
             android:foregroundServiceType="mediaPlayback">
             <intent-filter>
                 <action android:name="androidx.media3.session.MediaSessionService" />
+                <!-- Android Auto and media browsers (decision 0013). -->
+                <action android:name="androidx.media3.session.MediaLibraryService" />
+                <action android:name="android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
+        <!-- Android Auto: a media app (decision 0013, proposal 11). -->
+        <meta-data
+            android:name="com.google.android.gms.car.application"
+            android:resource="@xml/automotive_app_desc" />
         <!-- Music alarm set again after a restart (protected system broadcast). -->
         <receiver
             android:name=".AlarmBootReceiver"

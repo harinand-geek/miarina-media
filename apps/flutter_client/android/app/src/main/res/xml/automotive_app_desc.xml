@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android Auto: Miarina Media is a media app (decision 0013, proposal 11). -->
+<automotiveApp>
+    <uses name="media" />
+</automotiveApp>

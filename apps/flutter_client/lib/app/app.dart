@@ -5,6 +5,7 @@ import '../design/theme.dart';
 import 'malagasy_fallback.dart';
 import '../design/tokens.dart';
 import '../features/alarm/alarm_screen.dart' show alarmKeeperProvider;
+import '../features/playback/auto_library.dart';
 import '../features/playback/equalizer.dart';
 import '../features/playback/home_widget.dart';
 import '../features/capture/capture_data.dart';
@@ -38,6 +39,7 @@ class MiarinaApp extends ConsumerWidget {
     ref.watch(equalizerKeeperProvider);
     ref.watch(homeWidgetProvider);
     ref.watch(alarmKeeperProvider);
+    ref.watch(autoLibraryProvider);
     // Episodes of a series start in the audio language chosen before.
     ref.watch(seriesAudioProvider);
     // Followed folders are scanned at launch; screens refresh as the
