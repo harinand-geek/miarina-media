@@ -45,6 +45,8 @@ import 'queue_view.dart';
 import 'sound_view.dart';
 import 'vinyl_turntable.dart';
 
+enum _Flight { cover, record, lyrics }
+
 /// Cover shown as a turning record instead of the square picture (phone
 /// player, « Afficher le vinyle »). Kept for the session.
 final vinylModeProvider = NotifierProvider<VinylMode, bool>(VinylMode.new);
@@ -78,8 +80,11 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   /// Dragged down, the cover leaves the page and flies to the mini
   /// player's cover (bottom left), following the finger both ways; these
   /// are its two ends, in the player's coordinates, taken as the drag
-  /// starts. Null: the page moves as one (lyrics, record, no mini player).
+  /// starts. Null: the page moves as one (reduced motion, no mini player).
+  /// The record lifts off and becomes the cover on the way; over the
+  /// lyrics, the cover appears where it would be and flies the same way.
   Rect? _coverAtRest;
+  _Flight _flight = _Flight.cover;
   Rect? _coverInMini;
 
   /// The title and artist fly the same way, to the mini player's.
@@ -92,6 +97,9 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
   final _stackKey = GlobalKey();
   final _bigCoverKey = GlobalKey();
   final _bigTitleKey = GlobalKey();
+
+  /// The square above the title: cover, record or lyrics.
+  final _artKey = GlobalKey();
   bool _lyrics = false;
   double _swipe = 0;
 
@@ -107,15 +115,14 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
     super.dispose();
   }
 
-  /// Where the cover is now and where the mini player's is, when the cover
-  /// shows (not the lyrics or the record) and the page is at rest.
+  /// Where the cover (or the record) is now and where the mini player's
+  /// is, when the page is at rest.
   void _onDragStart() {
     if (_drag.value > 1) return;
     _coverAtRest = null;
     _coverInMini = null;
     _titleAtRest = null;
     _titleInMini = null;
-    if (_lyrics || ref.read(vinylModeProvider)) return;
     if (MmMotion.of(context).reduced) return;
     final stack = _stackKey.currentContext?.findRenderObject() as RenderBox?;
     if (stack == null || !stack.hasSize) return;
@@ -127,7 +134,27 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
           : stack.globalToLocal(box.localToGlobal(Offset.zero)) & box.size;
     }
 
-    _coverAtRest = inStack(_bigCoverKey, page: true);
+    _flight = _lyrics
+        ? _Flight.lyrics
+        : ref.read(vinylModeProvider)
+        ? _Flight.record
+        : _Flight.cover;
+    if (_flight == _Flight.cover) {
+      _coverAtRest = inStack(_bigCoverKey, page: true);
+    } else {
+      // Record and lyrics sit centred in the art area, as wide as it is high.
+      final area = inStack(_artKey, page: true);
+      final square = area == null
+          ? null
+          : Rect.fromCenter(
+              center: area.center,
+              width: area.height,
+              height: area.height,
+            );
+      _coverAtRest = square == null || _flight == _Flight.lyrics
+          ? square
+          : VinylTurntable.recordIn(square);
+    }
     _coverInMini = inStack(miniCoverKey, page: false);
     if (_coverAtRest == null || _coverInMini == null) {
       _coverAtRest = _coverInMini = null;
@@ -538,13 +565,27 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
               Positioned.fromRect(
                 rect: r,
                 child: IgnorePointer(
-                  child: CoverArt(
-                    size: r.width,
-                    radius: 32 + (14 - 32) * t,
-                    seed: entry?.seed ?? 0,
-                    imagePath: entry?.artwork,
-                    shadow: false,
-                  ),
+                  child: switch (_flight) {
+                    _Flight.record => RecordFlight(
+                      size: r.width,
+                      t: t,
+                      seed: entry?.seed ?? 0,
+                      imagePath: entry?.artwork,
+                    ),
+                    // Over the lyrics the cover appears as it leaves.
+                    _ => Opacity(
+                      opacity: _flight == _Flight.lyrics
+                          ? (progress / 0.2).clamp(0.0, 1.0)
+                          : 1,
+                      child: CoverArt(
+                        size: r.width,
+                        radius: 32 + (14 - 32) * t,
+                        seed: entry?.seed ?? 0,
+                        imagePath: entry?.artwork,
+                        shadow: false,
+                      ),
+                    ),
+                  },
                 ),
               ),
             if (!landed && titleFrom != null && titleTo != null)
@@ -686,6 +727,7 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                     children: [
                       const SizedBox(height: 14),
                       SizedBox(
+                        key: _artKey,
                         height: cover,
                         width: box.maxWidth,
                         child: AnimatedSwitcher(
@@ -727,22 +769,35 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                                                   !snap.buffering,
                                               speed: snap.speed,
                                               builder: (context, position) =>
-                                                  VinylTurntable(
-                                                    size: cover,
-                                                    seed: entry?.seed ?? 0,
-                                                    imagePath: entry?.artwork,
-                                                    playing:
-                                                        snap.isPlaying &&
-                                                        !snap.buffering,
-                                                    progress:
-                                                        snap.duration >
-                                                            Duration.zero
-                                                        ? position.inMilliseconds /
-                                                              snap
-                                                                  .duration
-                                                                  .inMilliseconds
-                                                        : 0,
-                                                    tones: tones,
+                                                  ValueListenableBuilder(
+                                                    // The record lifts off
+                                                    // toward the mini player.
+                                                    valueListenable: _flying,
+                                                    builder:
+                                                        (
+                                                          context,
+                                                          flying,
+                                                          _,
+                                                        ) => VinylTurntable(
+                                                          recordHidden: flying,
+                                                          size: cover,
+                                                          seed:
+                                                              entry?.seed ?? 0,
+                                                          imagePath:
+                                                              entry?.artwork,
+                                                          playing:
+                                                              snap.isPlaying &&
+                                                              !snap.buffering,
+                                                          progress:
+                                                              snap.duration >
+                                                                  Duration.zero
+                                                              ? position.inMilliseconds /
+                                                                    snap
+                                                                        .duration
+                                                                        .inMilliseconds
+                                                              : 0,
+                                                          tones: tones,
+                                                        ),
                                                   ),
                                             )
                                           : ValueListenableBuilder(

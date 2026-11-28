@@ -34,7 +34,9 @@ import 'package:miarina_media/design/widgets/cover_art.dart';
 import 'package:miarina_media/features/shell/mobile_shell.dart'
     show miniCoverKey, miniHidden, miniTitleKey;
 import 'package:miarina_media/features/now_playing/mobile_player.dart'
-    show MobilePlayer;
+    show MobilePlayer, vinylModeProvider;
+import 'package:miarina_media/features/now_playing/vinyl_turntable.dart';
+import 'package:miarina_media/design/widgets/expressive.dart' show DiscButton;
 import 'package:miarina_media/src/rust/api/library.dart';
 import 'package:miarina_media/src/rust/api/search.dart';
 
@@ -1199,6 +1201,86 @@ void main() {
       await settleOnline(tester);
       expect(player, findsNothing);
       expect(miniHidden.value, isFalse, reason: 'shown again');
+    });
+
+    testWidgets('phone: the record and the lyrics fly to the mini player too', (
+      tester,
+    ) async {
+      await pumpApp(
+        tester,
+        start: '${Routes.online}?q=zanak',
+        desktop: false,
+        size: const Size(400, 860),
+      );
+      await tester.tap(find.text(title));
+      await settleOnline(tester);
+      await tester.tap(find.byKey(miniCoverKey));
+      await settleOnline(tester);
+      final player = find.byType(MobilePlayer);
+      ProviderScope.containerOf(tester.element(player))
+          .read(vinylModeProvider.notifier)
+          .toggle();
+      await settleOnline(tester);
+      final record = tester.getRect(find.byType(VinylTurntable));
+      final mini = tester.getRect(find.byKey(miniCoverKey));
+
+      // The record lifts off, down and to the left, smaller.
+      final drag = await tester.startGesture(const Offset(200, 120));
+      await drag.moveBy(const Offset(0, 20));
+      await drag.moveBy(const Offset(0, 200));
+      await tester.pump();
+      await tester.pump();
+      final flying = find.byType(RecordFlight);
+      expect(flying, findsOneWidget);
+      final r = tester.getRect(flying);
+      expect(r.top, greaterThan(record.top));
+      expect(r.center.dx, lessThan(record.center.dx - 40));
+      expect(r.width, lessThan(record.width));
+      expect(
+        (r.center - mini.center).distance,
+        lessThan((record.center - mini.center).distance),
+      );
+      expect(
+        tester.widget<VinylTurntable>(find.byType(VinylTurntable)).recordHidden,
+        isTrue,
+      );
+      await drag.moveBy(const Offset(0, -260));
+      await drag.up();
+      await settleOnline(tester);
+      expect(flying, findsNothing);
+      expect(
+        tester.widget<VinylTurntable>(find.byType(VinylTurntable)).recordHidden,
+        isFalse,
+      );
+
+      // Over the lyrics, the cover leaves the same way.
+      ProviderScope.containerOf(tester.element(player))
+          .read(vinylModeProvider.notifier)
+          .toggle();
+      await tester.tap(
+        find.byWidgetPredicate(
+          (w) =>
+              w is DiscButton &&
+              (w.label == 'Show lyrics' || w.label == 'Afficher les paroles'),
+        ),
+      );
+      await settleOnline(tester);
+      expect(find.byType(LyricsView), findsOneWidget);
+      final drag2 = await tester.startGesture(const Offset(200, 60));
+      await drag2.moveBy(const Offset(0, 20));
+      await drag2.moveBy(const Offset(0, 200));
+      await tester.pump();
+      final cover = find.descendant(
+        of: find.descendant(of: player, matching: find.byType(Positioned)),
+        matching: find.byType(CoverArt),
+      );
+      expect(cover, findsOneWidget);
+      expect(tester.getRect(cover).center.dx, lessThan(record.center.dx - 40));
+      await drag2.moveBy(const Offset(0, 400));
+      await drag2.up();
+      await settleOnline(tester);
+      expect(player, findsNothing);
+      expect(miniHidden.value, isFalse);
     });
 
     testWidgets('off by default: nothing is obtained by itself', (

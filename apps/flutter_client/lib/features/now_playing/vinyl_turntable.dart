@@ -23,7 +23,14 @@ class VinylTurntable extends StatefulWidget {
     required this.playing,
     required this.progress,
     required this.tones,
+    this.recordHidden = false,
   });
+
+  /// Where the record sits in a turntable laid out in [box] (a square).
+  static Rect recordIn(Rect box) {
+    final k = box.width / 372;
+    return Rect.fromLTWH(box.left + 4 * k, box.top + 18 * k, 336 * k, 336 * k);
+  }
 
   final double size;
   final int seed;
@@ -33,6 +40,10 @@ class VinylTurntable extends StatefulWidget {
   /// 0..1 position in the track (drives the tonearm).
   final double progress;
   final CoverTones tones;
+
+  /// The record, its label and the spindle are hidden (their copy is lifted
+  /// off toward the mini player); the platter and the tonearm stay.
+  final bool recordHidden;
 
   @override
   State<VinylTurntable> createState() => _VinylTurntableState();
@@ -113,69 +124,71 @@ class _VinylTurntableState extends State<VinylTurntable>
             ),
           ),
           // The turning record (grooves, track gaps, light streaks, specks).
-          at(
-            discLeft,
-            discTop,
-            disc,
-            disc,
-            RotationTransition(
-              turns: _turn,
-              child: const DecoratedBox(
-                decoration: BoxDecoration(
+          if (!widget.recordHidden) ...[
+            at(
+              discLeft,
+              discTop,
+              disc,
+              disc,
+              RotationTransition(
+                turns: _turn,
+                child: const DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    boxShadow: MmShadows.card,
+                  ),
+                  child: CustomPaint(painter: _RecordPainter()),
+                ),
+              ),
+            ),
+            // Fixed reflection: it does not turn with the record.
+            at(
+              discLeft,
+              discTop,
+              disc,
+              disc,
+              const IgnorePointer(child: CustomPaint(painter: _SheenPainter())),
+            ),
+            // Fixed label: the cover (or the Miarina placeholder) never turns.
+            at(
+              discLeft + (disc - label) / 2,
+              discTop + (disc - label) / 2,
+              label,
+              label,
+              DecoratedBox(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
-                  boxShadow: MmShadows.card,
+                  boxShadow: [
+                    BoxShadow(color: Color(0x59000000), spreadRadius: 2),
+                  ],
                 ),
-                child: CustomPaint(painter: _RecordPainter()),
-              ),
-            ),
-          ),
-          // Fixed reflection: it does not turn with the record.
-          at(
-            discLeft,
-            discTop,
-            disc,
-            disc,
-            const IgnorePointer(child: CustomPaint(painter: _SheenPainter())),
-          ),
-          // Fixed label: the cover (or the Miarina placeholder) never turns.
-          at(
-            discLeft + (disc - label) / 2,
-            discTop + (disc - label) / 2,
-            label,
-            label,
-            DecoratedBox(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(color: Color(0x59000000), spreadRadius: 2),
-                ],
-              ),
-              child: ClipOval(
-                child: CoverArt(
-                  size: label * k,
-                  radius: 0,
-                  seed: widget.seed,
-                  imagePath: widget.imagePath,
-                  shadow: false,
+                child: ClipOval(
+                  child: CoverArt(
+                    size: label * k,
+                    radius: 0,
+                    seed: widget.seed,
+                    imagePath: widget.imagePath,
+                    shadow: false,
+                  ),
                 ),
               ),
             ),
-          ),
-          at(
-            discLeft + (disc - spindle) / 2,
-            discTop + (disc - spindle) / 2,
-            spindle,
-            spindle,
-            const DecoratedBox(
-              decoration: BoxDecoration(
-                color: Color(0xFF101418),
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(color: Color(0x2EFFFFFF), spreadRadius: 2),
-                ],
+            at(
+              discLeft + (disc - spindle) / 2,
+              discTop + (disc - spindle) / 2,
+              spindle,
+              spindle,
+              const DecoratedBox(
+                decoration: BoxDecoration(
+                  color: Color(0xFF101418),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Color(0x2EFFFFFF), spreadRadius: 2),
+                  ],
+                ),
               ),
             ),
-          ),
+          ],
           // Tonearm base, arm, cap. The arm eases to its target (set down,
           // tracking, back to rest) in 600 ms.
           Positioned.fill(
@@ -192,6 +205,57 @@ class _VinylTurntableState extends State<VinylTurntable>
                   base: widget.tones.button,
                 ),
               ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// The record lifted off the turntable when the player is dragged down: at
+/// [t] 0 the record as it sits on the platter (label = cover, 40 %), at 1
+/// the bare cover with the mini player's corners: the label grows to fill
+/// it while the grooves fade.
+class RecordFlight extends StatelessWidget {
+  const RecordFlight({
+    super.key,
+    required this.size,
+    required this.t,
+    required this.seed,
+    required this.imagePath,
+    this.endRadius = 14,
+  });
+
+  final double size;
+  final double t;
+  final int seed;
+  final String? imagePath;
+  final double endRadius;
+
+  @override
+  Widget build(BuildContext context) {
+    final label = size * (0.4 + 0.6 * t);
+    final radius = label / 2 + (endRadius - label / 2) * t;
+    return SizedBox.square(
+      dimension: size,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          Opacity(
+            opacity: (1 - t * 1.6).clamp(0.0, 1.0),
+            child: const SizedBox.expand(
+              child: CustomPaint(painter: _RecordPainter()),
+            ),
+          ),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(radius),
+            child: CoverArt(
+              size: label,
+              radius: 0,
+              seed: seed,
+              imagePath: imagePath,
+              shadow: false,
             ),
           ),
         ],
