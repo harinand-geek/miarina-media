@@ -4,6 +4,7 @@
 //! change is validated by [`media_core::TaskState`] before it is written.
 
 mod browser_history;
+mod fuzzy;
 mod media;
 mod migrations;
 mod playback;

@@ -43,55 +43,69 @@ pub fn library_search(db_path: String, query: String, limit: u32) -> Result<Sear
         });
     }
     with_db(&db_path, |db| {
+        let limit = limit.clamp(1, 500);
         let page = db.query_media(&MediaQuery {
-            search: query,
+            search: query.clone(),
             sort: MediaSort::Title,
-            limit: limit.clamp(1, 500),
+            limit,
             ..MediaQuery::default()
         })?;
-        let hits = page
-            .items
-            .into_iter()
-            .map(|m| {
-                if m.kind == MediaKind::Video {
-                    let v = classify(m.clone());
-                    return SearchHit {
-                        item: item(m),
-                        section: SearchSection::Cinema,
-                        video: Some(v),
-                        focus_kind: None,
-                        program: None,
-                    };
+        let mut total = page.total;
+        let mut hits: Vec<SearchHit> = page.items.into_iter().map(hit).collect();
+        // Few or no exact matches: close ones despite typos follow
+        // (decision 0013, proposal 6).
+        if total < FUZZY_BELOW && hits.len() < limit as usize {
+            let seen: std::collections::HashSet<i64> = hits.iter().map(|h| h.item.id).collect();
+            for m in db.fuzzy_media(&query, limit as usize)? {
+                if hits.len() >= limit as usize {
+                    break;
                 }
-                match focus::classify(m.genre.as_deref(), &m.path) {
-                    Some(kind) => SearchHit {
-                        program: Some(focus::program(
-                            kind,
-                            m.album.as_deref(),
-                            m.artist.as_deref(),
-                            &m.path,
-                            &m.title,
-                        )),
-                        focus_kind: Some(kind.into()),
-                        section: SearchSection::Focus,
-                        video: None,
-                        item: item(m),
-                    },
-                    None => SearchHit {
-                        item: item(m),
-                        section: SearchSection::Music,
-                        video: None,
-                        focus_kind: None,
-                        program: None,
-                    },
+                if !seen.contains(&m.id) {
+                    hits.push(hit(m));
+                    total += 1;
                 }
-            })
-            .collect();
-        Ok(SearchResults {
-            hits,
-            total: page.total,
-        })
+            }
+        }
+        Ok(SearchResults { hits, total })
     })
+}
+
+/// Below this many exact matches, typo-tolerant ones are added.
+const FUZZY_BELOW: u64 = 5;
+
+fn hit(m: storage::MediaRecord) -> SearchHit {
+    if m.kind == MediaKind::Video {
+        let v = classify(m.clone());
+        return SearchHit {
+            item: item(m),
+            section: SearchSection::Cinema,
+            video: Some(v),
+            focus_kind: None,
+            program: None,
+        };
+    }
+    match focus::classify(m.genre.as_deref(), &m.path) {
+        Some(kind) => SearchHit {
+            program: Some(focus::program(
+                kind,
+                m.album.as_deref(),
+                m.artist.as_deref(),
+                &m.path,
+                &m.title,
+            )),
+            focus_kind: Some(kind.into()),
+            section: SearchSection::Focus,
+            video: None,
+            item: item(m),
+        },
+        None => SearchHit {
+            item: item(m),
+            section: SearchSection::Music,
+            video: None,
+            focus_kind: None,
+            program: None,
+        },
+    }
 }
 
 #[cfg(test)]
@@ -153,6 +167,21 @@ mod tests {
             .find(|h| h.section == SearchSection::Focus)
             .unwrap();
         assert_eq!(pod.program.as_deref(), Some("Ondes"));
+        // Typos: the close ones still come.
+        let typo = library_search(db_path.clone(), "marre haute".into(), 50).unwrap();
+        assert_eq!(
+            typo.hits.first().map(|h| h.item.title.as_str()),
+            Some("Marée haute")
+        );
+        let typo = library_search(db_path.clone(), "bousole".into(), 50).unwrap();
+        assert_eq!(typo.hits.len(), 1);
+        assert_eq!(typo.hits[0].item.title, "Boussole");
+        assert!(
+            library_search(db_path.clone(), "zzzz".into(), 50)
+                .unwrap()
+                .hits
+                .is_empty()
+        );
         assert_eq!(
             library_search(db_path, "  ".into(), 50).unwrap().hits.len(),
             0
