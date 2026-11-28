@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home screen player (decision 0013, proposal 7): the app's dark surface. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="#F21C1C1C" />
+    <corners android:radius="28dp" />
+</shape>

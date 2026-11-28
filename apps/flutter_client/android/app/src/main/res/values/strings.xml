@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Home screen player (decision 0013, proposal 7). French by default. -->
+<resources>
+    <string name="widget_description">Le titre en cours, lecture et titre suivant</string>
+    <string name="widget_idle">Rien en lecture</string>
+    <string name="widget_app">Miarina Media</string>
+    <string name="widget_play">Lecture ou pause</string>
+    <string name="widget_previous">Titre précédent</string>
+    <string name="widget_next">Titre suivant</string>
+</resources>

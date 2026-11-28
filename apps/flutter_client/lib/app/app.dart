@@ -5,6 +5,7 @@ import '../design/theme.dart';
 import 'malagasy_fallback.dart';
 import '../design/tokens.dart';
 import '../features/playback/equalizer.dart';
+import '../features/playback/home_widget.dart';
 import '../features/capture/capture_data.dart';
 import '../features/capture/capture_overlay.dart';
 import '../features/cinema/series_audio.dart';
@@ -34,6 +35,7 @@ class MiarinaApp extends ConsumerWidget {
     // Playback settings (W-S2) reach the engine.
     ref.watch(enginePreferencesProvider);
     ref.watch(equalizerKeeperProvider);
+    ref.watch(homeWidgetProvider);
     // Episodes of a series start in the audio language chosen before.
     ref.watch(seriesAudioProvider);
     // Followed folders are scanned at launch; screens refresh as the

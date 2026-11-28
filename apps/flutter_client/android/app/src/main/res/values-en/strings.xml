@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">The track playing, play and next track</string>
+    <string name="widget_idle">Nothing playing</string>
+    <string name="widget_app">Miarina Media</string>
+    <string name="widget_play">Play or pause</string>
+    <string name="widget_previous">Previous track</string>
+    <string name="widget_next">Next track</string>
+</resources>

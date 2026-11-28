@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="widget_description">Ny hira alefa, alefaso ary ny hira manaraka</string>
+    <string name="widget_idle">Tsy misy alefa</string>
+    <string name="widget_app">Miarina Media</string>
+    <string name="widget_play">Alefaso na ajanony</string>
+    <string name="widget_previous">Hira teo aloha</string>
+    <string name="widget_next">Hira manaraka</string>
+</resources>

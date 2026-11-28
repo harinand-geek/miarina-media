@@ -59,6 +59,11 @@ class PlaybackService : MediaSessionService() {
       override fun onAudioSessionIdChanged(audioSessionId: Int) {
         MiarinaEqualizer.attach(audioSessionId)
       }
+
+      // The home screen player shows play or pause (PlayerWidget).
+      override fun onIsPlayingChanged(isPlaying: Boolean) {
+        PlayerWidget.setPlaying(this@PlaybackService, isPlaying)
+      }
     })
   }
 
@@ -74,6 +79,7 @@ class PlaybackService : MediaSessionService() {
 
   override fun onDestroy() {
     current = null
+    PlayerWidget.setPlaying(this, false)
     MiarinaEqualizer.release()
     session?.run {
       player.release()
