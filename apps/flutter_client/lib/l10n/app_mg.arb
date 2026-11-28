@@ -1427,5 +1427,10 @@
   "recapDays": "{count, plural, =0{Tsy nisy andro nihainoana} =1{Andro 1 nihainoana} other{Andro {count} nihainoana}}",
   "recapBestDay": "Andro be nihainoana indrindra: {day}",
   "recapTopTracks": "Ny hiranao",
-  "recapPlayTop": "Alefaso ny hiranao tiana indrindra"
+  "recapPlayTop": "Alefaso ny hiranao tiana indrindra",
+  "eqPerOutput": "Fandrindrana iray isaky ny fivoahana",
+  "eqSetFor": "Voarindra ho an'ny: {output}",
+  "outputSpeaker": "fanamafisam-peon'ny finday",
+  "outputWired": "fihainoana misy tariby",
+  "outputBluetooth": "fitaovana Bluetooth"
 }

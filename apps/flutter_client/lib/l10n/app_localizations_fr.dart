@@ -5244,4 +5244,21 @@ class L10nFr extends L10n {
 
   @override
   String get recapPlayTop => 'Lire votre top';
+
+  @override
+  String get eqPerOutput => 'Un réglage par sortie';
+
+  @override
+  String eqSetFor(String output) {
+    return 'Réglé pour : $output';
+  }
+
+  @override
+  String get outputSpeaker => 'haut-parleur du téléphone';
+
+  @override
+  String get outputWired => 'casque filaire';
+
+  @override
+  String get outputBluetooth => 'appareil Bluetooth';
 }

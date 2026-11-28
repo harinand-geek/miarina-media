@@ -5261,4 +5261,21 @@ class L10nMg extends L10n {
 
   @override
   String get recapPlayTop => 'Alefaso ny hiranao tiana indrindra';
+
+  @override
+  String get eqPerOutput => 'Fandrindrana iray isaky ny fivoahana';
+
+  @override
+  String eqSetFor(String output) {
+    return 'Voarindra ho an\'ny: $output';
+  }
+
+  @override
+  String get outputSpeaker => 'fanamafisam-peon\'ny finday';
+
+  @override
+  String get outputWired => 'fihainoana misy tariby';
+
+  @override
+  String get outputBluetooth => 'fitaovana Bluetooth';
 }

@@ -17,6 +17,7 @@ class MainActivity : FlutterActivity() {
   private var browser: BrowserChannel? = null
   private var screen: ScreenControlChannel? = null
   private var appUpdate: AppUpdateChannel? = null
+  private var audioRoute: AudioRouteChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -69,6 +70,7 @@ class MainActivity : FlutterActivity() {
     browser = BrowserChannel(this, flutterEngine.dartExecutor.binaryMessenger, flutterEngine.platformViewsController.registry)
     screen = ScreenControlChannel(this, flutterEngine.dartExecutor.binaryMessenger) { engine?.togglePlay() }
     appUpdate = AppUpdateChannel(this, flutterEngine.dartExecutor.binaryMessenger)
+    audioRoute = AudioRouteChannel(this, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   override fun onPause() {
@@ -138,6 +140,8 @@ class MainActivity : FlutterActivity() {
     screen = null
     appUpdate?.dispose()
     appUpdate = null
+    audioRoute?.dispose()
+    audioRoute = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

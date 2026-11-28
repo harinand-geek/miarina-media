@@ -2746,5 +2746,17 @@
     }
   },
   "recapTopTracks": "Vos titres",
-  "recapPlayTop": "Lire votre top"
+  "recapPlayTop": "Lire votre top",
+  "eqPerOutput": "Un réglage par sortie",
+  "eqSetFor": "Réglé pour : {output}",
+  "@eqSetFor": {
+    "placeholders": {
+      "output": {
+        "type": "String"
+      }
+    }
+  },
+  "outputSpeaker": "haut-parleur du téléphone",
+  "outputWired": "casque filaire",
+  "outputBluetooth": "appareil Bluetooth"
 }

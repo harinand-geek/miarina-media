@@ -5201,4 +5201,21 @@ class L10nEn extends L10n {
 
   @override
   String get recapPlayTop => 'Play your top';
+
+  @override
+  String get eqPerOutput => 'One setting per output';
+
+  @override
+  String eqSetFor(String output) {
+    return 'Set for: $output';
+  }
+
+  @override
+  String get outputSpeaker => 'phone speaker';
+
+  @override
+  String get outputWired => 'wired headphones';
+
+  @override
+  String get outputBluetooth => 'Bluetooth device';
 }

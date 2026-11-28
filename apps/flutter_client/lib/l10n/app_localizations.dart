@@ -8666,6 +8666,36 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Lire votre top'**
   String get recapPlayTop;
+
+  /// No description provided for @eqPerOutput.
+  ///
+  /// In fr, this message translates to:
+  /// **'Un réglage par sortie'**
+  String get eqPerOutput;
+
+  /// No description provided for @eqSetFor.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réglé pour : {output}'**
+  String eqSetFor(String output);
+
+  /// No description provided for @outputSpeaker.
+  ///
+  /// In fr, this message translates to:
+  /// **'haut-parleur du téléphone'**
+  String get outputSpeaker;
+
+  /// No description provided for @outputWired.
+  ///
+  /// In fr, this message translates to:
+  /// **'casque filaire'**
+  String get outputWired;
+
+  /// No description provided for @outputBluetooth.
+  ///
+  /// In fr, this message translates to:
+  /// **'appareil Bluetooth'**
+  String get outputBluetooth;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

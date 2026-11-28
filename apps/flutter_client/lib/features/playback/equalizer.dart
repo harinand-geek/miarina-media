@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'audio_route.dart';
 import 'playback.dart';
 import 'settings_store.dart';
 
@@ -31,6 +34,8 @@ class EqualizerState {
     this.preset = EqPreset.flat,
     this.gains = const [0, 0, 0, 0, 0, 0],
     this.supported,
+    this.perOutput = true,
+    this.route,
   });
 
   final bool enabled;
@@ -41,16 +46,35 @@ class EqualizerState {
   /// until the engine answered.
   final bool? supported;
 
+  /// One setting per output (decision 0013, proposal 9): the Bluetooth
+  /// headset, the wired one and the speaker each keep theirs, taken back
+  /// when the sound goes there again.
+  final bool perOutput;
+
+  /// Where the sound goes now; null when unknown.
+  final AudioRoute? route;
+
   EqualizerState copyWith({
     bool? enabled,
     EqPreset? preset,
     List<double>? gains,
     bool? supported,
+    bool? perOutput,
+    AudioRoute? route,
   }) => EqualizerState(
     enabled: enabled ?? this.enabled,
     preset: preset ?? this.preset,
     gains: gains ?? this.gains,
     supported: supported ?? this.supported,
+    perOutput: perOutput ?? this.perOutput,
+    route: route ?? this.route,
+  );
+
+  /// The same output, with [saved]'s settings.
+  EqualizerState withSettingsOf(EqualizerState saved) => copyWith(
+    enabled: saved.enabled,
+    preset: saved.preset,
+    gains: saved.gains,
   );
 
   Map<String, Object?> toJson() => {
@@ -79,14 +103,29 @@ class EqualizerState {
 
 const _key = 'equalizer';
 
+/// `{"perOutput": bool, "routes": {"<AudioRoute.key>": <equalizer>}}`.
+const _outputsKey = 'equalizerOutputs';
+
+/// Outputs remembered at most (the last used kept).
+const _maxOutputs = 20;
+
 final equalizerProvider = NotifierProvider<EqualizerController, EqualizerState>(
   EqualizerController.new,
 );
 
 class EqualizerController extends Notifier<EqualizerState> {
+  late Future<void> _restored;
+
+  /// Settings per output, by [AudioRoute.key], the last used last.
+  Map<String, Object?> _routes = {};
+
   @override
   EqualizerState build() {
-    Future.microtask(_restore);
+    _restored = Future.microtask(_restore);
+    ref.listen(audioRouteProvider, (_, next) {
+      final route = next.value;
+      if (route != null) unawaited(_onRoute(route));
+    }, fireImmediately: true);
     return const EqualizerState();
   }
 
@@ -95,11 +134,71 @@ class EqualizerController extends Notifier<EqualizerState> {
       final saved = EqualizerState.fromJson(
         await ref.read(settingsStoreProvider).read(_key),
       );
-      state = saved;
+      final outputs = await ref.read(settingsStoreProvider).read(_outputsKey);
+      var perOutput = true;
+      if (outputs is Map) {
+        perOutput = outputs['perOutput'] != false;
+        final routes = outputs['routes'];
+        if (routes is Map) {
+          _routes = {
+            for (final e in routes.entries)
+              if (e.key is String) e.key as String: e.value,
+          };
+        }
+      }
+      state = saved.copyWith(perOutput: perOutput, route: state.route);
     } catch (_) {
       // Unreadable setting: defaults stay.
     }
     await _apply();
+  }
+
+  /// The sound went elsewhere: that output's settings come back (a new
+  /// output starts from the current ones).
+  Future<void> _onRoute(AudioRoute route) async {
+    await _restored;
+    if (state.route == route) return;
+    if (!state.perOutput) {
+      state = state.copyWith(route: route);
+      return;
+    }
+    final saved = _routes[route.key];
+    if (saved != null) {
+      state = state
+          .withSettingsOf(EqualizerState.fromJson(saved))
+          .copyWith(route: route);
+      await _apply();
+      try {
+        await ref.read(settingsStoreProvider).write(_key, state.toJson());
+      } catch (_) {}
+    } else {
+      state = state.copyWith(route: route);
+    }
+    await _saveOutputs();
+  }
+
+  /// « Un réglage par sortie » on or off.
+  Future<void> setPerOutput(bool on) async {
+    state = state.copyWith(perOutput: on);
+    await _saveOutputs();
+  }
+
+  Future<void> _saveOutputs() async {
+    final route = state.route;
+    if (state.perOutput && route != null) {
+      _routes
+        ..remove(route.key)
+        ..[route.key] = state.toJson();
+      while (_routes.length > _maxOutputs) {
+        _routes.remove(_routes.keys.first);
+      }
+    }
+    try {
+      await ref.read(settingsStoreProvider).write(_outputsKey, {
+        'perOutput': state.perOutput,
+        'routes': _routes,
+      });
+    } catch (_) {}
   }
 
   Future<void> setEnabled(bool on) => _commit(state.copyWith(enabled: on));
@@ -127,6 +226,7 @@ class EqualizerController extends Notifier<EqualizerState> {
     } catch (_) {
       // Not saved: still applied for this session.
     }
+    if (next.perOutput && next.route != null) await _saveOutputs();
   }
 
   Future<void> _apply() async {
@@ -141,3 +241,10 @@ class EqualizerController extends Notifier<EqualizerState> {
     if (supported != null) state = state.copyWith(supported: supported);
   }
 }
+
+/// Keeps the equalizer alive from launch: its saved setting reaches the
+/// engine, and it follows the output even when no sound panel is open.
+/// Watched by the app root.
+final equalizerKeeperProvider = Provider<void>((ref) {
+  ref.listen(equalizerProvider, (_, _) {});
+});

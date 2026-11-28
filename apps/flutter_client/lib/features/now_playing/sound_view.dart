@@ -5,6 +5,7 @@ import 'package:material_ui/material_ui.dart';
 import '../../design/tokens.dart';
 import '../../design/widgets/pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../playback/audio_route.dart';
 import '../playback/equalizer.dart';
 import '../playback/playback.dart';
 import '../settings/settings_data.dart';
@@ -24,6 +25,25 @@ String presetLabel(L10n t, EqPreset p) => switch (p) {
   EqPreset.classic => t.eqClassic,
   EqPreset.custom => t.eqCustom,
 };
+
+/// What the user calls the output the sound goes to.
+String _outputName(L10n t, WidgetRef ref, AudioRoute route) =>
+    switch (route.kind) {
+      AudioRouteKind.speaker => t.outputSpeaker,
+      AudioRouteKind.wired => t.outputWired,
+      AudioRouteKind.bluetooth =>
+        route.name.isEmpty ? t.outputBluetooth : route.name,
+      AudioRouteKind.output =>
+        route.name == 'auto' || route.name.isEmpty
+            ? t.systemDefault
+            : (ref
+                      .watch(audioOutputsProvider)
+                      .value
+                      ?.where((o) => o.id == route.name)
+                      .firstOrNull
+                      ?.label ??
+                  route.name),
+    };
 
 /// Sound (W-M3 « Son », A-03c): equalizer, speed, normalisation (P1).
 class SoundView extends ConsumerWidget {
@@ -74,6 +94,35 @@ class SoundView extends ConsumerWidget {
             ),
           ],
         ),
+        if (eq.route case final route?) ...[
+          const SizedBox(height: 10),
+          // Decision 0013, proposal 9: each output keeps its own setting.
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      t.eqPerOutput,
+                      style: MmType.body.copyWith(fontSize: 14, color: c.fg),
+                    ),
+                    if (eq.perOutput)
+                      Text(
+                        t.eqSetFor(_outputName(t, ref, route)),
+                        style: MmType.caption.copyWith(color: c.fgSoft),
+                      ),
+                  ],
+                ),
+              ),
+              MmSwitch(
+                value: eq.perOutput,
+                label: t.eqPerOutput,
+                onChanged: eqCtl.setPerOutput,
+              ),
+            ],
+          ),
+        ],
         const SizedBox(height: 14),
         Opacity(
           opacity: unsupported ? 0.45 : 1,
