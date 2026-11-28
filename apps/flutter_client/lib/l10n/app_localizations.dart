@@ -8804,6 +8804,30 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Il sonnera de nouveau à {time}'**
   String alarmSnoozed(String time);
+
+  /// No description provided for @mixNight.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mix de la nuit'**
+  String get mixNight;
+
+  /// No description provided for @mixMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mix du matin'**
+  String get mixMorning;
+
+  /// No description provided for @mixAfternoon.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mix de l\'après-midi'**
+  String get mixAfternoon;
+
+  /// No description provided for @mixEvening.
+  ///
+  /// In fr, this message translates to:
+  /// **'Mix du soir'**
+  String get mixEvening;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

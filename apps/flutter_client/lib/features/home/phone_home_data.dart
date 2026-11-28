@@ -26,6 +26,7 @@ class PhoneHome {
     required this.recentAlbums,
     required this.artists,
     required this.mix,
+    this.mixPart = 1,
     required this.neverPlayed,
     required this.favorites,
     required this.addedMonth,
@@ -50,6 +51,9 @@ class PhoneHome {
   /// « Mix du jour »: 30 titles from the listener's taste (dailyMixPicks),
   /// the same all day, new ones tomorrow.
   final List<LibraryItem> mix;
+
+  /// The part of the day the mix is made for ([dayPart]).
+  final int mixPart;
   final int neverPlayed;
   final int favorites;
   final int addedMonth;
@@ -78,8 +82,8 @@ int daySeed(DateTime now) => now.year * 10000 + now.month * 100 + now.day;
 List<T> seededShuffle<T>(List<T> items, int seed) =>
     List<T>.of(items)..shuffle(math.Random(seed));
 
-/// The day's mix and its day, kept so it stays the same all day although
-/// the taste moves.
+/// The mix of the moment, its day and part of the day, kept so it stays
+/// the same until the next part of the day although the taste moves.
 const dailyMixKey = 'mm:dailyMix:v1';
 
 Future<List<LibraryItem>> _dailyMix(
@@ -90,10 +94,14 @@ Future<List<LibraryItem>> _dailyMix(
 ) async {
   final store = ref.read(playbackStoreProvider);
   final day = ListenJournal.dayKey(now);
+  final part = dayPart(now);
   final byId = {for (final t in tracks) t.id: t};
   try {
     final json = jsonDecode(await store.read(dailyMixKey) ?? '');
-    if (json is Map && json['day'] == day && json['ids'] is List) {
+    if (json is Map &&
+        json['day'] == day &&
+        json['part'] == part &&
+        json['ids'] is List) {
       final kept = [
         for (final id in json['ids'] as List)
           if (id is int && byId[id] != null) byId[id]!,
@@ -108,13 +116,15 @@ Future<List<LibraryItem>> _dailyMix(
     library: tracks,
     taste: ref.read(tasteProvider),
     recentIds: [for (final p in plays) p.id],
-    random: math.Random(daySeed(now)),
+    random: math.Random(daySeed(now) * 4 + part),
     now: now,
+    part: part,
   );
   try {
     await store.write({
       dailyMixKey: jsonEncode({
         'day': day,
+        'part': part,
         'ids': [for (final i in mix) i.id],
       }),
     });
@@ -214,6 +224,7 @@ final phoneHomeProvider = FutureProvider<PhoneHome>((ref) async {
     recentAlbums: recentAlbums.take(8).toList(),
     artists: byPlays.take(8).toList(),
     mix: await _dailyMix(ref, tracks, plays, now),
+    mixPart: dayPart(now),
     neverPlayed: never.total.toInt(),
     favorites: favorites.total.toInt(),
     addedMonth: added.total.toInt(),

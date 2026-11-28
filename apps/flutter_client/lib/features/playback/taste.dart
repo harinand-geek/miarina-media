@@ -13,7 +13,9 @@ import 'playback_memory.dart';
 /// radio and the automatic continuation; nothing leaves the device.
 ///
 /// Stored in the playback store under [tasteKey]:
-/// `{"t": {"<id>": [score, scoreAtMs, lastPlayedMs]}, "n": {"<id>": {"<id>": w}}}`.
+/// per track id `[score, scoreAtMs, lastPlayedMs, parts]` under "t" (parts:
+/// listens heard to the end at night, in the morning, the afternoon and the
+/// evening), and neighbours with their weights under "n".
 const tasteKey = 'mm:taste:v1';
 
 /// A score halves in this time without new signals: old habits fade.
@@ -33,9 +35,21 @@ const _maxTracks = 3000;
 const _maxLinked = 800;
 const _maxNeighbours = 16;
 
+/// Part of the day: 0 night (0–6 h), 1 morning (6–12 h), 2 afternoon
+/// (12–18 h), 3 evening (18–24 h).
+int dayPart(DateTime local) => local.hour ~/ 6;
+
 @immutable
 class TrackTaste {
-  const TrackTaste(this.score, this.scoreAt, this.lastPlayed);
+  const TrackTaste(
+    this.score,
+    this.scoreAt,
+    this.lastPlayed, [
+    this.parts = const [0, 0, 0, 0],
+  ]);
+
+  /// Times heard to the end in each [dayPart].
+  final List<int> parts;
 
   /// Score as it was at [scoreAt]; see [Taste.score] for today's.
   final double score;
@@ -64,6 +78,15 @@ class Taste {
 
   DateTime? lastPlayed(int id) => tracks[id]?.lastPlayed;
 
+  /// The share (0..1) of [id]'s full listens made in [part] of the day; 0
+  /// when never heard to the end.
+  double partShare(int id, int part) {
+    final p = tracks[id]?.parts;
+    if (p == null) return 0;
+    final total = p.fold(0, (a, b) => a + b);
+    return total == 0 ? 0 : p[part] / total;
+  }
+
   /// How strongly [a] and [b] go together (0 when never heard together).
   double together(int a, int b) => neighbours[a]?[b] ?? 0;
 
@@ -73,18 +96,21 @@ class Taste {
     return score * math.pow(0.5, days / tasteHalfLife.inDays).toDouble();
   }
 
-  Taste _withScore(int id, DateTime now, double delta) {
+  Taste _withScore(int id, DateTime now, double delta, {bool full = false}) {
     final before = tracks[id];
     final value = (score(id, now) + delta).clamp(_minScore, _maxScore);
     final next = Map<int, TrackTaste>.of(tracks)
-      ..[id] = TrackTaste(value.toDouble(), now, before?.lastPlayed);
+      ..[id] = TrackTaste(value.toDouble(), now, before?.lastPlayed, [
+        for (var i = 0; i < 4; i++)
+          (before?.parts[i] ?? 0) + (full && i == dayPart(now) ? 1 : 0),
+      ]);
     return Taste(_bounded(next, now), neighbours);
   }
 
   /// [id] heard to the end at [now]; [after], heard to the end just before
   /// in the same session, becomes its neighbour.
   Taste finished(int id, DateTime now, {int? after}) {
-    var next = _withScore(id, now, finishedGain);
+    var next = _withScore(id, now, finishedGain, full: true);
     if (after != null && after != id) next = next._linked(after, id);
     return next;
   }
@@ -96,7 +122,12 @@ class Taste {
   Taste started(int id, DateTime now) {
     final before = tracks[id];
     final next = Map<int, TrackTaste>.of(tracks)
-      ..[id] = TrackTaste(before?.score ?? 0, before?.scoreAt ?? now, now);
+      ..[id] = TrackTaste(
+        before?.score ?? 0,
+        before?.scoreAt ?? now,
+        now,
+        before?.parts ?? const [0, 0, 0, 0],
+      );
     return Taste(_bounded(next, now), neighbours);
   }
 
@@ -157,12 +188,18 @@ class Taste {
           if (id == null || v is! List || v.length < 3) continue;
           final score = v[0], at = v[1], last = v[2];
           if (score is! num || at is! num) continue;
+          final parts = v.length > 3 ? v[3] : null;
           tracks[id] = TrackTaste(
             score.toDouble().clamp(_minScore, _maxScore),
             DateTime.fromMillisecondsSinceEpoch(at.toInt()),
             last is num
                 ? DateTime.fromMillisecondsSinceEpoch(last.toInt())
                 : null,
+            parts is List &&
+                    parts.length == 4 &&
+                    parts.every((x) => x is int && x >= 0)
+                ? List<int>.from(parts)
+                : const [0, 0, 0, 0],
           );
         }
       }
@@ -196,6 +233,7 @@ class Taste {
           double.parse(e.value.score.toStringAsFixed(3)),
           e.value.scoreAt.millisecondsSinceEpoch,
           e.value.lastPlayed?.millisecondsSinceEpoch,
+          e.value.parts,
         ],
     },
     'n': {

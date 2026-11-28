@@ -412,6 +412,7 @@ class AlarmController extends Notifier<AlarmState> {
           recentIds: [for (final p in plays) p.id],
           random: random,
           now: DateTime.now(),
+          part: dayPart(DateTime.now()),
         );
       } else {
         items = [...items]..shuffle(random);

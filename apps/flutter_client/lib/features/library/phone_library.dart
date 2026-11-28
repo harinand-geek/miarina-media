@@ -799,7 +799,17 @@ class PhoneGroupPage extends ConsumerWidget {
     required this.onPlay,
     required this.onShuffle,
     required this.onMore,
+    this.numbered,
+    this.backRoute,
   });
+
+  /// Track numbers instead of covers in the rows (album pages by default;
+  /// a mix shows covers).
+  final bool? numbered;
+
+  /// Where « back » goes without history (the albums or artists list by
+  /// default).
+  final String? backRoute;
 
   final GroupKind kind;
   final String name;
@@ -878,7 +888,10 @@ class PhoneGroupPage extends ConsumerWidget {
                     label: t.back,
                     onTap: () => context.canPop()
                         ? context.pop()
-                        : context.go(album ? Routes.albums : Routes.artists),
+                        : context.go(
+                            backRoute ??
+                                (album ? Routes.albums : Routes.artists),
+                          ),
                     color: c.bg.withValues(alpha: 0.85),
                     iconColor: c.fg,
                   ),
@@ -1023,7 +1036,7 @@ class PhoneGroupPage extends ConsumerWidget {
                     last: i == items.length - 1,
                     onTap: () => onPlay(i),
                     onMore: () => onMore(items[i]),
-                    leading: album
+                    leading: (numbered ?? album)
                         ? SizedBox(
                             width: 34,
                             child: Center(

@@ -5322,4 +5322,16 @@ class L10nFr extends L10n {
   String alarmSnoozed(String time) {
     return 'Il sonnera de nouveau à $time';
   }
+
+  @override
+  String get mixNight => 'Mix de la nuit';
+
+  @override
+  String get mixMorning => 'Mix du matin';
+
+  @override
+  String get mixAfternoon => 'Mix de l\'après-midi';
+
+  @override
+  String get mixEvening => 'Mix du soir';
 }

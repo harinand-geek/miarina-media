@@ -5339,4 +5339,16 @@ class L10nMg extends L10n {
   String alarmSnoozed(String time) {
     return 'Haneno indray amin\'ny $time';
   }
+
+  @override
+  String get mixNight => 'Mozikan\'ny alina';
+
+  @override
+  String get mixMorning => 'Mozikan\'ny maraina';
+
+  @override
+  String get mixAfternoon => 'Mozikan\'ny tolakandro';
+
+  @override
+  String get mixEvening => 'Mozikan\'ny hariva';
 }

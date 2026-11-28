@@ -19,6 +19,7 @@ import '../features/get/get_screens.dart';
 import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
 import '../features/alarm/alarm_screen.dart';
+import '../features/home/mix_screen.dart';
 import '../features/home/month_recap.dart';
 import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
@@ -43,6 +44,7 @@ abstract final class Routes {
   static const welcome = '/welcome';
   static const history = '/listen/history';
   static const recap = '/listen/recap';
+  static const mix = '/listen/mix';
   static const alarm = '/listen/alarm';
   static const alarmRinging = '/alarm';
   static const search = '/listen/search';
@@ -167,6 +169,18 @@ final routerProvider = Provider<GoRouter>((ref) {
           screen(
             Routes.artists,
             () => const GroupsScreen(kind: GroupKind.artist),
+          ),
+          GoRoute(
+            path: Routes.mix,
+            pageBuilder: (context, state) => _ScreenPage(
+              key: state.pageKey,
+              child: MixScreen(
+                kind:
+                    MixKind.values
+                        .asNameMap()[state.uri.queryParameters['kind']] ??
+                    MixKind.moment,
+              ),
+            ),
           ),
           GoRoute(
             path: Routes.album,

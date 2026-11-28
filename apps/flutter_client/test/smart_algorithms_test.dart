@@ -307,6 +307,40 @@ void main() {
       expect(close / 40, greaterThan(4));
     });
 
+    test('the mix of the moment: morning tracks in the morning', () {
+      final library = [for (var i = 1; i <= 60; i++) played(i)];
+      var taste = Taste.empty;
+      final morning = DateTime(2026, 11, 20, 8);
+      final evening = DateTime(2026, 11, 20, 21);
+      for (var k = 0; k < 3; k++) {
+        for (var id = 1; id <= 6; id++) {
+          taste = taste.finished(id, morning);
+        }
+        for (var id = 7; id <= 12; id++) {
+          taste = taste.finished(id, evening);
+        }
+      }
+      expect(dayPart(morning), 1);
+      expect(taste.partShare(1, 1), 1);
+      expect(taste.partShare(7, 1), 0);
+      // Kept when stored.
+      expect(Taste.parse(taste.encode()).partShare(7, 3), 1);
+      var am = 0, pm = 0;
+      for (var seed = 0; seed < 40; seed++) {
+        final ids = dailyMixPicks(
+          library: library,
+          taste: taste,
+          recentIds: const [],
+          random: math.Random(seed),
+          now: now,
+          part: 1,
+        ).map((i) => i.id);
+        am += ids.where((id) => id <= 6).length;
+        pm += ids.where((id) => id > 6 && id <= 12).length;
+      }
+      expect(am, greaterThan(pm));
+    });
+
     test('an empty library gives nothing', () {
       expect(
         dailyMixPicks(

@@ -227,7 +227,8 @@ List<LibraryItem> radioPicks({
 /// lately (a third: [recentIds], newest first) and forgotten favourites
 /// (liked, a favourite or played often, but not heard for 45 days), mixed
 /// with no artist twice in a row. With nothing learnt yet, favourites and
-/// plays lead, then chance.
+/// plays lead, then chance. [part] (a [dayPart]): tracks usually heard at
+/// that time of day weigh up to 2.5 times more (the mix of the moment).
 List<LibraryItem> dailyMixPicks({
   required List<LibraryItem> library,
   required Taste taste,
@@ -235,6 +236,7 @@ List<LibraryItem> dailyMixPicks({
   required math.Random random,
   required DateTime now,
   int count = 30,
+  int? part,
 }) {
   final pool = [
     for (final i in library)
@@ -262,7 +264,8 @@ List<LibraryItem> dailyMixPicks({
         favorite: i.favorite,
         recentGap: const Duration(hours: 12),
       ) *
-      (1 + 0.5 * math.log(1 + i.plays));
+      (1 + 0.5 * math.log(1 + i.plays)) *
+      (part == null ? 1 : 1 + 1.5 * taste.partShare(i.id, part));
 
   // Forgotten favourites first (they are few), then close, then loved.
   final heardLately = recentIds.toSet();

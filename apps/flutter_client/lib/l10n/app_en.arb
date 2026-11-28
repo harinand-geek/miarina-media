@@ -1518,5 +1518,9 @@
   "alarmStop": "Stop",
   "alarmSnooze": "10 more min",
   "alarmGoodMorning": "Good morning",
-  "alarmSnoozed": "It rings again at {time}"
+  "alarmSnoozed": "It rings again at {time}",
+  "mixNight": "Night mix",
+  "mixMorning": "Morning mix",
+  "mixAfternoon": "Afternoon mix",
+  "mixEvening": "Evening mix"
 }

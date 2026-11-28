@@ -2790,5 +2790,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "mixNight": "Mix de la nuit",
+  "mixMorning": "Mix du matin",
+  "mixAfternoon": "Mix de l'après-midi",
+  "mixEvening": "Mix du soir"
 }

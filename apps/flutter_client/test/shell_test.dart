@@ -10,6 +10,7 @@ import 'package:miarina_media/design/widgets/pressable.dart';
 import 'package:miarina_media/features/alarm/alarm_data.dart';
 import 'package:miarina_media/features/alarm/alarm_screen.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/home/mix_screen.dart';
 import 'package:miarina_media/features/home/month_recap.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
@@ -551,7 +552,8 @@ void main() {
       // tiles, sections further down, shuffle button.
       expect(find.text('Musique'), findsWidgets);
       expect(find.text('Plus joués'), findsOneWidget);
-      expect(find.text('Mix du jour'), findsOneWidget);
+      // « Mix du matin », « Mix du soir »… after the time of day.
+      expect(find.textContaining(RegExp(r'^Mix d')), findsOneWidget);
       expect(find.text('Tout mélanger'), findsOneWidget);
       await tester.drag(find.byType(ListView).first, const Offset(0, -500));
       await settle(tester);
@@ -562,6 +564,31 @@ void main() {
       await tester.tap(find.text('Échos').first);
       await settle(tester);
       expect(engine.starts.single, const Duration(seconds: 94));
+    });
+
+    testWidgets('a suggested mix opens its titles first, then plays', (
+      tester,
+    ) async {
+      library = FakeLibraryApi([
+        track(1, 'Basse marée', artist: 'Nafy Rakoto'),
+        track(2, 'Échos', artist: 'Collectif Rova', favorite: true),
+        track(3, 'Seuil', artist: 'Iony'),
+      ]);
+      await pumpApp(
+        tester,
+        size: const Size(392, 850),
+        desktop: false,
+        start: Routes.listenHome,
+      );
+      await tester.tap(find.textContaining(RegExp(r'^Mix d')).first);
+      await settle(tester);
+      expect(find.byType(MixScreen), findsOneWidget);
+      expect(engine.opened, isEmpty, reason: 'nothing plays yet');
+      expect(find.text('Seuil'), findsOneWidget);
+      expect(find.text('Lecture'), findsOneWidget);
+      await tester.tap(find.text('Seuil'));
+      await settle(tester);
+      expect(Uri.decodeFull(engine.opened.single.uri.path), contains('Seuil'));
     });
   });
 }

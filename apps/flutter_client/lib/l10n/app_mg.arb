@@ -1450,5 +1450,9 @@
   "alarmStop": "Ajanony",
   "alarmSnooze": "10 minitra fanampiny",
   "alarmGoodMorning": "Manao ahoana",
-  "alarmSnoozed": "Haneno indray amin'ny {time}"
+  "alarmSnoozed": "Haneno indray amin'ny {time}",
+  "mixNight": "Mozikan'ny alina",
+  "mixMorning": "Mozikan'ny maraina",
+  "mixAfternoon": "Mozikan'ny tolakandro",
+  "mixEvening": "Mozikan'ny hariva"
 }

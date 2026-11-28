@@ -84,6 +84,7 @@ Future<String> buildAutoLibrary(Ref ref, L10n t, {int allMax = 500}) async {
     recentIds: [for (final p in plays) p.id],
     random: math.Random(daySeed(now)),
     now: now,
+    part: dayPart(now),
   );
   final recent = <LibraryItem>[];
   final seen = <int>{};

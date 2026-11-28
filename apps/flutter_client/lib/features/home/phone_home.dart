@@ -26,6 +26,7 @@ import '../library/phone_library.dart';
 import '../playback/playback.dart';
 import 'home_data.dart';
 import 'listen_home_screen.dart' show EmptyListenHome, resumeItem;
+import 'mix_screen.dart';
 import 'phone_home_data.dart';
 
 /// A-00 Accueil Musique, expressive redesign (2026-11-25, decision 0010):
@@ -172,6 +173,7 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
         if (home.mostPlayed.isNotEmpty)
           _Section(
             title: t.mostPlayedTitle,
+            onMore: () => openMix(context, MixKind.mostPlayed),
             onQueue: () => _enqueue(ref, t, home.mostPlayed),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -204,8 +206,7 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (home.mix.isNotEmpty)
-                Expanded(child: _MixCard(items: home.mix)),
+              if (home.mix.isNotEmpty) Expanded(child: _MixCard(home: home)),
               Expanded(
                 child: Column(
                   children: [
@@ -233,7 +234,7 @@ class _PhoneMusicHomeState extends ConsumerState<PhoneMusicHome> {
         ] else ...[
           if (home.mix.isNotEmpty) ...[
             const SizedBox(height: 28),
-            _MixCard(items: home.mix),
+            _MixCard(home: home),
           ],
           const SizedBox(height: 12),
           _Counters(home: home),
@@ -697,10 +698,14 @@ class _QuickTiles extends ConsumerWidget {
         (
           PhosphorRegular.trendUp,
           t.quickMostPlayed,
-          () => _play(ref, t, home.mostPlayed),
+          () => openMix(context, MixKind.mostPlayed),
         ),
       if (home.mix.isNotEmpty)
-        (PhosphorRegular.shuffle, t.dailyMix, () => _play(ref, t, home.mix)),
+        (
+          PhosphorRegular.shuffle,
+          mixTitle(t, home.mixPart),
+          () => openMix(context, MixKind.moment),
+        ),
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -890,15 +895,18 @@ class _ArtistCard extends ConsumerWidget {
 }
 
 /// « Mix du jour »: three covers, count and length, shuffle and play.
+/// The mix of the moment: a tap opens its titles (owner's request,
+/// 2026-11-28); the two buttons still play it at once.
 class _MixCard extends ConsumerWidget {
-  const _MixCard({required this.items});
+  const _MixCard({required this.home});
 
-  final List<LibraryItem> items;
+  final PhoneHome home;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final c = MmColors.of(context);
     final t = L10n.of(context);
+    final items = home.mix;
     final covers = <LibraryItem>[];
     for (final i in items) {
       if (covers.length == 3) break;
@@ -920,72 +928,81 @@ class _MixCard extends ConsumerWidget {
     );
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.all(18),
-        decoration: BoxDecoration(
-          color: _tile(c),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            LayoutBuilder(
-              builder: (context, box) {
-                // Big + gap + small = width; two smalls + gap = big.
-                final big = (box.maxWidth - 6) / 1.5;
-                final small = (big - 12) / 2;
-                return Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    cover(covers.firstOrNull, big, 22),
-                    const SizedBox(width: 12),
-                    Column(
-                      children: [
-                        cover(covers.elementAtOrNull(1), small, 18),
-                        const SizedBox(height: 12),
-                        cover(covers.elementAtOrNull(2), small, 18),
-                      ],
-                    ),
-                  ],
-                );
-              },
-            ),
-            const SizedBox(height: 18),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
+      child: Pressable(
+        onTap: () => openMix(context, MixKind.moment),
+        semanticLabel: mixTitle(t, home.mixPart),
+        pressScale: 0.98,
+        borderRadius: BorderRadius.circular(32),
+        child: Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: _tile(c),
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              LayoutBuilder(
+                builder: (context, box) {
+                  // Big + gap + small = width; two smalls + gap = big.
+                  final big = (box.maxWidth - 6) / 1.5;
+                  final small = (big - 12) / 2;
+                  return Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.dailyMix, style: _Type.section(context)),
-                      Text(
-                        '${t.titlesCount(items.length)} · '
-                        '${durationWords(secs)}',
-                        style: _Type.cardSub(c.fgSoft).copyWith(fontSize: 16),
+                      cover(covers.firstOrNull, big, 22),
+                      const SizedBox(width: 12),
+                      Column(
+                        children: [
+                          cover(covers.elementAtOrNull(1), small, 18),
+                          const SizedBox(height: 12),
+                          cover(covers.elementAtOrNull(2), small, 18),
+                        ],
                       ),
                     ],
+                  );
+                },
+              ),
+              const SizedBox(height: 18),
+              Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          mixTitle(t, home.mixPart),
+                          style: _Type.section(context),
+                        ),
+                        Text(
+                          '${t.titlesCount(items.length)} · '
+                          '${durationWords(secs)}',
+                          style: _Type.cardSub(c.fgSoft).copyWith(fontSize: 16),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                DiscButton(
-                  icon: PhosphorRegular.shuffle,
-                  label: t.shufflePlay,
-                  onTap: () => _play(ref, t, items, shuffle: true),
-                  color: Color.lerp(_tile(c), c.fg, 0.08)!,
-                  iconColor: c.fg,
-                  size: 56,
-                ),
-                const SizedBox(width: 10),
-                DiscButton(
-                  icon: PhosphorFill.play,
-                  label: t.playAll,
-                  onTap: () => _play(ref, t, items),
-                  color: c.fg,
-                  iconColor: c.bg,
-                  size: 64,
-                ),
-              ],
-            ),
-          ],
+                  DiscButton(
+                    icon: PhosphorRegular.shuffle,
+                    label: t.shufflePlay,
+                    onTap: () => _play(ref, t, items, shuffle: true),
+                    color: Color.lerp(_tile(c), c.fg, 0.08)!,
+                    iconColor: c.fg,
+                    size: 56,
+                  ),
+                  const SizedBox(width: 10),
+                  DiscButton(
+                    icon: PhosphorFill.play,
+                    label: t.playAll,
+                    onTap: () => _play(ref, t, items),
+                    color: c.fg,
+                    iconColor: c.bg,
+                    size: 64,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -1093,8 +1110,8 @@ class _DiscoverCard extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Pressable(
-        onTap: () => _play(ref, t, home.discover, shuffle: true),
-        semanticLabel: '${t.discoverTitle}, ${t.shufflePlay}',
+        onTap: () => openMix(context, MixKind.discover),
+        semanticLabel: t.discoverTitle,
         pressScale: 0.98,
         borderRadius: BorderRadius.circular(32),
         child: Container(
@@ -1120,30 +1137,39 @@ class _DiscoverCard extends ConsumerWidget {
                       style: _Type.cardSub(c.fgSoft).copyWith(fontSize: 16),
                     ),
                     const Spacer(),
-                    Container(
-                      height: 48,
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      decoration: BoxDecoration(
-                        color: Color.lerp(_tile(c), c.fg, 0.08),
-                        borderRadius: BorderRadius.circular(MmRadius.pill),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(PhosphorRegular.shuffle, size: 20, color: c.fg),
-                          const SizedBox(width: 8),
-                          Flexible(
-                            child: Text(
-                              t.shufflePlay,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: MmType.label.copyWith(
-                                fontSize: 15,
-                                color: c.fg,
+                    // The card opens the titles; this plays them shuffled.
+                    Pressable(
+                      onTap: () => _play(ref, t, home.discover, shuffle: true),
+                      semanticLabel: '${t.discoverTitle}, ${t.shufflePlay}',
+                      child: Container(
+                        height: 48,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        decoration: BoxDecoration(
+                          color: Color.lerp(_tile(c), c.fg, 0.08),
+                          borderRadius: BorderRadius.circular(MmRadius.pill),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              PhosphorRegular.shuffle,
+                              size: 20,
+                              color: c.fg,
+                            ),
+                            const SizedBox(width: 8),
+                            Flexible(
+                              child: Text(
+                                t.shufflePlay,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: MmType.label.copyWith(
+                                  fontSize: 15,
+                                  color: c.fg,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ],
