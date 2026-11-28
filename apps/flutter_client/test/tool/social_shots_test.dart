@@ -83,11 +83,8 @@ Future<String> _cover(Directory dir, int i) async {
   final dark = Paint()..color = b.withValues(alpha: 0.75);
   switch (style) {
     case 0: // Sun over the sea.
-      canvas.drawCircle(
-        const Offset(s / 2, s * 0.46),
-        s * 0.2,
-        Paint()..color = Color.lerp(a, const Color(0xFFFFFFFF), 0.45)!,
-      );
+      canvas.drawCircle(const Offset(s / 2, s * 0.46), s * 0.2, Paint()
+        ..color = Color.lerp(a, const Color(0xFFFFFFFF), 0.45)!);
       for (var k = 0; k < 7; k++) {
         canvas.drawRect(
           Rect.fromLTWH(0, s * 0.62 + k * 26, s, 10 + k * 1.5),
@@ -121,12 +118,8 @@ Future<String> _cover(Directory dir, int i) async {
           ..close();
         canvas.drawPath(
           path,
-          Paint()
-            ..color = Color.lerp(
-              b,
-              const Color(0xFF000000),
-              k * 0.2,
-            )!.withValues(alpha: 0.6 + k * 0.15),
+          Paint()..color = Color.lerp(b, const Color(0xFF000000), k * 0.2)!
+            .withValues(alpha: 0.6 + k * 0.15),
         );
       }
       canvas.drawCircle(const Offset(s * 0.72, s * 0.2), 46, light);
