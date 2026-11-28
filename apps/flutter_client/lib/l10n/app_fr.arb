@@ -76,7 +76,6 @@
   "upNext": "À suivre",
   "clearQueue": "Vider",
   "smartQueueTitle": "Continuer avec des titres proches",
-  "smartQueueBody": "Même artiste ou même album, calculé sur l’appareil",
   "lyricsHint": "{file} · clic sur une ligne pour y aller",
   "@lyricsHint": {
     "placeholders": {

@@ -228,10 +228,6 @@ class L10nMg extends L10n {
   String get smartQueueTitle => 'Tohizo amin\'ny hira mitovitovy';
 
   @override
-  String get smartQueueBody =>
-      'Mpanakanto na rakikira mitovy, kajiana ao amin\'ny fitaovana';
-
-  @override
   String lyricsHint(String file) {
     return '$file · tsindrio andalana iray hankanesana any';
   }

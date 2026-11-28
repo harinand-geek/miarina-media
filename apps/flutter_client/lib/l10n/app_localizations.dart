@@ -513,12 +513,6 @@ abstract class L10n {
   /// **'Continuer avec des titres proches'**
   String get smartQueueTitle;
 
-  /// No description provided for @smartQueueBody.
-  ///
-  /// In fr, this message translates to:
-  /// **'Même artiste ou même album, calculé sur l’appareil'**
-  String get smartQueueBody;
-
   /// No description provided for @lyricsHint.
   ///
   /// In fr, this message translates to:

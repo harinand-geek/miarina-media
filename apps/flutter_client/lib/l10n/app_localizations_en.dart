@@ -228,9 +228,6 @@ class L10nEn extends L10n {
   String get smartQueueTitle => 'Continue with similar tracks';
 
   @override
-  String get smartQueueBody => 'Same artist or album, worked out on the device';
-
-  @override
   String lyricsHint(String file) {
     return '$file · click a line to go there';
   }

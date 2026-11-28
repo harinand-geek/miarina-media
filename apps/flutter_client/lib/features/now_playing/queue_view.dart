@@ -439,10 +439,6 @@ class _SmartQueueCard extends ConsumerWidget {
                       t.smartQueueTitle,
                       style: MmType.labelStrong.copyWith(color: c.fg),
                     ),
-                    Text(
-                      t.smartQueueBody,
-                      style: MmType.caption.copyWith(color: c.muted),
-                    ),
                   ],
                 ),
               ),

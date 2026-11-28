@@ -228,10 +228,6 @@ class L10nFr extends L10n {
   String get smartQueueTitle => 'Continuer avec des titres proches';
 
   @override
-  String get smartQueueBody =>
-      'Même artiste ou même album, calculé sur l’appareil';
-
-  @override
   String lyricsHint(String file) {
     return '$file · clic sur une ligne pour y aller';
   }
