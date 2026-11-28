@@ -94,6 +94,13 @@ Contrainte : tout reste **sur l'appareil** (principe local-first). Pas de servic
 - Un APK installé hors Play Store n'apparaît dans Android Auto que si les « sources inconnues » sont autorisées dans ses paramètres développeur.
 - Pas de pochettes dans les listes de la voiture pour l'instant (les images sont des fichiers privés de l'appli).
 
+### Compléments du 2026-11-28 (demandes du propriétaire)
+
+- **Les listes suggérées s'ouvrent d'abord** (`mix_screen.dart`). Toucher la carte du mix, la carte « Découvrir », les tuiles du mix ou « Plus joués », ou la section « Les plus joués » ouvre la liste de ses titres : lire, mélanger, ou toucher un titre pour lire à partir de lui. Les boutons lecture et mélange de la carte du mix, et la pastille « Lecture aléatoire » de « Découvrir », jouent toujours directement.
+- **Mix du moment** : le goût compte, pour chaque titre, les écoutes entières la nuit, le matin, l'après-midi et le soir. Le mix est fait pour le moment de la journée (« Mix du matin », « Mix du soir »…) : les titres habituellement écoutés à ce moment pèsent jusqu'à 2,5 fois plus. Il reste le même jusqu'au moment suivant. Le réveil et Android Auto prennent le même mix.
+- **Recherche de la liste Titres** : une recherche simple (sans autre filtre) qui trouve moins de 5 titres exacts ajoute aussi les titres proches malgré les fautes.
+- **Suggestions de la file** : la carte « titres proches » utilise l'algorithme de la radio, à partir du titre en cours et des deux précédents. Elle ne propose que des titres qui ont quelque chose en commun avec eux.
+
 ## Conséquences
 
 - Aucune nouvelle dépendance, aucun accès réseau. Deux permissions Android, pour le réveil seulement (§ 8).
