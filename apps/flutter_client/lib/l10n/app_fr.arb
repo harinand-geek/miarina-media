@@ -2723,5 +2723,28 @@
   "smartShuffleSetting": "Lecture aléatoire intelligente",
   "smartShuffleSettingBody": "Plus souvent ce que vous écoutez jusqu'au bout, moins ce que vous passez ; pas deux fois le même artiste à la suite",
   "autoplaySetting": "Continuer avec des titres proches",
-  "autoplaySettingBody": "Quand la file se termine, des titres proches de votre bibliothèque suivent"
+  "autoplaySettingBody": "Quand la file se termine, des titres proches de votre bibliothèque suivent",
+  "recapTitle": "Votre mois",
+  "recapOpen": "Voir le mois",
+  "recapSubtitle": "Ce que vous avez écouté, mois par mois",
+  "recapEmpty": "Pas encore d'écoute ce mois-ci",
+  "recapEmptyBody": "Écoutez de la musique : votre mois se remplira tout seul.",
+  "recapDays": "{count, plural, =0{Aucun jour d'écoute} =1{1 jour d'écoute} other{{count} jours d'écoute}}",
+  "@recapDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "recapBestDay": "Jour le plus écouté : {day}",
+  "@recapBestDay": {
+    "placeholders": {
+      "day": {
+        "type": "String"
+      }
+    }
+  },
+  "recapTopTracks": "Vos titres",
+  "recapPlayTop": "Lire votre top"
 }

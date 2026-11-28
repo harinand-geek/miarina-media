@@ -5205,4 +5205,43 @@ class L10nFr extends L10n {
   @override
   String get autoplaySettingBody =>
       'Quand la file se termine, des titres proches de votre bibliothèque suivent';
+
+  @override
+  String get recapTitle => 'Votre mois';
+
+  @override
+  String get recapOpen => 'Voir le mois';
+
+  @override
+  String get recapSubtitle => 'Ce que vous avez écouté, mois par mois';
+
+  @override
+  String get recapEmpty => 'Pas encore d\'écoute ce mois-ci';
+
+  @override
+  String get recapEmptyBody =>
+      'Écoutez de la musique : votre mois se remplira tout seul.';
+
+  @override
+  String recapDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count jours d\'écoute',
+      one: '1 jour d\'écoute',
+      zero: 'Aucun jour d\'écoute',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recapBestDay(String day) {
+    return 'Jour le plus écouté : $day';
+  }
+
+  @override
+  String get recapTopTracks => 'Vos titres';
+
+  @override
+  String get recapPlayTop => 'Lire votre top';
 }

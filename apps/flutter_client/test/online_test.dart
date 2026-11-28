@@ -26,6 +26,7 @@ import 'package:miarina_media/features/online/online_screen.dart';
 import 'package:miarina_media/features/online/online_widgets.dart'
     show OnlineCard;
 import 'package:miarina_media/features/playback/playback.dart';
+import 'package:miarina_media/features/playback/listen_months.dart';
 import 'package:miarina_media/features/playback/listen_journal.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -754,6 +755,13 @@ void main() {
       expect(today, isNotNull);
       expect(today!.seconds, greaterThanOrEqualTo(2));
       expect(today.artists['Lalix Music Média'], greaterThanOrEqualTo(2));
+      // The month too (decision 0013): no library track to count.
+      final month = ListenMonths.parse(
+        playback.values[listenMonthsKey],
+      )[ListenMonths.monthKey(DateTime.now())];
+      expect(month.seconds, greaterThanOrEqualTo(2));
+      expect(month.artists['Lalix Music Média'], greaterThanOrEqualTo(2));
+      expect(month.tracks, isEmpty);
     });
 
     testWidgets('the playing result is marked in the list', (tester) async {

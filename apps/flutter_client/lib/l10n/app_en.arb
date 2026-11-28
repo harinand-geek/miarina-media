@@ -1486,5 +1486,14 @@
   "smartShuffleSetting": "Smart shuffle",
   "smartShuffleSettingBody": "More of what you hear to the end, less of what you skip; never the same artist twice in a row",
   "autoplaySetting": "Keep playing similar tracks",
-  "autoplaySettingBody": "When the queue ends, similar tracks from your library follow"
+  "autoplaySettingBody": "When the queue ends, similar tracks from your library follow",
+  "recapTitle": "Your month",
+  "recapOpen": "See the month",
+  "recapSubtitle": "What you listened to, month by month",
+  "recapEmpty": "Nothing heard this month yet",
+  "recapEmptyBody": "Play some music: your month fills itself.",
+  "recapDays": "{count, plural, =0{No listening day} =1{1 listening day} other{{count} listening days}}",
+  "recapBestDay": "Busiest day: {day}",
+  "recapTopTracks": "Your tracks",
+  "recapPlayTop": "Play your top"
 }

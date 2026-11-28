@@ -3,13 +3,16 @@ import 'dart:convert';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:intl/intl.dart';
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/design/widgets/pressable.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
+import 'package:miarina_media/features/home/month_recap.dart';
 import 'package:miarina_media/features/import/import_data.dart';
 import 'package:miarina_media/features/library/library_data.dart';
 import 'package:miarina_media/features/now_playing/lyrics_view.dart';
+import 'package:miarina_media/features/playback/listen_months.dart';
 import 'package:miarina_media/features/playback/playback.dart';
 import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
@@ -364,6 +367,55 @@ void main() {
       await settle(tester);
       expect(find.text('3 albums · 5 titres · 4,8 Mo'), findsOneWidget);
     });
+  });
+
+  testWidgets('the month recap: time, days, artists, titles, play the top', (
+    tester,
+  ) async {
+    final now = DateTime.now();
+    final last = DateTime(now.year, now.month - 1, 3);
+    final months = ListenMonths.empty
+        .add(now, 600, artist: 'Nafy Rakoto', trackId: 1)
+        .add(now, 300, artist: 'Collectif Rova', trackId: 2)
+        .add(now, 200, artist: 'Nafy Rakoto', trackId: 3) // missing file
+        .add(last, 50, artist: 'Iony');
+    final store = FakePlaybackStore()
+      ..values[listenMonthsKey] = months.encode();
+    await pumpApp(
+      tester,
+      desktop: false,
+      size: const Size(400, 900),
+      start: Routes.recap,
+      store: store,
+    );
+    expect(find.text('Votre mois'), findsOneWidget);
+    expect(find.text("1 jour d'écoute"), findsOneWidget);
+    expect(find.text('Vos artistes'), findsOneWidget);
+    expect(find.text('Nafy Rakoto'), findsWidgets);
+    expect(find.text('Vos titres'), findsOneWidget);
+    expect(find.text('Basse marée'), findsOneWidget);
+    expect(find.text('Seuil'), findsNothing, reason: 'missing file');
+
+    await tester.tap(find.text('Lire votre top'));
+    await settle(tester);
+    expect(
+      Uri.decodeFull(engine.opened.first.uri.path),
+      contains('Basse marée'),
+    );
+
+    // Last month: its own figures.
+    final name = DateFormat.yMMMM('fr').format(last);
+    await tester.tap(find.text(name[0].toUpperCase() + name.substring(1)));
+    await settle(tester);
+    expect(find.text('Iony'), findsOneWidget);
+    expect(
+      find.descendant(
+        of: find.byType(MonthRecapScreen),
+        matching: find.text('Basse marée'),
+      ),
+      findsNothing,
+      reason: 'the mini player still shows it',
+    );
   });
 
   testWidgets('files without tags give an honest empty album list', (

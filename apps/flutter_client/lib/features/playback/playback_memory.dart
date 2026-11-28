@@ -9,6 +9,7 @@ import '../../engine/media_engine.dart';
 import '../../src/rust/api/settings.dart';
 import '../library/library_data.dart';
 import 'listen_journal.dart';
+import 'listen_months.dart';
 import 'playback.dart';
 import 'taste.dart';
 
@@ -230,10 +231,14 @@ class PlaybackMemory {
   Future<void> _writeJournal() async {
     final heard = _takeHeard();
     if (heard <= 0) return;
+    final now = DateTime.now();
     final journal = (await listenJournal())
-        .add(DateTime.now(), heard, artist: _artist)
+        .add(now, heard, artist: _artist)
         .encode();
-    await _write({listenJournalKey: journal});
+    await _write({
+      listenJournalKey: journal,
+      listenMonthsKey: await _monthsWith(now, heard),
+    });
   }
 
   // The store refuses nothing that matters here; a failed write only loses
@@ -408,17 +413,36 @@ class PlaybackMemory {
     _savedAt = position;
     final h = noteStopped(await history(), id, position.inSeconds);
     final heard = _takeHeard();
-    String? journal;
+    String? journal, months;
     if (heard > 0) {
+      final now = DateTime.now();
       journal = (await listenJournal())
-          .add(DateTime.now(), heard, artist: _artist)
+          .add(now, heard, artist: _artist)
           .encode();
+      months = await _monthsWith(now, heard);
     }
     await _write({
       positionKey(id): resumeValue(position, duration),
       historyKey: jsonEncode([for (final e in h) e.toJson()]),
       listenJournalKey: ?journal,
+      listenMonthsKey: ?months,
     });
+  }
+
+  /// The monthly recap with [heard] more seconds of the current file.
+  Future<String> _monthsWith(DateTime now, int heard) async =>
+      (await listenMonths())
+          .add(now, heard, artist: _artist, trackId: _music ? _currentId : null)
+          .encode();
+
+  Future<ListenMonths> listenMonths() async {
+    try {
+      return ListenMonths.parse(
+        await _ref.read(playbackStoreProvider).read(listenMonthsKey),
+      );
+    } catch (_) {
+      return ListenMonths.empty;
+    }
   }
 
   Future<ListenJournal> listenJournal() async {

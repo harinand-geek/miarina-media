@@ -18,6 +18,7 @@ import '../features/convert/convert_screen.dart';
 import '../features/get/get_screens.dart';
 import '../features/health/health_screens.dart';
 import '../features/history/history_screen.dart';
+import '../features/home/month_recap.dart';
 import '../features/import/welcome_screen.dart';
 import '../features/playlists/playlists_screen.dart';
 import '../features/online/online_screen.dart';
@@ -40,6 +41,7 @@ abstract final class Routes {
   static const listenHome = '/listen';
   static const welcome = '/welcome';
   static const history = '/listen/history';
+  static const recap = '/listen/recap';
   static const search = '/listen/search';
 
   /// Online listening (decision 0011): YouTube search, `?q=`.
@@ -212,6 +214,7 @@ final routerProvider = Provider<GoRouter>((ref) {
           ),
           screen(Routes.favorites, () => const TracksScreen(favorites: true)),
           screen(Routes.history, () => const HistoryScreen()),
+          screen(Routes.recap, () => const MonthRecapScreen()),
           screen(Routes.missing, () => const MissingScreen()),
           screen(Routes.duplicates, () => const DuplicatesScreen()),
           screen(Routes.welcome, () => const WelcomeScreen()),

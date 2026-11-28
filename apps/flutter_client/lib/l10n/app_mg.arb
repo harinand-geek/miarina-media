@@ -1418,5 +1418,14 @@
   "smartShuffleSetting": "Fifangaroana marani-tsaina",
   "smartShuffleSettingBody": "Matetika kokoa izay henoinao hatramin'ny farany, tsy dia matetika izay dinganinao; tsy misy mpanakanto mitovy mifanesy",
   "autoplaySetting": "Tohizo amin'ny hira mitovitovy",
-  "autoplaySettingBody": "Rehefa tapitra ny filaharana, manaraka ireo hira mitovitovy ao amin'ny tranombokinao"
+  "autoplaySettingBody": "Rehefa tapitra ny filaharana, manaraka ireo hira mitovitovy ao amin'ny tranombokinao",
+  "recapTitle": "Ny volanao",
+  "recapOpen": "Jereo ny volana",
+  "recapSubtitle": "Izay nohenoinao, isam-bolana",
+  "recapEmpty": "Mbola tsy nisy nohenoina tamin'ity volana ity",
+  "recapEmptyBody": "Mihainoa mozika: hameno ho azy ny volanao.",
+  "recapDays": "{count, plural, =0{Tsy nisy andro nihainoana} =1{Andro 1 nihainoana} other{Andro {count} nihainoana}}",
+  "recapBestDay": "Andro be nihainoana indrindra: {day}",
+  "recapTopTracks": "Ny hiranao",
+  "recapPlayTop": "Alefaso ny hiranao tiana indrindra"
 }

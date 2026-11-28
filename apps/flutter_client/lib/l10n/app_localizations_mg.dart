@@ -5223,4 +5223,42 @@ class L10nMg extends L10n {
   @override
   String get autoplaySettingBody =>
       'Rehefa tapitra ny filaharana, manaraka ireo hira mitovitovy ao amin\'ny tranombokinao';
+
+  @override
+  String get recapTitle => 'Ny volanao';
+
+  @override
+  String get recapOpen => 'Jereo ny volana';
+
+  @override
+  String get recapSubtitle => 'Izay nohenoinao, isam-bolana';
+
+  @override
+  String get recapEmpty => 'Mbola tsy nisy nohenoina tamin\'ity volana ity';
+
+  @override
+  String get recapEmptyBody => 'Mihainoa mozika: hameno ho azy ny volanao.';
+
+  @override
+  String recapDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Andro $count nihainoana',
+      one: 'Andro 1 nihainoana',
+      zero: 'Tsy nisy andro nihainoana',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String recapBestDay(String day) {
+    return 'Andro be nihainoana indrindra: $day';
+  }
+
+  @override
+  String get recapTopTracks => 'Ny hiranao';
+
+  @override
+  String get recapPlayTop => 'Alefaso ny hiranao tiana indrindra';
 }

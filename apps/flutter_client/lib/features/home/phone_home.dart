@@ -1398,76 +1398,90 @@ class _WeekChart extends StatelessWidget {
     final reduced = MmMotion.of(context).reduced;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
-        decoration: BoxDecoration(
-          color: _tile(c),
-          borderRadius: BorderRadius.circular(32),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(t.last7Days, style: _Type.cardSub(c.fgSoft)),
-            Text(
-              total == 0 ? '0 min' : durationWords(total.toDouble()),
-              style: _Type.page(context).copyWith(fontSize: 34),
-            ),
-            if (total == 0)
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Text(t.noListenYet, style: _Type.cardSub(c.muted)),
-              ),
-            const SizedBox(height: 18),
-            SizedBox(
-              height: 170,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
+      // Opens the monthly recap (decision 0013, proposal 10).
+      child: Pressable(
+        onTap: () => context.push(Routes.recap),
+        semanticLabel: t.recapOpen,
+        pressScale: 0.98,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 18),
+          decoration: BoxDecoration(
+            color: _tile(c),
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
                 children: [
-                  for (final (i, (d, secs)) in home.week.indexed)
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TweenAnimationBuilder<double>(
-                            tween: Tween(begin: reduced ? 1 : 0, end: 1),
-                            duration: Duration(milliseconds: 700 + 60 * i),
-                            curve: MmMotion.spring,
-                            builder: (context, v, _) {
-                              final h = secs == 0
-                                  ? 6.0
-                                  : math.max(12.0, 130 * secs / max * v);
-                              final today = i == home.week.length - 1;
-                              return Container(
-                                width: 34,
-                                height: h,
-                                decoration: BoxDecoration(
-                                  color: secs == 0
-                                      ? c.fg.withValues(alpha: 0.18)
-                                      : (today
-                                            ? c.fg
-                                            : c.fg.withValues(alpha: 0.38)),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                              );
-                            },
-                          ),
-                          const SizedBox(height: 10),
-                          Text(
-                            day.format(d).replaceAll('.', ''),
-                            style: MmType.label.copyWith(
-                              fontSize: 14,
-                              color: i == home.week.length - 1
-                                  ? c.fg
-                                  : c.fgSoft,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                  Expanded(
+                    child: Text(t.last7Days, style: _Type.cardSub(c.fgSoft)),
+                  ),
+                  Text(t.recapOpen, style: _Type.cardSub(c.fg)),
+                  Icon(PhosphorRegular.caretRight, size: 16, color: c.fg),
                 ],
               ),
-            ),
-          ],
+              Text(
+                total == 0 ? '0 min' : durationWords(total.toDouble()),
+                style: _Type.page(context).copyWith(fontSize: 34),
+              ),
+              if (total == 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 8),
+                  child: Text(t.noListenYet, style: _Type.cardSub(c.muted)),
+                ),
+              const SizedBox(height: 18),
+              SizedBox(
+                height: 170,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    for (final (i, (d, secs)) in home.week.indexed)
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TweenAnimationBuilder<double>(
+                              tween: Tween(begin: reduced ? 1 : 0, end: 1),
+                              duration: Duration(milliseconds: 700 + 60 * i),
+                              curve: MmMotion.spring,
+                              builder: (context, v, _) {
+                                final h = secs == 0
+                                    ? 6.0
+                                    : math.max(12.0, 130 * secs / max * v);
+                                final today = i == home.week.length - 1;
+                                return Container(
+                                  width: 34,
+                                  height: h,
+                                  decoration: BoxDecoration(
+                                    color: secs == 0
+                                        ? c.fg.withValues(alpha: 0.18)
+                                        : (today
+                                              ? c.fg
+                                              : c.fg.withValues(alpha: 0.38)),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                );
+                              },
+                            ),
+                            const SizedBox(height: 10),
+                            Text(
+                              day.format(d).replaceAll('.', ''),
+                              style: MmType.label.copyWith(
+                                fontSize: 14,
+                                color: i == home.week.length - 1
+                                    ? c.fg
+                                    : c.fgSoft,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

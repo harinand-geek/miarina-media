@@ -8612,6 +8612,60 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Quand la file se termine, des titres proches de votre bibliothèque suivent'**
   String get autoplaySettingBody;
+
+  /// No description provided for @recapTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Votre mois'**
+  String get recapTitle;
+
+  /// No description provided for @recapOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Voir le mois'**
+  String get recapOpen;
+
+  /// No description provided for @recapSubtitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Ce que vous avez écouté, mois par mois'**
+  String get recapSubtitle;
+
+  /// No description provided for @recapEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas encore d\'écoute ce mois-ci'**
+  String get recapEmpty;
+
+  /// No description provided for @recapEmptyBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Écoutez de la musique : votre mois se remplira tout seul.'**
+  String get recapEmptyBody;
+
+  /// No description provided for @recapDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'{count, plural, =0{Aucun jour d\'écoute} =1{1 jour d\'écoute} other{{count} jours d\'écoute}}'**
+  String recapDays(int count);
+
+  /// No description provided for @recapBestDay.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jour le plus écouté : {day}'**
+  String recapBestDay(String day);
+
+  /// No description provided for @recapTopTracks.
+  ///
+  /// In fr, this message translates to:
+  /// **'Vos titres'**
+  String get recapTopTracks;
+
+  /// No description provided for @recapPlayTop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lire votre top'**
+  String get recapPlayTop;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {
