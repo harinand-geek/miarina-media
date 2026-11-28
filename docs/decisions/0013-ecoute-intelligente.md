@@ -54,4 +54,4 @@ Contrainte : tout reste **sur l'appareil** (principe local-first). Pas de servic
 
 - Aucune nouvelle dépendance, aucune permission, aucun accès réseau.
 - Coût : le calcul se fait en mémoire sur la liste de la bibliothèque (3 000 titres au plus par tirage), une fois par radio ou par continuation, pas à chaque image.
-- Tests : `test/smart_queue_test.dart` (goûts, effacement, stockage, aléatoire, radio) et `test/smart_playback_test.dart` (signaux sur la vraie file, continuation, radio). Les tests de playlists désactivent la continuation, car ils vérifient la file exacte.
+- Tests : `test/smart_algorithms_test.dart` (goûts, effacement, stockage, aléatoire, radio) et `test/smart_playback_test.dart` (signaux sur la vraie file, continuation, radio). Les tests de playlists désactivent la continuation, car ils vérifient la file exacte.
