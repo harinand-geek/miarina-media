@@ -8570,6 +8570,48 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'Supprimer ces paroles'**
   String get lyricsDelete;
+
+  /// No description provided for @startRadio.
+  ///
+  /// In fr, this message translates to:
+  /// **'Radio de ce titre'**
+  String get startRadio;
+
+  /// No description provided for @radioStarted.
+  ///
+  /// In fr, this message translates to:
+  /// **'Radio lancée : des titres proches suivent'**
+  String get radioStarted;
+
+  /// No description provided for @radioEmpty.
+  ///
+  /// In fr, this message translates to:
+  /// **'Pas assez de titres dans votre bibliothèque pour une radio'**
+  String get radioEmpty;
+
+  /// No description provided for @smartShuffleSetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Lecture aléatoire intelligente'**
+  String get smartShuffleSetting;
+
+  /// No description provided for @smartShuffleSettingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Plus souvent ce que vous écoutez jusqu\'au bout, moins ce que vous passez ; pas deux fois le même artiste à la suite'**
+  String get smartShuffleSettingBody;
+
+  /// No description provided for @autoplaySetting.
+  ///
+  /// In fr, this message translates to:
+  /// **'Continuer avec des titres proches'**
+  String get autoplaySetting;
+
+  /// No description provided for @autoplaySettingBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Quand la file se termine, des titres proches de votre bibliothèque suivent'**
+  String get autoplaySettingBody;
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

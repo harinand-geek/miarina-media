@@ -755,6 +755,24 @@ class _Playback extends ConsumerWidget {
             // The queue prepares the next file in the engine (gapless) or
             // in a second one (crossfade); not offered where the engine
             // cannot.
+            SettingsRow(
+              title: t.smartShuffleSetting,
+              body: t.smartShuffleSettingBody,
+              control: MmSwitch(
+                value: prefs.smartShuffle,
+                label: t.smartShuffleSetting,
+                onChanged: (v) => ctl.save(prefs.copyWith(smartShuffle: v)),
+              ),
+            ),
+            SettingsRow(
+              title: t.autoplaySetting,
+              body: t.autoplaySettingBody,
+              control: MmSwitch(
+                value: prefs.autoplay,
+                label: t.autoplaySetting,
+                onChanged: (v) => ctl.save(prefs.copyWith(autoplay: v)),
+              ),
+            ),
             if (caps?.gapless ?? false)
               SettingsRow(
                 title: t.gapless,

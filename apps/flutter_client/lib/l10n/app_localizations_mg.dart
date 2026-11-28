@@ -5198,4 +5198,29 @@ class L10nMg extends L10n {
 
   @override
   String get lyricsDelete => 'Hamafa ity tononkira ity';
+
+  @override
+  String get startRadio => 'Radio avy amin\'ity hira ity';
+
+  @override
+  String get radioStarted =>
+      'Natomboka ny radio: manaraka ireo hira mitovitovy';
+
+  @override
+  String get radioEmpty =>
+      'Tsy ampy ny hira ao amin\'ny tranombokinao hanaovana radio';
+
+  @override
+  String get smartShuffleSetting => 'Fifangaroana marani-tsaina';
+
+  @override
+  String get smartShuffleSettingBody =>
+      'Matetika kokoa izay henoinao hatramin\'ny farany, tsy dia matetika izay dinganinao; tsy misy mpanakanto mitovy mifanesy';
+
+  @override
+  String get autoplaySetting => 'Tohizo amin\'ny hira mitovitovy';
+
+  @override
+  String get autoplaySettingBody =>
+      'Rehefa tapitra ny filaharana, manaraka ireo hira mitovitovy ao amin\'ny tranombokinao';
 }

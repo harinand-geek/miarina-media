@@ -23,6 +23,7 @@ import '../cinema/screen_control.dart';
 import '../common/state_views.dart';
 import '../device_media/device_media.dart';
 import '../library/library_data.dart';
+import '../library/track_actions.dart' show startTrackRadio;
 import '../library/track_info.dart';
 import '../online/online_obtain.dart' show obtainOnline;
 import '../shell/mobile_shell.dart'
@@ -410,6 +411,12 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
                 toggleCurrentFavorite(ref);
               },
             ),
+            if (!entry.isVideo && entry.focusKey == null)
+              SheetAction(
+                icon: PhosphorRegular.sparkle,
+                label: t.startRadio,
+                onTap: () => unawaited(startTrackRadio(context, ref, entry)),
+              ),
           ],
         [
           SheetAction(

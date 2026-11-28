@@ -53,7 +53,11 @@ void main() {
           focusApiProvider.overrideWithValue(FakeFocusApi()),
           playlistApiProvider.overrideWithValue(playlists),
           desktopShellProvider.overrideWithValue(desktop),
-          settingsStoreProvider.overrideWithValue(FakeSettingsStore()),
+          // The queues here hold what is played, nothing added after
+          // (the continuation has its own tests).
+          settingsStoreProvider.overrideWithValue(
+            FakeSettingsStore()..values['playback'] = {'autoplay': false},
+          ),
           lyricsLoaderProvider.overrideWithValue((_) async => null),
           playbackStoreProvider.overrideWithValue(FakePlaybackStore()),
           initialRouteProvider.overrideWithValue(start),

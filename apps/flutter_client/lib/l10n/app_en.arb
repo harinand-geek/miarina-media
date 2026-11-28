@@ -1479,5 +1479,12 @@
   "lyricsPlain": "text",
   "lyricsWebWord": "lyrics",
   "lyricsSearchOther": "Find other lyrics",
-  "lyricsDelete": "Delete these lyrics"
+  "lyricsDelete": "Delete these lyrics",
+  "startRadio": "Start radio",
+  "radioStarted": "Radio started: similar tracks follow",
+  "radioEmpty": "Not enough tracks in your library for a radio",
+  "smartShuffleSetting": "Smart shuffle",
+  "smartShuffleSettingBody": "More of what you hear to the end, less of what you skip; never the same artist twice in a row",
+  "autoplaySetting": "Keep playing similar tracks",
+  "autoplaySettingBody": "When the queue ends, similar tracks from your library follow"
 }

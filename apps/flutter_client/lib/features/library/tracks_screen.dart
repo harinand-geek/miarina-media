@@ -30,6 +30,7 @@ import '../settings/settings_data.dart';
 import '../../app/router.dart';
 import 'groups.dart';
 import 'library_data.dart';
+import 'track_actions.dart' show startTrackRadio;
 import 'phone_library.dart';
 import 'tag_editor.dart';
 import 'track_info.dart';
@@ -350,6 +351,8 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         ),
         _item(_Act.queue, PhosphorRegular.queue, t.addToQueue),
         _item(_Act.playlist, PhosphorRegular.listPlus, t.addToPlaylist),
+        if (single != null && !single.isVideo && !single.missing)
+          _item(_Act.radio, PhosphorRegular.sparkle, t.startRadio),
         if (single != null) ...[
           const PopupMenuDivider(height: 9),
           _item(
@@ -381,6 +384,8 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
         _playChosen();
       case _Act.playNext:
         unawaited(_enqueue(next: true));
+      case _Act.radio:
+        unawaited(_radio());
       case _Act.queue:
         unawaited(_enqueue(next: false));
       case _Act.playlist:
@@ -453,6 +458,12 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             label: t.addToPlaylist,
             onTap: () => run(_Act.playlist),
           ),
+          if (!item.isVideo && !item.missing)
+            SheetAction(
+              icon: PhosphorRegular.sparkle,
+              label: t.startRadio,
+              onTap: () => run(_Act.radio),
+            ),
           SheetAction(
             icon: item.favorite ? PhosphorFill.heart : PhosphorRegular.heart,
             label: item.favorite ? t.favoriteRemove : t.favoriteAdd,
@@ -509,6 +520,17 @@ class _TracksScreenState extends ConsumerState<TracksScreen> {
             ),
         ],
       ],
+    );
+  }
+
+  Future<void> _radio() async {
+    final chosen = _chosen;
+    if (chosen.length != 1) return;
+    final t = L10n.of(context);
+    await startTrackRadio(
+      context,
+      ref,
+      queueEntryOf(chosen.single, unknownArtist: t.unknownArtist),
     );
   }
 
@@ -1402,6 +1424,7 @@ enum _Quick { neverPlayed, hiRes, addedThisMonth }
 enum _Act {
   play,
   playNext,
+  radio,
   queue,
   playlist,
   tags,

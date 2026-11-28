@@ -7,11 +7,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../engine/engine_factory.dart';
 import '../../engine/media_engine.dart';
 import '../health/health_data.dart';
+import '../library/library_data.dart' show libraryApiProvider, queueEntryOf;
 import '../online/online_data.dart' show OnlineFailure, OnlineFailureKind;
 import '../online/online_playback.dart';
 import '../../src/rust/api/library.dart' as rust_library;
 import '../settings/settings_data.dart';
 import 'playback_memory.dart';
+import 'smart_queue.dart';
+import 'taste.dart';
 
 /// One playable entry of the queue, with what the bars display.
 @immutable
@@ -249,7 +252,7 @@ class QueueController extends Notifier<QueueState> {
     if (entries.isEmpty) return;
     final first = start.clamp(0, entries.length - 1);
     final order = _orderFor(
-      entries.length,
+      entries,
       shuffle: state.shuffle && !inOrder,
       first: first,
     );
@@ -296,7 +299,11 @@ class QueueController extends Notifier<QueueState> {
     await _load(startAt: at);
   }
 
-  Future<void> next() async {
+  /// « Suivant » by the listener: the track left counts as passed when
+  /// little of it was heard (taste.dart).
+  Future<void> next() => _advance(skipped: true);
+
+  Future<void> _advance({required bool skipped}) async {
     if (state.order.isEmpty) return;
     if (state.position + 1 < state.order.length) {
       state = state.copyWith(position: state.position + 1);
@@ -305,7 +312,7 @@ class QueueController extends Notifier<QueueState> {
     } else {
       return;
     }
-    await _load();
+    await _load(skipped: skipped);
   }
 
   /// Back to the start of the track after 3 s, otherwise the previous one.
@@ -329,11 +336,7 @@ class QueueController extends Notifier<QueueState> {
       return;
     }
     final currentIndex = state.order[state.position];
-    final order = _orderFor(
-      state.entries.length,
-      shuffle: on,
-      first: currentIndex,
-    );
+    final order = _orderFor(state.entries, shuffle: on, first: currentIndex);
     state = state.copyWith(
       shuffle: on,
       order: order,
@@ -362,7 +365,7 @@ class QueueController extends Notifier<QueueState> {
     final p = state.position + 1 + i;
     if (p >= state.order.length) return;
     state = state.copyWith(position: p);
-    await _load();
+    await _load(skipped: true);
   }
 
   /// Moves an upcoming entry from index [from] to [to] (0 = next).
@@ -417,10 +420,23 @@ class QueueController extends Notifier<QueueState> {
     unawaited(_prepareNext());
   }
 
-  List<int> _orderFor(int length, {required bool shuffle, required int first}) {
-    final order = List<int>.generate(length, (i) => i);
+  List<int> _orderFor(
+    List<QueueEntry> entries, {
+    required bool shuffle,
+    required int first,
+  }) {
+    final order = List<int>.generate(entries.length, (i) => i);
     if (!shuffle) {
       return order;
+    }
+    if (ref.read(playbackPrefsProvider).value?.smartShuffle ?? true) {
+      return smartShuffleOrder(
+        entries,
+        first: first,
+        taste: ref.read(tasteProvider),
+        random: _random,
+        now: DateTime.now(),
+      );
     }
     order
       ..remove(first)
@@ -429,7 +445,111 @@ class QueueController extends Notifier<QueueState> {
     return order;
   }
 
-  Future<void> _load({bool fromStart = false, Duration? startAt}) async {
+  /// Radio (2026-11-28): [seed] then up to 25 close tracks of the library
+  /// (smart_queue.dart). When [seed] is the one playing, it goes on and the
+  /// radio follows it. Returns how many tracks were found (0: nothing
+  /// changed).
+  Future<int> startRadio(QueueEntry seed, {String? unknownArtist}) async {
+    final id = seed.libraryId;
+    if (id == null) return 0;
+    final picks = await _closeTracks(
+      [TrackKey.ofEntry(seed)],
+      exclude: {id},
+      count: 25,
+    );
+    if (picks.isEmpty) return 0;
+    final entries = [
+      for (final i in picks) queueEntryOf(i, unknownArtist: unknownArtist),
+    ];
+    final current = state.current;
+    if (current != null && current.libraryId == id) {
+      state = state.copyWith(
+        entries: List.unmodifiable([current, ...entries]),
+        order: List<int>.generate(entries.length + 1, (i) => i),
+        position: 0,
+      );
+      await _prepareNext();
+    } else {
+      await playAll([seed, ...entries], inOrder: true);
+    }
+    return entries.length;
+  }
+
+  Future<List<rust_library.LibraryItem>> _closeTracks(
+    List<TrackKey> seeds, {
+    required Set<int> exclude,
+    required int count,
+  }) async {
+    try {
+      final library = await ref
+          .read(libraryApiProvider)
+          .tracks(search: '', favoritesOnly: false, offset: 0, limit: 3000);
+      await ref.read(tasteProvider.notifier).ready();
+      return radioPicks(
+        seeds: seeds,
+        library: library.items,
+        taste: ref.read(tasteProvider),
+        random: _random,
+        now: DateTime.now(),
+        exclude: exclude,
+        count: count,
+      );
+    } catch (_) {
+      return const [];
+    }
+  }
+
+  static bool _isLibraryMusic(QueueEntry e) =>
+      e.libraryId != null && !e.isVideo && e.focusKey == null;
+
+  bool _continuing = false;
+
+  /// Automatic continuation: music of the library playing, the queue at its
+  /// last track or the one before, no repeat: ten close tracks of the
+  /// library are added at the end, from the last three heard.
+  Future<void> _continueIfEnding() async {
+    if (_continuing) return;
+    final prefs = ref.read(playbackPrefsProvider).value;
+    if (prefs == null || !prefs.autoplay) return;
+    if (state.repeat != RepeatSetting.off) return;
+    final current = state.current;
+    if (current == null || !_isLibraryMusic(current)) return;
+    if (state.order.length - state.position - 1 > 1) return;
+    _continuing = true;
+    try {
+      final seeds = <TrackKey>[];
+      for (var p = state.position; p >= 0 && seeds.length < 3; p--) {
+        final e = state.entries[state.order[p]];
+        if (_isLibraryMusic(e)) seeds.add(TrackKey.ofEntry(e));
+      }
+      final picks = await _closeTracks(
+        seeds,
+        exclude: {for (final e in state.entries) ?e.libraryId},
+        count: 10,
+      );
+      // The queue changed meanwhile: that one decides.
+      if (picks.isEmpty || !identical(state.current, current)) return;
+      final base = state.entries.length;
+      state = state.copyWith(
+        entries: List.unmodifiable([
+          ...state.entries,
+          for (final i in picks) queueEntryOf(i),
+        ]),
+        order: [
+          ...state.order,
+          for (var i = 0; i < picks.length; i++) base + i,
+        ],
+      );
+    } finally {
+      _continuing = false;
+    }
+  }
+
+  Future<void> _load({
+    bool fromStart = false,
+    Duration? startAt,
+    bool skipped = false,
+  }) async {
     final entry = state.current;
     final engine = _engine;
     if (entry == null || engine == null) return;
@@ -446,7 +566,7 @@ class QueueController extends Notifier<QueueState> {
       if (canSkip) {
         _skipped++;
         state = state.copyWith(position: state.position + 1);
-        return _load(fromStart: fromStart);
+        return _load(fromStart: fromStart, skipped: skipped);
       }
       // Last one: opened anyway, the player shows "Fichier introuvable".
     }
@@ -455,7 +575,7 @@ class QueueController extends Notifier<QueueState> {
     final start = startAt ?? (fromStart ? null : await memory.startFor(entry));
     // Before open(): the previous track's position is saved from the last
     // snapshot, which open() replaces.
-    await memory.started(entry);
+    await memory.started(entry, skipped: skipped);
     _prepared = null;
     _refreshedOnline = null;
     _onlineAt = Duration.zero;
@@ -474,6 +594,7 @@ class QueueController extends Notifier<QueueState> {
       ref.read(onlinePlaybackProvider.notifier).clear();
     }
     await engine.open(source, startAt: start);
+    await _continueIfEnding();
     await _prepareNext();
   }
 
@@ -623,6 +744,7 @@ class QueueController extends Notifier<QueueState> {
     _prepared = null;
     state = state.copyWith(position: p);
     await ref.read(playbackMemoryProvider).started(next);
+    await _continueIfEnding();
     await _prepareNext();
   }
 
@@ -632,7 +754,7 @@ class QueueController extends Notifier<QueueState> {
       return;
     }
     if (state.repeat == RepeatSetting.one) return;
-    if (state.hasNext) await next();
+    if (state.hasNext) await _advance(skipped: false);
   }
 }
 

@@ -89,6 +89,8 @@ class PlaybackPrefs {
     this.gapless = true,
     this.crossfadeSecs = 0,
     this.videoGestures = true,
+    this.smartShuffle = true,
+    this.autoplay = true,
   });
 
   final bool resume;
@@ -106,18 +108,29 @@ class PlaybackPrefs {
   /// pinch to fill (the buttons stay).
   final bool videoGestures;
 
+  /// Shuffle learns from what is heard to the end or passed, and spreads
+  /// artists (smart_queue.dart); off: plain random.
+  final bool smartShuffle;
+
+  /// When the queue of music ends, close tracks of the library follow.
+  final bool autoplay;
+
   PlaybackPrefs copyWith({
     bool? resume,
     EnginePreferences? engine,
     bool? gapless,
     int? crossfadeSecs,
     bool? videoGestures,
+    bool? smartShuffle,
+    bool? autoplay,
   }) => PlaybackPrefs(
     resume: resume ?? this.resume,
     engine: engine ?? this.engine,
     gapless: gapless ?? this.gapless,
     crossfadeSecs: crossfadeSecs ?? this.crossfadeSecs,
     videoGestures: videoGestures ?? this.videoGestures,
+    smartShuffle: smartShuffle ?? this.smartShuffle,
+    autoplay: autoplay ?? this.autoplay,
   );
 
   Map<String, Object?> toJson() => {
@@ -130,6 +143,8 @@ class PlaybackPrefs {
     'gapless': gapless,
     'crossfadeSecs': crossfadeSecs,
     'videoGestures': videoGestures,
+    'smartShuffle': smartShuffle,
+    'autoplay': autoplay,
   };
 }
 
@@ -230,6 +245,8 @@ class PlaybackPrefsController extends AsyncNotifier<PlaybackPrefs> {
           ? _pick<num>(raw, 'crossfadeSecs', 0).toInt()
           : 0,
       videoGestures: _pick(raw, 'videoGestures', true),
+      smartShuffle: _pick(raw, 'smartShuffle', true),
+      autoplay: _pick(raw, 'autoplay', true),
     );
   }
 

@@ -2716,5 +2716,12 @@
   "lyricsPlain": "texte",
   "lyricsWebWord": "paroles",
   "lyricsSearchOther": "Chercher d'autres paroles",
-  "lyricsDelete": "Supprimer ces paroles"
+  "lyricsDelete": "Supprimer ces paroles",
+  "startRadio": "Radio de ce titre",
+  "radioStarted": "Radio lancée : des titres proches suivent",
+  "radioEmpty": "Pas assez de titres dans votre bibliothèque pour une radio",
+  "smartShuffleSetting": "Lecture aléatoire intelligente",
+  "smartShuffleSettingBody": "Plus souvent ce que vous écoutez jusqu'au bout, moins ce que vous passez ; pas deux fois le même artiste à la suite",
+  "autoplaySetting": "Continuer avec des titres proches",
+  "autoplaySettingBody": "Quand la file se termine, des titres proches de votre bibliothèque suivent"
 }

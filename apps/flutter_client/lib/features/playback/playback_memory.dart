@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -9,6 +10,7 @@ import '../../src/rust/api/settings.dart';
 import '../library/library_data.dart';
 import 'listen_journal.dart';
 import 'playback.dart';
+import 'taste.dart';
 
 /// Resume positions and play history, stored exactly like the 0.1.x app
 /// (apps/client usePlayback.ts, recentPlays.ts) so both read the same data:
@@ -176,6 +178,22 @@ class PlaybackMemory {
   int _carryMs = 0;
   Timer? _journalTick;
 
+  /// Taste (taste.dart): whether the current file is library music, its
+  /// length, the time really heard of it, and whether it was judged already
+  /// (heard to the end, or passed quickly).
+  bool _music = false;
+  Duration? _currentDuration;
+  int _trackHeardMs = 0;
+  bool _judged = false;
+
+  /// The last track heard to the end, which the next one heard to the end
+  /// in the same session becomes the neighbour of.
+  int? _lastFinishedId;
+  DateTime? _lastFinishedAt;
+
+  /// Two tracks heard to the end this close are of the same session.
+  static const _session = Duration(minutes: 20);
+
   /// Time really heard: the clock runs while the music plays.
   void _syncClock(PlaybackSnapshot s) {
     final hearing =
@@ -199,6 +217,7 @@ class PlaybackMemory {
 
   /// Seconds heard since the last call; the rest is kept for the next one.
   int _takeHeard() {
+    _trackHeardMs += _clock.elapsedMilliseconds;
     final ms = _clock.elapsedMilliseconds + _carryMs;
     _clock.reset();
     final secs = ms ~/ 1000;
@@ -261,9 +280,49 @@ class PlaybackMemory {
     return savedPosition(id);
   }
 
-  /// Called by the queue when [entry] starts.
-  Future<void> started(QueueEntry entry) async {
+  /// Heard to the end (80 % of it, or the engine said it ended), or passed
+  /// by the listener ([skipped]: « suivant ») in its first 30 s or first
+  /// half: the taste learns it. Anything else says nothing.
+  void _judge({required bool skipped}) {
+    final id = _currentId;
+    if (id == null || !_music || _judged) return;
+    final heard = _trackHeardMs + _clock.elapsedMilliseconds;
+    final length =
+        (_currentDuration ?? _last?.duration ?? Duration.zero).inMilliseconds;
+    if (length > 0 && heard >= length * 0.8) {
+      _finished(id);
+    } else if (skipped &&
+        heard < (length > 0 ? math.min(30000, length * 0.5) : 30000)) {
+      _judged = true;
+      unawaited(_ref.read(tasteProvider.notifier).skipped(id));
+    }
+  }
+
+  void _finished(int id) {
+    _judged = true;
+    final now = DateTime.now();
+    final last = _lastFinishedAt;
+    final after = last != null && now.difference(last) < _session
+        ? _lastFinishedId
+        : null;
+    _lastFinishedId = id;
+    _lastFinishedAt = now;
+    unawaited(_ref.read(tasteProvider.notifier).finished(id, after: after));
+  }
+
+  /// Called by the queue when [entry] starts; [skipped]: the listener
+  /// passed the previous one (« suivant », a track of the queue chosen).
+  Future<void> started(QueueEntry entry, {bool skipped = false}) async {
     await _flush();
+    _judge(skipped: skipped);
+    _music =
+        entry.libraryId != null && !entry.isVideo && entry.focusKey == null;
+    _currentDuration = entry.duration;
+    _trackHeardMs = 0;
+    _judged = false;
+    if (_music) {
+      unawaited(_ref.read(tasteProvider.notifier).started(entry.libraryId!));
+    }
     _currentId = entry.libraryId;
     _currentUri = entry.source.uri;
     _savedAt = Duration.zero;
@@ -328,6 +387,9 @@ class PlaybackMemory {
     final previous = _last;
     _last = s;
     _syncClock(s);
+    if (s.status == PlaybackStatus.ended && _currentId != null && !_judged) {
+      if (_music) _finished(_currentId!);
+    }
     if (_currentId == null || s.duration == Duration.zero) return;
     final paused = previous?.isPlaying == true && !s.isPlaying;
     if (s.status == PlaybackStatus.ended) {

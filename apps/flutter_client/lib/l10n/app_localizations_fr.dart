@@ -5181,4 +5181,28 @@ class L10nFr extends L10n {
 
   @override
   String get lyricsDelete => 'Supprimer ces paroles';
+
+  @override
+  String get startRadio => 'Radio de ce titre';
+
+  @override
+  String get radioStarted => 'Radio lancée : des titres proches suivent';
+
+  @override
+  String get radioEmpty =>
+      'Pas assez de titres dans votre bibliothèque pour une radio';
+
+  @override
+  String get smartShuffleSetting => 'Lecture aléatoire intelligente';
+
+  @override
+  String get smartShuffleSettingBody =>
+      'Plus souvent ce que vous écoutez jusqu\'au bout, moins ce que vous passez ; pas deux fois le même artiste à la suite';
+
+  @override
+  String get autoplaySetting => 'Continuer avec des titres proches';
+
+  @override
+  String get autoplaySettingBody =>
+      'Quand la file se termine, des titres proches de votre bibliothèque suivent';
 }

@@ -5140,4 +5140,27 @@ class L10nEn extends L10n {
 
   @override
   String get lyricsDelete => 'Delete these lyrics';
+
+  @override
+  String get startRadio => 'Start radio';
+
+  @override
+  String get radioStarted => 'Radio started: similar tracks follow';
+
+  @override
+  String get radioEmpty => 'Not enough tracks in your library for a radio';
+
+  @override
+  String get smartShuffleSetting => 'Smart shuffle';
+
+  @override
+  String get smartShuffleSettingBody =>
+      'More of what you hear to the end, less of what you skip; never the same artist twice in a row';
+
+  @override
+  String get autoplaySetting => 'Keep playing similar tracks';
+
+  @override
+  String get autoplaySettingBody =>
+      'When the queue ends, similar tracks from your library follow';
 }

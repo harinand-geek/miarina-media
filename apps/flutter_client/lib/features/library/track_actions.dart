@@ -17,6 +17,29 @@ import 'groups.dart';
 import 'library_data.dart';
 import 'track_info.dart';
 
+/// « Radio de ce titre »: [seed] then close tracks of the library
+/// (smart_queue.dart); says so, or that the library is too small.
+Future<void> startTrackRadio(
+  BuildContext context,
+  WidgetRef ref,
+  QueueEntry seed,
+) async {
+  final t = L10n.of(context);
+  final messenger = ScaffoldMessenger.maybeOf(context);
+  HapticFeedback.selectionClick();
+  final found = await ref
+      .read(queueProvider.notifier)
+      .startRadio(seed, unknownArtist: t.unknownArtist);
+  messenger
+    ?..hideCurrentSnackBar()
+    ..showSnackBar(
+      SnackBar(
+        content: Text(found > 0 ? t.radioStarted : t.radioEmpty),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+}
+
 /// The actions on one title outside the Titres list (album and artist
 /// pages on the phone): the same grouped sheet. [onChanged] runs after a
 /// change the page must show (favorite, deletion).
@@ -106,6 +129,12 @@ Future<void> showTrackActions(
           onTap: () =>
               unawaited(showAddToPlaylistDialog(context, ref, [item.id])),
         ),
+        if (!item.isVideo)
+          SheetAction(
+            icon: PhosphorRegular.sparkle,
+            label: t.startRadio,
+            onTap: () => unawaited(startTrackRadio(context, ref, entry)),
+          ),
         SheetAction(
           icon: item.favorite ? PhosphorFill.heart : PhosphorRegular.heart,
           label: item.favorite ? t.favoriteRemove : t.favoriteAdd,

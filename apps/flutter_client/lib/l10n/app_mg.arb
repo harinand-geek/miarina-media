@@ -1411,5 +1411,12 @@
   "lyricsPlain": "lahatsoratra",
   "lyricsWebWord": "tononkira",
   "lyricsSearchOther": "Hitady tononkira hafa",
-  "lyricsDelete": "Hamafa ity tononkira ity"
+  "lyricsDelete": "Hamafa ity tononkira ity",
+  "startRadio": "Radio avy amin'ity hira ity",
+  "radioStarted": "Natomboka ny radio: manaraka ireo hira mitovitovy",
+  "radioEmpty": "Tsy ampy ny hira ao amin'ny tranombokinao hanaovana radio",
+  "smartShuffleSetting": "Fifangaroana marani-tsaina",
+  "smartShuffleSettingBody": "Matetika kokoa izay henoinao hatramin'ny farany, tsy dia matetika izay dinganinao; tsy misy mpanakanto mitovy mifanesy",
+  "autoplaySetting": "Tohizo amin'ny hira mitovitovy",
+  "autoplaySettingBody": "Rehefa tapitra ny filaharana, manaraka ireo hira mitovitovy ao amin'ny tranombokinao"
 }
