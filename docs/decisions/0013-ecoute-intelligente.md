@@ -1,6 +1,6 @@
-# 0013 — Écoute intelligente : goûts appris, aléatoire intelligent, radio, continuation
+# 0013 — Écoute intelligente et fonctions du lecteur de musique
 
-Date : 2026-11-28 · Statut : **acceptée** par le propriétaire (« ok vas y » à la recommandation 1 + 2 + 4 + 5)
+Date : 2026-11-28 · Statut : **acceptée** par le propriétaire (« ok vas y » à la recommandation 1 + 2 + 4 + 5, puis « continuer jusqu'à la fin » pour le reste)
 
 ## Contexte
 
@@ -11,7 +11,7 @@ Le propriétaire a demandé des fonctionnalités utiles qui manquent au lecteur 
 4. une radio à partir d'un titre ;
 5. une musique qui continue quand la file se termine.
 
-Restent proposés pour la suite : un vrai mix du jour (3), une recherche tolérante aux fautes (6), un widget d'écran d'accueil (7), un réveil en musique (8), l'égaliseur par appareil (9), une rétrospective du mois (10) et Android Auto (11).
+Le 2026-11-28, le propriétaire a demandé de « continuer jusqu'à la fin » : les propositions 3, 6, 7, 8, 9, 10 et 11 ont suivi le même jour (§ 3 et § 6 à 11 ci-dessous).
 
 Contrainte : tout reste **sur l'appareil** (principe local-first). Pas de service distant, pas de compte, pas de télémétrie.
 
@@ -50,8 +50,52 @@ Contrainte : tout reste **sur l'appareil** (principe local-first). Pas de servic
 - On n'ajoute aucun titre déjà présent dans la file. Les titres entendus récemment sont rendus moins probables.
 - Réglage **« Continuer avec des titres proches »**, activé par défaut.
 
+### 3. Mix du jour selon les goûts (`dailyMixPicks`)
+
+- 30 titres : un cinquième de favoris oubliés (aimés, favoris ou souvent joués, mais pas entendus depuis 45 jours), un tiers de titres proches des derniers entendus (les choix de la radio) et, pour le reste, les titres aimés (pondérés par le goût et le nombre d'écoutes). Le tout est mélangé, sans le même artiste deux fois de suite.
+- Il reste le même toute la journée (`mm:dailyMix:v1`), même si les goûts évoluent entre-temps.
+
+### 6. Recherche tolérante aux fautes (`crates/storage/src/fuzzy.rs`)
+
+- Quand l'index plein texte trouve moins de 5 résultats, on compare les titres, artistes et albums mot à mot, accents retirés. La distance d'édition compte aussi l'inversion de deux lettres : aucune faute permise sous 3 lettres, une jusqu'à 5, deux au-delà. On compare aussi au début d'un mot encore en cours de frappe.
+- Ces résultats arrivent après les résultats exacts.
+
+### 7. Widget d'écran d'accueil Android (`PlayerWidget.kt`, `home_widget.dart`)
+
+- Format 4×1, redimensionnable en largeur : pochette, titre, artiste, précédent / lecture-pause / suivant. Toucher le reste du widget ouvre l'appli.
+- Flutter envoie le titre en cours. L'état lecture / pause vient du service de lecture lui-même, donc il reste juste même quand l'écran de l'appli est fermé. Dans ce cas, lecture-pause agit directement sur le lecteur, et précédent / suivant ouvrent l'appli (la file d'attente vit dans Flutter).
+
+### 8. Réveil en musique (`features/alarm/`, `AlarmChannel.kt`)
+
+- Réglages : l'heure, les jours (aucun = une seule fois), la musique (mix du jour, favoris ou toute la bibliothèque), le volume du réveil (Android) et un son progressif (bas au début, il monte en une minute).
+- Quand il sonne : l'heure, le titre en cours, « Arrêter » et « Encore 10 min ».
+- Android : c'est `AlarmManager.setAlarmClock`, comme les applis d'horloge, qui ouvre l'appli par-dessus l'écran verrouillé.
+- **Deux permissions nouvelles**, utilisées uniquement pour le réveil :
+  - `SCHEDULE_EXACT_ALARM` : Android 12+ la demande une fois, et l'écran du réveil le dit avec un bouton ;
+  - `RECEIVE_BOOT_COMPLETED` : le réveil est reprogrammé après un redémarrage.
+- Windows : un minuteur dans l'appli, donc le réveil ne sonne que si l'appli est ouverte (c'est écrit sur l'écran).
+
+### 9. Égaliseur par sortie (`audio_route.dart`, `AudioRouteChannel.kt`)
+
+- Android sait où va le son, sans permission : Bluetooth (chaque appareil à part), casque filaire ou USB, ou haut-parleur. Windows utilise la sortie choisie dans les réglages.
+- Avec « Un réglage par sortie » (activé par défaut), chaque sortie garde son égaliseur, qui revient quand le son y retourne.
+- L'égaliseur reste actif dès le lancement (`equalizerKeeperProvider`). Avant, Riverpod le mettait en pause tant qu'aucun lecteur n'était ouvert.
+
+### 10. Rétrospective du mois (`listen_months.dart`, `month_recap.dart`)
+
+- Un résumé mensuel est écrit en même temps que le journal d'écoute (`mm:listenMonths:v1`, conservé 24 mois) : les secondes par jour du mois, par artiste (50 au plus) et par titre (100 au plus).
+- L'écran « Votre mois » s'ouvre depuis la carte « 7 derniers jours ». Il montre le temps d'écoute, les jours d'écoute, le jour le plus écouté, une barre par jour, les 5 artistes et les 10 titres les plus écoutés, et lance le top du mois. Les mois précédents restent accessibles.
+
+### 11. Android Auto (`AutoLibrary.kt`, `auto_library.dart`)
+
+- Le service de lecture devient un `MediaLibraryService`. C'est la même session pour l'appli, la notification et l'écran verrouillé.
+- La voiture voit quatre listes : mix du jour, favoris, récemment joués et tous les titres. Flutter les écrit dans un fichier, au lancement puis quand un nouveau titre commence (au plus une fois toutes les 10 min), pour qu'elles existent même appli fermée.
+- **Pas essayé en voiture** ni avec le Desktop Head Unit, absent ici.
+- Un APK installé hors Play Store n'apparaît dans Android Auto que si les « sources inconnues » sont autorisées dans ses paramètres développeur.
+- Pas de pochettes dans les listes de la voiture pour l'instant (les images sont des fichiers privés de l'appli).
+
 ## Conséquences
 
-- Aucune nouvelle dépendance, aucune permission, aucun accès réseau.
+- Aucune nouvelle dépendance, aucun accès réseau. Deux permissions Android, pour le réveil seulement (§ 8).
 - Coût : le calcul se fait en mémoire sur la liste de la bibliothèque (3 000 titres au plus par tirage), une fois par radio ou par continuation, pas à chaque image.
 - Tests : `test/smart_algorithms_test.dart` (goûts, effacement, stockage, aléatoire, radio) et `test/smart_playback_test.dart` (signaux sur la vraie file, continuation, radio). Les tests de playlists désactivent la continuation, car ils vérifient la file exacte.
