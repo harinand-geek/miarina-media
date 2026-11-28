@@ -170,6 +170,17 @@ pub fn library_tracks(
         "plays" => MediaSort::Plays,
         _ => MediaSort::Title,
     };
+    // A plain search (no other filter): close titles despite typos follow
+    // the exact ones when those are few (decision 0013, proposal 6).
+    let plain = !search.trim().is_empty()
+        && offset == 0
+        && !favorites_only
+        && album.is_none()
+        && artist.is_none()
+        && added_since.is_none()
+        && !never_played
+        && !hi_res;
+    let typed = search.clone();
     with_db(&db_path, |db| {
         let page = db.query_media(&MediaQuery {
             search,
@@ -186,10 +197,21 @@ pub fn library_tracks(
             limit: limit.clamp(1, 500),
             ..MediaQuery::default()
         })?;
-        Ok(LibraryPage {
-            items: page.items.into_iter().map(item).collect(),
-            total: page.total,
-        })
+        let mut total = page.total;
+        let mut items: Vec<LibraryItem> = page.items.into_iter().map(item).collect();
+        if plain && total < 5 && (items.len() as u32) < limit {
+            let seen: std::collections::HashSet<i64> = items.iter().map(|i| i.id).collect();
+            for m in db.fuzzy_media(&typed, limit as usize)? {
+                if items.len() as u32 >= limit {
+                    break;
+                }
+                if m.kind == MediaKind::Audio && !seen.contains(&m.id) {
+                    items.push(item(m));
+                    total += 1;
+                }
+            }
+        }
+        Ok(LibraryPage { items, total })
     })
 }
 
@@ -348,5 +370,57 @@ mod tests {
             ..MediaProbe::default()
         };
         assert_eq!(add("C:/d.opus", bare).as_deref(), Some("OPUS"));
+    }
+
+    #[test]
+    fn the_titles_list_search_forgives_typos() {
+        let dir = std::env::temp_dir().join(format!("mm-tracks-fuzzy-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        let db_path = dir.join("miarina.db").to_string_lossy().into_owned();
+        with_db(&db_path, |db| {
+            for (path, title, kind) in [
+                ("D:/M/njakatiana.mp3", "NJAKATIANA", MediaKind::Audio),
+                ("D:/M/boussole.mp3", "Boussole", MediaKind::Audio),
+                ("D:/V/njakatiana.mp4", "Njakatiana live", MediaKind::Video),
+            ] {
+                db.upsert_media(&NewMedia {
+                    path: path.into(),
+                    title: title.into(),
+                    kind,
+                    source_host: None,
+                    source_url: None,
+                    task_id: None,
+                    size_bytes: 1,
+                })?;
+            }
+            Ok(())
+        })
+        .unwrap();
+        let search = |q: &str, favorites: bool| {
+            library_tracks(
+                db_path.clone(),
+                q.into(),
+                favorites,
+                None,
+                None,
+                "title".into(),
+                false,
+                None,
+                false,
+                false,
+                0,
+                50,
+            )
+            .unwrap()
+        };
+        let page = search("njakatina", false);
+        let titles: Vec<_> = page.items.iter().map(|i| i.title.as_str()).collect();
+        assert_eq!(titles, ["NJAKATIANA"], "music only");
+        assert_eq!(page.total, 1);
+        // Another filter on: exact matches only.
+        assert!(search("njakatina", true).items.is_empty());
+        assert!(search("zzzz", false).items.is_empty());
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }
