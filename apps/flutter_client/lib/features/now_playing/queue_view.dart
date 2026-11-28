@@ -14,6 +14,8 @@ import '../../l10n/app_localizations.dart';
 import '../../src/rust/api/library.dart' show LibraryItem;
 import '../library/library_data.dart';
 import '../playback/playback.dart';
+import '../playback/smart_queue.dart';
+import '../playback/taste.dart';
 import '../playlists/playlists_screen.dart' show showAddToPlaylistDialog;
 
 /// Queue (W-M3 « File », A-03b): the current entry, then what comes next,
@@ -367,9 +369,10 @@ class _UpcomingRowState extends State<_UpcomingRow> {
   }
 }
 
-/// Smart Queue: up to 3 library tracks close to the current one (same
-/// artist, then same album), not already queued. Computed on the device
-/// from the library's tags; no tempo is measured.
+/// Smart Queue: up to 3 library tracks close to the current one and the
+/// two before it (the radio's algorithm, decision 0013: same artist,
+/// album or folder, heard together, weighted by taste), nothing unrelated
+/// and nothing already queued. The same picks for the same track.
 final smartQueueProvider = FutureProvider.autoDispose<List<LibraryItem>>((
   ref,
 ) async {
@@ -379,39 +382,27 @@ final smartQueueProvider = FutureProvider.autoDispose<List<LibraryItem>>((
   if (id == null || current!.isVideo || current.focusKey != null) {
     return const [];
   }
-  final api = ref.read(libraryApiProvider);
-  final item = await api.item(id);
-  if (item == null) return const [];
-  final queued = {
-    for (final e in queue.entries)
-      if (e.libraryId != null) e.libraryId!,
-  };
-  final picked = <LibraryItem>[];
-  Future<void> take({String? artist, String? album}) async {
-    if (picked.length >= 3 || (artist == null && album == null)) return;
-    final page = await api.tracks(
-      search: '',
-      favoritesOnly: false,
-      offset: 0,
-      limit: 60,
-      artist: artist,
-      album: album,
-    );
-    final fresh = [
-      for (final i in page.items)
-        if (!i.missing &&
-            !queued.contains(i.id) &&
-            !picked.any((p) => p.id == i.id))
-          i,
-    ];
-    // A stable mix: not always the first tracks of the artist.
-    fresh.shuffle(math.Random(id));
-    picked.addAll(fresh.take(3 - picked.length));
+  final seeds = <TrackKey>[];
+  for (var p = queue.position; p >= 0 && seeds.length < 3; p--) {
+    final e = queue.entries[queue.order[p]];
+    if (e.libraryId != null && !e.isVideo && e.focusKey == null) {
+      seeds.add(TrackKey.ofEntry(e));
+    }
   }
-
-  await take(artist: item.artist);
-  await take(album: item.album);
-  return picked;
+  final page = await ref
+      .read(libraryApiProvider)
+      .tracks(search: '', favoritesOnly: false, offset: 0, limit: 3000);
+  await ref.read(tasteProvider.notifier).ready();
+  return radioPicks(
+    seeds: seeds,
+    library: page.items,
+    taste: ref.read(tasteProvider),
+    random: math.Random(id),
+    now: DateTime.now(),
+    exclude: {for (final e in queue.entries) ?e.libraryId},
+    count: 3,
+    closeOnly: true,
+  );
 });
 
 class _SmartQueueCard extends ConsumerWidget {

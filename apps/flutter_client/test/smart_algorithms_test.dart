@@ -213,6 +213,29 @@ void main() {
       }
     });
 
+    test('suggestions: only close tracks, heard together included', () {
+      final lib = [
+        item(1, artist: 'Stony', folder: '/a'),
+        item(2, artist: 'Stony', folder: '/b'),
+        item(3, artist: 'Iony', folder: '/c'),
+        item(4, artist: 'Rova', folder: '/d'),
+      ];
+      final taste = Taste.empty.finished(1, now).finished(4, now, after: 1);
+      for (var seed = 0; seed < 20; seed++) {
+        final ids = radioPicks(
+          seeds: [TrackKey.ofItem(lib.first)],
+          library: lib,
+          taste: taste,
+          random: math.Random(seed),
+          now: now,
+          exclude: {1},
+          count: 3,
+          closeOnly: true,
+        ).map((i) => i.id).toSet();
+        expect(ids, {2, 4}, reason: '3 has nothing in common');
+      }
+    });
+
     test('nothing to offer: empty', () {
       expect(
         radioPicks(

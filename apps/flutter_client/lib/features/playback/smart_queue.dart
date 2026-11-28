@@ -192,6 +192,7 @@ double similarity(List<TrackKey> seeds, TrackKey c, Taste taste) {
 /// [count] tracks of [library] for a radio started from [seeds] (the most
 /// recent first): close ones mostly, a few further ones for discovery,
 /// weighted by taste, none of [exclude], at most two of one artist in a row.
+/// [closeOnly]: nothing unrelated (the queue's suggestions).
 List<LibraryItem> radioPicks({
   required List<TrackKey> seeds,
   required List<LibraryItem> library,
@@ -200,11 +201,19 @@ List<LibraryItem> radioPicks({
   required DateTime now,
   Set<int> exclude = const {},
   int count = 25,
+  bool closeOnly = false,
 }) {
-  final pool = [
+  var pool = [
     for (final i in library)
       if (!i.isVideo && !i.missing && !exclude.contains(i.id)) i,
   ];
+  // Suggestions: only tracks with something in common with the seeds.
+  if (closeOnly) {
+    pool = [
+      for (final i in pool)
+        if (similarity(seeds, TrackKey.ofItem(i), taste) > 0) i,
+    ];
+  }
   if (pool.isEmpty || count <= 0) return const [];
   final keys = [for (final i in pool) TrackKey.ofItem(i)];
   final weights = [
