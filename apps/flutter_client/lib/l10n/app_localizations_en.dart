@@ -5218,4 +5218,63 @@ class L10nEn extends L10n {
 
   @override
   String get outputBluetooth => 'Bluetooth device';
+
+  @override
+  String get alarmTitle => 'Music alarm';
+
+  @override
+  String get alarmBody => 'Wake up to your music, the sound rising gently';
+
+  @override
+  String alarmNext(String when) {
+    return 'Next alarm: $when';
+  }
+
+  @override
+  String get alarmOff => 'The alarm is off';
+
+  @override
+  String get alarmDays => 'Days';
+
+  @override
+  String get alarmOnce => 'Only once if no day is chosen';
+
+  @override
+  String get alarmMusic => 'Music';
+
+  @override
+  String get alarmAllMusic => 'Whole library';
+
+  @override
+  String get alarmVolume => 'Alarm volume';
+
+  @override
+  String get alarmGradual => 'Gradual sound';
+
+  @override
+  String get alarmGradualBody => 'Starts low and rises over a minute';
+
+  @override
+  String get alarmExactNeeded => 'Android must allow alarms at the exact time';
+
+  @override
+  String get alarmAllow => 'Allow';
+
+  @override
+  String get alarmAppOpen =>
+      'On Windows, the alarm rings while Miarina Media is open';
+
+  @override
+  String get alarmStop => 'Stop';
+
+  @override
+  String get alarmSnooze => '10 more min';
+
+  @override
+  String get alarmGoodMorning => 'Good morning';
+
+  @override
+  String alarmSnoozed(String time) {
+    return 'It rings again at $time';
+  }
 }

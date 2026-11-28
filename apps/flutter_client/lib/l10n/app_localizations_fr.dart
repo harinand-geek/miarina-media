@@ -5261,4 +5261,65 @@ class L10nFr extends L10n {
 
   @override
   String get outputBluetooth => 'appareil Bluetooth';
+
+  @override
+  String get alarmTitle => 'Réveil en musique';
+
+  @override
+  String get alarmBody =>
+      'Se réveiller avec votre musique, le son monte doucement';
+
+  @override
+  String alarmNext(String when) {
+    return 'Prochain réveil : $when';
+  }
+
+  @override
+  String get alarmOff => 'Le réveil est désactivé';
+
+  @override
+  String get alarmDays => 'Jours';
+
+  @override
+  String get alarmOnce => 'Une seule fois si aucun jour n\'est choisi';
+
+  @override
+  String get alarmMusic => 'Musique';
+
+  @override
+  String get alarmAllMusic => 'Toute la bibliothèque';
+
+  @override
+  String get alarmVolume => 'Volume du réveil';
+
+  @override
+  String get alarmGradual => 'Son progressif';
+
+  @override
+  String get alarmGradualBody => 'Commence bas et monte en une minute';
+
+  @override
+  String get alarmExactNeeded =>
+      'Android doit autoriser les réveils à l\'heure exacte';
+
+  @override
+  String get alarmAllow => 'Autoriser';
+
+  @override
+  String get alarmAppOpen =>
+      'Sur Windows, le réveil sonne si Miarina Media est ouvert';
+
+  @override
+  String get alarmStop => 'Arrêter';
+
+  @override
+  String get alarmSnooze => 'Encore 10 min';
+
+  @override
+  String get alarmGoodMorning => 'Bonjour';
+
+  @override
+  String alarmSnoozed(String time) {
+    return 'Il sonnera de nouveau à $time';
+  }
 }

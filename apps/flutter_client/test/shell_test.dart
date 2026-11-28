@@ -7,6 +7,8 @@ import 'package:intl/intl.dart';
 import 'package:miarina_media/app/app.dart';
 import 'package:miarina_media/app/router.dart';
 import 'package:miarina_media/design/widgets/pressable.dart';
+import 'package:miarina_media/features/alarm/alarm_data.dart';
+import 'package:miarina_media/features/alarm/alarm_screen.dart';
 import 'package:miarina_media/features/focus/focus_data.dart';
 import 'package:miarina_media/features/home/month_recap.dart';
 import 'package:miarina_media/features/import/import_data.dart';
@@ -18,6 +20,7 @@ import 'package:miarina_media/features/playback/playback_memory.dart';
 import 'package:miarina_media/features/playback/settings_store.dart';
 import 'package:miarina_media/src/rust/api/library.dart';
 
+import 'alarm_test.dart' show FakeAlarm;
 import 'support/fakes.dart';
 
 /// Lets transitions finish. pumpAndSettle cannot be used: the progress bar
@@ -29,6 +32,7 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 void main() {
+  late FakeAlarm alarm;
   late FakeEngine engine;
   late FakeLibraryApi library;
   late FakeSettingsStore settings;
@@ -59,6 +63,7 @@ void main() {
           playbackStoreProvider.overrideWithValue(store ?? FakePlaybackStore()),
           initialRouteProvider.overrideWithValue(start),
           launchedWithMediaProvider.overrideWithValue(launchedWithMedia),
+          alarmApiProvider.overrideWithValue(alarm),
         ],
         child: const MiarinaApp(),
       ),
@@ -67,6 +72,7 @@ void main() {
   }
 
   setUp(() {
+    alarm = FakeAlarm();
     engine = FakeEngine();
     settings = FakeSettingsStore()..values['onboardingDone'] = true;
     library = FakeLibraryApi([
@@ -416,6 +422,21 @@ void main() {
       findsNothing,
       reason: 'the mini player still shows it',
     );
+  });
+
+  testWidgets('the alarm rings over the app; « Arrêter » ends it', (
+    tester,
+  ) async {
+    await pumpApp(tester, desktop: false, size: const Size(400, 860));
+    alarm.fire();
+    await settle(tester);
+    expect(find.byType(AlarmRingingScreen), findsOneWidget);
+    expect(find.text('Bonjour'), findsOneWidget);
+    expect(find.text('Encore 10 min'), findsOneWidget);
+    await tester.tap(find.text('Arrêter'));
+    await settle(tester);
+    expect(find.byType(AlarmRingingScreen), findsNothing);
+    expect(alarm.released, 1);
   });
 
   testWidgets('files without tags give an honest empty album list', (

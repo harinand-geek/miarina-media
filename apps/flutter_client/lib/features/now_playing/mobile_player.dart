@@ -426,6 +426,15 @@ class _MobilePlayerState extends ConsumerState<MobilePlayer>
             onTap: _sleepSheet,
           ),
           SheetAction(
+            icon: PhosphorRegular.sun,
+            label: t.alarmTitle,
+            onTap: () {
+              final router = GoRouter.of(context);
+              _close();
+              router.push(Routes.alarm);
+            },
+          ),
+          SheetAction(
             icon: PhosphorRegular.slidersHorizontal,
             label: t.equalizer,
             value: eq.enabled ? t.on : t.off,

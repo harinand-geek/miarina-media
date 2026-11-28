@@ -2758,5 +2758,37 @@
   },
   "outputSpeaker": "haut-parleur du téléphone",
   "outputWired": "casque filaire",
-  "outputBluetooth": "appareil Bluetooth"
+  "outputBluetooth": "appareil Bluetooth",
+  "alarmTitle": "Réveil en musique",
+  "alarmBody": "Se réveiller avec votre musique, le son monte doucement",
+  "alarmNext": "Prochain réveil : {when}",
+  "@alarmNext": {
+    "placeholders": {
+      "when": {
+        "type": "String"
+      }
+    }
+  },
+  "alarmOff": "Le réveil est désactivé",
+  "alarmDays": "Jours",
+  "alarmOnce": "Une seule fois si aucun jour n'est choisi",
+  "alarmMusic": "Musique",
+  "alarmAllMusic": "Toute la bibliothèque",
+  "alarmVolume": "Volume du réveil",
+  "alarmGradual": "Son progressif",
+  "alarmGradualBody": "Commence bas et monte en une minute",
+  "alarmExactNeeded": "Android doit autoriser les réveils à l'heure exacte",
+  "alarmAllow": "Autoriser",
+  "alarmAppOpen": "Sur Windows, le réveil sonne si Miarina Media est ouvert",
+  "alarmStop": "Arrêter",
+  "alarmSnooze": "Encore 10 min",
+  "alarmGoodMorning": "Bonjour",
+  "alarmSnoozed": "Il sonnera de nouveau à {time}",
+  "@alarmSnoozed": {
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  }
 }

@@ -8696,6 +8696,114 @@ abstract class L10n {
   /// In fr, this message translates to:
   /// **'appareil Bluetooth'**
   String get outputBluetooth;
+
+  /// No description provided for @alarmTitle.
+  ///
+  /// In fr, this message translates to:
+  /// **'Réveil en musique'**
+  String get alarmTitle;
+
+  /// No description provided for @alarmBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Se réveiller avec votre musique, le son monte doucement'**
+  String get alarmBody;
+
+  /// No description provided for @alarmNext.
+  ///
+  /// In fr, this message translates to:
+  /// **'Prochain réveil : {when}'**
+  String alarmNext(String when);
+
+  /// No description provided for @alarmOff.
+  ///
+  /// In fr, this message translates to:
+  /// **'Le réveil est désactivé'**
+  String get alarmOff;
+
+  /// No description provided for @alarmDays.
+  ///
+  /// In fr, this message translates to:
+  /// **'Jours'**
+  String get alarmDays;
+
+  /// No description provided for @alarmOnce.
+  ///
+  /// In fr, this message translates to:
+  /// **'Une seule fois si aucun jour n\'est choisi'**
+  String get alarmOnce;
+
+  /// No description provided for @alarmMusic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Musique'**
+  String get alarmMusic;
+
+  /// No description provided for @alarmAllMusic.
+  ///
+  /// In fr, this message translates to:
+  /// **'Toute la bibliothèque'**
+  String get alarmAllMusic;
+
+  /// No description provided for @alarmVolume.
+  ///
+  /// In fr, this message translates to:
+  /// **'Volume du réveil'**
+  String get alarmVolume;
+
+  /// No description provided for @alarmGradual.
+  ///
+  /// In fr, this message translates to:
+  /// **'Son progressif'**
+  String get alarmGradual;
+
+  /// No description provided for @alarmGradualBody.
+  ///
+  /// In fr, this message translates to:
+  /// **'Commence bas et monte en une minute'**
+  String get alarmGradualBody;
+
+  /// No description provided for @alarmExactNeeded.
+  ///
+  /// In fr, this message translates to:
+  /// **'Android doit autoriser les réveils à l\'heure exacte'**
+  String get alarmExactNeeded;
+
+  /// No description provided for @alarmAllow.
+  ///
+  /// In fr, this message translates to:
+  /// **'Autoriser'**
+  String get alarmAllow;
+
+  /// No description provided for @alarmAppOpen.
+  ///
+  /// In fr, this message translates to:
+  /// **'Sur Windows, le réveil sonne si Miarina Media est ouvert'**
+  String get alarmAppOpen;
+
+  /// No description provided for @alarmStop.
+  ///
+  /// In fr, this message translates to:
+  /// **'Arrêter'**
+  String get alarmStop;
+
+  /// No description provided for @alarmSnooze.
+  ///
+  /// In fr, this message translates to:
+  /// **'Encore 10 min'**
+  String get alarmSnooze;
+
+  /// No description provided for @alarmGoodMorning.
+  ///
+  /// In fr, this message translates to:
+  /// **'Bonjour'**
+  String get alarmGoodMorning;
+
+  /// No description provided for @alarmSnoozed.
+  ///
+  /// In fr, this message translates to:
+  /// **'Il sonnera de nouveau à {time}'**
+  String alarmSnoozed(String time);
 }
 
 class _L10nDelegate extends LocalizationsDelegate<L10n> {

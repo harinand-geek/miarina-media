@@ -19,6 +19,7 @@ class MainActivity : FlutterActivity() {
   private var appUpdate: AppUpdateChannel? = null
   private var audioRoute: AudioRouteChannel? = null
   private var homeWidget: HomeWidgetChannel? = null
+  private var alarm: AlarmChannel? = null
 
   @Volatile
   private var uiShown = false
@@ -53,6 +54,25 @@ class MainActivity : FlutterActivity() {
     // HTTPS of the Rust core (Obtenir) checks the Android trust store.
     NativeBridge.init(this)
     super.onCreate(savedInstanceState)
+    handleAlarm(intent)
+  }
+
+  /** Opened by the music alarm: over the lock screen, screen on; Flutter plays. */
+  private fun handleAlarm(intent: android.content.Intent?) {
+    if (intent?.getBooleanExtra(AlarmChannel.EXTRA_ALARM, false) != true) return
+    // Not again when the activity is recreated (rotation).
+    intent.removeExtra(AlarmChannel.EXTRA_ALARM)
+    if (android.os.Build.VERSION.SDK_INT >= 27) {
+      setShowWhenLocked(true)
+      setTurnScreenOn(true)
+    } else {
+      @Suppress("DEPRECATION")
+      window.addFlags(
+        android.view.WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+          android.view.WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON,
+      )
+    }
+    alarm?.onAlarmIntent()
   }
 
   override fun onFlutterUiDisplayed() {
@@ -73,6 +93,7 @@ class MainActivity : FlutterActivity() {
     appUpdate = AppUpdateChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     audioRoute = AudioRouteChannel(this, flutterEngine.dartExecutor.binaryMessenger)
     homeWidget = HomeWidgetChannel(applicationContext, flutterEngine.dartExecutor.binaryMessenger)
+    alarm = AlarmChannel(this, flutterEngine.dartExecutor.binaryMessenger)
   }
 
   override fun onPause() {
@@ -104,6 +125,7 @@ class MainActivity : FlutterActivity() {
     super.onNewIntent(intent)
     setIntent(intent)
     openWith?.onNewIntent(intent)
+    handleAlarm(intent)
   }
 
   @Deprecated("Activity result API not used: one request at a time")
@@ -146,6 +168,8 @@ class MainActivity : FlutterActivity() {
     audioRoute = null
     homeWidget?.dispose()
     homeWidget = null
+    alarm?.dispose()
+    alarm = null
     super.cleanUpFlutterEngine(flutterEngine)
   }
 

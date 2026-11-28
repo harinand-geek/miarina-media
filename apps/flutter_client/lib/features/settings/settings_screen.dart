@@ -2,8 +2,11 @@ import 'dart:io';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:intl/intl.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../app/malagasy_fallback.dart';
+import '../alarm/alarm_data.dart' show alarmProvider;
 import '../../app/licenses.dart';
 import '../../app/router.dart';
 import '../../design/mm_icons.g.dart';
@@ -755,6 +758,17 @@ class _Playback extends ConsumerWidget {
             // The queue prepares the next file in the engine (gapless) or
             // in a second one (crossfade); not offered where the engine
             // cannot.
+            SettingsRow(
+              title: t.alarmTitle,
+              body: t.alarmBody,
+              control: SettingsAction(
+                label: switch (ref.watch(alarmProvider).next) {
+                  final at? => DateFormat.Hm(intlLocaleOf(context)).format(at),
+                  null => t.off,
+                },
+                onTap: () => context.push(Routes.alarm),
+              ),
+            ),
             SettingsRow(
               title: t.smartShuffleSetting,
               body: t.smartShuffleSettingBody,

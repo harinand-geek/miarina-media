@@ -5278,4 +5278,65 @@ class L10nMg extends L10n {
 
   @override
   String get outputBluetooth => 'fitaovana Bluetooth';
+
+  @override
+  String get alarmTitle => 'Fanairana amin\'ny mozika';
+
+  @override
+  String get alarmBody => 'Mifoha amin\'ny mozikanao, miakatra moramora ny feo';
+
+  @override
+  String alarmNext(String when) {
+    return 'Fanairana manaraka: $when';
+  }
+
+  @override
+  String get alarmOff => 'Tsy mandeha ny fanairana';
+
+  @override
+  String get alarmDays => 'Andro';
+
+  @override
+  String get alarmOnce => 'Indray mandeha raha tsy misy andro voafidy';
+
+  @override
+  String get alarmMusic => 'Mozika';
+
+  @override
+  String get alarmAllMusic => 'Ny tranomboky manontolo';
+
+  @override
+  String get alarmVolume => 'Haben\'ny feon\'ny fanairana';
+
+  @override
+  String get alarmGradual => 'Feo miakatra tsikelikely';
+
+  @override
+  String get alarmGradualBody =>
+      'Manomboka malefaka ary miakatra ao anatin\'ny iray minitra';
+
+  @override
+  String get alarmExactNeeded =>
+      'Tsy maintsy avelan\'i Android ny fanairana amin\'ny ora marina';
+
+  @override
+  String get alarmAllow => 'Avelao';
+
+  @override
+  String get alarmAppOpen =>
+      'Amin\'ny Windows, maneno ny fanairana raha misokatra ny Miarina Media';
+
+  @override
+  String get alarmStop => 'Ajanony';
+
+  @override
+  String get alarmSnooze => '10 minitra fanampiny';
+
+  @override
+  String get alarmGoodMorning => 'Manao ahoana';
+
+  @override
+  String alarmSnoozed(String time) {
+    return 'Haneno indray amin\'ny $time';
+  }
 }
